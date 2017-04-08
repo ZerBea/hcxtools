@@ -1,0 +1,22 @@
+INSTALLDIRS	= /usr/local/bin
+
+CC	= gcc
+CFLAGS	= -O3 -Wall -Wextra -DRASPBERRY
+
+all: build
+
+build:
+	$(CC) $(CFLAGS) -o wlandump wlandump.c -lpcap -lcrypt -lwiringPi -lwiringPiDev
+
+install: build
+	install -D -m 0755 wlandump $(INSTALLDIRS)/wlandump
+
+	rm -f wlandump
+	rm -f *.o *~
+
+clean:
+	rm -f wlandump
+	rm -f *.o *~
+
+uninstall:
+	rm -f $(INSTALLDIRS)/wlandump
