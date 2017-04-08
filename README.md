@@ -19,7 +19,7 @@ wlandump      captures packets from wlan device
 
 wlancap2hcx   converts cap to hccapx
 
-wlanhcx2cap   converts cap to hccapx
+wlanhcx2cap   converts hccapx to cap
 
 wlanhc2hcx    converts hccap to hccapx
 
