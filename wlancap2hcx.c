@@ -856,7 +856,7 @@ for (index = optind; index < argc; index++)
 	if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
 		{
 		fprintf(stderr, "error processing records from %s\n", (argv[index]));
-		exit(EXIT_FAILURE);
+//		exit(EXIT_FAILURE);
 		}
 	}
 
