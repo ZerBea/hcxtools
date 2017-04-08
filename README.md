@@ -1,4 +1,4 @@
-wlandump
+hcxtools
 ==============
 
 Small set of utilites to capture and convert packets from wlan devices
