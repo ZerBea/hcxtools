@@ -480,12 +480,12 @@ if(essid_len > 32)
 	return FALSE;
 
 for(p = 0; p < essid_len; p++)
-	if(essid[p] < 0x20)
+	if((essid[p] < 0x20) || (essid[p] > 0x7e))
 		return FALSE;
 return TRUE;
 }
 /*===========================================================================*/
-int processcap(char *pcapinname, char *essidoutname)
+int processcap(char *pcapinname, char *essidoutname, char *essidunicodeoutname)
 {
 struct stat statinfo;
 struct bpf_program filter;
@@ -744,7 +744,26 @@ if(essidoutname != NULL)
 	zeigernet = netdbdata;
 	for(c = 0; c < netdbrecords; c++)
 		{
-//		if(checkessid(zeigernet->essid_len, zeigernet->essid) == TRUE)
+		if(checkessid(zeigernet->essid_len, zeigernet->essid) == TRUE)
+			fprintf(fhessid, "%s\n", zeigernet->essid);
+		zeigernet++;
+		}
+
+	fclose(fhessid);
+	}
+
+
+if(essidunicodeoutname != NULL)
+	{
+	if((fhessid = fopen(essidunicodeoutname, "a")) == NULL)
+		{
+		fprintf(stderr, "error opening essid file %s\n", essidunicodeoutname);
+		exit(EXIT_FAILURE);
+		}
+
+	zeigernet = netdbdata;
+	for(c = 0; c < netdbrecords; c++)
+		{
 		fprintf(fhessid, "%s\n", zeigernet->essid);
 		zeigernet++;
 		}
@@ -768,6 +787,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <file> : output hccapx file\n"
 	"-p <file> : output pcap file\n"
 	"-e <file> : output essidlist\n"
+	"-E <file> : output essidlist (unicode)\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -784,13 +804,14 @@ char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *pcapoutname = NULL;
 char *essidoutname = NULL;
+char *essidunicodeoutname = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:p:e:xhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:p:e:E:xhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -804,6 +825,10 @@ while ((auswahl = getopt(argc, argv, "o:p:e:xhv")) != -1)
 
 		case 'e':
 		essidoutname = optarg;
+		break;
+
+		case 'E':
+		essidunicodeoutname = optarg;
 		break;
 
 		case 'x':
@@ -828,7 +853,7 @@ if(pcapoutname != NULL)
 
 for (index = optind; index < argc; index++)
 	{
-	if(processcap(argv[index], essidoutname) == FALSE)
+	if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
 		{
 		fprintf(stderr, "error processing records from %s\n", (argv[index]));
 		exit(EXIT_FAILURE);

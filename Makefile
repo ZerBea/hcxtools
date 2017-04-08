@@ -1,7 +1,7 @@
 INSTALLDIR	= /usr/local/bin
 
 CC	= gcc
-CFLAGS	= -O3 -Wall -Wextra -mtune=core2 -march=core2
+CFLAGS	= -O3 -Wall -Wextra
 CFLAGS1	= -funsafe-math-optimizations -fPIC -fwrapv -msse2 -mpclmul
 
 all: build
