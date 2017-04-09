@@ -29,7 +29,7 @@ wlanhcx2ssid  strips by bssid, essid
 
 wlanhcx2john  converts hccapx to john
 
-wlanhcxinfo   shows detailed info from hccapxfile
+wlanhcxinfo   shows detailed info from content of hccapxfile
 
 
 Compile
@@ -41,7 +41,16 @@ run make
 
 run make install
 
-
-
 use Makefile.pi to compile on raspberry pi
 (needs hardware mods (gpiowait.odg))
+
+
+Requirements
+--------------
+
+LINUX (‎recommended ARCH)
+
+libpcap and libpcap dev installed
+
+chipset must able to run in monitor mode
+
