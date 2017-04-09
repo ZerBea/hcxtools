@@ -224,6 +224,7 @@ int p;
 int pcapcount = 0;
 int keyinformation;
 hcx_t *zeiger;
+struct stat statinfo;
 
 pcap_dumper_t *pcapdump[MAXPCAPOUT +1];
 pcap_t *pcapdh;
@@ -290,6 +291,16 @@ for(p = 0; p < hccapsets; p++)
 
 for(p = 1; p <= MAXPCAPOUT; p++)
 	pcap_dump_close(pcapdump[p]);
+
+
+for(p = 1; p <= MAXPCAPOUT; p++)
+	{
+	sprintf(pcapoutstr,"%s-%02d.cap", capoutname, p);
+	stat(pcapoutstr, &statinfo);
+	if((statinfo.st_size) == 24)
+		remove(pcapoutstr);
+	}
+
 printf("%d pcap(s) written\n", pcapcount);
 return;
 }
