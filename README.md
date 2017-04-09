@@ -42,7 +42,8 @@ run make
 run make install
 
 use Makefile.pi to compile on raspberry pi
-(needs hardware mods (gpiowait.odg))
+
+use Makefile.pi.gpio to compile on raspberry pi (needs hardware mods (gpiowait.odg))
 
 
 Requirements
@@ -53,6 +54,8 @@ LINUX (‎recommended ARCH)
 libpcap and libpcap dev installed
 
 openssl and openssl dev installed
+
+wiringpi and wiringpi dev installed (raspberry pi gpio support)
 
 chipset must able to run in monitor mode
 
