@@ -52,5 +52,7 @@ LINUX (‎recommended ARCH)
 
 libpcap and libpcap dev installed
 
+openssl and openssl dev installed
+
 chipset must able to run in monitor mode
 
