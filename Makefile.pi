@@ -1,7 +1,7 @@
 INSTALLDIRS	= /usr/local/bin
 
 CC	= gcc
-CFLAGS	= -O3 -Wall -Wextra -DRASPBERRY
+CFLAGS	= -O3 -Wall -Wextra
 
 all: build
 
