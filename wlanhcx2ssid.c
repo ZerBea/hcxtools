@@ -17,7 +17,45 @@
 
 hcx_t *hcxdata = NULL;
 /*===========================================================================*/
-int writesearchessidhccapx(int hcxrecords, char *essidname)
+int writesearchmacaphccapx(long int hcxrecords, unsigned long long int mac_ap)
+{
+hcx_t *zeigerhcx;
+FILE *fhhcx;
+long int c;
+
+adr_t mac;
+
+char macoutname[PATH_MAX +1];
+
+snprintf(macoutname, PATH_MAX, "%012llx.hccapx", mac_ap);
+
+mac.addr[5] = mac_ap & 0xff;
+mac.addr[4] = (mac_ap >> 8) & 0xff;
+mac.addr[3] = (mac_ap >> 16) & 0xff;
+mac.addr[2] = (mac_ap >> 24) & 0xff;
+mac.addr[1] = (mac_ap >> 32) & 0xff;
+mac.addr[0] = (mac_ap >> 40) & 0xff;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if(memcmp(&mac.addr, zeigerhcx->mac_ap.addr, 6) == 0)
+		{
+		if((fhhcx = fopen(macoutname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", macoutname);
+			return FALSE;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		fclose(fhhcx);
+		}
+	c++;
+	}
+return TRUE;
+}
+/*===========================================================================*/
+int writesearchessidhccapx(long int hcxrecords, char *essidname)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -47,7 +85,7 @@ while(c < hcxrecords)
 return TRUE;
 }
 /*===========================================================================*/
-int writeessidhccapx(int hcxrecords)
+int writeessidhccapx(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -91,7 +129,7 @@ sprintf(ssid, "%02x%02x%02x%02x%02x%02x.hccapx",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-int writemachccapx(int hcxrecords)
+int writemachccapx(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -120,7 +158,7 @@ int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
-int hcxsize = 0;
+long int hcxsize = 0;
 
 if(hcxinname == NULL)
 	return FALSE;
@@ -168,10 +206,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-i <file>  : input hccapx file\n"
-	"-a         : output file by mac_ap\n"
-	"-e         : output file by essid\n"
-	"-E <essid> : output file by single essid name\n"
+	"-i <file>   : input hccapx file\n"
+	"-a          : output file by mac_ap's\n"
+	"-e          : output file by essid's\n"
+	"-E <essid>  : output file by single essid name\n"
+	"-A <ap_mac> : output file by single ap_mac\n"
+
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -180,8 +220,8 @@ int main(int argc, char *argv[])
 {
 int auswahl;
 int mode = 0;
-int hcxorgrecords = 0;
-
+long int hcxorgrecords = 0;
+unsigned long long int mac_ap = 0;
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *hcxinname = NULL;
@@ -191,7 +231,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:E:aehv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:E:A:aehv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -211,6 +251,11 @@ while ((auswahl = getopt(argc, argv, "i:E:aehv")) != -1)
 		essidname = optarg;
 		break;
 
+		case 'A':
+		mac_ap = strtoul(optarg, NULL, 16);
+		mode = 'A';
+		break;
+
 		default:
 		usage(eigenname);
 		break;
@@ -226,6 +271,11 @@ if(mode == 'a')
 
 else if(mode == 'e')
 	writeessidhccapx(hcxorgrecords);
+
+
+else if(mode == 'A')
+	writesearchmacaphccapx(hcxorgrecords, mac_ap);
+
 
 else if(essidname != NULL)
 	writesearchessidhccapx(hcxorgrecords, essidname);
