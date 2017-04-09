@@ -214,6 +214,7 @@ while(c >= 0)
 	c--;
 	}
 
+rctime = 10;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
@@ -270,6 +271,7 @@ while(c >= 0)
 	c--;
 	}
 
+rctime = 10;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
@@ -326,6 +328,7 @@ while(c >= 0)
 	c--;
 	}
 
+rctime = 10;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
@@ -387,6 +390,8 @@ while(c >= 0)
 	c--;
 	}
 
+
+rctime = 10;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
