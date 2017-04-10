@@ -25,7 +25,7 @@ wlanhc2hcx    converts hccap to hccapx
 
 wlanhcx2essid merges hccapx containing the same essid
 
-wlanhcx2ssid  strips by bssid, essid
+wlanhcx2ssid  strips by bssid, essid, oui
 
 wlanhcx2john  converts hccapx to john
 
