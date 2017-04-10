@@ -42,6 +42,7 @@ while(c < hcxrecords)
 			for(cb = 0; cb <= 0x0ff; cb++)
 				{
 				zeigerhcx->nonce_ap[corrbyte] = cb;
+				zeigerhcx->message_pair |= 0x80;
 				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 				}
 			}
@@ -50,6 +51,7 @@ while(c < hcxrecords)
 			for(cb = 0; cb <= 0x0ff; cb++)
 				{
 				zeigerhcx->nonce_sta[corrbyte] = cb;
+				zeigerhcx->message_pair |= 0x80;
 				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 				}
 			}
