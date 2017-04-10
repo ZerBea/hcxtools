@@ -232,7 +232,6 @@ while ((auswahl = getopt(argc, argv, "i:c:o:h")) != -1)
 		}
 	}
 
-printf("%d\n", corrbyte);
 hcxorgrecords = readhccapx(hcxinname);
 if(hcxorgrecords == 0)
 	return EXIT_SUCCESS;
