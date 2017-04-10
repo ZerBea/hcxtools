@@ -15,6 +15,7 @@ build:
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcx2ssid wlanhcx2ssid.c
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcx2john wlanhcx2john.c
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcxinfo wlanhcxinfo.c
+	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcxmnc wlanhcxmnc.c
 
 
 install: build
@@ -26,6 +27,7 @@ install: build
 	install -D -m 0755 wlanhcx2ssid $(INSTALLDIR)/wlanhcx2ssid
 	install -D -m 0755 wlanhcx2john $(INSTALLDIR)/wlanhcx2john
 	install -D -m 0755 wlanhcxinfo $(INSTALLDIR)/wlanhcxinfo
+	install -D -m 0755 wlanhcxmnc $(INSTALLDIR)/wlanhcxmnc
 
 	rm -f wlandump
 	rm -f wlancap2hcx
@@ -35,6 +37,7 @@ install: build
 	rm -f wlanhcx2ssid
 	rm -f wlanhcx2john
 	rm -f wlanhcxinfo
+	rm -f wlanhcxmnc
 	rm -f *.o *~
 
 clean:
@@ -46,6 +49,7 @@ clean:
 	rm -f wlanhcx2ssid
 	rm -f wlanhcx2john
 	rm -f wlanhcxinfo
+	rm -f wlanhcxmnc
 	rm -f *.o *~
 
 uninstall:
@@ -57,3 +61,4 @@ uninstall:
 	rm -f $(INSTALLDIR)/wlanhcx2ssid
 	rm -f $(INSTALLDIR)/wlanhcx2john
 	rm -f $(INSTALLDIR)/wlanhcxinfo
+	rm -f $(INSTALLDIR)/wlanhcxmnc

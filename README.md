@@ -31,6 +31,8 @@ wlanhcx2john  converts hccapx to john
 
 wlanhcxinfo   shows detailed info from content of hccapxfile
 
+wlanhcxmnc    manually do nonce correction on byte number xx of a nonce 
+
 
 Compile
 --------------
