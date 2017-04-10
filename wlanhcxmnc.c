@@ -17,6 +17,67 @@
 
 hcx_t *hcxdata = NULL;
 /*===========================================================================*/
+int writeessidcorrhccapx(long int hcxrecords, int corrbyte)
+{
+hcx_t *zeigerhcx;
+FILE *fhhcx;
+eap_t *eap;
+long int c;
+int cb, cei, ceo;
+
+const char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+
+char hcxoutname[PATH_MAX +1];
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+		{
+		ceo = 0;
+		for (cei = 0; cei < zeigerhcx->essid_len; cei++)
+			{
+			hcxoutname[ceo] = digit[(zeigerhcx->essid[cei] & 0xff) >> 4];
+			ceo++;
+			hcxoutname[ceo] = digit[zeigerhcx->essid[cei] & 0x0f];
+			ceo++;
+			}
+		hcxoutname[ceo] = 0;
+		strcat(&hcxoutname[ceo], ".hccapx");
+
+
+		if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", hcxoutname);
+			return FALSE;
+			}
+		eap = (eap_t*)zeigerhcx->eapol;
+
+		if(memcmp(zeigerhcx->nonce_ap, eap->nonce, 32) != 0)
+			{
+			for(cb = 0; cb <= 0x0ff; cb++)
+				{
+				zeigerhcx->nonce_ap[corrbyte] = cb;
+				zeigerhcx->message_pair |= 0x80;
+				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+				}
+			}
+		else
+			{
+			for(cb = 0; cb <= 0x0ff; cb++)
+				{
+				zeigerhcx->nonce_sta[corrbyte] = cb;
+				zeigerhcx->message_pair |= 0x80;
+				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+				}
+			}
+		fclose(fhhcx);
+		}
+	c++;
+	}
+return TRUE;
+}
+/*===========================================================================*/
 int writecorrhccapx(long int hcxrecords, int corrbyte, char *hcxoutname)
 {
 hcx_t *zeigerhcx;
@@ -117,7 +178,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-i <file> : input hccapx file\n"
 	"-c <byte  : byte to correct (0 -> 31)\n"
 	"-o <file> : input hccapx file\n"
-	"-h           : this help\n"
+	"          : if no output file is selected hashces written\n"
+	"          : into single files by essid (default)\n"
+	"-h        : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -175,7 +238,12 @@ if(hcxorgrecords == 0)
 	return EXIT_SUCCESS;
 
 if((corrbyte >= 0) && (corrbyte <= 31))
-	writecorrhccapx(hcxorgrecords, corrbyte, hcxoutname);
+	{
+	if(hcxoutname != NULL)
+		writecorrhccapx(hcxorgrecords, corrbyte, hcxoutname);
+	else
+		writeessidcorrhccapx(hcxorgrecords, corrbyte);
+	}
 
 if(hcxdata != NULL)
 	free(hcxdata);
