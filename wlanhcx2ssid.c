@@ -17,12 +17,48 @@
 
 hcx_t *hcxdata = NULL;
 /*===========================================================================*/
+int writesearchmacstahccapx(long int hcxrecords, unsigned long long int mac_sta)
+{
+hcx_t *zeigerhcx;
+FILE *fhhcx;
+long int c;
+adr_t mac;
+
+char macoutname[PATH_MAX +1];
+
+snprintf(macoutname, PATH_MAX, "%012llx.hccapx", mac_sta);
+
+mac.addr[5] = mac_sta & 0xff;
+mac.addr[4] = (mac_sta >> 8) & 0xff;
+mac.addr[3] = (mac_sta >> 16) & 0xff;
+mac.addr[2] = (mac_sta >> 24) & 0xff;
+mac.addr[1] = (mac_sta >> 32) & 0xff;
+mac.addr[0] = (mac_sta >> 40) & 0xff;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if(memcmp(&mac.addr, zeigerhcx->mac_sta.addr, 6) == 0)
+		{
+		if((fhhcx = fopen(macoutname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", macoutname);
+			return FALSE;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		fclose(fhhcx);
+		}
+	c++;
+	}
+return TRUE;
+}
+/*===========================================================================*/
 int writesearchmacaphccapx(long int hcxrecords, unsigned long long int mac_ap)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
-
 adr_t mac;
 
 char macoutname[PATH_MAX +1];
@@ -129,7 +165,32 @@ sprintf(ssid, "%02x%02x%02x%02x%02x%02x.hccapx",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-int writemachccapx(long int hcxrecords)
+int writemacstahccapx(long int hcxrecords)
+{
+hcx_t *zeigerhcx;
+FILE *fhhcx;
+long int c;
+
+char hcxoutname[PATH_MAX +1];
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	mac2hxoutname(hcxoutname, zeigerhcx->mac_sta.addr);
+	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
+		{
+		fprintf(stderr, "error opening file %s", hcxoutname);
+		return FALSE;
+		}
+	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+	fclose(fhhcx);
+	c++;
+	}
+return TRUE;
+}
+/*===========================================================================*/
+int writemacaphccapx(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -206,11 +267,13 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-i <file>   : input hccapx file\n"
-	"-a          : output file by mac_ap's\n"
-	"-e          : output file by essid's\n"
-	"-E <essid>  : output file by single essid name\n"
-	"-A <ap_mac> : output file by single ap_mac\n"
+	"-i <file>    : input hccapx file\n"
+	"-a           : output file by mac_ap's\n"
+	"-s           : output file by mac_sta's\n"
+	"-e           : output file by essid's\n"
+	"-E <essid>   : output file by single essid name\n"
+	"-A <mac_ap>  : output file by single mac_ap\n"
+	"-S <mac_sta> : output file by single mac_sta\n"
 
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -222,6 +285,7 @@ int auswahl;
 int mode = 0;
 long int hcxorgrecords = 0;
 unsigned long long int mac_ap = 0;
+unsigned long long int mac_sta = 0;
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *hcxinname = NULL;
@@ -231,7 +295,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:E:A:aehv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:E:asehv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -243,6 +307,10 @@ while ((auswahl = getopt(argc, argv, "i:E:A:aehv")) != -1)
 		mode = 'a';
 		break;
 
+		case 's':
+		mode = 's';
+		break;
+
 		case 'e':
 		mode = 'e';
 		break;
@@ -252,9 +320,25 @@ while ((auswahl = getopt(argc, argv, "i:E:A:aehv")) != -1)
 		break;
 
 		case 'A':
+		if(strlen(optarg) != 12)
+			{
+			fprintf(stderr, "error wrong mac size %s (need 112233aabbcc)\n", optarg);
+			exit(EXIT_FAILURE);
+			}
 		mac_ap = strtoul(optarg, NULL, 16);
 		mode = 'A';
 		break;
+
+		case 'S':
+		if(strlen(optarg) != 12)
+			{
+			fprintf(stderr, "error wrong mac size %s (need 112233aabbcc)\n", optarg);
+			exit(EXIT_FAILURE);
+			}
+		mac_sta = strtoul(optarg, NULL, 16);
+		mode = 'S';
+		break;
+
 
 		default:
 		usage(eigenname);
@@ -267,7 +351,10 @@ if(hcxorgrecords == 0)
 	return EXIT_SUCCESS;
 
 if(mode == 'a')
-	writemachccapx(hcxorgrecords);
+	writemacaphccapx(hcxorgrecords);
+
+else if(mode == 's')
+	writemacstahccapx(hcxorgrecords);
 
 else if(mode == 'e')
 	writeessidhccapx(hcxorgrecords);
@@ -276,6 +363,8 @@ else if(mode == 'e')
 else if(mode == 'A')
 	writesearchmacaphccapx(hcxorgrecords, mac_ap);
 
+else if(mode == 'S')
+	writesearchmacstahccapx(hcxorgrecords, mac_sta);
 
 else if(essidname != NULL)
 	writesearchessidhccapx(hcxorgrecords, essidname);
