@@ -415,7 +415,7 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:asoeh")) != -1)
 		case 'O':
 		if(strlen(optarg) != 6)
 			{
-			fprintf(stderr, "error wrong mac size %s (need 1122aa)\n", optarg);
+			fprintf(stderr, "error wrong oui size %s (need 1122aa)\n", optarg);
 			exit(EXIT_FAILURE);
 			}
 		oui = strtoul(optarg, NULL, 16);
