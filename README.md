@@ -53,7 +53,7 @@ use Makefile.pi.gpio to compile on raspberry pi (needs hardware mods (gpiowait.o
 Requirements
 --------------
 
-LINUX (‎recommended ARCH)
+LINUX (‎recommended ARCH, but other distro's should work, too)
 
 lib pcap and pcap dev installed
 
@@ -61,7 +61,7 @@ lib openssl and openssl dev installed
 
 lib curl and curl dev installed
 
-wiringpi and wiringpi dev installed (raspberry pi gpio support)
+raspberry pi: lib wiringpi and wiringpi dev installed (raspberry pi gpio support)
 
 chipset must able to run in monitor mode
 
