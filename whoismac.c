@@ -125,6 +125,42 @@ fclose(fhoui);
 return;	
 }
 /*===========================================================================*/
+void getvendor(const char *ouiname, char *vendorstring)
+{
+int len;
+
+FILE* fhoui;
+char *vendorptr;
+unsigned long long int vendoroui;
+
+char linein[LINEBUFFER];
+
+
+if ((fhoui = fopen(ouiname, "r")) == NULL)
+	{
+	fprintf(stderr, "unable to open database %s\n", ouiname);
+	exit (EXIT_FAILURE);
+	}
+
+while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
+	{
+	if (len < 10)
+		continue;
+
+	if(strstr(linein, "(base 16)") != NULL)
+		{
+		if(strstr(linein, vendorstring) != NULL)
+			{
+			sscanf(linein, "%06llx", &vendoroui);
+			vendorptr = strrchr(linein, '\t');
+			fprintf(stdout, "%06llx%s\n", vendoroui, vendorptr);
+			}
+		}
+	}
+fclose(fhoui);
+return;	
+}
+/*===========================================================================*/
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -135,6 +171,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"         : and save to ~.hcxtools/oui.txt\n"
 	"         : internet connection required\n"
 	"-m <oui> : oui (fist three bytes of mac addr)\n"
+	"-v       : vendor name\n"
 	"-h       : this help screen\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
@@ -149,16 +186,16 @@ unsigned long long int oui = 0;
 uid_t uid;
 struct passwd *pwd;
 struct stat statinfo;
+char *eigenpfadname, *eigenname;
+char *vendorname = NULL;
 const char confdirname[] = ".hcxtools";
 const char ouiname[] = ".hcxtools/oui.txt";
 
-
-char *eigenpfadname, *eigenname;
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 
-while ((auswahl = getopt(argc, argv, "m:dh")) != -1)
+while ((auswahl = getopt(argc, argv, "m:v:dh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -174,6 +211,11 @@ while ((auswahl = getopt(argc, argv, "m:dh")) != -1)
 			}
 		oui = strtoul(optarg, NULL, 16);
 		mode = 'm';
+		break;
+
+		case 'v':
+		vendorname = optarg;;
+		mode = 'v';
 		break;
 
 		case 'h':
@@ -220,6 +262,9 @@ if(stat(ouiname, &statinfo) != 0)
 
 if(mode == 'm')
 	getoui(ouiname, oui);
+
+if(mode == 'v')
+	getvendor(ouiname, vendorname);
 
 
 return EXIT_SUCCESS;
