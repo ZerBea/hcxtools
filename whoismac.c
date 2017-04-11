@@ -134,7 +134,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-d       : download http://standards-oui.ieee.org/oui.txt\n"
 	"         : and save to ~.hcxtools/oui.txt\n"
 	"         : internet connection required\n"
-	"-m <mac> : mac\n"
+	"-m <oui> : oui (fist three bytes of mac addr)\n"
 	"-h       : this help screen\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
