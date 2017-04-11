@@ -33,6 +33,8 @@ wlanhcxinfo   shows detailed info from content of hccapxfile
 
 wlanhcxmnc    manually do nonce correction on byte number xx of a nonce 
 
+whoismac      show vendor information
+
 
 Compile
 --------------
@@ -53,9 +55,11 @@ Requirements
 
 LINUX (‎recommended ARCH)
 
-libpcap and libpcap dev installed
+lib pcap and pcap dev installed
 
-openssl and openssl dev installed
+lib openssl and openssl dev installed
+
+lib curl and curl dev installed
 
 wiringpi and wiringpi dev installed (raspberry pi gpio support)
 

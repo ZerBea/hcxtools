@@ -16,6 +16,7 @@ build:
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcx2john wlanhcx2john.c
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcxinfo wlanhcxinfo.c
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcxmnc wlanhcxmnc.c
+	$(CC) $(CFLAGS) $(CFLAGS1) -o whoismac whoismac.c -lcurl
 
 
 install: build
@@ -28,6 +29,7 @@ install: build
 	install -D -m 0755 wlanhcx2john $(INSTALLDIR)/wlanhcx2john
 	install -D -m 0755 wlanhcxinfo $(INSTALLDIR)/wlanhcxinfo
 	install -D -m 0755 wlanhcxmnc $(INSTALLDIR)/wlanhcxmnc
+	install -D -m 0755 whoismac $(INSTALLDIR)/whoismac
 
 	rm -f wlandump
 	rm -f wlancap2hcx
@@ -38,6 +40,7 @@ install: build
 	rm -f wlanhcx2john
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
+	rm -f whoismac
 	rm -f *.o *~
 
 clean:
@@ -50,6 +53,7 @@ clean:
 	rm -f wlanhcx2john
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
+	rm -f whoismac
 	rm -f *.o *~
 
 uninstall:
@@ -62,3 +66,4 @@ uninstall:
 	rm -f $(INSTALLDIR)/wlanhcx2john
 	rm -f $(INSTALLDIR)/wlanhcxinfo
 	rm -f $(INSTALLDIR)/wlanhcxmnc
+	rm -f $(INSTALLDIR)/whoismac
