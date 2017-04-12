@@ -1,8 +1,9 @@
 hcxtools
 ==============
 
-Small set of utilites to capture and convert packets from wlan devices
-for the use with hashcat
+Small set of tools to capture and convert packets from wlan devices
+for the use with hashcat. The tools are 100% compatible to hashcat
+because new wpa functions were developed together.
 
 Brief description
 --------------
