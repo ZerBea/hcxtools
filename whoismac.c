@@ -170,7 +170,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-d       : download http://standards-oui.ieee.org/oui.txt\n"
 	"         : and save to ~.hcxtools/oui.txt\n"
 	"         : internet connection required\n"
-	"-m <oui> : oui (fist three bytes of mac addr)\n"
+	"-m <mac> : mac (six bytes of mac addr) or \n"
+	"         : oui (fist three bytes of mac addr)\n"
 	"-v       : vendor name\n"
 	"-h       : this help screen\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
@@ -204,13 +205,22 @@ while ((auswahl = getopt(argc, argv, "m:v:dh")) != -1)
 		break;
 		
 		case 'm':
-		if(strlen(optarg) != 6)
+		if(strlen(optarg) == 6)
 			{
-			fprintf(stderr, "error wrong oui size %s (need 1122aa)\n", optarg);
+			oui = strtoul(optarg, NULL, 16);
+			mode = 'm';
+			}
+
+		else if(strlen(optarg) == 12)
+			{
+			oui = (strtoul(optarg, NULL, 16) >> 24);
+			mode = 'm';
+			}
+		else
+			{
+			fprintf(stderr, "error wrong oui size %s (need 1122334455aa or 1122aa)\n", optarg);
 			exit(EXIT_FAILURE);
 			}
-		oui = strtoul(optarg, NULL, 16);
-		mode = 'm';
 		break;
 
 		case 'v':
