@@ -16,7 +16,9 @@ All of these utils are designed to execute only one specific function.
 Detailed description
 --------------
 
-wlandump      captures packets from wlan device
+wlandump      small, fast and simple active wlan scanner (no status output)
+
+wlanscan      small, fast and simple passive wlan scanner (status output)
 
 wlancap2hcx   converts cap to hccapx
 
