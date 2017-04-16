@@ -20,6 +20,8 @@ wlandump      small, fast and simple active wlan scanner (no status output)
 
 wlanscan      small, fast and simple passive wlan scanner (status output)
 
+pioff         turns raspberry pi off by gpio switch
+
 wlancap2hcx   converts cap to hccapx
 
 wlanhcx2cap   converts hccapx to cap
@@ -48,9 +50,9 @@ run make
 
 run make install
 
-use Makefile.pi to compile on raspberry pi
+use Makefile.pi to compile (wlandump) on raspberry pi
 
-use Makefile.pi.gpio to compile on raspberry pi (needs hardware mods (gpiowait.odg))
+use Makefile.pi.gpio to compile (wlandump and pioff) on raspberry pi (needs hardware mods (gpiowait.odg))
 
 
 Requirements
