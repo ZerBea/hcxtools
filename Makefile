@@ -19,7 +19,6 @@ build:
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcxmnc wlanhcxmnc.c
 	$(CC) $(CFLAGS) $(CFLAGS1) -o whoismac whoismac.c -lcurl
 
-
 install: build
 	install -D -m 0755 wlandump $(INSTALLDIR)/wlandump
 	install -D -m 0755 wlanscan $(INSTALLDIR)/wlanscan
