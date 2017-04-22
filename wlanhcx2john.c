@@ -172,12 +172,12 @@ fclose(fhhcx);
 
 hcxsize = datasize / HCX_SIZE;
 
-
 zeigerhcx = (hcx_t*)(data);
 if(((datasize % HCX_SIZE) == 0) && (zeigerhcx->signature == HCCAPX_SIGNATURE))
 	{
 	printf("%ld records readed from %s\n", hcxsize, hcxinname);
-	processhcx(hcxsize, zeigerhcx, hcxinname); 
+	if((zeigerhcx->message_pair & 0x80) != 0x80)
+		processhcx(hcxsize, zeigerhcx, hcxinname); 
 	}
 
 free(data);
