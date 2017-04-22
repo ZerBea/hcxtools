@@ -79,7 +79,7 @@ const uint8_t snonce[] = {
 
 uint8_t mypacket[0xfff];
 
-if((zeigersend->message_pair >= 128) &&(zeigersend->message_pair <= 133))
+if((zeigersend->message_pair & 0x80) == 0x80)
  return;
 
 /* beacon */
