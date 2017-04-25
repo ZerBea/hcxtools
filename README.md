@@ -58,15 +58,15 @@ use Makefile.pi.gpio to compile (wlandump and pioff) on raspberry pi (needs hard
 Requirements
 --------------
 
-LINUX (‎recommended ARCH, but other distro's should work, too)
+LINUX (‎recommended ARCH, but other distro's should work, too. Kernel > 4.4 because 4.4 has a driver regression)
 
 lib pcap and pcap dev installed
 
 lib openssl and openssl dev installed
 
-lib curl and curl dev installed
+lib curl and curl dev installed (used by whoismac)
 
-raspberry pi: lib wiringpi and wiringpi dev installed (raspberry pi gpio support)
+raspberry pi: additionally lib wiringpi and wiringpi dev installed (raspberry pi gpio support)
 
-chipset must able to run in monitor mode
+chipset must able to run in monitor mode. Recommended: RALINK chipset (good receiver sensitivity), rt2x00 driver (very fast)
 
