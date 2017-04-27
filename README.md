@@ -22,7 +22,7 @@ wlanscan      small, fast and simple passive wlan scanner (status output)
 
 pioff         turns raspberry pi off by gpio switch
 
-wlancap2hcx   converts cap to hccapx (‎recommended for use with wlandump - like cap2hccapx, but more options)
+wlancap2hcx   converts cap to hccapx (‎recommended for use with wlandump - like cap2hccapx, but different options)
 
 wlanhcx2cap   converts hccapx to cap
 
