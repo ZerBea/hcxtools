@@ -326,6 +326,7 @@ typedef struct hcx hcx_t;
 /*===========================================================================*/
 /* globale Konstante */
 
+/* blacklist function: add here your devices, you don't want to be targeted*/
 
 const char *filterstring = "!(wlan host 00:00:00:00:00:00 || wlan host 00:00:00:00:00:00 || "
                              "wlan src 00:00:00:00:00:00 || wlan src 00:00:00:00:00:00)";
