@@ -791,8 +791,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output hccapx file\n"
 	"-p <file> : output pcap file\n"
-	"-e <file> : output essidlist\n"
-	"-E <file> : output essidlist (unicode)\n"
+	"-e <file> : output wordlist to use as hashcat input wordlist\n"
+	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);

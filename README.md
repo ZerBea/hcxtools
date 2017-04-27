@@ -70,3 +70,9 @@ raspberry pi: additionally lib wiringpi and wiringpi dev installed (raspberry pi
 
 chipset must able to run in monitor mode. Recommended: RALINK chipset (good receiver sensitivity), rt2x00 driver (very fast)
 
+
+Notice
+--------------
+
+most of all outputfiles are appended to existing files (with the ecxeption of .cap files)
+
