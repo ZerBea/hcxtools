@@ -22,7 +22,7 @@ wlanscan      small, fast and simple passive wlan scanner (status output)
 
 pioff         turns raspberry pi off by gpio switch
 
-wlancap2hcx   converts cap to hccapx
+wlancap2hcx   converts cap to hccapx (‎recommended for use with wlandump - like cap2hccapx, but more options)
 
 wlanhcx2cap   converts hccapx to cap
 
@@ -69,6 +69,16 @@ lib curl and curl dev installed (used by whoismac)
 raspberry pi: additionally lib wiringpi and wiringpi dev installed (raspberry pi gpio support)
 
 chipset must able to run in monitor mode. Recommended: RALINK chipset (good receiver sensitivity), rt2x00 driver (very fast)
+
+
+Usefull scripts
+--------------
+
+bash_profile  autostart for raspberry pi (copy to /root/.bash_profile)
+
+pireadcard    backup pi sd-card
+
+piwritecard   restore pi sd-card
 
 
 Notice
