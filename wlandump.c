@@ -180,10 +180,10 @@ macl_t *netlist = NULL;
 adr_t myaddr;
 
 int resttime = 1;
-int deauthmax = 4;
-int disassocmax = 4;
-int disassochs2max = 4;
-int disassochs4max = 4;
+int deauthmax = 2;
+int disassocmax = 2;
+int disassochs2max = 2;
+int disassochs4max = 2;
 int myoui = 0;
 int myap = 0;
 uint16_t mysequencenr = 1;
