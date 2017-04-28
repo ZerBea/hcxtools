@@ -68,7 +68,7 @@ lib curl and curl dev installed (used by whoismac)
 
 raspberry pi: additionally lib wiringpi and wiringpi dev installed (raspberry pi gpio support)
 
-chipset must able to run in monitor mode. Recommended: RALINK chipset (good receiver sensitivity), rt2x00 driver (very fast)
+chipset must be able to run in monitor mode. Recommended: RALINK chipset (good receiver sensitivity), rt2x00 driver (very fast)
 
 
 Usefull scripts
