@@ -17,6 +17,92 @@
 
 hcx_t *hcxdata = NULL;
 /*===========================================================================*/
+size_t chop(char *buffer,  size_t len)
+{
+char *ptr = buffer +len -1;
+
+while (len) {
+	if (*ptr != '\n') break;
+	*ptr-- = 0;
+	len--;
+	}
+
+while (len) {
+	if (*ptr != '\r') break;
+	*ptr-- = 0;
+	len--;
+	}
+return len;
+}
+/*---------------------------------------------------------------------------*/
+int fgetline(FILE *inputstream, size_t size, char *buffer)
+{
+if (feof(inputstream)) return -1;
+		char *buffptr = fgets (buffer, size, inputstream);
+
+	if (buffptr == NULL) return -1;
+
+	size_t len = strlen(buffptr);
+	len = chop(buffptr, len);
+
+return len;
+}
+/*===========================================================================*/
+int writemacaplisthccapx(long int hcxrecords, char *aplistname, char *apoutname)
+{
+adr_t mac;
+hcx_t *zeigerhcx;
+FILE *fhaplist;
+FILE *fhhcx;
+unsigned long long int mac_ap;
+long int stripped = 0;
+int len;
+int c;
+
+char linein[14];
+
+if((fhaplist = fopen(aplistname, "r")) == NULL)
+	{
+	fprintf(stderr, "error opening file %s", aplistname);
+	return FALSE;
+	}
+
+while((len = fgetline(fhaplist, 14, linein)) != -1)
+	{
+	if(len != 12)
+		continue;
+
+	mac_ap = strtoul(linein, NULL, 16);
+	mac.addr[5] = mac_ap & 0xff;
+	mac.addr[4] = (mac_ap >> 8) & 0xff;
+	mac.addr[3] = (mac_ap >> 16) & 0xff;
+	mac.addr[2] = (mac_ap >> 24) & 0xff;
+	mac.addr[1] = (mac_ap >> 32) & 0xff;
+	mac.addr[0] = (mac_ap >> 40) & 0xff;
+	c = 0;
+	while(c < hcxrecords)
+		{
+		zeigerhcx = hcxdata +c;
+		if(memcmp(&mac.addr, zeigerhcx->mac_ap.addr, 6) == 0)
+			{
+			if((fhhcx = fopen(apoutname, "ab")) == NULL)
+				{
+				fprintf(stderr, "error opening file %s", apoutname);
+				return FALSE;
+				}
+			fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+			stripped++;
+			fclose(fhhcx);
+			}
+		c++;
+		}
+	}
+
+printf("%ld records stripped to %s\n", stripped, apoutname);
+fclose(fhaplist);
+return TRUE;
+}
+/*===========================================================================*/
 int writesearchouihccapx(long int hcxrecords, unsigned long long int oui)
 {
 hcx_t *zeigerhcx;
@@ -332,16 +418,19 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-i <file>    : input hccapx file\n"
-	"-a           : output file by mac_ap's\n"
-	"-s           : output file by mac_sta's\n"
-	"-o           : output file by vendor's (oui)\n"
-	"-e           : output file by essid's\n"
-	"-E <essid>   : output file by single essid name\n"
-	"-A <mac_ap>  : output file by single mac_ap\n"
-	"-S <mac_sta> : output file by single mac_sta\n"
-	"-O <oui>     : output file by single vendor (oui)\n"
-	"-h           : this help\n"
+	"-i <file>     : input hccapx file\n"
+	"-a            : output file by mac_ap's\n"
+	"-s            : output file by mac_sta's\n"
+	"-o            : output file by vendor's (oui)\n"
+	"-e            : output file by essid's\n"
+	"-E <essid>    : output file by single essid name\n"
+	"-A <mac_ap>   : output file by single mac_ap\n"
+	"-S <mac_sta>  : output file by single mac_sta\n"
+	"-O <oui>      : output file by single vendor (oui)\n"
+	"-L <mac_list> : input list containing mac_ap's (need -l)\n"
+	"              : format of mac_ap's each line: 112233445566\n"
+	"-l <file>     : output file (hccapx) by mac_list (need -L)\n"
+	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -359,12 +448,14 @@ char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *hcxinname = NULL;
 char *essidname = NULL;
+char *aplistname = NULL;
+char *apoutname = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:E:l:L:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -422,6 +513,15 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:asoeh")) != -1)
 		mode = 'O';
 		break;
 
+		case 'l':
+		apoutname = optarg;
+		break;
+
+		case 'L':
+		aplistname = optarg;
+		mode = 'L';
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -460,6 +560,17 @@ else if(mode == 'O')
 
 else if(essidname != NULL)
 	writesearchessidhccapx(hcxorgrecords, essidname);
+
+else if(mode == 'L')
+	{
+	if((aplistname != NULL) && (apoutname != 0))
+		writemacaplisthccapx(hcxorgrecords, aplistname, apoutname);
+	else
+		{
+		fprintf(stderr, "need -L (input list of mac_ap's to strip and -l output file (hccapx)\n");
+		exit(EXIT_FAILURE);
+		}
+	}
 
 if(hcxdata != NULL)
 	free(hcxdata);
