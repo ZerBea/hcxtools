@@ -209,8 +209,8 @@ while(c < hcxrecords)
 		}
 
 
-
-	fprintf(stdout, "\n");
+	if((outmode) != 0)
+		fprintf(stdout, "\n");
 	c++;
 	}
 
