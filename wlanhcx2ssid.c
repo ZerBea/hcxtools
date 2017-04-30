@@ -423,6 +423,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-s            : output file by mac_sta's\n"
 	"-o            : output file by vendor's (oui)\n"
 	"-e            : output file by essid's\n"
+	"-p <path>     : set default output path for options a, s, o, e\n"
 	"-E <essid>    : output file by single essid name\n"
 	"-A <mac_ap>   : output file by single mac_ap\n"
 	"-S <mac_sta>  : output file by single mac_sta\n"
@@ -439,6 +440,7 @@ int main(int argc, char *argv[])
 {
 int auswahl;
 int mode = 0;
+int retchdir = 0;
 long int hcxorgrecords = 0;
 unsigned long long int mac_ap = 0;
 unsigned long long int mac_sta = 0;
@@ -450,12 +452,17 @@ char *hcxinname = NULL;
 char *essidname = NULL;
 char *aplistname = NULL;
 char *apoutname = NULL;
+char *workingdirname;
+
+char workingdir[PATH_MAX +1];
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:l:L:asoeh")) != -1)
+getcwd(workingdir, PATH_MAX);
+workingdirname = workingdir;
+while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -478,6 +485,11 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:l:L:asoeh")) != -1)
 		case 'e':
 		mode = 'e';
 		break;
+
+		case 'p':
+		workingdirname = optarg;
+		break;
+
 
 		case 'E':
 		essidname = optarg;
@@ -535,6 +547,10 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:l:L:asoeh")) != -1)
 hcxorgrecords = readhccapx(hcxinname);
 if(hcxorgrecords == 0)
 	return EXIT_SUCCESS;
+
+retchdir = chdir(workingdirname);
+if(retchdir != 0)
+	fprintf(stderr, " couldn't change working directory to %s\nusing %s\n", workingdirname, workingdir); 
 
 if(mode == 'a')
 	writemacaphccapx(hcxorgrecords);
