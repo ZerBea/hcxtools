@@ -784,7 +784,7 @@ free(netdbdata);
 pcap_close(pcapin);
 printf("%d packets processed (total: %ld netrecords, %ld eaprecords)\n", packetcount, netdbrecords, eapdbrecords);
 if(wcflag == TRUE)
-	printf("\x1B[31mwarning: wpaclean detected\x1B[0m\n");
+	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
 return TRUE;	
 }
 /*===========================================================================*/
