@@ -512,6 +512,7 @@ int datalink = 0;
 int has_rth = FALSE;
 int pcapstatus;
 int packetcount = 0;
+int wcflag = FALSE;
 int c;
 
 
@@ -588,6 +589,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 
 	packetcount++;
+	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_sec == 0))
+		wcflag = TRUE;
 
 	/* check radiotap-header */
 	h80211 = packet;
@@ -780,6 +783,8 @@ free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
 printf("%d packets processed (total: %ld netrecords, %ld eaprecords)\n", packetcount, netdbrecords, eapdbrecords);
+if(wcflag == TRUE)
+	printf("\x1B[31mwarning: wpaclean detected\x1B[0m\n");
 return TRUE;	
 }
 /*===========================================================================*/
