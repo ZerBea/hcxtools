@@ -18,6 +18,8 @@ build:
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcxinfo wlanhcxinfo.c
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcxmnc wlanhcxmnc.c
 	$(CC) $(CFLAGS) $(CFLAGS1) -o whoismac whoismac.c -lcurl
+	$(CC) $(CFLAGS) $(CFLAGS1) -o pwhash pwhash.c -lcrypto
+
 
 install: build
 	install -D -m 0755 wlandump $(INSTALLDIR)/wlandump
@@ -31,6 +33,7 @@ install: build
 	install -D -m 0755 wlanhcxinfo $(INSTALLDIR)/wlanhcxinfo
 	install -D -m 0755 wlanhcxmnc $(INSTALLDIR)/wlanhcxmnc
 	install -D -m 0755 whoismac $(INSTALLDIR)/whoismac
+	install -D -m 0755 pwhash $(INSTALLDIR)/pwhash
 
 	rm -f wlandump
 	rm -f wlanscan
@@ -43,6 +46,7 @@ install: build
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
 	rm -f whoismac
+	rm -f pwhash
 	rm -f *.o *~
 
 clean:
@@ -57,6 +61,7 @@ clean:
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
 	rm -f whoismac
+	rm -f pwhash
 	rm -f *.o *~
 
 uninstall:
@@ -71,3 +76,4 @@ uninstall:
 	rm -f $(INSTALLDIR)/wlanhcxinfo
 	rm -f $(INSTALLDIR)/wlanhcxmnc
 	rm -f $(INSTALLDIR)/whoismac
+	rm -f $(INSTALLDIR)/pwhash
