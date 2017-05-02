@@ -23,15 +23,15 @@ pinMode(7, INPUT);
 while(1)
 	{
 	digitalWrite(0, HIGH);
-	delay (25);
+	delay (50);
 	digitalWrite(0, LOW);
-	delay (25);
+	delay (50);
 	if(digitalRead(7) == 1)
 		{
 		digitalWrite(0, HIGH);
 		system("poweroff");
 		}
-	sleep(5);
+	sleep(10);
 	}
 
 return EXIT_SUCCESS;
