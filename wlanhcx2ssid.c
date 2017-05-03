@@ -58,6 +58,37 @@ replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
+int writewlandumpnotforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
+{
+hcx_t *zeigerhcx;
+long int c;
+long int rw = 0;
+unsigned long long int r;
+FILE *fhhcx;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	r = getreplaycount(zeigerhcx->eapol);
+	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) != 0) && (r != 63232))
+		{
+
+		if((fhhcx = fopen(wlandumpforcedname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", wlandumpforcedname);
+			return FALSE;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		fclose(fhhcx);
+		}
+	c++;
+	}
+printf("%ld records written to %s\n", rw, wlandumpforcedname);
+return TRUE;
+}
+/*===========================================================================*/
 int writewlandumpforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
 {
 hcx_t *zeigerhcx;
@@ -71,9 +102,8 @@ while(c < hcxrecords)
 	{
 	zeigerhcx = hcxdata +c;
 	r = getreplaycount(zeigerhcx->eapol);
-	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0) && (r = 63232))
+	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0) && (r == 63232))
 		{
-
 		if((fhhcx = fopen(wlandumpforcedname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", wlandumpforcedname);
@@ -496,6 +526,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"              : format of mac_ap's each line: 112233445566\n"
 	"-l <file>     : output file (hccapx) by mac_list (need -L)\n"
 	"-w <file>     : write only wlandump forced to hccapx file\n"
+	"-W <file>     : write only not wlandump forced to hccapx file\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -528,7 +559,7 @@ eigenname = basename(eigenpfadname);
 setbuf(stdout, NULL);
 getcwd(workingdir, PATH_MAX);
 workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -606,6 +637,11 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:asoeh")) != -1)
 		mode = 'w';
 		break;
 
+		case 'W':
+		wlandumpforcedname = optarg;
+		mode = 'W';
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -659,10 +695,17 @@ else if(mode == 'L')
 		exit(EXIT_FAILURE);
 		}
 	}
+
 else if(mode == 'w')
 	{
 	if(wlandumpforcedname != NULL)
 		writewlandumpforcedhccapx(hcxorgrecords, wlandumpforcedname);
+	}
+
+else if(mode == 'W')
+	{
+	if(wlandumpforcedname != NULL)
+		writewlandumpnotforcedhccapx(hcxorgrecords, wlandumpforcedname);
 	}
 
 if(hcxdata != NULL)
