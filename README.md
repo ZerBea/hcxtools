@@ -2,7 +2,7 @@ hcxtools
 ==============
 
 Small set of tools to capture and convert packets from WLAN devices
-for the use with hashcat. The tools are 100% compatible to hashcat
+for the use with hashcat. The tools are 100% compatible with hashcat
 because new WPA functions were developed together.
 
 Brief description
