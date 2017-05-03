@@ -48,6 +48,47 @@ if (feof(inputstream)) return -1;
 return len;
 }
 /*===========================================================================*/
+unsigned long long int getreplaycount(uint8_t *eapdata)
+{
+eap_t *eap;
+unsigned long long int replaycount = 0;
+
+eap = (eap_t*)(uint8_t*)(eapdata);
+replaycount = be64toh(eap->replaycount);
+return replaycount;
+}
+/*===========================================================================*/
+int writewlandumpforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
+{
+hcx_t *zeigerhcx;
+long int c;
+long int rw = 0;
+unsigned long long int r;
+FILE *fhhcx;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	r = getreplaycount(zeigerhcx->eapol);
+	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0) && (r = 63232))
+		{
+
+		if((fhhcx = fopen(wlandumpforcedname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", wlandumpforcedname);
+			return FALSE;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		fclose(fhhcx);
+		}
+	c++;
+	}
+printf("%ld records written to %s\n", rw, wlandumpforcedname);
+return TRUE;
+}
+/*===========================================================================*/
 int writemacaplisthccapx(long int hcxrecords, char *aplistname, char *apoutname)
 {
 adr_t mac;
@@ -55,9 +96,9 @@ hcx_t *zeigerhcx;
 FILE *fhaplist;
 FILE *fhhcx;
 unsigned long long int mac_ap;
-long int stripped = 0;
+long int c;
+long int rw = 0;
 int len;
-int c;
 
 char linein[14];
 
@@ -91,14 +132,14 @@ while((len = fgetline(fhaplist, 14, linein)) != -1)
 				return FALSE;
 				}
 			fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
-			stripped++;
+			rw++;
 			fclose(fhhcx);
 			}
 		c++;
 		}
 	}
 
-printf("%ld records stripped to %s\n", stripped, apoutname);
+printf("%ld records written to %s\n", rw, apoutname);
 fclose(fhaplist);
 return TRUE;
 }
@@ -108,6 +149,7 @@ int writesearchouihccapx(long int hcxrecords, unsigned long long int oui)
 hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
+long int rw = 0;
 adr_t mac;
 
 char macoutname[PATH_MAX +1];
@@ -130,10 +172,12 @@ while(c < hcxrecords)
 			return FALSE;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
 		fclose(fhhcx);
 		}
 	c++;
 	}
+printf("%ld records written\n", rw);
 return TRUE;
 }
 /*===========================================================================*/
@@ -142,6 +186,7 @@ int writesearchmacstahccapx(long int hcxrecords, unsigned long long int mac_sta)
 hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
+long int rw = 0;
 adr_t mac;
 
 char macoutname[PATH_MAX +1];
@@ -167,10 +212,12 @@ while(c < hcxrecords)
 			return FALSE;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
 		fclose(fhhcx);
 		}
 	c++;
 	}
+printf("%ld records written\n", rw);
 return TRUE;
 }
 /*===========================================================================*/
@@ -179,6 +226,7 @@ int writesearchmacaphccapx(long int hcxrecords, unsigned long long int mac_ap)
 hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
+long int rw = 0;
 adr_t mac;
 
 char macoutname[PATH_MAX +1];
@@ -204,10 +252,12 @@ while(c < hcxrecords)
 			return FALSE;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
 		fclose(fhhcx);
 		}
 	c++;
 	}
+printf("%ld records written\n", rw);
 return TRUE;
 }
 /*===========================================================================*/
@@ -216,6 +266,7 @@ int writesearchessidhccapx(long int hcxrecords, char *essidname)
 hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
+long int rw = 0;
 int essid_len;
 
 char essidoutname[PATH_MAX +1];
@@ -234,10 +285,12 @@ while(c < hcxrecords)
 			return FALSE;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
 		fclose(fhhcx);
 		}
 	c++;
 	}
+printf("%ld records written\n", rw);
 return TRUE;
 }
 /*===========================================================================*/
@@ -246,12 +299,12 @@ int writeessidhccapx(long int hcxrecords)
 hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
+long int rw = 0;
 int cei, ceo;
 
 const char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
 char hcxoutname[PATH_MAX +1];
-
 
 c = 0;
 while(c < hcxrecords)
@@ -273,9 +326,11 @@ while(c < hcxrecords)
 		return FALSE;
 		}
 	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+	rw++;
 	fclose(fhhcx);
 	c++;
 	}
+printf("%ld records written\n", rw);
 return TRUE;
 }
 /*===========================================================================*/
@@ -296,7 +351,7 @@ int writeouiaphccapx(long int hcxrecords)
 hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
-
+long int rw = 0;
 char hcxoutname[PATH_MAX +1];
 
 c = 0;
@@ -310,9 +365,11 @@ while(c < hcxrecords)
 		return FALSE;
 		}
 	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+	rw++;
 	fclose(fhhcx);
 	c++;
 	}
+printf("%ld records written\n", rw);
 return TRUE;
 }
 /*===========================================================================*/
@@ -321,6 +378,7 @@ int writemacstahccapx(long int hcxrecords)
 hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
+long int rw = 0;
 
 char hcxoutname[PATH_MAX +1];
 
@@ -335,9 +393,11 @@ while(c < hcxrecords)
 		return FALSE;
 		}
 	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+	rw++;
 	fclose(fhhcx);
 	c++;
 	}
+printf("%ld records written\n", rw);
 return TRUE;
 }
 /*===========================================================================*/
@@ -346,6 +406,7 @@ int writemacaphccapx(long int hcxrecords)
 hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
+long int rw = 0;
 
 char hcxoutname[PATH_MAX +1];
 
@@ -360,9 +421,12 @@ while(c < hcxrecords)
 		return FALSE;
 		}
 	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+	rw++;
 	fclose(fhhcx);
 	c++;
 	}
+
+printf("%ld records written\n", rw);
 return TRUE;
 }
 /*===========================================================================*/
@@ -431,6 +495,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-L <mac_list> : input list containing mac_ap's (need -l)\n"
 	"              : format of mac_ap's each line: 112233445566\n"
 	"-l <file>     : output file (hccapx) by mac_list (need -L)\n"
+	"-w <file>     : write only wlandump forced to hccapx file\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -452,6 +517,7 @@ char *hcxinname = NULL;
 char *essidname = NULL;
 char *aplistname = NULL;
 char *apoutname = NULL;
+char *wlandumpforcedname = NULL;
 char *workingdirname;
 
 char workingdir[PATH_MAX +1];
@@ -462,7 +528,7 @@ eigenname = basename(eigenpfadname);
 setbuf(stdout, NULL);
 getcwd(workingdir, PATH_MAX);
 workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -534,6 +600,12 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:asoeh")) != -1)
 		mode = 'L';
 		break;
 
+
+		case 'w':
+		wlandumpforcedname = optarg;
+		mode = 'w';
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -586,6 +658,11 @@ else if(mode == 'L')
 		fprintf(stderr, "need -L (input list of mac_ap's to strip and -l output file (hccapx)\n");
 		exit(EXIT_FAILURE);
 		}
+	}
+else if(mode == 'w')
+	{
+	if(wlandumpforcedname != NULL)
+		writewlandumpforcedhccapx(hcxorgrecords, wlandumpforcedname);
 	}
 
 if(hcxdata != NULL)
