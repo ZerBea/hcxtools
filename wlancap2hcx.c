@@ -40,8 +40,9 @@ char *nonwdfhcxoutname = NULL;
 
 
 uint8_t netexact = FALSE;
-int wldflag = FALSE;
-int ancflag = FALSE;
+uint8_t replaycountcheck = FALSE;
+uint8_t wldflag = FALSE;
+uint8_t ancflag = FALSE;
 /*===========================================================================*/
 unsigned long long int getreplaycount(uint8_t *eapdata)
 {
@@ -242,6 +243,9 @@ while(c >= 0)
 	c--;
 	}
 
+if(replaycountcheck == TRUE)
+	return;
+
 rctime = 10;
 zeiger = zeigerakt;
 c = cakt;
@@ -300,6 +304,9 @@ while(c >= 0)
 	c--;
 	}
 
+if(replaycountcheck == TRUE)
+	return;
+
 rctime = 10;
 zeiger = zeigerakt;
 c = cakt;
@@ -356,6 +363,9 @@ while(c >= 0)
 	zeiger--;
 	c--;
 	}
+
+if(replaycountcheck == TRUE)
+	return;
 
 rctime = 10;
 zeiger = zeigerakt;
@@ -420,6 +430,9 @@ while(c >= 0)
 	}
 
 
+if(replaycountcheck == TRUE)
+	return;
+	
 rctime = 10;
 zeiger = zeigerakt;
 c = cakt;
@@ -444,7 +457,6 @@ while(c >= 0)
 	zeiger--;
 	c--;
 	}
-
 return;
 }
 /*===========================================================================*/
@@ -847,6 +859,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
+	"-r        : enable replaycountcheck (default: disabled)\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -869,7 +882,7 @@ eigenname = basename(eigenpfadname);
 
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:p:e:E:w:W:xhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:p:e:E:w:W:xrhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -899,6 +912,10 @@ while ((auswahl = getopt(argc, argv, "o:p:e:E:w:W:xhv")) != -1)
 
 		case 'x':
 		netexact = TRUE;
+		break;
+
+		case 'r':
+		replaycountcheck = TRUE;
 		break;
 
 		default:
