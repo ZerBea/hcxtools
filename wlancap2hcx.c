@@ -856,21 +856,14 @@ if(pcapoutname != NULL)
 	{
 	pcapdh = pcap_open_dead(DLT_IEEE802_11, 65535);
 	if ((pcapout = pcap_dump_open(pcapdh, pcapoutname)) == NULL)
-		{
-		fprintf(stderr, "error creating dump file %s\n", pcapoutname);
-		exit(EXIT_FAILURE);
-		}
+		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapoutname);
 	}
 
 for (index = optind; index < argc; index++)
 	{
 	if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
-		{
-		fprintf(stderr, "error processing records from %s\n", (argv[index]));
-//		exit(EXIT_FAILURE);
-		}
+		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
 	}
-
 
 if(pcapout != NULL)
 	pcap_dump_close(pcapout);
