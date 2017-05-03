@@ -103,6 +103,7 @@ uint8_t pf;
 uint8_t keyver;
 uint8_t keytype;
 unsigned long long int replaycount;
+int wldflag = FALSE;
 
 char essidoutstr[34];
 
@@ -111,6 +112,10 @@ while(c < hcxrecords)
 	{
 	pf = FALSE;
 	zeigerhcx = hcxdata +c;
+	replaycount = geteapreplaycount(zeigerhcx->eapol);
+	if((replaycount == 63232) && (memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0))
+		wldflag = TRUE;
+
 	if((outmode & OM_MAC_AP) == OM_MAC_AP)
 		{
 		printhex(zeigerhcx->mac_ap.addr, 6);
@@ -153,7 +158,6 @@ while(c < hcxrecords)
 		{
 		if(pf == TRUE)
 			fprintf(stdout, ":");
-		replaycount = geteapreplaycount(zeigerhcx->eapol);
 		fprintf(stdout, "%016llx", replaycount);
 		pf = TRUE;
 		}
@@ -208,12 +212,13 @@ while(c < hcxrecords)
 		pf = TRUE;
 		}
 
-
 	if((outmode) != 0)
 		fprintf(stdout, "\n");
 	c++;
 	}
 
+if(wldflag == TRUE)
+	fprintf(stderr, "\x1B[32mfound wlandump forced handshakes inside\x1B[0m\n");
 return;
 }
 /*===========================================================================*/
