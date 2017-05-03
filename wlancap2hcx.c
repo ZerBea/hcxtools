@@ -23,14 +23,6 @@ const uint8_t nullnonce[] =
 };
 #define	NULLNONCE_SIZE (sizeof(nullnonce))
 
-uint8_t mynonce[] =
-{
-0x68, 0x20, 0x09, 0xe2, 0x1f, 0x0e, 0xbc, 0xe5, 0x62, 0xb9, 0x06, 0x5b, 0x54, 0x89, 0x79, 0x09,
-0x9a, 0x65, 0x52, 0x86, 0xc0, 0x77, 0xea, 0x28, 0x2f, 0x6a, 0xaf, 0x13, 0x8e, 0x50, 0xcd, 0xb9
-};
-#define	MYNONCE_SIZE (sizeof(mynonce))
-
-
 netdb_t *netdbdata = NULL;
 netdb_t *newnetdbdata = NULL;
 long int netdbrecords = 0;
@@ -45,6 +37,27 @@ pcap_dumper_t *pcapout = NULL;
 char *hcxoutname = NULL;
 
 uint8_t netexact = FALSE;
+int wldflag = FALSE;
+/*===========================================================================*/
+unsigned long long int getreplaycount(uint8_t *eapdata)
+{
+eap_t *eap;
+unsigned long long int replaycount = 0;
+
+eap = (eap_t*)(uint8_t*)(eapdata);
+replaycount = be64toh(eap->replaycount);
+return replaycount;
+}
+/*===========================================================================*/
+int checkmynonce(uint8_t *eapdata)
+{
+eap_t *eap;
+
+eap = (eap_t*)(uint8_t*)(eapdata);
+if(memcmp(eap->nonce, &mynonce, 32) == 0)
+	return TRUE;
+return FALSE;
+}
 /*===========================================================================*/
 void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
@@ -52,6 +65,7 @@ hcx_t hcxrecord;
 eap_t *eap1;
 eap_t *eap2;
 FILE *fhhcx = NULL;
+unsigned long long int r;
 
 if(hcxoutname != NULL)
 	{
@@ -80,6 +94,9 @@ if(hcxoutname != NULL)
 	memset(&hcxrecord.eapol[0x51], 0, 16);
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	r = getreplaycount(zeiger2->eapol);
+	if((r == 63232) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
+		wldflag = TRUE;
 	}
 return;	
 }
@@ -161,26 +178,6 @@ else
 		}
 	}
 return eapkey;
-}
-/*===========================================================================*/
-unsigned long long int getreplaycount(uint8_t *eapdata)
-{
-eap_t *eap;
-unsigned long long int replaycount = 0;
-
-eap = (eap_t*)(uint8_t*)(eapdata);
-replaycount = be64toh(eap->replaycount);
-return replaycount;
-}
-/*===========================================================================*/
-int checkmynonce(uint8_t *eapdata)
-{
-eap_t *eap;
-
-eap = (eap_t*)(uint8_t*)(eapdata);
-if(memcmp(eap->nonce, &mynonce, 32) == 0)
-	return TRUE;
-return FALSE;
 }
 /*===========================================================================*/
 void lookfor14(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
@@ -783,8 +780,12 @@ free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
 printf("%d packets processed (total: %ld netrecords, %ld eaprecords)\n", packetcount, netdbrecords, eapdbrecords);
+if(wldflag == TRUE)
+	printf("\x1B[32mfound wlandump forced handshakes inside\x1B[0m\n");
+
 if(wcflag == TRUE)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
+
 return TRUE;	
 }
 /*===========================================================================*/
