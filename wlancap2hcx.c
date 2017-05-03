@@ -35,9 +35,13 @@ long int eapdbrecords = 0;
 pcap_dumper_t *pcapout = NULL;
 
 char *hcxoutname = NULL;
+char *wdfhcxoutname = NULL;
+char *nonwdfhcxoutname = NULL;
+
 
 uint8_t netexact = FALSE;
 int wldflag = FALSE;
+int ancflag = FALSE;
 /*===========================================================================*/
 unsigned long long int getreplaycount(uint8_t *eapdata)
 {
@@ -66,6 +70,25 @@ eap_t *eap1;
 eap_t *eap2;
 FILE *fhhcx = NULL;
 unsigned long long int r;
+int wldflagint = FALSE;
+
+eap1 = (eap_t*)(zeiger1->eapol);
+eap2 = (eap_t*)(zeiger2->eapol);
+memset(&hcxrecord, 0, HCX_SIZE);
+hcxrecord.signature = HCCAPX_SIGNATURE;
+hcxrecord.version = HCCAPX_VERSION;
+hcxrecord.message_pair = message_pair;
+hcxrecord.essid_len = essid_len;
+memcpy(hcxrecord.essid, essid, essid_len);
+hcxrecord.keyver = ((((eap1->keyinfo & 0xff) << 8) | (eap1->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
+memcpy(hcxrecord.mac_ap.addr, zeiger1->mac_ap.addr, 6);
+memcpy(hcxrecord.nonce_ap, eap1->nonce, 32);
+memcpy(hcxrecord.mac_sta.addr, zeiger2->mac_sta.addr, 6);
+memcpy(hcxrecord.nonce_sta, eap2->nonce, 32);
+hcxrecord.eapol_len = zeiger2->eapol_len;
+memcpy(hcxrecord.eapol,zeiger2->eapol, zeiger2->eapol_len +4);
+memcpy(hcxrecord.keymic, eap2->keymic, 16);
+memset(&hcxrecord.eapol[0x51], 0, 16);
 
 if(hcxoutname != NULL)
 	{
@@ -74,29 +97,37 @@ if(hcxoutname != NULL)
 		fprintf(stderr, "error opening hccapx file %s\n", hcxoutname);
 		exit(EXIT_FAILURE);
 		}
-
-	eap1 = (eap_t*)(zeiger1->eapol);
-	eap2 = (eap_t*)(zeiger2->eapol);
-	memset(&hcxrecord, 0, HCX_SIZE);
-	hcxrecord.signature = HCCAPX_SIGNATURE;
-	hcxrecord.version = HCCAPX_VERSION;
-	hcxrecord.message_pair = message_pair;
-	hcxrecord.essid_len = essid_len;
-	memcpy(hcxrecord.essid, essid, essid_len);
-	hcxrecord.keyver = ((((eap1->keyinfo & 0xff) << 8) | (eap1->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
-	memcpy(hcxrecord.mac_ap.addr, zeiger1->mac_ap.addr, 6);
-	memcpy(hcxrecord.nonce_ap, eap1->nonce, 32);
-	memcpy(hcxrecord.mac_sta.addr, zeiger2->mac_sta.addr, 6);
-	memcpy(hcxrecord.nonce_sta, eap2->nonce, 32);
-	hcxrecord.eapol_len = zeiger2->eapol_len;
-	memcpy(hcxrecord.eapol,zeiger2->eapol, zeiger2->eapol_len +4);
-	memcpy(hcxrecord.keymic, eap2->keymic, 16);
-	memset(&hcxrecord.eapol[0x51], 0, 16);
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
-	r = getreplaycount(zeiger2->eapol);
-	if((r == 63232) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
-		wldflag = TRUE;
+	}
+
+r = getreplaycount(zeiger2->eapol);
+if((r == 63232) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
+	{
+	wldflagint = TRUE;
+	wldflag = TRUE;
+	}
+
+if((wdfhcxoutname != NULL) && (wldflagint == TRUE))
+	{
+	if((fhhcx = fopen(wdfhcxoutname, "ab")) == NULL)
+		{
+		fprintf(stderr, "error opening hccapx file %s\n", wdfhcxoutname);
+		exit(EXIT_FAILURE);
+		}
+	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
+	fclose(fhhcx);
+	}
+
+if((nonwdfhcxoutname != NULL) && (wldflagint == FALSE))
+	{
+	if((fhhcx = fopen(nonwdfhcxoutname, "ab")) == NULL)
+		{
+		fprintf(stderr, "error opening hccapx file %s\n", nonwdfhcxoutname);
+		exit(EXIT_FAILURE);
+		}
+	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
+	fclose(fhhcx);
 	}
 return;	
 }
@@ -228,6 +259,7 @@ while(c >= 0)
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M14E4NR);
 			if(netexact == TRUE)
 				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M14E4NR);
+			ancflag = TRUE;
 			return;
 			}
 		}
@@ -405,6 +437,7 @@ while(c >= 0)
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2NR);
 			if(netexact == TRUE)
 				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M12E2NR);
+			ancflag = TRUE;
 			return;
 			}
 		}
@@ -781,7 +814,19 @@ free(netdbdata);
 pcap_close(pcapin);
 printf("%d packets processed (total: %ld netrecords, %ld eaprecords)\n", packetcount, netdbrecords, eapdbrecords);
 if(wldflag == TRUE)
+	{
 	printf("\x1B[32mfound wlandump forced handshakes inside\x1B[0m\n");
+	if(wdfhcxoutname != NULL)
+		printf("\x1B[32myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
+	}
+
+if(ancflag == TRUE)
+	{
+	if(hcxoutname != NULL)
+		printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", hcxoutname);
+	if(nonwdfhcxoutname != NULL)
+		printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", nonwdfhcxoutname);
+	}
 
 if(wcflag == TRUE)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
@@ -822,12 +867,20 @@ eigenname = basename(eigenpfadname);
 
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:p:e:E:xhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:p:e:E:w:W:xhv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'o':
 		hcxoutname = optarg;
+		break;
+
+		case 'w':
+		wdfhcxoutname = optarg;
+		break;
+
+		case 'W':
+		nonwdfhcxoutname = optarg;
 		break;
 
 		case 'p':
