@@ -1,9 +1,9 @@
 hcxtools
 ==============
 
-Small set of tools to capture and convert packets from wlan devices
-for the use with hashcat. The tools are 100% compatible to hashcat
-because new wpa functions were developed together.
+Small set of tools to capture and convert packets from WLAN devices
+for the use with hashcat. The tools are 100% compatible with hashcat
+because new WPA functions were developed together.
 
 Brief description
 --------------
@@ -16,73 +16,65 @@ All of these utils are designed to execute only one specific function.
 Detailed description
 --------------
 
-wlandump      small, fast and simple active wlan scanner (no status output)
-
-wlanscan      small, fast and simple passive wlan scanner (status output)
-
-pioff         turns raspberry pi off by gpio switch
-
-wlancap2hcx   converts cap to hccapx (‎recommended for use with wlandump - like cap2hccapx, but different options)
-
-wlanhcx2cap   converts hccapx to cap
-
-wlanhc2hcx    converts hccap to hccapx
-
-wlanhcx2essid merges hccapx containing the same essid
-
-wlanhcx2ssid  strips by bssid, essid, oui
-
-wlanhcx2john  converts hccapx to john
-
-wlanhcxinfo   shows detailed info from content of hccapxfile
-
-wlanhcxmnc    manually do nonce correction on byte number xx of a nonce 
-
-whoismac      show vendor information
+| Tool          | Description                                                                                         |
+| ------------- | --------------------------------------------------------------------------------------------------- |
+| wlandump      | Small, fast and simple active WLAN scanner (no status output)                                       |
+| wlanscan      | Small, fast and simple passive WLAN scanner (status output)                                         |
+| pioff         | Turns Raspberry Pi off via GPIO switch                                                              |
+| wlancap2hcx   | Converts cap to hccapx (recommended for use with wlandump - like cap2hccapx, but different options) |
+| wlanhcx2cap   | Converts hccapx to cap                                                                              |
+| wlanhc2hcx    | Converts hccap to hccapx                                                                            |
+| wlanhcx2essid | Merges hccapx containing the same ESSID                                                             |
+| wlanhcx2ssid  | Strips BSSID, ESSID, OUI                                                                            |
+| wlanhcx2john  | Converts hccapx to format expected by John the Ripper                                               |
+| wlanhcxinfo   | Shows detailed info from contents of hccapxfile                                                     |
+| wlanhcxmnc    | Manually do nonce correction on byte number xx of a nonce                                           |
+| whoismac      | Show vendor information                                                                             |
 
 
 Compile
 --------------
 
-Simply
+Simply run:
 
-run make
+```
+make
+make install
+```
 
-run make install
+Use Makefile.pi to compile (wlandump) on Raspberry Pi
 
-use Makefile.pi to compile (wlandump) on raspberry pi
-
-use Makefile.pi.gpio to compile (wlandump and pioff) on raspberry pi (needs hardware mods (gpiowait.odg))
+Use Makefile.pi.gpio to compile (wlandump and pioff) on Raspberry Pi (needs hardware mods (gpiowait.odg))
 
 
 Requirements
 --------------
 
-LINUX (‎recommended ARCH, but other distro's should work, too. Kernel > 4.4 because 4.4 has a driver regression)
+* Linux (recommended Arch, but other distros should work, too. Kernel > 4.4 because 4.4 has a driver regression)
 
-lib pcap and pcap dev installed
+* libpcap and pcap-dev installed
 
-lib openssl and openssl dev installed
+* libopenssl and openssl-dev installed
 
-lib curl and curl dev installed (used by whoismac)
+* libcurl and curl-dev installed (used by whoismac)
 
-raspberry pi: additionally lib wiringpi and wiringpi dev installed (raspberry pi gpio support)
+* Raspberry Pi: additionally libwiringpi and wiringpi dev installed (Raspberry Pi GPIO support)
 
-chipset must be able to run in monitor mode. Recommended: RALINK chipset (good receiver sensitivity), rt2x00 driver (very fast)
+* Chipset must be able to run in monitor mode. Recommended: RALINK chipset (good receiver sensitivity), rt2x00 driver (very fast)
 
 
-Usefull scripts
+Useful scripts
 --------------
 
-bash_profile  autostart for raspberry pi (copy to /root/.bash_profile)
-
-pireadcard    backup pi sd-card
-
-piwritecard   restore pi sd-card
+| Script       | Description                                              |
+| ------------ | -------------------------------------------------------- |
+| bash_profile | Autostart for Raspberry Pi (copy to /root/.bash_profile) |
+| pireadcard   | Back up a Pi SD card                                     |
+| piwritecard  | Restore a Pi SD card                                     |
 
 
 Notice
 --------------
 
-most of all outputfiles are appended to existing files (with the ecxeption of .cap files)
+Most output files will be appended to existing files (with the exception of .cap files).
 
