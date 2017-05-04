@@ -378,6 +378,16 @@ while(1)
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 
+		if(eap->type == 0)
+			{
+			pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
+
+		if(eap->type == 1)
+			{
+			pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
+
 		if(eap->type == 3)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);

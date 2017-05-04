@@ -22,7 +22,6 @@
 #include <linux/wireless.h>
 
 
-
 #ifdef RASPBERRY
 #include <wiringPi.h>
 #undef TRUE
@@ -1279,6 +1278,16 @@ while(1)
 	if(macf->type == MAC_TYPE_DATA && LLC_SIZE <= pkh->len && be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH)
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
+
+		if(eap->type == 0)
+			{
+			pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
+
+		if(eap->type == 1)
+			{
+			pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
 
 		if(eap->type == 3)
 			{
