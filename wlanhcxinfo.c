@@ -123,8 +123,13 @@ long int mp83c = 0;
 long int mp84c = 0;
 long int mp85c = 0;
 
+uint8_t noncecorr = FALSE;
+
 char essidoutstr[34];
 
+uint8_t nonceold[32];
+
+memset(nonceold, 0, 32);
 c = 0;
 while(c < hcxrecords)
 	{
@@ -133,6 +138,10 @@ while(c < hcxrecords)
 	replaycount = geteapreplaycount(zeigerhcx->eapol);
 	if((replaycount == 63232) && (memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0))
 		wldcount++;
+
+	if((memcmp(&nonceold, zeigerhcx->nonce_ap, 28) == 0) && (memcmp(&nonceold, zeigerhcx->nonce_ap, 32) != 0))
+		noncecorr = TRUE;
+	memcpy(&nonceold, zeigerhcx->nonce_ap, 32);
 
 	keyver = geteapkeyver(zeigerhcx->eapol);
 	if(keyver == 1)
@@ -294,11 +303,11 @@ if(outmode == 0)
 			"message pair M32E2...........: %ld (%ld not replaycount checked)\n"
 			"message pair M32E3...........: %ld (%ld not replaycount checked)\n"
 			"message pair M34E3...........: %ld (%ld not replaycount checked)\n"
-			"message pair M34E4...........: %ld (%ld not replaycount checked)\n"
-
-
-
+			"message pair M34E4...........: %ld (%ld not replaycount checked)"
 			"\n", totalrecords, wldcount, wpa1c, wpa2c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+
+	if(noncecorr == TRUE)
+		fprintf(stdout, "\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
 	}
 
 return;
