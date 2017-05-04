@@ -378,29 +378,44 @@ while(1)
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 
+		if(eap->type == 3)
+			{
+			pcap_dump((u_char *) pcapout, pkh, h80211);
+			if(macf->from_ds == 1) /* sta - ap */
+				{
+				printhex(channel, macf->addr1.addr, macf->addr2.addr, TRUE);
+				fprintf(stdout, "(handshake)\n");
+				}
+
+			if(macf->to_ds == 1) /* ap - sta */
+				{
+				printhex(channel, macf->addr2.addr, macf->addr1.addr, FALSE);
+				fprintf(stdout, "(handshake)\n");
+				}
+			continue;
+			}
+
 		if(eap->type == 0)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
+			if(macf->from_ds == 1) /* sta - ap */
+				{
+				printhex(channel, macf->addr1.addr, macf->addr2.addr, TRUE);
+				fprintf(stdout, "(wps eapol)\n");
+				}
+			if(macf->to_ds == 1) /* ap - sta */
+				{
+				printhex(channel, macf->addr2.addr, macf->addr1.addr, FALSE);
+				fprintf(stdout, "(wps eapol)\n");
+				}
+			continue;
 			}
 
 		if(eap->type == 1)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
-			}
-
-		if(eap->type == 3)
-			{
-			pcap_dump((u_char *) pcapout, pkh, h80211);
-			if(macf->from_ds == 1)
-				{
-				printhex(channel, macf->addr1.addr, macf->addr2.addr, TRUE);
-				fprintf(stdout, "(handshake)\n");
-				}
-			else
-				{
-				printhex(channel, macf->addr2.addr, macf->addr1.addr, FALSE);
-				fprintf(stdout, "(handshake)\n");
-				}
+			printhex(channel, macf->addr2.addr, macf->addr1.addr, FALSE);
+			fprintf(stdout, "(wps start)\n");
 			}
 		}
 	}
