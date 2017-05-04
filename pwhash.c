@@ -28,11 +28,13 @@ int keysetlen = 58;
 char *macstring = NULL;
 char *keystring = NULL;
 
-SHA_CTX ctx;
-MD5_CTX mctx;
+SHA_CTX ctxsha1;
+SHA256_CTX ctxsha256;
+MD5_CTX ctxmd5;
 
-unsigned char digest[SHA_DIGEST_LENGTH];
-unsigned char digestm[MD5_DIGEST_LENGTH];
+unsigned char digestsha1[SHA_DIGEST_LENGTH];
+unsigned char digestsha256[SHA256_DIGEST_LENGTH];
+unsigned char digestmd5[MD5_DIGEST_LENGTH];
 
 char testmacstring[] = "112233445566";
 char testkeysetstring[] = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -54,37 +56,56 @@ else
 	}
 
 
-SHA1_Init(&ctx);
-SHA1_Update(&ctx, macstring, maclen);
-SHA1_Final(digest, &ctx);
+SHA256_Init(&ctxsha256);
+SHA256_Update(&ctxsha256, macstring, maclen);
+SHA256_Final(digestsha256, &ctxsha256);
 
-printf("\nsha1-hex: ");
-for (p = 0; p < SHA_DIGEST_LENGTH; ++p)
+printf("\nsha256-hex...: ");
+for (p = 0; p < SHA256_DIGEST_LENGTH; ++p)
 	{
-	printf("%02x",digest[p]);
+	printf("%02x",digestsha256[p]);
 	}
 
-printf("\nsha1....: ");
-for (p = 0; p < SHA_DIGEST_LENGTH; ++p)
+printf("\nsha256-ascii.: ");
+for (p = 0; p < SHA256_DIGEST_LENGTH; ++p)
 	{
-	k = (digest[p] %keysetlen);
+	k = (digestsha256[p] %keysetlen);
 	printf("%c",keystring[k]);
 	}
 
-MD5_Init(&mctx);
-MD5_Update(&mctx, macstring, maclen);
-MD5_Final(digestm, &mctx);
 
-printf("\nmd5-hex.: ");
-for (p = 0; p < MD5_DIGEST_LENGTH; ++p)
+SHA1_Init(&ctxsha1);
+SHA1_Update(&ctxsha1, macstring, maclen);
+SHA1_Final(digestsha1, &ctxsha1);
+
+printf("\nsha1-hex.....: ");
+for (p = 0; p < SHA_DIGEST_LENGTH; ++p)
 	{
-	printf("%02x",digestm[p]);
+	printf("%02x",digestsha1[p]);
 	}
 
-printf("\nmd5.....: ");
+printf("\nsha1-ascii...: ");
+for (p = 0; p < SHA_DIGEST_LENGTH; ++p)
+	{
+	k = (digestsha1[p] %keysetlen);
+	printf("%c",keystring[k]);
+	}
+
+
+MD5_Init(&ctxmd5);
+MD5_Update(&ctxmd5, macstring, maclen);
+MD5_Final(digestmd5, &ctxmd5);
+
+printf("\nmd5-hex......: ");
 for (p = 0; p < MD5_DIGEST_LENGTH; ++p)
 	{
-	k = (digestm[p] %keysetlen);
+	printf("%02x",digestmd5[p]);
+	}
+
+printf("\nmd5-ascii....: ");
+for (p = 0; p < MD5_DIGEST_LENGTH; ++p)
+	{
+	k = (digestmd5[p] %keysetlen);
 	printf("%c",keystring[k]);
 	}
 
