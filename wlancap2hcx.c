@@ -34,15 +34,20 @@ long int eapdbrecords = 0;
 
 pcap_dumper_t *pcapout = NULL;
 
-char *hcxoutname = NULL;
-char *wdfhcxoutname = NULL;
-char *nonwdfhcxoutname = NULL;
-
 
 uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
 uint8_t wldflag = FALSE;
 uint8_t ancflag = FALSE;
+
+int rctimecount = 0;
+
+char *hcxoutname = NULL;
+char *wdfhcxoutname = NULL;
+char *nonwdfhcxoutname = NULL;
+
+
+
 /*===========================================================================*/
 unsigned long long int getreplaycount(uint8_t *eapdata)
 {
@@ -254,6 +259,9 @@ while(c >= 0)
 	if(((zeigerakt->tv_sec - zeiger->tv_sec) < 0) || ((zeigerakt->tv_sec - zeiger->tv_sec) > rctime))
 		return;
 
+	if((zeigerakt->tv_sec - zeiger->tv_sec) > rctimecount)
+		rctimecount = (zeigerakt->tv_sec - zeiger->tv_sec);
+
 	if((memcmp(zeiger->mac_ap.addr, zeigerakt->mac_ap.addr, 6) == 0) && (memcmp(zeiger->mac_sta.addr, zeigerakt->mac_sta.addr, 6) == 0))
 		{
 		m = geteapkey(zeiger->eapol);
@@ -315,6 +323,9 @@ while(c >= 0)
 	if(((zeigerakt->tv_sec - zeiger->tv_sec) < 0) || ((zeigerakt->tv_sec - zeiger->tv_sec) > rctime))
 		return;
 
+	if((zeigerakt->tv_sec - zeiger->tv_sec) > rctimecount)
+		rctimecount = (zeigerakt->tv_sec - zeiger->tv_sec);
+
 	if((memcmp(zeiger->mac_ap.addr, zeigerakt->mac_ap.addr, 6) == 0) && (memcmp(zeiger->mac_sta.addr, zeigerakt->mac_sta.addr, 6) == 0))
 		{
 		m = geteapkey(zeiger->eapol);
@@ -374,6 +385,9 @@ while(c >= 0)
 	{
 	if(((zeigerakt->tv_sec - zeiger->tv_sec) < 0) || ((zeigerakt->tv_sec - zeiger->tv_sec) > rctime))
 		return;
+
+	if((zeigerakt->tv_sec - zeiger->tv_sec) > rctimecount)
+		rctimecount = (zeigerakt->tv_sec - zeiger->tv_sec);
 
 	if((memcmp(zeiger->mac_ap.addr, zeigerakt->mac_ap.addr, 6) == 0) && (memcmp(zeiger->mac_sta.addr, zeigerakt->mac_sta.addr, 6) == 0))
 		{
@@ -440,6 +454,9 @@ while(c >= 0)
 	{
 	if(((zeigerakt->tv_sec - zeiger->tv_sec) < 0) || ((zeigerakt->tv_sec - zeiger->tv_sec) > rctime))
 		return;
+
+	if((zeigerakt->tv_sec - zeiger->tv_sec) > rctimecount)
+		rctimecount = (zeigerakt->tv_sec - zeiger->tv_sec);
 
 	if((memcmp(zeiger->mac_ap.addr, zeigerakt->mac_ap.addr, 6) == 0) && (memcmp(zeiger->mac_sta.addr, zeigerakt->mac_sta.addr, 6) == 0))
 		{
@@ -835,13 +852,29 @@ if(wldflag == TRUE)
 if(ancflag == TRUE)
 	{
 	if(hcxoutname != NULL)
-		printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", hcxoutname);
+		{
+		if((rctimecount > 2) && (rctimecount <= 4))
+			printf("\x1B[33myou should use hashcat --nonce-error-corrections=16 on %s\x1B[0m\n", hcxoutname);
+		if((rctimecount > 4) && (rctimecount <= 8))
+			printf("\x1B[33myou should use hashcat --nonce-error-corrections=32 on %s\x1B[0m\n", hcxoutname);
+		if(rctimecount > 8)
+			printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", hcxoutname);
+		}
+
 	if(nonwdfhcxoutname != NULL)
-		printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", nonwdfhcxoutname);
+		{
+		if((rctimecount > 2) && (rctimecount <= 4))
+			printf("\x1B[33myou should use hashcat --nonce-error-corrections=16 on %s\x1B[0m\n", hcxoutname);
+		if((rctimecount > 4) && (rctimecount <= 8))
+			printf("\x1B[33myou should use hashcat --nonce-error-corrections=32 on %s\x1B[0m\n", hcxoutname);
+		if(rctimecount > 8)
+			printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", hcxoutname);
+		}
 	}
 
 if(wcflag == TRUE)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
+
 
 return TRUE;	
 }
