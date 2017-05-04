@@ -103,7 +103,25 @@ uint8_t pf;
 uint8_t keyver;
 uint8_t keytype;
 unsigned long long int replaycount;
-int wldflag = FALSE;
+
+long int totalrecords = 0;
+long int wldcount = 0;
+long int wpa1c = 0;
+long int wpa2c = 0;
+
+long int mp0c = 0;
+long int mp1c = 0;
+long int mp2c = 0;
+long int mp3c = 0;
+long int mp4c = 0;
+long int mp5c = 0;
+
+long int mp80c = 0;
+long int mp81c = 0;
+long int mp82c = 0;
+long int mp83c = 0;
+long int mp84c = 0;
+long int mp85c = 0;
 
 char essidoutstr[34];
 
@@ -114,8 +132,14 @@ while(c < hcxrecords)
 	zeigerhcx = hcxdata +c;
 	replaycount = geteapreplaycount(zeigerhcx->eapol);
 	if((replaycount == 63232) && (memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0))
-		wldflag = TRUE;
+		wldcount++;
 
+	keyver = geteapkeyver(zeigerhcx->eapol);
+	if(keyver == 1)
+		wpa1c++;
+	if(keyver == 2)
+		wpa2c++;
+		
 	if((outmode & OM_MAC_AP) == OM_MAC_AP)
 		{
 		printhex(zeigerhcx->mac_ap.addr, 6);
@@ -166,7 +190,6 @@ while(c < hcxrecords)
 		{
 		if(pf == TRUE)
 			fprintf(stdout, ":");
-		keyver = geteapkeyver(zeigerhcx->eapol);
 		fprintf(stdout, "%d", keyver);
 		pf = TRUE;
 		}
@@ -196,7 +219,6 @@ while(c < hcxrecords)
 		pf = TRUE;
 		}
 
-
 	if((outmode & OM_ESSID) == OM_ESSID)
 		{
 		if(pf == TRUE)
@@ -214,11 +236,71 @@ while(c < hcxrecords)
 
 	if((outmode) != 0)
 		fprintf(stdout, "\n");
+
+	if((zeigerhcx->message_pair & 0x7f) == 0)
+		{
+		mp0c++;
+		if((zeigerhcx->message_pair & 0x80) == 0x80)
+		mp80c++;
+		}	
+
+	if((zeigerhcx->message_pair & 0x7f) == 1)
+		{
+		mp1c++;
+		if((zeigerhcx->message_pair & 0x80) == 0x80)
+		mp81c++;
+		}	
+
+	if((zeigerhcx->message_pair & 0x7f) == 2)
+		{
+		mp2c++;
+		if((zeigerhcx->message_pair & 0x80) == 0x80)
+		mp82c++;
+		}	
+
+	if((zeigerhcx->message_pair & 0x7f) == 3)
+		{
+		mp3c++;
+		if((zeigerhcx->message_pair & 0x80) == 0x80)
+		mp83c++;
+		}	
+
+	if((zeigerhcx->message_pair & 0x7f) == 4)
+		{
+		mp4c++;
+		if((zeigerhcx->message_pair & 0x80) == 0x80)
+		mp84c++;
+		}	
+
+	if((zeigerhcx->message_pair & 0x7f) == 5)
+		{
+		mp5c++;
+		if((zeigerhcx->message_pair & 0x80) == 0x80)
+		mp85c++;
+		}	
+	
+	totalrecords++;
 	c++;
 	}
 
-if(wldflag == TRUE)
-	fprintf(stderr, "\x1B[32mfound wlandump forced handshakes inside\x1B[0m\n");
+if(outmode == 0)
+	{
+	fprintf(stdout, "total hashes readed from file: %ld\n"
+			"\x1B[32mwlandump forced handshakes...: %ld\x1B[0m\n"
+			"key version wpa1.............: %ld\n"
+			"key version wpa2.............: %ld\n"
+			"message pair M12E2...........: %ld (%ld not replaycount checked)\n"
+			"message pair M14E4...........: %ld (%ld not replaycount checked)\n"
+			"message pair M32E2...........: %ld (%ld not replaycount checked)\n"
+			"message pair M32E3...........: %ld (%ld not replaycount checked)\n"
+			"message pair M34E3...........: %ld (%ld not replaycount checked)\n"
+			"message pair M34E4...........: %ld (%ld not replaycount checked)\n"
+
+
+
+			"\n", totalrecords, wldcount, wpa1c, wpa2c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+	}
+
 return;
 }
 /*===========================================================================*/
@@ -263,8 +345,6 @@ if(hcxsize != statinfo.st_size)
 	return FALSE;
 	}
 fclose(fhhcx);
-
-fprintf(stderr, "%ld records readed from %s\n", hcxsize / HCX_SIZE, hcxinname);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
@@ -379,11 +459,12 @@ while ((auswahl = getopt(argc, argv, "i:o:aAsSMRwpPlehv")) != -1)
 	}
 
 hcxorgrecords = readhccapx(hcxinname);
-fprintf(stderr, "%ld records loaded\n", hcxorgrecords);
 
 if(hcxorgrecords == 0)
+	{
+	fprintf(stderr, "%ld records loaded\n", hcxorgrecords);
 	return EXIT_SUCCESS;
-
+	}
 
 writehcxinfo(hcxorgrecords, outmode);
 
