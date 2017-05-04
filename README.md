@@ -30,6 +30,7 @@ Detailed description
 | wlanhcxinfo   | Shows detailed info from contents of hccapxfile                                                     |
 | wlanhcxmnc    | Manually do nonce correction on byte number xx of a nonce                                           |
 | whoismac      | Show vendor information                                                                             |
+| pwhash        | Generate hash of a word by using a given charset                                                    |
 
 
 Compile
