@@ -376,7 +376,7 @@ if(pcapstatus == -1)
 #ifdef RASPBERRY
 	system("reboot");
 #endif
-	fprintf(stderr, "error while sending proberesponse %s \n", pcap_geterr(pcapin));
+	fprintf(stderr, "error while sending probe response %s \n", pcap_geterr(pcapin));
 	}
 mysequencenr++;
 if(mysequencenr > 9999)
@@ -1444,16 +1444,16 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"(ctrl+c terminates program)\n"
 	"options:\n"
-	"-i <interface> : wlan interface\n"
+	"-i <interface> : WLAN interface\n"
 	"-o <file>      : output cap file\n"
 	"-c <channel >  : start channel (1 - 13)\n"
 	"               : default = 1\n"
-	"-t <time>      : stay time x * 5 seconds on channel bevor hop to next channel\n"
+	"-t <time>      : stay time x * 5 seconds on channel before hopping to the next channel\n"
 	"               : default = 5 seconds\n"
 	"-d <number>    : send up to x deauthentication/disassociation packets per channel\n"
 	"               : default = up to 2 deauthentication/disassociation packets\n"
 	"-V <digit>     : accesspoint vendor xxxxxx\n"
-	"-S             : shows accesspoints if programm terminates\n"
+	"-S             : shows accesspoints if program terminates\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
@@ -1547,7 +1547,7 @@ while ((auswahl = getopt(argc, argv, "i:o:c:t:d:V:Shv")) != -1)
 
 if( getuid() != 0 )
 	{
-	fprintf(stderr, "this programm requires root privileges\n" );
+	fprintf(stderr, "this program requires root privileges\n" );
 	exit(EXIT_FAILURE);
 	}
 
