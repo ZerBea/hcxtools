@@ -171,6 +171,7 @@ struct pcap_pkthdr *pkh;
 rth_t *rth = NULL;
 mac_t *macf = NULL;
 eap_t *eap = NULL;
+eapwps_t *eapwps = NULL;
 essid_t *essidf;
 uint8_t	*payload = NULL;
 int pcapstatus = 1;
@@ -395,19 +396,38 @@ while(1)
 			continue;
 			}
 
+
 		if(eap->type == 0)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
+			eapwps = (eapwps_t*)(payload + LLC_SIZE);
 			if(macf->from_ds == 1) /* sta - ap */
-				{
-				printhex(channel, macf->addr1.addr, macf->addr2.addr, TRUE);
-				fprintf(stdout, "(wps eapol)\n");
-				}
+				printhex(0, macf->addr1.addr, macf->addr2.addr, TRUE);
+
 			if(macf->to_ds == 1) /* ap - sta */
+				printhex(0, macf->addr2.addr, macf->addr1.addr, FALSE);
+
+
+			if((eapwps->wpscode == 1) || (eapwps->wpscode == 2))
 				{
-				printhex(channel, macf->addr2.addr, macf->addr1.addr, FALSE);
-				fprintf(stdout, "(wps eapol)\n");
+				if(eapwps->wpscode == EAP_CODE_REQ)
+					fprintf(stdout, "(wps request");
+
+				if(eapwps->wpscode == EAP_CODE_RESP)
+					fprintf(stdout, "(wps response");
+
+				if(eapwps->wpstype == EAP_TYPE_ID)
+					fprintf(stdout, ", identity)");
+
+				if(eapwps->wpstype == EAP_TYPE_EXPAND)
+					fprintf(stdout, ", expanded type)");
+
+				fprintf(stdout, "\n");
 				}
+		
+			if(eapwps->wpscode == EAP_CODE_FAIL)
+				fprintf(stdout, "(wps failure)\n");
+
 			continue;
 			}
 

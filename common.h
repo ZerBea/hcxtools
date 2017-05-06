@@ -247,6 +247,25 @@ typedef struct eap_frame eap_t;
 #define	EAP_SIZE (sizeof(eap_t))
 
 
+struct eapwps_frame
+{
+ uint8_t		version;
+ uint8_t		type;
+ uint16_t		len;
+ uint8_t		wpscode;
+#define	EAP_CODE_REQ	1
+#define	EAP_CODE_RESP	2
+#define	EAP_CODE_FAIL	4
+ uint8_t		wpsid;
+ uint16_t		wpslen;
+ uint8_t		wpstype;
+#define	EAP_TYPE_ID	1
+#define	EAP_TYPE_EXPAND	254
+} __attribute__((__packed__));
+typedef struct eapwps_frame eapwps_t;
+#define	EAPWPS_SIZE (sizeof(eapwps_t))
+
+
 struct maclist
 {
  uint8_t	pkart;
