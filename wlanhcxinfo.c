@@ -75,6 +75,13 @@ else
 return eapkey;
 }
 /*===========================================================================*/
+uint8_t get8021xver(uint8_t *eapdata)
+{
+eap_t *eap;
+eap = (eap_t*)(uint8_t*)(eapdata);
+return eap->version;
+}
+/*===========================================================================*/
 uint8_t geteapkeyver(uint8_t *eapdata)
 {
 eap_t *eap;
@@ -100,12 +107,16 @@ void writehcxinfo(long int hcxrecords, int outmode)
 hcx_t *zeigerhcx;
 long int c;
 uint8_t pf;
+uint8_t eapver;
 uint8_t keyver;
 uint8_t keytype;
 unsigned long long int replaycount;
 
+
 long int totalrecords = 0;
 long int wldcount = 0;
+long int xverc1 = 0;
+long int xverc2 = 0;
 long int wpa1c = 0;
 long int wpa2c = 0;
 
@@ -135,6 +146,9 @@ while(c < hcxrecords)
 	{
 	pf = FALSE;
 	zeigerhcx = hcxdata +c;
+	eapver = get8021xver(zeigerhcx->eapol);
+	keyver = geteapkeyver(zeigerhcx->eapol);
+
 	replaycount = geteapreplaycount(zeigerhcx->eapol);
 	if((replaycount == 63232) && (memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0))
 		wldcount++;
@@ -143,7 +157,6 @@ while(c < hcxrecords)
 		noncecorr = TRUE;
 	memcpy(&nonceold, zeigerhcx->nonce_ap, 32);
 
-	keyver = geteapkeyver(zeigerhcx->eapol);
 	if(keyver == 1)
 		wpa1c++;
 	if(keyver == 2)
@@ -246,6 +259,12 @@ while(c < hcxrecords)
 	if((outmode) != 0)
 		fprintf(stdout, "\n");
 
+	if(eapver == 1)
+		xverc1++;
+
+	if(eapver == 2)
+		xverc2++;
+
 	if((zeigerhcx->message_pair & 0x7f) == 0)
 		{
 		mp0c++;
@@ -296,6 +315,8 @@ if(outmode == 0)
 	{
 	fprintf(stdout, "total hashes readed from file: %ld\n"
 			"\x1B[32mwlandump forced handshakes...: %ld\x1B[0m\n"
+			"802.1x Version 2001..........: %ld\n"
+			"802.1x Version 2004..........: %ld\n"
 			"key version wpa1.............: %ld\n"
 			"key version wpa2.............: %ld\n"
 			"message pair M12E2...........: %ld (%ld not replaycount checked)\n"
@@ -304,10 +325,10 @@ if(outmode == 0)
 			"message pair M32E3...........: %ld (%ld not replaycount checked)\n"
 			"message pair M34E3...........: %ld (%ld not replaycount checked)\n"
 			"message pair M34E4...........: %ld (%ld not replaycount checked)"
-			"\n", totalrecords, wldcount, wpa1c, wpa2c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			"\n", totalrecords, wldcount, xverc1, xverc2, wpa1c, wpa2c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == TRUE)
-		fprintf(stdout, "\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
+		fprintf(stdout, "\x1B[33mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
 	}
 
 return;
@@ -360,7 +381,8 @@ return hcxsize / HCX_SIZE;
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
-	"usage: %s <options>\n"
+	"usage..: %s <options>\n"
+	"example: %s -i <hashfile> show general informations about file\n"
 	"\n"
 	"options:\n"
 	"-i <file> : input hccapx file\n"
@@ -376,7 +398,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-p        : list messagepair\n"
 	"-l        : list essid len\n"
 	"-e        : list essid\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/
