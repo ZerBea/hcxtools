@@ -102,6 +102,14 @@ replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
+int sort_by_nonce_ap(const void *a, const void *b) 
+{ 
+hcx_t *ia = (hcx_t *)a;
+hcx_t *ib = (hcx_t *)b;
+
+return memcmp(ia->nonce_ap, ib->nonce_ap, 32);
+}
+/*===========================================================================*/
 void writehcxinfo(long int hcxrecords, int outmode)
 {
 hcx_t *zeigerhcx;
@@ -141,6 +149,9 @@ char essidoutstr[34];
 uint8_t nonceold[32];
 
 memset(nonceold, 0, 32);
+
+qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_nonce_ap);
+
 c = 0;
 while(c < hcxrecords)
 	{
@@ -398,7 +409,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-p        : list messagepair\n"
 	"-l        : list essid len\n"
 	"-e        : list essid\n"
-	"\n", eigenname, eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/
