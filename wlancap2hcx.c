@@ -46,6 +46,29 @@ char *hcxoutname = NULL;
 char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
 
+/*===========================================================================*/
+void printhex(uint8_t channel, const uint8_t *macaddr1, const uint8_t *macaddr2, int destflag)
+{
+int c;
+
+fprintf(stdout, "%02d ", channel);
+
+for (c = 0; c < 6; c++)
+	fprintf(stdout, "%02x", macaddr1[c]);
+
+if(destflag == TRUE)
+	fprintf(stdout, " <- ");
+else
+	fprintf(stdout, " -> ");
+
+for (c = 0; c < 6; c++)
+	fprintf(stdout, "%02x", macaddr2[c]);
+
+fprintf(stdout, " ");
+
+return;
+}
+/*===========================================================================*/
 
 
 /*===========================================================================*/
@@ -789,13 +812,28 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		eap = (eap_t*)(payload + LLC_SIZE);
 		if(eap->type == 3)
 			{
-			if((macf->from_ds == 1) && (macf->to_ds == 0)) /* sta - ap */
+			if(macf->from_ds == 1) /* sta - ap */
 				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, eap);
 
-			if((macf->to_ds == 1) && (macf->from_ds == 0)) /* ap - sta */
+			if(macf->to_ds == 1) /* ap - sta */
 				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, eap);
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+			continue;
+			}
+
+		if(eap->type == 0)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			continue;
+			}
+
+		if(eap->type == 1)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			continue;
 			}
 		}
 	}
@@ -846,7 +884,7 @@ if(wldflag == TRUE)
 	{
 	printf("\x1B[32mfound wlandump forced handshakes inside\x1B[0m\n");
 	if(wdfhcxoutname != NULL)
-		printf("\x1B[32myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
+		printf("\x1B[33myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
 	}
 
 if(ancflag == TRUE)
