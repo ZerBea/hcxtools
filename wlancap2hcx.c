@@ -40,6 +40,7 @@ uint8_t replaycountcheck = FALSE;
 uint8_t wldflag = FALSE;
 uint8_t ancflag = FALSE;
 uint8_t wpsflag = FALSE;
+uint8_t anecflag = FALSE;
 
 int rctimecount = 0;
 
@@ -104,6 +105,9 @@ if(oldhcxrecord.message_pair == hcxrecord.message_pair)
      if(memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) == 0)
       if(memcmp(oldhcxrecord.nonce_sta, hcxrecord.nonce_sta, 32) == 0)
 	return;
+
+if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) != 0))
+		anecflag = TRUE;
 
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
 
@@ -874,6 +878,11 @@ free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
 printf("%d packets processed (total: %ld netrecords, %ld eaprecords)\n", packetcount, netdbrecords, eapdbrecords);
+
+if(anecflag == TRUE)
+	printf("\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
+
+
 if(wldflag == TRUE)
 	{
 	printf("\x1B[32mfound wlandump forced handshakes inside\x1B[0m\n");
