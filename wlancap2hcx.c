@@ -46,6 +46,7 @@ char *hcxoutname = NULL;
 char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
 
+hcx_t oldhcxrecord;
 /*===========================================================================*/
 void printhex(uint8_t channel, const uint8_t *macaddr1, const uint8_t *macaddr2, int destflag)
 {
@@ -118,6 +119,18 @@ hcxrecord.eapol_len = zeiger2->eapol_len;
 memcpy(hcxrecord.eapol,zeiger2->eapol, zeiger2->eapol_len +4);
 memcpy(hcxrecord.keymic, eap2->keymic, 16);
 memset(&hcxrecord.eapol[0x51], 0, 16);
+
+if(oldhcxrecord.message_pair == hcxrecord.message_pair)
+ if(memcmp(oldhcxrecord.mac_ap.addr, hcxrecord.mac_ap.addr, 6) == 0)
+  if(memcmp(oldhcxrecord.mac_sta.addr, hcxrecord.mac_sta.addr, 6) == 0)
+   if(memcmp(oldhcxrecord.keymic, hcxrecord.keymic, 16) == 0)
+    if(memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) == 0)
+     if(memcmp(oldhcxrecord.nonce_sta, hcxrecord.nonce_sta, 32) == 0)
+	return;
+
+memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
+
+
 
 if(hcxoutname != NULL)
 	{
@@ -597,7 +610,6 @@ int packetcount = 0;
 int wcflag = FALSE;
 int c;
 
-
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
 if (!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
@@ -951,7 +963,6 @@ char *essidunicodeoutname = NULL;
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
-
 setbuf(stdout, NULL);
 while ((auswahl = getopt(argc, argv, "o:p:e:E:w:W:xrhv")) != -1)
 	{
@@ -1002,6 +1013,7 @@ if(pcapoutname != NULL)
 		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapoutname);
 	}
 
+memset(&oldhcxrecord, 0, HCX_SIZE);
 for (index = optind; index < argc; index++)
 	{
 	if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
