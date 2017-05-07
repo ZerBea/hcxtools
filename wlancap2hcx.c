@@ -39,6 +39,7 @@ uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
 uint8_t wldflag = FALSE;
 uint8_t ancflag = FALSE;
+uint8_t wpsflag = FALSE;
 
 int rctimecount = 0;
 
@@ -47,31 +48,6 @@ char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
 
 hcx_t oldhcxrecord;
-/*===========================================================================*/
-void printhex(uint8_t channel, const uint8_t *macaddr1, const uint8_t *macaddr2, int destflag)
-{
-int c;
-
-fprintf(stdout, "%02d ", channel);
-
-for (c = 0; c < 6; c++)
-	fprintf(stdout, "%02x", macaddr1[c]);
-
-if(destflag == TRUE)
-	fprintf(stdout, " <- ");
-else
-	fprintf(stdout, " -> ");
-
-for (c = 0; c < 6; c++)
-	fprintf(stdout, "%02x", macaddr2[c]);
-
-fprintf(stdout, " ");
-
-return;
-}
-/*===========================================================================*/
-
-
 /*===========================================================================*/
 unsigned long long int getreplaycount(uint8_t *eapdata)
 {
@@ -593,6 +569,7 @@ pcap_t *pcapin = NULL;
 rth_t *rth = NULL;
 mac_t *macf = NULL;
 eap_t *eap = NULL;
+eapwps_t *eapwps = NULL;
 essid_t *essidf = NULL;
 const uint8_t *packet = NULL;
 const uint8_t *h80211 = NULL;
@@ -835,6 +812,12 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 		if(eap->type == 0)
 			{
+			eapwps = (eapwps_t*)(payload + LLC_SIZE);
+			if((eapwps->wpscode == 1) || (eapwps->wpscode == 2))
+				if(eapwps->wpstype == EAP_TYPE_EXPAND)
+					wpsflag = TRUE;
+
+
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			continue;
@@ -920,6 +903,9 @@ if(ancflag == TRUE)
 			printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", hcxoutname);
 		}
 	}
+
+if(wpsflag == TRUE)
+	printf("\x1B[36minformation: wps handshakes inside\x1B[0m\n");
 
 if(wcflag == TRUE)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
