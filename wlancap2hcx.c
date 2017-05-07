@@ -651,7 +651,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 	if(pcapstatus == -1)
 		{
-		fprintf(stderr, "pcapstatus %d\n", pcapstatus);
+		fprintf(stderr, "pcap read error: %s \n", pcap_geterr(pcapin));
 		continue;
 		}
 
