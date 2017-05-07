@@ -58,6 +58,62 @@ replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
+int writercnotcheckedhccapx(long int hcxrecords, char *rcnotckeckedname)
+{
+hcx_t *zeigerhcx;
+long int c;
+long int rw = 0;
+FILE *fhhcx;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if((zeigerhcx->message_pair &0x80) == 0x80)
+		{
+		if((fhhcx = fopen(rcnotckeckedname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", rcnotckeckedname);
+			return FALSE;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		fclose(fhhcx);
+		}
+	c++;
+	}
+printf("%ld records written to %s\n", rw, rcnotckeckedname);
+return TRUE;
+}
+/*===========================================================================*/
+int writerccheckedhccapx(long int hcxrecords, char *rcckeckedname)
+{
+hcx_t *zeigerhcx;
+long int c;
+long int rw = 0;
+FILE *fhhcx;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if((zeigerhcx->message_pair &0x80) == 0)
+		{
+		if((fhhcx = fopen(rcckeckedname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", rcckeckedname);
+			return FALSE;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		fclose(fhhcx);
+		}
+	c++;
+	}
+printf("%ld records written to %s\n", rw, rcckeckedname);
+return TRUE;
+}
+/*===========================================================================*/
 int writewlandumpnotforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
 {
 hcx_t *zeigerhcx;
@@ -527,6 +583,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-l <file>     : output file (hccapx) by mac_list (need -L)\n"
 	"-w <file>     : write only wlandump forced to hccapx file\n"
 	"-W <file>     : write only not wlandump forced to hccapx file\n"
+	"-r <file>     : write only replaycount checked to hccapx file\n"
+	"-R <file>     : write only not replaycount checked to hccapx file\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -549,6 +607,8 @@ char *essidname = NULL;
 char *aplistname = NULL;
 char *apoutname = NULL;
 char *wlandumpforcedname = NULL;
+char *rccheckedname = NULL;
+char *rcnotcheckedname = NULL;
 char *workingdirname;
 
 char workingdir[PATH_MAX +1];
@@ -559,7 +619,7 @@ eigenname = basename(eigenpfadname);
 setbuf(stdout, NULL);
 getcwd(workingdir, PATH_MAX);
 workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:r:R:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -642,6 +702,16 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:asoeh")) != -1)
 		mode = 'W';
 		break;
 
+		case 'r':
+		rccheckedname = optarg;
+		mode = 'r';
+		break;
+
+		case 'R':
+		rcnotcheckedname = optarg;
+		mode = 'R';
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -706,6 +776,18 @@ else if(mode == 'W')
 	{
 	if(wlandumpforcedname != NULL)
 		writewlandumpnotforcedhccapx(hcxorgrecords, wlandumpforcedname);
+	}
+
+else if(mode == 'r')
+	{
+	if(rccheckedname != NULL)
+		writerccheckedhccapx(hcxorgrecords, rccheckedname);
+	}
+
+else if(mode == 'R')
+	{
+	if(rcnotcheckedname != NULL)
+		writercnotcheckedhccapx(hcxorgrecords, rcnotcheckedname);
 	}
 
 if(hcxdata != NULL)
