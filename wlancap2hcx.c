@@ -124,13 +124,12 @@ if(oldhcxrecord.message_pair == hcxrecord.message_pair)
  if(memcmp(oldhcxrecord.mac_ap.addr, hcxrecord.mac_ap.addr, 6) == 0)
   if(memcmp(oldhcxrecord.mac_sta.addr, hcxrecord.mac_sta.addr, 6) == 0)
    if(memcmp(oldhcxrecord.keymic, hcxrecord.keymic, 16) == 0)
-    if(memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) == 0)
-     if(memcmp(oldhcxrecord.nonce_sta, hcxrecord.nonce_sta, 32) == 0)
+    if(memcmp(oldhcxrecord.essid, hcxrecord.essid, 32) == 0)
+     if(memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) == 0)
+      if(memcmp(oldhcxrecord.nonce_sta, hcxrecord.nonce_sta, 32) == 0)
 	return;
 
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
-
-
 
 if(hcxoutname != NULL)
 	{
