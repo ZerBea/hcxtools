@@ -58,6 +58,34 @@ replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
+int writmessagepairhccapx(long int hcxrecords, char *mpname, uint8_t message_pair)
+{
+hcx_t *zeigerhcx;
+long int c;
+long int rw = 0;
+FILE *fhhcx;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if(zeigerhcx->message_pair == message_pair)
+		{
+		if((fhhcx = fopen(mpname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", mpname);
+			return FALSE;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		fclose(fhhcx);
+		}
+	c++;
+	}
+printf("%ld records written to %s\n", rw, mpname);
+return TRUE;
+}
+/*===========================================================================*/
 int writercnotcheckedhccapx(long int hcxrecords, char *rcnotckeckedname)
 {
 hcx_t *zeigerhcx;
@@ -585,6 +613,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-W <file>     : write only not wlandump forced to hccapx file\n"
 	"-r <file>     : write only replaycount checked to hccapx file\n"
 	"-R <file>     : write only not replaycount checked to hccapx file\n"
+	"-0 <file>     : write only MESSAGE_PAIR_M12E2 to hccapx file\n"
+	"-1 <file>     : write only MESSAGE_PAIR_M14E4 to hccapx file\n"
+	"-2 <file>     : write only MESSAGE_PAIR_M32E2 to hccapx file\n"
+	"-3 <file>     : write only MESSAGE_PAIR_M32E3 to hccapx file\n"
+	"-4 <file>     : write only MESSAGE_PAIR_M34E3 to hccapx file\n"
+	"-5 <file>     : write only MESSAGE_PAIR_M34E4 to hccapx file\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -599,6 +633,7 @@ long int hcxorgrecords = 0;
 unsigned long long int mac_ap = 0;
 unsigned long long int mac_sta = 0;
 unsigned long long int oui = 0;
+uint8_t message_pair = 0;
 
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
@@ -609,6 +644,7 @@ char *apoutname = NULL;
 char *wlandumpforcedname = NULL;
 char *rccheckedname = NULL;
 char *rcnotcheckedname = NULL;
+char *mpname = NULL;
 char *workingdirname;
 
 char workingdir[PATH_MAX +1];
@@ -619,7 +655,7 @@ eigenname = basename(eigenpfadname);
 setbuf(stdout, NULL);
 getcwd(workingdir, PATH_MAX);
 workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:r:R:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:r:R:0:1:2:3:4:5:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -712,6 +748,43 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:r:R:asoeh")) != -1)
 		mode = 'R';
 		break;
 
+		case '0':
+		mpname = optarg;
+		mode = 'M';
+		message_pair = MESSAGE_PAIR_M12E2;
+		break;
+
+
+		case '1':
+		mpname = optarg;
+		mode = 'M';
+		message_pair = MESSAGE_PAIR_M14E4;
+		break;
+
+		case '2':
+		mpname = optarg;
+		mode = 'M';
+		message_pair = MESSAGE_PAIR_M32E2;
+		break;
+
+		case '3':
+		mpname = optarg;
+		mode = 'M';
+		message_pair = MESSAGE_PAIR_M32E3;
+		break;
+
+		case '4':
+		mpname = optarg;
+		mode = 'M';
+		message_pair = MESSAGE_PAIR_M34E3;
+		break;
+
+		case '5':
+		mpname = optarg;
+		mode = 'M';
+		message_pair = MESSAGE_PAIR_M34E4;
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -789,6 +862,13 @@ else if(mode == 'R')
 	if(rcnotcheckedname != NULL)
 		writercnotcheckedhccapx(hcxorgrecords, rcnotcheckedname);
 	}
+
+else if(mode == 'M')
+	{
+	if(mpname != NULL)
+		writmessagepairhccapx(hcxorgrecords, mpname, message_pair);
+	}
+
 
 if(hcxdata != NULL)
 	free(hcxdata);
