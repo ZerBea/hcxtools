@@ -14,8 +14,9 @@
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
-#include <openssl/md5.h>
 #include <openssl/sha.h>
+#include <openssl/md5.h>
+#include <openssl/md4.h>
 
 /*===========================================================================*/
 int main(int argc, char *argv[])
@@ -32,11 +33,13 @@ SHA_CTX ctxsha1;
 SHA256_CTX ctxsha256;
 SHA512_CTX ctxsha512;
 MD5_CTX ctxmd5;
+MD4_CTX ctxmd4;
 
 unsigned char digestsha1[SHA_DIGEST_LENGTH];
 unsigned char digestsha256[SHA256_DIGEST_LENGTH];
 unsigned char digestsha512[SHA512_DIGEST_LENGTH];
 unsigned char digestmd5[MD5_DIGEST_LENGTH];
+unsigned char digestmd4[MD4_DIGEST_LENGTH];
 
 char testmacstring[] = "112233445566";
 char testkeysetstring[] = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -128,6 +131,25 @@ for (p = 0; p < MD5_DIGEST_LENGTH; p++)
 	k = (digestmd5[p] %keysetlen);
 	printf("%c",keystring[k]);
 	}
+
+
+MD4_Init(&ctxmd4);
+MD4_Update(&ctxmd4, macstring, maclen);
+MD4_Final(digestmd4, &ctxmd4);
+
+printf("\nmd4-hex......: ");
+for (p = 0; p < MD4_DIGEST_LENGTH; p++)
+	{
+	printf("%02x",digestmd4[p]);
+	}
+
+printf("\nmd4-ascii....: ");
+for (p = 0; p < MD4_DIGEST_LENGTH; p++)
+	{
+	k = (digestmd4[p] %keysetlen);
+	printf("%c",keystring[k]);
+	}
+
 
 printf("\n");
 
