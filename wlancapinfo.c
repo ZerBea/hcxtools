@@ -25,17 +25,20 @@ int getpcapinfo(char *pcapinname)
 {
 //struct stat statinfo;
 pcap_t *pcapin = NULL;
+struct pcap_pkthdr *pkh;
+
 FILE *fhc;
 int magicsize = 0;
 int datalink = 0;
 int majorversion = 0;
 int minorversion = 0;
+int pcapstatus;
+long int packetcount = 0;
 uint32_t magic = 0;
+const uint8_t *packet = NULL;
 
 char *datalinkstring = "";
 char *pcapformatstring = "";
-
-char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
 char *dlt105 = "(DLT_IEEE802_11)";
 char *dlt119 = "(DLT_PRISM_HEADER)";
@@ -43,10 +46,12 @@ char *dlt127 = "(DLT_IEEE802_11_RADIO)";
 char *dlt163 = "(DLT_IEEE802_11_RADIO_AVS)";
 
 char *pcap = "(cap/pcap)";
+char *pcapng = "(pcapng)";
 char *pcapsw = "(swapped cap/pcap)";
 char *pcapns = "(cap/pcap - ns)";
 char *pcapnssw = "(swapped cap/pcap - ns)";
-char *pcapng = "(pcapng)";
+char *noerror = "flawless";
+char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
 if (!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	{
@@ -58,6 +63,19 @@ majorversion = pcap_major_version(pcapin);
 minorversion = pcap_minor_version(pcapin);
 datalink = pcap_datalink(pcapin);
 
+memset(&pcaperrorstring, 0, PCAP_ERRBUF_SIZE);
+strcpy(pcaperrorstring, noerror);
+while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
+	{
+	if(pcapstatus == -1)
+		{
+		strcpy(pcaperrorstring, pcap_geterr(pcapin));
+		continue;
+		}
+	packetcount++;
+
+
+	}
 pcap_close(pcapin);
 
 
@@ -113,8 +131,10 @@ printf( "input file.......: %s\n"
 	"major version....: %d\n"
 	"minor version....: %d\n"
 	"data link type...: %d %s\n"
+	"packets inside...: %ld\n"
+	"last pcap error..: %s\n"
 
-	, pcapinname, magic, pcapformatstring, majorversion, minorversion, datalink, datalinkstring);
+	, pcapinname, magic, pcapformatstring, majorversion, minorversion, datalink, datalinkstring, packetcount, pcaperrorstring);
 
 return TRUE;	
 }
