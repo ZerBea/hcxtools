@@ -645,6 +645,7 @@ neweapdbdata = eapdbdata;
 eapdbrecords = 0;
 
 printf("start reading from %s\n", pcapinname);
+
 while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	{
 	if(pcapstatus == 0)
@@ -992,6 +993,10 @@ while ((auswahl = getopt(argc, argv, "o:p:e:E:w:W:xrhv")) != -1)
 
 		case 'r':
 		replaycountcheck = TRUE;
+		break;
+
+		case 'h':
+		usage(eigenname);
 		break;
 
 		default:
