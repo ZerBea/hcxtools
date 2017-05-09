@@ -57,8 +57,6 @@ Requirements
 
 * libopenssl and openssl-dev installed
 
-* libgcrypt and gcrypt-dev installed
-
 * libcurl and curl-dev installed (used by whoismac)
 
 * Raspberry Pi: additionally libwiringpi and wiringpi dev installed (Raspberry Pi GPIO support)
@@ -76,6 +74,8 @@ Useful scripts
 | bash_profile | Autostart for Raspberry Pi (copy to /root/.bash_profile) |
 | pireadcard   | Back up a Pi SD card                                     |
 | piwritecard  | Restore a Pi SD card                                     |
+| makemonnb    | Example script to activate monitor mode                  |
+| killmonnb    | Example script to deactivate monitor mode                |
 
 
 Notice
