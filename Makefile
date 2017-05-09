@@ -9,6 +9,7 @@ all: build
 build:
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlandump wlandump.c -lpcap
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanscan wlanscan.c -lpcap
+	$(CC) $(CFLAGS) $(CFLAGS1) -o wlancapinfo wlancapinfo.c -lpcap
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlancap2hcx wlancap2hcx.c -lpcap
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhcx2cap wlanhcx2cap.c -lpcap
 	$(CC) $(CFLAGS) $(CFLAGS1) -o wlanhc2hcx wlanhc2hcx.c
@@ -24,6 +25,7 @@ build:
 install: build
 	install -D -m 0755 wlandump $(INSTALLDIR)/wlandump
 	install -D -m 0755 wlanscan $(INSTALLDIR)/wlanscan
+	install -D -m 0755 wlancapinfo $(INSTALLDIR)/wlancapinfo
 	install -D -m 0755 wlancap2hcx $(INSTALLDIR)/wlancap2hcx
 	install -D -m 0755 wlanhcx2cap $(INSTALLDIR)/wlanhcx2cap
 	install -D -m 0755 wlanhc2hcx $(INSTALLDIR)/wlanhc2hcx
@@ -37,6 +39,7 @@ install: build
 
 	rm -f wlandump
 	rm -f wlanscan
+	rm -f wlancapinfo
 	rm -f wlancap2hcx
 	rm -f wlanhcx2cap
 	rm -f wlanhc2hcx
@@ -52,6 +55,7 @@ install: build
 clean:
 	rm -f wlandump
 	rm -f wlanscan
+	rm -f wlancapinfo
 	rm -f wlancap2hcx
 	rm -f wlanhcx2cap
 	rm -f wlanhc2hcx
@@ -67,6 +71,7 @@ clean:
 uninstall:
 	rm -f $(INSTALLDIR)/wlandump
 	rm -f $(INSTALLDIR)/wlanscan
+	rm -f $(INSTALLDIR)/wlancapinfo
 	rm -f $(INSTALLDIR)/wlancap2hcx
 	rm -f $(INSTALLDIR)/wlanhcx2cap
 	rm -f $(INSTALLDIR)/wlanhc2hcx
