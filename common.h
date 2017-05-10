@@ -247,6 +247,14 @@ typedef struct eap_frame eap_t;
 #define	EAP_SIZE (sizeof(eap_t))
 
 
+struct vendor_id
+{
+ uint8_t	vid[3];
+};
+typedef struct vendor_id vid_t;
+#define	VID_SIZE (sizeof(vidt_t))
+
+
 struct eapwps_frame
 {
  uint8_t		version;
@@ -261,6 +269,16 @@ struct eapwps_frame
  uint8_t		wpstype;
 #define	EAP_TYPE_ID	1
 #define	EAP_TYPE_EXPAND	254
+ vid_t			wps_vendor_id;
+ uint32_t		wps_vendor_type;
+ uint8_t		wps_wsc_msg;
+ uint8_t		wps_flags;
+ uint16_t		wps_version_type;
+ uint16_t		wps_version_len;
+ uint8_t		wps_version;
+ uint16_t		wps_message_type;
+ uint16_t		wps_message_len;
+ uint8_t		wps_message;
 } __attribute__((__packed__));
 typedef struct eapwps_frame eapwps_t;
 #define	EAPWPS_SIZE (sizeof(eapwps_t))
@@ -308,6 +326,8 @@ typedef struct eapdb eapdb_t;
 #define	EAPDB_SIZE (sizeof(eapdb_t))
 
 
+#define MYREPLAYCOUNT 63232
+
 #define	MESSAGE_PAIR_M12E2 0
 #define	MESSAGE_PAIR_M14E4 1
 #define	MESSAGE_PAIR_M32E2 2
@@ -352,9 +372,16 @@ const uint8_t mynonce[] =
 };
 #define ANONCE_SIZE sizeof(anonce)
 
-/* blacklist function: add here your devices, you don't want to be targeted*/
 
-const char *filterstring = "!(wlan host 00:00:00:00:00:00 || wlan host 00:00:00:00:00:00 || "
-                             "wlan src 00:00:00:00:00:00 || wlan src 00:00:00:00:00:00)";
+const char *filterstring = "!(wlan host 08:96:d7:98:e1:9e || wlan host 0a:96:d7:98:e1:9e || "
+                             "wlan host 34:81:c4:e7:99:1b || wlan host 36:81:c4:e7:99:1b || "
+                             "wlan host 5c:49:79:66:20:5b || wlan host 5e:49:79:66:20:5b || "
+                             "wlan host 00:04:0e:d7:3c:0a || wlan host 00:24:d4:9e:e8:c4 || "
+                             "wlan host 64:66:b3:8e:c3:fc || wlan host 00:1e:58:c7:07:67 || "
+                             "wlan host 20:2b:c1:55:77:b2 || "
+                             "wlan src b0:c0:90:46:7c:ab || wlan src 00:13:e8:63:51:e7 || "
+                             "wlan src 44:a7:cf:bc:33:06 || wlan src 88:30:8a:47:8e:b8 || "
+                             "wlan src 00:25:a0:6e:d1:39 || wlan src 00:90:a2:83:10:e9 || "
+                             "wlan src 00:c0:ca:36:7a:0d)";
 
 /*===========================================================================*/

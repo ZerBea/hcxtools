@@ -123,7 +123,7 @@ if(hcxoutname != NULL)
 	}
 
 r = getreplaycount(zeiger2->eapol);
-if((r == 63232) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
+if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
 	{
 	wldflagint = TRUE;
 	wldflag = TRUE;
@@ -281,7 +281,7 @@ while(c >= 0)
 		{
 		m = geteapkey(zeiger->eapol);
 		r = getreplaycount(zeiger->eapol);
-		if((m == 1) && (r != 63232) && (checkmynonce(zeiger->eapol) == FALSE))
+		if((m == 1) && (r != MYREPLAYCOUNT) && (checkmynonce(zeiger->eapol) == FALSE))
 			{
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M14E4NR);
 			if(netexact == TRUE)
@@ -408,7 +408,7 @@ while(c >= 0)
 		{
 		m = geteapkey(zeiger->eapol);
 		r = getreplaycount(zeiger->eapol);
-		if((m == 2) && (r != 63232))
+		if((m == 2) && (r != MYREPLAYCOUNT))
 			{
 			lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M32E2NR);
 			if(netexact == TRUE)
@@ -430,7 +430,7 @@ long int c;
 int rctime = 2;
 uint8_t m = 0;
 
-if (replaycakt == 63232)
+if (replaycakt == MYREPLAYCOUNT)
 	{
 	rctime = 120;
 	}
@@ -477,7 +477,7 @@ while(c >= 0)
 		{
 		m = geteapkey(zeiger->eapol);
 		r = getreplaycount(zeiger->eapol);
-		if((m == 1) && (r != 63232) && (checkmynonce(zeiger->eapol) == FALSE))
+		if((m == 1) && (r != MYREPLAYCOUNT) && (checkmynonce(zeiger->eapol) == FALSE))
 			{
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2NR);
 			if(netexact == TRUE)

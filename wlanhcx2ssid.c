@@ -155,7 +155,7 @@ while(c < hcxrecords)
 	{
 	zeigerhcx = hcxdata +c;
 	r = getreplaycount(zeigerhcx->eapol);
-	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) != 0) && (r != 63232))
+	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) != 0) && (r != MYREPLAYCOUNT))
 		{
 
 		if((fhhcx = fopen(wlandumpforcedname, "ab")) == NULL)
@@ -186,7 +186,7 @@ while(c < hcxrecords)
 	{
 	zeigerhcx = hcxdata +c;
 	r = getreplaycount(zeigerhcx->eapol);
-	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0) && (r == 63232))
+	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0) && (r == MYREPLAYCOUNT))
 		{
 		if((fhhcx = fopen(wlandumpforcedname, "ab")) == NULL)
 			{
