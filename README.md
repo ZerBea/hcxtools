@@ -22,7 +22,7 @@ Detailed description
 | wlanscan      | Small, fast and simple passive WLAN scanner (status output)                                         |
 | pioff         | Turns Raspberry Pi off via GPIO switch                                                              |
 | wlancapinfo   | Shows info of pcap file                                                                             |
-| wlancap2hcx   | Converts cap to hccapx (recommended for use with wlandump (pcapng support))                         |
+| wlancap2hcx   | Converts cap to hccapx (recommended for use with wlandump (many options and pcapng support))        |
 | wlanhcx2cap   | Converts hccapx to cap                                                                              |
 | wlanhc2hcx    | Converts hccap to hccapx                                                                            |
 | wlanhcx2essid | Merges hccapx containing the same ESSID                                                             |
@@ -44,9 +44,12 @@ make
 make install
 ```
 
-Use Makefile.pi to compile (wlandump) on Raspberry Pi
+or (with GPIO support - hardware mods required)
 
-Use Makefile.pi.gpio to compile (wlandump and pioff) on Raspberry Pi (hardware mods required (gpiowait.odg))
+```
+make GPIOSUPPORT=on
+make GPIOSUPPORT=on install
+```
 
 
 Requirements
