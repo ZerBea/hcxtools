@@ -22,7 +22,6 @@ endif
 	$(CC) $(CFLAGS) -o wlanhcx2essid wlanhcx2essid.c
 	$(CC) $(CFLAGS) -o wlanhcx2ssid wlanhcx2ssid.c
 	$(CC) $(CFLAGS) -o wlanhcx2john wlanhcx2john.c
-	$(CC) $(CFLAGS) -o wlanhcx2key wlanhcx2key.c -lcrypto
 	$(CC) $(CFLAGS) -o wlanhcxinfo wlanhcxinfo.c
 	$(CC) $(CFLAGS) -o wlanhcxmnc wlanhcxmnc.c
 	$(CC) $(CFLAGS) -o whoismac whoismac.c -lcurl
@@ -42,7 +41,6 @@ endif
 	install -D -m 0755 wlanhcx2essid $(INSTALLDIR)/wlanhcx2essid
 	install -D -m 0755 wlanhcx2ssid $(INSTALLDIR)/wlanhcx2ssid
 	install -D -m 0755 wlanhcx2john $(INSTALLDIR)/wlanhcx2john
-	install -D -m 0755 wlanhcx2key $(INSTALLDIR)/wlanhcx2key
 	install -D -m 0755 wlanhcxinfo $(INSTALLDIR)/wlanhcxinfo
 	install -D -m 0755 wlanhcxmnc $(INSTALLDIR)/wlanhcxmnc
 	install -D -m 0755 whoismac $(INSTALLDIR)/whoismac
@@ -60,7 +58,6 @@ endif
 	rm -f wlanhcx2essid
 	rm -f wlanhcx2ssid
 	rm -f wlanhcx2john
-	rm -f wlanhcx2key
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
 	rm -f whoismac
@@ -81,7 +78,6 @@ endif
 	rm -f wlanhcx2essid
 	rm -f wlanhcx2ssid
 	rm -f wlanhcx2john
-	rm -f wlanhcx2key
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
 	rm -f whoismac
@@ -102,7 +98,6 @@ endif
 	rm -f $(INSTALLDIR)/wlanhcx2essid
 	rm -f $(INSTALLDIR)/wlanhcx2ssid
 	rm -f $(INSTALLDIR)/wlanhcx2john
-	rm -f $(INSTALLDIR)/wlanhcx2key
 	rm -f $(INSTALLDIR)/wlanhcxinfo
 	rm -f $(INSTALLDIR)/wlanhcxmnc
 	rm -f $(INSTALLDIR)/whoismac
