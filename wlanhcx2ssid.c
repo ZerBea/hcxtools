@@ -646,15 +646,16 @@ char *rccheckedname = NULL;
 char *rcnotcheckedname = NULL;
 char *mpname = NULL;
 char *workingdirname;
-
+char *wdres;
 char workingdir[PATH_MAX +1];
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-getcwd(workingdir, PATH_MAX);
-workingdirname = workingdir;
+wdres = getcwd(workingdir, PATH_MAX);
+if(wdres != NULL)
+	workingdirname = workingdir;
 while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:r:R:0:1:2:3:4:5:asoeh")) != -1)
 	{
 	switch (auswahl)
