@@ -34,7 +34,6 @@
 /* Definitionen */
 
 #define APLISTESIZEMAX 1024
-#define STALISTESIZEMAX 1024
 
 #define SENDPACKETSIZEMAX 0x1ff
 
@@ -42,6 +41,7 @@
 struct aplist
 {
  adr_t		addr_ap;
+ int		deauthcount;
  uint8_t	essid_len;
  uint8_t	essid[32];
 };
@@ -73,6 +73,9 @@ apl_t *apliste = NULL;
 stal_t *staliste = NULL; 
 
 adr_t myaddr;
+adr_t broadcast;
+adr_t nullmac;
+
 int myoui = 0;
 int myap = 0;
 
@@ -81,16 +84,6 @@ char *interfacename = NULL;
 
 /*===========================================================================*/
 /* Konstante */
-
-const uint8_t mac_null[] =
-{
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-
-const uint8_t broadcast[] =
-{
-0xff, 0xff, 0xff, 0xff, 0xff, 0xff
-};
 
 const int myvendor[] =
 {
@@ -202,7 +195,8 @@ const uint8_t associationresponse[] =
 int initgloballists()
 {
 int c;
-stal_t * zeiger;
+apl_t * zeiger;
+stal_t * zeigersta;
 myap = rand() & 0xffffff;
 if(myoui == 0)
 	myoui = myvendor[rand() % ((MYVENDOR_SIZE / sizeof(int))-1)];
@@ -215,19 +209,36 @@ myaddr.addr[2] = myoui & 0xff;
 myaddr.addr[1] = (myoui >> 8) & 0xff;
 myaddr.addr[0] = (myoui >> 16) & 0xff;
 
+memset(&broadcast, 0, 6);
+broadcast.addr[5] = 0xff;
+broadcast.addr[4] = 0xff;
+broadcast.addr[3] = 0xff;
+broadcast.addr[2] = 0xff;
+broadcast.addr[1] = 0xff;
+broadcast.addr[0] = 0xff;
+
+memset(&nullmac, 0, 6);
+
 if((apliste = malloc(APLISTESIZEMAX * APL_SIZE)) == NULL)
 	return FALSE;
 memset(apliste, 0, APLISTESIZEMAX * APL_SIZE);
 
-if((staliste = malloc(STALISTESIZEMAX * STAL_SIZE)) == NULL)
+if((staliste = malloc(APLISTESIZEMAX * STAL_SIZE)) == NULL)
 	return FALSE;
-memset(staliste, 0, STALISTESIZEMAX * STAL_SIZE);
+memset(staliste, 0, APLISTESIZEMAX * STAL_SIZE);
 
-zeiger = staliste;
-for(c = 0; c < STALISTESIZEMAX; c++)
+zeiger = apliste;
+for(c = 0; c < APLISTESIZEMAX; c++)
 	{
 	zeiger->deauthcount = deauthmax;
 	zeiger++;
+	}	
+
+zeigersta = staliste;
+for(c = 0; c < APLISTESIZEMAX; c++)
+	{
+	zeigersta->deauthcount = deauthmax;
+	zeigersta++;
 	}	
 
 return TRUE;
@@ -269,7 +280,7 @@ memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
 grundframe.subtype = MAC_ST_BEACON;
 grundframe.duration = 0;
-memcpy(grundframe.addr1.addr, broadcast, 6);
+memcpy(grundframe.addr1.addr, broadcast.addr, 6);
 memcpy(grundframe.addr2.addr, macaddr2, 6);
 memcpy(grundframe.addr3.addr, macaddr2, 6);
 grundframe.sequence = htole16(mysequencenr++ << 4);
@@ -542,6 +553,7 @@ if(pcapstatus == -1)
 #endif
 	fprintf(stderr, "error while sending retry deauthentication %s \n", pcap_geterr(pcapin));
 	}
+
 mysequencenr++;
 if(mysequencenr > 9999)
 	mysequencenr = 1;
@@ -599,21 +611,21 @@ stal_t *zeiger;
 int c;
 
 zeiger = staliste;
-for(c = 0; c < STALISTESIZEMAX; c++)
+for(c = 0; c < APLISTESIZEMAX; c++)
 	{
 	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		return TRUE;
 		}
-	if(memcmp(&mac_null, zeiger->addr_sta.addr, 6) == 0)
+	if(memcmp(&nullmac.addr, zeiger->addr_sta.addr, 6) == 0)
 		break;
 	zeiger++;
 	}
 
-if(c >= STALISTESIZEMAX)
+if(c >= APLISTESIZEMAX)
 	{
 	zeiger = staliste;
-	memset(staliste, 0, STALISTESIZEMAX * STAL_SIZE);
+	memset(staliste, 0, APLISTESIZEMAX * STAL_SIZE);
 	}
 
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -633,9 +645,16 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 	{
 	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
+#ifdef DOACTIVE
+		if(zeiger->deauthcount > 0)
+			{
+			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcast.addr, zeiger->addr_ap.addr);
+			zeiger->deauthcount -= 1;
+			}
+#endif
 		return TRUE;
 		}
-	if(memcmp(&mac_null, zeiger->addr_ap.addr, 6) == 0)
+	if(memcmp(&nullmac.addr, zeiger->addr_ap.addr, 6) == 0)
 		break;
 	zeiger++;
 	}
@@ -798,12 +817,15 @@ while(1)
 				{
 				channel = 1;
 #ifdef DOACTIVE
+				zeiger = apliste;
 				zeigersta = staliste;
-				for(c = 0; c < STALISTESIZEMAX; c++)
+				for(c = 0; c < APLISTESIZEMAX; c++)
 					{
+					zeiger->deauthcount = deauthmax;
 					zeigersta->deauthcount = deauthmax;
+					zeiger++;
 					zeigersta++;
-					}
+					}	
 #endif
 				}
 
@@ -955,7 +977,7 @@ while(1)
 						break;
 						}
 
-					if(memcmp(&mac_null, zeiger->addr_ap.addr, 6) == 0)
+					if(memcmp(&nullmac.addr, zeiger->addr_ap.addr, 6) == 0)
 						{
 						myaddr.addr[5] = myap & 0xff;
 						myaddr.addr[4] = (myap >> 8) & 0xff;
@@ -1075,7 +1097,7 @@ while(1)
 		if((macf->to_ds == 1) && (macf->power == 0))
 			{
 			zeigersta = staliste;
-			for(c = 0; c < STALISTESIZEMAX; c++)
+			for(c = 0; c < APLISTESIZEMAX; c++)
 				{
 				if(memcmp(zeigersta->addr_sta.addr, macf->addr2.addr, 6) == 0)
 					{
