@@ -1,5 +1,4 @@
 #define _GNU_SOURCE
-#include <gcrypt.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <fcntl.h>
