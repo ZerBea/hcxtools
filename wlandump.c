@@ -1356,7 +1356,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:c:t:d:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:c:t:d:V:hv")) != -1)
 	{
 	switch (auswahl)
 		{
