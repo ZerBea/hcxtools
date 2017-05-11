@@ -202,11 +202,15 @@ const uint8_t associationresponse[] =
 int initgloballists()
 {
 int c;
+stal_t * zeiger;
 myap = rand() & 0xffffff;
 if(myoui == 0)
 	myoui = myvendor[rand() % ((MYVENDOR_SIZE / sizeof(int))-1)];
 
 memset(&myaddr, 0, 6);
+myaddr.addr[5] = myap & 0xff;
+myaddr.addr[4] = (myap >> 8) & 0xff;
+myaddr.addr[3] = (myap >> 16) & 0xff;
 myaddr.addr[2] = myoui & 0xff;
 myaddr.addr[1] = (myoui >> 8) & 0xff;
 myaddr.addr[0] = (myoui >> 16) & 0xff;
@@ -219,9 +223,12 @@ if((staliste = malloc(STALISTESIZEMAX * STAL_SIZE)) == NULL)
 	return FALSE;
 memset(staliste, 0, STALISTESIZEMAX * STAL_SIZE);
 
+zeiger = staliste;
 for(c = 0; c < STALISTESIZEMAX; c++)
-	staliste->deauthcount = deauthmax;
-
+	{
+	zeiger->deauthcount = deauthmax;
+	zeiger++;
+	}	
 
 return TRUE;
 }
@@ -233,17 +240,17 @@ int c;
 fprintf(stdout, "%02d ", channel);
 
 for (c = 0; c < 6; c++)
-	fprintf(stdout, "%02x", macaddr1[c]);
+	printf("%02x", macaddr1[c]);
 
 if(destflag == TRUE)
-	fprintf(stdout, " <- ");
+	printf(" <- ");
 else
-	fprintf(stdout, " -> ");
+	printf(" -> ");
 
 for (c = 0; c < 6; c++)
-	fprintf(stdout, "%02x", macaddr2[c]);
+	printf("%02x", macaddr2[c]);
 
-fprintf(stdout, " ");
+printf(" ");
 
 return;
 }
@@ -735,7 +742,6 @@ uint8_t field = 0;
 #ifdef DOACTIVE
  uint8_t mkey = 0;
  authf_t *authenticationreq = NULL;
-
 #else
   #ifdef DOSTATUS
 	uint8_t mkey = 0;
@@ -745,6 +751,7 @@ uint8_t field = 0;
 
 #ifdef DOACTIVE
 apl_t *zeiger;
+stal_t *zeigersta;
 int c;
 #endif
 
@@ -754,6 +761,17 @@ unsigned long long int replaycount;
 
 #ifdef DOSTATUS
 char essidstr[34];
+#endif
+
+
+#ifdef DOSTATUS
+printf("start capturing...\n");
+ #ifdef DOACTIVE
+printf("own mac: ");
+for (c = 0; c < 6; c++)
+	printf("%02x", myaddr.addr[c]);
+printf("\n");
+ #endif
 #endif
 
 while(1)
@@ -782,8 +800,12 @@ while(1)
 				{
 				channel = 1;
 #ifdef DOACTIVE
+				zeigersta = staliste;
 				for(c = 0; c < STALISTESIZEMAX; c++)
-					staliste->deauthcount = deauthmax;
+					{
+					zeigersta->deauthcount = deauthmax;
+					zeigersta++;
+					}
 #endif
 				}
 
@@ -1055,16 +1077,18 @@ while(1)
 #ifdef DOACTIVE
 		if((macf->to_ds == 1) && (macf->power == 0))
 			{
+			zeigersta = staliste;
 			for(c = 0; c < STALISTESIZEMAX; c++)
 				{
-				if(memcmp(staliste->addr_sta.addr, macf->addr2.addr, 6) == 0)
+				if(memcmp(zeigersta->addr_sta.addr, macf->addr2.addr, 6) == 0)
 					{
-					if(staliste->deauthcount > 0)
+					if(zeigersta->deauthcount > 0)
 						{
 						senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, macf->addr1.addr, macf->addr2.addr);
-						staliste->deauthcount -= 1;
+						zeigersta->deauthcount -= 1;
 						}
 					}
+				zeigersta++;
 				}
 			}
 #endif
