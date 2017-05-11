@@ -548,8 +548,6 @@ if(mysequencenr > 9999)
 return ;
 }
 /*===========================================================================*/
-
-/*===========================================================================*/
 #ifdef DOSTATUS
 unsigned long long int getreplaycount(eap_t *eap)
 {
@@ -929,6 +927,16 @@ while(1)
 			if (&essidf->essid[0] == 0)
 				continue;
 
+			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				{
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+#ifdef DOSTATUS
+				printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+				memset(&essidstr, 0, 34);
+				memcpy(&essidstr, essidf->essid, essidf->info_essid_len);
+				printf("%s (proberequest)\n", essidstr);
+#endif
+				}
 #ifdef DOACTIVE
 			if(memcmp(&broadcast, macf->addr1.addr, 6) != 0)
 				{
@@ -971,16 +979,6 @@ while(1)
 					}
 				}
 #endif
-			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
-				{
-				pcap_dump((u_char *) pcapout, pkh, h80211);
-#ifdef DOSTATUS
-				printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
-				memset(&essidstr, 0, 34);
-				memcpy(&essidstr, essidf->essid, essidf->info_essid_len);
-				printf("%s (proberequest)\n", essidstr);
-#endif
-				}
 			continue;
 			}
 
@@ -1032,7 +1030,6 @@ while(1)
 #endif
 			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
-
 
 #ifdef DOSTATUS
 			printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
