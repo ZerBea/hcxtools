@@ -560,6 +560,13 @@ if(mysequencenr > 9999)
 return ;
 }
 /*===========================================================================*/
+int checkmynonce(eap_t *eap)
+{
+if(memcmp(eap->nonce, &mynonce, 32) == 0)
+	return TRUE;
+return FALSE;
+}
+/*===========================================================================*/
 unsigned long long int getreplaycount(eap_t *eap)
 {
 unsigned long long int replaycount = 0;
@@ -896,10 +903,10 @@ while(1)
 				continue;
 			if(handleapframes(macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
 				{
+				pcap_dump((u_char *) pcapout, pkh, h80211);
 #ifdef DOACTIVE
 				senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, macf->addr1.addr, macf->addr2.addr);
 #endif
-				pcap_dump((u_char *) pcapout, pkh, h80211);
 #ifdef DOSTATUS
 				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
 				memset(&essidstr, 0, 34);
@@ -1016,13 +1023,15 @@ while(1)
 				continue;
 			if (&essidf->essid[0] == 0)
 				continue;
+
+			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
 #ifdef DOACTIVE
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_ASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
+			usleep(5);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
 #endif
-			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
-				pcap_dump((u_char *) pcapout, pkh, h80211);
 
 #ifdef DOSTATUS
 			printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
@@ -1044,13 +1053,17 @@ while(1)
 				continue;
 			if (&essidf->essid[0] == 0)
 				continue;
+
+			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+
 #ifdef DOACTIVE
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_REASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
+			usleep(5);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
 #endif
-			if(handlestaframes(macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
-				pcap_dump((u_char *) pcapout, pkh, h80211);
+
 
 #ifdef DOSTATUS
 			printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
@@ -1121,20 +1134,22 @@ while(1)
 
 		if(eap->type == 3)
 			{
+			pcap_dump((u_char *) pcapout, pkh, h80211);
+
 #ifdef DOACTIVE
 			mkey = geteapkey(eap);
 			if(mkey == 4)
 				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr, macf->addr1.addr);
 #endif
-
-			pcap_dump((u_char *) pcapout, pkh, h80211);
-
 #ifdef DOSTATUS
 			replaycount = getreplaycount(eap);
 			if(mkey == 1)
 				{
 				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
-				printf("M1 message (replaycount: %lld)\n", replaycount);
+				if(checkmynonce(eap) == TRUE)
+					printf("M1 message (replaycount: %lld transmitted by wlandump)\n", replaycount);
+				else
+					printf("M1 message (replaycount: %lld)\n", replaycount);
 				}
 
 			if(mkey == 2)
@@ -1166,20 +1181,24 @@ while(1)
 			pcap_dump((u_char *) pcapout, pkh, h80211);
 #ifdef DOSTATUS
 			eapext = (eapext_t*)(payload + LLC_SIZE);
+			if(macf->from_ds == 1) /* sta - ap */
+				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
+
+			if(macf->to_ds == 1) /* ap - sta */
+				printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+
 			if(eapext->len >= 4)
 				{
 				if(eapext->eapcode == EAP_CODE_REQ)
 					{
-					printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
 					printf("\x1B[36meap extended data\x1B[0m\n");
-				}
+					}
 
 				if(eapext->eapcode == EAP_CODE_RESP)
 					{
-					printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
 					printf("\x1B[36meap extended data\x1B[0m\n");
+					}
 				}
-			}
 #endif
 			continue;
 			}
