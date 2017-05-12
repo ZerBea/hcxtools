@@ -381,17 +381,18 @@ hcx_t *zeigerhcx;
 FILE *fhhcx;
 long int c;
 long int rw = 0;
-int essid_len;
-
 char essidoutname[PATH_MAX +1];
 
-essid_len = strlen(essidname);
+char essidstr[34];
+
 snprintf(essidoutname, PATH_MAX, "%s.hccapx", essidname);
 c = 0;
 while(c < hcxrecords)
 	{
 	zeigerhcx = hcxdata +c;
-	if(memcmp(essidname, zeigerhcx->essid, essid_len) == 0)
+	memset(&essidstr, 0, 34);
+	memcpy(&essidstr, zeigerhcx->essid, zeigerhcx->essid_len);
+	if(strstr(essidstr, essidname) != NULL)
 		{
 		if((fhhcx = fopen(essidoutname, "ab")) == NULL)
 			{
