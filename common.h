@@ -255,33 +255,23 @@ typedef struct vendor_id vid_t;
 #define	VID_SIZE (sizeof(vidt_t))
 
 
-struct eapwps_frame
+struct eapext_frame
 {
  uint8_t		version;
  uint8_t		type;
  uint16_t		len;
- uint8_t		wpscode;
+ uint8_t		eapcode;
 #define	EAP_CODE_REQ	1
 #define	EAP_CODE_RESP	2
 #define	EAP_CODE_FAIL	4
- uint8_t		wpsid;
- uint16_t		wpslen;
- uint8_t		wpstype;
+ uint8_t		eapid;
+ uint16_t		eaplen;
+ uint8_t		eaptype;
 #define	EAP_TYPE_ID	1
 #define	EAP_TYPE_EXPAND	254
- vid_t			wps_vendor_id;
- uint32_t		wps_vendor_type;
- uint8_t		wps_wsc_msg;
- uint8_t		wps_flags;
- uint16_t		wps_version_type;
- uint16_t		wps_version_len;
- uint8_t		wps_version;
- uint16_t		wps_message_type;
- uint16_t		wps_message_len;
- uint8_t		wps_message;
 } __attribute__((__packed__));
-typedef struct eapwps_frame eapwps_t;
-#define	EAPWPS_SIZE (sizeof(eapwps_t))
+typedef struct eapext_frame eapext_t;
+#define	EAPWPS_SIZE (sizeof(eapext_t))
 
 
 struct maclist

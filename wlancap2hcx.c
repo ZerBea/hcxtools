@@ -573,7 +573,7 @@ pcap_t *pcapin = NULL;
 rth_t *rth = NULL;
 mac_t *macf = NULL;
 eap_t *eap = NULL;
-eapwps_t *eapwps = NULL;
+eapext_t *eapext = NULL;
 essid_t *essidf = NULL;
 const uint8_t *packet = NULL;
 const uint8_t *h80211 = NULL;
@@ -817,11 +817,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 		if(eap->type == 0)
 			{
-			eapwps = (eapwps_t*)(payload + LLC_SIZE);
-			if((eapwps->wpscode == 1) || (eapwps->wpscode == 2))
-				if(eapwps->wpstype == EAP_TYPE_EXPAND)
+			eapext = (eapext_t*)(payload + LLC_SIZE);
+				if(eapext->len >= 4)
 					wpsflag = TRUE;
-
 
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
@@ -915,7 +913,7 @@ if(ancflag == TRUE)
 	}
 
 if(wpsflag == TRUE)
-	printf("\x1B[36minformation: wps handshakes inside\x1B[0m\n");
+	printf("\x1B[36minformation: eap extended data inside\x1B[0m\n");
 
 if(wcflag == TRUE)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");

@@ -560,7 +560,6 @@ if(mysequencenr > 9999)
 return ;
 }
 /*===========================================================================*/
-#ifdef DOSTATUS
 unsigned long long int getreplaycount(eap_t *eap)
 {
 unsigned long long int replaycount = 0;
@@ -568,7 +567,6 @@ unsigned long long int replaycount = 0;
 replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
-#endif
 /*===========================================================================*/
 uint8_t geteapkey(eap_t *eap)
 {
@@ -774,6 +772,7 @@ int c;
 
 #ifdef DOSTATUS
 unsigned long long int replaycount;
+eapext_t *eapext = NULL;
 #endif
 
 #ifdef DOSTATUS
@@ -1166,20 +1165,36 @@ while(1)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
 #ifdef DOSTATUS
-			if(macf->from_ds == 1) /* sta - ap */
+			eapext = (eapext_t*)(payload + LLC_SIZE);
+			if(eapext->len >= 4)
 				{
-				printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
-				printf("wps extended data\n");
+				if(eapext->eapcode == EAP_CODE_REQ)
+					{
+					printaddr(macf->addr1.addr, macf->addr2.addr, TRUE);
+					printf("\x1B[36meap extended data\x1B[0m\n");
 				}
 
-			if(macf->to_ds == 1) /* ap - sta */
-				{
-				printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
-				printf("wps extended data\n");
+				if(eapext->eapcode == EAP_CODE_RESP)
+					{
+					printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+					printf("\x1B[36meap extended data\x1B[0m\n");
 				}
+			}
 #endif
 			continue;
 			}
+
+		if(eap->type == 0)
+			{
+#ifdef DOSTATUS
+			printaddr(macf->addr2.addr, macf->addr1.addr, FALSE);
+			printf("\x1B[36mstart\x1B[0m\n");
+#endif
+			continue;
+			}
+
+
+
 		}
 	}
 return;
