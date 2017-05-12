@@ -80,7 +80,7 @@ const uint8_t snonce[] = {
 uint8_t mypacket[0xfff];
 
 if((zeigersend->message_pair & 0x80) == 0x80)
- return;
+	return;
 
 /* beacon */
 pp = 0;

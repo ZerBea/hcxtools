@@ -27,14 +27,14 @@ hcx_t *ib = (hcx_t *)b;
 return memcmp(ia->essid, ib->essid, 32);
 }
 /*===========================================================================*/
-int writehccapx(char *hcxoutname, int hcxrecords, int hcxrecords2)
+int writehccapx(char *hcxoutname, long int hcxrecords, long int hcxrecords2)
 {
 hcx_t *zeigerhcx;
 hcx_t *zeigerhcx1;
 hcx_t *zeigerhcx2;
 
 FILE *fhhcx;
-int c, c2;
+long int c, c2;
 
 if(hcxoutname == NULL)
 	return FALSE;
@@ -80,7 +80,7 @@ int readhccapx2(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
-int hcxsize = 0;
+long int hcxsize = 0;
 
 if(hcxinname == NULL)
 	return FALSE;
@@ -125,7 +125,7 @@ int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
-int hcxsize = 0;
+long int hcxsize = 0;
 
 if(hcxinname == NULL)
 	return FALSE;
@@ -184,8 +184,8 @@ exit(EXIT_FAILURE);
 int main(int argc, char *argv[])
 {
 int auswahl;
-int hcxorgrecords = 0;
-int hcxorgrecords2 = 0;
+long int hcxorgrecords = 0;
+long int hcxorgrecords2 = 0;
 
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
