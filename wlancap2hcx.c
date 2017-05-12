@@ -39,7 +39,7 @@ uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
 uint8_t wldflag = FALSE;
 uint8_t ancflag = FALSE;
-uint8_t wpsflag = FALSE;
+uint8_t eapextflag = FALSE;
 uint8_t anecflag = FALSE;
 
 int rctimecount = 0;
@@ -588,6 +588,11 @@ int has_rth = FALSE;
 int pcapstatus;
 int packetcount = 0;
 int wcflag = FALSE;
+wldflag = FALSE;
+ancflag = FALSE;
+eapextflag = FALSE;
+anecflag = FALSE;
+
 int c;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
@@ -819,8 +824,11 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			eapext = (eapext_t*)(payload + LLC_SIZE);
 				if(eapext->len >= 4)
-					wpsflag = TRUE;
-
+					if((eapext->eapcode == EAP_CODE_REQ) || (eapext->eapcode == EAP_CODE_RESP))
+						{
+						printf("%d\n", packetcount);
+						eapextflag = TRUE;
+						}
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			continue;
@@ -912,7 +920,7 @@ if(ancflag == TRUE)
 		}
 	}
 
-if(wpsflag == TRUE)
+if(eapextflag == TRUE)
 	printf("\x1B[36minformation: eap extended data inside\x1B[0m\n");
 
 if(wcflag == TRUE)

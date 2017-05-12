@@ -1029,7 +1029,6 @@ while(1)
 #ifdef DOACTIVE
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_ASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
-			usleep(5);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
 #endif
 
@@ -1060,7 +1059,6 @@ while(1)
 #ifdef DOACTIVE
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_REASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
-			usleep(5);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
 #endif
 
