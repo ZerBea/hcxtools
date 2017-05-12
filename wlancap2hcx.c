@@ -825,10 +825,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			eapext = (eapext_t*)(payload + LLC_SIZE);
 				if(eapext->len >= 4)
 					if((eapext->eapcode == EAP_CODE_REQ) || (eapext->eapcode == EAP_CODE_RESP))
-						{
 						printf("%d\n", packetcount);
-						eapextflag = TRUE;
-						}
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			continue;
