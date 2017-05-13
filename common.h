@@ -360,5 +360,5 @@ const uint8_t mynonce[] =
 #define ANONCE_SIZE sizeof(anonce)
 
 
-const char *filterstring = "!(wlan host 00:00:00:00:00:0 || wlan src 00:13:e8:63:51:e7 )";
+const char *filterstring = "!(wlan host 00:00:00:00:00:00 || wlan src 00:00:00:00:00:00)";
 /*===========================================================================*/
