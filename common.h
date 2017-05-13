@@ -168,6 +168,19 @@ typedef struct llc_frame llc_t;
 #define	LLC_SIZE (sizeof(llc_t))
 
 
+struct ieee_tag {
+ uint8_t		id;
+#define	TAG_SSID	0
+#define	TAG_RATE	1
+#define	TAG_CHAN	3
+#define	TAG_XRAT	0x32
+ uint8_t		len;
+ uint8_t		data[];
+} __attribute__((__packed__));
+typedef struct ieee_tag tag_t;
+#define	TAGINFO_SIZE (sizeof(tag_t))
+
+
 struct beaconinfo
 {
  uint64_t beacon_timestamp;
@@ -274,22 +287,6 @@ typedef struct eapext_frame eapext_t;
 #define	EAPWPS_SIZE (sizeof(eapext_t))
 
 
-struct maclist
-{
- uint8_t	pkart;
- adr_t		addr_sta;
- adr_t		addr_ap;
- int		deauthcount;
- int		disassoccount;
- int		disassochs2count;
- int		disassochs4count;
- uint8_t	essid_len;
- uint8_t	essid[32];
-};
-typedef struct maclist macl_t;
-#define	MACL_SIZE (sizeof(macl_t))
-
-
 struct netdb
 {
  long int	tv_sec;  
@@ -363,15 +360,5 @@ const uint8_t mynonce[] =
 #define ANONCE_SIZE sizeof(anonce)
 
 
-const char *filterstring = "!(wlan host 08:96:d7:98:e1:9e || wlan host 0a:96:d7:98:e1:9e || "
-                             "wlan host 34:81:c4:e7:99:1b || wlan host 36:81:c4:e7:99:1b || "
-                             "wlan host 5c:49:79:66:20:5b || wlan host 5e:49:79:66:20:5b || "
-                             "wlan host 00:04:0e:d7:3c:0a || wlan host 00:24:d4:9e:e8:c4 || "
-                             "wlan host 64:66:b3:8e:c3:fc || wlan host 00:1e:58:c7:07:67 || "
-                             "wlan host 20:2b:c1:55:77:b2 || "
-                             "wlan src b0:c0:90:46:7c:ab || wlan src 00:13:e8:63:51:e7 || "
-                             "wlan src 44:a7:cf:bc:33:06 || wlan src 88:30:8a:47:8e:b8 || "
-                             "wlan src 00:25:a0:6e:d1:39 || wlan src 00:90:a2:83:10:e9 || "
-                             "wlan src 00:c0:ca:36:7a:0d)";
-
+const char *filterstring = "!(wlan host 00:00:00:00:00:0 || wlan src 00:13:e8:63:51:e7 )";
 /*===========================================================================*/
