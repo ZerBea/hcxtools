@@ -149,7 +149,7 @@ void programmende(int signum)
 if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 	{
 	pcap_close(pcapin);
-	printf("\nprogram terminated...\n");
+	printf("\nscan finished...\n");
 	if(netcount > 0)
 		printstatus();
 	exit (EXIT_SUCCESS);
