@@ -32,6 +32,7 @@ endif
 	$(CC) $(CFLAGS) -o wlancapinfo wlancapinfo.c -lpcap
 	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap
 	$(CC) $(CFLAGS) -o wlanhcx2cap wlanhcx2cap.c -lpcap
+	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
 	$(CC) $(CFLAGS) -o wlanhcx2essid wlanhcx2essid.c
 	$(CC) $(CFLAGS) -o wlanhcx2ssid wlanhcx2ssid.c
@@ -56,6 +57,7 @@ ifeq ($(DOSTATUS), on)
 	install -D -m 0755 wlanscan-sts $(INSTALLDIR)/wlanscan-sts
 endif
 	install -D -m 0755 wlanscan $(INSTALLDIR)/wlanscan
+	install -D -m 0755 wlanrcascan $(INSTALLDIR)/wlanrcascan
 	install -D -m 0755 wlancapinfo $(INSTALLDIR)/wlancapinfo
 	install -D -m 0755 wlancap2hcx $(INSTALLDIR)/wlancap2hcx
 	install -D -m 0755 wlanhcx2cap $(INSTALLDIR)/wlanhcx2cap
@@ -75,6 +77,7 @@ endif
 	rm -f wlandump-sts
 	rm -f wlanscan
 	rm -f wlanscan-sts
+	rm -f wlanrcascan
 	rm -f wlancapinfo
 	rm -f wlancap2hcx
 	rm -f wlanhcx2cap
@@ -97,6 +100,7 @@ endif
 	rm -f wlandump-sts
 	rm -f wlanscan
 	rm -f wlanscan-sts
+	rm -f wlanrcascan
 	rm -f wlancapinfo
 	rm -f wlancap2hcx
 	rm -f wlanhcx2cap
@@ -119,6 +123,7 @@ endif
 	rm -f $(INSTALLDIR)/wlandump-sts
 	rm -f $(INSTALLDIR)/wlanscan
 	rm -f $(INSTALLDIR)/wlanscan-sts
+	rm -f $(INSTALLDIR)/wlanrcascan
 	rm -f $(INSTALLDIR)/wlancapinfo
 	rm -f $(INSTALLDIR)/wlancap2hcx
 	rm -f $(INSTALLDIR)/wlanhcx2cap

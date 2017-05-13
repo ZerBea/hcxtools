@@ -22,6 +22,7 @@ Detailed description
 | wlandump-sts  | Small, fast and simple but powerfull active WLAN scanner (status output)                            |
 | wlanscan      | Small, fast and simple passive WLAN scanner (no status output)                                      |
 | wlanscan-sts  | Small, fast and simple passive WLAN scanner (status output)                                         |
+| wlanrcascan   | Small, fast and simple passive WLAN channel assignment scanner (status output)                      |
 | pioff         | Turns Raspberry Pi off via GPIO switch                                                              |
 | wlancapinfo   | Shows info of pcap file                                                                             |
 | wlancap2hcx   | Converts cap to hccapx (recommended for use with wlandump (many options and pcapng support))        |
