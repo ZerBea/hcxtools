@@ -1,8 +1,14 @@
 #define VERSION "3.5.0"
 #define VERSION_JAHR "2017"
 
+#if !defined(FALSE)
 #define FALSE 0
+#endif
+
+#if !defined(TRUE)
 #define TRUE 1
+#endif
+
 #define NEWENTY -1
 
 #define HCCAPX_SIGNATURE 0x58504348
@@ -359,6 +365,8 @@ const uint8_t mynonce[] =
 };
 #define ANONCE_SIZE sizeof(anonce)
 
+/* Berkeleyfilter - Blacklist */
 
 const char *filterstring = "!(wlan host 00:00:00:00:00:00 || wlan src 00:00:00:00:00:00)";
+
 /*===========================================================================*/
