@@ -33,7 +33,7 @@ endif
 	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap
 	$(CC) $(CFLAGS) -o wlanhcx2cap wlanhcx2cap.c -lpcap
 	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
-	$(CC) $(CFLAGS) -o wlandumpfix wlandumpfix.c -lpcap -lrt
+	$(CC) $(CFLAGS) -o wlandumpfix wlandumpfix.c -lpcap -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
 	$(CC) $(CFLAGS) -o wlanhcx2essid wlanhcx2essid.c
 	$(CC) $(CFLAGS) -o wlanhcx2ssid wlanhcx2ssid.c
