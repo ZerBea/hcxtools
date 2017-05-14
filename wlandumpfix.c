@@ -23,6 +23,10 @@
 
 #include "common.h"
 
+#ifdef DOGPIOSUPPORT
+#include <wiringPi.h>
+#endif
+
 /*===========================================================================*/
 /* Definitionen */
 
