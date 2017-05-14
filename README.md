@@ -65,6 +65,8 @@ Requirements
 
 * libopenssl and openssl-dev installed
 
+* librt and librt-dev installed (should be installed by default)
+
 * libcurl and curl-dev installed (used by whoismac)
 
 * Raspberry Pi: additionally libwiringpi and wiringpi dev installed (Raspberry Pi GPIO support)
