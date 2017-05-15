@@ -1329,17 +1329,10 @@ while(1)
 	/* power save */
 	if((macf->type == MAC_TYPE_DATA) && ((macf->subtype == MAC_ST_NULL)|| (macf->subtype == MAC_ST_QOSNULL)))
 		{
-		if((macf->from_ds == 0) && (macf->to_ds == 1) && (macf->power == 0))
-			{
-			if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == TRUE)
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, macf->addr2.addr, macf->addr1.addr);
-			}
-
-		if((macf->from_ds == 1) && (macf->to_ds == 0))
-			{
-			if(handledisassocframes(pkh->ts.tv_sec, macf->addr2.addr) == TRUE)
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_STA_HAS_LEFT, macf->addr2.addr, macf->addr1.addr);
-			}
+		if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == TRUE)
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, macf->addr2.addr, macf->addr1.addr);
+		else if(handledisassocframes(pkh->ts.tv_sec, macf->addr2.addr) == TRUE)
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_STA_HAS_LEFT, macf->addr2.addr, macf->addr1.addr);
 		continue;
 		}
 
