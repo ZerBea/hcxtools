@@ -28,6 +28,7 @@ ifeq ($(DOSTATUS), on)
 	$(CC) $(CFLAGS) -DDOSTATUS -DDOACTIVE -o wlandump-sts wlandump.c -lpcap $(LFLAGS)
 	$(CC) $(CFLAGS) -DDOSTATUS -o wlanscan-sts wlandump.c -lpcap $(LFLAGS)
 endif
+	$(CC) $(CFLAGS) -o wlandump-ng wlandump-ng.c -lpcap -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanscan wlandump.c -lpcap $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlancapinfo wlancapinfo.c -lpcap
 	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap
@@ -57,6 +58,7 @@ ifeq ($(DOSTATUS), on)
 	install -D -m 0755 wlandump-sts $(INSTALLDIR)/wlandump-sts
 	install -D -m 0755 wlanscan-sts $(INSTALLDIR)/wlanscan-sts
 endif
+	install -D -m 0755 wlandump-ng $(INSTALLDIR)/wlandump-ng
 	install -D -m 0755 wlanscan $(INSTALLDIR)/wlanscan
 	install -D -m 0755 wlanrcascan $(INSTALLDIR)/wlanrcascan
 	install -D -m 0755 wlandumpfix $(INSTALLDIR)/wlandumpfix
@@ -75,6 +77,7 @@ endif
 ifeq ($(GPIOSUPPORT), on)
 	rm -f pioff
 endif
+	rm -f wlandump-ng
 	rm -f wlandump
 	rm -f wlandump-sts
 	rm -f wlanscan
@@ -99,6 +102,7 @@ clean:
 ifeq ($(GPIOSUPPORT), on)
 	rm -f pioff
 endif
+	rm -f wlandump-ng
 	rm -f wlandump
 	rm -f wlandump-sts
 	rm -f wlanscan
@@ -123,6 +127,7 @@ uninstall:
 ifeq ($(GPIOSUPPORT), on)
 	rm -f $(INSTALLDIR)/pioff
 endif
+	rm -f $(INSTALLDIR)/wlandump-ng
 	rm -f $(INSTALLDIR)/wlandump
 	rm -f $(INSTALLDIR)/wlandump-sts
 	rm -f $(INSTALLDIR)/wlanscan

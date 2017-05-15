@@ -16,26 +16,27 @@ All of these utils are designed to execute only one specific function.
 Detailed description
 --------------
 
-| Tool          | Description                                                                                         |
-| ------------- | --------------------------------------------------------------------------------------------------- |
-| wlandump      | Small, fast and simple but powerfull active WLAN scanner (no status output)                         |
-| wlandump-sts  | Small, fast and simple but powerfull active WLAN scanner (status output)                            |
-| wlanscan      | Small, fast and simple passive WLAN scanner (no status output)                                      |
-| wlanscan-sts  | Small, fast and simple passive WLAN scanner (status output)                                         |
-| wlanrcascan   | Small, fast and simple passive WLAN channel assignment scanner (status output)                      |
-| wlandumpfix   | Small, fast and simple but powerfull active WLAN scanner (fix channel - status output)              |
-| pioff         | Turns Raspberry Pi off via GPIO switch                                                              |
-| wlancapinfo   | Shows info of pcap file                                                                             |
-| wlancap2hcx   | Converts cap to hccapx (recommended for use with wlandump (many options and pcapng support))        |
-| wlanhcx2cap   | Converts hccapx to cap                                                                              |
-| wlanhc2hcx    | Converts hccap to hccapx                                                                            |
-| wlanhcx2essid | Merges hccapx containing the same ESSID                                                             |
-| wlanhcx2ssid  | Strips BSSID, ESSID, OUI                                                                            |
-| wlanhcx2john  | Converts hccapx to format expected by John the Ripper                                               |
-| wlanhcxinfo   | Shows detailed info from contents of hccapxfile                                                     |
-| wlanhcxmnc    | Manually do nonce correction on byte number xx of a nonce                                           |
-| whoismac      | Show vendor information                                                                             |
-| pwhash        | Generate hash of a word by using a given charset                                                    |
+| Tool          | Description                                                                                          |
+| ------------- | -----------------------------------------------------------------------------------------------------|
+| wlandump-ng   | Small, fast and simple but powerfull WLAN scanner (replace wlandump and wlandump-sts)                |
+| wlandump      | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
+| wlandump-sts  | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
+| wlanscan      | Small, fast and simple passive WLAN scanner (no status output)                                       |
+| wlanscan-sts  | Small, fast and simple passive WLAN scanner (status output)                                          |
+| wlanrcascan   | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
+| wlandumpfix   | Small, fast and simple but powerfull active WLAN scanner (fix channel - status output)               |
+| pioff         | Turns Raspberry Pi off via GPIO switch                                                               |
+| wlancapinfo   | Shows info of pcap file                                                                              |
+| wlancap2hcx   | Converts cap to hccapx (recommended for use with wlandump (many options and pcapng support))         |
+| wlanhcx2cap   | Converts hccapx to cap                                                                               |
+| wlanhc2hcx    | Converts hccap to hccapx                                                                             |
+| wlanhcx2essid | Merges hccapx containing the same ESSID                                                              |
+| wlanhcx2ssid  | Strips BSSID, ESSID, OUI                                                                             |
+| wlanhcx2john  | Converts hccapx to format expected by John the Ripper                                                |
+| wlanhcxinfo   | Shows detailed info from contents of hccapxfile                                                      |
+| wlanhcxmnc    | Manually do nonce correction on byte number xx of a nonce                                            |
+| whoismac      | Show vendor information                                                                              |
+| pwhash        | Generate hash of a word by using a given charset                                                     |
 
 
 Compile
