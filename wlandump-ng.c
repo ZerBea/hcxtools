@@ -59,6 +59,7 @@ struct aplist
  adr_t		addr_ap;
  int		deauthcount;
  int		handshake;
+ int		eapextended;
  uint8_t	essid_len;
  uint8_t	essid[32];
 };
@@ -280,8 +281,8 @@ printf( "\033[H\033[J"
 	"interface channel.....: %02d\n"
 	"hop timer.............: %d\n"
 	"deauthentication count: %d\n\n"
-	"mac_ap       hs essid (countdown until next deauthentication)\n"
-	"-------------------------------------------------------------\n"
+	"mac_ap       hs xe essid (countdown until next deauthentication)\n"
+	"----------------------------------------------------------------\n"
 	, interfacename, myoui, mynic, channel, staytime, deauthmaxcount);
 
 for(c = 0; c < statuslines; c++)
@@ -315,7 +316,7 @@ for(c = 0; c < statuslines; c++)
 	for (m = 1; m < 6; m++)
 		printf("%02x", zeiger->addr_ap.addr[m]);
 
-	printf(" %02x ", zeiger->handshake);
+	printf(" %02x %02x ", zeiger->handshake, zeiger->eapextended);
 	for(m = 0; m < l; m++)
 		{
 		if((essidstr[m] >= 0x20) && (essidstr[m] <= 0x7e))
@@ -708,6 +709,8 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 zeiger = beaconliste +c;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
+zeiger->handshake = 0;
+zeiger->eapextended = 0;
 zeiger->deauthcount = deauthmaxcount;
 zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
@@ -877,6 +880,31 @@ qsort(reassociationrequestliste, APLISTESIZEMAX +1, CLAPL_SIZE, sort_by_time);
 return FALSE;
 }
 /*===========================================================================*/
+int handleeapextendedframes(time_t tvsec, uint8_t *mac_ap, int eapext)
+{
+apl_t *zeiger;
+int c;
+
+for(c = 0; c < APLISTESIZEMAX; c++)
+	{
+	zeiger = beaconliste +c;
+	if(memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0)
+		{
+		zeiger->tv_sec = tvsec;
+		zeiger->eapextended |= eapext;
+
+//		qsort(beaconliste, APLISTESIZEMAX +1, APL_SIZE, sort_by_time);
+//		if(statuslines > 0)
+//			printstatus1();
+		return TRUE;
+		}
+	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
+		break;
+	zeiger++;
+	}
+return FALSE;
+}
+/*===========================================================================*/
 int handlehandshakeframes(time_t tvsec, uint8_t *mac_ap, int handshake)
 {
 apl_t *zeiger;
@@ -888,7 +916,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 	if(memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0)
 		{
 		zeiger->tv_sec = tvsec;
-		zeiger->handshake = zeiger->handshake | handshake;
+		zeiger->handshake |= handshake;
 		qsort(beaconliste, APLISTESIZEMAX +1, APL_SIZE, sort_by_time);
 		if(statuslines > 0)
 			printstatus1();
@@ -901,7 +929,6 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 return FALSE;
 }
 /*===========================================================================*/
-
 unsigned long long int getreplaycount(eap_t *eap)
 {
 unsigned long long int replaycount = 0;
@@ -1314,6 +1341,12 @@ while(1)
 		if(eap->type == 0)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
+			if(macf->from_ds == 1)
+				handlehandshakeframes(pkh->ts.tv_sec, macf->addr2.addr, 1);
+
+			if(macf->to_ds == 2)
+				handlehandshakeframes(pkh->ts.tv_sec, macf->addr1.addr, 1);
+			
 			continue;
 			}
 
@@ -1493,15 +1526,16 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"it is designed to run penetrationtests on your WiFi network.\n"
 	"status display\n"
 	"--------------\n"
-	"ap mac mac address of accesspoint\n"
-	"handshakeflag (bitmask)\n"
+	"ap mac address of accesspoint\n"
+	"handshakeflag (hs) bitmask\n"
 	"000001 M1\n"
 	"000010 M2\n"
 	"000100 M3\n"
 	"001000 M4\n"
 	"010000 wlandump-ng forced M1\n"
 	"100000 wlandump-ng forced M2\n"
-	"essid  networkname\n"
+	"extended eap (xe) like wps, radius, sim\n"
+	"networkname (essid)\n"
 	"deauthentication count until next deauthsequence\n"
 	"\n"
 	"Berkeley Packet Filter (kernel filter)\n"
