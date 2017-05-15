@@ -1,3 +1,5 @@
+#include "berkeleyfilter.h"
+
 #define VERSION "3.5.0"
 #define VERSION_JAHR "2017"
 
@@ -355,6 +357,7 @@ struct hcx
 typedef struct hcx hcx_t;
 #define	HCX_SIZE (sizeof(hcx_t))
 
+
 /*===========================================================================*/
 /* globale Konstante */
 
@@ -364,9 +367,5 @@ const uint8_t mynonce[] =
 0x9a, 0x65, 0x52, 0x86, 0xc0, 0x77, 0xea, 0x28, 0x2f, 0x6a, 0xaf, 0x13, 0x8e, 0x50, 0xcd, 0xb9
 };
 #define ANONCE_SIZE sizeof(anonce)
-
-/* Berkeleyfilter - Blacklist */
-
-const char *filterstring = "!(wlan host 00:00:00:00:00:00 || wlan src 00:00:00:00:00:00)";
 
 /*===========================================================================*/
