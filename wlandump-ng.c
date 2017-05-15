@@ -890,6 +890,8 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		zeiger->tv_sec = tvsec;
 		zeiger->handshake = zeiger->handshake | handshake;
 		qsort(beaconliste, APLISTESIZEMAX +1, APL_SIZE, sort_by_time);
+		if(statuslines > 0)
+			printstatus1();
 		return TRUE;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
@@ -1529,7 +1531,7 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:d:s:hv")) != -1)
 
 		case 't':
 		staytime = strtol(optarg, NULL, 10);
-		if(staytime < 1)
+		if(staytime < 0)
 			{
 			fprintf(stderr, "wrong hoptime\nsetting hoptime to 1\n");
 			staytime = TIME_INTERVAL_2S;
@@ -1551,6 +1553,8 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:d:s:hv")) != -1)
 
 		case 's':
 		statuslines = strtol(optarg, NULL, 10);
+		if(statuslines >= APLISTESIZEMAX)
+			statuslines = APLISTESIZEMAX -1;
 		break;
 
 		case 'h':
