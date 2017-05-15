@@ -42,6 +42,7 @@
 #define SENDPACKETSIZEMAX 0x1ff
 #define STATUSLINES 0
 #define DEAUTHMAXCOUNT 10000
+#define DISASSOCMAXCOUNT 1000
 
 #define WPA_M1  0b00000001
 #define WPA_M1W 0b00010001
@@ -58,6 +59,7 @@ struct aplist
  long int	tv_sec;  
  adr_t		addr_ap;
  int		deauthcount;
+ int		disassoccount;
  int		handshake;
  int		eapextended;
  uint8_t	essid_len;
@@ -89,6 +91,7 @@ int statuslines = STATUSLINES;
 uint16_t mysequencenr = 1;
 int staytime = TIME_INTERVAL_2S;
 int deauthmaxcount = DEAUTHMAXCOUNT;
+int disassocmaxcount = DISASSOCMAXCOUNT;
 
 unsigned long long int myoui;
 unsigned long long int mynic;
@@ -280,10 +283,11 @@ printf( "\033[H\033[J"
 	"private-mac (nic).....: %06llx\n"
 	"interface channel.....: %02d\n"
 	"hop timer.............: %d\n"
-	"deauthentication count: %d\n\n"
-	"mac_ap       hs xe essid (countdown until next deauthentication)\n"
-	"----------------------------------------------------------------\n"
-	, interfacename, myoui, mynic, channel, staytime, deauthmaxcount);
+	"deauthentication count: %d\n"
+	"disassociation count..: %d\n\n"
+	"mac_ap       hs xe essid (countdown until next deauthentication / disassociation)\n"
+	"---------------------------------------------------------------------------------\n"
+	, interfacename, myoui, mynic, channel, staytime, deauthmaxcount, disassocmaxcount);
 
 for(c = 0; c < statuslines; c++)
 	{
@@ -324,7 +328,7 @@ for(c = 0; c < statuslines; c++)
 		else
 			printf("\%03d", essidstr[m]);
 		}
-	printf(" (%d) \x1B[0m\n", zeiger->deauthcount);
+	printf(" (%d / %d) \x1B[0m\n", zeiger->deauthcount, zeiger->disassoccount);
 	zeiger++;
 	}
 
@@ -712,6 +716,7 @@ memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->handshake = 0;
 zeiger->eapextended = 0;
 zeiger->deauthcount = deauthmaxcount;
+zeiger->disassoccount = disassocmaxcount;
 zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
@@ -921,6 +926,32 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		if(statuslines > 0)
 			printstatus1();
 		return TRUE;
+		}
+	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
+		break;
+	zeiger++;
+	}
+return FALSE;
+}
+/*===========================================================================*/
+int handledisassocframes(time_t tvsec, uint8_t *mac_ap)
+{
+apl_t *zeiger;
+int c;
+
+for(c = 0; c < APLISTESIZEMAX; c++)
+	{
+	zeiger = beaconliste +c;
+	if(memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0)
+		{
+		zeiger->tv_sec = tvsec;
+		zeiger->disassoccount -= 1;
+		if(zeiger->disassoccount <= 0)
+			{
+			zeiger->disassoccount = disassocmaxcount;
+			return TRUE;
+			}
+		return FALSE;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -1300,12 +1331,14 @@ while(1)
 		{
 		if((macf->from_ds == 0) && (macf->to_ds == 1) && (macf->power == 0))
 			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, macf->addr2.addr, macf->addr1.addr);
+			if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == TRUE)
+				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, macf->addr2.addr, macf->addr1.addr);
 			}
 
 		if((macf->from_ds == 1) && (macf->to_ds == 0))
 			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_STA_HAS_LEFT, macf->addr1.addr, macf->addr2.addr);
+			if(handledisassocframes(pkh->ts.tv_sec, macf->addr2.addr) == TRUE)
+				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_STA_HAS_LEFT, macf->addr2.addr, macf->addr1.addr);
 			}
 		continue;
 		}
@@ -1334,7 +1367,10 @@ while(1)
 				}
 	
 			if(mkey == WPA_M4)
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr, macf->addr1.addr);
+				{
+				if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == TRUE)
+					senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr, macf->addr1.addr);
+				}
 			continue;
 			}
 
@@ -1514,9 +1550,11 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-t <seconds>   : stay time on channel before hopping to the next channel\n"
 	"               : default = 5 seconds\n"
 	"-c <channel>   : set fix channel (1 - 13)\n"
-	"-d <digit>     : deauth every xx beacons\n"
+	"-d <digit>     : deauthentication every xx beacons\n"
 	"               : default = 10000\n"
 	"               : to prevent ap to lease anonce don't set values below 100\n"
+	"-D <digit>     : disassociation every xx frames\n"
+	"               : default = 1000\n"
 	"-s <digit>     : status display (x lines)\n"
 	"               : default = 0 (no status output)\n"
 	"-h             : help screen\n"
@@ -1536,8 +1574,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"100000 wlandump-ng forced M2\n"
 	"extended eap (xe) like wps, radius, sim\n"
 	"networkname (essid)\n"
-	"deauthentication count until next deauthsequence\n"
-	"\n"
+	"deauthentication / disassociation count until next deauthentication\n"
+	"disassociation\n"
+	"disassociation count until next deauthsequence\n"
 	"Berkeley Packet Filter (kernel filter)\n"
 	"--------------------------------------\n"
 	"add ap's (wlan host) and/or clients (wlan src)\n"
@@ -1568,7 +1607,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:c:d:s:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:c:d:D:s:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1605,6 +1644,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:d:s:hv")) != -1)
 
 		case 'd':
 		deauthmaxcount = strtol(optarg, NULL, 10);
+		break;
+
+		case 'D':
+		disassocmaxcount = strtol(optarg, NULL, 10);
 		break;
 
 		case 's':
