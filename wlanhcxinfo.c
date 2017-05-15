@@ -113,7 +113,7 @@ return memcmp(ia->nonce_ap, ib->nonce_ap, 32);
 void writehcxinfo(long int hcxrecords, int outmode)
 {
 hcx_t *zeigerhcx;
-long int c;
+long int c, m, l;
 uint8_t pf;
 uint8_t eapver;
 uint8_t keyver;
@@ -143,13 +143,12 @@ long int mp84c = 0;
 long int mp85c = 0;
 
 uint8_t noncecorr = FALSE;
-
-char essidoutstr[34];
+char *hiddenstr = "hidden ssid";
 
 uint8_t nonceold[32];
+char essidoutstr[34];
 
 memset(nonceold, 0, 32);
-
 qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_nonce_ap);
 
 c = 0;
@@ -261,9 +260,21 @@ while(c < hcxrecords)
 		if(zeigerhcx->essid_len > 32)
 			zeigerhcx->essid_len = 32;
 		memcpy(&essidoutstr, zeigerhcx->essid, zeigerhcx->essid_len); 
+		l = zeigerhcx->essid_len;
+		if((zeigerhcx->essid[0] == 0) || (zeigerhcx->essid_len == 0))
+			{
+			strcpy(essidoutstr, hiddenstr);
+			l = 13;
+			}
 
-		memcpy(&essidoutstr, zeigerhcx->essid, zeigerhcx->essid_len); 
-		fprintf(stdout, "%s", essidoutstr);
+		for(m = 0; m < l; m++)
+			{
+			if((essidoutstr[m] >= 0x20) && (essidoutstr[m] <= 0x7e))
+				fprintf(stdout, "%c", essidoutstr[m]);
+			else
+				fprintf(stdout, "\\%02x", essidoutstr[m] &0xff);
+			}
+//		fprintf(stdout, "\n");
 		pf = TRUE;
 		}
 

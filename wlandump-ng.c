@@ -337,7 +337,7 @@ return;
 /*===========================================================================*/
 void printstatus2(clapl_t *zeiger)
 {
-int c, m;
+int c, m, l;
 char essidstr[34];
 char *hiddenstr = "hidden ssid";
 
@@ -357,8 +357,12 @@ for(c = 0; c < statuslines; c++)
 			return;
 	memset(essidstr, 0, 34);
 	memcpy(&essidstr, zeiger->essid, zeiger->essid_len);
+	l = zeiger->essid_len;
 	if((essidstr[0] == 0) || (zeiger->essid_len == 0))
+		{
 		strcpy(essidstr, hiddenstr);
+		l = 13;
+		}
 
 	for (m = 0; m < 6; m++)
 		printf("%02x", zeiger->addr_ap.addr[m]);
@@ -368,7 +372,15 @@ for(c = 0; c < statuslines; c++)
 	for (m = 0; m < 6; m++)
 		printf("%02x", zeiger->addr_sta.addr[m]);
 
-	printf(" %s \x1B[0m\n", essidstr);
+	for(m = 0; m < l; m++)
+		{
+		if((essidstr[m] >= 0x20) && (essidstr[m] <= 0x7e))
+			printf("%c", essidstr[m]);
+		else
+			printf("\\%02x", essidstr[m] &0xff);
+		}
+
+	printf("\x1B[0m\n");
 	zeiger++;
 	}
 
