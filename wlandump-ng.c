@@ -326,9 +326,9 @@ for(c = 0; c < statuslines; c++)
 		if((essidstr[m] >= 0x20) && (essidstr[m] <= 0x7e))
 			printf("%c", essidstr[m]);
 		else
-			printf("\%03d", essidstr[m]);
+			printf("\\%02xd", essidstr[m]);
 		}
-	printf(" (%d / %d) \x1B[0m\n", zeiger->deauthcount, zeiger->disassoccount);
+	printf(" (%d/%d) \x1B[0m\n", zeiger->deauthcount, zeiger->disassoccount);
 	zeiger++;
 	}
 
