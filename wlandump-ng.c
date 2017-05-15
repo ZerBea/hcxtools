@@ -1342,10 +1342,10 @@ while(1)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(macf->from_ds == 1)
-				handlehandshakeframes(pkh->ts.tv_sec, macf->addr2.addr, 1);
+				handleeapextendedframes(pkh->ts.tv_sec, macf->addr2.addr, 1);
 
 			if(macf->to_ds == 2)
-				handlehandshakeframes(pkh->ts.tv_sec, macf->addr1.addr, 1);
+				handleeapextendedframes(pkh->ts.tv_sec, macf->addr1.addr, 1);
 			
 			continue;
 			}
