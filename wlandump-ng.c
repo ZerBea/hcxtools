@@ -95,7 +95,6 @@ int disassocmaxcount = DISASSOCMAXCOUNT;
 int resetdedicount = FALSE;
 int internalbeacons = 0;
 int internalproberesponses = 0;
-int internaldirectproberequests = 0;
 int internalproberequests = 0;
 int internalassociationrequests = 0;
 int internalreassociationrequests = 0;
@@ -294,14 +293,13 @@ printf( "\033[H\033[J"
 	"maximum internal list entries.: %d\n"
 	"internal nets.................: %d\n"
 	"internal proberequests........: %d\n"
-	"internal direct proberequests.: %d\n"
 	"internal proberesponses.......: %d\n"
 	"internal associationrequests..: %d\n"
 	"internal reassociationrequests: %d\n\n"
 
 	"mac_ap       hs xe essid (countdown until next deauthentication / disassociation)\n"
 	"---------------------------------------------------------------------------------\n"
-	, interfacename, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, APLISTESIZEMAX, internalbeacons, internalproberequests, internaldirectproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests);
+	, interfacename, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, APLISTESIZEMAX, internalbeacons, internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests);
 
 for(c = 0; c < statuslines; c++)
 	{
@@ -801,7 +799,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		break;
 	zeiger++;
 	}
-internaldirectproberequests = c +1;
+internalproberequests = c +1;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -1592,7 +1590,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-v             : version\n"
 	"\n"
 	"%s is not a cracking tool like hashcat\n"
-	"it is designed to run penetrationtests on your WiFi network\n\n"
+	"it is designed to run penetrationtests on your WiFi network\n"
+	"\n"
 	"status display\n"
 	"--------------\n"
 	"ap mac address of accesspoint\n"
@@ -1605,11 +1604,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"100000 wlandump-ng forced M2\n"
 	"extended eap (xe) like wps, radius, sim\n"
 	"networkname (essid)\n"
-	"deauthentication / disassociation count until next deauthentication\n"
+	"deauthentication/disassociation count until next deauthentication\n"
 	"disassociation\n"
 	"disassociation count until next deauthsequence\n"
 	"size of maximum internal list entries %d\n"
 	"older entries entries are moved downwards with each new incoming\n"
+	"\n"
 	"Berkeley Packet Filter (kernel filter)\n"
 	"--------------------------------------\n"
 	"add ap's (wlan host) and/or clients (wlan src)\n"
