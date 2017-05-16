@@ -92,6 +92,7 @@ uint16_t mysequencenr = 1;
 int staytime = TIME_INTERVAL_2S;
 int deauthmaxcount = DEAUTHMAXCOUNT;
 int disassocmaxcount = DISASSOCMAXCOUNT;
+int resetdedicount = FALSE;
 
 unsigned long long int myoui;
 unsigned long long int mynic;
@@ -279,15 +280,15 @@ char *hiddenstr = "<hidden ssid>";
 
 printf( "\033[H\033[J"
 	"interface.............: %s\n"
+	"interface channel.....: %02d\n"
 	"private-mac (oui).....: %06llx\n"
 	"private-mac (nic).....: %06llx\n"
-	"interface channel.....: %02d\n"
 	"hop timer.............: %d\n"
 	"deauthentication count: %d\n"
 	"disassociation count..: %d\n\n"
 	"mac_ap       hs xe essid (countdown until next deauthentication / disassociation)\n"
 	"---------------------------------------------------------------------------------\n"
-	, interfacename, myoui, mynic, channel, staytime, deauthmaxcount, disassocmaxcount);
+	, interfacename, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount);
 
 for(c = 0; c < statuslines; c++)
 	{
@@ -709,12 +710,13 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
-		zeiger->deauthcount -= 1;
 		if(zeiger->deauthcount <= 0)
 			{
 			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastmac, zeiger->addr_ap.addr);
 			zeiger->deauthcount = deauthmaxcount;
+			return TRUE;
 			}
+		zeiger->deauthcount -= 1;
 		return TRUE;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
@@ -722,7 +724,6 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 	zeiger++;
 	}
 
-zeiger = beaconliste +c;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->handshake = 0;
@@ -754,7 +755,6 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
-	zeiger++;
 	}
 zeiger = proberesponseliste +c;
 zeiger->tv_sec = tvsec;
@@ -785,9 +785,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
-	zeiger++;
 	}
-zeiger = proberequestliste +c;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -822,7 +820,6 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
-	zeiger++;
 	}
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
@@ -858,7 +855,6 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		break;
 	zeiger++;
 	}
-zeiger = associationrequestliste +c;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -884,9 +880,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
-	zeiger++;
 	}
-zeiger = reassociationrequestliste +c;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -917,7 +911,6 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
-	zeiger++;
 	}
 return FALSE;
 }
@@ -941,7 +934,6 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
-	zeiger++;
 	}
 return FALSE;
 }
@@ -957,17 +949,16 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 	if(memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0)
 		{
 		zeiger->tv_sec = tvsec;
-		zeiger->disassoccount -= 1;
 		if(zeiger->disassoccount <= 0)
 			{
 			zeiger->disassoccount = disassocmaxcount;
 			return TRUE;
 			}
+		zeiger->disassoccount -= 1;
 		return FALSE;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
-	zeiger++;
 	}
 return FALSE;
 }
@@ -1153,6 +1144,8 @@ int fcsl = 0;
 eap_t *eap = NULL;
 unsigned long long int replaycount;
 uint8_t mkey;
+int c;
+apl_t *zeiger;
 
 printf("capturing (stop with ctrl+c)...\n");
 
@@ -1174,11 +1167,19 @@ while(1)
 		if(channel > 13)
 			{
 			channel = 1;
+			if(resetdedicount == TRUE)
+				{
+				for(c = 0; c < APLISTESIZEMAX; c++)
+					{
+					zeiger = beaconliste +c;
+					zeiger->deauthcount = 0;
+					zeiger->disassoccount = 0;
+					}
+				}
 			}
 		setchannel();
 		continue;
 		}
-
 
 	if(pkh->caplen != pkh->len)
 		continue;
@@ -1387,7 +1388,6 @@ while(1)
 
 			if(macf->to_ds == 2)
 				handleeapextendedframes(pkh->ts.tv_sec, macf->addr1.addr, 1);
-			
 			continue;
 			}
 
@@ -1560,6 +1560,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"               : to prevent ap to lease anonce don't set values below 100\n"
 	"-D <digit>     : disassociation every xx frames\n"
 	"               : default = 1000\n"
+	"-r             : reset deauthentication/disassociation counter if hop loop is on channel 1\n"
 	"-s <digit>     : status display (x lines)\n"
 	"               : default = 0 (no status output)\n"
 	"-h             : help screen\n"
@@ -1612,7 +1613,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:c:d:D:s:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:c:d:D:s:rhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1653,6 +1654,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:d:D:s:hv")) != -1)
 
 		case 'D':
 		disassocmaxcount = strtol(optarg, NULL, 10);
+		break;
+
+		case 'r':
+		resetdedicount = TRUE;
 		break;
 
 		case 's':
