@@ -704,9 +704,9 @@ int handlebeaconframes(time_t tvsec, uint8_t *mac_ap, uint8_t essid_len, uint8_t
 apl_t *zeiger;
 int c;
 
+zeiger = beaconliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	zeiger = beaconliste +c;
 	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
@@ -745,9 +745,9 @@ int handleproberesponseframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, u
 clapl_t *zeiger;
 int c;
 
+zeiger = proberesponseliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	zeiger = proberesponseliste +c;
 	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
@@ -755,8 +755,8 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
+	zeiger++;
 	}
-zeiger = proberesponseliste +c;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -772,9 +772,9 @@ int handledirectproberequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_
 clapl_t *zeiger;
 int c;
 
+zeiger = proberequestliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	zeiger = proberequestliste +c;
 	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
@@ -785,6 +785,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
+	zeiger++;
 	}
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
@@ -807,9 +808,9 @@ int handleproberequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t essid_len, 
 clapl_t *zeiger;
 int c;
 
+zeiger = proberequestliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	zeiger = proberequestliste +c;
 	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
@@ -820,6 +821,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
+	zeiger++;
 	}
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
@@ -843,9 +845,9 @@ int handleassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_
 clapl_t *zeiger;
 int c;
 
+zeiger = associationrequestliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	zeiger = associationrequestliste +c;
 	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
@@ -870,9 +872,9 @@ int handlereassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *ma
 clapl_t *zeiger;
 int c;
 
+zeiger = reassociationrequestliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	zeiger = reassociationrequestliste +c;
 	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
@@ -880,6 +882,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
+	zeiger++;
 	}
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
@@ -896,9 +899,9 @@ int handleeapextendedframes(time_t tvsec, uint8_t *mac_ap, int eapext)
 apl_t *zeiger;
 int c;
 
+zeiger = beaconliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	zeiger = beaconliste +c;
 	if(memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0)
 		{
 		zeiger->tv_sec = tvsec;
@@ -911,6 +914,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
+	zeiger++;
 	}
 return FALSE;
 }
@@ -920,9 +924,9 @@ int handlehandshakeframes(time_t tvsec, uint8_t *mac_ap, int handshake)
 apl_t *zeiger;
 int c;
 
+zeiger = beaconliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	zeiger = beaconliste +c;
 	if(memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0)
 		{
 		zeiger->tv_sec = tvsec;
@@ -934,6 +938,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
+	zeiger++;
 	}
 return FALSE;
 }
@@ -943,9 +948,9 @@ int handledisassocframes(time_t tvsec, uint8_t *mac_ap)
 apl_t *zeiger;
 int c;
 
+zeiger = beaconliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	zeiger = beaconliste +c;
 	if(memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0)
 		{
 		zeiger->tv_sec = tvsec;
@@ -959,6 +964,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
+	zeiger++;
 	}
 return FALSE;
 }
@@ -1169,11 +1175,12 @@ while(1)
 			channel = 1;
 			if(resetdedicount == TRUE)
 				{
+				zeiger = beaconliste;
 				for(c = 0; c < APLISTESIZEMAX; c++)
 					{
-					zeiger = beaconliste +c;
 					zeiger->deauthcount = 0;
 					zeiger->disassoccount = 0;
+					zeiger++;
 					}
 				}
 			}
