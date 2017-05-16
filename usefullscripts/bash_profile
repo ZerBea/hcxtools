@@ -8,8 +8,8 @@ then
 	ip link set $WLANDEV down
 	iw dev $WLANDEV set type monitor
 	ip link set $WLANDEV up
-	wlandump-ng -i $WLANDEV -o $ARCHIVNAME.cap -c 1 -t 3600 -d 10000 -D 100 -s 0
-#	wlandump-ng -i $WLANDEV -o $ARCHIVNAME.cap -c 1 -t 4 -d 25 -D 2 -r -s 0
+	wlandump-ng -i $WLANDEV -o $ARCHIVNAME.cap -c 1 -t 3600 -d 10000 -D 100 -m 1024 -s 0
+#	wlandump-ng -i $WLANDEV -o $ARCHIVNAME.cap -c 1 -t 4 -d 25 -D 2 -r -m 128 -s 0
 fi
 pioff &
 systemctl start dhcpcd@eth0.service

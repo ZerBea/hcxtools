@@ -18,11 +18,11 @@ Detailed description
 
 | Tool          | Description                                                                                          |
 | ------------- | -----------------------------------------------------------------------------------------------------|
-| wlandump-ng   | Small, fast and simple but powerfull WLAN scanner (replace wlandump and wlandump-sts)                |
+| wlandump-ng   | Small, fast and simple but powerfull WLAN scanner ( replace wlandump (sts) and wlanscan (sts) )      |
 | wlandump      | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
 | wlandump-sts  | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
-| wlanscan      | Small, fast and simple passive WLAN scanner (no status output)                                       |
-| wlanscan-sts  | Small, fast and simple passive WLAN scanner (status output)                                          |
+| wlanscan      | Small, fast and simple passive WLAN scanner (deprecated: program will be removed later)              |
+| wlanscan-sts  | Small, fast and simple passive WLAN scanner (deprecated: program will be removed later)              |
 | wlanrcascan   | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
 | wlandumpfix   | Small, fast and simple but powerfull active WLAN scanner (fix channel - status output)               |
 | pioff         | Turns Raspberry Pi off via GPIO switch                                                               |
