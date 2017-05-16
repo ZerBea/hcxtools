@@ -297,8 +297,8 @@ printf( "\033[H\033[J"
 	"internal associationrequests..: %d\n"
 	"internal reassociationrequests: %d\n\n"
 
-	"mac_ap       hs xe essid (countdown until next deauthentication / disassociation)\n"
-	"---------------------------------------------------------------------------------\n"
+	"mac_ap       hs xe essid (countdown until next deauthentication/disassociation)\n"
+	"-------------------------------------------------------------------------------\n"
 	, interfacename, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, APLISTESIZEMAX, internalbeacons, internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests);
 
 for(c = 0; c < statuslines; c++)
@@ -1615,6 +1615,15 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"add ap's (wlan host) and/or clients (wlan src)\n"
 	"into berkeleyfilter.h to prevent them to be captured\n"
 	"then compile\n"
+	"\n"
+	"examples:\n"
+	"---------\n"
+	"friendly: wlandump-ng -i <WLANDEV> -o capname.cap -c 1 -t 3600 -d 10000 -D 100 -s 0\n"
+	"angry:    wlandump-ng -i <WLANDEV> -o capname.cap -c 1 -t 4 -d 25 -D 2 -r -s 0\n"
+	"or with status display (20 lines)\n"
+	"friendly: wlandump-ng -i <WLANDEV> -o capname.cap -c 1 -t 3600 -d 10000 -D 100 -s 20\n"
+	"angry:    wlandump-ng -i <WLANDEV> -o capname.cap -c 1 -t 4 -d 25 -D 2 -r -s 20\n"
+
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, APLISTESIZEMAX);
 exit(EXIT_SUCCESS);
 }
