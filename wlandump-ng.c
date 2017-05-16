@@ -93,6 +93,12 @@ int staytime = TIME_INTERVAL_2S;
 int deauthmaxcount = DEAUTHMAXCOUNT;
 int disassocmaxcount = DISASSOCMAXCOUNT;
 int resetdedicount = FALSE;
+int internalbeacons = 0;
+int internalproberesponses = 0;
+int internaldirectproberequests = 0;
+int internalproberequests = 0;
+int internalassociationrequests = 0;
+int internalreassociationrequests = 0;
 
 unsigned long long int myoui;
 unsigned long long int mynic;
@@ -232,7 +238,6 @@ struct timeval starttimeval;
 
 gettimeofday (&starttimeval, NULL);
  
-
 memset(&nullmac, 0, 6);
 memset(&broadcastmac, 0xff, 6);
 
@@ -279,16 +284,24 @@ char essidstr[34];
 char *hiddenstr = "<hidden ssid>";
 
 printf( "\033[H\033[J"
-	"interface.............: %s\n"
-	"interface channel.....: %02d\n"
-	"private-mac (oui).....: %06llx\n"
-	"private-mac (nic).....: %06llx\n"
-	"hop timer.............: %d\n"
-	"deauthentication count: %d\n"
-	"disassociation count..: %d\n\n"
+	"interface.....................: %s\n"
+	"interface channel.............: %02d\n"
+	"private-mac (oui).............: %06llx\n"
+	"private-mac (nic).............: %06llx\n"
+	"hop timer.....................: %d\n"
+	"deauthentication count........: %d\n"
+	"disassociation count..........: %d\n"
+	"maximum internal list entries.: %d\n"
+	"internal nets.................: %d\n"
+	"internal proberequests........: %d\n"
+	"internal direct proberequests.: %d\n"
+	"internal proberesponses.......: %d\n"
+	"internal associationrequests..: %d\n"
+	"internal reassociationrequests: %d\n\n"
+
 	"mac_ap       hs xe essid (countdown until next deauthentication / disassociation)\n"
 	"---------------------------------------------------------------------------------\n"
-	, interfacename, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount);
+	, interfacename, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, APLISTESIZEMAX, internalbeacons, internalproberequests, internaldirectproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests);
 
 for(c = 0; c < statuslines; c++)
 	{
@@ -723,7 +736,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		break;
 	zeiger++;
 	}
-
+internalbeacons = c +1;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->handshake = 0;
@@ -757,6 +770,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		break;
 	zeiger++;
 	}
+internalproberesponses = c +1;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -787,6 +801,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		break;
 	zeiger++;
 	}
+internaldirectproberequests = c +1;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -823,6 +838,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		break;
 	zeiger++;
 	}
+internalproberequests = c +1;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, &myaddr, 6);
@@ -857,6 +873,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		break;
 	zeiger++;
 	}
+internalassociationrequests = c+1;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -884,6 +901,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		break;
 	zeiger++;
 	}
+internalreassociationrequests = c+1;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -1573,8 +1591,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
 	"\n"
-	"%s is not a cracking tool like hashcat.\n"
-	"it is designed to run penetrationtests on your WiFi network.\n"
+	"%s is not a cracking tool like hashcat\n"
+	"it is designed to run penetrationtests on your WiFi network\n\n"
 	"status display\n"
 	"--------------\n"
 	"ap mac address of accesspoint\n"
@@ -1590,12 +1608,14 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"deauthentication / disassociation count until next deauthentication\n"
 	"disassociation\n"
 	"disassociation count until next deauthsequence\n"
+	"size of maximum internal list entries %d\n"
+	"older entries entries are moved downwards with each new incoming\n"
 	"Berkeley Packet Filter (kernel filter)\n"
 	"--------------------------------------\n"
 	"add ap's (wlan host) and/or clients (wlan src)\n"
 	"into berkeleyfilter.h to prevent them to be captured\n"
 	"then compile\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, APLISTESIZEMAX);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
