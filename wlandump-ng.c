@@ -300,7 +300,7 @@ printf( "\033[H\033[J"
 	"hop timer.........................: %d\n"
 	"deauthentication count............: %d\n"
 	"disassociation count..............: %d\n"
-	"maximum/current ringbuffer entries: %d (%d)\n"
+	"current/maximum ringbuffer entries: %d (%d)\n"
 	"proberequests.....................: %d\n"
 	"proberesponses....................: %d\n"
 	"associationrequests...............: %d\n"
@@ -312,8 +312,8 @@ printf( "\033[H\033[J"
 	"\n"
 	"mac_ap       hs xe essid (countdown until next deauthentication/disassociation)\n"
 	"-------------------------------------------------------------------------------\n",
-	interfacename, internalpcaperrors, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, aplistesize,
-	internalbeacons, internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests,
+	interfacename, internalpcaperrors, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, internalbeacons,
+	aplistesize,  internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests,
 	internalm1, externalm1, internalm2, externalm2, externalm3, externalm4);
 
 for(c = 0; c < statuslines; c++)
