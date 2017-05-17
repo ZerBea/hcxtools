@@ -354,58 +354,6 @@ for(c = 0; c < statuslines; c++)
 return;
 }
 /*===========================================================================*/
-void printstatus2(clapl_t *zeiger)
-{
-int c, m, l;
-char essidstr[34];
-char *hiddenstr = "hidden ssid";
-
-printf( "\033[H\033[J"
-	"interface...........: %s\n"
-	"private-mac (oui)...: %06llx\n"
-	"private-mac (nic)...: %06llx\n"
-	"interface channel...: %02d\n"
-	"hop timer...........: %d\n"
-	"mac_ap       hs essid\n"
-	"------------------------------------------------:\n"
-	, interfacename, myoui, mynic, channel, staytime);
-
-for(c = 0; c < statuslines; c++)
-	{
-	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
-			return;
-	memset(essidstr, 0, 34);
-	memcpy(&essidstr, zeiger->essid, zeiger->essid_len);
-	l = zeiger->essid_len;
-	if((essidstr[0] == 0) || (zeiger->essid_len == 0))
-		{
-		strcpy(essidstr, hiddenstr);
-		l = 13;
-		}
-
-	for (m = 0; m < 6; m++)
-		printf("%02x", zeiger->addr_ap.addr[m]);
-
-	printf(" -> ");
-
-	for (m = 0; m < 6; m++)
-		printf("%02x", zeiger->addr_sta.addr[m]);
-
-	for(m = 0; m < l; m++)
-		{
-		if((essidstr[m] >= 0x20) && (essidstr[m] <= 0x7e))
-			printf("%c", essidstr[m]);
-		else
-			printf("\\%02x", essidstr[m] &0xff);
-		}
-
-	printf("\x1B[0m\n");
-	zeiger++;
-	}
-
-return;
-}
-/*===========================================================================*/
 void nextmac()
 {
 mynic++;
@@ -774,7 +722,7 @@ if(statuslines > 0)
 return FALSE;
 }
 /*===========================================================================*/
-int handleproberesponseframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+int handleproberesponseframes(time_t tvsec, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
 {
 clapl_t *zeiger;
 int c;
@@ -782,7 +730,7 @@ int c;
 zeiger = proberesponseliste;
 for(c = 0; c < aplistesize; c++)
 	{
-	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
+	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
 		internalproberesponses++;
@@ -794,7 +742,6 @@ for(c = 0; c < aplistesize; c++)
 	}
 internalproberesponses = c;
 zeiger->tv_sec = tvsec;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
@@ -811,12 +758,12 @@ int c;
 zeiger = proberequestliste;
 for(c = 0; c < aplistesize; c++)
 	{
-	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
+	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
-		sendproberesponse(zeiger->addr_sta.addr, zeiger->addr_ap.addr, essid_len, essidname);
+		sendproberesponse(mac_sta, mac_ap, essid_len, essidname);
 		if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
-			sendbeacon(zeiger->addr_ap.addr, zeiger->essid_len, zeiger->essid);
+			sendbeacon(mac_ap, zeiger->essid_len, zeiger->essid);
 		internalproberequests++;
 		return TRUE;
 		}
@@ -826,12 +773,11 @@ for(c = 0; c < aplistesize; c++)
 	}
 internalproberequests = c;
 zeiger->tv_sec = tvsec;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
-sendproberesponse(zeiger->addr_sta.addr, zeiger->addr_ap.addr, essid_len, essidname);
+sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
 if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
 	sendbeacon(zeiger->addr_ap.addr, zeiger->essid_len, zeiger->essid);
 zeiger = proberequestliste;
@@ -849,7 +795,7 @@ int c;
 zeiger = proberequestliste;
 for(c = 0; c < aplistesize; c++)
 	{
-	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
+	if((zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
 		sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
@@ -864,7 +810,6 @@ for(c = 0; c < aplistesize; c++)
 	}
 internalproberequests = c;
 zeiger->tv_sec = tvsec;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, &myaddr, 6);
 nextmac();
 zeiger->essid_len = essid_len;
@@ -1303,7 +1248,7 @@ while(1)
 			if(essidf->info_essid_len > 32)
 				continue;
 
-			if(handleproberesponseframes(pkh->ts.tv_sec, macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+			if(handleproberesponseframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
 				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 				}
