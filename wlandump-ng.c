@@ -101,6 +101,7 @@ int internalassociationrequests = 0;
 int internalreassociationrequests = 0;
 int internalm1 = 0;
 int internalm2 = 0;
+int internalpcaperrors = 0;
 int aplistesize = APLISTESIZEMAX;
 unsigned long long int myoui;
 unsigned long long int mynic;
@@ -287,6 +288,7 @@ char *hiddenstr = "<hidden ssid>";
 
 printf( "\033[H\033[J"
 	"interface......................: %s\n"
+	"internal pcap errors...........: %d\n"
 	"interface channel..............: %02d\n"
 	"private-mac (oui)..............: %06llx\n"
 	"private-mac (nic)..............: %06llx\n"
@@ -304,7 +306,7 @@ printf( "\033[H\033[J"
 	"\n"
 	"mac_ap       hs xe essid (countdown until next deauthentication/disassociation)\n"
 	"-------------------------------------------------------------------------------\n"
-	, interfacename, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, aplistesize, internalbeacons, internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests, internalm1, internalm2);
+	, interfacename, internalpcaperrors, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, aplistesize, internalbeacons, internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests, internalm1, internalm2);
 
 for(c = 0; c < statuslines; c++)
 	{
@@ -459,6 +461,7 @@ if(pcapstatus == -1)
 #endif
 
 	fprintf(stderr, "error while sending beacon %s \n", pcap_geterr(pcapin));
+	internalpcaperrors++;
 	}
 mysequencenr++;
 if(mysequencenr > 9999)
@@ -507,6 +510,7 @@ if(pcapstatus == -1)
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending retry deauthentication %s \n", pcap_geterr(pcapin));
+	internalpcaperrors++;
 	}
 
 mysequencenr++;
@@ -560,6 +564,7 @@ if(pcapstatus == -1)
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending probe response %s \n", pcap_geterr(pcapin));
+	internalpcaperrors++;
 	}
 mysequencenr++;
 if(mysequencenr > 9999)
@@ -597,6 +602,7 @@ if(pcapstatus == -1)
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending authentication %s \n", pcap_geterr(pcapin));
+	internalpcaperrors++;
 	}
 mysequencenr++;
 if(mysequencenr > 9999)
@@ -629,6 +635,7 @@ if(pcapstatus == -1)
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending acknowledgement %s \n", pcap_geterr(pcapin));
+	internalpcaperrors++;
 	}
 return;
 }
@@ -669,6 +676,7 @@ if(pcapstatus == -1)
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending associationresponce %s \n", pcap_geterr(pcapin));
+	internalpcaperrors++;
 	}
 mysequencenr++;
 if(mysequencenr > 9999)
@@ -710,6 +718,7 @@ if(pcapstatus == -1)
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending key 1 %s \n", pcap_geterr(pcapin));
+	internalpcaperrors++;
 	return;
 	}
 internalm1++;
@@ -1199,6 +1208,7 @@ while(1)
 	if(pcapstatus == -1)
 		{
 		fprintf(stderr, "pcap read error: %s \n", pcap_geterr(pcapin));
+		internalpcaperrors++;
 		continue;
 		}
 
