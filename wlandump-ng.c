@@ -99,6 +99,8 @@ int internalproberesponses = 0;
 int internalproberequests = 0;
 int internalassociationrequests = 0;
 int internalreassociationrequests = 0;
+int internalm1 = 0;
+int internalm2 = 0;
 int aplistesize = APLISTESIZEMAX;
 unsigned long long int myoui;
 unsigned long long int mynic;
@@ -292,15 +294,17 @@ printf( "\033[H\033[J"
 	"deauthentication count.........: %d\n"
 	"disassociation count...........: %d\n"
 	"maximum ringbuffer list entries: %d\n"
-	"net list.......................: %d\n"
-	"proberequest list..............: %d\n"
-	"proberesponse list.............: %d\n"
-	"associationrequest list........: %d\n"
-	"reassociationrequest list......: %d\n"
+	"current ringbuffer list entries: %d\n"
+	"proberequests..................: %d\n"
+	"proberesponsesssss.............: %d\n"
+	"associationrequests............: %d\n"
+	"reassociationrequests..........: %d\n"
+	"transmitted m1.................: %d\n"
+	"received appropriate m2........: %d\n"
 	"\n"
 	"mac_ap       hs xe essid (countdown until next deauthentication/disassociation)\n"
 	"-------------------------------------------------------------------------------\n"
-	, interfacename, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, aplistesize, internalbeacons, internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests);
+	, interfacename, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, aplistesize, internalbeacons, internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests, internalm1, internalm2);
 
 for(c = 0; c < statuslines; c++)
 	{
@@ -706,7 +710,9 @@ if(pcapstatus == -1)
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending key 1 %s \n", pcap_geterr(pcapin));
+	return;
 	}
+internalm1++;
 return;
 }
 /*===========================================================================*/
@@ -770,6 +776,7 @@ for(c = 0; c < aplistesize; c++)
 	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
+		internalproberesponses++;
 		return TRUE;
 		}
 	if(memcmp(nullmac, zeiger->addr_ap.addr, 6) == 0)
@@ -801,6 +808,7 @@ for(c = 0; c < aplistesize; c++)
 		sendproberesponse(zeiger->addr_sta.addr, zeiger->addr_ap.addr, essid_len, essidname);
 		if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
 			sendbeacon(zeiger->addr_ap.addr, zeiger->essid_len, zeiger->essid);
+		internalproberequests++;
 		return TRUE;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
@@ -838,6 +846,7 @@ for(c = 0; c < aplistesize; c++)
 		sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
 		if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
 			sendbeacon(zeiger->addr_ap.addr, zeiger->essid_len, zeiger->essid);
+		internalproberequests++;
 		return TRUE;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
@@ -873,6 +882,7 @@ for(c = 0; c < aplistesize; c++)
 	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
+		internalassociationrequests++;
 		return TRUE;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
@@ -901,6 +911,7 @@ for(c = 0; c < aplistesize; c++)
 	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
+		internalreassociationrequests++;
 		return TRUE;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
@@ -1399,7 +1410,10 @@ while(1)
 			else
 				{
 				if((mkey == WPA_M2) && (replaycount == MYREPLAYCOUNT))
+					{
 					mkey = WPA_M2W;
+					internalm2++;
+					}
 				handlehandshakeframes(pkh->ts.tv_sec, macf->addr1.addr, mkey);
 				}
 	
