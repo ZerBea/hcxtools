@@ -101,6 +101,11 @@ int internalassociationrequests = 0;
 int internalreassociationrequests = 0;
 int internalm1 = 0;
 int internalm2 = 0;
+int externalm1 = 0;
+int externalm2 = 0;
+int externalm3 = 0;
+int externalm4 = 0;
+
 int internalpcaperrors = 0;
 int aplistesize = APLISTESIZEMAX;
 unsigned long long int myoui;
@@ -287,26 +292,29 @@ char essidstr[34];
 char *hiddenstr = "<hidden ssid>";
 
 printf( "\033[H\033[J"
-	"interface......................: %s\n"
-	"internal pcap errors...........: %d\n"
-	"interface channel..............: %02d\n"
-	"private-mac (oui)..............: %06llx\n"
-	"private-mac (nic)..............: %06llx\n"
-	"hop timer......................: %d\n"
-	"deauthentication count.........: %d\n"
-	"disassociation count...........: %d\n"
-	"maximum ringbuffer list entries: %d\n"
-	"current ringbuffer list entries: %d\n"
-	"proberequests..................: %d\n"
-	"proberesponses.................: %d\n"
-	"associationrequests............: %d\n"
-	"reassociationrequests..........: %d\n"
-	"transmitted m1.................: %d\n"
-	"received appropriate m2........: %d\n"
+	"interface.........................: %s\n"
+	"internal pcap errors..............: %d\n"
+	"interface channel.................: %02d\n"
+	"private-mac (oui).................: %06llx\n"
+	"private-mac (nic).................: %06llx\n"
+	"hop timer.........................: %d\n"
+	"deauthentication count............: %d\n"
+	"disassociation count..............: %d\n"
+	"maximum/current ringbuffer entries: %d (%d)\n"
+	"proberequests.....................: %d\n"
+	"proberesponses....................: %d\n"
+	"associationrequests...............: %d\n"
+	"reassociationrequests.............: %d\n"
+	"transmitted m1/regular m1.........: %d (%d)\n"
+	"received appropriate m2/regular m2: %d (%d)\n"
+	"received regular m3...............: %d\n"
+	"received regular m4...............: %d\n"
 	"\n"
 	"mac_ap       hs xe essid (countdown until next deauthentication/disassociation)\n"
-	"-------------------------------------------------------------------------------\n"
-	, interfacename, internalpcaperrors, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, aplistesize, internalbeacons, internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests, internalm1, internalm2);
+	"-------------------------------------------------------------------------------\n",
+	interfacename, internalpcaperrors, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, aplistesize,
+	internalbeacons, internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests,
+	internalm1, externalm1, internalm2, externalm2, externalm3, externalm4);
 
 for(c = 0; c < statuslines; c++)
 	{
@@ -740,7 +748,7 @@ for(c = 0; c < aplistesize; c++)
 		break;
 	zeiger++;
 	}
-internalproberesponses = c;
+internalproberesponses++;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
@@ -771,7 +779,7 @@ for(c = 0; c < aplistesize; c++)
 		break;
 	zeiger++;
 	}
-internalproberequests = c;
+internalproberequests++;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
@@ -808,7 +816,7 @@ for(c = 0; c < aplistesize; c++)
 		break;
 	zeiger++;
 	}
-internalproberequests = c;
+internalproberequests++;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_ap.addr, &myaddr, 6);
 nextmac();
@@ -843,7 +851,7 @@ for(c = 0; c < aplistesize; c++)
 		break;
 	zeiger++;
 	}
-internalassociationrequests = c;
+internalassociationrequests++;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -872,7 +880,7 @@ for(c = 0; c < aplistesize; c++)
 		break;
 	zeiger++;
 	}
-internalreassociationrequests = c;
+internalreassociationrequests++;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
@@ -1360,6 +1368,8 @@ while(1)
 				{
 				if((mkey == WPA_M1) && (replaycount == MYREPLAYCOUNT))
 					mkey = WPA_M1W;
+				else
+					externalm1++;
 				handlehandshakeframes(pkh->ts.tv_sec, macf->addr2.addr, mkey);
 				}
 			else
@@ -1369,13 +1379,22 @@ while(1)
 					mkey = WPA_M2W;
 					internalm2++;
 					}
+				else
+					externalm2++;
+
 				handlehandshakeframes(pkh->ts.tv_sec, macf->addr1.addr, mkey);
+				}
+
+			if(mkey == WPA_M3)
+				{
+				externalm3++;
 				}
 	
 			if(mkey == WPA_M4)
 				{
 				if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == TRUE)
 					senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr, macf->addr1.addr);
+				externalm4++;
 				}
 			continue;
 			}
