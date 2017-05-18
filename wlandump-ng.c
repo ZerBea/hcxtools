@@ -292,29 +292,22 @@ char essidstr[34];
 char *hiddenstr = "<hidden ssid>";
 
 printf( "\033[H\033[J"
-	"interface.........................: %s\n"
-	"internal pcap errors..............: %d\n"
-	"interface channel.................: %02d\n"
-	"private-mac (oui).................: %06llx\n"
-	"private-mac (nic).................: %06llx\n"
-	"hop timer.........................: %d\n"
-	"deauthentication count............: %d\n"
-	"disassociation count..............: %d\n"
-	"current/maximum ringbuffer entries: %d (%d)\n"
-	"proberequests.....................: %d\n"
-	"proberesponses....................: %d\n"
-	"associationrequests...............: %d\n"
-	"reassociationrequests.............: %d\n"
-	"transmitted m1/received regular m1: %d (%d)\n"
-	"received appropriate m2/regular m2: %d (%d)\n"
-	"received regular m3...............: %d\n"
-	"received regular m4...............: %d\n"
+	"interface................................: %s\n"
+	"internal pcap errors.....................: %d\n"
+	"interface channel/hop timer..............: %02d/%d\n"
+	"private-mac (oui/nic)....................: %06llx%06llx\n"
+	"deauthentication/disassociation count....: %d/%d\n"
+	"current/maximum ringbuffer entries.......: %d/%d\n"
+	"proberequests/proberesponses.............: %d/%d\n"
+	"associationrequests/reassociationrequests: %d/%d\n"
+	"transmitted m1/received appropriate m2...: %d/%d\n"
+	"received regular m1/m2/m3/m4.............: %d/%d/%d/%d\n"
 	"\n"
 	"mac_ap       hs xe essid (countdown until next deauthentication/disassociation)\n"
 	"-------------------------------------------------------------------------------\n",
-	interfacename, internalpcaperrors, channel, myoui, mynic, staytime, deauthmaxcount, disassocmaxcount, internalbeacons,
+	interfacename, internalpcaperrors, channel, staytime, myoui, mynic, deauthmaxcount, disassocmaxcount, internalbeacons,
 	aplistesize,  internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests,
-	internalm1, externalm1, internalm2, externalm2, externalm3, externalm4);
+	internalm1, internalm2, externalm1, externalm2, externalm3, externalm4);
 
 for(c = 0; c < statuslines; c++)
 	{
@@ -770,8 +763,6 @@ for(c = 0; c < aplistesize; c++)
 		{
 		zeiger->tv_sec = tvsec;
 		sendproberesponse(mac_sta, mac_ap, essid_len, essidname);
-		if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
-			sendbeacon(mac_ap, zeiger->essid_len, zeiger->essid);
 		internalproberequests++;
 		return TRUE;
 		}
@@ -786,11 +777,6 @@ zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
-if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
-	sendbeacon(zeiger->addr_ap.addr, zeiger->essid_len, zeiger->essid);
-zeiger = proberequestliste;
-if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
-	sendbeacon(zeiger->addr_ap.addr, zeiger->essid_len, zeiger->essid);
 qsort(proberequestliste, aplistesize +1, CLAPL_SIZE, sort_by_time);
 return FALSE;
 }
@@ -807,8 +793,6 @@ for(c = 0; c < aplistesize; c++)
 		{
 		zeiger->tv_sec = tvsec;
 		sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
-		if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
-			sendbeacon(zeiger->addr_ap.addr, zeiger->essid_len, zeiger->essid);
 		internalproberequests++;
 		return TRUE;
 		}
@@ -824,11 +808,6 @@ zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
-if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
-	sendbeacon(zeiger->addr_ap.addr, zeiger->essid_len, zeiger->essid);
-zeiger = proberequestliste;
-if((zeiger->essid_len != 0) || (zeiger->essid[0] != 0))
-	sendbeacon(zeiger->addr_ap.addr, zeiger->essid_len, zeiger->essid);
 qsort(proberequestliste, aplistesize +1, CLAPL_SIZE, sort_by_time);
 return FALSE;
 }
@@ -1149,6 +1128,9 @@ unsigned long long int replaycount;
 uint8_t mkey;
 int c;
 apl_t *zeiger;
+clapl_t *zeigerbeacon;
+int pktcount = 0;
+int beaconcount = 0;
 
 printf("capturing (stop with ctrl+c)...\n");
 
@@ -1230,6 +1212,18 @@ while(1)
 				macl += QOS_SIZE;
 		}
 	payload = ((uint8_t*)macf)+macl;
+
+	pktcount++;
+	if(pktcount == 10)
+		{
+		zeigerbeacon = proberequestliste + beaconcount;
+		if((zeigerbeacon->essid_len != 0) || (zeigerbeacon->essid[0] != 0))
+			sendbeacon(zeigerbeacon->addr_ap.addr, zeigerbeacon->essid_len, zeigerbeacon->essid);
+		pktcount = 0;
+		beaconcount++;
+		if(beaconcount == 10)
+			beaconcount = 0;
+		}
 
 	/* check management frames */
 	if(macf->type == MAC_TYPE_MGMT)
