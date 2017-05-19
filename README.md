@@ -18,13 +18,13 @@ Detailed description
 
 | Tool          | Description                                                                                          |
 | ------------- | -----------------------------------------------------------------------------------------------------|
-| wlandump-ng   | Small, fast and simple but powerfull WLAN scanner ( replace wlandump (sts) and wlanscan (sts) )      |
+| wlandump-ng   | Small, fast and simple but powerfull WLAN scanner                                                    |
 | wlandump      | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
 | wlandump-sts  | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
 | wlanscan      | Small, fast and simple passive WLAN scanner (deprecated: program will be removed later)              |
 | wlanscan-sts  | Small, fast and simple passive WLAN scanner (deprecated: program will be removed later)              |
 | wlanrcascan   | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
-| wlandumpfix   | Small, fast and simple but powerfull active WLAN scanner (fix channel - status output)               |
+| wlandumpfix   | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
 | pioff         | Turns Raspberry Pi off via GPIO switch                                                               |
 | wlancapinfo   | Shows info of pcap file                                                                              |
 | wlancap2hcx   | Converts cap to hccapx (recommended for use with wlandump (many options and pcapng support))         |
@@ -74,7 +74,7 @@ Requirements
 
 * Chipset must be able to run in monitor mode. Recommended: RALINK chipset (good receiver sensitivity), rt2x00 driver (stable and fast)
 
-* Raspberry Pi (Recommended: A, A+, B, B+ - A & A+ = very low power consumption)
+* Raspberry Pi (Recommended: A+ = very low power consumption or B+)
 
 
 Useful scripts
