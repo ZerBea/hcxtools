@@ -94,6 +94,7 @@ int modepassiv = FALSE;
 int deauthmaxcount = DEAUTHMAXCOUNT;
 int disassocmaxcount = DISASSOCMAXCOUNT;
 int resetdedicount = FALSE;
+int lastbeaconing = FALSE;
 int internalbeacons = 0;
 int internalproberesponses = 0;
 int internalproberequests = 0;
@@ -1213,16 +1214,19 @@ while(1)
 		}
 	payload = ((uint8_t*)macf)+macl;
 
-	pktcount++;
-	if(pktcount == 10)
+	if(lastbeaconing == TRUE)
 		{
-		zeigerbeacon = proberequestliste + beaconcount;
-		if((zeigerbeacon->essid_len != 0) || (zeigerbeacon->essid[0] != 0))
-			sendbeacon(zeigerbeacon->addr_ap.addr, zeigerbeacon->essid_len, zeigerbeacon->essid);
-		pktcount = 0;
-		beaconcount++;
-		if(beaconcount == 10)
-			beaconcount = 0;
+		pktcount++;
+		if(pktcount == 10)
+			{
+			zeigerbeacon = proberequestliste + beaconcount;
+			if((zeigerbeacon->essid_len != 0) || (zeigerbeacon->essid[0] != 0))
+				sendbeacon(zeigerbeacon->addr_ap.addr, zeigerbeacon->essid_len, zeigerbeacon->essid);
+			pktcount = 0;
+			beaconcount++;
+			if(beaconcount == 10)
+				beaconcount = 0;
+			}
 		}
 
 	/* check management frames */
@@ -1579,6 +1583,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"               : use 1024 if you are stationary\n"
 	"               : use 2048 on fast machines\n"
 	"-r             : reset deauthentication/disassociation counter if hop loop is on channel 1\n"
+	"-b             : activate beaconing for last 10 proberequests\n"
 	"-s <digit>     : status display (x lines)\n"
 	"               : default = 0 (no status output)\n"
 	"-p             : passive (do not transmit)\n"
@@ -1645,7 +1650,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:c:d:D:s:m:rphv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:c:d:D:s:m:rbphv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1690,6 +1695,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:d:D:s:m:rphv")) != -1)
 
 		case 'r':
 		resetdedicount = TRUE;
+		break;
+
+		case 'b':
+		lastbeaconing = TRUE;
 		break;
 
 		case 'm':
