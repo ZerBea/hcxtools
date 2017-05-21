@@ -1098,6 +1098,9 @@ strncpy(wrq.ifr_name, interfacename , IFNAMSIZ);
 if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
         fprintf(stderr, "socket open for ioctl() on '%s' failed with '%d'\n", interfacename, sock);
+#ifdef DOGPIOSUPPORT
+	system("reboot");
+#endif
 	programmende(SIGINT);
 	}
 
@@ -1111,6 +1114,9 @@ if(ioctl(sock, SIOCSIWFREQ, &wrq) < 0)
 		{
 		fprintf(stderr, "ioctl(SIOCSIWFREQ) on '%s' failed with '%d'\n", interfacename, result);
 		fprintf(stderr, "unable to set channel on '%s', exiting\n", interfacename);
+#ifdef DOGPIOSUPPORT
+		system("reboot");
+#endif
 		programmende(SIGINT);
 		}
 	}
@@ -1432,7 +1438,6 @@ struct bpf_program filter;
 pcap_t *pcapdh = NULL;
 int datalink = 0;
 int c = 0;
-int pcapstatus;
 int has_rth = FALSE;
 
 char newpcapoutname[PATH_MAX +2];
@@ -1444,52 +1449,10 @@ if(pcapoutname == NULL)
 	exit(EXIT_FAILURE);
 	}
 
-pcapin = pcap_create(interfacename,pcaperrorstring);
+pcapin = pcap_open_live(interfacename, 65535, 1, 5, pcaperrorstring);
 if(pcapin == NULL)
 	{
-	fprintf(stderr, "error opening device %s\n", interfacename);
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_snaplen(pcapin, 0xfff);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting snaplen\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_buffer_size(pcapin, 0xffffff);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting buffersize\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_timeout(pcapin, 0);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting timeoutn\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_promisc(pcapin, 1);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting promisc mode\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_rfmon(pcapin, 1);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting rfmon mode\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_activate(pcapin);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error activating capture\n");
+	fprintf(stderr, "error opening device %s: %s\n", interfacename, pcaperrorstring);
 	exit(EXIT_FAILURE);
 	}
 

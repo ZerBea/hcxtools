@@ -314,58 +314,14 @@ return;
 int startcapturing()
 {
 int datalink = 0;
-int pcapstatus;
 int has_rth = FALSE;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
-
-pcapin = pcap_create(interfacename,pcaperrorstring);
+pcapin = pcap_open_live(interfacename, 65535, 1, 5, pcaperrorstring);
 if(pcapin == NULL)
 	{
-	fprintf(stderr, "error opening device %s\n", interfacename);
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_snaplen(pcapin, 0xfff);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting snaplen\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_buffer_size(pcapin, 0xffffff);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting buffersize\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_timeout(pcapin, 0);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting timeoutn\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_promisc(pcapin, 1);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting promisc mode\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_set_rfmon(pcapin, 1);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error setting rfmon mode\n");
-	exit(EXIT_FAILURE);
-	}
-
-pcapstatus = pcap_activate(pcapin);
-if(pcapstatus != 0)
-	{
-	fprintf(stderr, "error activating capture\n");
+	fprintf(stderr, "error opening device %s: %s\n", interfacename, pcaperrorstring);
 	exit(EXIT_FAILURE);
 	}
 
