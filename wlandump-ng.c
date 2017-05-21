@@ -675,10 +675,18 @@ internalm1++;
 return;
 }
 /*===========================================================================*/
-int sort_by_time(const void *a, const void *b) 
+int sortaplist_by_time(const void *a, const void *b) 
 { 
 apl_t *ia = (apl_t *)a;
 apl_t *ib = (apl_t *)b;
+
+return ia->tv_sec < ib->tv_sec;
+}
+/*===========================================================================*/
+int sortclaplist_by_time(const void *a, const void *b) 
+{ 
+clapl_t *ia = (clapl_t *)a;
+clapl_t *ib = (clapl_t *)b;
 
 return ia->tv_sec < ib->tv_sec;
 }
@@ -718,7 +726,7 @@ zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastmac, zeiger->addr_ap.addr);
-qsort(beaconliste, aplistesize +1, APL_SIZE, sort_by_time);
+qsort(beaconliste, aplistesize +1, APL_SIZE, sortaplist_by_time);
 if(statuslines > 0)
 	printstatus1();
 return FALSE;
@@ -748,7 +756,7 @@ memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
-qsort(proberesponseliste, aplistesize +1, CLAPL_SIZE, sort_by_time);
+qsort(proberesponseliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
 return FALSE;
 }
 /*===========================================================================*/
@@ -778,7 +786,7 @@ zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
-qsort(proberequestliste, aplistesize +1, CLAPL_SIZE, sort_by_time);
+qsort(proberequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
 return FALSE;
 }
 /*===========================================================================*/
@@ -809,7 +817,7 @@ zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
-qsort(proberequestliste, aplistesize +1, CLAPL_SIZE, sort_by_time);
+qsort(proberequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
 return FALSE;
 }
 /*===========================================================================*/
@@ -838,7 +846,7 @@ memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
-qsort(associationrequestliste, aplistesize +1, CLAPL_SIZE, sort_by_time);
+qsort(associationrequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
 return FALSE;
 }
 /*===========================================================================*/
@@ -867,7 +875,7 @@ memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
-qsort(reassociationrequestliste, aplistesize +1, CLAPL_SIZE, sort_by_time);
+qsort(reassociationrequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
 return FALSE;
 }
 /*===========================================================================*/
@@ -908,7 +916,7 @@ for(c = 0; c < aplistesize; c++)
 		{
 		zeiger->tv_sec = tvsec;
 		zeiger->handshake |= handshake;
-		qsort(beaconliste, aplistesize +1, APL_SIZE, sort_by_time);
+		qsort(beaconliste, aplistesize +1, APL_SIZE, sortaplist_by_time);
 		if(statuslines > 0)
 			printstatus1();
 		return TRUE;
