@@ -1134,12 +1134,24 @@ while(1)
 				sendacknowledgement(macf->addr2.addr);
 				sendauthentication(macf->addr2.addr, macf->addr1.addr);
 				}
+			continue;
+			}
+
+		else if((macf->subtype == MAC_ST_ACTION) && (staytime <= 5))
+			{
+			if(memcmp(broadcastaddr.addr, macf->addr1.addr, 6) == 0)
+				{
+				senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastaddr.addr, macf->addr2.addr);
+				continue;
+				}
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
 			}
 		continue;
 		}
 
 	/* check handshake frames */
-	if(macf->type == MAC_TYPE_DATA && LLC_SIZE <= pkh->len && be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH)
+	else if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 		if(eap->type == 3)
@@ -1161,72 +1173,54 @@ while(1)
 		continue;
 		}
 
-	if(staytime <= 5)
+	else if((macf->type == MAC_TYPE_CTRL) && (staytime <= 5))
 		{
-	if(macf->type == MAC_TYPE_MGMT)
-		{
-		if(macf->subtype == MAC_ST_ACTION)
+		if(macf->subtype == MAC_ST_BACK)
 			{
-			if(memcmp(broadcastaddr.addr, macf->addr1.addr, 6) == 0)
-				{
-				senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastaddr.addr, macf->addr2.addr);
-				continue;
-				}
 			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
 			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
 			continue;
 			}
+
+		else if(macf->subtype == MAC_ST_BACK_REQ)
+			{
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
+			continue;
+			}
+
+		else if(macf->subtype == MAC_ST_RTS)
+			{
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
+			}
+		continue;
 		}
 
-		if(macf->type == MAC_TYPE_CTRL)
+	else if((macf->type == MAC_TYPE_DATA) && (staytime <= 5))
+		{
+		if(macf->subtype == MAC_ST_NULL)
 			{
-			if(macf->subtype == MAC_ST_BACK)
-				{
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-				continue;
-				}
-
-			else if(macf->subtype == MAC_ST_BACK_REQ)
-				{
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-				continue;
-				}
-
-			else if(macf->subtype == MAC_ST_RTS)
-				{
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-				}
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
 			continue;
 			}
 
-		if(macf->type == MAC_TYPE_DATA)
+		if(macf->subtype == MAC_ST_QOSNULL)
 			{
-			if(macf->subtype == MAC_ST_NULL)
-				{
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-				continue;
-				}
-
-			else if(macf->subtype == MAC_ST_QOSNULL)
-				{
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-				senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-				continue;
-				}
-
-			if(memcmp(broadcastaddr.addr, macf->addr1.addr, 6) == 0)
-				{
-				senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastaddr.addr, macf->addr3.addr);
-				continue;
-				}
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr3.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr3.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
 			continue;
 			}
+
+		if(memcmp(broadcastaddr.addr, macf->addr1.addr, 6) == 0)
+			{
+			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastaddr.addr, macf->addr3.addr);
+			continue;
+			}
+		senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr3.addr);
+		senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr3.addr,  macf->addr2.addr);
+		continue;
 		}
 	}
 return;
