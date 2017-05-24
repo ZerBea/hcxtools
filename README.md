@@ -19,7 +19,7 @@ Detailed description
 | Tool          | Description                                                                                          |
 | ------------- | -----------------------------------------------------------------------------------------------------|
 | wlandump-ng   | Small, fast and simple but powerfull WLAN scanner                                                    |
-| wlanresponse  | Extrem fast deauthentication/authentication/response tool                                            |
+| wlanresponse  | Extreme fast deauthentication/authentication/response tool                                           |
 | wlanrcascan   | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
 | pioff         | Turns Raspberry Pi off via GPIO switch                                                               |
 | wlancapinfo   | Shows info of pcap file                                                                              |
