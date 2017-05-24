@@ -19,22 +19,12 @@ build:
 ifeq ($(GPIOSUPPORT), on)
 	$(CC) $(CFLAGS) -DDOGPIOSUPPORT -o pioff pioff.c $(LFLAGS)
 endif
-
-ifeq ($(DOACTIVE), on)
-	$(CC) $(CFLAGS) -DDOACTIVE -o wlandump wlandump.c -lpcap $(LFLAGS)
-endif
-
-ifeq ($(DOSTATUS), on)
-	$(CC) $(CFLAGS) -DDOSTATUS -DDOACTIVE -o wlandump-sts wlandump.c -lpcap $(LFLAGS)
-	$(CC) $(CFLAGS) -DDOSTATUS -o wlanscan-sts wlandump.c -lpcap $(LFLAGS)
-endif
 	$(CC) $(CFLAGS) -o wlandump-ng wlandump-ng.c -lpcap -lrt $(LFLAGS)
-	$(CC) $(CFLAGS) -o wlanscan wlandump.c -lpcap $(LFLAGS)
+	$(CC) $(CFLAGS) -o wlanresponse wlanresponse.c -lpcap -lrt $(LFLAGS)
+	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
 	$(CC) $(CFLAGS) -o wlancapinfo wlancapinfo.c -lpcap
 	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap
 	$(CC) $(CFLAGS) -o wlanhcx2cap wlanhcx2cap.c -lpcap
-	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
-	$(CC) $(CFLAGS) -o wlandumpfix wlandumpfix.c -lpcap -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
 	$(CC) $(CFLAGS) -o wlanhcx2essid wlanhcx2essid.c
 	$(CC) $(CFLAGS) -o wlanhcx2ssid wlanhcx2ssid.c
@@ -49,19 +39,9 @@ install: build
 ifeq ($(GPIOSUPPORT), on)
 	install -D -m 0755 pioff $(INSTALLDIR)/pioff
 endif
-
-ifeq ($(DOACTIVE), on)
-	install -D -m 0755 wlandump $(INSTALLDIR)/wlandump
-endif
-
-ifeq ($(DOSTATUS), on)
-	install -D -m 0755 wlandump-sts $(INSTALLDIR)/wlandump-sts
-	install -D -m 0755 wlanscan-sts $(INSTALLDIR)/wlanscan-sts
-endif
 	install -D -m 0755 wlandump-ng $(INSTALLDIR)/wlandump-ng
-	install -D -m 0755 wlanscan $(INSTALLDIR)/wlanscan
+	install -D -m 0755 wlanresponse $(INSTALLDIR)/wlanresponse
 	install -D -m 0755 wlanrcascan $(INSTALLDIR)/wlanrcascan
-	install -D -m 0755 wlandumpfix $(INSTALLDIR)/wlandumpfix
 	install -D -m 0755 wlancapinfo $(INSTALLDIR)/wlancapinfo
 	install -D -m 0755 wlancap2hcx $(INSTALLDIR)/wlancap2hcx
 	install -D -m 0755 wlanhcx2cap $(INSTALLDIR)/wlanhcx2cap
@@ -78,12 +58,8 @@ ifeq ($(GPIOSUPPORT), on)
 	rm -f pioff
 endif
 	rm -f wlandump-ng
-	rm -f wlandump
-	rm -f wlandump-sts
-	rm -f wlanscan
-	rm -f wlanscan-sts
+	rm -f wlanresponse
 	rm -f wlanrcascan
-	rm -f wlandumpfix
 	rm -f wlancapinfo
 	rm -f wlancap2hcx
 	rm -f wlanhcx2cap
@@ -103,12 +79,8 @@ ifeq ($(GPIOSUPPORT), on)
 	rm -f pioff
 endif
 	rm -f wlandump-ng
-	rm -f wlandump
-	rm -f wlandump-sts
-	rm -f wlanscan
-	rm -f wlanscan-sts
+	rm -f wlanresponse
 	rm -f wlanrcascan
-	rm -f wlandumpfix
 	rm -f wlancapinfo
 	rm -f wlancap2hcx
 	rm -f wlanhcx2cap
@@ -128,10 +100,7 @@ ifeq ($(GPIOSUPPORT), on)
 	rm -f $(INSTALLDIR)/pioff
 endif
 	rm -f $(INSTALLDIR)/wlandump-ng
-	rm -f $(INSTALLDIR)/wlandump
-	rm -f $(INSTALLDIR)/wlandump-sts
-	rm -f $(INSTALLDIR)/wlanscan
-	rm -f $(INSTALLDIR)/wlanscan-sts
+	rm -f $(INSTALLDIR)/wlanresponse
 	rm -f $(INSTALLDIR)/wlanrcascan
 	rm -f $(INSTALLDIR)/wlandumpfix
 	rm -f $(INSTALLDIR)/wlancapinfo

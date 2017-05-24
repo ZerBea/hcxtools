@@ -19,12 +19,8 @@ Detailed description
 | Tool          | Description                                                                                          |
 | ------------- | -----------------------------------------------------------------------------------------------------|
 | wlandump-ng   | Small, fast and simple but powerfull WLAN scanner                                                    |
-| wlandump      | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
-| wlandump-sts  | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
-| wlanscan      | Small, fast and simple passive WLAN scanner (deprecated: program will be removed later)              |
-| wlanscan-sts  | Small, fast and simple passive WLAN scanner (deprecated: program will be removed later)              |
+| wlanresponse  | Extrem fast deauthentication/authentication/response                                                 |
 | wlanrcascan   | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
-| wlandumpfix   | Small, fast and simple but powerfull active WLAN scanner (deprecated: program will be removed later) |
 | pioff         | Turns Raspberry Pi off via GPIO switch                                                               |
 | wlancapinfo   | Shows info of pcap file                                                                              |
 | wlancap2hcx   | Converts cap to hccapx (recommended for use with wlandump (many options and pcapng support))         |

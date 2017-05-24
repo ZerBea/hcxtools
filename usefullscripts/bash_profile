@@ -8,7 +8,8 @@ then
 	ip link set $WLANDEV down
 	iw dev $WLANDEV set type monitor
 	ip link set $WLANDEV up
-	wlandump-ng -i $WLANDEV -o $ARCHIVNAME.cap -c 1 -t 3600 -d 100000 -D 1000 -m 512 -r -s 0
+	wlanresponse -b -t 3 -i $WLANDEV -o $ARCHIVNAME.cap
+#	wlandump-ng -i $WLANDEV -o $ARCHIVNAME.cap -c 1 -t 3600 -d 100000 -D 1000 -m 256 -r -b -s 0
 #	wlandump-ng -i $WLANDEV -o $ARCHIVNAME.cap -c 1 -t 4 -d 20 -D 2 -r -m 128 -s 0
 fi
 pioff &

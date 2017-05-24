@@ -46,7 +46,10 @@
 #define	MAC_ST_QOSNULL		0xC
 #define	MAC_ST_QOSDATA		0x8
 // control subtypes
+#define	MAC_ST_BACK_REQ		0x8
+#define	MAC_ST_BACK		0x9
 #define	MAC_ST_RTS		0xB
+#define	MAC_ST_CTS		0xC
 #define	MAC_ST_ACK		0xD
 
 /* Reason codes (IEEE 802.11-2007, 7.3.1.7, Table 7-22) */
