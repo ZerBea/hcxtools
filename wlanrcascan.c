@@ -244,13 +244,13 @@ while(1)
 		{
 		rth = (rth_t*)packet;
 		fcsl = 0;
+		field = 8;
+		if((rth->it_present & 0x01) == 0x01)
+			field += 8;
+		if((rth->it_present & 0x80000000) == 0x80000000)
+			field += 4;
 		if((rth->it_present & 0x02) == 0x02)
 			{
-			field = 0x08;
-			if((rth->it_present & 0x01) == 0x01)
-				field += 0x0c;
-			if((rth->it_present & 0x80000000) == 0x80000000)
-				field += 0x04;
 			if((packet[field] & 0x10) == 0x10)
 				fcsl = 4;
 			}
