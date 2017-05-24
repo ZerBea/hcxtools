@@ -1151,7 +1151,7 @@ while(1)
 		}
 
 	/* check handshake frames */
-	else if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
+	else if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH) && (pkh->len > 26))
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 		if(eap->type == 3)
