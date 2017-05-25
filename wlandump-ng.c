@@ -1202,7 +1202,6 @@ while(1)
 			if((packet[field] & 0x10) == 0x10)
 				fcsl = 4;
 			}
-
 		pkh->caplen -= rth->it_len +fcsl;
 		pkh->len -=  rth->it_len +fcsl;
 		h80211 = packet + rth->it_len;

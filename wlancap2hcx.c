@@ -687,7 +687,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if((packet[field] & 0x10) == 0x10)
 				fcsl = 4;
 			}
-
 		pkh->caplen -= rth->it_len +fcsl;
 		pkh->len -=  rth->it_len +fcsl;
 		h80211 = packet + rth->it_len;
