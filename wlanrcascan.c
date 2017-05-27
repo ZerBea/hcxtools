@@ -39,13 +39,22 @@ struct aplist
 typedef struct aplist apl_t;
 #define	APL_SIZE (sizeof(apl_t))
 
-
+uint8_t channellist[] = 
+{
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14,
+36, 40, 44, 48, 52, 56, 60, 64,
+100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140,
+149, 153, 157, 161, 165
+};
+#define CHANNELLIST_SIZE sizeof(channellist)
 
 /*===========================================================================*/
 /* globale variablen */
 
 pcap_t *pcapin = NULL;
+uint8_t chlistp = 0;
 uint8_t channel = 1;
+
 
 apl_t *apliste = NULL; 
 adr_t nullmac;
@@ -96,7 +105,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		memcpy(&essidstr, zeiger->essid, zeiger->essid_len);
 		if((essidstr[0] == 0) || (zeiger->essid_len == 0))
 			strcpy(essidstr, hiddenstr);
-		printf("%02d ", zeiger->channel);
+		printf("%03d ", zeiger->channel);
 		for (m = 0; m < 6; m++)
 			printf("%02x", zeiger->addr_ap.addr[m]);
 
@@ -166,10 +175,7 @@ int result = 0;
 memset(&wrq, 0, sizeof(struct iwreq));
 strncpy(wrq.ifr_name, interfacename , IFNAMSIZ);
 if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-	{
-        fprintf(stderr, "socket open for ioctl() on '%s' failed with '%d'\n", interfacename, sock);
-	programmende(SIGINT);
-	}
+	return;
 
 wrq.u.freq.m = channel;
 wrq.u.freq.e = 0;
@@ -179,9 +185,8 @@ if(ioctl(sock, SIOCSIWFREQ, &wrq) < 0)
 	usleep(100);
 	if((result = ioctl(sock, SIOCSIWFREQ, &wrq)) < 0)
 		{
-		fprintf(stderr, "ioctl(SIOCSIWFREQ) on '%s' failed with '%d'\n", interfacename, result);
-		fprintf(stderr, "unable to set channel on '%s', exiting\n", interfacename);
-		programmende(SIGINT);
+		close(sock);
+		return;
 		}
 	}
 close(sock);
@@ -206,7 +211,7 @@ int loop = 3;
 uint8_t field = 0;
 
 printf("start scanning...\n");
-printf("\rloop: %d channel: %02d found nets: %d", loop, channel, netcount);
+printf("\rloop: %d channel: %03d found nets: %d", loop, channel, netcount);
 
 while(1)
 	{
@@ -222,16 +227,17 @@ while(1)
 
 	if(pcapstatus == -2)
 		{
-		printf("\rloop: %d channel: %02d found nets: %d", loop, channel, netcount);
-		channel++;
-		if(channel > 13)
+		chlistp++;
+		if(chlistp >= CHANNELLIST_SIZE)
 			{
-			channel = 1;
+			chlistp = 0;
 			loop--;
 			}
 		if(loop == 0)
 			programmende(SIGINT);
-		setchannel(interfacename, channel);
+		channel = channellist [chlistp];
+		setchannel();
+		printf("\rloop: %d channel: %03d found nets: %d", loop, channel, netcount);
 		continue;
 		}
 
