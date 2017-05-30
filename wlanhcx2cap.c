@@ -350,7 +350,7 @@ if(hccapxsize != statinfo.st_size)
 	}
 fclose(fhhccapx);
 hccapsets = hccapxsize / sizeof(hcx_t);
-printf("%ld records readed from %s\n", hccapxsize / sizeof(hcx_t), hccapxinname);
+printf("%ld records read from %s\n", hccapxsize / sizeof(hcx_t), hccapxinname);
 
 
 if(capoutname != NULL)

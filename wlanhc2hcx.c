@@ -301,13 +301,13 @@ zeigerhcx = (hcx_t*)(data);
 zeigerhc = (hccap_t*)(data);
 if(((datasize % HCX_SIZE) == 0) && (zeigerhcx->signature == HCCAPX_SIGNATURE))
 	{
-	printf("%ld records readed from %s\n", hcxsize, hcinname);
+	printf("%ld records read from %s\n", hcxsize, hcinname);
 	processhcx(hcxsize, zeigerhcx); 
 	}
 
 else if((datasize % HCCAP_SIZE) == 0)
 	{
-	printf("%ld records readed from %s\n", hcsize, hcinname);
+	printf("%ld records read from %s\n", hcsize, hcinname);
 	processhc(hcsize, zeigerhc); 
 	}
 else
