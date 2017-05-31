@@ -33,7 +33,7 @@ eapdb_t *neweapdbdata = NULL;
 long int eapdbrecords = 0;
 
 pcap_dumper_t *pcapout = NULL;
-
+pcap_dumper_t *pcapextout = NULL;
 
 uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
@@ -687,6 +687,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if((packet[field] & 0x10) == 0x10)
 				fcsl = 4;
 			}
+
 		pkh->caplen -= rth->it_len +fcsl;
 		pkh->len -=  rth->it_len +fcsl;
 		h80211 = packet + rth->it_len;
@@ -826,6 +827,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 						eapextflag = TRUE;
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+
+			if(pcapextout != NULL)
+				pcap_dump((u_char *) pcapextout, pkh, h80211);
 			continue;
 			}
 
@@ -833,6 +837,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+
+			if(pcapextout != NULL)
+				pcap_dump((u_char *) pcapextout, pkh, h80211);
 			continue;
 			}
 		}
@@ -935,6 +942,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-w <file> : output only wlandump forced to hccapx file\n"
 	"-W <file> : output only not wlandump forced to hccapx file\n"
 	"-p <file> : output pcap file\n"
+	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
@@ -946,6 +954,7 @@ exit(EXIT_FAILURE);
 int main(int argc, char *argv[])
 {
 pcap_t *pcapdh = NULL;
+pcap_t *pcapextdh = NULL;
 
 int auswahl;
 int index;
@@ -953,6 +962,7 @@ int index;
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *pcapoutname = NULL;
+char *pcapextoutname = NULL;
 char *essidoutname = NULL;
 char *essidunicodeoutname = NULL;
 
@@ -960,7 +970,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:p:e:E:w:W:xrhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:p:P:e:E:w:W:xrhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -978,6 +988,10 @@ while ((auswahl = getopt(argc, argv, "o:p:e:E:w:W:xrhv")) != -1)
 
 		case 'p':
 		pcapoutname = optarg;
+		break;
+
+		case 'P':
+		pcapextoutname = optarg;
 		break;
 
 		case 'e':
@@ -1013,12 +1027,23 @@ if(pcapoutname != NULL)
 		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapoutname);
 	}
 
+if(pcapextoutname != NULL)
+	{
+	pcapextdh = pcap_open_dead(DLT_IEEE802_11, 65535);
+	if ((pcapextout = pcap_dump_open(pcapextdh, pcapextoutname)) == NULL)
+		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapextoutname);
+	}
+
+
 memset(&oldhcxrecord, 0, HCX_SIZE);
 for (index = optind; index < argc; index++)
 	{
 	if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
 		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
 	}
+
+if(pcapextout != NULL)
+	pcap_dump_close(pcapextout);
 
 if(pcapout != NULL)
 	pcap_dump_close(pcapout);
