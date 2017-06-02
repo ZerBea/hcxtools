@@ -322,11 +322,13 @@ static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options> [input.hccap(x)] [input.hccap(x)] ...\n"
+	"       %s <options> *.cap\n"
+	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
 	"-o <file> : output hccapx file\n"
 	"-e <file> : output essidlist\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, eigenname, eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

@@ -936,6 +936,8 @@ static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options> [input.cap] [input.cap] ...\n"
+	"       %s <options> *.cap\n"
+	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
 	"-o <file> : output hccapx file\n"
@@ -947,7 +949,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"-r        : enable replaycountcheck (default: disabled)\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, eigenname, eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/
