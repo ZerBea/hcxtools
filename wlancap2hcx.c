@@ -949,7 +949,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"-r        : enable replaycountcheck (default: disabled)\n"
-	"\n", eigenname, eigenname, eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

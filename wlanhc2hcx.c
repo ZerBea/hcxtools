@@ -328,7 +328,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output hccapx file\n"
 	"-e <file> : output essidlist\n"
-	"\n", eigenname, eigenname, eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/
