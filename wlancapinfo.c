@@ -44,7 +44,7 @@ char *dlt105 = "(DLT_IEEE802_11)";
 char *dlt119 = "(DLT_PRISM_HEADER)";
 char *dlt127 = "(DLT_IEEE802_11_RADIO)";
 char *dlt163 = "(DLT_IEEE802_11_RADIO_AVS)";
-char *dlt192 = "(DLT_IEEE802_11_PPI_HDR)";
+char *dlt192 = "(DLT_PPI)";
 
 char *pcap = "(cap/pcap)";
 char *pcapng = "(pcapng)";
