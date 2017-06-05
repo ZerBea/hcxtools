@@ -44,6 +44,7 @@ char *dlt105 = "(DLT_IEEE802_11)";
 char *dlt119 = "(DLT_PRISM_HEADER)";
 char *dlt127 = "(DLT_IEEE802_11_RADIO)";
 char *dlt163 = "(DLT_IEEE802_11_RADIO_AVS)";
+char *dlt192 = "(DLT_IEEE802_11_PPI_HDR)";
 
 char *pcap = "(cap/pcap)";
 char *pcapng = "(pcapng)";
@@ -123,6 +124,8 @@ else if(datalink == 127)
 else if(datalink == 163)
 	datalinkstring = dlt163;
 
+else if(datalink == 192)
+	datalinkstring = dlt192;
 
 
 
