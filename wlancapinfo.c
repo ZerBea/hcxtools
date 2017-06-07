@@ -40,11 +40,16 @@ const uint8_t *packet = NULL;
 char *datalinkstring = "";
 char *pcapformatstring = "";
 
+char *dlt0 = "(DLT_NULL)";
+char *dlt1 = "(DLT_EN10MB)";
 char *dlt105 = "(DLT_IEEE802_11)";
 char *dlt119 = "(DLT_PRISM_HEADER)";
 char *dlt127 = "(DLT_IEEE802_11_RADIO)";
 char *dlt163 = "(DLT_IEEE802_11_RADIO_AVS)";
+char *dlt187 = "(DLT_BLUETOOTH_HCI_H4)";
+char *dlt189 = "(DLT_USB_LINUX)";
 char *dlt192 = "(DLT_PPI)";
+char *dlt195 = "(DLT_IEEE802_15_4)";
 
 char *pcap = "(cap/pcap)";
 char *pcapng = "(pcapng)";
@@ -111,8 +116,13 @@ else if(magic == MAGIC_PCAP_NS_SWAPPED)
 	pcapformatstring = pcapnssw;
 
 
+if(datalink == 0)
+	datalinkstring = dlt0;
 
-if(datalink == 105)
+else if(datalink == 1)
+	datalinkstring = dlt1;
+
+else if(datalink == 105)
 	datalinkstring = dlt105;
 
 else if(datalink == 119)
@@ -124,19 +134,26 @@ else if(datalink == 127)
 else if(datalink == 163)
 	datalinkstring = dlt163;
 
+else if(datalink == 187)
+	datalinkstring = dlt187;
+
+else if(datalink == 189)
+	datalinkstring = dlt189;
+
 else if(datalink == 192)
 	datalinkstring = dlt192;
 
+else if(datalink == 195)
+	datalinkstring = dlt195;
 
 
 printf( "input file.......: %s\n"
 	"magic file number: 0x%04x %s\n"
 	"major version....: %d\n"
 	"minor version....: %d\n"
-	"data link type...: %d %s\n"
+	"data link type...: %d %s [http://www.tcpdump.org/linktypes.html]\n"
 	"packets inside...: %ld\n"
 	"last pcap error..: %s\n"
-
 	, pcapinname, magic, pcapformatstring, majorversion, minorversion, datalink, datalinkstring, packetcount, pcaperrorstring);
 
 return TRUE;	
