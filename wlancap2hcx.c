@@ -584,7 +584,6 @@ int macl = 0;
 int fcsl = 0;
 uint8_t field = 0;
 int datalink = 0;
-int has_rth = FALSE;
 int pcapstatus;
 int packetcount = 0;
 int wcflag = FALSE;
@@ -608,8 +607,6 @@ if((datalink != DLT_IEEE802_11) && (datalink != DLT_IEEE802_11_RADIO))
 	fprintf (stderr, "unsupported datalinktyp %d\n", datalink);
 	return FALSE;
 	}
-if (datalink == DLT_IEEE802_11_RADIO)
-	has_rth = TRUE;
 
 if (pcap_compile(pcapin, &filter,filterstring, 1, 0) < 0)
 	{
@@ -671,9 +668,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_sec == 0))
 		wcflag = TRUE;
 
-	/* check radiotap-header */
 	h80211 = packet;
-	if(has_rth == TRUE)
+	/* check radiotap-header */
+	if(datalink == DLT_IEEE802_11_RADIO)
 		{
 		rth = (rth_t*)packet;
 		fcsl = 0;
@@ -1040,8 +1037,9 @@ if(pcapextoutname != NULL)
 memset(&oldhcxrecord, 0, HCX_SIZE);
 for (index = optind; index < argc; index++)
 	{
-	if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
-		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
+	if((strcmp(argv[index], pcapoutname) != 0) && (strcmp(argv[index], pcapoutname) != 0))
+		if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
+			fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
 	}
 
 if(pcapextout != NULL)

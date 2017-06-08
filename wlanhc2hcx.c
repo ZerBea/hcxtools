@@ -364,11 +364,12 @@ while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 
 for (index = optind; index < argc; index++)
 	{
-	if(processdata(argv[index]) == FALSE)
-		{
-		fprintf(stderr, "error processing records from %s\n", (argv[index]));
-		exit(EXIT_FAILURE);
-		}
+	if((strcmp(argv[index], hcxoutname) != 0) && (strcmp(argv[index], essidoutname) != 0))
+		if(processdata(argv[index]) == FALSE)
+			{
+			fprintf(stderr, "error processing records from %s\n", (argv[index]));
+			exit(EXIT_FAILURE);
+			}
 	}
 
 
