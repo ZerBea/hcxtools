@@ -1033,13 +1033,24 @@ if(pcapextoutname != NULL)
 		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapextoutname);
 	}
 
-
 memset(&oldhcxrecord, 0, HCX_SIZE);
 for (index = optind; index < argc; index++)
 	{
-	if((strcmp(argv[index], pcapoutname) != 0) && (strcmp(argv[index], pcapoutname) != 0))
-		if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
-			fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
+	if(pcapoutname != NULL)
+		if(strcmp(argv[index], pcapoutname) == 0)
+			{
+			fprintf(stderr, "\x1B[31mfile skipped (inputname = outputname) %s\x1B[0m\n", (argv[index]));
+			continue;	
+			}
+
+	if(pcapextoutname != NULL)
+		if(strcmp(argv[index], pcapextoutname) == 0)
+			{
+			fprintf(stderr, "\x1B[31mfile skipped (inputname = outputname) %s\x1B[0m\n", (argv[index]));
+			continue;	
+			}
+	if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
+		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
 	}
 
 if(pcapextout != NULL)

@@ -364,12 +364,17 @@ while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 
 for (index = optind; index < argc; index++)
 	{
-	if((strcmp(argv[index], hcxoutname) != 0) && (strcmp(argv[index], essidoutname) != 0))
-		if(processdata(argv[index]) == FALSE)
+	if(hcxoutname != NULL)
+		if(strcmp(argv[index], hcxoutname) == 0)
 			{
-			fprintf(stderr, "error processing records from %s\n", (argv[index]));
-			exit(EXIT_FAILURE);
+			fprintf(stderr, "\x1B[31mfile skipped (inputname = outputname) %s\x1B[0m\n", (argv[index]));
+			continue;	
 			}
+	if(processdata(argv[index]) == FALSE)
+		{
+		fprintf(stderr, "error processing records from %s\n", (argv[index]));
+		exit(EXIT_FAILURE);
+		}
 	}
 
 
