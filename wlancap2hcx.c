@@ -12,6 +12,15 @@
 #include <stdio_ext.h>
 #include "common.h"
 
+struct ppi_packet_header
+{
+ uint8_t pph_version;
+ uint8_t pph_flags;
+ uint16_t pph_len;
+ uint32_t pph_dlt;
+} __attribute__((packed));
+typedef struct ppi_packet_header ppi_packet_header_t;
+
 
 /*===========================================================================*/
 /* globale Variablen */
@@ -571,6 +580,7 @@ struct bpf_program filter;
 struct pcap_pkthdr *pkh;
 pcap_t *pcapin = NULL;
 rth_t *rth = NULL;
+ppi_packet_header_t *ppih = NULL;
 mac_t *macf = NULL;
 eap_t *eap = NULL;
 eapext_t *eapext = NULL;
@@ -602,7 +612,7 @@ if (!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	}
 
 datalink = pcap_datalink(pcapin);
-if((datalink != DLT_IEEE802_11) && (datalink != DLT_IEEE802_11_RADIO))
+if((datalink != DLT_IEEE802_11) && (datalink != DLT_IEEE802_11_RADIO) && (datalink != DLT_PPI))
 	{
 	fprintf (stderr, "unsupported datalinktyp %d\n", datalink);
 	return FALSE;
@@ -668,9 +678,12 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_sec == 0))
 		wcflag = TRUE;
 
-	h80211 = packet;
+	/* check 802.11-header */
+	if(datalink == DLT_IEEE802_11)
+		h80211 = packet;
+
 	/* check radiotap-header */
-	if(datalink == DLT_IEEE802_11_RADIO)
+	else if(datalink == DLT_IEEE802_11_RADIO)
 		{
 		rth = (rth_t*)packet;
 		fcsl = 0;
@@ -684,10 +697,23 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if((packet[field] & 0x10) == 0x10)
 				fcsl = 4;
 			}
-
 		pkh->caplen -= rth->it_len +fcsl;
 		pkh->len -=  rth->it_len +fcsl;
 		h80211 = packet + rth->it_len;
+		}
+
+	/* check ppi-header */
+	else if(datalink == DLT_PPI)
+		{
+		ppih = (ppi_packet_header_t*)packet;
+		if(ppih->pph_dlt != DLT_IEEE802_11)
+			continue;
+		fcsl = 0;
+		if((packet[0x14] & 1) == 1)
+			fcsl = 4;
+		pkh->caplen -= ppih->pph_len +fcsl;
+		pkh->len -=  ppih->pph_len +fcsl;
+		h80211 = packet + ppih->pph_len;
 		}
 
 	macf = (mac_t*)(h80211);
