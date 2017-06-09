@@ -23,7 +23,7 @@ Detailed description
 | Tool          | Description                                                                                          |
 | ------------- | -----------------------------------------------------------------------------------------------------|
 | wlandump-ng   | Small, fast and powerfull deauthentication/authentication/response tool                              |
-| wlanresponse  | Extreme fast deauthentication/authentication/response tool (unattended use on raspberry pi's)        |
+| wlanresponse  | Extreme fast deauthentication/authentication/response tool (unattended use on Raspberry Pi's)        |
 | wlanrcascan   | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
 | pioff         | Turns Raspberry Pi off via GPIO switch                                                               |
 | wlancapinfo   | Shows info of pcap file                                                                              |
@@ -94,3 +94,8 @@ Notice
 
 Most output files will be appended to existing files (with the exception of .cap files).
 
+
+Warning
+--------------
+
+You must use wlandump-ng and wlanresponse only on networks you have permission to do this.
