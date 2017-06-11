@@ -219,7 +219,6 @@ void writecap(char *capoutname, long int hccapsets, hcx_t *hccapxdata)
 {
 int p;
 int pcapcount = 0;
-int keyinformation;
 hcx_t *zeiger;
 struct stat statinfo;
 
@@ -235,8 +234,7 @@ qsort(hccapxdata, hccapsets, sizeof(hcx_t), sort_by_mac12);
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	keyinformation = (zeiger->eapol[5] << 8) + zeiger->eapol[6];
-	if((! (keyinformation & WPA_KEY_INFO_ACK)) && (! (keyinformation & WPA_KEY_INFO_SECURE)))
+	if(((zeiger->message_pair & 0x80) != 0x80) && (zeiger->message_pair != MESSAGE_PAIR_M32E3) && (zeiger->message_pair != MESSAGE_PAIR_M34E3))
 		{
 		if((mac12checkdouble(zeiger, p, hccapsets) == FALSE))
 			{
@@ -265,23 +263,21 @@ for(p = 1; p <= MAXPCAPOUT; p++)
 		}
 	}
 
+lasthostcount = 1;
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	if((zeiger->eapol[0x06] == 0x0a) || (zeiger->eapol[0x06] == 0x09))
+	if(((zeiger->message_pair & 0x80) != 0x80) && (zeiger->message_pair != MESSAGE_PAIR_M32E3) && (zeiger->message_pair != MESSAGE_PAIR_M34E3))
 		{
-		if((mac12checkdouble(zeiger, p, hccapsets) == FALSE))
+		if((mac12checkdouble(zeiger, p, hccapsets) == FALSE) || (lasthostcount == 1))
 			{
 			if(memcmp(lasthost, zeiger->mac_ap.addr, 6) == 0)
 				lasthostcount++;
 			else lasthostcount = 1;
 			if(lasthostcount <= MAXPCAPOUT)
 				{
-				if((zeiger->message_pair & 0x80) != 0x80)
-					{
-					pcapwritepaket(pcapdump[lasthostcount], zeiger);
-					pcapcount++;
-					}
+				pcapwritepaket(pcapdump[lasthostcount], zeiger);
+				pcapcount++;
 				}
 			memcpy(lasthost, zeiger->mac_ap.addr, 6);
 			}
