@@ -1202,6 +1202,7 @@ while(1)
 			if((packet[field] & 0x10) == 0x10)
 				fcsl = 4;
 			}
+
 		pkh->caplen -= rth->it_len +fcsl;
 		pkh->len -=  rth->it_len +fcsl;
 		h80211 = packet + rth->it_len;
@@ -1421,8 +1422,9 @@ while(1)
 			continue;
 			}
 
-		if(eap->type == 0)
+		if(eap->type == 1)
 			{
+			pcap_dump((u_char *) pcapout, pkh, h80211);
 			continue;
 			}
 		}
