@@ -79,9 +79,6 @@ const uint8_t snonce[] = {
 
 uint8_t mypacket[0xfff];
 
-if((zeigersend->message_pair & 0x80) == 0x80)
-	return;
-
 /* beacon */
 pp = 0;
 gettimeofday( &tv1,  NULL );
@@ -249,7 +246,6 @@ for(p = 0; p < hccapsets; p++)
 			memcpy(lasthost, zeiger->mac_ap.addr, 6);
 			if(lasthostcount > maxhostcount)
 				maxhostcount = lasthostcount;
-			pcapcount++;
 			}
 		}
 	zeiger++;
@@ -280,10 +276,14 @@ for(p = 0; p < hccapsets; p++)
 				lasthostcount++;
 			else lasthostcount = 1;
 			if(lasthostcount <= MAXPCAPOUT)
-				pcapwritepaket(pcapdump[lasthostcount], zeiger);
-
+				{
+				if((zeiger->message_pair & 0x80) != 0x80)
+					{
+					pcapwritepaket(pcapdump[lasthostcount], zeiger);
+					pcapcount++;
+					}
+				}
 			memcpy(lasthost, zeiger->mac_ap.addr, 6);
-			pcapcount++;
 			}
 		}
 	zeiger++;
