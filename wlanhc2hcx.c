@@ -137,6 +137,11 @@ for(p = 0; p < hcsize; p++)
 		zeiger++;
 		continue;
 		}
+	if(zeiger->eapol_size > 256)
+		{
+		zeiger++;
+		continue;
+		}
 
 	if(fhessid != NULL)
 		{
