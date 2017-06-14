@@ -30,6 +30,7 @@ typedef struct hccap hccap_t;
 /*===========================================================================*/
 /* globale Variablen */
 
+long int eapolerror = 0;
 
 char *hcxoutname = NULL;
 char *essidoutname = NULL;
@@ -140,6 +141,7 @@ for(p = 0; p < hcsize; p++)
 	if(zeiger->eapol_size > 256)
 		{
 		zeiger++;
+		eapolerror++;
 		continue;
 		}
 
@@ -221,6 +223,19 @@ for(p = 0; p < hcxsize; p++)
 	{
 	if(zeiger->signature == HCCAPX_SIGNATURE)
 		{
+		if(zeiger->essid_len > 32)
+			{
+			zeiger++;
+			continue;
+			}
+
+		if(zeiger->eapol_len > 256)
+			{
+			eapolerror++;
+			zeiger++;
+			continue;
+			}
+
 		if(fhessid != NULL)
 			{
 			memset(&essidout, 0, 36);
@@ -266,6 +281,7 @@ long int datasize = 0;
 long int hcxsize = 0;
 long int hcsize = 0;
 
+eapolerror = 0;
 if(hcinname == NULL)
 	return FALSE;
 
@@ -320,6 +336,9 @@ else
 
 
 free(data);
+if(eapolerror > 0)
+	printf("\x1B[31m%ld records ignored (wrong eapolsize)\x1B[0m\n", eapolerror);
+
 return TRUE;
 }
 /*===========================================================================*/
