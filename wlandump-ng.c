@@ -240,6 +240,14 @@ const uint8_t anonce[] =
 };
 #define ANONCE_SIZE sizeof(anonce)
 
+
+const uint8_t requestidentity[] =
+{
+0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x88, 0x8e,
+0x02, 0x00, 0x00, 0x05, 0x01, 0xb8, 0x00, 0x05, 0x01
+};
+#define REQUESTIDENTITY_SIZE sizeof(requestidentity)
+
 /*===========================================================================*/
 int initgloballists()
 {
@@ -668,6 +676,46 @@ if(pcapstatus == -1)
 	system("reboot");
 #endif
 	fprintf(stderr, "error while sending key 1 %s \n", pcap_geterr(pcapin));
+	internalpcaperrors++;
+	return;
+	}
+internalm1++;
+return;
+}
+/*===========================================================================*/
+void sendrequestidentity(uint8_t *macaddr1, uint8_t *macaddr2)
+{
+int pcapstatus;
+mac_t grundframe;
+qos_t qosframe;
+
+uint8_t sendpacket[SENDPACKETSIZEMAX];
+
+if(modepassiv == TRUE)
+	return;
+memset(&grundframe, 0, MAC_SIZE_NORM);
+memset(&qosframe, 0, QOS_SIZE);
+grundframe.type = MAC_TYPE_DATA;
+grundframe.subtype = MAC_ST_QOSDATA;
+grundframe.from_ds = 1;
+grundframe.duration = 0x3a01;
+memcpy(grundframe.addr1.addr, macaddr1, 6);
+memcpy(grundframe.addr2.addr, macaddr2, 6);
+memcpy(grundframe.addr3.addr, macaddr2, 6);
+qosframe.control = 0;
+qosframe.flags = 0;
+memcpy(sendpacket, hdradiotap, HDRRT_SIZE);
+memcpy(sendpacket +HDRRT_SIZE, &grundframe, MAC_SIZE_NORM);
+memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM, &qosframe, QOS_SIZE);
+memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +QOS_SIZE, &requestidentity, REQUESTIDENTITY_SIZE);
+
+pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +QOS_SIZE +REQUESTIDENTITY_SIZE);
+if(pcapstatus == -1)
+	{
+#ifdef DOGPIOSUPPORT
+	system("reboot");
+#endif
+	fprintf(stderr, "error while sending request identity %s \n", pcap_geterr(pcapin));
 	internalpcaperrors++;
 	return;
 	}
@@ -1298,7 +1346,6 @@ while(1)
 					pcap_dump((u_char *) pcapout, pkh, h80211);
 					}
 				}
-
 			continue;
 			}
 
@@ -1425,6 +1472,8 @@ while(1)
 		if(eap->type == 1)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
+			if(eap->len == 0)
+				sendrequestidentity(macf->addr2.addr, macf->addr1.addr);
 			continue;
 			}
 		}
