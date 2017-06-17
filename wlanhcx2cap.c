@@ -55,7 +55,7 @@ struct curl_httppost *lastptr=NULL;
 struct curl_slist *headerlist=NULL;
 static const char buf[] = "Expect:";
 
-printf("uploading %s to %s\n", wpasecurl, wpasecurl);
+printf("uploading %s to %s\n", sendcapname, wpasecurl);
 curl_global_init(CURL_GLOBAL_ALL);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "webfile", CURLFORM_COPYCONTENTS, sendcapname, CURLFORM_END);
