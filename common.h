@@ -371,7 +371,4 @@ const uint8_t mynonce[] =
 };
 #define ANONCE_SIZE sizeof(anonce)
 
-
-const char *wpasecurl = "http://wpa-sec.stanev.org";
-
 /*===========================================================================*/

@@ -22,11 +22,6 @@
 #define HANDSHAKEART4	4
 
 /*===========================================================================*/
-/* globale Variablen */
-
-uint8_t wpasecupload = FALSE;
-
-/*===========================================================================*/
 void printhex(const uint8_t *buffer, int size)
 {
 int c, d;
@@ -42,42 +37,6 @@ for (c = 0; c < size; c++)
 		}
 	}
 fprintf(stdout," ");
-return;
-}
-/*===========================================================================*/
-void sendcap2wpasec(char *sendcapname)
-{
-CURL *curl;
-CURLcode res;
- 
-struct curl_httppost *formpost=NULL;
-struct curl_httppost *lastptr=NULL;
-struct curl_slist *headerlist=NULL;
-static const char buf[] = "Expect:";
-
-printf("uploading %s to %s\n", wpasecurl, wpasecurl);
-curl_global_init(CURL_GLOBAL_ALL);
-curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
-curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "webfile", CURLFORM_COPYCONTENTS, sendcapname, CURLFORM_END);
-curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "submit", CURLFORM_COPYCONTENTS, "Submit capture", CURLFORM_END);
-curl = curl_easy_init();
-headerlist = curl_slist_append(headerlist, buf);
-if(curl)
-	{
-	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
-	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 30L);
-	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-	res = curl_easy_perform(curl);
-	if(res != CURLE_OK)
-		fprintf(stderr, "upload to %s failed: %s\n", wpasecurl, curl_easy_strerror(res));
-
-	else
-		printf(" = upload done\n");
-
-	curl_easy_cleanup(curl);
-	curl_formfree(formpost);
-	curl_slist_free_all(headerlist);
-	}
 return;
 }
 /*===========================================================================*/
@@ -338,9 +297,6 @@ for(p = 1; p <= MAXPCAPOUT; p++)
 	stat(pcapoutstr, &statinfo);
 	if((statinfo.st_size) == 24)
 		remove(pcapoutstr);
-	else if(wpasecupload == TRUE)
-		sendcap2wpasec(pcapoutstr);
-
 	}
 
 printf("%d pcap(s) written\n", pcapcount);
@@ -409,8 +365,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-i <file> : input hccapx file\n"
 	"-o <file> : output cap file\n"
-	"-U        : upload cap(s) to %s (internetconnection required)\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, wpasecurl);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/
@@ -426,7 +381,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:Uhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -436,10 +391,6 @@ while ((auswahl = getopt(argc, argv, "i:o:Uhv")) != -1)
 
 		case 'o':
 		capoutname = optarg;
-		break;
-
-		case 'U':
-		wpasecupload = TRUE;
 		break;
 
 		default:

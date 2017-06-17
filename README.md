@@ -20,23 +20,24 @@ All of these utils are designed to execute only one specific function.
 Detailed description
 --------------
 
-| Tool          | Description                                                                                          |
-| ------------- | -----------------------------------------------------------------------------------------------------|
-| wlandump-ng   | Small, fast and powerfull deauthentication/authentication/response tool                              |
-| wlanresponse  | Extreme fast deauthentication/authentication/response tool (unattended use on Raspberry Pi's)        |
-| wlanrcascan   | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
-| pioff         | Turns Raspberry Pi off via GPIO switch                                                               |
-| wlancapinfo   | Shows info of pcap file                                                                              |
-| wlancap2hcx   | Converts cap to hccapx (recommended for use with wlandump-ng and wlanresponse)                       |
-| wlanhcx2cap   | Converts hccapx to cap                                                                               |
-| wlanhc2hcx    | Converts hccap to hccapx                                                                             |
-| wlanhcx2essid | Merges hccapx containing the same ESSID                                                              |
-| wlanhcx2ssid  | Strips BSSID, ESSID, OUI                                                                             |
-| wlanhcx2john  | Converts hccapx to format expected by John the Ripper                                                |
-| wlanhcxinfo   | Shows detailed info from contents of hccapxfile                                                      |
-| wlanhcxmnc    | Manually do nonce correction on byte number xx of a nonce                                            |
-| whoismac      | Show vendor information                                                                              |
-| pwhash        | Generate hash of a word by using a given charset                                                     |
+| Tool           | Description                                                                                          |
+| -------------- | ---------------------------------------------------------------------------------------------------- |
+| wlandump-ng    | Small, fast and powerfull deauthentication/authentication/response tool                              |
+| wlanresponse   | Extreme fast deauthentication/authentication/response tool (unattended use on Raspberry Pi's)        |
+| wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
+| pioff          | Turns Raspberry Pi off via GPIO switch                                                               |
+| wlancapinfo    | Shows info of pcap file                                                                              |
+| wlancap2hcx    | Converts cap to hccapx (recommended for use with wlandump-ng and wlanresponse)                       |
+| wlanhcx2cap    | Converts hccapx to cap                                                                               |
+| wlanhc2hcx     | Converts hccap to hccapx                                                                             |
+| wlanhcx2essid  | Merges hccapx containing the same ESSID                                                              |
+| wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                             |
+| wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                |
+| wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                      |
+| wlanhcxmnc     | Manually do nonce correction on byte number xx of a nonce                                            |
+| wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                    |
+| whoismac       | Show vendor information                                                                              |
+| pwhash         | Generate hash of a word by using a given charset                                                     |
 
 
 Compile

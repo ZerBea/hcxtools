@@ -9,6 +9,7 @@ CFLAGS	= -O3 -Wall -Wextra
 
 ifeq ($(GPIOSUPPORT), on)
 CFLAGS	+= -DDOGPIOSUPPORT
+
 LFLAGS	= -lcrypt -lwiringPi -lwiringPiDev
 endif
 
@@ -33,6 +34,7 @@ endif
 	$(CC) $(CFLAGS) -o wlanhcxmnc wlanhcxmnc.c
 	$(CC) $(CFLAGS) -o whoismac whoismac.c -lcurl
 	$(CC) $(CFLAGS) -o pwhash pwhash.c -lcrypto
+	$(CC) $(CFLAGS) -o wlancap2wpasec wlancap2wpasec.c -lcurl
 
 
 install: build
@@ -53,6 +55,7 @@ endif
 	install -D -m 0755 wlanhcxmnc $(INSTALLDIR)/wlanhcxmnc
 	install -D -m 0755 whoismac $(INSTALLDIR)/whoismac
 	install -D -m 0755 pwhash $(INSTALLDIR)/pwhash
+	install -D -m 0755 wlancap2wpasec $(INSTALLDIR)/wlancap2wpasec
 
 ifeq ($(GPIOSUPPORT), on)
 	rm -f pioff
@@ -71,6 +74,7 @@ endif
 	rm -f wlanhcxmnc
 	rm -f whoismac
 	rm -f pwhash
+	rm -f wlancap2wpasec
 	rm -f *.o *~
 
 
@@ -92,6 +96,7 @@ endif
 	rm -f wlanhcxmnc
 	rm -f whoismac
 	rm -f pwhash
+	rm -f wlancap2wpasec
 	rm -f *.o *~
 
 
@@ -114,3 +119,4 @@ endif
 	rm -f $(INSTALLDIR)/wlanhcxmnc
 	rm -f $(INSTALLDIR)/whoismac
 	rm -f $(INSTALLDIR)/pwhash
+	rm -f $(INSTALLDIR)/wlancap2wpasec
