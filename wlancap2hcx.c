@@ -10,6 +10,7 @@
 #include <pcap.h>
 #include <sys/stat.h>
 #include <stdio_ext.h>
+#include <curl/curl.h>
 #include "common.h"
 
 struct ppi_packet_header
@@ -51,6 +52,8 @@ uint8_t ancflag = FALSE;
 uint8_t eapextflag = FALSE;
 uint8_t anecflag = FALSE;
 
+uint8_t wpasecupload = FALSE;
+
 int rctimecount = 0;
 
 char *hcxoutname = NULL;
@@ -58,6 +61,42 @@ char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
 
 hcx_t oldhcxrecord;
+/*===========================================================================*/
+void sendcap2wpasec(char *sendcapname)
+{
+CURL *curl;
+CURLcode res;
+ 
+struct curl_httppost *formpost=NULL;
+struct curl_httppost *lastptr=NULL;
+struct curl_slist *headerlist=NULL;
+static const char buf[] = "Expect:";
+
+printf("uploading %s to %s\n", wpasecurl, wpasecurl);
+curl_global_init(CURL_GLOBAL_ALL);
+curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
+curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "webfile", CURLFORM_COPYCONTENTS, sendcapname, CURLFORM_END);
+curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "submit", CURLFORM_COPYCONTENTS, "Submit capture", CURLFORM_END);
+curl = curl_easy_init();
+headerlist = curl_slist_append(headerlist, buf);
+if(curl)
+	{
+	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
+	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+	curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+	res = curl_easy_perform(curl);
+	if(res != CURLE_OK)
+		fprintf(stderr, "upload to %s failed: %s\n", wpasecurl, curl_easy_strerror(res));
+
+	else
+		printf("upload done\n");
+
+	curl_easy_cleanup(curl);
+	curl_formfree(formpost);
+	curl_slist_free_all(headerlist);
+	}
+return;
+}
 /*===========================================================================*/
 unsigned long long int getreplaycount(uint8_t *eapdata)
 {
@@ -863,6 +902,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			if(pcapextout != NULL)
 				pcap_dump((u_char *) pcapextout, pkh, h80211);
+
 			continue;
 			}
 		}
@@ -951,6 +991,9 @@ if(eapextflag == TRUE)
 if(wcflag == TRUE)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
 
+if(wpasecupload == TRUE)
+	sendcap2wpasec(pcapinname);
+
 
 return TRUE;	
 }
@@ -972,7 +1015,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"-r        : enable replaycountcheck (default: disabled)\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
+	"-U        : upload cap(s) to %s (internetconnection required)\n"
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, wpasecurl);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/
@@ -995,7 +1039,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:p:P:e:E:w:W:xrhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:p:P:e:E:w:W:xrUhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1033,6 +1077,10 @@ while ((auswahl = getopt(argc, argv, "o:p:P:e:E:w:W:xrhv")) != -1)
 
 		case 'r':
 		replaycountcheck = TRUE;
+		break;
+
+		case 'U':
+		wpasecupload = TRUE;
 		break;
 
 		case 'h':
@@ -1077,6 +1125,10 @@ for (index = optind; index < argc; index++)
 			}
 	if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
 		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
+
+
+
+
 	}
 
 if(pcapextout != NULL)
