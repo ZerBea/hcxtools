@@ -409,6 +409,39 @@ printf("%ld records written\n", rw);
 return TRUE;
 }
 /*===========================================================================*/
+int writesearchessidxhccapx(long int hcxrecords, char *essidxname)
+{
+hcx_t *zeigerhcx;
+FILE *fhhcx;
+long int c;
+long int rw = 0;
+char essidxoutname[PATH_MAX +1];
+
+char essidstr[34];
+
+snprintf(essidxoutname, PATH_MAX, "%s.hccapx", essidxname);
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	memset(&essidstr, 0, 34);
+	memcpy(&essidstr, zeigerhcx->essid, zeigerhcx->essid_len);
+	if(strcmp(essidstr, essidxname) == 0)
+		{
+		if((fhhcx = fopen(essidxoutname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", essidxoutname);
+			return FALSE;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		fclose(fhhcx);
+		}
+	c++;
+	}
+printf("%ld records written\n", rw);
+return TRUE;
+}
 int writeessidhccapx(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
@@ -603,7 +636,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-s            : output file by mac_sta's\n"
 	"-o            : output file by vendor's (oui)\n"
 	"-e            : output file by essid's\n"
-	"-E <essid>    : output file by single essid name\n"
+	"-E <essid>    : output file by part of essid name\n"
+	"-X <essid>    : output file by essid name (exactly)\n"
 	"-A <mac_ap>   : output file by single mac_ap\n"
 	"-S <mac_sta>  : output file by single mac_sta\n"
 	"-O <oui>      : output file by single vendor (oui)\n"
@@ -640,6 +674,7 @@ char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *hcxinname = NULL;
 char *essidname = NULL;
+char *essidxname = NULL;
 char *aplistname = NULL;
 char *apoutname = NULL;
 char *wlandumpforcedname = NULL;
@@ -657,7 +692,7 @@ setbuf(stdout, NULL);
 wdres = getcwd(workingdir, PATH_MAX);
 if(wdres != NULL)
 	workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:r:R:0:1:2:3:4:5:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:p:l:L:w:W:r:R:0:1:2:3:4:5:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -688,6 +723,10 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:p:l:L:w:W:r:R:0:1:2:3:4:5:asoeh"
 
 		case 'E':
 		essidname = optarg;
+		break;
+
+		case 'X':
+		essidxname = optarg;
 		break;
 
 		case 'A':
@@ -829,6 +868,9 @@ else if(mode == 'O')
 
 else if(essidname != NULL)
 	writesearchessidhccapx(hcxorgrecords, essidname);
+
+else if(essidxname != NULL)
+	writesearchessidxhccapx(hcxorgrecords, essidxname);
 
 else if(mode == 'L')
 	{
