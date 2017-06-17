@@ -69,7 +69,7 @@ Requirements
 
 * librt and librt-dev installed (should be installed by default)
 
-* libcurl and curl-dev installed (used by whoismac)
+* libcurl and curl-dev installed (used by whoismac and wlancap2wpasec)
 
 * Raspberry Pi: additionally libwiringpi and wiringpi dev installed (Raspberry Pi GPIO support)
 
