@@ -83,13 +83,12 @@ if(curl)
 	{
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-	curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
 	res = curl_easy_perform(curl);
 	if(res != CURLE_OK)
 		fprintf(stderr, "upload to %s failed: %s\n", wpasecurl, curl_easy_strerror(res));
 
 	else
-		printf("upload done\n");
+		printf(" = upload done\n");
 
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
