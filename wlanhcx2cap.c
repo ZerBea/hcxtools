@@ -55,7 +55,7 @@ struct curl_httppost *lastptr=NULL;
 struct curl_slist *headerlist=NULL;
 static const char buf[] = "Expect:";
 
-printf("uploading %s to %s\n", sendcapname, wpasecurl);
+printf("uploading %s to %s\n", wpasecurl, wpasecurl);
 curl_global_init(CURL_GLOBAL_ALL);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "webfile", CURLFORM_COPYCONTENTS, sendcapname, CURLFORM_END);
@@ -65,6 +65,7 @@ headerlist = curl_slist_append(headerlist, buf);
 if(curl)
 	{
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 30L);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 	res = curl_easy_perform(curl);
 	if(res != CURLE_OK)
