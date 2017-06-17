@@ -98,4 +98,9 @@ Most output files will be appended to existing files (with the exception of .cap
 Warning
 --------------
 
-You must use wlandump-ng and wlanresponse only on networks you have permission to do this.
+You must use wlandump-ng and wlanresponse only on networks you have permission to do this, because
+wlandump-ng/wlanresponse are able to prevent complete wlan traffic
+wlandump-ng/wlanresponse are able to capture handshakes from not connected clients
+wlandump-ng/wlanresponse are able to capture handshakes from 5GHz clients on 2.4GHz
+wlandump-ng/wlanresponse are able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
+wlandump-ng/wlanresponse are able to capture passwords from the wlan traffic
