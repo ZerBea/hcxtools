@@ -723,10 +723,20 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:p:l:L:w:W:r:R:0:1:2:3:4:5:asoe
 
 		case 'E':
 		essidname = optarg;
+		if(strlen(essidname) > 32)
+			{
+			fprintf(stderr, "essid > 32\n");
+			exit(EXIT_FAILURE);
+			}
 		break;
 
 		case 'X':
 		essidxname = optarg;
+		if(strlen(essidxname) > 32)
+			{
+			fprintf(stderr, "essid > 32\n");
+			exit(EXIT_FAILURE);
+			}
 		break;
 
 		case 'A':
