@@ -1219,7 +1219,10 @@ while(1)
 			{
 			pcap_dump((u_char *)pcapout, pkh, h80211);
 			if(eap->len == 0)
+				{
+				sendacknowledgement(macf->addr2.addr);
 				sendrequestidentity(macf->addr2.addr, macf->addr1.addr);
+				}
 			}
 
 		continue;
