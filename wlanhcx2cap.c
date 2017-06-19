@@ -369,7 +369,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-i <file>  : input hccapx file\n"
 	"-o <file>  : output cap file\n"
-	"-m <digit> : output maximum clients each net\n"
+	"-m <digit> : output maximum clients per net (default 40)\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
