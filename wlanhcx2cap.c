@@ -14,13 +14,17 @@
 #include "common.h"
 
 
-#define MAXPCAPOUT 20
+#define MAXPCAPOUT 40
 #define HANDSHAKELEVEL 50
 #define HANDSHAKEART1	1
 #define HANDSHAKEART2	2
 #define HANDSHAKEART3	3
 #define HANDSHAKEART4	4
 
+/*===========================================================================*/
+/* globale Variablen */
+
+int maxcapout = MAXPCAPOUT;
 /*===========================================================================*/
 void printhex(const uint8_t *buffer, int size)
 {
@@ -224,7 +228,7 @@ int pcapcount = 0;
 hcx_t *zeiger;
 struct stat statinfo;
 
-pcap_dumper_t *pcapdump[MAXPCAPOUT +1];
+pcap_dumper_t *pcapdump[maxcapout +1];
 pcap_t *pcapdh;
 
 int lasthostcount = 1;
@@ -251,10 +255,10 @@ for(p = 0; p < hccapsets; p++)
 	zeiger++;
 	}
 
-if(maxhostcount > MAXPCAPOUT)
-	maxhostcount = MAXPCAPOUT;
+if(maxhostcount > maxcapout)
+	maxhostcount = maxcapout;
 	
-for(p = 1; p <= MAXPCAPOUT; p++)
+for(p = 1; p <= maxcapout; p++)
 	{
 	sprintf(pcapoutstr,"%s-%02d.cap", capoutname, p);
 	pcapdh = pcap_open_dead(DLT_IEEE802_11, 65535);
@@ -276,7 +280,7 @@ for(p = 0; p < hccapsets; p++)
 			if(memcmp(lasthost, zeiger->mac_ap.addr, 6) == 0)
 				lasthostcount++;
 			else lasthostcount = 1;
-			if(lasthostcount <= MAXPCAPOUT)
+			if(lasthostcount <= maxcapout)
 				{
 				pcapwritepaket(pcapdump[lasthostcount], zeiger);
 				pcapcount++;
@@ -287,11 +291,11 @@ for(p = 0; p < hccapsets; p++)
 	zeiger++;
 	}
 
-for(p = 1; p <= MAXPCAPOUT; p++)
+for(p = 1; p <= maxcapout; p++)
 	pcap_dump_close(pcapdump[p]);
 
 
-for(p = 1; p <= MAXPCAPOUT; p++)
+for(p = 1; p <= maxcapout; p++)
 	{
 	sprintf(pcapoutstr,"%s-%02d.cap", capoutname, p);
 	stat(pcapoutstr, &statinfo);
@@ -363,8 +367,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-i <file> : input hccapx file\n"
-	"-o <file> : output cap file\n"
+	"-i <file>  : input hccapx file\n"
+	"-o <file>  : output cap file\n"
+	"-m <digit> : output maximum clients each net\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -381,7 +386,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:m:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -391,6 +396,10 @@ while ((auswahl = getopt(argc, argv, "i:o:hv")) != -1)
 
 		case 'o':
 		capoutname = optarg;
+		break;
+
+		case 'm':
+		maxcapout = strtoul(optarg, NULL, 10);
 		break;
 
 		default:
