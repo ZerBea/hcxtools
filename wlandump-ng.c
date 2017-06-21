@@ -1471,7 +1471,7 @@ while(1)
 
 		if(eap->type == 1)
 			{
-			pcap_dump((u_char *) pcapout, pkh, h80211);
+//			pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(eap->len == 0)
 				{
 				sendacknowledgement(macf->addr2.addr);
