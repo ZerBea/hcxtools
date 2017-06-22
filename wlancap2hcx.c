@@ -49,16 +49,58 @@ uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
 uint8_t wldflag = FALSE;
 uint8_t ancflag = FALSE;
-uint8_t eapextflag = FALSE;
 uint8_t anecflag = FALSE;
 
 int rctimecount = 0;
 
 char *hcxoutname = NULL;
+char *netntlmv1outname = NULL;
 char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
 
 hcx_t oldhcxrecord;
+/*===========================================================================*/
+void writenetntlmv1()
+{
+FILE *fhnetntlmv1 = NULL;
+
+if(netntlmv1outname != NULL)
+	{
+	if((fhnetntlmv1 = fopen(netntlmv1outname, "ab")) == NULL)
+		{
+		fprintf(stderr, "error opening hccapx file %s\n", netntlmv1outname);
+		exit(EXIT_FAILURE);
+		}
+//	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
+	fclose(fhnetntlmv1);
+	}
+
+
+
+return;
+}
+/*===========================================================================*/
+/*
+void addexteaprequest(uint8_t *mac_ap, uint8_t *mac_sta, eapext_t *eapext)
+{
+
+if(eapext->eaptype == EAP_TYPE_LEAP)
+	printf("request %d\n", eapext->eaptype);
+
+return;
+}
+*/
+/*===========================================================================*/
+/*
+void addexteapresponse(uint8_t *mac_sta, uint8_t *mac_ap, eapext_t *eapext)
+{
+
+if(eapext->eaptype == EAP_TYPE_LEAP)
+	printf("response %d\n", eapext->eaptype);
+
+return;
+}
+*/
 /*===========================================================================*/
 unsigned long long int getreplaycount(uint8_t *eapdata)
 {
@@ -600,9 +642,17 @@ int packetcount = 0;
 int wcflag = FALSE;
 wldflag = FALSE;
 ancflag = FALSE;
-eapextflag = FALSE;
 anecflag = FALSE;
 int c;
+
+uint8_t eap4flag = FALSE;
+uint8_t eap13flag = FALSE;
+uint8_t eap17flag = FALSE;
+uint8_t eap18flag = FALSE;
+uint8_t eap21flag = FALSE;
+uint8_t eap25flag = FALSE;
+uint8_t eap26flag = FALSE;
+uint8_t eap254flag = FALSE;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
@@ -655,6 +705,7 @@ if(eapdbdata == NULL)
 		}
 neweapdbdata = eapdbdata;
 eapdbrecords = 0;
+
 
 printf("start reading from %s\n", pcapinname);
 
@@ -846,14 +897,46 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(eap->type == 0)
 			{
 			eapext = (eapext_t*)(payload + LLC_SIZE);
-				if(eapext->len >= 4)
-					if((eapext->eapcode == EAP_CODE_REQ) || (eapext->eapcode == EAP_CODE_RESP))
-						eapextflag = TRUE;
+			if(eapext->len < 4)
+				continue;
+
+//			if(eapext->eapcode == EAP_CODE_REQ)
+//				addexteaprequest( macf->addr1.addr, macf->addr2.addr, eapext);
+
+//			if(eapext->eapcode == EAP_CODE_RESP)
+//				addexteapresponse( macf->addr1.addr, macf->addr2.addr, eapext);
+
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 
 			if(pcapextout != NULL)
 				pcap_dump((u_char *) pcapextout, pkh, h80211);
+
+
+			if(eapext->eaptype == EAP_TYPE_MD5)
+				eap4flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_TLS)
+				eap13flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_LEAP)
+				eap17flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_SIM)
+				eap18flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_PEAP)
+				eap25flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_TTLS)
+				eap26flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_MSCHAPV2)
+				eap26flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_EXPAND)
+				eap254flag = TRUE;
+
 			continue;
 			}
 
@@ -947,8 +1030,30 @@ if(ancflag == TRUE)
 		}
 	}
 
-if(eapextflag == TRUE)
-	printf("\x1B[36minformation: eap extended data inside\x1B[0m\n");
+if(eap4flag == TRUE)
+	printf("\x1B[36mfound MD5 authentication\x1B[0m\n");
+
+if(eap13flag == TRUE)
+	printf("\x1B[36mfound TLS authentication\x1B[0m\n");
+
+if(eap17flag == TRUE)
+	printf("\x1B[36mfound LEAP authentication\x1B[0m\n");
+
+if(eap18flag == TRUE)
+	printf("\x1B[36mfound GSM-SIM authentication\x1B[0m\n");
+
+if(eap21flag == TRUE)
+	printf("\x1B[36mfound TTLS authentication\x1B[0m\n");
+
+if(eap25flag == TRUE)
+	printf("\x1B[36mfound PEAP authentication\x1B[0m\n");
+
+if(eap26flag == TRUE)
+	printf("\x1B[36mfound MS-CHAP v2 authentication\x1B[0m\n");
+
+if(eap254flag == TRUE)
+	printf("\x1B[36mfound WPS authentication\x1B[0m\n");
+
 
 if(wcflag == TRUE)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
@@ -964,11 +1069,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
-	"-o <file> : output hccapx file\n"
+	"-o <file> : output hccapx file (wpa/wpa2: use hashcat -m 2500)\n"
 	"-w <file> : output only wlandump forced to hccapx file\n"
 	"-W <file> : output only not wlandump forced to hccapx file\n"
 	"-p <file> : output pcap file\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
+	"-n <file> : output extended eapol file (NetNTLMv1: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
@@ -996,12 +1102,16 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:p:P:e:E:w:W:xrhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:n:p:P:e:E:w:W:xrhv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'o':
 		hcxoutname = optarg;
+		break;
+
+		case 'n':
+		netntlmv1outname = optarg;
 		break;
 
 		case 'w':

@@ -285,14 +285,29 @@ struct eapext_frame
  uint8_t		type;
  uint16_t		len;
  uint8_t		eapcode;
-#define	EAP_CODE_REQ	1
-#define	EAP_CODE_RESP	2
-#define	EAP_CODE_FAIL	4
+#define	EAP_CODE_REQ		1
+#define	EAP_CODE_RESP		2
+#define	EAP_CODE_SUCCESS	3
+#define	EAP_CODE_FAILURE	4
+#define	EAP_CODE_INITIATE	5
+#define	EAP_CODE_FINISH		6
  uint8_t		eapid;
  uint16_t		eaplen;
  uint8_t		eaptype;
-#define	EAP_TYPE_ID	1
-#define	EAP_TYPE_EXPAND	254
+#define EAP_TYPE_EAP		0
+#define EAP_TYPE_ID		1
+#define EAP_TYPE_NOTIFY		2
+#define EAP_TYPE_NAK		3
+#define EAP_TYPE_MD5		4
+#define EAP_TYPE_TLS		13
+#define EAP_TYPE_LEAP		17
+#define EAP_TYPE_SIM		18
+#define EAP_TYPE_TTLS		21
+#define EAP_TYPE_AKA		23
+#define EAP_TYPE_PEAP		25
+#define EAP_TYPE_MSCHAPV2	26
+#define EAP_TYPE_FAST		43
+#define	EAP_TYPE_EXPAND		254
 } __attribute__((__packed__));
 typedef struct eapext_frame eapext_t;
 #define	EAPWPS_SIZE (sizeof(eapext_t))
