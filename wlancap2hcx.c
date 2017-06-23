@@ -79,6 +79,14 @@ char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
 
 hcx_t oldhcxrecord;
+
+/*===========================================================================*/
+void initgloballists()
+{
+memset(&hcleap, 0, sizeof(hc5500_t));
+
+return;
+}
 /*===========================================================================*/
 void addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
@@ -117,8 +125,6 @@ if((eapleap->eapcode == EAP_CODE_RESP) && (eapleap->leapcount == 24))
 
 if((changeflag == TRUE) && (hcleap.p1 == TRUE) && (hcleap.p2 == TRUE) && (memcmp(&hcleap.mac_ap1, &hcleap.mac_ap2, 6) == 0) && (memcmp(&hcleap.mac_sta1, &hcleap.mac_sta2, 6) == 0))
 	{
-	printf("%d %d %02x %02x  %02x %02x\n", hcleap.p1, hcleap.p2, hcleap.mac_ap1.addr[5], hcleap.mac_ap2.addr[5], hcleap.mac_sta1.addr[5], hcleap.mac_sta2.addr[5]);
-
 	if(netntlmv1outname != NULL)
 		{
 		if((fhnetntlmv1 = fopen(netntlmv1outname, "a+")) == NULL)
@@ -135,7 +141,6 @@ if((changeflag == TRUE) && (hcleap.p1 == TRUE) && (hcleap.p2 == TRUE) && (memcmp
 		fprintf(fhnetntlmv1, "\n");
 		fclose(fhnetntlmv1);
 		}
-	memset(&hcleap, 0, sizeof(hc5500_t));
 	}
 return;
 }
@@ -684,12 +689,18 @@ anecflag = FALSE;
 int c;
 
 uint8_t eap4flag = FALSE;
+uint8_t eap9flag = FALSE;
 uint8_t eap13flag = FALSE;
 uint8_t eap17flag = FALSE;
 uint8_t eap18flag = FALSE;
+uint8_t eap19flag = FALSE;
 uint8_t eap21flag = FALSE;
+uint8_t eap24flag = FALSE;
 uint8_t eap25flag = FALSE;
 uint8_t eap26flag = FALSE;
+uint8_t eap29flag = FALSE;
+uint8_t eap33flag = FALSE;
+uint8_t eap36flag = FALSE;
 uint8_t eap254flag = FALSE;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
@@ -948,6 +959,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(eapext->eaptype == EAP_TYPE_MD5)
 				eap4flag = TRUE;
 
+			if(eapext->eaptype == EAP_TYPE_RSA)
+				eap9flag = TRUE;
+
 			if(eapext->eaptype == EAP_TYPE_TLS)
 				eap13flag = TRUE;
 
@@ -969,16 +983,31 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(eapext->eaptype == EAP_TYPE_SIM)
 				eap18flag = TRUE;
 
+			if(eapext->eaptype == EAP_TYPE_SRP_SHA1)
+				eap19flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_3COMEAP)
+				eap24flag = TRUE;
+
 			if(eapext->eaptype == EAP_TYPE_PEAP)
 				eap25flag = TRUE;
 
 			if(eapext->eaptype == EAP_TYPE_TTLS)
 				eap26flag = TRUE;
 
-			if(eapext->eaptype == EAP_TYPE_MSCHAPV2)
+			if(eapext->eaptype == EAP_TYPE_MSEAP)
 				eap26flag = TRUE;
 
-			if(eapext->eaptype == EAP_TYPE_EXPAND)
+			if(eapext->eaptype == EAP_TYPE_MSCHAPV2)
+				eap29flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_MSTLV)
+				eap33flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_MSTLV)
+				eap36flag = TRUE;
+
+			if(eapext->eaptype == EAP_TYPE_CSBA)
 				eap254flag = TRUE;
 
 			continue;
@@ -1075,28 +1104,46 @@ if(ancflag == TRUE)
 	}
 
 if(eap4flag == TRUE)
-	printf("\x1B[36mfound MD5 authentication\x1B[0m\n");
+	printf("\x1B[36mfound MD5-Challenge\x1B[0m\n");
+
+if(eap9flag == TRUE)
+	printf("\x1B[36mfound RSA Public Key Authentication\x1B[0m\n");
 
 if(eap13flag == TRUE)
-	printf("\x1B[36mfound TLS authentication\x1B[0m\n");
+	printf("\x1B[36mfound EAP-TLS Authentication\x1B[0m\n");
 
 if(eap17flag == TRUE)
-	printf("\x1B[36mfound LEAP authentication\x1B[0m\n");
+	printf("\x1B[36mfound EAP-Cisco Wireless Authentication (hashcat -m 5500)\x1B[0m\n");
 
 if(eap18flag == TRUE)
-	printf("\x1B[36mfound GSM-SIM authentication\x1B[0m\n");
+	printf("\x1B[36mfound EAP-SIM (GSM Subscriber Modules) Authentication\x1B[0m\n");
+
+if(eap19flag == TRUE)
+	printf("\x1B[36mfound SRP-SHA1 Authentication\x1B[0m\n");
 
 if(eap21flag == TRUE)
-	printf("\x1B[36mfound TTLS authentication\x1B[0m\n");
+	printf("\x1B[36mfound EAP-TTLS Authentication\x1B[0m\n");
+
+if(eap24flag == TRUE)
+	printf("\x1B[36mfound EAP-3Com Wireless Authentication\x1B[0m\n");
 
 if(eap25flag == TRUE)
-	printf("\x1B[36mfound PEAP authentication\x1B[0m\n");
+	printf("\x1B[36mfound PEAP Authentication\x1B[0m\n");
 
 if(eap26flag == TRUE)
-	printf("\x1B[36mfound MS-CHAP v2 authentication\x1B[0m\n");
+	printf("\x1B[36mfound MS-EAP Authentication\x1B[0m\n");
+
+if(eap29flag == TRUE)
+	printf("\x1B[36mfound EAP-MSCHAP-V2 Authentication\x1B[0m\n");
+
+if(eap33flag == TRUE)
+	printf("\x1B[36mfound MS-Authentication-TLV\x1B[0m\n");
+
+if(eap36flag == TRUE)
+	printf("\x1B[36mfound Cogent Systems Biometrics Authentication EAP\x1B[0m\n");
 
 if(eap254flag == TRUE)
-	printf("\x1B[36mfound WPS authentication\x1B[0m\n");
+	printf("\x1B[36mfound WPS Authentication\x1B[0m\n");
 
 
 if(wcflag == TRUE)
@@ -1199,6 +1246,8 @@ while ((auswahl = getopt(argc, argv, "o:n:p:P:e:E:w:W:xrhv")) != -1)
 		break;
 		}
 	}
+
+initgloballists();
 
 if(pcapoutname != NULL)
 	{

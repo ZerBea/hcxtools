@@ -299,13 +299,19 @@ struct eapext_frame
 #define EAP_TYPE_NOTIFY		2
 #define EAP_TYPE_NAK		3
 #define EAP_TYPE_MD5		4
+#define EAP_TYPE_RSA		9
 #define EAP_TYPE_TLS		13
 #define EAP_TYPE_LEAP		17
 #define EAP_TYPE_SIM		18
+#define EAP_TYPE_SRP_SHA1	19
 #define EAP_TYPE_TTLS		21
 #define EAP_TYPE_AKA		23
+#define EAP_TYPE_3COMEAP	24
 #define EAP_TYPE_PEAP		25
-#define EAP_TYPE_MSCHAPV2	26
+#define EAP_TYPE_MSEAP		26
+#define EAP_TYPE_MSCHAPV2	29
+#define EAP_TYPE_MSTLV		33
+#define EAP_TYPE_CSBA		36
 #define EAP_TYPE_FAST		43
 #define	EAP_TYPE_EXPAND		254
 } __attribute__((__packed__));
