@@ -309,10 +309,17 @@ struct eapext_frame
 #define EAP_TYPE_3COMEAP	24
 #define EAP_TYPE_PEAP		25
 #define EAP_TYPE_MSEAP		26
+#define EAP_TYPE_MAKE		27
 #define EAP_TYPE_MSCHAPV2	29
+#define EAP_TYPE_POTP		32
 #define EAP_TYPE_MSTLV		33
+#define EAP_TYPE_AW		35
 #define EAP_TYPE_CSBA		36
+#define EAP_TYPE_HTTPD		38
+#define EAP_TYPE_SS		39
+#define EAP_TYPE_DC		40
 #define EAP_TYPE_FAST		43
+#define EAP_TYPE_ZLXEAP		44
 #define	EAP_TYPE_EXPAND		254
 } __attribute__((__packed__));
 typedef struct eapext_frame eapext_t;
@@ -336,6 +343,22 @@ struct eapleap_frame
 typedef struct eapleap_frame eapleap_t;
 #define	EAPLEAP_SIZE (sizeof(eapleap_t))
 
+
+struct eapmd5_frame
+{
+ uint8_t		version;
+ uint8_t		type;
+ uint16_t		len;
+ uint8_t		eapcode;
+ uint8_t		eapid;
+ uint16_t		eaplen;
+ uint8_t		eaptype;
+ uint8_t		eapversion;
+ uint8_t		eapvaluesize;
+ uint8_t		leapdata[];
+} __attribute__((__packed__));
+typedef struct eapmd5_frame eapmd5_t;
+#define	EAPMD5_SIZE (sizeof(eapmd5_t))
 
 
 
