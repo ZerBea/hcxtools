@@ -15,13 +15,29 @@
 
 struct ppi_packet_header
 {
- uint8_t pph_version;
- uint8_t pph_flags;
+ uint8_t  pph_version;
+ uint8_t  pph_flags;
  uint16_t pph_len;
  uint32_t pph_dlt;
 } __attribute__((packed));
 typedef struct ppi_packet_header ppi_packet_header_t;
 
+struct hc5500
+{
+ long int tv_sec;  
+ adr_t    mac_ap1;
+ adr_t    mac_sta1;
+ adr_t    mac_ap2;
+ adr_t    mac_sta2;
+ uint8_t  p1;
+ uint8_t  p2;
+ uint8_t  leapid1;
+ uint8_t  leapid2;
+ uint8_t  username[258];
+ uint8_t  peerchallenge[8];
+ uint8_t  peerresponse[24];
+} __attribute__((packed));
+typedef struct hc5500 hc5500_t;
 
 /*===========================================================================*/
 /* globale Variablen */
@@ -53,6 +69,10 @@ uint8_t anecflag = FALSE;
 
 int rctimecount = 0;
 
+
+hc5500_t hcleap;
+
+
 char *hcxoutname = NULL;
 char *netntlmv1outname = NULL;
 char *wdfhcxoutname = NULL;
@@ -60,47 +80,65 @@ char *nonwdfhcxoutname = NULL;
 
 hcx_t oldhcxrecord;
 /*===========================================================================*/
-void writenetntlmv1()
+void addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 FILE *fhnetntlmv1 = NULL;
+eapleap_t *eapleap = NULL;
+int eaplen;
+int c;
+uint8_t changeflag = FALSE;
+eapleap = (eapleap_t*)(eapext);
 
-if(netntlmv1outname != NULL)
+if(eapleap->leapversion != 1)
+	return;
+eaplen = htobe16(eapleap->eaplen);
+
+if((eapleap->eapcode == EAP_CODE_REQ) && (eapleap->leapcount == 8))
 	{
-	if((fhnetntlmv1 = fopen(netntlmv1outname, "ab")) == NULL)
-		{
-		fprintf(stderr, "error opening hccapx file %s\n", netntlmv1outname);
-		exit(EXIT_FAILURE);
-		}
-//	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
-	fclose(fhnetntlmv1);
+	hcleap.p1 = TRUE;
+	memcpy(&hcleap.mac_ap1, mac_2, 6);
+	memcpy(&hcleap.mac_sta1, mac_1, 6);
+	hcleap.leapid1 = eapleap->eapid;
+	memset(&hcleap.username, 0, 258);
+	memcpy(&hcleap.peerchallenge, eapleap->leapdata, eapleap->leapcount);
+	memcpy(&hcleap.username, eapleap->leapdata +8, (eaplen -eapleap->leapcount -8));
+	changeflag = TRUE;
 	}
 
+if((eapleap->eapcode == EAP_CODE_RESP) && (eapleap->leapcount == 24))
+	{
+	memcpy(&hcleap.mac_ap2, mac_1, 6);
+	memcpy(&hcleap.mac_sta2, mac_2, 6);
+	hcleap.p2 = TRUE;
+	memcpy(&hcleap.peerresponse, eapleap->leapdata, eapleap->leapcount);
+	hcleap.leapid2 = eapleap->eapid;
+	changeflag = TRUE;
+	}
 
+if((changeflag == TRUE) && (hcleap.p1 == TRUE) && (hcleap.p2 == TRUE) && (memcmp(&hcleap.mac_ap1, &hcleap.mac_ap2, 6) == 0) && (memcmp(&hcleap.mac_sta1, &hcleap.mac_sta2, 6) == 0))
+	{
+	printf("%d %d %02x %02x  %02x %02x\n", hcleap.p1, hcleap.p2, hcleap.mac_ap1.addr[5], hcleap.mac_ap2.addr[5], hcleap.mac_sta1.addr[5], hcleap.mac_sta2.addr[5]);
 
+	if(netntlmv1outname != NULL)
+		{
+		if((fhnetntlmv1 = fopen(netntlmv1outname, "a+")) == NULL)
+			{
+			fprintf(stderr, "error opening netNTLMv1 file %s\n", netntlmv1outname);
+			exit(EXIT_FAILURE);
+			}
+		fprintf(fhnetntlmv1, "%s::::", hcleap.username);
+		for(c = 0; c < 24; c++)
+			fprintf(fhnetntlmv1, "%02x", hcleap.peerresponse[c]);
+		fprintf(fhnetntlmv1, ":");
+		for(c = 0; c < 8; c++)
+			fprintf(fhnetntlmv1, "%02x", hcleap.peerchallenge[c]);
+		fprintf(fhnetntlmv1, "\n");
+		fclose(fhnetntlmv1);
+		}
+	memset(&hcleap, 0, sizeof(hc5500_t));
+	}
 return;
 }
-/*===========================================================================*/
-/*
-void addexteaprequest(uint8_t *mac_ap, uint8_t *mac_sta, eapext_t *eapext)
-{
-
-if(eapext->eaptype == EAP_TYPE_LEAP)
-	printf("request %d\n", eapext->eaptype);
-
-return;
-}
-*/
-/*===========================================================================*/
-/*
-void addexteapresponse(uint8_t *mac_sta, uint8_t *mac_ap, eapext_t *eapext)
-{
-
-if(eapext->eaptype == EAP_TYPE_LEAP)
-	printf("response %d\n", eapext->eaptype);
-
-return;
-}
-*/
 /*===========================================================================*/
 unsigned long long int getreplaycount(uint8_t *eapdata)
 {
@@ -900,12 +938,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(eapext->len < 4)
 				continue;
 
-//			if(eapext->eapcode == EAP_CODE_REQ)
-//				addexteaprequest( macf->addr1.addr, macf->addr2.addr, eapext);
-
-//			if(eapext->eapcode == EAP_CODE_RESP)
-//				addexteapresponse( macf->addr1.addr, macf->addr2.addr, eapext);
-
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 
@@ -920,7 +952,19 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				eap13flag = TRUE;
 
 			if(eapext->eaptype == EAP_TYPE_LEAP)
-				eap17flag = TRUE;
+				{
+				if((macf->from_ds == 1) && (macf->to_ds == 0) && (eapext->eapcode == EAP_CODE_REQ))
+					{
+					addleap( macf->addr1.addr, macf->addr2.addr, eapext);
+					eap17flag = TRUE;
+					}
+
+				else if((macf->from_ds == 0) && (macf->to_ds == 1) && (eapext->eapcode == EAP_CODE_RESP))
+					{
+					addleap( macf->addr1.addr, macf->addr2.addr, eapext);
+					eap17flag = TRUE;
+					}
+				}
 
 			if(eapext->eaptype == EAP_TYPE_SIM)
 				eap18flag = TRUE;
@@ -1074,7 +1118,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-W <file> : output only not wlandump forced to hccapx file\n"
 	"-p <file> : output pcap file\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
-	"comming soon -n <file> : output extended eapol file (NetNTLMv1: use hashcat -m 5500)\n"
+	"-n <file> : output extended eapol file (NetNTLMv1: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"

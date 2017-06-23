@@ -310,7 +310,27 @@ struct eapext_frame
 #define	EAP_TYPE_EXPAND		254
 } __attribute__((__packed__));
 typedef struct eapext_frame eapext_t;
-#define	EAPWPS_SIZE (sizeof(eapext_t))
+#define	EAPEXT_SIZE (sizeof(eapext_t))
+
+
+struct eapleap_frame
+{
+ uint8_t		version;
+ uint8_t		type;
+ uint16_t		len;
+ uint8_t		eapcode;
+ uint8_t		eapid;
+ uint16_t		eaplen;
+ uint8_t		eaptype;
+ uint8_t		leapversion;
+ uint8_t		leapreserved;
+ uint8_t		leapcount;
+ uint8_t		leapdata[];
+} __attribute__((__packed__));
+typedef struct eapleap_frame eapleap_t;
+#define	EAPLEAP_SIZE (sizeof(eapleap_t))
+
+
 
 
 struct netdb
