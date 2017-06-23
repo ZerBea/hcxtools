@@ -77,6 +77,7 @@ char *hcxoutname = NULL;
 char *netntlmv1outname = NULL;
 char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
+char *usernameoutname = NULL;
 
 hcx_t oldhcxrecord;
 
@@ -91,6 +92,7 @@ return;
 void addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 FILE *fhnetntlmv1 = NULL;
+FILE *fhuser = NULL;
 eapleap_t *eapleap = NULL;
 int eaplen;
 int c;
@@ -111,6 +113,16 @@ if((eapleap->eapcode == EAP_CODE_REQ) && (eapleap->leapcount == 8))
 	memcpy(&hcleap.peerchallenge, eapleap->leapdata, eapleap->leapcount);
 	memcpy(&hcleap.username, eapleap->leapdata +8, (eaplen -eapleap->leapcount -8));
 	changeflag = TRUE;
+	if(usernameoutname != NULL)
+		{
+		if((fhuser = fopen(usernameoutname, "a")) == NULL)
+			{
+			fprintf(stderr, "error opening username file %s\n", usernameoutname);
+			exit(EXIT_FAILURE);
+			}
+		fprintf(fhuser, "%s\n", hcleap.username);
+		fclose(fhuser);
+		}
 	}
 
 if((eapleap->eapcode == EAP_CODE_RESP) && (eapleap->leapcount == 24))
@@ -1168,6 +1180,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-n <file> : output extended eapol file (NetNTLMv1: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
+	"-u <file> : output usernames file\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"-r        : enable replaycountcheck (default: disabled)\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
@@ -1193,7 +1206,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:n:p:P:e:E:w:W:xrhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:n:p:P:e:E:w:W:u:xrhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1228,6 +1241,11 @@ while ((auswahl = getopt(argc, argv, "o:n:p:P:e:E:w:W:xrhv")) != -1)
 		case 'E':
 		essidunicodeoutname = optarg;
 		break;
+
+		case 'u':
+		usernameoutname = optarg;
+		break;
+
 
 		case 'x':
 		netexact = TRUE;
