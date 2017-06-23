@@ -27,7 +27,7 @@ Detailed description
 | wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
 | pioff          | Turns Raspberry Pi off via GPIO switch                                                               |
 | wlancapinfo    | Shows info of pcap file                                                                              |
-| wlancap2hcx    | Converts cap to hccapx (recommended for use with wlandump-ng and wlanresponse)                       |
+| wlancap2hcx    | Converts cap to hccapx and NetNTLMv1 (recommended for use with wlandump-ng and wlanresponse)         |
 | wlanhcx2cap    | Converts hccapx to cap                                                                               |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                             |
 | wlanhcx2essid  | Merges hccapx containing the same ESSID                                                              |
@@ -47,14 +47,14 @@ Simply run:
 
 ```
 make
-make install
+make install (as super user)
 ```
 
 or (with GPIO support - hardware mods required)
 
 ```
 make GPIOSUPPORT=on
-make GPIOSUPPORT=on install
+make GPIOSUPPORT=on install (as super user)
 ```
 
 
