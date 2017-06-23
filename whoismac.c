@@ -181,6 +181,7 @@ int main(int argc, char *argv[])
 {
 int auswahl;
 int mode = 0;
+int ret;
 unsigned long long int oui = 0;
 
 uid_t uid;
@@ -245,7 +246,9 @@ if (pwd == NULL)
 	fprintf(stdout, "failed to get home dir\n");
 	exit(EXIT_FAILURE);
 	}
-chdir(pwd->pw_dir);
+ret = chdir(pwd->pw_dir);
+if( ret == -1)
+	fprintf(stdout, "failed to change dir\n");
 
 if(stat(confdirname, &statinfo) == -1)
 	{
