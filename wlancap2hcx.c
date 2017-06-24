@@ -24,7 +24,6 @@ typedef struct ppi_packet_header ppi_packet_header_t;
 
 struct hc5500
 {
- long int tv_sec;  
  adr_t    mac_ap1;
  adr_t    mac_sta1;
  adr_t    mac_ap2;
@@ -38,6 +37,25 @@ struct hc5500
  uint8_t  peerresponse[24];
 } __attribute__((packed));
 typedef struct hc5500 hc5500_t;
+
+
+struct hc4800
+{
+ adr_t    mac_ap1;
+ adr_t    mac_sta1;
+ adr_t    mac_ap2;
+ adr_t    mac_sta2;
+ uint8_t  id1;
+ uint8_t  id2;
+ uint8_t  p1;
+ uint8_t  p2;
+
+ uint8_t  challenge[16];
+ uint8_t  response[16];
+} __attribute__((packed));
+typedef struct hc4800 hc4800_t;
+
+
 
 /*===========================================================================*/
 /* globale Variablen */
@@ -69,10 +87,12 @@ uint8_t anecflag = FALSE;
 
 int rctimecount = 0;
 
+hc4800_t hcmd5;
 hc5500_t hcleap;
 
 char *hcxoutname = NULL;
-char *netntlmv1outname = NULL;
+char *hc4800outname = NULL;
+char *hc5500outname = NULL;
 char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
 char *usernameoutname = NULL;
@@ -82,62 +102,95 @@ hcx_t oldhcxrecord;
 /*===========================================================================*/
 void initgloballists()
 {
+memset(&hcmd5, 0, sizeof(hc4800_t));
 memset(&hcleap, 0, sizeof(hc5500_t));
 
 return;
 }
 /*===========================================================================*/
-/*
 void addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 eapmd5_t *eapmd5 = NULL;
+FILE *fhhash = NULL;
+uint8_t changeflag = FALSE;
+int c;
 
 
 eapmd5 = (eapmd5_t*)(eapext);
+printf("%d\n", eapmd5->eapvaluesize);
 
-if(eapmd5->eapcode == EAP_CODE_REQ)
+
+if((eapmd5->eapcode == EAP_CODE_REQ) && (eapmd5->eapvaluesize == 16)) 
 	{
-	printf("req\n");
+	memcpy(&hcmd5.mac_ap1, mac_2, 6);
+	memcpy(&hcmd5.mac_sta1, mac_1, 6);
+	hcmd5.id1 = eapmd5->eapid;
+	memcpy(&hcmd5.challenge, eapmd5->md5data, 16);
+	hcmd5.p1 = TRUE;
+	changeflag = TRUE;
 	}
 
-if(eapmd5->eapcode == EAP_CODE_RESP)
+if((eapmd5->eapcode == EAP_CODE_RESP) && (eapmd5->eapvaluesize == 16)) 
 	{
-	printf("resp\n");
+	hcmd5.id2 = eapmd5->eapid;
+	memcpy(&hcmd5.mac_ap2, mac_1, 6);
+	memcpy(&hcmd5.mac_sta2, mac_2, 6);
+	memcpy(&hcmd5.response, eapmd5->md5data, 16);
+	hcmd5.p2 = TRUE;
+	changeflag = TRUE;
 	}
 
+if((changeflag == TRUE) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == TRUE) && (hcmd5.p2 == TRUE) && (memcmp(&hcmd5.mac_ap1, &hcmd5.mac_ap2, 6) == 0) && (memcmp(&hcmd5.mac_sta1, &hcmd5.mac_sta2, 6) == 0))
+	{
+	if(hc4800outname != NULL)
+		{
+		if((fhhash = fopen(hc4800outname, "a+")) == NULL)
+			{
+			fprintf(stderr, "error opening iSCSI CHAP authentication, MD5(CHAP) file %s\n", hc4800outname);
+			exit(EXIT_FAILURE);
+			}
+		for(c = 0; c < 16; c++)
+			fprintf(fhhash, "%02x", hcmd5.challenge[c]);
+		fprintf(fhhash, ":");
+		for(c = 0; c < 16; c++)
+			fprintf(fhhash, "%02x", hcmd5.response[c]);
+		fprintf(fhhash, ":");
+		fprintf(fhhash, "%02x\n", hcmd5.id2);
+		fclose(fhhash);
+		}
+	}
 return;
 }
-*/
 /*===========================================================================*/
 void addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
-FILE *fhnetntlmv1 = NULL;
+FILE *fhhash = NULL;
 FILE *fhuser = NULL;
 eapleap_t *eapleap = NULL;
 int eaplen;
 int c;
 uint8_t changeflag = FALSE;
-eapleap = (eapleap_t*)(eapext);
 
+eapleap = (eapleap_t*)(eapext);
 if(eapleap->leapversion != 1)
 	return;
-eaplen = htobe16(eapleap->eaplen);
 
+eaplen = htobe16(eapleap->eaplen);
 if((eapleap->eapcode == EAP_CODE_REQ) && (eapleap->leapcount == 8))
 	{
-	hcleap.p1 = TRUE;
 	memcpy(&hcleap.mac_ap1, mac_2, 6);
 	memcpy(&hcleap.mac_sta1, mac_1, 6);
 	hcleap.leapid1 = eapleap->eapid;
 	memset(&hcleap.username, 0, 258);
 	memcpy(&hcleap.peerchallenge, eapleap->leapdata, eapleap->leapcount);
 	memcpy(&hcleap.username, eapleap->leapdata +8, (eaplen -eapleap->leapcount -8));
+	hcleap.p1 = TRUE;
 	changeflag = TRUE;
 	if(usernameoutname != NULL)
 		{
 		if((fhuser = fopen(usernameoutname, "a")) == NULL)
 			{
-			fprintf(stderr, "error opening username file %s\n", usernameoutname);
+			fprintf(stderr, "error opening username/identity file %s\n", usernameoutname);
 			exit(EXIT_FAILURE);
 			}
 		fprintf(fhuser, "%s\n", hcleap.username);
@@ -149,30 +202,58 @@ if((eapleap->eapcode == EAP_CODE_RESP) && (eapleap->leapcount == 24))
 	{
 	memcpy(&hcleap.mac_ap2, mac_1, 6);
 	memcpy(&hcleap.mac_sta2, mac_2, 6);
-	hcleap.p2 = TRUE;
 	memcpy(&hcleap.peerresponse, eapleap->leapdata, eapleap->leapcount);
 	hcleap.leapid2 = eapleap->eapid;
+	hcleap.p2 = TRUE;
 	changeflag = TRUE;
 	}
 
 if((changeflag == TRUE) && (hcleap.p1 == TRUE) && (hcleap.p2 == TRUE) && (memcmp(&hcleap.mac_ap1, &hcleap.mac_ap2, 6) == 0) && (memcmp(&hcleap.mac_sta1, &hcleap.mac_sta2, 6) == 0))
 	{
-	
-	if(netntlmv1outname != NULL)
+	if(hc5500outname != NULL)
 		{
-		if((fhnetntlmv1 = fopen(netntlmv1outname, "a+")) == NULL)
+		if((fhhash = fopen(hc5500outname, "a+")) == NULL)
 			{
-			fprintf(stderr, "error opening netNTLMv1 file %s\n", netntlmv1outname);
+			fprintf(stderr, "error opening netNTLMv1 file %s\n", hc5500outname);
 			exit(EXIT_FAILURE);
 			}
-		fprintf(fhnetntlmv1, "%s::::", hcleap.username);
+		fprintf(fhhash, "%s::::", hcleap.username);
 		for(c = 0; c < 24; c++)
-			fprintf(fhnetntlmv1, "%02x", hcleap.peerresponse[c]);
-		fprintf(fhnetntlmv1, ":");
+			fprintf(fhhash, "%02x", hcleap.peerresponse[c]);
+		fprintf(fhhash, ":");
 		for(c = 0; c < 8; c++)
-			fprintf(fhnetntlmv1, "%02x", hcleap.peerchallenge[c]);
-		fprintf(fhnetntlmv1, "\n");
-		fclose(fhnetntlmv1);
+			fprintf(fhhash, "%02x", hcleap.peerchallenge[c]);
+		fprintf(fhhash, "\n");
+		fclose(fhhash);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+void addresponseidentity(eapext_t *eapext)
+{
+eapri_t *eapidentity = NULL;
+FILE *fhuser = NULL;
+int idlen;
+char idstring[258];
+
+eapidentity = (eapri_t*)(eapext);
+if(eapidentity->eaptype != EAP_TYPE_ID)
+	return;
+idlen = htobe16(eapidentity->eaplen) -5;
+if((idlen > 0) && (idlen <= 256))
+	{
+	memset(idstring, 0, 258);
+	memcpy(&idstring, eapidentity->identity, idlen);
+	if(usernameoutname != NULL)
+		{
+		if((fhuser = fopen(usernameoutname, "a")) == NULL)
+			{
+			fprintf(stderr, "error opening username/identity file %s\n", usernameoutname);
+			exit(EXIT_FAILURE);
+			}
+		fprintf(fhuser, "%s\n", idstring);
+		fclose(fhuser);
 		}
 	}
 return;
@@ -988,7 +1069,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(eap->type == 0)
 			{
 			eapext = (eapext_t*)(payload + LLC_SIZE);
-			if((htobe16(eapext->len) < 6))
+			if((htobe16(eapext->len) < 8))
 				continue;
 
 			if(pcapout != NULL)
@@ -998,9 +1079,14 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				pcap_dump((u_char *) pcapextout, pkh, h80211);
 
 
+			if(eapext->eapcode == EAP_CODE_RESP)
+				addresponseidentity(eapext);
+
+
+
 			if(eapext->eaptype == EAP_TYPE_MD5)
 				{
-//				addeapmd5( macf->addr1.addr, macf->addr2.addr, eapext);
+				addeapmd5(macf->addr1.addr, macf->addr2.addr, eapext);
 				eap4flag = TRUE;
 				}
 
@@ -1176,7 +1262,7 @@ if(ancflag == TRUE)
 	}
 
 if(eap4flag == TRUE)
-	printf("\x1B[36mfound MD5-Challenge\x1B[0m\n");
+	printf("\x1B[36mfound MD5-Challenge (hashcat -m 4800)\x1B[0m\n");
 
 if(eap9flag == TRUE)
 	printf("\x1B[36mfound RSA Public Key Authentication\x1B[0m\n");
@@ -1264,10 +1350,11 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-W <file> : output only not wlandump forced to hccapx file\n"
 	"-p <file> : output pcap file\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
+	"-m <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP): use hashcat -m 4800)\n"
 	"-n <file> : output extended eapol file (NetNTLMv1: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
-	"-u <file> : output usernames file\n"
+	"-u <file> : output usernames /identities file\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"-r        : enable replaycountcheck (default: disabled)\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
@@ -1293,7 +1380,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:n:p:P:e:E:w:W:u:xrhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:m:n:p:P:e:E:w:W:u:xrhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1302,7 +1389,11 @@ while ((auswahl = getopt(argc, argv, "o:n:p:P:e:E:w:W:u:xrhv")) != -1)
 		break;
 
 		case 'n':
-		netntlmv1outname = optarg;
+		hc5500outname = optarg;
+		break;
+
+		case 'm':
+		hc4800outname = optarg;
 		break;
 
 		case 'w':

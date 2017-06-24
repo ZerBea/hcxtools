@@ -326,6 +326,21 @@ typedef struct eapext_frame eapext_t;
 #define	EAPEXT_SIZE (sizeof(eapext_t))
 
 
+struct eapri_frame
+{
+ uint8_t		version;
+ uint8_t		type;
+ uint16_t		len;
+ uint8_t		eapcode;
+ uint8_t		eapid;
+ uint16_t		eaplen;
+ uint8_t		eaptype;
+ uint8_t		identity[];
+} __attribute__((__packed__));
+typedef struct eapri_frame eapri_t;
+#define	EAPRI_SIZE (sizeof(eapri_t))
+
+
 struct eapleap_frame
 {
  uint8_t		version;
@@ -353,9 +368,8 @@ struct eapmd5_frame
  uint8_t		eapid;
  uint16_t		eaplen;
  uint8_t		eaptype;
- uint8_t		eapversion;
  uint8_t		eapvaluesize;
- uint8_t		leapdata[];
+ uint8_t		md5data[];
 } __attribute__((__packed__));
 typedef struct eapmd5_frame eapmd5_t;
 #define	EAPMD5_SIZE (sizeof(eapmd5_t))
