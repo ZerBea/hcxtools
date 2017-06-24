@@ -115,11 +115,7 @@ FILE *fhhash = NULL;
 uint8_t changeflag = FALSE;
 int c;
 
-
 eapmd5 = (eapmd5_t*)(eapext);
-printf("%d\n", eapmd5->eapvaluesize);
-
-
 if((eapmd5->eapcode == EAP_CODE_REQ) && (eapmd5->eapvaluesize == 16)) 
 	{
 	memcpy(&hcmd5.mac_ap1, mac_2, 6);
