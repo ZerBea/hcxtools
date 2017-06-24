@@ -86,7 +86,8 @@ typedef struct claplist clapl_t;
 
 pcap_t *pcapin = NULL;
 pcap_dumper_t *pcapout = NULL;
-uint8_t channel = 1;
+uint8_t chptr = 0;
+uint8_t chlistende = 13;
 int statuslines = STATUSLINES;
 uint16_t mysequencenr = 1;
 int staytime = TIME_INTERVAL_2S;
@@ -125,8 +126,6 @@ clapl_t *proberesponseliste = NULL;
 clapl_t *proberequestliste = NULL;
 clapl_t *associationrequestliste = NULL;
 clapl_t *reassociationrequestliste = NULL;
-
-int fixedchannel = FALSE;
 
 char *interfacename = NULL;
 
@@ -317,7 +316,7 @@ printf( "\033[H\033[J"
 	"\n"
 	"mac_ap       hs xe essid (countdown until next deauthentication/disassociation)\n"
 	"-------------------------------------------------------------------------------\n",
-	interfacename, internalpcaperrors, channel, staytime, myoui, mynic, deauthmaxcount, disassocmaxcount, internalbeacons,
+	interfacename, internalpcaperrors, channellist[chptr], staytime, myoui, mynic, deauthmaxcount, disassocmaxcount, internalbeacons,
 	aplistesize,  internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests,
 	internalm1, internalm2, externalm1, externalm2, externalm3, externalm4);
 
@@ -412,7 +411,7 @@ memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE, &essidframe, ESSI
 memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE, essid, essid_len);
 memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len, beaconfb3272, FB3272BEACON_SIZE);
 
-sendpacket[HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len +12] = channel;
+sendpacket[HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len +12] = channellist[chptr];
 
 pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len +FB3272BEACON_SIZE);
 if(pcapstatus == -1)
@@ -516,7 +515,7 @@ memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE, &essidframe, ESSI
 memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE, essid, essid_len);
 memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len, proberesponsefb3272, FB3272PROBERESPONSE_SIZE);
 
-sendpacket[HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len +12] = channel;
+sendpacket[HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len +12] = channellist[chptr];
 
 pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +BEACONINFO_SIZE +ESSIDINFO_SIZE +essid_len +FB3272PROBERESPONSE_SIZE);
 if(pcapstatus == -1)
@@ -1154,7 +1153,7 @@ if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	return;
 	}
 
-wrq.u.freq.m = channel;
+wrq.u.freq.m = channellist[chptr];
 wrq.u.freq.e = 0;
 wrq.u.freq.flags = IW_FREQ_FIXED;
 if(ioctl(sock, SIOCSIWFREQ, &wrq) < 0)
@@ -1163,7 +1162,7 @@ if(ioctl(sock, SIOCSIWFREQ, &wrq) < 0)
 	if((result = ioctl(sock, SIOCSIWFREQ, &wrq)) < 0)
 		{
 		fprintf(stderr, "ioctl(SIOCSIWFREQ) on '%s' failed with '%d'\n", interfacename, result);
-		fprintf(stderr, "unable to set channel %d on '%s'\n", channel, interfacename);
+		fprintf(stderr, "unable to set channel %d on '%s'\n", channellist[chptr], interfacename);
 #ifdef DOGPIOSUPPORT
 		system("reboot");
 #endif
@@ -1214,25 +1213,22 @@ while(1)
 
 	if(pcapstatus == -2)
 		{
-		if(fixedchannel == FALSE)
+		chptr++;
+		if(chptr >= chlistende)
 			{
-			channel++;
-			if(channel > 13)
+			chptr = 0;
+			if(resetdedicount == TRUE)
 				{
-				channel = 1;
-				if(resetdedicount == TRUE)
+				zeiger = beaconliste;
+				for(c = 0; c < aplistesize; c++)
 					{
-					zeiger = beaconliste;
-					for(c = 0; c < aplistesize; c++)
-						{
-						zeiger->deauthcount = 0;
-						zeiger->disassoccount = 0;
-						zeiger++;
-						}
+					zeiger->deauthcount = 0;
+					zeiger->disassoccount = 0;
+					zeiger++;
 					}
 				}
-			setchannel();
 			}
+		setchannel();
 		continue;
 		}
 
@@ -1599,12 +1595,14 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-i <interface> : WLAN interface\n"
 	"-o <file>      : output cap file\n"
 	"-t <seconds>   : stay time on channel before hopping to the next channel\n"
+	"               : for fixed channel operation use high value (86400 for a day)\n"
 	"               : default = 5 seconds\n"
 	"-c <channel>   : set start channel for hopping (1 - 13)\n"
-	"-C <channel>   : set fix channel\n"
+	"               : 2.4GHz (1 - 13) \n"
+	"-C <channel>   : set start channel for hopping (1 - 156)\n"
 	"               : 2.4GHz (1 - 14) \n"
 	"               : 5 GHz (36, 40, 44, 48, 52, 56, 60, 64)\n"
-	"		: 5 GHz (100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140)\n"
+	"               : 5 GHz (100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140)\n"
 	"               : 5 GHz (149, 153, 157, 161, 165)\n"
 	"-d <digit>     : deauthentication every xx beacons\n"
 	"               : default = 10000\n"
@@ -1674,7 +1672,7 @@ int main(int argc, char *argv[])
 {
 pcap_if_t *alldevs, *d;
 int auswahl;
-uint8_t c;
+uint8_t channel = 1;
 char *eigenpfadname, *eigenname;
 char *pcapoutname = NULL;
 
@@ -1713,26 +1711,32 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbphv")) != -1)
 
 		case 'c':
 		channel = strtol(optarg, NULL, 10);
-		if((channel < 1) || (channel > 13))
+		for(chptr = 0; chptr < 13; chptr++)
+			{
+			if(channel == channellist[chptr])
+				break;
+			}
+		if(chptr >= 13)
 			{
 			fprintf(stderr, "wrong channel, only 1 - 13 allowed\nsetting channel to default (1)\n");
-			channel = 1;
+			chptr = 0;
 			}
+		chlistende = 13;
 		break;
 
 		case 'C':
 		channel = strtol(optarg, NULL, 10);
-		for(c = 0; c < CHANNELLIST_SIZE; c++)
+		for(chptr = 0; chptr < CHANNELLIST_SIZE; chptr++)
 			{
-			if(channel == channellist[c])
+			if(channel == channellist[chptr])
 				break;
 			}
-		if(c >= CHANNELLIST_SIZE)
+		if(chptr >= CHANNELLIST_SIZE)
 			{
-			fprintf(stderr, "channel not allowed\nsee help for allowed channels\n");
-			exit (EXIT_FAILURE);
+			fprintf(stderr, "channel not allowed\nsetting channel to default (1)\n");
+			chptr = 0;
 			}
-		fixedchannel = TRUE;
+		chlistende = CHANNELLIST_SIZE;
 		break;
 
 		case 'd':
