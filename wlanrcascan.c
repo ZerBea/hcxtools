@@ -39,15 +39,6 @@ struct aplist
 typedef struct aplist apl_t;
 #define	APL_SIZE (sizeof(apl_t))
 
-uint8_t channellist[] = 
-{
-1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14,
-36, 40, 44, 48, 52, 56, 60, 64,
-100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140,
-149, 153, 157, 161, 165
-};
-#define CHANNELLIST_SIZE sizeof(channellist)
-
 /*===========================================================================*/
 /* globale variablen */
 
@@ -95,7 +86,7 @@ char *hiddenstr = "hidden ssid";
 qsort(apliste, APLISTESIZEMAX, APL_SIZE, sort_by_channel);
 
 
-printf("ch mac_ap       essid\n-----------------------------------------------------\n");
+printf("ch  mac_ap       essid\n------------------------------------------------------\n");
 
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{

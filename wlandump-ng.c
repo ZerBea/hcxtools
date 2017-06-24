@@ -125,6 +125,9 @@ clapl_t *proberesponseliste = NULL;
 clapl_t *proberequestliste = NULL;
 clapl_t *associationrequestliste = NULL;
 clapl_t *reassociationrequestliste = NULL;
+
+int fixedchannel = FALSE;
+
 char *interfacename = NULL;
 
 /*===========================================================================*/
@@ -1048,8 +1051,6 @@ void programmende(int signum)
 {
 if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 	{
-	set_timer(timer1, 0, 0);
-	set_timer(timer2, 0, 0);
 	pcap_dump_flush(pcapout);
 	pcap_dump_close(pcapout);
 	pcap_close(pcapin);
@@ -1150,6 +1151,7 @@ if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	system("reboot");
 #endif
 	programmende(SIGINT);
+	return;
 	}
 
 wrq.u.freq.m = channel;
@@ -1161,7 +1163,7 @@ if(ioctl(sock, SIOCSIWFREQ, &wrq) < 0)
 	if((result = ioctl(sock, SIOCSIWFREQ, &wrq)) < 0)
 		{
 		fprintf(stderr, "ioctl(SIOCSIWFREQ) on '%s' failed with '%d'\n", interfacename, result);
-		fprintf(stderr, "unable to set channel on '%s', exiting\n", interfacename);
+		fprintf(stderr, "unable to set channel %d on '%s'\n", channel, interfacename);
 #ifdef DOGPIOSUPPORT
 		system("reboot");
 #endif
@@ -1212,22 +1214,25 @@ while(1)
 
 	if(pcapstatus == -2)
 		{
-		channel++;
-		if(channel > 13)
+		if(fixedchannel == FALSE)
 			{
-			channel = 1;
-			if(resetdedicount == TRUE)
+			channel++;
+			if(channel > 13)
 				{
-				zeiger = beaconliste;
-				for(c = 0; c < aplistesize; c++)
+				channel = 1;
+				if(resetdedicount == TRUE)
 					{
-					zeiger->deauthcount = 0;
-					zeiger->disassoccount = 0;
-					zeiger++;
+					zeiger = beaconliste;
+					for(c = 0; c < aplistesize; c++)
+						{
+						zeiger->deauthcount = 0;
+						zeiger->disassoccount = 0;
+						zeiger++;
+						}
 					}
 				}
+			setchannel();
 			}
-		setchannel();
 		continue;
 		}
 
@@ -1595,7 +1600,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <file>      : output cap file\n"
 	"-t <seconds>   : stay time on channel before hopping to the next channel\n"
 	"               : default = 5 seconds\n"
-	"-c <channel>   : set fix channel (1 - 13)\n"
+	"-c <channel>   : set start channel for hopping (1 - 13)\n"
+	"-C <channel>   : set fix channel\n"
+	"               : 2.4GHz (1 - 14) \n"
+	"               : 5 GHz (36, 40, 44, 48, 52, 56, 60, 64)\n"
+	"		: 5 GHz (100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140)\n"
+	"               : 5 GHz (149, 153, 157, 161, 165)\n"
 	"-d <digit>     : deauthentication every xx beacons\n"
 	"               : default = 10000\n"
 	"               : to prevent ap to lease anonce don't set values below 100\n"
@@ -1664,6 +1674,7 @@ int main(int argc, char *argv[])
 {
 pcap_if_t *alldevs, *d;
 int auswahl;
+uint8_t c;
 char *eigenpfadname, *eigenname;
 char *pcapoutname = NULL;
 
@@ -1674,7 +1685,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:c:d:D:s:m:rbphv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbphv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1707,6 +1718,21 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:d:D:s:m:rbphv")) != -1)
 			fprintf(stderr, "wrong channel, only 1 - 13 allowed\nsetting channel to default (1)\n");
 			channel = 1;
 			}
+		break;
+
+		case 'C':
+		channel = strtol(optarg, NULL, 10);
+		for(c = 0; c < CHANNELLIST_SIZE; c++)
+			{
+			if(channel == channellist[c])
+				break;
+			}
+		if(c >= CHANNELLIST_SIZE)
+			{
+			fprintf(stderr, "channel not allowed\nsee help for allowed channels\n");
+			exit (EXIT_FAILURE);
+			}
+		fixedchannel = TRUE;
 		break;
 
 		case 'd':

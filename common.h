@@ -442,6 +442,17 @@ typedef struct hcx hcx_t;
 /*===========================================================================*/
 /* globale Konstante */
 
+
+const uint8_t channellist[] = 
+{
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14,
+36, 40, 44, 48, 52, 56, 60, 64,
+100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140,
+149, 153, 157, 161, 165
+};
+#define CHANNELLIST_SIZE sizeof(channellist)
+
+
 const uint8_t mynonce[] =
 {
 0x68, 0x20, 0x09, 0xe2, 0x1f, 0x0e, 0xbc, 0xe5, 0x62, 0xb9, 0x06, 0x5b, 0x54, 0x89, 0x79, 0x09,
