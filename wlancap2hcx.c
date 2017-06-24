@@ -146,10 +146,10 @@ if((changeflag == TRUE) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == TRUE) && (hc
 			exit(EXIT_FAILURE);
 			}
 		for(c = 0; c < 16; c++)
-			fprintf(fhhash, "%02x", hcmd5.challenge[c]);
+			fprintf(fhhash, "%02x", hcmd5.response[c]);
 		fprintf(fhhash, ":");
 		for(c = 0; c < 16; c++)
-			fprintf(fhhash, "%02x", hcmd5.response[c]);
+			fprintf(fhhash, "%02x", hcmd5.challenge[c]);
 		fprintf(fhhash, ":");
 		fprintf(fhhash, "%02x\n", hcmd5.id2);
 		fclose(fhhash);
