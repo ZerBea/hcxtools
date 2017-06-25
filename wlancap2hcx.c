@@ -1259,7 +1259,7 @@ if(essidunicodeoutname != NULL)
 free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
-printf("%d packets processed (total: %ld netrecords, %ld eaprecords)\n", packetcount, netdbrecords, eapdbrecords);
+printf("%d packets processed (total: %ld network management packets, %ld wpa packets)\n", packetcount, netdbrecords, eapdbrecords);
 
 if(anecflag == TRUE)
 	printf("\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
