@@ -166,6 +166,7 @@ struct mac_frame
 };
 typedef struct mac_frame mac_t;
 
+
 struct llc_frame
 {
  uint8_t	dsap;
@@ -174,6 +175,10 @@ struct llc_frame
  uint8_t	org[3];
  uint16_t	type;
 #define	LLC_TYPE_AUTH	0x888e
+#define	LLC_TYPE_IPV4	0x0800
+#define	LLC_TYPE_IPV6	0x886D
+
+
 };
 typedef struct llc_frame llc_t;
 #define	LLC_SIZE (sizeof(llc_t))
@@ -374,6 +379,24 @@ struct eapmd5_frame
 typedef struct eapmd5_frame eapmd5_t;
 #define	EAPMD5_SIZE (sizeof(eapmd5_t))
 
+
+struct ip_frame
+{
+ uint8_t		ver_hlen;
+ uint8_t		tos;
+ uint16_t	len;
+ uint16_t	ipid;
+ uint16_t	flags_offset;
+ uint8_t		ttl;
+ uint8_t		proto;
+ uint16_t	checksum;
+ uint8_t		srcaddr[4];
+ uint8_t		dstaddr[4];
+} __attribute__ ((packed));
+typedef struct ip_frame ip_t;
+#define	IP_SIZE (sizeof(ip_t))
+#define	IP_SIZE_MIN 20
+#define	IP_SIZE_MAX 64
 
 
 struct netdb

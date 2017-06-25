@@ -184,7 +184,7 @@ if((eapleap->eapcode == EAP_CODE_REQ) && (eapleap->leapcount == 8))
 	changeflag = TRUE;
 	if(usernameoutname != NULL)
 		{
-		if((fhuser = fopen(usernameoutname, "a")) == NULL)
+		if((fhuser = fopen(usernameoutname, "a+")) == NULL)
 			{
 			fprintf(stderr, "error opening username/identity file %s\n", usernameoutname);
 			exit(EXIT_FAILURE);
@@ -797,6 +797,7 @@ wldflag = FALSE;
 ancflag = FALSE;
 anecflag = FALSE;
 int c;
+int llctype;
 
 uint8_t eap4flag = FALSE;
 uint8_t eap9flag = FALSE;
@@ -821,6 +822,10 @@ uint8_t eap40flag = FALSE;
 uint8_t eap43flag = FALSE;
 uint8_t eap44flag = FALSE;
 uint8_t eap254flag = FALSE;
+
+uint8_t ipv4flag = FALSE;
+uint8_t ipv6flag = FALSE;
+
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
@@ -1178,6 +1183,17 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			continue;
 			}
 		}
+
+	if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len)&& (pkh->len >= IP_SIZE_MIN))
+		{
+		llctype = be16toh(((llc_t*)payload)->type);
+		if(llctype == LLC_TYPE_IPV4) 
+			ipv4flag = TRUE;
+
+		if(llctype == LLC_TYPE_IPV6) 
+			ipv6flag = TRUE;
+		}
+
 	}
 
 if(essidoutname != NULL)
@@ -1327,6 +1343,14 @@ if(eap254flag == TRUE)
 	printf("\x1B[36mfound WPS Authentication\x1B[0m\n");
 
 
+
+if(ipv4flag == TRUE)
+	printf("\x1B[35mfound IPv4 packets\x1B[0m\n");
+
+if(ipv6flag == TRUE)
+	printf("\x1B[35mfound IPv6 packets\x1B[0m\n");
+
+
 if(wcflag == TRUE)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
 
@@ -1350,7 +1374,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-n <file> : output extended eapol file (NetNTLMv1: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
-	"-u <file> : output usernames /identities file\n"
+	"-u <file> : output usernames/identities file\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"-r        : enable replaycountcheck (default: disabled)\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);

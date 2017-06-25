@@ -91,11 +91,12 @@ uint8_t chlistende = 13;
 int statuslines = STATUSLINES;
 uint16_t mysequencenr = 1;
 int staytime = TIME_INTERVAL_2S;
-int modepassiv = FALSE;
+uint8_t modepassiv = FALSE;
+uint8_t ipv46 = FALSE;
 int deauthmaxcount = DEAUTHMAXCOUNT;
 int disassocmaxcount = DISASSOCMAXCOUNT;
-int resetdedicount = FALSE;
-int lastbeaconing = FALSE;
+uint8_t resetdedicount = FALSE;
+uint8_t lastbeaconing = FALSE;
 int internalbeacons = 0;
 int internalproberesponses = 0;
 int internalproberequests = 0;
@@ -1195,6 +1196,7 @@ apl_t *zeiger;
 clapl_t *zeigerbeacon;
 int pktcount = 0;
 int beaconcount = 0;
+int llctype = 0;
 
 printf("capturing (stop with ctrl+c)...\n");
 
@@ -1481,6 +1483,16 @@ while(1)
 			continue;
 			}
 		}
+
+	if((ipv46 == TRUE) && (macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len)&& (pkh->len >= IP_SIZE_MIN))
+		{
+		llctype = be16toh(((llc_t*)payload)->type);
+		if(llctype == LLC_TYPE_IPV4) 
+			pcap_dump((u_char *) pcapout, pkh, h80211);
+
+		if(llctype == LLC_TYPE_IPV6) 
+			pcap_dump((u_char *) pcapout, pkh, h80211);
+		}
 	}
 return;
 }
@@ -1619,6 +1631,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-s <digit>     : status display (x lines)\n"
 	"               : default = 0 (no status output)\n"
 	"-p             : passive (do not transmit)\n"
+	"-l             : capture IPv4 and IPv6 packets\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
 	"\n"
@@ -1683,7 +1696,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbphv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbplhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1771,6 +1784,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbphv")) != -1)
 
 		case 'p':
 		modepassiv = TRUE;
+		break;
+
+		case 'l':
+		ipv46 = TRUE;
 		break;
 
 		case 's':
