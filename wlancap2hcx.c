@@ -1190,6 +1190,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		llctype = be16toh(((llc_t*)payload)->type);
 		if(llctype == LLC_TYPE_IPV4) 
 			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(pcapipv46out != NULL)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 			ipv4flag = TRUE;
@@ -1197,6 +1199,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 		if(llctype == LLC_TYPE_IPV6) 
 			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(pcapipv46out != NULL)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 			ipv6flag = TRUE;
