@@ -81,7 +81,7 @@ pcap_dumper_t *pcapout = NULL;
 int staytime = TIME_INTERVAL_2S;
 uint8_t channel = 1;
 uint16_t mysequencenr = 1;
-int lastbeaconing = FALSE;
+uint8_t lastbeaconing = FALSE;
 
 unsigned long long int myoui;
 unsigned long long int mynic;
