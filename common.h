@@ -176,7 +176,7 @@ struct llc_frame
  uint16_t	type;
 #define	LLC_TYPE_AUTH	0x888e
 #define	LLC_TYPE_IPV4	0x0800
-#define	LLC_TYPE_IPV6	0x886D
+#define	LLC_TYPE_IPV6	0x86dd
 
 
 };
