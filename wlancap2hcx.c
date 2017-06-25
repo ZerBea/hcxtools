@@ -81,6 +81,7 @@ pcap_dumper_t *pcapextout = NULL;
 
 uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
+uint8_t wcflag = FALSE;
 uint8_t wldflag = FALSE;
 uint8_t ancflag = FALSE;
 uint8_t anecflag = FALSE;
@@ -792,7 +793,7 @@ uint8_t field = 0;
 int datalink = 0;
 int pcapstatus;
 int packetcount = 0;
-int wcflag = FALSE;
+wcflag = FALSE;
 wldflag = FALSE;
 ancflag = FALSE;
 anecflag = FALSE;
