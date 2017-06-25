@@ -177,6 +177,8 @@ struct llc_frame
 #define	LLC_TYPE_AUTH	0x888e
 #define	LLC_TYPE_IPV4	0x0800
 #define	LLC_TYPE_IPV6	0x86dd
+#define	LLC_TYPE_PREAUT	0x88c7
+#define	LLC_TYPE_FRRR	0x890d
 
 
 };

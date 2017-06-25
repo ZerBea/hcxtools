@@ -827,6 +827,8 @@ uint8_t eap254flag = FALSE;
 
 uint8_t ipv4flag = FALSE;
 uint8_t ipv6flag = FALSE;
+uint8_t preautflag = FALSE;
+uint8_t frrrflag = FALSE;
 
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
@@ -1188,7 +1190,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len)&& (pkh->len >= IP_SIZE_MIN))
 		{
 		llctype = be16toh(((llc_t*)payload)->type);
-		if(llctype == LLC_TYPE_IPV4) 
+		if(llctype == LLC_TYPE_IPV4)
 			{
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
@@ -1197,7 +1199,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			ipv4flag = TRUE;
 			}
 
-		if(llctype == LLC_TYPE_IPV6) 
+		if(llctype == LLC_TYPE_IPV6)
 			{
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
@@ -1205,6 +1207,13 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 			ipv6flag = TRUE;
 			}
+
+		if(llctype == LLC_TYPE_PREAUT)
+			preautflag = TRUE;
+
+		if(llctype == LLC_TYPE_FRRR)
+			frrrflag = TRUE;
+
 		}
 
 	}
@@ -1362,6 +1371,12 @@ if(ipv4flag == TRUE)
 
 if(ipv6flag == TRUE)
 	printf("\x1B[35mfound IPv6 packets\x1B[0m\n");
+
+if(preautflag == TRUE)
+	printf("\x1B[35mPre-Authentication detected\x1B[0m\n");
+
+if(frrrflag == TRUE)
+	printf("\x1B[35mfound Fast Roaming Remote Request\x1B[0m\n");
 
 
 if(wcflag == TRUE)
