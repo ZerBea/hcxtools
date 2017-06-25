@@ -801,6 +801,7 @@ anecflag = FALSE;
 int c;
 int llctype;
 
+uint8_t eap3flag = FALSE;
 uint8_t eap4flag = FALSE;
 uint8_t eap9flag = FALSE;
 uint8_t eap13flag = FALSE;
@@ -1087,6 +1088,11 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(eapext->eapcode == EAP_CODE_RESP)
 				addresponseidentity(eapext);
 
+			if(eapext->eaptype == EAP_TYPE_NAK)
+				{
+				addeapmd5(macf->addr1.addr, macf->addr2.addr, eapext);
+				eap3flag = TRUE;
+				}
 
 			if(eapext->eaptype == EAP_TYPE_MD5)
 				{
@@ -1151,7 +1157,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(eapext->eaptype == EAP_TYPE_AW)
 				eap35flag = TRUE;
 
-			if(eapext->eaptype == EAP_TYPE_MSTLV)
+			if(eapext->eaptype == EAP_TYPE_CSBA)
 				eap36flag = TRUE;
 
 			if(eapext->eaptype == EAP_TYPE_HTTPD)
@@ -1169,7 +1175,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(eapext->eaptype == EAP_TYPE_ZLXEAP)
 				eap44flag = TRUE;
 
-			if(eapext->eaptype == EAP_TYPE_CSBA)
+			if(eapext->eaptype == EAP_TYPE_EXPAND)
 				eap254flag = TRUE;
 
 			continue;
@@ -1294,6 +1300,9 @@ if(ancflag == TRUE)
 			printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", hcxoutname);
 		}
 	}
+
+if(eap3flag == TRUE)
+	printf("\x1B[36mfound Legacy Nak\x1B[0m\n");
 
 if(eap4flag == TRUE)
 	printf("\x1B[36mfound MD5-Challenge (hashcat -m 4800)\x1B[0m\n");
