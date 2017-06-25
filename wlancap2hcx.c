@@ -78,6 +78,7 @@ long int eapdbrecords = 0;
 
 pcap_dumper_t *pcapout = NULL;
 pcap_dumper_t *pcapextout = NULL;
+pcap_dumper_t *pcapipv46out = NULL;
 
 uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
@@ -1085,7 +1086,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				addresponseidentity(eapext);
 
 
-
 			if(eapext->eaptype == EAP_TYPE_MD5)
 				{
 				addeapmd5(macf->addr1.addr, macf->addr2.addr, eapext);
@@ -1189,10 +1189,18 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		{
 		llctype = be16toh(((llc_t*)payload)->type);
 		if(llctype == LLC_TYPE_IPV4) 
+			{
+			if(pcapipv46out != NULL)
+				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 			ipv4flag = TRUE;
+			}
 
 		if(llctype == LLC_TYPE_IPV6) 
+			{
+			if(pcapipv46out != NULL)
+				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 			ipv6flag = TRUE;
+			}
 		}
 
 	}
@@ -1371,6 +1379,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-W <file> : output only not wlandump forced to hccapx file\n"
 	"-p <file> : output pcap file\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
+	"-l <file> : output IPv4/IPv6 packets pcap file (analysis purpose)\n"
 	"-m <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP): use hashcat -m 4800)\n"
 	"-n <file> : output extended eapol file (NetNTLMv1: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
@@ -1386,6 +1395,7 @@ int main(int argc, char *argv[])
 {
 pcap_t *pcapdh = NULL;
 pcap_t *pcapextdh = NULL;
+pcap_t *pcapipv46dh = NULL;
 
 int auswahl;
 int index;
@@ -1394,6 +1404,7 @@ char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *pcapoutname = NULL;
 char *pcapextoutname = NULL;
+char *pcapipv46outname = NULL;
 char *essidoutname = NULL;
 char *essidunicodeoutname = NULL;
 
@@ -1401,7 +1412,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:m:n:p:P:e:E:w:W:u:xrhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:e:E:w:W:u:xrhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1431,6 +1442,10 @@ while ((auswahl = getopt(argc, argv, "o:m:n:p:P:e:E:w:W:u:xrhv")) != -1)
 
 		case 'P':
 		pcapextoutname = optarg;
+		break;
+
+		case 'l':
+		pcapipv46outname = optarg;
 		break;
 
 		case 'e':
@@ -1480,6 +1495,13 @@ if(pcapextoutname != NULL)
 		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapextoutname);
 	}
 
+if(pcapipv46outname != NULL)
+	{
+	pcapipv46dh = pcap_open_dead(DLT_IEEE802_11, 65535);
+	if ((pcapipv46out = pcap_dump_open(pcapipv46dh, pcapipv46outname)) == NULL)
+		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapipv46outname);
+	}
+
 memset(&oldhcxrecord, 0, HCX_SIZE);
 for (index = optind; index < argc; index++)
 	{
@@ -1500,6 +1522,9 @@ for (index = optind; index < argc; index++)
 		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
 
 	}
+
+if(pcapipv46out != NULL)
+	pcap_dump_close(pcapipv46out);
 
 if(pcapextout != NULL)
 	pcap_dump_close(pcapextout);
