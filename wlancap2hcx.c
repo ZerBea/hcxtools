@@ -1344,8 +1344,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(pkh->len < (macl +LLC_SIZE +IP_SIZE_MIN +GRE_MIN_SIZE +PPP_SIZE +PPPCHAPHDR_MIN_CHAL_SIZE))
 				continue;
 
-			printf("%d %ld\n", pkh->len, macl +LLC_SIZE +IP_SIZE_MIN +GRE_MIN_SIZE +PPP_SIZE);
-
 			iph = (ip_frame_t*)(payload + LLC_SIZE);
 			iphlen = (iph->ver_hlen & 0x0f) * 4;
 			if(iph->protocol != 0x2f)
@@ -1668,7 +1666,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
 	"-l <file> : output IPv4/IPv6 packets pcap file (analysis purpose)\n"
 	"-m <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP): use hashcat -m 4800)\n"
-	"-n <file> : output extended eapol file (NetNTLMv1: use hashcat -m 5500)\n"
+	"-n <file> : output extended eapol file (NetNTLMv1 authentication: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-u <file> : output usernames/identities file\n"
