@@ -13,14 +13,6 @@
 #include <curl/curl.h>
 #include "common.h"
 
-struct ppi_packet_header
-{
- uint8_t  pph_version;
- uint8_t  pph_flags;
- uint16_t pph_len;
- uint32_t pph_dlt;
-} __attribute__((packed));
-typedef struct ppi_packet_header ppi_packet_header_t;
 
 struct hc5500
 {
@@ -804,6 +796,17 @@ long int packetcount = 0;
 long int wlanpacketcount = 0;
 long int ethpacketcount = 0;
 
+ip_frame_t *iph = NULL;
+uint8_t iphlen = 0;
+gre_frame_t *greh = NULL;
+int grehsize = 0;
+ppp_frame_t *ppph = NULL;
+uint8_t pppchapflag = FALSE;
+
+
+ether_header_t *eth = NULL;
+
+
 wcflag = FALSE;
 wldflag = FALSE;
 ancflag = FALSE;
@@ -865,7 +868,9 @@ uint8_t eap254flag = FALSE;
 uint8_t eap255flag = FALSE;
 
 uint8_t ipv4flag = FALSE;
+uint8_t ethipv4flag = FALSE;
 uint8_t ipv6flag = FALSE;
+uint8_t ethipv6flag = FALSE;
 uint8_t preautflag = FALSE;
 uint8_t frrrflag = FALSE;
 
@@ -949,6 +954,12 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	/* check Ethernet-header */
 	if(datalink == DLT_EN10MB)
 		{
+		eth = (ether_header_t*)packet;
+		llctype = be16toh(eth->ether_type);
+		if(llctype == LLC_TYPE_IPV4)
+			ethipv4flag++;
+		if(llctype == LLC_TYPE_IPV6)
+			ethipv6flag++;
 		ethpacketcount++;
 		continue;
 		}
@@ -1329,6 +1340,26 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(pcapipv46out != NULL)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
+			iph = (ip_frame_t*)(payload + LLC_SIZE);
+			iphlen = (iph->ver_hlen & 0x0f) * 4;
+			if(iph->protocol != 0x2f)
+				continue;
+
+			greh = (gre_frame_t*)(payload +LLC_SIZE + iphlen);
+			if(be16toh(greh->type) != GREPROTO_PPP)
+				continue;
+
+			grehsize = GRE_MIN_LEN;
+			if((greh->flags & GRE_FLAG_SYNSET) == GRE_FLAG_SYNSET)
+				grehsize += 4;
+			if((greh->flags & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
+				grehsize += 4;
+
+			ppph = (ppp_frame_t*)(payload +LLC_SIZE +iphlen +grehsize);
+			if(be16toh(ppph->proto) != PPPPROTO_CHAP)
+				continue;
+
+			pppchapflag = TRUE;
 			ipv4flag = TRUE;
 			}
 
@@ -1346,9 +1377,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 		if(llctype == LLC_TYPE_FRRR)
 			frrrflag = TRUE;
-
 		}
-
 	}
 
 if(essidoutname != NULL)
@@ -1597,6 +1626,9 @@ if(eap255flag == TRUE)
 
 if(ipv4flag == TRUE)
 	printf("\x1B[35mfound IPv4 packets\x1B[0m\n");
+
+if(pppchapflag == TRUE)
+	printf("\x1B[35mfound PPP CHAP Authentication in IPv4 packets\x1B[0m\n");
 
 if(ipv6flag == TRUE)
 	printf("\x1B[35mfound IPv6 packets\x1B[0m\n");

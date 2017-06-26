@@ -110,6 +110,25 @@ typedef struct radiotap_header rth_t;
 #define	RTH_SIZE (sizeof(rth_t))
 
 
+struct ppi_packet_header
+{
+ uint8_t  pph_version;
+ uint8_t  pph_flags;
+ uint16_t pph_len;
+ uint32_t pph_dlt;
+} __attribute__((packed));
+typedef struct ppi_packet_header ppi_packet_header_t;
+
+
+struct ether_header
+{
+ uint8_t	ether_dhost[6];
+ uint8_t	ether_shost[6];
+ uint16_t	ether_type;
+} __attribute__((packed));
+typedef struct ether_header ether_header_t;
+
+
 struct adr_frame
 {
  uint8_t	addr[6];
@@ -179,14 +198,13 @@ struct llc_frame
 #define	LLC_TYPE_IPV6	0x86dd
 #define	LLC_TYPE_PREAUT	0x88c7
 #define	LLC_TYPE_FRRR	0x890d
-
-
 };
 typedef struct llc_frame llc_t;
 #define	LLC_SIZE (sizeof(llc_t))
 
 
-struct ieee_tag {
+struct ieee_tag
+{
  uint8_t		id;
 #define	TAG_SSID	0
 #define	TAG_RATE	1
@@ -363,14 +381,14 @@ typedef struct eapext_frame eapext_t;
 
 struct eapri_frame
 {
- uint8_t		version;
- uint8_t		type;
- uint16_t		len;
- uint8_t		eapcode;
- uint8_t		eapid;
- uint16_t		eaplen;
- uint8_t		eaptype;
- uint8_t		identity[];
+ uint8_t	version;
+ uint8_t	type;
+ uint16_t	len;
+ uint8_t	eapcode;
+ uint8_t	eapid;
+ uint16_t	eaplen;
+ uint8_t	eaptype;
+ uint8_t	identity[];
 } __attribute__((__packed__));
 typedef struct eapri_frame eapri_t;
 #define	EAPRI_SIZE (sizeof(eapri_t))
@@ -378,17 +396,17 @@ typedef struct eapri_frame eapri_t;
 
 struct eapleap_frame
 {
- uint8_t		version;
- uint8_t		type;
- uint16_t		len;
- uint8_t		eapcode;
- uint8_t		eapid;
- uint16_t		eaplen;
- uint8_t		eaptype;
- uint8_t		leapversion;
- uint8_t		leapreserved;
- uint8_t		leapcount;
- uint8_t		leapdata[];
+ uint8_t	version;
+ uint8_t	type;
+ uint16_t	len;
+ uint8_t	eapcode;
+ uint8_t	eapid;
+ uint16_t	eaplen;
+ uint8_t	eaptype;
+ uint8_t	leapversion;
+ uint8_t	leapreserved;
+ uint8_t	leapcount;
+ uint8_t	leapdata[];
 } __attribute__((__packed__));
 typedef struct eapleap_frame eapleap_t;
 #define	EAPLEAP_SIZE (sizeof(eapleap_t))
@@ -396,15 +414,15 @@ typedef struct eapleap_frame eapleap_t;
 
 struct eapmd5_frame
 {
- uint8_t		version;
- uint8_t		type;
- uint16_t		len;
- uint8_t		eapcode;
- uint8_t		eapid;
- uint16_t		eaplen;
- uint8_t		eaptype;
- uint8_t		eapvaluesize;
- uint8_t		md5data[];
+ uint8_t	version;
+ uint8_t	type;
+ uint16_t	len;
+ uint8_t	eapcode;
+ uint8_t	eapid;
+ uint16_t	eaplen;
+ uint8_t	eaptype;
+ uint8_t	eapvaluesize;
+ uint8_t	md5data[];
 } __attribute__((__packed__));
 typedef struct eapmd5_frame eapmd5_t;
 #define	EAPMD5_SIZE (sizeof(eapmd5_t))
@@ -412,21 +430,47 @@ typedef struct eapmd5_frame eapmd5_t;
 
 struct ip_frame
 {
- uint8_t		ver_hlen;
- uint8_t		tos;
+ uint8_t	ver_hlen;
+ uint8_t	tos;
  uint16_t	len;
  uint16_t	ipid;
  uint16_t	flags_offset;
- uint8_t		ttl;
- uint8_t		proto;
+ uint8_t	ttl;
+ uint8_t	protocol;
  uint16_t	checksum;
- uint8_t		srcaddr[4];
- uint8_t		dstaddr[4];
+ uint8_t	srcaddr[4];
+ uint8_t	dstaddr[4];
 } __attribute__ ((packed));
-typedef struct ip_frame ip_t;
-#define	IP_SIZE (sizeof(ip_t))
+typedef struct ip_frame ip_frame_t;
+#define	IP_SIZE (sizeof(ip_frame_t))
 #define	IP_SIZE_MIN 20
 #define	IP_SIZE_MAX 64
+
+
+struct gre_frame
+{
+ uint16_t   flags;
+ uint16_t   type;
+ uint16_t   length;
+ uint16_t   callid;
+ uint16_t   seq; /* optional based on flags */
+ uint16_t   ack; /* optional based on flags */
+} __attribute__ ((packed));
+typedef struct gre_frame gre_frame_t;
+#define GRE_LEN (sizeof(gre_frame_t))
+#define GRE_MIN_LEN (sizeof(gre_frame_t) - 4)
+#define GREPROTO_PPP 0x880b
+#define GRE_FLAG_SYNSET 0x0010
+#define GRE_FLAG_ACKSET 0x8000
+
+
+struct ppp_frame
+{
+ uint16_t   proto;
+} __attribute__ ((packed));
+typedef struct ppp_frame ppp_frame_t;
+#define PPP_LEN sizeof(ppp_frame_t)
+#define PPPPROTO_CHAP 0xc223
 
 
 struct netdb
