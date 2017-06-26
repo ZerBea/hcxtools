@@ -457,8 +457,8 @@ struct gre_frame
  uint16_t   ack; /* optional based on flags */
 } __attribute__ ((packed));
 typedef struct gre_frame gre_frame_t;
-#define GRE_LEN (sizeof(gre_frame_t))
-#define GRE_MIN_LEN (sizeof(gre_frame_t) - 4)
+#define GRE_SIZE (sizeof(gre_frame_t))
+#define GRE_MIN_SIZE (sizeof(gre_frame_t) - 4)
 #define GREPROTO_PPP 0x880b
 #define GRE_FLAG_SYNSET 0x0010
 #define GRE_FLAG_ACKSET 0x8000
@@ -469,8 +469,40 @@ struct ppp_frame
  uint16_t   proto;
 } __attribute__ ((packed));
 typedef struct ppp_frame ppp_frame_t;
-#define PPP_LEN sizeof(ppp_frame_t)
+#define PPP_SIZE sizeof(ppp_frame_t)
 #define PPPPROTO_CHAP 0xc223
+
+
+struct pppchap_frame
+{
+ uint8_t    code;
+ uint8_t    identifier;
+ uint16_t   length;
+ union
+ {
+ struct
+  {
+   uint8_t    datalen;
+   uint8_t    authchal[16];
+  } chaldata;
+ struct
+  {
+   uint8_t    datalen;
+   uint8_t    peerchal[16];
+   uint8_t    unknown[8]; /* all zero's */
+   uint8_t    peerresp[24];
+   uint8_t    state;
+   uint8_t    name;
+  } respdata;
+ } u;
+} __attribute__ ((packed));
+#define PPPCHAPHDR_SIZE 4
+#define PPPCHAPHDR_MIN_CHAL_SIZE 21
+#define PPPCHAPHDR_MIN_RESP_SIZE 55
+#define PPPCHAP_CHALLENGE   1
+#define PPPCHAP_RESPONSE    2
+#define PPPCHAP_SUCCESS     3
+#define PPPCHAP_FAILURE     4
 
 
 struct netdb

@@ -1331,7 +1331,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			}
 		}
 
-	if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len)&& (pkh->len >= 0x34))
+	if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (pkh->len >= 0x34))
 		{
 		llctype = be16toh(((llc_t*)payload)->type);
 		if(llctype == LLC_TYPE_IPV4)
@@ -1340,6 +1340,12 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(pcapipv46out != NULL)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
+
+			if(pkh->len < (macl +LLC_SIZE +IP_SIZE_MIN +GRE_MIN_SIZE +PPP_SIZE +PPPCHAPHDR_MIN_CHAL_SIZE))
+				continue;
+
+			printf("%d %ld\n", pkh->len, macl +LLC_SIZE +IP_SIZE_MIN +GRE_MIN_SIZE +PPP_SIZE);
+
 			iph = (ip_frame_t*)(payload + LLC_SIZE);
 			iphlen = (iph->ver_hlen & 0x0f) * 4;
 			if(iph->protocol != 0x2f)
@@ -1349,7 +1355,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(be16toh(greh->type) != GREPROTO_PPP)
 				continue;
 
-			grehsize = GRE_MIN_LEN;
+			grehsize = GRE_MIN_SIZE;
 			if((greh->flags & GRE_FLAG_SYNSET) == GRE_FLAG_SYNSET)
 				grehsize += 4;
 			if((greh->flags & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
@@ -1358,6 +1364,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			ppph = (ppp_frame_t*)(payload +LLC_SIZE +iphlen +grehsize);
 			if(be16toh(ppph->proto) != PPPPROTO_CHAP)
 				continue;
+
 
 			pppchapflag = TRUE;
 			ipv4flag = TRUE;
