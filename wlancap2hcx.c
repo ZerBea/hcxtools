@@ -75,7 +75,7 @@ eapdb_t *eapdbdata = NULL;
 eapdb_t *neweapdbdata = NULL;
 
 long int eapdbrecords = 0;
-
+long int hcxwritecount = 0;
 pcap_dumper_t *pcapout = NULL;
 pcap_dumper_t *pcapextout = NULL;
 pcap_dumper_t *pcapipv46out = NULL;
@@ -324,7 +324,7 @@ if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhc
 		anecflag = TRUE;
 
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
-
+hcxwritecount++;
 if(hcxoutname != NULL)
 	{
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
@@ -800,7 +800,10 @@ int fcsl = 0;
 uint8_t field = 0;
 int datalink = 0;
 int pcapstatus;
-int packetcount = 0;
+long int packetcount = 0;
+long int wlanpacketcount = 0;
+long int ethpacketcount = 0;
+
 wcflag = FALSE;
 wldflag = FALSE;
 ancflag = FALSE;
@@ -876,7 +879,7 @@ if (!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	}
 
 datalink = pcap_datalink(pcapin);
-if((datalink != DLT_IEEE802_11) && (datalink != DLT_IEEE802_11_RADIO) && (datalink != DLT_PPI))
+if((datalink != DLT_IEEE802_11) && (datalink != DLT_IEEE802_11_RADIO) && (datalink != DLT_PPI) && (datalink != DLT_EN10MB))
 	{
 	fprintf (stderr, "unsupported datalinktyp %d\n", datalink);
 	return FALSE;
@@ -943,6 +946,14 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_sec == 0))
 		wcflag = TRUE;
 
+	/* check Ethernet-header */
+	if(datalink == DLT_EN10MB)
+		{
+		ethpacketcount++;
+		continue;
+		}
+
+	wlanpacketcount++;
 	/* check 802.11-header */
 	if(datalink == DLT_IEEE802_11)
 		h80211 = packet;
@@ -1309,7 +1320,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			}
 		}
 
-	if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len)&& (pkh->len >= IP_SIZE_MIN))
+	if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len)&& (pkh->len >= 0x34))
 		{
 		llctype = be16toh(((llc_t*)payload)->type);
 		if(llctype == LLC_TYPE_IPV4)
@@ -1381,7 +1392,15 @@ if(essidunicodeoutname != NULL)
 free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
-printf("%d packets processed (total: %ld network management packets, %ld wpa packets)\n", packetcount, netdbrecords, eapdbrecords);
+printf("%ld packets processed (total: %ld wlan, %ld lan)\n", packetcount, wlanpacketcount, ethpacketcount);
+if(ethpacketcount > 0)
+	printf("\x1B[31monly packetcount supported at this time for ethernet\x1B[0m\n");
+
+if(hcxwritecount == 1)
+	printf("found %ld usefull wpa handshake\n", hcxwritecount);
+else
+	printf("found %ld usefull wpa handshakes\n", hcxwritecount);
+hcxwritecount = 0;
 
 if(anecflag == TRUE)
 	printf("\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
@@ -1416,6 +1435,8 @@ if(ancflag == TRUE)
 			printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", hcxoutname);
 		}
 	}
+
+
 
 if(eap3flag == TRUE)
 	printf("\x1B[36mfound Legacy Nak\x1B[0m\n");

@@ -1417,7 +1417,7 @@ while(1)
 		}
 
 	/* check handshake frames */
-	if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH) && (pkh->len > 26))
+	if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH) && (pkh->len > 0x1a))
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 		if(eap->type == 3)
@@ -1484,7 +1484,7 @@ while(1)
 			}
 		}
 
-	if((ipv46 == TRUE) && (macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len)&& (pkh->len >= IP_SIZE_MIN))
+	if((ipv46 == TRUE) && (macf->type == MAC_TYPE_DATA) && (pkh->len >= 0x34))
 		{
 		llctype = be16toh(((llc_t*)payload)->type);
 		if(llctype == LLC_TYPE_IPV4) 
