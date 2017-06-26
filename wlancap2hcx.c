@@ -32,7 +32,7 @@ struct hc5500
  uint8_t  p2;
  uint8_t  leapid1;
  uint8_t  leapid2;
- uint8_t  username[258];
+ char     username[258];
  uint8_t  peerchallenge[8];
  uint8_t  peerresponse[24];
 } __attribute__((packed));
@@ -168,6 +168,7 @@ eapleap_t *eapleap = NULL;
 int eaplen;
 int c;
 uint8_t changeflag = FALSE;
+char *ptr = NULL;
 
 eapleap = (eapleap_t*)(eapext);
 if(eapleap->leapversion != 1)
@@ -215,7 +216,13 @@ if((changeflag == TRUE) && (hcleap.p1 == TRUE) && (hcleap.p2 == TRUE) && (memcmp
 			fprintf(stderr, "error opening netNTLMv1 file %s\n", hc5500outname);
 			exit(EXIT_FAILURE);
 			}
-		fprintf(fhhash, "%s::::", hcleap.username);
+
+		ptr = strchr(hcleap.username, '\\');
+		if(ptr == NULL)
+			fprintf(fhhash, "%s::::", hcleap.username);
+		else
+			fprintf(fhhash, "%s::::", ++ptr);
+
 		for(c = 0; c < 24; c++)
 			fprintf(fhhash, "%02x", hcleap.peerresponse[c]);
 		fprintf(fhhash, ":");
