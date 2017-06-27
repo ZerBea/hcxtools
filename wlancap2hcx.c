@@ -102,6 +102,39 @@ memset(&hcleap, 0, sizeof(hc5500_t));
 return;
 }
 /*===========================================================================*/
+int addpppchap(uint8_t *payload)
+{
+ip_frame_t *iph = NULL;
+uint8_t iphlen = 0;
+
+gre_frame_t *greh = NULL;
+int grehsize = 0;
+ppp_frame_t *ppph = NULL;
+
+iph = (ip_frame_t*)(payload);
+iphlen = (iph->ver_hlen & 0x0f) * 4;
+if(iph->protocol != 0x2f)
+	return FALSE;
+
+greh = (gre_frame_t*)(payload +iphlen);
+
+if(be16toh(greh->type) != GREPROTO_PPP)
+	return FALSE;
+
+grehsize = GRE_MIN_SIZE;
+if((greh->flags & GRE_FLAG_SYNSET) == GRE_FLAG_SYNSET)
+	grehsize += 4;
+if((greh->flags & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
+	grehsize += 4;
+
+ppph = (ppp_frame_t*)(payload +iphlen +grehsize);
+if(be16toh(ppph->proto) != PPPPROTO_CHAP)
+	return FALSE;
+
+
+return TRUE;
+}
+/*===========================================================================*/
 void addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 eapmd5_t *eapmd5 = NULL;
@@ -713,14 +746,17 @@ neweapdbdata->tv_usec = tvusec;
 memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
 memcpy(neweapdbdata->mac_sta.addr, mac_sta, 6);
 neweapdbdata->eapol_len = htobe16(eap->len) +4;
+
 if(neweapdbdata->eapol_len > 256)
 	return FALSE;
+
 memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
 replaycount = getreplaycount(neweapdbdata->eapol);
 if(m == 2)
 	{
 	lookfor12(eapdbrecords, neweapdbdata, replaycount);
+
 	}
 
 if(m == 3)
@@ -796,16 +832,9 @@ long int packetcount = 0;
 long int wlanpacketcount = 0;
 long int ethpacketcount = 0;
 
-ip_frame_t *iph = NULL;
-uint8_t iphlen = 0;
-gre_frame_t *greh = NULL;
-int grehsize = 0;
-ppp_frame_t *ppph = NULL;
 uint8_t pppchapflag = FALSE;
 
-
 ether_header_t *eth = NULL;
-
 
 wcflag = FALSE;
 wldflag = FALSE;
@@ -957,7 +986,12 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		eth = (ether_header_t*)packet;
 		llctype = be16toh(eth->ether_type);
 		if(llctype == LLC_TYPE_IPV4)
+			{
+			if(addpppchap((uint8_t*)packet +ETHER_SIZE) == TRUE)
+				pppchapflag = TRUE;
+			
 			ethipv4flag++;
+			}
 		if(llctype == LLC_TYPE_IPV6)
 			ethipv6flag++;
 		ethpacketcount++;
@@ -1344,27 +1378,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(pkh->len < (macl +LLC_SIZE +IP_SIZE_MIN +GRE_MIN_SIZE +PPP_SIZE +PPPCHAPHDR_MIN_CHAL_SIZE))
 				continue;
 
-			iph = (ip_frame_t*)(payload + LLC_SIZE);
-			iphlen = (iph->ver_hlen & 0x0f) * 4;
-			if(iph->protocol != 0x2f)
-				continue;
-
-			greh = (gre_frame_t*)(payload +LLC_SIZE + iphlen);
-			if(be16toh(greh->type) != GREPROTO_PPP)
-				continue;
-
-			grehsize = GRE_MIN_SIZE;
-			if((greh->flags & GRE_FLAG_SYNSET) == GRE_FLAG_SYNSET)
-				grehsize += 4;
-			if((greh->flags & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
-				grehsize += 4;
-
-			ppph = (ppp_frame_t*)(payload +LLC_SIZE +iphlen +grehsize);
-			if(be16toh(ppph->proto) != PPPPROTO_CHAP)
-				continue;
-
-
-			pppchapflag = TRUE;
+			if(addpppchap(payload + LLC_SIZE) == TRUE)
+				pppchapflag = TRUE;
 			ipv4flag = TRUE;
 			}
 
@@ -1427,12 +1442,10 @@ free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
 printf("%ld packets processed (total: %ld wlan, %ld lan)\n", packetcount, wlanpacketcount, ethpacketcount);
-if(ethpacketcount > 0)
-	printf("\x1B[31monly packetcount supported at this time for ethernet\x1B[0m\n");
 
 if(hcxwritecount == 1)
 	printf("found %ld usefull wpa handshake\n", hcxwritecount);
-else
+else if(hcxwritecount > 1)
 	printf("found %ld usefull wpa handshakes\n", hcxwritecount);
 hcxwritecount = 0;
 

@@ -127,6 +127,7 @@ struct ether_header
  uint16_t	ether_type;
 } __attribute__((packed));
 typedef struct ether_header ether_header_t;
+#define	ETHER_SIZE (sizeof(ether_header_t))
 
 
 struct adr_frame
