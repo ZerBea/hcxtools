@@ -24,7 +24,7 @@ endif
 	$(CC) $(CFLAGS) -o wlanresponse wlanresponse.c -lpcap -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
 	$(CC) $(CFLAGS) -o wlancapinfo wlancapinfo.c -lpcap
-	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap
+	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap -lcrypto
 	$(CC) $(CFLAGS) -o wlanhcx2cap wlanhcx2cap.c -lpcap
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
 	$(CC) $(CFLAGS) -o wlanhcx2essid wlanhcx2essid.c

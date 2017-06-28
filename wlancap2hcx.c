@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <stdio_ext.h>
 #include <curl/curl.h>
+#include <openssl/sha.h>
 #include "common.h"
 
 
@@ -31,6 +32,22 @@ struct hc5500
 typedef struct hc5500 hc5500_t;
 
 
+struct hc5500chap
+{
+ char     usernames[258];
+ char     usernamec[258];
+ uint8_t  id1;
+ uint8_t  id2;
+ uint8_t  p1;
+ uint8_t  p2;
+ uint8_t  serverchallenge[16];
+ uint8_t  clientchallenge[16];
+ uint8_t  authchallenge[8];
+ uint8_t  authresponse[24];
+} __attribute__((packed));
+typedef struct hc5500chap hc5500chap_t;
+
+
 struct hc4800
 {
  adr_t    mac_ap1;
@@ -41,7 +58,6 @@ struct hc4800
  uint8_t  id2;
  uint8_t  p1;
  uint8_t  p2;
-
  uint8_t  challenge[16];
  uint8_t  response[16];
 } __attribute__((packed));
@@ -83,6 +99,7 @@ int rctimecount = 0;
 
 hc4800_t hcmd5;
 hc5500_t hcleap;
+hc5500chap_t hcleapchap;
 
 char *hcxoutname = NULL;
 char *hc4800outname = NULL;
@@ -98,18 +115,28 @@ void initgloballists()
 {
 memset(&hcmd5, 0, sizeof(hc4800_t));
 memset(&hcleap, 0, sizeof(hc5500_t));
+memset(&hcleapchap, 0, sizeof(hc5500chap_t));
 
 return;
 }
 /*===========================================================================*/
 int addpppchap(uint8_t *payload, uint8_t ipflag)
 {
+int c;
 ip_frame_t *iph = NULL;
 uint8_t iphlen = 0;
-
 gre_frame_t *greh = NULL;
 int grehsize = 0;
 ppp_frame_t *ppph = NULL;
+pppchap_frame_t *pppchaph = NULL;
+FILE *fhuser = NULL;
+FILE *fhhash = NULL;
+
+SHA_CTX ctxsha1;
+char *ptr = NULL;
+
+unsigned char digestsha1[SHA_DIGEST_LENGTH];
+
 
 iph = (ip_frame_t*)(payload);
 if(ipflag == 4)
@@ -138,6 +165,87 @@ ppph = (ppp_frame_t*)(payload +iphlen +grehsize);
 if(be16toh(ppph->proto) != PPPPROTO_CHAP)
 	return FALSE;
 
+pppchaph = (pppchap_frame_t*)(payload +iphlen +grehsize +PPP_SIZE);
+if(be16toh(pppchaph->length) < 20)
+	return FALSE;
+
+if((pppchaph->code == PPPCHAP_CHALLENGE) && (pppchaph->u.challenge.datalen == 16))
+	{
+	hcleapchap.id1 = pppchaph->identifier;
+	memcpy(&hcleapchap.serverchallenge, pppchaph->u.challenge.serverchallenge, 16);
+	memset(&hcleapchap.usernames, 0, 258);
+	memcpy(&hcleapchap.usernames, &pppchaph->u.challenge.names, (be16toh(pppchaph->length) -21));
+	hcleapchap.p1 = TRUE;
+	if(usernameoutname != NULL)
+		{
+		if((fhuser = fopen(usernameoutname, "a+")) == NULL)
+			{
+			fprintf(stderr, "error opening username/identity file %s\n", usernameoutname);
+			exit(EXIT_FAILURE);
+			}
+		fprintf(fhuser, "%s\n", hcleapchap.usernames);
+		fclose(fhuser);
+		}
+	}
+if(pppchaph->code == PPPCHAP_RESPONSE)
+	{
+	hcleapchap.id2 = pppchaph->identifier;
+	memcpy(&hcleapchap.clientchallenge, pppchaph->u.response.clientchallenge, 16);
+	memcpy(&hcleapchap.authresponse, pppchaph->u.response.authresponse, 24);
+	memset(&hcleapchap.usernamec, 0, 258);
+	memcpy(&hcleapchap.usernamec, &pppchaph->u.response.namec, (be16toh(pppchaph->length) -54));
+	hcleapchap.p2 = TRUE;
+	if(usernameoutname != NULL)
+		{
+		if((fhuser = fopen(usernameoutname, "a+")) == NULL)
+			{
+			fprintf(stderr, "error opening username/identity file %s\n", usernameoutname);
+			exit(EXIT_FAILURE);
+			}
+		fprintf(fhuser, "%s\n", hcleapchap.usernamec);
+		fclose(fhuser);
+		}
+	}
+
+SHA1_Init(&ctxsha1);
+SHA1_Update(&ctxsha1, &hcleapchap.clientchallenge, 16);
+SHA1_Update(&ctxsha1, &hcleapchap.serverchallenge, 16);
+ptr = strchr(hcleapchap.usernamec, '\\');
+if(ptr == NULL)
+	SHA1_Update(&ctxsha1, hcleapchap.usernamec, strlen(hcleapchap.usernamec));
+else
+	{
+	ptr++;
+	SHA1_Update(&ctxsha1, ptr, strlen(ptr));
+	}
+SHA1_Final(digestsha1, &ctxsha1);
+memcpy(&hcleapchap.authchallenge,  &digestsha1, 8);
+
+if((hcleapchap.id1 == hcleapchap.id2) && (hcleapchap.p1 == TRUE) && (hcleapchap.p2 == TRUE))
+	{
+	if(hc5500outname != NULL)
+		{
+		if((fhhash = fopen(hc5500outname, "a+")) == NULL)
+			{
+			fprintf(stderr, "error opening netNTLMv1 file %s\n", hc5500outname);
+			exit(EXIT_FAILURE);
+			}
+
+		if(ptr == NULL)
+			fprintf(fhhash, "%s::::", hcleapchap.usernamec);
+		else
+			fprintf(fhhash, "%s::::", ++ptr);
+
+		for(c = 0; c < 24; c++)
+			fprintf(fhhash, "%02x", hcleapchap.authresponse[c]);
+		fprintf(fhhash, ":");
+		for(c = 0; c < 8; c++)
+			fprintf(fhhash, "%02x", hcleapchap.authchallenge[c]);
+		fprintf(fhhash, "\n");
+		fclose(fhhash);
+		}
+	memset(&hcleapchap, 0, sizeof(hc5500chap_t));	
+	}
 
 return TRUE;
 }
@@ -847,7 +955,7 @@ wcflag = FALSE;
 wldflag = FALSE;
 ancflag = FALSE;
 anecflag = FALSE;
-int c;
+int c, c1;
 int llctype;
 
 uint8_t eap3flag = FALSE;
@@ -1424,12 +1532,19 @@ if(essidoutname != NULL)
 		{
 		if(checkessid(zeigernet->essid_len, zeigernet->essid) == TRUE)
 			fprintf(fhessid, "%s\n", zeigernet->essid);
+
+		if(zeigernet->essid_len == 32)
+			{
+			for(c1 = 0; c1 < 32; c1++)
+				fprintf(fhessid, "%02x", zeigernet->essid[c1]);
+			fprintf(fhessid, "\n");
+			}
+
 		zeigernet++;
 		}
 
 	fclose(fhessid);
 	}
-
 
 if(essidunicodeoutname != NULL)
 	{
@@ -1657,7 +1772,7 @@ if(ipv4flag == TRUE)
 	printf("\x1B[35mfound IPv4 packets\x1B[0m\n");
 
 if(pppchapflag == TRUE)
-	printf("\x1B[35mfound PPP CHAP Authentication in IPv4 packets\x1B[0m\n");
+	printf("\x1B[35mfound PPP CHAP Authentication in IPv4 packets (hashcat -m 5500)\x1B[0m\n");
 
 if(ipv6flag == TRUE)
 	printf("\x1B[35mfound IPv6 packets\x1B[0m\n");
@@ -1690,7 +1805,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
 	"-l <file> : output IPv4/IPv6 packets pcap file (analysis purpose)\n"
 	"-m <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP): use hashcat -m 4800)\n"
-	"-n <file> : output extended eapol file (NetNTLMv1 authentication: use hashcat -m 5500)\n"
+	"-n <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-u <file> : output usernames/identities file\n"

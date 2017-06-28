@@ -484,19 +484,21 @@ struct pppchap_frame
  struct
   {
    uint8_t    datalen;
-   uint8_t    authchal[16];
-  } chaldata;
+   uint8_t    serverchallenge[16];
+   uint8_t    names;
+  } challenge;
  struct
   {
    uint8_t    datalen;
-   uint8_t    peerchal[16];
+   uint8_t    clientchallenge[16];
    uint8_t    unknown[8]; /* all zero's */
-   uint8_t    peerresp[24];
-   uint8_t    state;
-   uint8_t    name;
-  } respdata;
+   uint8_t    authresponse[24];
+   uint8_t    status;
+   uint8_t    namec;
+  } response;
  } u;
 } __attribute__ ((packed));
+typedef struct pppchap_frame pppchap_frame_t;
 #define PPPCHAPHDR_SIZE 4
 #define PPPCHAPHDR_MIN_CHAL_SIZE 21
 #define PPPCHAPHDR_MIN_RESP_SIZE 55
