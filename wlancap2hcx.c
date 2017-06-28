@@ -102,7 +102,7 @@ memset(&hcleap, 0, sizeof(hc5500_t));
 return;
 }
 /*===========================================================================*/
-int addpppchap(uint8_t *payload)
+int addpppchap(uint8_t *payload, uint8_t ipflag)
 {
 ip_frame_t *iph = NULL;
 uint8_t iphlen = 0;
@@ -112,7 +112,14 @@ int grehsize = 0;
 ppp_frame_t *ppph = NULL;
 
 iph = (ip_frame_t*)(payload);
-iphlen = (iph->ver_hlen & 0x0f) * 4;
+if(ipflag == 4)
+	iphlen = (iph->ver_hlen & 0x0f) * 4;
+
+else if(ipflag == 6)
+	iphlen = iph->ver_hlen;
+else
+	return FALSE;
+
 if(iph->protocol != 0x2f)
 	return FALSE;
 
@@ -897,9 +904,7 @@ uint8_t eap254flag = FALSE;
 uint8_t eap255flag = FALSE;
 
 uint8_t ipv4flag = FALSE;
-uint8_t ethipv4flag = FALSE;
 uint8_t ipv6flag = FALSE;
-uint8_t ethipv6flag = FALSE;
 uint8_t preautflag = FALSE;
 uint8_t frrrflag = FALSE;
 
@@ -987,13 +992,16 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		llctype = be16toh(eth->ether_type);
 		if(llctype == LLC_TYPE_IPV4)
 			{
-			if(addpppchap((uint8_t*)packet +ETHER_SIZE) == TRUE)
+			if(addpppchap((uint8_t*)packet +ETHER_SIZE, 4) == TRUE)
 				pppchapflag = TRUE;
-			
-			ethipv4flag++;
+			ipv4flag = TRUE;
 			}
 		if(llctype == LLC_TYPE_IPV6)
-			ethipv6flag++;
+			{
+			if(addpppchap((uint8_t*)packet +ETHER_SIZE, 6) == TRUE)
+				pppchapflag = TRUE;
+			ipv6flag = TRUE;
+			}
 		ethpacketcount++;
 		continue;
 		}
@@ -1378,7 +1386,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(pkh->len < (macl +LLC_SIZE +IP_SIZE_MIN +GRE_MIN_SIZE +PPP_SIZE +PPPCHAPHDR_MIN_CHAL_SIZE))
 				continue;
 
-			if(addpppchap(payload + LLC_SIZE) == TRUE)
+			if(addpppchap(payload + LLC_SIZE, 4) == TRUE)
 				pppchapflag = TRUE;
 			ipv4flag = TRUE;
 			}
@@ -1389,6 +1397,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(pcapipv46out != NULL)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
+
+			if(addpppchap(payload + LLC_SIZE, 6) == TRUE)
+				pppchapflag = TRUE;
 			ipv6flag = TRUE;
 			}
 

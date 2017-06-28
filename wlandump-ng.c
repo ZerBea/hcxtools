@@ -51,6 +51,10 @@
 #define WPA_M3  0b00000100
 #define WPA_M4  0b00001000
 
+#define XTENDED_EAP  0b00000001
+#define XTENDED_IPV4 0b00000010
+#define XTENDED_IPV6 0b00000100
+
 void set_timer(timer_t timerid, int seconds, long int nanoseconds);
 
 
@@ -61,7 +65,7 @@ struct aplist
  int		deauthcount;
  int		disassoccount;
  int		handshake;
- int		eapextended;
+ int		xtendedflag;
  uint8_t	essid_len;
  uint8_t	essid[32];
 };
@@ -352,7 +356,7 @@ for(c = 0; c < statuslines; c++)
 	for (m = 1; m < 6; m++)
 		printf("%02x", zeiger->addr_ap.addr[m]);
 
-	printf(" %02x %02x ", zeiger->handshake, zeiger->eapextended);
+	printf(" %02x %02x ", zeiger->handshake, zeiger->xtendedflag);
 	for(m = 0; m < l; m++)
 		{
 		if((essidstr[m] >= 0x20) && (essidstr[m] <= 0x7e))
@@ -770,7 +774,7 @@ internalbeacons = c;
 zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->handshake = 0;
-zeiger->eapextended = 0;
+zeiger->xtendedflag = 0;
 zeiger->deauthcount = deauthmaxcount;
 zeiger->disassoccount = disassocmaxcount;
 zeiger->essid_len = essid_len;
@@ -930,7 +934,7 @@ qsort(reassociationrequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_tim
 return FALSE;
 }
 /*===========================================================================*/
-int handleeapextendedframes(time_t tvsec, uint8_t *mac_ap, int eapext)
+int handlextendedflagframes(time_t tvsec, uint8_t *mac_ap, int eapext)
 {
 apl_t *zeiger;
 int c;
@@ -941,7 +945,7 @@ for(c = 0; c < aplistesize; c++)
 	if(memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0)
 		{
 		zeiger->tv_sec = tvsec;
-		zeiger->eapextended |= eapext;
+		zeiger->xtendedflag |= eapext;
 
 //		qsort(beaconliste, aplistesize +1, APL_SIZE, sort_by_time);
 //		if(statuslines > 0)
@@ -1197,6 +1201,7 @@ clapl_t *zeigerbeacon;
 int pktcount = 0;
 int beaconcount = 0;
 int llctype = 0;
+
 
 printf("capturing (stop with ctrl+c)...\n");
 
@@ -1465,10 +1470,10 @@ while(1)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(macf->from_ds == 1)
-				handleeapextendedframes(pkh->ts.tv_sec, macf->addr2.addr, 1);
+				handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_EAP);
 
 			if(macf->to_ds == 2)
-				handleeapextendedframes(pkh->ts.tv_sec, macf->addr1.addr, 1);
+				handlextendedflagframes(pkh->ts.tv_sec, macf->addr1.addr, XTENDED_EAP);
 			continue;
 			}
 
@@ -1488,10 +1493,26 @@ while(1)
 		{
 		llctype = be16toh(((llc_t*)payload)->type);
 		if(llctype == LLC_TYPE_IPV4) 
+			{
+			if(macf->from_ds == 1)
+				handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV4);
+
+			if(macf->to_ds == 2)
+				handlextendedflagframes(pkh->ts.tv_sec, macf->addr1.addr, XTENDED_IPV4);
+
 			pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
 
 		if(llctype == LLC_TYPE_IPV6) 
+			{
+			if(macf->from_ds == 1)
+				handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV6);
+
+			if(macf->to_ds == 2)
+				handlextendedflagframes(pkh->ts.tv_sec, macf->addr1.addr, XTENDED_IPV6);
+
 			pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
 		}
 	}
 return;
@@ -1654,7 +1675,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"001000 M4\n"
 	"010000 wlandump-ng forced M1\n"
 	"100000 wlandump-ng forced M2\n"
-	"extended eap (xe) like wps, radius, sim\n"
+	"extended (xe) bitmask\n"
+	"000001 extended eapol\n"
+	"000010 IPv4\n"
+	"000100 IPv6\n"
 	"networkname (essid)\n"
 	"deauthentication/disassociation count until next deauthentication\n"
 	"disassociation\n"

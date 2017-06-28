@@ -101,6 +101,8 @@ staapl_t *directproberequestliste = NULL;
 staapl_t *associationrequestliste = NULL;
 staapl_t *reassociationrequestliste = NULL;
 
+uint8_t ipv46 = FALSE;
+
 char *interfacename = NULL;
 
 /*===========================================================================*/
@@ -1224,7 +1226,18 @@ while(1)
 				sendrequestidentity(macf->addr2.addr, macf->addr1.addr);
 				}
 			}
+		continue;
+		}
+		
+	else if((ipv46 == TRUE) && (macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4) && (pkh->len > 34))
+		{
+		pcap_dump((u_char *)pcapout, pkh, h80211);
+		continue;
+		}
 
+	else if((ipv46 == TRUE) && (macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6) && (pkh->len > 34))
+		{
+		pcap_dump((u_char *)pcapout, pkh, h80211);
 		continue;
 		}
 
@@ -1390,6 +1403,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-b             : activate beaconing on last 10 proberequests\n"
 	"-t <seconds>   : stay time on channel before hopping to the next channel\n"
 	"               : default: %d seconds\n"
+	"-l             : capture IPv4 and IPv6 packets\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, staytime);
@@ -1417,7 +1431,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:bhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:lbhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1445,6 +1459,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:bhv")) != -1)
 			fprintf(stderr, "wrong hoptime\nsetting hoptime to %d seconds\n", TIME_INTERVAL_2S);
 			staytime = TIME_INTERVAL_2S;
 			}
+		break;
+
+		case 'l':
+		ipv46 = TRUE;
 		break;
 
 		case 'h':
