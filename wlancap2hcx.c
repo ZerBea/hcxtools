@@ -247,7 +247,6 @@ if((hcleapchap.p1 == TRUE) && (hcleapchap.p2 == TRUE))
 		fprintf(fhhash, "\n");
 		fclose(fhhash);
 		}
-	memset(&hcleapchap, 0, sizeof(hc5500chap_t));	
 	return TRUE;
 	}
 return FALSE;
