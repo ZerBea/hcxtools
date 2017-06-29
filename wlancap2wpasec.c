@@ -85,8 +85,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
-	"-t        : set connection timeout (default 30 seconds)\n"
-	"-h        : this help\n"
+	"-t <seconds> : set connection timeout (default 30 seconds)\n"
+	"-h           : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
