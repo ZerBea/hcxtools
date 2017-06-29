@@ -112,7 +112,7 @@ while ((auswahl = getopt(argc, argv, "t:hv")) != -1)
 		timeout = strtol(optarg, NULL, 10);
 		if(timeout < 1)
 			{
-			fprintf(stderr, "wrong timeout\nsetting timeout to 30 seconds\n");
+			fprintf(stderr, "wrong connection timeout\nsetting connection timeout to 30 seconds\n");
 			timeout = 30;
 			}
 		break;
