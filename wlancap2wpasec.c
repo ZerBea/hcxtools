@@ -17,7 +17,7 @@
 const char *wpasecurl = "http://wpa-sec.stanev.org";
 
 /*===========================================================================*/
-int testwpasec()
+int testwpasec(long int timeout)
 {
 CURL *curl;
 CURLcode res = 0;
@@ -28,7 +28,7 @@ curl = curl_easy_init();
 if(curl)
 	{
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
-	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3L);
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
 	curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
 	res = curl_easy_perform(curl);
 	if(res != CURLE_OK)
@@ -40,7 +40,7 @@ curl_global_cleanup();
 return res;
 }
 /*===========================================================================*/
-void sendcap2wpasec(char *sendcapname)
+void sendcap2wpasec(char *sendcapname, long int timeout)
 {
 CURL *curl;
 CURLcode res;
@@ -60,7 +60,7 @@ headerlist = curl_slist_append(headerlist, buf);
 if(curl)
 	{
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
-	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 30L);
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 	res = curl_easy_perform(curl);
@@ -85,6 +85,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
+	"-t        : set connection timeout (default 30 seconds)\n"
 	"-h        : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
 struct stat statinfo;
 int auswahl;
 int index;
-
+long int timeout = 30;
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 
@@ -103,10 +104,19 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "hv")) != -1)
+while ((auswahl = getopt(argc, argv, "t:hv")) != -1)
 	{
 	switch (auswahl)
 		{
+		case 't':
+		timeout = strtol(optarg, NULL, 10);
+		if(timeout < 1)
+			{
+			fprintf(stderr, "wrong timeout\nsetting timeout to 30 seconds\n");
+			timeout = 30;
+			}
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -117,13 +127,13 @@ while ((auswahl = getopt(argc, argv, "hv")) != -1)
 		}
 	}
 
-if(testwpasec() != CURLE_OK)
+if(testwpasec(timeout) != CURLE_OK)
 	return EXIT_SUCCESS;
 
 for(index = optind; index < argc; index++)
 	{
 	if(stat(argv[index], &statinfo) == 0)
-		sendcap2wpasec(argv[index]);
+		sendcap2wpasec(argv[index], timeout);
 	}
 
 
