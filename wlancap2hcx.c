@@ -90,6 +90,7 @@ pcap_dumper_t *pcapipv46out = NULL;
 
 uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
+uint8_t idcheck = FALSE;
 uint8_t wcflag = FALSE;
 uint8_t wldflag = FALSE;
 uint8_t ancflag = FALSE;
@@ -136,7 +137,6 @@ SHA_CTX ctxsha1;
 char *ptr = NULL;
 
 unsigned char digestsha1[SHA_DIGEST_LENGTH];
-
 
 iph = (ip_frame_t*)(payload);
 if(ipflag == 4)
@@ -221,7 +221,10 @@ else
 SHA1_Final(digestsha1, &ctxsha1);
 memcpy(&hcleapchap.authchallenge,  &digestsha1, 8);
 
-if((hcleapchap.id1 == hcleapchap.id2) && (hcleapchap.p1 == TRUE) && (hcleapchap.p2 == TRUE))
+if((idcheck == TRUE) & (hcleapchap.id1 != hcleapchap.id2))
+	return FALSE;
+
+if((hcleapchap.p1 == TRUE) && (hcleapchap.p2 == TRUE))
 	{
 	if(hc5500outname != NULL)
 		{
@@ -245,12 +248,12 @@ if((hcleapchap.id1 == hcleapchap.id2) && (hcleapchap.p1 == TRUE) && (hcleapchap.
 		fclose(fhhash);
 		}
 	memset(&hcleapchap, 0, sizeof(hc5500chap_t));	
+	return TRUE;
 	}
-
-return TRUE;
+return FALSE;
 }
 /*===========================================================================*/
-void addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
+int addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 eapmd5_t *eapmd5 = NULL;
 FILE *fhhash = NULL;
@@ -278,6 +281,9 @@ if((eapmd5->eapcode == EAP_CODE_RESP) && (eapmd5->eapvaluesize == 16))
 	changeflag = TRUE;
 	}
 
+if((idcheck == TRUE) & (hcmd5.id1 != hcmd5.id2))
+	return FALSE;
+
 if((changeflag == TRUE) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == TRUE) && (hcmd5.p2 == TRUE) && (memcmp(&hcmd5.mac_ap1, &hcmd5.mac_ap2, 6) == 0) && (memcmp(&hcmd5.mac_sta1, &hcmd5.mac_sta2, 6) == 0))
 	{
 	if(hc4800outname != NULL)
@@ -296,11 +302,12 @@ if((changeflag == TRUE) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == TRUE) && (hc
 		fprintf(fhhash, "%02x\n", hcmd5.id2);
 		fclose(fhhash);
 		}
+	return TRUE;
 	}
-return;
+return FALSE;
 }
 /*===========================================================================*/
-void addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
+int addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 FILE *fhhash = NULL;
 FILE *fhuser = NULL;
@@ -312,7 +319,7 @@ char *ptr = NULL;
 
 eapleap = (eapleap_t*)(eapext);
 if(eapleap->leapversion != 1)
-	return;
+	return FALSE;
 
 eaplen = htobe16(eapleap->eaplen);
 if((eapleap->eapcode == EAP_CODE_REQ) && (eapleap->leapcount == 8))
@@ -347,6 +354,9 @@ if((eapleap->eapcode == EAP_CODE_RESP) && (eapleap->leapcount == 24))
 	changeflag = TRUE;
 	}
 
+if((idcheck == TRUE) & (hcleap.leapid1 != hcleap.leapid2))
+	return FALSE;
+
 if((changeflag == TRUE) && (hcleap.p1 == TRUE) && (hcleap.p2 == TRUE) && (memcmp(&hcleap.mac_ap1, &hcleap.mac_ap2, 6) == 0) && (memcmp(&hcleap.mac_sta1, &hcleap.mac_sta2, 6) == 0))
 	{
 	if(hc5500outname != NULL)
@@ -371,8 +381,9 @@ if((changeflag == TRUE) && (hcleap.p1 == TRUE) && (hcleap.p2 == TRUE) && (memcmp
 		fprintf(fhhash, "\n");
 		fclose(fhhash);
 		}
+	return TRUE;
 	}
-return;
+return FALSE;
 }
 /*===========================================================================*/
 void addresponseidentity(eapext_t *eapext)
@@ -871,7 +882,6 @@ replaycount = getreplaycount(neweapdbdata->eapol);
 if(m == 2)
 	{
 	lookfor12(eapdbrecords, neweapdbdata, replaycount);
-
 	}
 
 if(m == 3)
@@ -1300,8 +1310,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			if(eapext->eaptype == EAP_TYPE_MD5)
 				{
-				addeapmd5(macf->addr1.addr, macf->addr2.addr, eapext);
-				eap4flag = TRUE;
+				if(addeapmd5(macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
+					eap4flag = TRUE;
 				}
 
 			if(eapext->eaptype == EAP_TYPE_OTP)
@@ -1338,14 +1348,14 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				{
 				if((macf->from_ds == 1) && (macf->to_ds == 0) && (eapext->eapcode == EAP_CODE_REQ))
 					{
-					addleap( macf->addr1.addr, macf->addr2.addr, eapext);
-					eap17flag = TRUE;
+					if(addleap( macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
+						eap17flag = TRUE;
 					}
 
 				else if((macf->from_ds == 0) && (macf->to_ds == 1) && (eapext->eapcode == EAP_CODE_RESP))
 					{
-					addleap( macf->addr1.addr, macf->addr2.addr, eapext);
-					eap17flag = TRUE;
+					if(addleap( macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
+						eap17flag = TRUE;
 					}
 				}
 
@@ -1810,7 +1820,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-u <file> : output usernames/identities file\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
-	"-r        : enable replaycountcheck (default: disabled)\n"
+	"-r        : enable replaycountcheck\n"
+	"          : default: disabled - you will get more wpa handshakes, but some of them are uncrackable\n"
+	"-i        : enable id check (default: disabled)\n"
+	"          : default: disabled - you will get more authentications, but some of them are uncrackable\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -1836,7 +1849,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:e:E:w:W:u:xrhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:e:E:w:W:u:xrihv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1891,6 +1904,10 @@ while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:e:E:w:W:u:xrhv")) != -1)
 
 		case 'r':
 		replaycountcheck = TRUE;
+		break;
+
+		case 'i':
+		idcheck = TRUE;
 		break;
 
 		case 'h':
