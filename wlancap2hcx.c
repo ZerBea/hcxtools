@@ -1024,6 +1024,8 @@ uint8_t eap255flag = FALSE;
 
 uint8_t ipv4flag = FALSE;
 uint8_t ipv6flag = FALSE;
+uint8_t tcpflag = FALSE;
+uint8_t udpflag = FALSE;
 uint8_t preautflag = FALSE;
 uint8_t frrrflag = FALSE;
 
@@ -1122,11 +1124,30 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		ipv4h = (ipv4_frame_t*)(packet +LOOPB_SIZE);
 		if((ipv4h->ver_hlen & 0xf0) != 0x40)
 			continue;
+		ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
+
+		if(ipv4h->nextprotocol == NEXTHDR_NONE)
+			continue;
+
 		if(ipv4h->nextprotocol == NEXTHDR_GRE)
 			{
 			if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +ipv4hlen) == TRUE)
 				pppchapflag = TRUE;
+			continue;
 			}
+
+		if(ipv4h->nextprotocol == NEXTHDR_TCP)
+			{
+			tcpflag = TRUE;
+			continue;
+			}
+
+		if(ipv4h->nextprotocol == NEXTHDR_UDP)
+			{
+			udpflag = TRUE;
+			continue;
+			}
+
 		continue;
 		}
 
@@ -1143,23 +1164,57 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if((ipv4h->ver_hlen & 0xf0) != 0x40)
 				continue;
 			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
+
+			if(ipv4h->nextprotocol == NEXTHDR_NONE)
+				continue;
+
 			if(ipv4h->nextprotocol == NEXTHDR_GRE)
 				{
 				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +ipv4hlen) == TRUE)
 					pppchapflag = TRUE;
+				continue;
+				}
+
+			if(ipv4h->nextprotocol == NEXTHDR_TCP)
+				{
+				tcpflag = TRUE;
+				continue;
+				}
+
+			if(ipv4h->nextprotocol == NEXTHDR_UDP)
+				{
+				udpflag = TRUE;
+				continue;
 				}
 			}
 
-		if(llctype == LLC_TYPE_IPV6)
+		else if(llctype == LLC_TYPE_IPV6)
 			{
 			ipv6flag = TRUE;
 			ipv6h = (ipv6_frame_t*)(packet +ETHER_SIZE);
 			if(be32toh(ipv6h->ver_class &0xf) != 6)
 				continue;
+
+			if(ipv6h->nextprotocol == NEXTHDR_NONE)
+				continue;
+
 			if(ipv6h->nextprotocol == NEXTHDR_GRE)
 				{
 				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +40) == TRUE)
 					pppchapflag = TRUE;
+				continue;
+				}
+
+			if(ipv6h->nextprotocol == NEXTHDR_TCP)
+				{
+				tcpflag = TRUE;
+				continue;
+				}
+
+			if(ipv6h->nextprotocol == NEXTHDR_UDP)
+				{
+				udpflag = TRUE;
+				continue;
 				}
 			}
 		continue;
@@ -1554,10 +1609,24 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if((ipv4h->ver_hlen & 0xf0) != 0x40)
 			continue;
 
+		if(ipv4h->nextprotocol == NEXTHDR_NONE)
+			continue;
+
 		if(ipv4h->nextprotocol == NEXTHDR_GRE)
 			{
 			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +ipv4hlen) == TRUE)
 				pppchapflag = TRUE;
+			continue;
+			}
+
+		if(ipv4h->nextprotocol == NEXTHDR_TCP)
+			{
+			tcpflag = TRUE;
+			}
+
+		if(ipv4h->nextprotocol == NEXTHDR_UDP)
+			{
+			udpflag = TRUE;
 			}
 		continue;
 		}
@@ -1573,11 +1642,29 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		ipv6h = (ipv6_frame_t*)(payload +LLC_SIZE);
 		if(be32toh(ipv6h->ver_class &0xf) != 6)
 			continue;
+
+		if(ipv6h->nextprotocol == NEXTHDR_NONE)
+			continue;
+
 		if(ipv6h->nextprotocol == NEXTHDR_GRE)
 			{
 			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +40) == TRUE)
 				pppchapflag = TRUE;
+			continue;
 			}
+
+		if(ipv6h->nextprotocol == NEXTHDR_TCP)
+			{
+			tcpflag = TRUE;
+			continue;
+			}
+
+		if(ipv6h->nextprotocol == NEXTHDR_UDP)
+			{
+			udpflag = TRUE;
+			continue;
+			}
+
 		continue;
 		}
 
@@ -1843,11 +1930,18 @@ if(eap255flag == TRUE)
 if(ipv4flag == TRUE)
 	printf("\x1B[35mfound IPv4 packets\x1B[0m\n");
 
-if(pppchapflag == TRUE)
-	printf("\x1B[35mfound PPP CHAP Authentication in IPv4 packets (hashcat -m 5500)\x1B[0m\n");
-
 if(ipv6flag == TRUE)
 	printf("\x1B[35mfound IPv6 packets\x1B[0m\n");
+
+if(tcpflag == TRUE)
+	printf("\x1B[35mfound TCP packets\x1B[0m\n");
+
+if(udpflag == TRUE)
+	printf("\x1B[35mfound UDP packets\x1B[0m\n");
+
+if(pppchapflag == TRUE)
+	printf("\x1B[35mfound PPP CHAP Authentication packets (hashcat -m 5500)\x1B[0m\n");
+
 
 if(preautflag == TRUE)
 	printf("\x1B[35mPre-Authentication detected\x1B[0m\n");
