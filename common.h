@@ -429,7 +429,7 @@ typedef struct eapmd5_frame eapmd5_t;
 #define	EAPMD5_SIZE (sizeof(eapmd5_t))
 
 
-struct ip_frame
+struct ipv4_frame
 {
  uint8_t	ver_hlen;
  uint8_t	tos;
@@ -437,15 +437,45 @@ struct ip_frame
  uint16_t	ipid;
  uint16_t	flags_offset;
  uint8_t	ttl;
- uint8_t	protocol;
+ uint8_t	nextprotocol;
  uint16_t	checksum;
  uint8_t	srcaddr[4];
  uint8_t	dstaddr[4];
 } __attribute__ ((packed));
-typedef struct ip_frame ip_frame_t;
-#define	IP_SIZE (sizeof(ip_frame_t))
-#define	IP_SIZE_MIN 20
-#define	IP_SIZE_MAX 64
+typedef struct ipv4_frame ipv4_frame_t;
+#define	IPV4_SIZE (sizeof(ipv4_frame_t))
+#define	IPV4_SIZE_MIN 20
+#define	IPV4_SIZE_MAX 64
+
+
+struct ipv6_frame
+{
+ uint32_t	ver_class;
+ uint16_t	len;
+ uint8_t	nextprotocol;
+ uint8_t	hoplimint;
+ uint8_t	srcaddr[16];
+ uint8_t	dstaddr[16];
+} __attribute__ ((packed));
+typedef struct ipv6_frame ipv6_frame_t;
+#define	IPV6_SIZE (sizeof(ipv6_frame_t))
+
+
+#define NEXTHDR_HOP		0	/* Hop-by-hop option header. */
+#define NEXTHDR_TCP		6	/* TCP segment. */
+#define NEXTHDR_UDP		17	/* UDP message. */
+#define NEXTHDR_IPV6		41	/* IPv6 in IPv6 */
+#define NEXTHDR_ROUTING		43	/* Routing header. */
+#define NEXTHDR_FRAGMENT	44	/* Fragmentation/reassembly header. */
+#define NEXTHDR_GRE		47	/* GRE header. */
+#define NEXTHDR_ESP		50	/* Encapsulating security payload. */
+#define NEXTHDR_AUTH		51	/* Authentication header. */
+#define NEXTHDR_ICMP		58	/* ICMP for IPv6. */
+#define NEXTHDR_NONE		59	/* No next header */
+#define NEXTHDR_DEST		60	/* Destination options header. */
+#define NEXTHDR_SCTP		132	/* SCTP message. */
+#define NEXTHDR_MOBILITY	135	/* Mobility header. */
+#define NEXTHDR_MAX		255
 
 
 struct gre_frame

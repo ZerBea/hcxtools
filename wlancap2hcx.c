@@ -125,11 +125,9 @@ memset(&hcleapchap, 0, sizeof(hc5500chap_t));
 return;
 }
 /*===========================================================================*/
-int addpppchap(uint8_t *mac_1, uint8_t *mac_2, uint8_t *payload, uint8_t ipflag)
+int addpppchap(uint8_t *mac_1, uint8_t *mac_2, uint8_t *payload)
 {
 int c;
-ip_frame_t *iph = NULL;
-uint8_t iphlen = 0;
 gre_frame_t *greh = NULL;
 int grehsize = 0;
 ppp_frame_t *ppph = NULL;
@@ -142,19 +140,7 @@ char *ptr = NULL;
 
 unsigned char digestsha1[SHA_DIGEST_LENGTH];
 
-iph = (ip_frame_t*)(payload);
-if(ipflag == 4)
-	iphlen = (iph->ver_hlen & 0x0f) * 4;
-
-else if(ipflag == 6)
-	iphlen = iph->ver_hlen;
-else
-	return FALSE;
-
-if(iph->protocol != 0x2f)
-	return FALSE;
-
-greh = (gre_frame_t*)(payload +iphlen);
+greh = (gre_frame_t*)(payload);
 
 if(be16toh(greh->type) != GREPROTO_PPP)
 	return FALSE;
@@ -165,11 +151,12 @@ if((greh->flags & GRE_FLAG_SYNSET) == GRE_FLAG_SYNSET)
 if((greh->flags & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
 	grehsize += 4;
 
-ppph = (ppp_frame_t*)(payload +iphlen +grehsize);
+ppph = (ppp_frame_t*)(payload +grehsize);
 if(be16toh(ppph->proto) != PPPPROTO_CHAP)
 	return FALSE;
 
-pppchaph = (pppchap_frame_t*)(payload +iphlen +grehsize +PPP_SIZE);
+
+pppchaph = (pppchap_frame_t*)(payload +grehsize +PPP_SIZE);
 if(be16toh(pppchaph->length) < 20)
 	return FALSE;
 
@@ -195,8 +182,8 @@ if((pppchaph->code == PPPCHAP_CHALLENGE) && (pppchaph->u.challenge.datalen == 16
 	}
 if(pppchaph->code == PPPCHAP_RESPONSE)
 	{
-	memcpy(&hcleap.mac_ap2, mac_1, 6);
-	memcpy(&hcleap.mac_sta2, mac_2, 6);
+	memcpy(&hcleapchap.mac_ap2, mac_1, 6);
+	memcpy(&hcleapchap.mac_sta2, mac_2, 6);
 	hcleapchap.id2 = pppchaph->identifier;
 	memcpy(&hcleapchap.clientchallenge, pppchaph->u.response.clientchallenge, 16);
 	memcpy(&hcleapchap.authresponse, pppchaph->u.response.authresponse, 24);
@@ -944,6 +931,7 @@ struct stat statinfo;
 struct bpf_program filter;
 struct pcap_pkthdr *pkh;
 pcap_t *pcapin = NULL;
+ether_header_t *eth = NULL;
 rth_t *rth = NULL;
 ppi_packet_header_t *ppih = NULL;
 mac_t *macf = NULL;
@@ -964,9 +952,12 @@ long int packetcount = 0;
 long int wlanpacketcount = 0;
 long int ethpacketcount = 0;
 
+ipv4_frame_t *ipv4h = NULL;
+ipv6_frame_t *ipv6h = NULL;
+uint8_t ipv4hlen = 0;
+
 uint8_t pppchapflag = FALSE;
 
-ether_header_t *eth = NULL;
 
 wcflag = FALSE;
 wldflag = FALSE;
@@ -1111,22 +1102,35 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		wcflag = TRUE;
 
 	/* check Ethernet-header */
+
 	if(datalink == DLT_EN10MB)
 		{
 		eth = (ether_header_t*)packet;
 		llctype = be16toh(eth->ether_type);
+		printf("%ld\n", IPV6_SIZE);
 		if(llctype == LLC_TYPE_IPV4)
 			{
-			if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE, 4) == TRUE)
-				pppchapflag = TRUE;
 			ipv4flag = TRUE;
+			ipv4h = (ipv4_frame_t*)(packet +ETHER_SIZE);
+			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
+			if(ipv4h->nextprotocol == NEXTHDR_GRE)
+				{
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +ipv4hlen) == TRUE)
+					pppchapflag = TRUE;
+				}
 			}
+
 		if(llctype == LLC_TYPE_IPV6)
 			{
-			if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE, 6) == TRUE)
-				pppchapflag = TRUE;
 			ipv6flag = TRUE;
+			ipv6h = (ipv6_frame_t*)(packet +ETHER_SIZE);
+			if(ipv6h->nextprotocol == NEXTHDR_GRE)
+				{
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +40) == TRUE)
+					pppchapflag = TRUE;
+				}
 			}
+
 		ethpacketcount++;
 		continue;
 		}
@@ -1503,29 +1507,38 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		llctype = be16toh(((llc_t*)payload)->type);
 		if(llctype == LLC_TYPE_IPV4)
 			{
+			ipv4flag = TRUE;
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(pcapipv46out != NULL)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
-			if(pkh->len < (macl +LLC_SIZE +IP_SIZE_MIN +GRE_MIN_SIZE +PPP_SIZE +PPPCHAPHDR_MIN_CHAL_SIZE))
+			if(pkh->len < (macl +LLC_SIZE +IPV4_SIZE_MIN +GRE_MIN_SIZE +PPP_SIZE +PPPCHAPHDR_MIN_CHAL_SIZE))
 				continue;
 
-			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE, 4) == TRUE)
-				pppchapflag = TRUE;
-			ipv4flag = TRUE;
+			ipv4h = (ipv4_frame_t*)(payload +LLC_SIZE);
+			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
+			if(ipv4h->nextprotocol == NEXTHDR_GRE)
+				{
+				if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +ipv4hlen) == TRUE)
+					pppchapflag = TRUE;
+				}
 			}
 
 		if(llctype == LLC_TYPE_IPV6)
 			{
+			ipv6flag = TRUE;
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(pcapipv46out != NULL)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
-			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE, 6) == TRUE)
-				pppchapflag = TRUE;
-			ipv6flag = TRUE;
+			ipv6h = (ipv6_frame_t*)(payload +LLC_SIZE);
+			if(ipv6h->nextprotocol == NEXTHDR_GRE)
+				{
+				if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +40) == TRUE)
+					pppchapflag = TRUE;
+				}
 			}
 
 		if(llctype == LLC_TYPE_PREAUT)
