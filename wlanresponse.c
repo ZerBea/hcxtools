@@ -1323,18 +1323,20 @@ datalink = pcap_datalink(pcapin);
 	if (datalink == DLT_IEEE802_11_RADIO)
 		has_rth = TRUE;
 
-if (pcap_compile(pcapin, &filter,filterstring, 1, 0) < 0)
+if(pcap_compile(pcapin, &filter,filterstring, 1, 0) < 0)
 	{
 	fprintf(stderr, "error compiling bpf filter %s \n", pcap_geterr(pcapin));
 	exit(EXIT_FAILURE);
 	}
 
-if (pcap_setfilter(pcapin, &filter) < 0)
+if(pcap_setfilter(pcapin, &filter) < 0)
 	{
 	sprintf(pcaperrorstring, "error installing packet filter ");
 	pcap_perror(pcapin, pcaperrorstring);
 	exit(EXIT_FAILURE);
 	}
+
+pcap_freecode(&filter);
 
 strcpy(newpcapoutname, pcapoutname);
 while(stat(newpcapoutname, &statinfo) == 0)

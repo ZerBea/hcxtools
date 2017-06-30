@@ -932,6 +932,8 @@ struct bpf_program filter;
 struct pcap_pkthdr *pkh;
 pcap_t *pcapin = NULL;
 ether_header_t *eth = NULL;
+loopb_header_t *loopbh = NULL;
+
 rth_t *rth = NULL;
 ppi_packet_header_t *ppih = NULL;
 mac_t *macf = NULL;
@@ -951,6 +953,7 @@ int pcapstatus;
 long int packetcount = 0;
 long int wlanpacketcount = 0;
 long int ethpacketcount = 0;
+long int loopbpacketcount = 0;
 
 ipv4_frame_t *ipv4h = NULL;
 ipv6_frame_t *ipv6h = NULL;
@@ -1027,30 +1030,35 @@ uint8_t frrrflag = FALSE;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
-if (!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
+if(!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	{
 	fprintf(stderr, "error opening %s %s\n", pcaperrorstring, pcapinname);
 	return FALSE;
 	}
 
 datalink = pcap_datalink(pcapin);
-if((datalink != DLT_IEEE802_11) && (datalink != DLT_IEEE802_11_RADIO) && (datalink != DLT_PPI) && (datalink != DLT_EN10MB))
+if((datalink != DLT_IEEE802_11) && (datalink != DLT_IEEE802_11_RADIO) && (datalink != DLT_PPI) && (datalink != DLT_EN10MB) && (datalink != DLT_NULL))
 	{
 	fprintf (stderr, "unsupported datalinktyp %d\n", datalink);
 	return FALSE;
 	}
 
-if (pcap_compile(pcapin, &filter,filterstring, 1, 0) < 0)
+if((datalink == DLT_IEEE802_11) || (datalink == DLT_IEEE802_11_RADIO) || (datalink == DLT_PPI) || (datalink == DLT_EN10MB))
 	{
-	fprintf(stderr, "error compiling bpf filter %s \n", pcap_geterr(pcapin));
-	exit(EXIT_FAILURE);
-	}
+	if(pcap_compile(pcapin, &filter,filterstring, 1, 0) < 0)
+		{
+		fprintf(stderr, "error compiling bpf filter %s \n", pcap_geterr(pcapin));
+		exit(EXIT_FAILURE);
+		}
 
-if (pcap_setfilter(pcapin, &filter) < 0)
-	{
-	sprintf(pcaperrorstring, "error installing packet filter ");
-	pcap_perror(pcapin, pcaperrorstring);
-	exit(EXIT_FAILURE);
+	if(pcap_setfilter(pcapin, &filter) < 0)
+		{
+		sprintf(pcaperrorstring, "error installing packet filter ");
+		pcap_perror(pcapin, pcaperrorstring);
+		exit(EXIT_FAILURE);
+		}
+
+	pcap_freecode(&filter);
 	}
 
 if(stat(pcapinname, &statinfo) != 0)
@@ -1101,17 +1109,39 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_sec == 0))
 		wcflag = TRUE;
 
-	/* check Ethernet-header */
 
+	/* check Ethernet-header */
+	if(datalink == DLT_NULL)
+		{
+		loopbpacketcount++;
+		loopbh = (loopb_header_t*)packet;
+		if(be32toh(loopbh->family != 2))
+			continue;
+
+		ipv4flag = TRUE;
+		ipv4h = (ipv4_frame_t*)(packet +LOOPB_SIZE);
+		if((ipv4h->ver_hlen & 0xf0) != 40)
+			continue;
+		if(ipv4h->nextprotocol == NEXTHDR_GRE)
+			{
+			if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +ipv4hlen) == TRUE)
+				pppchapflag = TRUE;
+			}
+		continue;
+		}
+
+	/* check Ethernet-header */
 	if(datalink == DLT_EN10MB)
 		{
+		ethpacketcount++;
 		eth = (ether_header_t*)packet;
 		llctype = be16toh(eth->ether_type);
-		printf("%ld\n", IPV6_SIZE);
 		if(llctype == LLC_TYPE_IPV4)
 			{
 			ipv4flag = TRUE;
 			ipv4h = (ipv4_frame_t*)(packet +ETHER_SIZE);
+			if((ipv4h->ver_hlen & 0xf0) != 40)
+				continue;
 			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
 			if(ipv4h->nextprotocol == NEXTHDR_GRE)
 				{
@@ -1124,14 +1154,14 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			ipv6flag = TRUE;
 			ipv6h = (ipv6_frame_t*)(packet +ETHER_SIZE);
+			if(be32toh(ipv6h->ver_class &0xf) != 6)
+				continue;
 			if(ipv6h->nextprotocol == NEXTHDR_GRE)
 				{
 				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +40) == TRUE)
 					pppchapflag = TRUE;
 				}
 			}
-
-		ethpacketcount++;
 		continue;
 		}
 
@@ -1518,11 +1548,14 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			ipv4h = (ipv4_frame_t*)(payload +LLC_SIZE);
 			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
+			if((ipv4h->ver_hlen & 0xf0) != 40)
+				continue;
 			if(ipv4h->nextprotocol == NEXTHDR_GRE)
 				{
 				if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +ipv4hlen) == TRUE)
 					pppchapflag = TRUE;
 				}
+			continue;
 			}
 
 		if(llctype == LLC_TYPE_IPV6)
@@ -1534,11 +1567,14 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
 			ipv6h = (ipv6_frame_t*)(payload +LLC_SIZE);
+			if(be32toh(ipv6h->ver_class &0xf) != 6)
+				continue;
 			if(ipv6h->nextprotocol == NEXTHDR_GRE)
 				{
 				if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +40) == TRUE)
 					pppchapflag = TRUE;
 				}
+			continue;
 			}
 
 		if(llctype == LLC_TYPE_PREAUT)
@@ -1597,7 +1633,7 @@ if(essidunicodeoutname != NULL)
 free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
-printf("%ld packets processed (total: %ld wlan, %ld lan)\n", packetcount, wlanpacketcount, ethpacketcount);
+printf("%ld packets processed (total: %ld wlan, %ld lan, %ld loopback)\n", packetcount, wlanpacketcount, ethpacketcount, loopbpacketcount);
 
 if(hcxwritecount == 1)
 	printf("found %ld usefull wpa handshake\n", hcxwritecount);

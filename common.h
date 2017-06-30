@@ -128,6 +128,14 @@ typedef struct adr_frame adr_t;
 #define	ADR_SIZE (sizeof(adr_t))
 
 
+struct loopb_header
+{
+ uint32_t	family;
+} __attribute__((packed));
+typedef struct loopb_header loopb_header_t;
+#define	LOOPB_SIZE (sizeof(loopb_header_t))
+
+
 struct ether_header
 {
  adr_t		addr1;
