@@ -88,6 +88,7 @@ eapdb_t *neweapdbdata = NULL;
 
 long int eapdbrecords = 0;
 long int hcxwritecount = 0;
+long int hcxwritewldcount = 0;
 pcap_dumper_t *pcapout = NULL;
 pcap_dumper_t *pcapextout = NULL;
 pcap_dumper_t *pcapipv46out = NULL;
@@ -96,7 +97,6 @@ uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
 uint8_t idcheck = FALSE;
 uint8_t wcflag = FALSE;
-uint8_t wldflag = FALSE;
 uint8_t ancflag = FALSE;
 uint8_t anecflag = FALSE;
 
@@ -470,6 +470,14 @@ if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhc
 
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
 hcxwritecount++;
+
+r = getreplaycount(zeiger2->eapol);
+if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
+	{
+	hcxwritewldcount++;
+	wldflagint = TRUE;
+	}
+
 if(hcxoutname != NULL)
 	{
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
@@ -481,12 +489,6 @@ if(hcxoutname != NULL)
 	fclose(fhhcx);
 	}
 
-r = getreplaycount(zeiger2->eapol);
-if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
-	{
-	wldflagint = TRUE;
-	wldflag = TRUE;
-	}
 
 if((wdfhcxoutname != NULL) && (wldflagint == TRUE))
 	{
@@ -961,11 +963,6 @@ uint8_t ipv4hlen = 0;
 
 uint8_t pppchapflag = FALSE;
 
-
-wcflag = FALSE;
-wldflag = FALSE;
-ancflag = FALSE;
-anecflag = FALSE;
 int c, c1;
 int llctype;
 
@@ -1029,8 +1026,13 @@ uint8_t udpflag = FALSE;
 uint8_t preautflag = FALSE;
 uint8_t frrrflag = FALSE;
 
-
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
+
+wcflag = FALSE;
+ancflag = FALSE;
+anecflag = FALSE;
+hcxwritecount = 0;
+hcxwritewldcount = 0;
 
 if(!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	{
@@ -1726,48 +1728,48 @@ if(essidunicodeoutname != NULL)
 free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
-printf("%ld packets processed (total: %ld wlan, %ld lan, %ld loopback)\n", packetcount, wlanpacketcount, ethpacketcount, loopbpacketcount);
+printf("%ld packets processed (%ld wlan, %ld lan, %ld loopback)\n", packetcount, wlanpacketcount, ethpacketcount, loopbpacketcount);
 
 if(hcxwritecount == 1)
 	printf("found %ld usefull wpa handshake\n", hcxwritecount);
 else if(hcxwritecount > 1)
 	printf("found %ld usefull wpa handshakes\n", hcxwritecount);
-hcxwritecount = 0;
 
-if(anecflag == TRUE)
+if(hcxwritewldcount == 1)
+	{
+	printf("\x1B[32mfound %ld valid wpa handshake (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
+	if(wdfhcxoutname != NULL)
+		printf("\x1B[32myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
+	}
+else if(hcxwritewldcount > 1)
+	{
+	printf("\x1B[32mfound %ld valid wpa handshakes (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
+	if(wdfhcxoutname != NULL)
+		printf("\x1B[32myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
+	}
+
+if((anecflag == TRUE) && (wdfhcxoutname == NULL))
 	printf("\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
 
-
-if(wldflag == TRUE)
+if((ancflag == TRUE) && (hcxoutname != NULL))
 	{
-	printf("\x1B[32mfound wlandump forced handshakes inside\x1B[0m\n");
-	if(wdfhcxoutname != NULL)
-		printf("\x1B[33myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
+	if((rctimecount > 2) && (rctimecount <= 4))
+		printf("\x1B[32myou should use hashcat --nonce-error-corrections=16 (or greater) on %s\x1B[0m\n", hcxoutname);
+	if((rctimecount > 4) && (rctimecount <= 8))
+		printf("\x1B[32myou should use hashcat --nonce-error-corrections=32 (or greater) on %s\x1B[0m\n", hcxoutname);
+	if(rctimecount > 8)
+		printf("\x1B[32myou should use hashcat --nonce-error-corrections=64 (or greater) on %s\x1B[0m\n", hcxoutname);
 	}
 
-if(ancflag == TRUE)
+if((ancflag == TRUE) && (nonwdfhcxoutname != NULL))
 	{
-	if(hcxoutname != NULL)
-		{
-		if((rctimecount > 2) && (rctimecount <= 4))
-			printf("\x1B[33myou should use hashcat --nonce-error-corrections=16 on %s\x1B[0m\n", hcxoutname);
-		if((rctimecount > 4) && (rctimecount <= 8))
-			printf("\x1B[33myou should use hashcat --nonce-error-corrections=32 on %s\x1B[0m\n", hcxoutname);
-		if(rctimecount > 8)
-			printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", hcxoutname);
-		}
-
-	if(nonwdfhcxoutname != NULL)
-		{
-		if((rctimecount > 2) && (rctimecount <= 4))
-			printf("\x1B[33myou should use hashcat --nonce-error-corrections=16 on %s\x1B[0m\n", hcxoutname);
-		if((rctimecount > 4) && (rctimecount <= 8))
-			printf("\x1B[33myou should use hashcat --nonce-error-corrections=32 on %s\x1B[0m\n", hcxoutname);
-		if(rctimecount > 8)
-			printf("\x1B[33myou should use hashcat --nonce-error-corrections=64 on %s\x1B[0m\n", hcxoutname);
-		}
+	if((rctimecount > 2) && (rctimecount <= 4))
+		printf("\x1B[32myou should use hashcat --nonce-error-corrections=16 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
+	if((rctimecount > 4) && (rctimecount <= 8))
+		printf("\x1B[32myou should use hashcat --nonce-error-corrections=32 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
+	if(rctimecount > 8)
+		printf("\x1B[32myou should use hashcat --nonce-error-corrections=64 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
 	}
-
 
 
 if(eap3flag == TRUE)
