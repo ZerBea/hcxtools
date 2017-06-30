@@ -1196,8 +1196,38 @@ while(1)
 		continue;
 		}
 
+	else if((macf->type == MAC_TYPE_CTRL) && (staytime <= 5))
+		{
+		if(macf->subtype == MAC_ST_BACK)
+			{
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
+			continue;
+			}
+
+		else if(macf->subtype == MAC_ST_BACK_REQ)
+			{
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
+			continue;
+			}
+
+		else if(macf->subtype == MAC_ST_RTS)
+			{
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
+			}
+		continue;
+		}
+
+	if((macf->type != MAC_TYPE_DATA) || (LLC_SIZE > pkh->len))
+		continue;
+
+	if((((llc_t*)payload)->dsap != LLC_SNAP) || (((llc_t*)payload)->ssap != LLC_SNAP))
+		continue;
+
 	/* check handshake frames */
-	else if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH) && (pkh->len > 26))
+	if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 		if(eap->type == 3)
@@ -1229,43 +1259,19 @@ while(1)
 		continue;
 		}
 		
-	else if((ipv46 == TRUE) && (macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4) && (pkh->len > 34))
+	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{
 		pcap_dump((u_char *)pcapout, pkh, h80211);
 		continue;
 		}
 
-	else if((ipv46 == TRUE) && (macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6) && (pkh->len > 34))
+	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{
 		pcap_dump((u_char *)pcapout, pkh, h80211);
 		continue;
 		}
 
-	else if((macf->type == MAC_TYPE_CTRL) && (staytime <= 5))
-		{
-		if(macf->subtype == MAC_ST_BACK)
-			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-			continue;
-			}
-
-		else if(macf->subtype == MAC_ST_BACK_REQ)
-			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-			continue;
-			}
-
-		else if(macf->subtype == MAC_ST_RTS)
-			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-			}
-		continue;
-		}
-
-	else if((macf->type == MAC_TYPE_DATA) && (staytime <= 5))
+	else if(staytime <= 5)
 		{
 		if(macf->subtype == MAC_ST_NULL)
 			{

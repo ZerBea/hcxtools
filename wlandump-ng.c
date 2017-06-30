@@ -1200,8 +1200,6 @@ apl_t *zeiger;
 clapl_t *zeigerbeacon;
 int pktcount = 0;
 int beaconcount = 0;
-int llctype = 0;
-
 
 printf("capturing (stop with ctrl+c)...\n");
 
@@ -1421,8 +1419,14 @@ while(1)
 		continue;
 		}
 
+	if((macf->type != MAC_TYPE_DATA) || (LLC_SIZE > pkh->len))
+		continue;
+
+	if((((llc_t*)payload)->dsap != LLC_SNAP) || (((llc_t*)payload)->ssap != LLC_SNAP))
+		continue;
+
 	/* check handshake frames */
-	if((macf->type == MAC_TYPE_DATA) && (LLC_SIZE <= pkh->len) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH) && (pkh->len > 0x1a))
+	if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 		if(eap->type == 3)
@@ -1466,7 +1470,7 @@ while(1)
 			continue;
 			}
 
-		if(eap->type == 0)
+		else if(eap->type == 0)
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(macf->from_ds == 1)
@@ -1477,7 +1481,7 @@ while(1)
 			continue;
 			}
 
-		if(eap->type == 1)
+		else if(eap->type == 1)
 			{
 //			pcap_dump((u_char *) pcapout, pkh, h80211);
 			if(eap->len == 0)
@@ -1489,30 +1493,27 @@ while(1)
 			}
 		}
 
-	if((ipv46 == TRUE) && (macf->type == MAC_TYPE_DATA) && (pkh->len >= 0x34))
+
+	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{
-		llctype = be16toh(((llc_t*)payload)->type);
-		if(llctype == LLC_TYPE_IPV4) 
-			{
-			if(macf->from_ds == 1)
-				handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV4);
+		if(macf->from_ds == 1)
+			handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV4);
 
-			if(macf->to_ds == 2)
-				handlextendedflagframes(pkh->ts.tv_sec, macf->addr1.addr, XTENDED_IPV4);
+		if(macf->to_ds == 2)
+			handlextendedflagframes(pkh->ts.tv_sec, macf->addr1.addr, XTENDED_IPV4);
 
-			pcap_dump((u_char *) pcapout, pkh, h80211);
-			}
+		pcap_dump((u_char *) pcapout, pkh, h80211);
+		}
 
-		if(llctype == LLC_TYPE_IPV6) 
-			{
-			if(macf->from_ds == 1)
-				handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV6);
+	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
+		{
+		if(macf->from_ds == 1)
+			handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV6);
 
-			if(macf->to_ds == 2)
-				handlextendedflagframes(pkh->ts.tv_sec, macf->addr1.addr, XTENDED_IPV6);
+		if(macf->to_ds == 2)
+			handlextendedflagframes(pkh->ts.tv_sec, macf->addr1.addr, XTENDED_IPV6);
 
-			pcap_dump((u_char *) pcapout, pkh, h80211);
-			}
+		pcap_dump((u_char *) pcapout, pkh, h80211);
 		}
 	}
 return;
