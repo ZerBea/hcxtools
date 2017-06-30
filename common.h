@@ -210,6 +210,7 @@ struct llc_frame
 };
 typedef struct llc_frame llc_t;
 #define	LLC_SIZE (sizeof(llc_t))
+#define LLC_SNAP 0xaa
 
 
 struct ieee_tag
