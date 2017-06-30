@@ -34,8 +34,10 @@ typedef struct hc5500 hc5500_t;
 
 struct hc5500chap
 {
- char     usernames[258];
- char     usernamec[258];
+ adr_t    mac_ap1;
+ adr_t    mac_sta1;
+ adr_t    mac_ap2;
+ adr_t    mac_sta2;
  uint8_t  id1;
  uint8_t  id2;
  uint8_t  p1;
@@ -44,6 +46,8 @@ struct hc5500chap
  uint8_t  clientchallenge[16];
  uint8_t  authchallenge[8];
  uint8_t  authresponse[24];
+ char     usernames[258];
+ char     usernamec[258];
 } __attribute__((packed));
 typedef struct hc5500chap hc5500chap_t;
 
@@ -121,7 +125,7 @@ memset(&hcleapchap, 0, sizeof(hc5500chap_t));
 return;
 }
 /*===========================================================================*/
-int addpppchap(uint8_t *payload, uint8_t ipflag)
+int addpppchap(uint8_t *mac_1, uint8_t *mac_2, uint8_t *payload, uint8_t ipflag)
 {
 int c;
 ip_frame_t *iph = NULL;
@@ -171,6 +175,8 @@ if(be16toh(pppchaph->length) < 20)
 
 if((pppchaph->code == PPPCHAP_CHALLENGE) && (pppchaph->u.challenge.datalen == 16))
 	{
+	memcpy(&hcleapchap.mac_ap1, mac_2, 6);
+	memcpy(&hcleapchap.mac_sta1, mac_1, 6);
 	hcleapchap.id1 = pppchaph->identifier;
 	memcpy(&hcleapchap.serverchallenge, pppchaph->u.challenge.serverchallenge, 16);
 	memset(&hcleapchap.usernames, 0, 258);
@@ -189,6 +195,8 @@ if((pppchaph->code == PPPCHAP_CHALLENGE) && (pppchaph->u.challenge.datalen == 16
 	}
 if(pppchaph->code == PPPCHAP_RESPONSE)
 	{
+	memcpy(&hcleap.mac_ap2, mac_1, 6);
+	memcpy(&hcleap.mac_sta2, mac_2, 6);
 	hcleapchap.id2 = pppchaph->identifier;
 	memcpy(&hcleapchap.clientchallenge, pppchaph->u.response.clientchallenge, 16);
 	memcpy(&hcleapchap.authresponse, pppchaph->u.response.authresponse, 24);
@@ -224,7 +232,7 @@ memcpy(&hcleapchap.authchallenge,  &digestsha1, 8);
 if((idcheck == TRUE) & (hcleapchap.id1 != hcleapchap.id2))
 	return FALSE;
 
-if((hcleapchap.p1 == TRUE) && (hcleapchap.p2 == TRUE))
+if((hcleapchap.p1 == TRUE) && (hcleapchap.p2 == TRUE) && (memcmp(&hcleapchap.mac_ap1, &hcleapchap.mac_ap2, 6) == 0) && (memcmp(&hcleapchap.mac_sta1, &hcleapchap.mac_sta2, 6) == 0))
 	{
 	if(hc5500outname != NULL)
 		{
@@ -1109,13 +1117,13 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		llctype = be16toh(eth->ether_type);
 		if(llctype == LLC_TYPE_IPV4)
 			{
-			if(addpppchap((uint8_t*)packet +ETHER_SIZE, 4) == TRUE)
+			if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE, 4) == TRUE)
 				pppchapflag = TRUE;
 			ipv4flag = TRUE;
 			}
 		if(llctype == LLC_TYPE_IPV6)
 			{
-			if(addpppchap((uint8_t*)packet +ETHER_SIZE, 6) == TRUE)
+			if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE, 6) == TRUE)
 				pppchapflag = TRUE;
 			ipv6flag = TRUE;
 			}
@@ -1347,13 +1355,13 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				{
 				if((macf->from_ds == 1) && (macf->to_ds == 0) && (eapext->eapcode == EAP_CODE_REQ))
 					{
-					if(addleap( macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
+					if(addleap(macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
 						eap17flag = TRUE;
 					}
 
 				else if((macf->from_ds == 0) && (macf->to_ds == 1) && (eapext->eapcode == EAP_CODE_RESP))
 					{
-					if(addleap( macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
+					if(addleap(macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
 						eap17flag = TRUE;
 					}
 				}
@@ -1503,7 +1511,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(pkh->len < (macl +LLC_SIZE +IP_SIZE_MIN +GRE_MIN_SIZE +PPP_SIZE +PPPCHAPHDR_MIN_CHAL_SIZE))
 				continue;
 
-			if(addpppchap(payload + LLC_SIZE, 4) == TRUE)
+			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE, 4) == TRUE)
 				pppchapflag = TRUE;
 			ipv4flag = TRUE;
 			}
@@ -1515,7 +1523,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(pcapipv46out != NULL)
 				pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
-			if(addpppchap(payload + LLC_SIZE, 6) == TRUE)
+			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE, 6) == TRUE)
 				pppchapflag = TRUE;
 			ipv6flag = TRUE;
 			}
