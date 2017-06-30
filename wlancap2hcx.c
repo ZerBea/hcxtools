@@ -139,7 +139,6 @@ SHA_CTX ctxsha1;
 char *ptr = NULL;
 
 unsigned char digestsha1[SHA_DIGEST_LENGTH];
-
 greh = (gre_frame_t*)(payload);
 
 if(be16toh(greh->type) != GREPROTO_PPP)
@@ -218,6 +217,7 @@ memcpy(&hcleapchap.authchallenge,  &digestsha1, 8);
 
 if((idcheck == TRUE) & (hcleapchap.id1 != hcleapchap.id2))
 	return FALSE;
+
 
 if((hcleapchap.p1 == TRUE) && (hcleapchap.p2 == TRUE) && (memcmp(&hcleapchap.mac_ap1, &hcleapchap.mac_ap2, 6) == 0) && (memcmp(&hcleapchap.mac_sta1, &hcleapchap.mac_sta2, 6) == 0))
 	{
@@ -1120,7 +1120,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 		ipv4flag = TRUE;
 		ipv4h = (ipv4_frame_t*)(packet +LOOPB_SIZE);
-		if((ipv4h->ver_hlen & 0xf0) != 40)
+		if((ipv4h->ver_hlen & 0xf0) != 0x40)
 			continue;
 		if(ipv4h->nextprotocol == NEXTHDR_GRE)
 			{
@@ -1140,7 +1140,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			ipv4flag = TRUE;
 			ipv4h = (ipv4_frame_t*)(packet +ETHER_SIZE);
-			if((ipv4h->ver_hlen & 0xf0) != 40)
+			if((ipv4h->ver_hlen & 0xf0) != 0x40)
 				continue;
 			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
 			if(ipv4h->nextprotocol == NEXTHDR_GRE)
@@ -1551,8 +1551,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 		ipv4h = (ipv4_frame_t*)(payload +LLC_SIZE);
 		ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
-		if((ipv4h->ver_hlen & 0xf0) != 40)
+		if((ipv4h->ver_hlen & 0xf0) != 0x40)
 			continue;
+
 		if(ipv4h->nextprotocol == NEXTHDR_GRE)
 			{
 			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +ipv4hlen) == TRUE)
@@ -1583,7 +1584,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{
 		preautflag = TRUE;
-		printf("%ld\n", packetcount);	
 		continue;
 		}
 
