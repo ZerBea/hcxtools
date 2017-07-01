@@ -1401,9 +1401,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				pcap_dump((u_char *) pcapwepout, pkh, h80211);
 			continue;
 			}
-		}
 		continue;
-
+		}
+	
 	/* check handshake frames */
 	if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
 		{
