@@ -1114,14 +1114,17 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		wcflag = TRUE;
 
 
-	/* check Ethernet-header */
+	/* check Loopback-header */
 	if(datalink == DLT_NULL)
 		{
+		if(LOOPB_SIZE > pkh->len)
+			continue;
 		loopbpacketcount++;
 		loopbh = (loopb_header_t*)packet;
 		if(be32toh(loopbh->family != 2))
 			continue;
-
+		if(LOOPB_SIZE +IPV4_SIZE_MIN > pkh->len)
+			continue;
 		ipv4flag = TRUE;
 		ipv4h = (ipv4_frame_t*)(packet +LOOPB_SIZE);
 		if((ipv4h->ver_hlen & 0xf0) != 0x40)
@@ -1156,8 +1159,12 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	/* check Ethernet-header */
 	if(datalink == DLT_EN10MB)
 		{
+		if(ETHER_SIZE > pkh->len)
+			continue;
 		ethpacketcount++;
 		eth = (ether_header_t*)packet;
+		if(ETHER_SIZE +LLC_SIZE > pkh->len)
+			continue;
 		llctype = be16toh(eth->ether_type);
 		if(llctype == LLC_TYPE_IPV4)
 			{
@@ -1166,23 +1173,19 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if((ipv4h->ver_hlen & 0xf0) != 0x40)
 				continue;
 			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
-
 			if(ipv4h->nextprotocol == NEXTHDR_NONE)
 				continue;
-
 			if(ipv4h->nextprotocol == NEXTHDR_GRE)
 				{
 				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +ipv4hlen) == TRUE)
 					pppchapflag = TRUE;
 				continue;
 				}
-
 			if(ipv4h->nextprotocol == NEXTHDR_TCP)
 				{
 				tcpflag = TRUE;
 				continue;
 				}
-
 			if(ipv4h->nextprotocol == NEXTHDR_UDP)
 				{
 				udpflag = TRUE;
@@ -1196,23 +1199,19 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			ipv6h = (ipv6_frame_t*)(packet +ETHER_SIZE);
 			if(be32toh(ipv6h->ver_class &0xf) != 6)
 				continue;
-
 			if(ipv6h->nextprotocol == NEXTHDR_NONE)
 				continue;
-
 			if(ipv6h->nextprotocol == NEXTHDR_GRE)
 				{
 				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +40) == TRUE)
 					pppchapflag = TRUE;
 				continue;
 				}
-
 			if(ipv6h->nextprotocol == NEXTHDR_TCP)
 				{
 				tcpflag = TRUE;
 				continue;
 				}
-
 			if(ipv6h->nextprotocol == NEXTHDR_UDP)
 				{
 				udpflag = TRUE;
@@ -1223,6 +1222,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		}
 
 	wlanpacketcount++;
+
 	/* check 802.11-header */
 	if(datalink == DLT_IEEE802_11)
 		h80211 = packet;
@@ -1282,6 +1282,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 	payload = ((uint8_t*)macf)+macl;
 
+
 	/* check management frames */
 	if(macf->type == MAC_TYPE_MGMT)
 		{
@@ -1289,7 +1290,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
-
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1306,6 +1308,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1323,7 +1327,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
-
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1339,9 +1344,11 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		/* check associationrequest - reassociationrequest frames */
 		else if(macf->subtype == MAC_ST_ASSOC_REQ)
 			{
-			essidf = (essid_t*)(payload +ASSOCIATIONREQF_SIZE);
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+			if((macl +ASSOCIATIONREQF_SIZE) > pkh->len)
+				continue;
+			essidf = (essid_t*)(payload +ASSOCIATIONREQF_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
 			if(essidf->info_essid_len > 32)
@@ -1357,6 +1364,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+			if((macl +REASSOCIATIONREQF_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +REASSOCIATIONREQF_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1371,7 +1380,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 		}
 
-	if((macf->type != MAC_TYPE_DATA) || (LLC_SIZE > pkh->len))
+	if((macf->type != MAC_TYPE_DATA) || (macl +LLC_SIZE > pkh->len))
 		continue;
 
 	if((((llc_t*)payload)->dsap != LLC_SNAP) || (((llc_t*)payload)->ssap != LLC_SNAP))
@@ -1633,7 +1642,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 		}
 
-	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
+	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
 		{
 		ipv6flag = TRUE;
 		if(pcapout != NULL)
@@ -1670,13 +1679,13 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 		}
 
-	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
+	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_PREAUT))
 		{
 		preautflag = TRUE;
 		continue;
 		}
 
-	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
+	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_FRRR))
 		frrrflag = TRUE;
 	}
 

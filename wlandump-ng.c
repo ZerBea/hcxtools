@@ -1302,6 +1302,8 @@ while(1)
 		{
 		if(macf->subtype == MAC_ST_BEACON)
 			{
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1316,12 +1318,13 @@ while(1)
 
 		else if(macf->subtype == MAC_ST_PROBE_RESP)
 			{
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-
 			if(handleproberesponseframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
 				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
@@ -1332,12 +1335,13 @@ while(1)
 
 		else if(macf->subtype == MAC_ST_PROBE_REQ)
 			{
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload);
 			if(essidf->info_essid != 0)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-
 			if(memcmp(&broadcastmac, macf->addr1.addr, 6) == 0)
 				{
 				if(handleproberequestframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
@@ -1357,17 +1361,17 @@ while(1)
 
 		else if(macf->subtype == MAC_ST_ASSOC_REQ)
 			{
+			if((macl +ASSOCIATIONREQF_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +ASSOCIATIONREQF_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-
 			if(handleassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == FALSE)
 				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 				}
-
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_ASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
@@ -1376,17 +1380,17 @@ while(1)
 
 		else if(macf->subtype == MAC_ST_REASSOC_REQ)
 			{
+			if((macl +REASSOCIATIONREQF_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +REASSOCIATIONREQF_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-
 			if(handlereassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == FALSE)
 				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 				}
-
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_REASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
@@ -1419,7 +1423,7 @@ while(1)
 		continue;
 		}
 
-	if((macf->type != MAC_TYPE_DATA) || (LLC_SIZE > pkh->len))
+	if((macf->type != MAC_TYPE_DATA) || (macl +LLC_SIZE > pkh->len))
 		continue;
 
 	if((((llc_t*)payload)->dsap != LLC_SNAP) || (((llc_t*)payload)->ssap != LLC_SNAP))
@@ -1492,7 +1496,6 @@ while(1)
 			continue;
 			}
 		}
-
 
 	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{

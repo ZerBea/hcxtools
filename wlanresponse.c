@@ -1048,6 +1048,7 @@ while(1)
 			if (macf->subtype & MAC_ST_QOSDATA)
 				macl += QOS_SIZE;
 		}
+
 	payload = ((uint8_t*)macf)+macl;
 
 	if(lastbeaconing == TRUE)
@@ -1072,6 +1073,8 @@ while(1)
 		{
 		if(macf->subtype == MAC_ST_BEACON)
 			{
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1090,6 +1093,8 @@ while(1)
 
 		else if(macf->subtype == MAC_ST_PROBE_RESP)
 			{
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1108,6 +1113,8 @@ while(1)
 
 		else if(macf->subtype == MAC_ST_PROBE_REQ)
 			{
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1115,7 +1122,6 @@ while(1)
 				continue;
 			if(essidf->essid[0] == 0)
 				continue;
-
 			if(memcmp(broadcastaddr.addr, macf->addr1.addr, 6) == 0)
 				{
 				if(handleproberequestframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
@@ -1136,6 +1142,8 @@ while(1)
 
 		else if(macf->subtype == MAC_ST_ASSOC_REQ)
 			{
+			if((macl +ASSOCIATIONREQF_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +ASSOCIATIONREQF_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1153,8 +1161,10 @@ while(1)
 			continue;
 			}
 
-		else if(macf->subtype == MAC_ST_REASSOC_REQ)
+		else if(macf->subtype == REASSOCIATIONREQF_SIZE)
 			{
+			if((macl +REASSOCIATIONREQF_SIZE) > pkh->len)
+				continue;
 			essidf = (essid_t*)(payload +REASSOCIATIONREQF_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
@@ -1220,7 +1230,7 @@ while(1)
 		continue;
 		}
 
-	if((macf->type != MAC_TYPE_DATA) || (LLC_SIZE > pkh->len))
+	if((macf->type != MAC_TYPE_DATA) || (macl +LLC_SIZE > pkh->len))
 		continue;
 
 	if((((llc_t*)payload)->dsap != LLC_SNAP) || (((llc_t*)payload)->ssap != LLC_SNAP))
