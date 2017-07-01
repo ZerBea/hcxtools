@@ -1286,7 +1286,7 @@ while(1)
 		continue;
 		}
 
-	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
+	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
 		{
 		pcap_dump((u_char *)pcapout, pkh, h80211);
 		continue;
