@@ -1758,9 +1758,9 @@ pcap_close(pcapin);
 printf("%ld packets processed (%ld wlan, %ld lan, %ld loopback)\n", packetcount, wlanpacketcount, ethpacketcount, loopbpacketcount);
 
 if(hcxwritecount == 1)
-	printf("found %ld usefull wpa handshake\n", hcxwritecount);
+	printf("\x1B[32mfound %ld usefull wpa handshake\x1B[0m\n", hcxwritecount);
 else if(hcxwritecount > 1)
-	printf("found %ld usefull wpa handshakes\n", hcxwritecount);
+	printf("\x1B[32mfound %ld usefull wpa handshakes\x1B[0m\n", hcxwritecount);
 
 if(hcxwritewldcount == 1)
 	{
