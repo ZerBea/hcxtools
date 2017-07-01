@@ -55,7 +55,7 @@ struct aplist
 {
  long int	tv_sec;  
  adr_t		addr_ap;
- uint8_t	deauthflag;
+ uint8_t	deauthcount;
  uint8_t	essid_len;
  uint8_t	essid[32];
 };
@@ -629,10 +629,11 @@ for(c = 0; c < RINGBUFFERSIZE; c++)
 	if((memcmp(zeiger->addr_ap.addr, mac_ap, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
-		if(zeiger->deauthflag == FALSE)
+		zeiger->deauthcount++;
+		if(zeiger->deauthcount >= (staytime *5))
 			{
-			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastaddr.addr, zeiger->addr_ap.addr);
-			zeiger->deauthflag = TRUE;
+			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_UNSPECIFIED, broadcastaddr.addr, zeiger->addr_ap.addr);
+			zeiger->deauthcount = 0;
 			}
 		return TRUE;
 		}
@@ -645,8 +646,8 @@ memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
-senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastaddr.addr, zeiger->addr_ap.addr);
-zeiger->deauthflag = TRUE;
+senddeauth(MAC_ST_DEAUTH, WLAN_REASON_UNSPECIFIED, broadcastaddr.addr, zeiger->addr_ap.addr);
+zeiger->deauthcount = 0;
 qsort(beaconliste, RINGBUFFERSIZE +1, APL_SIZE, sortaplist_by_time);
 return FALSE;
 }
@@ -970,8 +971,6 @@ int macl = 0;
 int fcsl = 0;
 eap_t *eap = NULL;
 uint8_t mkey;
-apl_t *zeiger;
-int c;
 int packetcount = 0;
 int proberequestcount = 0;
 apl_t *zeigerproberequest = proberequestliste;
@@ -994,15 +993,7 @@ while(1)
 		{
 		channel++;
 		if(channel > 13)
-			{
 			channel = 1;
-			zeiger = beaconliste;
-			for(c = 0; c < RINGBUFFERSIZE; c++)
-				{
-				zeiger->deauthflag = FALSE;
-				zeiger++;
-				}
-			}
 		setchannel();
 		continue;
 		}
@@ -1194,41 +1185,32 @@ while(1)
 				}
 			continue;
 			}
-
-		else if((macf->subtype == MAC_ST_ACTION) && (staytime <= 5))
-			{
-			if(memcmp(broadcastaddr.addr, macf->addr1.addr, 6) == 0)
-				{
-				senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastaddr.addr, macf->addr2.addr);
-				continue;
-				}
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-			}
 		continue;
 		}
 
-	else if((macf->type == MAC_TYPE_CTRL) && (staytime <= 5))
+	if((macf->type == MAC_TYPE_CTRL) && (staytime <= 10))
 		{
 		if(macf->subtype == MAC_ST_BACK)
 			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
+			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_UNSPECIFIED, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_UNSPECIFIED, macf->addr2.addr,  macf->addr1.addr);
 			continue;
 			}
 
-		else if(macf->subtype == MAC_ST_BACK_REQ)
+		if(macf->subtype == MAC_ST_BACK_REQ)
 			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
+			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_UNSPECIFIED, macf->addr1.addr,  macf->addr2.addr);
+			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_UNSPECIFIED, macf->addr2.addr,  macf->addr1.addr);
 			continue;
 			}
 
-		else if(macf->subtype == MAC_ST_RTS)
-			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-			}
+		continue;
+		}
+
+	if((macf->type == MAC_TYPE_DATA) && ((macf->subtype == MAC_ST_NULL) || (macf->subtype == MAC_ST_QOSNULL)) && (staytime <= 10))
+		{
+		senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_STA_HAS_LEFT, macf->addr1.addr,  macf->addr2.addr);
+		senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, macf->addr2.addr,  macf->addr1.addr);
 		continue;
 		}
 
@@ -1289,32 +1271,6 @@ while(1)
 	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
 		{
 		pcap_dump((u_char *)pcapout, pkh, h80211);
-		continue;
-		}
-
-	else if(staytime <= 5)
-		{
-		if(macf->subtype == MAC_ST_NULL)
-			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-			continue;
-			}
-
-		if(macf->subtype == MAC_ST_QOSNULL)
-			{
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr1.addr,  macf->addr2.addr);
-			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr1.addr);
-			continue;
-			}
-
-		if(memcmp(broadcastaddr.addr, macf->addr1.addr, 6) == 0)
-			{
-			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastaddr.addr, macf->addr3.addr);
-			continue;
-			}
-		senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr,  macf->addr3.addr);
-		senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr3.addr,  macf->addr2.addr);
 		continue;
 		}
 	}
@@ -1429,14 +1385,29 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-i <interface> : WLAN interface\n"
 	"-o <file>      : output cap file\n"
-	"-b             : activate beaconing on last 10 proberequests\n"
 	"-t <seconds>   : stay time on channel before hopping to the next channel\n"
 	"               : default: %d seconds\n"
 	"-l             : capture IPv4 and IPv6 packets\n"
 	"-L             : capture wep encrypted data packets\n"
+	"-b             : activate beaconing on last 10 proberequests\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, staytime);
+	"\n"
+	"%s is not a cracking tool like hashcat\n"
+	"it is designed to run penetrationtests on your WiFi network\n"
+	"\n"
+	"deauthentication depends on option -t (*5) and beaconinterval of accesspoint\n"
+	"disassociation depends on option -t (<=10)\n"
+	"examples:\n"
+	"-t 3     = deauthenticate every 15 beacons\n"
+	"           disassociate every NULL, QOSNULL, BLock Ack Request, Block Ack\n"
+	"-t 10    = deauthenticate every 50 beacons\n"
+	"           disassociate every NULL, QOSNULL, BLock Ack Request, Block Ack\n"
+	"-t 11    = deauthenticate every 55 beacons\n"
+	"           do not disassociate every NULL, QOSNULL, BLock Ack Request, Block Ack\n"
+	"-t 86400 = deauthenticate every 432000 beacons\n"
+	"           do not disassociate every NULL, QOSNULL, BLock Ack Request, Block Ack\n"
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, staytime, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
