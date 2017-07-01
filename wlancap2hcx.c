@@ -68,7 +68,6 @@ struct hc4800
 typedef struct hc4800 hc4800_t;
 
 
-
 /*===========================================================================*/
 /* globale Variablen */
 
@@ -92,6 +91,7 @@ long int hcxwritewldcount = 0;
 pcap_dumper_t *pcapout = NULL;
 pcap_dumper_t *pcapextout = NULL;
 pcap_dumper_t *pcapipv46out = NULL;
+pcap_dumper_t *pcapwepout = NULL;
 
 uint8_t netexact = FALSE;
 uint8_t replaycountcheck = FALSE;
@@ -945,6 +945,8 @@ essid_t *essidf = NULL;
 const uint8_t *packet = NULL;
 const uint8_t *h80211 = NULL;
 uint8_t	*payload = NULL;
+mpdu_frame_t* enc = NULL;
+int encsystem = 0;
 netdb_t *zeigernet;
 FILE *fhessid = NULL;
 int macl = 0;
@@ -1025,6 +1027,9 @@ uint8_t tcpflag = FALSE;
 uint8_t udpflag = FALSE;
 uint8_t preautflag = FALSE;
 uint8_t frrrflag = FALSE;
+
+uint8_t wepdataflag = FALSE;
+uint8_t wpadataflag = FALSE;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
@@ -1282,7 +1287,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 	payload = ((uint8_t*)macf)+macl;
 
-
 	/* check management frames */
 	if(macf->type == MAC_TYPE_MGMT)
 		{
@@ -1384,6 +1388,20 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 
 	if((((llc_t*)payload)->dsap != LLC_SNAP) || (((llc_t*)payload)->ssap != LLC_SNAP))
+		{
+		if(macf->protected == 1)
+			{
+			enc = (mpdu_frame_t*)(payload);
+			encsystem = (enc->keyid >> 5) &1;
+			if(encsystem == 0)
+				wepdataflag = TRUE;
+			if(encsystem == 1)
+				wpadataflag = TRUE;
+			if((encsystem == 0) && (pcapwepout != NULL))
+				pcap_dump((u_char *) pcapwepout, pkh, h80211);
+			continue;
+			}
+		}
 		continue;
 
 	/* check handshake frames */
@@ -1938,6 +1956,13 @@ if(eap255flag == TRUE)
 	printf("\x1B[36mfound Experimental Authentication\x1B[0m\n");
 
 
+if(preautflag == TRUE)
+	printf("\x1B[35mPre-Authentication detected\x1B[0m\n");
+
+if(frrrflag == TRUE)
+	printf("\x1B[35mfound Fast Roaming Remote Request\x1B[0m\n");
+
+
 if(ipv4flag == TRUE)
 	printf("\x1B[35mfound IPv4 packets\x1B[0m\n");
 
@@ -1953,12 +1978,11 @@ if(udpflag == TRUE)
 if(pppchapflag == TRUE)
 	printf("\x1B[35mfound PPP CHAP Authentication packets (hashcat -m 5500)\x1B[0m\n");
 
+if(wpadataflag == TRUE)
+	printf("\x1B[35mfound wpa encrypted data packets\x1B[0m\n");
 
-if(preautflag == TRUE)
-	printf("\x1B[35mPre-Authentication detected\x1B[0m\n");
-
-if(frrrflag == TRUE)
-	printf("\x1B[35mfound Fast Roaming Remote Request\x1B[0m\n");
+if(wepdataflag == TRUE)
+	printf("\x1B[35mfound wep encrypted data packets\x1B[0m\n");
 
 
 if(wcflag == TRUE)
@@ -1981,6 +2005,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-p <file> : output merged pcap file\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
 	"-l <file> : output IPv4/IPv6 packets pcap file (analysis purpose)\n"
+	"-L <file> : output wep encrypted data packets pcap file\n"
 	"-m <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP): use hashcat -m 4800)\n"
 	"-n <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
@@ -2000,6 +2025,7 @@ int main(int argc, char *argv[])
 pcap_t *pcapdh = NULL;
 pcap_t *pcapextdh = NULL;
 pcap_t *pcapipv46dh = NULL;
+pcap_t *pcapwepdh = NULL;
 
 int auswahl;
 int index;
@@ -2009,6 +2035,7 @@ char *eigenpfadname = NULL;
 char *pcapoutname = NULL;
 char *pcapextoutname = NULL;
 char *pcapipv46outname = NULL;
+char *pcapwepoutname = NULL;
 char *essidoutname = NULL;
 char *essidunicodeoutname = NULL;
 
@@ -2016,7 +2043,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:e:E:w:W:u:xrihv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:w:W:u:xrihv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2050,6 +2077,10 @@ while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:e:E:w:W:u:xrihv")) != -1)
 
 		case 'l':
 		pcapipv46outname = optarg;
+		break;
+
+		case 'L':
+		pcapwepoutname = optarg;
 		break;
 
 		case 'e':
@@ -2110,6 +2141,14 @@ if(pcapipv46outname != NULL)
 		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapipv46outname);
 	}
 
+if(pcapwepoutname != NULL)
+	{
+	pcapwepdh = pcap_open_dead(DLT_IEEE802_11, 65535);
+	if ((pcapwepout = pcap_dump_open(pcapwepdh, pcapwepoutname)) == NULL)
+		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapwepoutname);
+	}
+
+
 memset(&oldhcxrecord, 0, HCX_SIZE);
 for (index = optind; index < argc; index++)
 	{
@@ -2130,6 +2169,10 @@ for (index = optind; index < argc; index++)
 		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
 
 	}
+
+
+if(pcapwepout != NULL)
+	pcap_dump_close(pcapwepout);
 
 if(pcapipv46out != NULL)
 	pcap_dump_close(pcapipv46out);

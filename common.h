@@ -285,6 +285,16 @@ typedef struct reassociationreqf reassocreq_t;
 #define	REASSOCIATIONREQF_SIZE (sizeof(reassocreq_t))
 
 
+struct mpdu_frame
+{
+ uint8_t pn[3];
+ uint8_t keyid;
+ uint8_t exitiv[4];
+};
+typedef struct mpdu_frame mpdu_frame_t;
+#define	MPDUF_SIZE (sizeof(mpdu_frame_t))
+
+
 struct eap_frame
 {
  uint8_t	version;
