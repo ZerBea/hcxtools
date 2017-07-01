@@ -97,6 +97,7 @@ uint16_t mysequencenr = 1;
 int staytime = TIME_INTERVAL_2S;
 uint8_t modepassiv = FALSE;
 uint8_t ipv46 = FALSE;
+uint8_t wepdata = FALSE;
 int deauthmaxcount = DEAUTHMAXCOUNT;
 int disassocmaxcount = DISASSOCMAXCOUNT;
 uint8_t resetdedicount = FALSE;
@@ -1189,6 +1190,7 @@ essid_t *essidf;
 uint8_t	*payload = NULL;
 uint8_t field = 0;
 authf_t *authenticationreq = NULL;
+mpdu_frame_t *enc = NULL;
 int pcapstatus = 1;
 int macl = 0;
 int fcsl = 0;
@@ -1427,7 +1429,16 @@ while(1)
 		continue;
 
 	if((((llc_t*)payload)->dsap != LLC_SNAP) || (((llc_t*)payload)->ssap != LLC_SNAP))
+		{
+		if(macf->protected == 1)
+			{
+			enc = (mpdu_frame_t*)(payload);
+			if((wepdata == TRUE) && (((enc->keyid >> 5) &1) == 0))
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			continue;
+			}
 		continue;
+		}
 
 	/* check handshake frames */
 	if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
@@ -1659,6 +1670,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"               : default = 0 (no status output)\n"
 	"-p             : passive (do not transmit)\n"
 	"-l             : capture IPv4 and IPv6 packets\n"
+	"-L             : capture wep encrypted data packets\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
 	"\n"
@@ -1726,7 +1738,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbplhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbplLhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1818,6 +1830,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbplhv")) != -1)
 
 		case 'l':
 		ipv46 = TRUE;
+		break;
+
+		case 'L':
+		wepdata = TRUE;
 		break;
 
 		case 's':

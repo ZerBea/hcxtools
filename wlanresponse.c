@@ -102,6 +102,7 @@ staapl_t *associationrequestliste = NULL;
 staapl_t *reassociationrequestliste = NULL;
 
 uint8_t ipv46 = FALSE;
+uint8_t wepdata = FALSE;
 
 char *interfacename = NULL;
 
@@ -963,6 +964,7 @@ essid_t *essidf;
 uint8_t	*payload = NULL;
 uint8_t field = 0;
 authf_t *authenticationreq = NULL;
+mpdu_frame_t *enc = NULL;
 int pcapstatus = 1;
 int macl = 0;
 int fcsl = 0;
@@ -1234,7 +1236,16 @@ while(1)
 		continue;
 
 	if((((llc_t*)payload)->dsap != LLC_SNAP) || (((llc_t*)payload)->ssap != LLC_SNAP))
+		{
+		if(macf->protected == 1)
+			{
+			enc = (mpdu_frame_t*)(payload);
+			if((wepdata == TRUE) && (((enc->keyid >> 5) &1) == 0))
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			continue;
+			}
 		continue;
+		}
 
 	/* check handshake frames */
 	if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
@@ -1422,6 +1433,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-t <seconds>   : stay time on channel before hopping to the next channel\n"
 	"               : default: %d seconds\n"
 	"-l             : capture IPv4 and IPv6 packets\n"
+	"-L             : capture wep encrypted data packets\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, staytime);
@@ -1449,7 +1461,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:lbhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:lLbhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1481,6 +1493,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:lbhv")) != -1)
 
 		case 'l':
 		ipv46 = TRUE;
+		break;
+
+		case 'L':
+		wepdata = TRUE;
 		break;
 
 		case 'h':
