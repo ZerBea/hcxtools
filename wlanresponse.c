@@ -629,7 +629,7 @@ for(c = 0; c < RINGBUFFERSIZE; c++)
 	if((memcmp(zeiger->addr_ap.addr, mac_ap, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
-		zeiger->deauthcount++;
+		zeiger->deauthcount += 1;
 		if(zeiger->deauthcount >= (staytime *5))
 			{
 			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_UNSPECIFIED, broadcastaddr.addr, zeiger->addr_ap.addr);
