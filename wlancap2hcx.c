@@ -1757,6 +1757,8 @@ free(netdbdata);
 pcap_close(pcapin);
 printf("%ld packets processed (%ld wlan, %ld lan, %ld loopback)\n", packetcount, wlanpacketcount, ethpacketcount, loopbpacketcount);
 
+hcxwritecount -= hcxwritewldcount;
+
 if(hcxwritecount == 1)
 	printf("\x1B[32mfound %ld usefull wpa handshake\x1B[0m\n", hcxwritecount);
 else if(hcxwritecount > 1)
