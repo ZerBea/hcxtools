@@ -1625,8 +1625,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{
 		ipv4flag = TRUE;
-		if(pcapout != NULL)
-			pcap_dump((u_char *) pcapout, pkh, h80211);
 		if(pcapipv46out != NULL)
 			pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
@@ -1644,7 +1642,11 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(ipv4h->nextprotocol == NEXTHDR_GRE)
 			{
 			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +ipv4hlen) == TRUE)
+				{
+				if(pcapout != NULL)
+					pcap_dump((u_char *) pcapout, pkh, h80211);
 				pppchapflag = TRUE;
+				}
 			continue;
 			}
 
@@ -1663,8 +1665,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
 		{
 		ipv6flag = TRUE;
-		if(pcapout != NULL)
-			pcap_dump((u_char *) pcapout, pkh, h80211);
 		if(pcapipv46out != NULL)
 			pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
@@ -1678,7 +1678,11 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(ipv6h->nextprotocol == NEXTHDR_GRE)
 			{
 			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +40) == TRUE)
+				{
+				if(pcapout != NULL)
+					pcap_dump((u_char *) pcapout, pkh, h80211);
 				pppchapflag = TRUE;
+				}
 			continue;
 			}
 
@@ -2004,7 +2008,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <file> : output hccapx file (wpa/wpa2: use hashcat -m 2500)\n"
 	"-w <file> : output only wlandump forced to hccapx file\n"
 	"-W <file> : output only not wlandump forced to hccapx file\n"
-	"-p <file> : output merged pcap file\n"
+	"-p <file> : output merged pcap file (upload this file to http://wpa-sec.stanev.org)\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
 	"-l <file> : output IPv4/IPv6 packets pcap file (analysis purpose)\n"
 	"-L <file> : output wep encrypted data packets pcap file\n"
