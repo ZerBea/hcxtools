@@ -927,7 +927,7 @@ for(p = 0; p < essid_len; p++)
 return TRUE;
 }
 /*===========================================================================*/
-int processcap(char *pcapinname, char *essidoutname, char *essidunicodeoutname)
+int processcap(char *pcapinname, char *essidoutname, char *essidunicodeoutname, char *pmkoutname)
 {
 struct stat statinfo;
 struct bpf_program filter;
@@ -949,6 +949,7 @@ mpdu_frame_t* enc = NULL;
 int encsystem = 0;
 netdb_t *zeigernet;
 FILE *fhessid = NULL;
+FILE *fhpmk = NULL;
 int macl = 0;
 int fcsl = 0;
 uint8_t field = 0;
@@ -1756,6 +1757,31 @@ if(essidunicodeoutname != NULL)
 	fclose(fhessid);
 	}
 
+if(pmkoutname != NULL)
+	{
+	if((fhpmk = fopen(pmkoutname, "a")) == NULL)
+		{
+		fprintf(stderr, "error opening essid file %s\n", pmkoutname);
+		exit(EXIT_FAILURE);
+		}
+
+	zeigernet = netdbdata;
+	for(c = 0; c < netdbrecords; c++)
+		{
+		if(zeigernet->essid_len == 32)
+			{
+			for(c1 = 0; c1 < 32; c1++)
+				fprintf(fhpmk, "%02x", zeigernet->essid[c1]);
+			fprintf(fhpmk, "\n");
+			}
+
+		zeigernet++;
+		}
+
+	fclose(fhpmk);
+	}
+
+
 free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
@@ -2016,6 +2042,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-n <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication: use hashcat -m 5500)\n"
 	"-e <file> : output wordlist to use as hashcat input wordlist\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
+	"-f <file> : output possible wpa/wpa2 pmk list (hashcat -m 2501)\n"
 	"-u <file> : output usernames/identities file\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"-r        : enable replaycountcheck\n"
@@ -2044,12 +2071,13 @@ char *pcapipv46outname = NULL;
 char *pcapwepoutname = NULL;
 char *essidoutname = NULL;
 char *essidunicodeoutname = NULL;
+char *pmkoutname = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:w:W:u:xrihv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:f:w:W:u:xrihv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2097,10 +2125,13 @@ while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:w:W:u:xrihv")) != -1)
 		essidunicodeoutname = optarg;
 		break;
 
+		case 'f':
+		pmkoutname = optarg;
+		break;
+
 		case 'u':
 		usernameoutname = optarg;
 		break;
-
 
 		case 'x':
 		netexact = TRUE;
@@ -2171,7 +2202,7 @@ for (index = optind; index < argc; index++)
 			fprintf(stderr, "\x1B[31mfile skipped (inputname = outputname) %s\x1B[0m\n", (argv[index]));
 			continue;	
 			}
-	if(processcap(argv[index], essidoutname, essidunicodeoutname) == FALSE)
+	if(processcap(argv[index], essidoutname, essidunicodeoutname, pmkoutname) == FALSE)
 		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
 
 	}
