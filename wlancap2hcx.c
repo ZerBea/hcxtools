@@ -1268,7 +1268,11 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		}
 
 	macf = (mac_t*)(h80211);
-	macl = MAC_SIZE_NORM;
+	if((macf->to_ds == 1) && (macf->from_ds == 1))
+		macl = MAC_SIZE_LONG;
+	else
+		macl = MAC_SIZE_NORM;
+
 	if (macf->type == MAC_TYPE_CTRL)
 		{
 		if (macf->subtype == MAC_ST_RTS)
@@ -1285,7 +1289,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if (macf->subtype & MAC_ST_QOSDATA)
 				macl += QOS_SIZE;
 		}
-
 	payload = ((uint8_t*)macf)+macl;
 
 	/* check management frames */

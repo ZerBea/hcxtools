@@ -1265,7 +1265,11 @@ while(1)
 		}
 
 	macf = (mac_t*)(h80211);
-	macl = MAC_SIZE_NORM;
+	if((macf->to_ds == 1) && (macf->from_ds == 1))
+		macl = MAC_SIZE_LONG;
+	else
+		macl = MAC_SIZE_NORM;
+
 	if (macf->type == MAC_TYPE_CTRL)
 		{
 		if (macf->subtype == MAC_ST_RTS)
