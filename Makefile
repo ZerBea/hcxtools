@@ -32,6 +32,7 @@ endif
 	$(CC) $(CFLAGS) -o wlanhcx2john wlanhcx2john.c
 	$(CC) $(CFLAGS) -o wlanhcxinfo wlanhcxinfo.c
 	$(CC) $(CFLAGS) -o wlanhcxmnc wlanhcxmnc.c
+	$(CC) $(CFLAGS) -o wlancow2hcxpmk wlancow2hcxpmk.c
 	$(CC) $(CFLAGS) -o whoismac whoismac.c -lcurl
 	$(CC) $(CFLAGS) -o pwhash pwhash.c -lcrypto
 	$(CC) $(CFLAGS) -o wlancap2wpasec wlancap2wpasec.c -lcurl
@@ -53,6 +54,7 @@ endif
 	install -D -m 0755 wlanhcx2john $(INSTALLDIR)/wlanhcx2john
 	install -D -m 0755 wlanhcxinfo $(INSTALLDIR)/wlanhcxinfo
 	install -D -m 0755 wlanhcxmnc $(INSTALLDIR)/wlanhcxmnc
+	install -D -m 0755 wlancow2hcxpmk $(INSTALLDIR)/wlancow2hcxpmk
 	install -D -m 0755 whoismac $(INSTALLDIR)/whoismac
 	install -D -m 0755 pwhash $(INSTALLDIR)/pwhash
 	install -D -m 0755 wlancap2wpasec $(INSTALLDIR)/wlancap2wpasec
@@ -72,6 +74,7 @@ endif
 	rm -f wlanhcx2john
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
+	rm -f wlancow2hcxpmk
 	rm -f whoismac
 	rm -f pwhash
 	rm -f wlancap2wpasec
@@ -94,6 +97,7 @@ endif
 	rm -f wlanhcx2john
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
+	rm -f wlancow2hcxpmk
 	rm -f whoismac
 	rm -f pwhash
 	rm -f wlancap2wpasec
@@ -117,6 +121,7 @@ endif
 	rm -f $(INSTALLDIR)/wlanhcx2john
 	rm -f $(INSTALLDIR)/wlanhcxinfo
 	rm -f $(INSTALLDIR)/wlanhcxmnc
+	rm -f $(INSTALLDIR)/wlancow2hcxpmk
 	rm -f $(INSTALLDIR)/whoismac
 	rm -f $(INSTALLDIR)/pwhash
 	rm -f $(INSTALLDIR)/wlancap2wpasec
