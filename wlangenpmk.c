@@ -31,7 +31,7 @@ memcpy(&salt, essidname, essidlen);
 fprintf(stdout, "\n"
 		"essid (networkname): %s\n"
 		"password...........: %s\n"
-		"planmasterkey......: "
+		"plainmasterkey.....: "
 		, essidname, pwname);
 if( PKCS5_PBKDF2_HMAC_SHA1(password, pwlen, salt, essidlen, 4096, 32, pmk) != 0 )
 	{
