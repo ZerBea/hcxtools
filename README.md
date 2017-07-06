@@ -4,10 +4,11 @@ hcxtools
 Small set of tools to capture and convert packets from wlan devices
 for the use with latest hashcat. The tools are 100% compatible to hashcat
 and recommended by hashcat (that means hcxtools 3.6.0 working with
-hashcat 3.6.0). After capturing, upload the "uncleaned" cap
-here (http://wpa-sec.stanev.org/?submit) to see if your ap is vulnerable
+hashcat 3.6.0). Support for hashcat hash-modes (2500, 2501, 4800, 5500).
+After capturing, upload the "uncleaned" cap here
+(http://wpa-sec.stanev.org/?submit) to see if your ap is vulnerable
 by using common wordlists. Convert the cap to hccapx and check if wlan-key
-was transmitted unencrypted (wlancap2hcx -e option).
+or plainmasterkey was transmitted unencrypted.
 
 Brief description
 --------------
@@ -36,6 +37,8 @@ Detailed description
 | wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                      |
 | wlanhcxmnc     | Manually do nonce correction on byte number xx of a nonce                                            |
 | wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                    |
+| wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                         |
+| wlangenpmk     | Generates plainmasterkey from essid and password                                                     |
 | whoismac       | Show vendor information                                                                              |
 | pwhash         | Generate hash of a word by using a given charset                                                     |
 
