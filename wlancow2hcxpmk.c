@@ -67,7 +67,6 @@ void cowprocess(FILE *fhcowin, FILE *fhpwout, FILE *fhpmkpwout, FILE *fhpmkout, 
 
 int rd, c;
 uint8_t pwlen = 0;
-
 cow_head_t cowh;
 
 uint8_t recsize;
@@ -77,7 +76,7 @@ char passwort[66];
 rd = fread(&cowh, COWHEAD_SIZE, 1, fhcowin);
 if(rd != 1)
 	{
-	fprintf(stderr, "error reading cowpatty file header %ld %d\n",COWHEAD_SIZE , rd);
+	fprintf(stderr, "error reading cowpatty file header\n");
 	return;
 	}
 
