@@ -13,6 +13,19 @@
 #include <openssl/evp.h>
 #include "common.h"
 
+#define COWPATTY_SIGNATURE 0x43575041L
+
+struct cow_head
+{
+ uint32_t magic;
+ uint8_t reserved1[3];
+ uint8_t essidlen;
+ uint8_t essid[32];
+};
+typedef struct cow_head cow_head_t;
+#define	COWHEAD_SIZE (sizeof(cow_head_t))
+
+
 /*===========================================================================*/
 /* globale Variablen */
 
@@ -63,18 +76,35 @@ len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
-void filepmkout(FILE *pwlist, FILE *fhascii,  FILE *fhasciipw, char *essidname, int essidlen)
+void filepmkout(FILE *pwlist, FILE *fhascii,  FILE *fhasciipw, FILE *fhcow, char *essidname, uint8_t essidlen)
 {
 int pwlen;
 int c;
+int cr;
+cow_head_t cow;
+uint8_t cowreclen = 0;
 long int pmkcount = 0;
 long int skippedcount = 0;
 unsigned char salt[64];
 char password[64];
 unsigned char pmk[64];
-memcpy(&salt, essidname, essidlen);
+
 
 signal(SIGINT, programmende);
+memcpy(&salt, essidname, essidlen);
+if((fhcow != NULL) && (essidname != NULL))
+	{
+	memset(&cow, 0, COWHEAD_SIZE);
+	cow.magic = COWPATTY_SIGNATURE;
+	memcpy(cow.essid, essidname, essidlen);
+	cow.essidlen = essidlen;
+	cr = fwrite(&cow, COWHEAD_SIZE, 1, fhcow);
+	if(cr != 1)
+		{
+		fprintf(stderr, "error writing cowpatty file\n");
+		exit(EXIT_FAILURE);
+		}
+	}
 
 while((progende != TRUE) && ((pwlen = fgetline(pwlist, 64, password)) != -1))
 	{
@@ -86,6 +116,23 @@ while((progende != TRUE) && ((pwlen = fgetline(pwlist, 64, password)) != -1))
 
 	if( PKCS5_PBKDF2_HMAC_SHA1(password, pwlen, salt, essidlen, 4096, 32, pmk) != 0 )
 		{
+		cowreclen = sizeof(cowreclen) + pwlen + 32;
+		if(fhcow != NULL)
+			{
+			cr = fwrite(&cowreclen, sizeof(cowreclen), 1, fhcow);
+			if(cr != 1)
+				{
+				fprintf(stderr, "error writing cowpatty file\n");
+				exit(EXIT_FAILURE);
+				}
+			fprintf(fhcow, "%s", password);
+			cr = fwrite(&pmk, sizeof(uint8_t), 32, fhcow);
+			if(cr != 32)
+				{
+				fprintf(stderr, "error writing cowpatty file\n");
+				exit(EXIT_FAILURE);
+				}
+			}
 		for(c = 0; c< 32; c++)
 			{
 			if(fhascii != NULL)
@@ -148,6 +195,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-i <file>     : input passwordlist\n"
 	"-a <file>     : output plainmasterkeys as ASCII file (hashcat -m 2501)\n"
 	"-A <file>     : output plainmasterkeys:password as ASCII file\n"
+	"-c <file>     : output cowpatty hashfile (existing file will be replaced)\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -158,21 +206,24 @@ int main(int argc, char *argv[])
 FILE *fhpwlist = NULL;
 FILE *fhascii = NULL;
 FILE *fhasciipw = NULL;
+FILE *fhcow = NULL;
 int auswahl;
 
 int pwlen = 0;
-int essidlen = 0;
+uint8_t essidlen = 0;
 
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *pwname = NULL;
 char *essidname = NULL;
 
+
+
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "p:e:i:a:A:h")) != -1)
+while ((auswahl = getopt(argc, argv, "p:e:i:a:A:c:h")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -220,6 +271,14 @@ while ((auswahl = getopt(argc, argv, "p:e:i:a:A:h")) != -1)
 			}
 		break;
 
+		case 'c':
+		if((fhcow = fopen(optarg, "w")) == NULL)
+			{
+			fprintf(stderr, "error opening %s\n", optarg);
+			exit(EXIT_FAILURE);
+			}
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -230,13 +289,11 @@ while ((auswahl = getopt(argc, argv, "p:e:i:a:A:h")) != -1)
 		}
 	}
 
-
 if((essidname != NULL) && (pwname != NULL))
 	singlepmkout(pwname, pwlen, essidname, essidlen);
 
-
 else if(essidname != NULL)
-	filepmkout(fhpwlist, fhascii, fhasciipw, essidname, essidlen);
+	filepmkout(fhpwlist, fhascii, fhasciipw, fhcow, essidname, essidlen);
 
 
 
