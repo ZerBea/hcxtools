@@ -12,8 +12,11 @@
 #include <stdio_ext.h>
 #include <curl/curl.h>
 #include <openssl/sha.h>
+#include <openssl/md5.h>
 #include "common.h"
-
+#include "common.c"
+#include "com_md5_64.h"
+#include "com_md5_64.c"
 
 struct hc5500
 {
@@ -67,6 +70,14 @@ struct hc4800
 } __attribute__((packed));
 typedef struct hc4800 hc4800_t;
 
+struct hcxhrc
+{
+ uint32_t salt_buf[64];
+ uint32_t pke[25];
+ uint32_t eapol[64 + 16];
+ uint32_t keymic[4];
+};
+typedef struct hcxhrc hcxhrc_t;
 
 /*===========================================================================*/
 /* globale Variablen */
@@ -99,6 +110,8 @@ uint8_t idcheck = FALSE;
 uint8_t wcflag = FALSE;
 uint8_t ancflag = FALSE;
 uint8_t anecflag = FALSE;
+uint8_t showinfo1 = FALSE;
+uint8_t showinfo2 = FALSE;
 
 int rctimecount = 0;
 
@@ -111,6 +124,7 @@ char *hc4800outname = NULL;
 char *hc5500outname = NULL;
 char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
+char *showinfo2outname = NULL;
 char *usernameoutname = NULL;
 
 hcx_t oldhcxrecord;
@@ -429,12 +443,163 @@ if(memcmp(eap->nonce, &mynonce, 32) == 0)
 return FALSE;
 }
 /*===========================================================================*/
+void showhashrecord(hcx_t *hcxrecord, uint8_t showinfo1, uint8_t showinfo2)
+{
+int i;
+hcxhrc_t hashrec;
+uint32_t hash[4];
+uint32_t block[16];
+uint8_t *block_ptr = (uint8_t*)block;
+uint8_t *pke_ptr = (uint8_t*)hashrec.pke;
+uint8_t *eapol_ptr = (uint8_t*)hashrec.eapol;
+FILE *fhshowinfo2 = NULL;
+
+char essidstring[36];
+
+hash[0] = 0;
+hash[1] = 1;
+hash[2] = 2;
+hash[3] = 3;
+memset(&block, 0, sizeof(block));
+
+memset(&hashrec, 0, sizeof(hashrec));
+memcpy(&hashrec.salt_buf, hcxrecord->essid, hcxrecord->essid_len);
+
+memcpy(pke_ptr, "Pairwise key expansion", 23);
+if(memcmp(hcxrecord->mac_ap.addr, hcxrecord->mac_sta.addr, 6) < 0)
+	{
+	memcpy(pke_ptr + 23, hcxrecord->mac_ap.addr,  6);
+	memcpy(pke_ptr + 29, hcxrecord->mac_sta.addr, 6);
+	}
+else
+	{
+	memcpy(pke_ptr + 23, hcxrecord->mac_sta.addr, 6);
+	memcpy(pke_ptr + 29, hcxrecord->mac_ap.addr,  6);
+	}
+
+if(memcmp(hcxrecord->nonce_ap, hcxrecord->nonce_sta, 32) < 0)
+	{
+	memcpy (pke_ptr + 35, hcxrecord->nonce_ap,  32);
+	memcpy (pke_ptr + 67, hcxrecord->nonce_sta, 32);
+	}
+else
+	{
+	memcpy (pke_ptr + 35, hcxrecord->nonce_sta, 32);
+	memcpy (pke_ptr + 67, hcxrecord->nonce_ap,  32);
+	}
+for (int i = 0; i < 25; i++)
+	{
+	hashrec.pke[i] = byte_swap_32(hashrec.pke[i]);
+	}
+
+memcpy(eapol_ptr, hcxrecord->eapol, hcxrecord->eapol_len);
+memset(eapol_ptr + hcxrecord->eapol_len, 0, (256 +64) -hcxrecord->eapol_len);
+eapol_ptr[hcxrecord->eapol_len] = 0x80;
+
+memcpy (&hashrec.keymic, hcxrecord->keymic, 16);
+
+if(hcxrecord->keyver == 1)
+	{
+	// nothing to do
+	}
+else
+	{
+	for(i = 0; i < 64; i++)
+		{
+		hashrec.eapol[i] = byte_swap_32 (hashrec.eapol[i]);
+		}
+	hashrec.keymic[0] = byte_swap_32(hashrec.keymic[0]);
+	hashrec.keymic[1] = byte_swap_32(hashrec.keymic[1]);
+	hashrec.keymic[2] = byte_swap_32(hashrec.keymic[2]);
+	hashrec.keymic[3] = byte_swap_32(hashrec.keymic[3]);
+	}
+
+for(i = 0; i < 16; i++)
+	block[i] = hashrec.salt_buf[i];
+md5_64(block, hash);
+
+for(i = 0; i < 16; i++)
+	block[i] = hashrec.pke[i +0];
+md5_64(block, hash);
+
+for(i = 0; i < 9; i++)
+	block[i] = hashrec.pke[i +16];
+md5_64(block, hash);
+
+for(i = 0; i < 16; i++)
+	block[i] = hashrec.eapol[i +0];
+md5_64 (block, hash);
+
+for(i = 0; i < 16; i++)
+	block[i] = hashrec.eapol[i +16];
+md5_64 (block, hash);
+
+for(i = 0; i < 16; i++)
+	block[i] = hashrec.eapol[i +32];
+md5_64 (block, hash);
+
+for(i = 0; i < 16; i++)
+	block[i] = hashrec.eapol[i + 48];
+md5_64 (block, hash);
+
+for(i = 0; i < 6; i++)
+	block_ptr[i +0] = hcxrecord->mac_ap.addr[i];
+for(i = 0; i < 6; i++)
+	block_ptr[i +6] = hcxrecord->mac_sta.addr[i];
+md5_64 (block, hash);
+
+for(i = 0; i < 32; i++)
+	block_ptr[i +0] = hcxrecord->nonce_ap[i];
+for(i = 0; i < 32; i++)
+	block_ptr[i +32] = hcxrecord->nonce_sta[i];
+md5_64 (block, hash);
+
+block[0] = hashrec.keymic[0];
+block[1] = hashrec.keymic[1];
+block[2] = hashrec.keymic[2];
+block[3] = hashrec.keymic[3];
+md5_64 (block, hash);
+
+memset(&essidstring, 0, 36);
+memcpy(&essidstring, hcxrecord->essid, hcxrecord->essid_len);
+if(showinfo1 == TRUE)
+	{
+	printf("%8x%8x%8x%8x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
+	hash[0], hash[1], hash[2], hash[3],
+	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
+	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
+	essidstring);
+	}
+
+if(showinfo2 == TRUE)
+	{
+	if(showinfo2outname != NULL)
+		{
+		if((fhshowinfo2 = fopen(showinfo2outname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening hccapx file %s\n", showinfo2outname);
+			exit(EXIT_FAILURE);
+			}
+		}
+
+	fprintf(fhshowinfo2, "%8x%8x%8x%8x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
+	hash[0], hash[1], hash[2], hash[3],
+	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
+	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
+	essidstring);
+	}
+
+
+return;
+}
+/*===========================================================================*/
 void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 hcx_t hcxrecord;
 eap_t *eap1;
 eap_t *eap2;
 FILE *fhhcx = NULL;
+
 unsigned long long int r;
 int wldflagint = FALSE;
 
@@ -510,6 +675,11 @@ if((nonwdfhcxoutname != NULL) && (wldflagint == FALSE))
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	}
+
+if((showinfo1 == TRUE) || (showinfo2 == TRUE))
+	{
+	showhashrecord(&hcxrecord, showinfo1, showinfo2);
 	}
 return;	
 }
@@ -2047,6 +2217,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-E <file> : output wordlist to use as hashcat input wordlist (unicode)\n"
 	"-f <file> : output possible wpa/wpa2 pmk list (hashcat -m 2501)\n"
 	"-u <file> : output usernames/identities file\n"
+	"-s        : show info for identified hccapx handshake\n"
+	"-S <file> : output info for identified hccapx handshake to file\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"-r        : enable replaycountcheck\n"
 	"          : default: disabled - you will get more wpa handshakes, but some of them are uncrackable\n"
@@ -2080,7 +2252,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:f:w:W:u:xrihv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:f:w:W:u:S:xrishv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2146,6 +2318,15 @@ while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:f:w:W:u:xrihv")) != -1)
 
 		case 'i':
 		idcheck = TRUE;
+		break;
+
+		case 's':
+		showinfo1 = TRUE;
+		break;
+
+		case 'S':
+		showinfo2outname = optarg;
+		showinfo2 = TRUE;
 		break;
 
 		case 'h':
