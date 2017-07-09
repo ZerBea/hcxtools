@@ -420,6 +420,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-p        : list messagepair\n"
 	"-l        : list essid len\n"
 	"-e        : list essid\n"
+	"-h        : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -503,6 +504,10 @@ while ((auswahl = getopt(argc, argv, "i:o:aAsSMRwpPlehv")) != -1)
 
 		case 'e':
 		outmode |= OM_ESSID;
+		break;
+
+		case 'h':
+		usage(eigenname);
 		break;
 
 		default:
