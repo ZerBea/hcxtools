@@ -12,7 +12,6 @@
 #include <stdio_ext.h>
 #include <curl/curl.h>
 #include <openssl/sha.h>
-#include <openssl/md5.h>
 #include "common.h"
 #include "common.c"
 #include "com_md5_64.h"
