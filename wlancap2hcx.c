@@ -12,7 +12,6 @@
 #include <stdio_ext.h>
 #include <curl/curl.h>
 #include <openssl/sha.h>
-#include <openssl/md5.h>
 #include "common.h"
 #include "common.c"
 #include "com_md5_64.h"
@@ -445,6 +444,16 @@ return FALSE;
 /*===========================================================================*/
 void showhashrecord(hcx_t *hcxrecord, uint8_t showinfo1, uint8_t showinfo2)
 {
+	void output(FILE *where, hcx_t *hcxrecord, uint32_t *hash)
+	{
+
+	fprintf(where, "%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
+	hash[0], hash[1], hash[2], hash[3],
+	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
+	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
+	hcxrecord->essid);
+	}
+
 int i;
 hcxhrc_t hashrec;
 uint32_t hash[4];
@@ -453,8 +462,6 @@ uint8_t *block_ptr = (uint8_t*)block;
 uint8_t *pke_ptr = (uint8_t*)hashrec.pke;
 uint8_t *eapol_ptr = (uint8_t*)hashrec.eapol;
 FILE *fhshowinfo2 = NULL;
-
-char essidstring[36];
 
 hash[0] = 0;
 hash[1] = 1;
@@ -560,15 +567,9 @@ block[2] = hashrec.keymic[2];
 block[3] = hashrec.keymic[3];
 md5_64 (block, hash);
 
-memset(&essidstring, 0, 36);
-memcpy(&essidstring, hcxrecord->essid, hcxrecord->essid_len);
 if(showinfo1 == TRUE)
 	{
-	printf("%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
-	hash[0], hash[1], hash[2], hash[3],
-	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
-	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
-	essidstring);
+	output(stdout, hcxrecord, hash);
 	}
 
 if(showinfo2 == TRUE)
@@ -581,13 +582,7 @@ if(showinfo2 == TRUE)
 			exit(EXIT_FAILURE);
 			}
 		}
-
-	fprintf(fhshowinfo2, "%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
-	hash[0], hash[1], hash[2], hash[3],
-	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
-	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
-	essidstring);
-	fclose(fhshowinfo2);
+	output(fhshowinfo2, hcxrecord, hash);
 	}
 return;
 }
@@ -2249,6 +2244,12 @@ char *pmkoutname = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
+
+if (argc == 1)
+	{
+	usage(eigenname);
+	exit(EXIT_FAILURE);
+	}
 
 setbuf(stdout, NULL);
 while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:f:w:W:u:S:xrishv")) != -1)
