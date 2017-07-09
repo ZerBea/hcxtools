@@ -453,8 +453,6 @@ uint8_t *pke_ptr = (uint8_t*)hashrec.pke;
 uint8_t *eapol_ptr = (uint8_t*)hashrec.eapol;
 FILE *fhshowinfo2 = NULL;
 
-char essidstring[36];
-
 hash[0] = 0;
 hash[1] = 1;
 hash[2] = 2;
@@ -559,15 +557,13 @@ block[2] = hashrec.keymic[2];
 block[3] = hashrec.keymic[3];
 md5_64 (block, hash);
 
-memset(&essidstring, 0, 36);
-memcpy(&essidstring, hcxrecord->essid, hcxrecord->essid_len);
 if(showinfo1 == TRUE)
 	{
 	printf("%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
 	hash[0], hash[1], hash[2], hash[3],
 	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
 	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
-	essidstring);
+	hcxrecord->essid);
 	}
 
 if(showinfo2 == TRUE)
@@ -585,7 +581,7 @@ if(showinfo2 == TRUE)
 	hash[0], hash[1], hash[2], hash[3],
 	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
 	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
-	essidstring);
+	hcxrecord->essid);
 	fclose(fhshowinfo2);
 	}
 return;
