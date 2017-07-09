@@ -583,6 +583,7 @@ if(showinfo2 == TRUE)
 			}
 		}
 	output(fhshowinfo2, hcxrecord, hash);
+	fclose(fhshowinfo2);
 	}
 return;
 }
@@ -2218,6 +2219,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"          : default: disabled - you will get more wpa handshakes, but some of them are uncrackable\n"
 	"-i        : enable id check (default: disabled)\n"
 	"          : default: disabled - you will get more authentications, but some of them are uncrackable\n"
+	"-h        : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
