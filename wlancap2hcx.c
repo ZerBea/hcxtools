@@ -2250,6 +2250,12 @@ char *pmkoutname = NULL;
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
+if (argc == 1)
+	{
+	usage(eigenname);
+	exit(EXIT_FAILURE);
+	}
+
 setbuf(stdout, NULL);
 while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:f:w:W:u:S:xrishv")) != -1)
 	{
