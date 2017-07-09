@@ -12,7 +12,6 @@
 #include <stdio_ext.h>
 #include <curl/curl.h>
 #include <openssl/sha.h>
-#include <openssl/md5.h>
 #include "common.h"
 #include "common.c"
 #include "com_md5_64.h"
@@ -456,6 +455,7 @@ FILE *fhshowinfo2 = NULL;
 
 char essidstring[36];
 
+
 hash[0] = 0;
 hash[1] = 1;
 hash[2] = 2;
@@ -581,15 +581,13 @@ if(showinfo2 == TRUE)
 			exit(EXIT_FAILURE);
 			}
 		}
-
 	fprintf(fhshowinfo2, "%8x%8x%8x%8x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
 	hash[0], hash[1], hash[2], hash[3],
 	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
 	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
 	essidstring);
+	fclose(fhshowinfo2);
 	}
-
-
 return;
 }
 /*===========================================================================*/
@@ -2224,6 +2222,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"          : default: disabled - you will get more wpa handshakes, but some of them are uncrackable\n"
 	"-i        : enable id check (default: disabled)\n"
 	"          : default: disabled - you will get more authentications, but some of them are uncrackable\n"
+	"-h        : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -2250,6 +2249,12 @@ char *pmkoutname = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
+
+if (argc == 1)
+	{
+	usage(eigenname);
+	exit(EXIT_FAILURE);
+	}
 
 setbuf(stdout, NULL);
 while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:f:w:W:u:S:xrishv")) != -1)
