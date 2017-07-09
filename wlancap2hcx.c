@@ -564,7 +564,7 @@ memset(&essidstring, 0, 36);
 memcpy(&essidstring, hcxrecord->essid, hcxrecord->essid_len);
 if(showinfo1 == TRUE)
 	{
-	printf("%8x%8x%8x%8x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
+	printf("%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
 	hash[0], hash[1], hash[2], hash[3],
 	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
 	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
@@ -582,7 +582,7 @@ if(showinfo2 == TRUE)
 			}
 		}
 
-	fprintf(fhshowinfo2, "%8x%8x%8x%8x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
+	fprintf(fhshowinfo2, "%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
 	hash[0], hash[1], hash[2], hash[3],
 	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
 	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
