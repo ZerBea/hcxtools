@@ -1,5 +1,6 @@
 INSTALLDIR	= /usr/local/bin
 
+OPENCLSUPPORT=off
 GPIOSUPPORT=off
 DOACTIVE=on
 DOSTATUS=on
@@ -33,6 +34,7 @@ endif
 	$(CC) $(CFLAGS) -o wlanhcxinfo wlanhcxinfo.c
 	$(CC) $(CFLAGS) -o wlanhcxmnc wlanhcxmnc.c
 	$(CC) $(CFLAGS) -o wlanhashhcx wlanhashhcx.c
+	$(CC) $(CFLAGS) -o wlanpmk2hcx wlanpmk2hcx.c -lcrypto
 	$(CC) $(CFLAGS) -o wlancow2hcxpmk wlancow2hcxpmk.c
 	$(CC) $(CFLAGS) -o whoismac whoismac.c -lcurl
 	$(CC) $(CFLAGS) -o wlancap2wpasec wlancap2wpasec.c -lcurl
@@ -55,6 +57,7 @@ endif
 	install -D -m 0755 wlanhcxinfo $(INSTALLDIR)/wlanhcxinfo
 	install -D -m 0755 wlanhcxmnc $(INSTALLDIR)/wlanhcxmnc
 	install -D -m 0755 wlanhashhcx $(INSTALLDIR)/wlanhashhcx
+	install -D -m 0755 wlanpmk2hcx $(INSTALLDIR)/wlanpmk2hcx
 	install -D -m 0755 wlancow2hcxpmk $(INSTALLDIR)/wlancow2hcxpmk
 	install -D -m 0755 whoismac $(INSTALLDIR)/whoismac
 	install -D -m 0755 wlancap2wpasec $(INSTALLDIR)/wlancap2wpasec
@@ -75,6 +78,7 @@ endif
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
 	rm -f wlanhashhcx
+	rm -f wlanpmk2hcx
 	rm -f wlancow2hcxpmk
 	rm -f whoismac
 	rm -f wlancap2wpasec
@@ -98,6 +102,7 @@ endif
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
 	rm -f wlanhashhcx
+	rm -f wlanpmk2hcx
 	rm -f wlancow2hcxpmk
 	rm -f whoismac
 	rm -f wlancap2wpasec
@@ -122,6 +127,7 @@ endif
 	rm -f $(INSTALLDIR)/wlanhcxinfo
 	rm -f $(INSTALLDIR)/wlanhcxmnc
 	rm -f $(INSTALLDIR)/wlanhashhcx
+	rm -f $(INSTALLDIR)/wlanpmk2hcx
 	rm -f $(INSTALLDIR)/wlancow2hcxpmk
 	rm -f $(INSTALLDIR)/whoismac
 	rm -f $(INSTALLDIR)/wlancap2wpasec

@@ -1,16 +1,32 @@
 /*===========================================================================*/
-uint32_t rotl32 (const uint32_t a, const uint32_t n)
+uint32_t rotl32(const uint32_t a, const uint32_t n)
 {
-	return ((a << n) | (a >> (32 - n)));
+return((a << n) | (a >> (32 - n)));
 }
 /*===========================================================================*/
-uint32_t byte_swap_32 (const int32_t n)
+uint32_t byte_swap_32(const int32_t n)
 {
-	#if defined (__clang__) || defined (__GNUC__)
-	return __builtin_bswap32 (n);
-	#else
-	return (n & 0xff000000) >> 24 | (n & 0x00ff0000) >> 8 | (n & 0x0000ff00) << 8 | (n & 0x000000ff) << 24;
-	#endif
+#if defined (__clang__) || defined (__GNUC__)
+return __builtin_bswap32 (n);
+#else
+return(n & 0xff000000) >> 24 | (n & 0x00ff0000) >> 8 | (n & 0x0000ff00) << 8 | (n & 0x000000ff) << 24;
+#endif
+}
+/*===========================================================================*/
+uint64_t byte_swap_64(const uint64_t n)
+{
+#if defined (__clang__) || defined (__GNUC__)
+return __builtin_bswap64 (n);
+#else
+return (n & 0xff00000000000000ULL) >> 56
+       | (n & 0x00ff000000000000ULL) >> 40
+       | (n & 0x0000ff0000000000ULL) >> 24
+       | (n & 0x000000ff00000000ULL) >>  8
+       | (n & 0x00000000ff000000ULL) <<  8
+       | (n & 0x0000000000ff0000ULL) << 24
+       | (n & 0x000000000000ff00ULL) << 40
+       | (n & 0x00000000000000ffULL) << 56;
+#endif
 }
 /*===========================================================================*/
 
