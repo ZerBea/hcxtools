@@ -68,8 +68,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-e <essid> : input networkname (ESSID)\n"
-	"-p <pmk>   : input plainmasterkey\n"
+	"-e <essid> : input single essid (networkname: 1 .. 32 characters)\n"
+	"-p <pmk>   : input plainmasterkey (64 xdigits)\n"
 	"-h         : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
