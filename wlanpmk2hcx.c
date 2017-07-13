@@ -17,8 +17,9 @@
 #include "common.c"
 
 /*===========================================================================*/
-void hex2bin(const char *str, uint8_t *bytes, size_t blen)
+int hex2bin(const char *str, uint8_t *bytes, size_t blen)
 {
+size_t c;
 uint8_t pos;
 uint8_t idx0;
 uint8_t idx1;
@@ -35,6 +36,18 @@ const uint8_t hashmap[] =
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
 };
 
+for(c = 0; c < blen; c++)
+	{
+	if(str[c] < '0')
+		return FALSE;
+	if(str[c] > 'f')
+		return FALSE;
+	if((str[c] > '9') && (str[c] < 'A'))
+		return FALSE;
+	if((str[c] > 'F') && (str[c] < 'a'))
+		return FALSE;
+	}
+
 bzero(bytes, blen);
 for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	{
@@ -42,7 +55,7 @@ for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	idx1 = ((uint8_t)str[pos+1] & 0x1F) ^ 0x10;
 	bytes[pos/2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
 	};
-return;
+return TRUE;
 }
 /*===========================================================================*/
 char *base64(const unsigned char *input, int len)
@@ -80,7 +93,6 @@ int main(int argc, char *argv[])
 int auswahl;
 int essidlen = 0;
 int pmklen = 0;
-
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *pmkname = NULL;
@@ -116,7 +128,11 @@ while ((auswahl = getopt(argc, argv, "e:p:h")) != -1)
 			fprintf(stderr, "error wrong plainmasterkey len)\n");
 			exit(EXIT_FAILURE);
 			}
-		hex2bin(pmkname, pmkstr, 64);
+		if(hex2bin(pmkname, pmkstr, 64) != TRUE)
+			{
+			fprintf(stderr, "error wrong plainmasterkey\n");
+			exit(EXIT_FAILURE);
+			}
  		break;
 
 		case 'h':
