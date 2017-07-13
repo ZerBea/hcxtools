@@ -37,11 +37,9 @@ Detailed description
 | wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                      |
 | wlanhcxmnc     | Manually do nonce correction on byte number xx of a nonce                                            |
 | wlanhashhcx    | Generate hashlist from hccapx hashfile (md5_64 hash:mac_ap:mac_sta:essid)                            |
-| wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                    |
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                         |
-| wlangenpmk     | Generates plainmasterkey from essid and password                                                     |
+| wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                    |
 | whoismac       | Show vendor information                                                                              |
-| pwhash         | Generate hash of a word by using a given charset                                                     |
 
 
 Compile
@@ -114,3 +112,7 @@ You must use wlandump-ng and wlanresponse only on networks you have permission t
 * wlandump-ng/wlanresponse are able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
 
 * wlandump-ng/wlanresponse are able to capture passwords from the wlan traffic
+
+* wlandump-ng/wlanresponse are able to capture plainmasterkeys from the wlan traffic
+
+* wlandump-ng/wlanresponse are able to capture usernames and identities from the wlan traffic
