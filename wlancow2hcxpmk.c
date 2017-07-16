@@ -26,6 +26,14 @@ typedef struct cow_head cow_head_t;
 /*===========================================================================*/
 /* globale Konstante */
 
+uint8_t zeroessid[] =
+{
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+#define ZEROESSID_SIZE sizeof(zeroessid)
 
 /*===========================================================================*/
 void cowinfo(FILE *fhcowin)
@@ -46,6 +54,13 @@ if(rd != 1)
 if(cowh.magic != COWPATTY_SIGNATURE)
 	{
 	fprintf(stderr, "signature doesn't match\n");
+	return;
+	}
+
+
+if((cowh.essidlen == 0) && (memcmp(&cowh.essid, &zeroessid, ZEROESSID_SIZE) == 0) && (cowh.reserved1[2] == 1))
+	{
+	printf("Multi-ESSID file detected\n");
 	return;
 	}
 
@@ -86,7 +101,11 @@ if(cowh.magic != COWPATTY_SIGNATURE)
 	return;
 	}
 
-if((cowh.essidlen <= 0) || (cowh.essidlen > 32))
+if((cowh.essidlen == 0) && (memcmp(&cowh.essid, &zeroessid, ZEROESSID_SIZE) == 0) && (cowh.reserved1[2] == 1))
+	printf("Multi-ESSID file detected\n");
+
+
+else if((cowh.essidlen <= 0) || (cowh.essidlen > 32))
 	{
 	fprintf(stderr, "wrong essidlen\n");
 	return;
