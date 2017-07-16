@@ -480,6 +480,19 @@ typedef struct ipv6_frame ipv6_frame_t;
 #define	IPV6_SIZE (sizeof(ipv6_frame_t))
 
 
+struct udp_frame
+{
+ uint16_t	port_source;
+ uint16_t	port_destination;
+ uint16_t	length;
+ uint16_t	checksum;
+} __attribute__ ((packed));
+typedef struct udp_frame udp_frame_t;
+#define	UDP_SIZE (sizeof(udp_frame_t))
+
+
+
+
 #define NEXTHDR_HOP		0	/* Hop-by-hop option header. */
 #define NEXTHDR_TCP		6	/* TCP segment. */
 #define NEXTHDR_UDP		17	/* UDP message. */
