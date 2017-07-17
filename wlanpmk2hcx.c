@@ -18,22 +18,23 @@
 #include "common.c"
 
 /*===========================================================================*/
-char *base64(const unsigned char *input, int len)
+void base64(const unsigned char* buffer, size_t length, char** b64text)
 {
-BIO *bmem, *b64;
-BUF_MEM *bptr;
+BIO *bio, *b64;
+BUF_MEM *bufferPtr;
+
 b64 = BIO_new(BIO_f_base64());
-bmem = BIO_new(BIO_s_mem());
-b64 = BIO_push(b64, bmem);
-BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
-BIO_write(b64, input, len);
-BIO_flush(b64);
-BIO_get_mem_ptr(b64, &bptr);
-char *buff = (char *)malloc(bptr->length);
-memcpy(buff, bptr->data, bptr->length-1);
-buff[bptr->length-1] = 0;
-BIO_free_all(b64);
-return buff;
+bio = BIO_new(BIO_s_mem());
+bio = BIO_push(b64, bio);
+
+BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Ignore newlines - write everything in one line
+BIO_write(bio, buffer, length);
+BIO_flush(bio);
+BIO_get_mem_ptr(bio, &bufferPtr);
+BIO_set_close(bio, BIO_NOCLOSE);
+BIO_free_all(bio);
+*b64text=(*bufferPtr).data;
+return;
 }
 /*===========================================================================*/
 int hex2bin(const char *str, uint8_t *bytes, size_t blen)
@@ -118,7 +119,6 @@ void outputhashlist(FILE *fhcombi, FILE *fhhash)
 {
 int combilen;
 int essidlen;
-int esize;
 long int hashcount = 0;
 long int skippedcount = 0;
 char *essidname = NULL;
@@ -158,14 +158,12 @@ while((combilen = fgetline(fhcombi, 100, combiline)) != -1)
 		continue;
 		}
 
-	esize = 4*ceil((double)essidlen/3);
 	memset(&essidstr, 0, 64);
 	memcpy(&essidstr, essidname, essidlen);
-	hashrecord = base64(essidstr, essidlen +4);
-	hashrecord[esize] = 0;
+	base64(essidstr, essidlen, &hashrecord);
 	fprintf(fhhash, "sha1:4096:%s:", hashrecord);
 	free(hashrecord);
-	hashrecord = base64(pmkstr, 32);
+	base64(pmkstr, 32, &hashrecord);
 	fprintf(fhhash, "%s\n\n", hashrecord);
 	free(hashrecord);
 	hashcount++;
@@ -176,7 +174,6 @@ return;
 /*===========================================================================*/
 void outputsinglehash(char *pmkname, char *essidname, int essidlen)
 {
-int esize;
 char *hashrecord = NULL;
 unsigned char essidstr[64];
 unsigned char pmkstr[64];
@@ -187,15 +184,13 @@ if(hex2bin(pmkname, pmkstr, 64) != TRUE)
 	return;
 	}
 
-esize = 4*ceil((double)essidlen/3);
 printf("\nuse hashcat hash-mode -m 12000 to get password\n");
 memset(&essidstr, 0, 64);
 memcpy(&essidstr, essidname, essidlen);
-hashrecord = base64(essidstr, essidlen +4);
-hashrecord[esize] = 0;
+base64(essidstr, essidlen, &hashrecord);
 printf("sha1:4096:%s:", hashrecord);
 free(hashrecord);
-hashrecord = base64(pmkstr, 32);
+base64(pmkstr, 32, &hashrecord);
 printf("%s\n\n", hashrecord);
 free(hashrecord);
 return;
