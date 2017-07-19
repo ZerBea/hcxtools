@@ -616,16 +616,6 @@ hcxrecord.message_pair = message_pair;
 hcxrecord.essid_len = essid_len;
 memcpy(hcxrecord.essid, essid, essid_len);
 hcxrecord.keyver = ((((eap1->keyinfo & 0xff) << 8) | (eap1->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
-if(hcxrecord.keyver == 1)
-	wpakv1c++;
-if(hcxrecord.keyver == 2)
-	wpakv2c++;
-if(hcxrecord.keyver == 3)
-	wpakv3c++;
-if(hcxrecord.keyver == 0)
-	wpakv0c++;
-
-
 memcpy(hcxrecord.mac_ap.addr, zeiger1->mac_ap.addr, 6);
 memcpy(hcxrecord.nonce_ap, eap1->nonce, 32);
 memcpy(hcxrecord.mac_sta.addr, zeiger2->mac_sta.addr, 6);
@@ -649,6 +639,15 @@ if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhc
 
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
 hcxwritecount++;
+
+if(hcxrecord.keyver == 1)
+	wpakv1c++;
+if(hcxrecord.keyver == 2)
+	wpakv2c++;
+if(hcxrecord.keyver == 3)
+	wpakv3c++;
+if(hcxrecord.keyver == 0)
+	wpakv0c++;
 
 r = getreplaycount(zeiger2->eapol);
 if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
