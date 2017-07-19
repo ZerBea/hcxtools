@@ -344,20 +344,20 @@ while(c < hcxrecords)
 
 if(outmode == 0)
 	{
-	fprintf(stdout, "total hashes read from file..: %ld\n"
-			"\x1B[32mwlandump forced handshakes...: %ld\x1B[0m\n"
-			"802.1x Version 2001............: %ld\n"
-			"802.1x Version 2004............: %ld\n"
-			"wpa1 RC4 Cipher, HMAC-MD5......: %ld\n"
-			"wpa2 AES Cipher, HMAC-SHA1.....: %ld\n"
-			"wpa2 AES Cipher, AES-128-CMAC2): %ld\n"
-			"unknown Cipher, (zero value)...: %ld\n"
-			"message pair M12E2.............: %ld (%ld not replaycount checked)\n"
-			"message pair M14E4.............: %ld (%ld not replaycount checked)\n"
-			"message pair M32E2.............: %ld (%ld not replaycount checked)\n"
-			"message pair M32E3.............: %ld (%ld not replaycount checked)\n"
-			"message pair M34E3.............: %ld (%ld not replaycount checked)\n"
-			"message pair M34E4.............: %ld (%ld not replaycount checked)"
+	fprintf(stdout, "total hashes read from file.......: %ld\n"
+			"\x1B[32mwlandump-ng forced handshakes.....: %ld\x1B[0m\n"
+			"802.1x Version 2001...............: %ld\n"
+			"802.1x Version 2004...............: %ld\n"
+			"wpa1 RC4 Cipher, HMAC-MD5.........: %ld\n"
+			"wpa2 AES Cipher, HMAC-SHA1........: %ld\n"
+			"wpa2 AES Cipher, AES-128-CMAC2....: %ld\n"
+			"unknown Cipher, (zero value)......: %ld\n"
+			"message pair M12E2................: %ld (%ld not replaycount checked)\n"
+			"message pair M14E4................: %ld (%ld not replaycount checked)\n"
+			"message pair M32E2................: %ld (%ld not replaycount checked)\n"
+			"message pair M32E3................: %ld (%ld not replaycount checked)\n"
+			"message pair M34E3................: %ld (%ld not replaycount checked)\n"
+			"message pair M34E4................: %ld (%ld not replaycount checked)"
 			"\n", totalrecords, wldcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, wpakv0c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == TRUE)
