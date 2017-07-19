@@ -127,6 +127,7 @@ long int xverc1 = 0;
 long int xverc2 = 0;
 long int wpa1c = 0;
 long int wpa2c = 0;
+long int wpa2aes128c = 0;
 
 long int mp0c = 0;
 long int mp1c = 0;
@@ -171,6 +172,9 @@ while(c < hcxrecords)
 		wpa1c++;
 	if(keyver == 2)
 		wpa2c++;
+
+	if(keyver == 3)
+		wpa2aes128c++;
 		
 	if((outmode & OM_MAC_AP) == OM_MAC_AP)
 		{
@@ -337,17 +341,18 @@ if(outmode == 0)
 	{
 	fprintf(stdout, "total hashes read from file..: %ld\n"
 			"\x1B[32mwlandump forced handshakes...: %ld\x1B[0m\n"
-			"802.1x Version 2001..........: %ld\n"
-			"802.1x Version 2004..........: %ld\n"
-			"key version wpa1.............: %ld\n"
-			"key version wpa2.............: %ld\n"
-			"message pair M12E2...........: %ld (%ld not replaycount checked)\n"
-			"message pair M14E4...........: %ld (%ld not replaycount checked)\n"
-			"message pair M32E2...........: %ld (%ld not replaycount checked)\n"
-			"message pair M32E3...........: %ld (%ld not replaycount checked)\n"
-			"message pair M34E3...........: %ld (%ld not replaycount checked)\n"
-			"message pair M34E4...........: %ld (%ld not replaycount checked)"
-			"\n", totalrecords, wldcount, xverc1, xverc2, wpa1c, wpa2c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			"802.1x Version 2001............: %ld\n"
+			"802.1x Version 2004............: %ld\n"
+			"RC4 Cipher, HMAC-MD5 (wpa1)....: %ld\n"
+			"AES Cipher, HMAC-SHA1 (wpa2)...: %ld\n"
+			"AES Cipher, AES-128-CMAC (wpa2): %ld\n"
+			"message pair M12E2.............: %ld (%ld not replaycount checked)\n"
+			"message pair M14E4.............: %ld (%ld not replaycount checked)\n"
+			"message pair M32E2.............: %ld (%ld not replaycount checked)\n"
+			"message pair M32E3.............: %ld (%ld not replaycount checked)\n"
+			"message pair M34E3.............: %ld (%ld not replaycount checked)\n"
+			"message pair M34E4.............: %ld (%ld not replaycount checked)"
+			"\n", totalrecords, wldcount, xverc1, xverc2, wpa1c, wpa2c, wpa2aes128c , mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == TRUE)
 		fprintf(stdout, "\x1B[33mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
