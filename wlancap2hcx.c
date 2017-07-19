@@ -600,7 +600,6 @@ FILE *fhhcx = NULL;
 
 unsigned long long int r;
 int wldflagint = FALSE;
-
 eap1 = (eap_t*)(zeiger1->eapol);
 eap2 = (eap_t*)(zeiger2->eapol);
 memset(&hcxrecord, 0, HCX_SIZE);
@@ -651,7 +650,6 @@ if(hcxoutname != NULL)
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
 	}
-
 
 if((wdfhcxoutname != NULL) && (wldflagint == TRUE))
 	{
@@ -1108,6 +1106,7 @@ rth_t *rth = NULL;
 ppi_packet_header_t *ppih = NULL;
 mac_t *macf = NULL;
 eap_t *eap = NULL;
+int keyver = 0;
 eapext_t *eapext = NULL;
 essid_t *essidf = NULL;
 const uint8_t *packet = NULL;
@@ -1140,6 +1139,8 @@ int udpportd = 0;
 
 int c, c1;
 int llctype;
+
+uint8_t wpa2aes128flag = FALSE;
 
 uint8_t eap3flag = FALSE;
 uint8_t eap4flag = FALSE;
@@ -1646,6 +1647,11 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, eap);
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+		
+			keyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
+			if(keyver == 3)
+				wpa2aes128flag = TRUE;
+
 			continue;
 			}
 
@@ -2031,6 +2037,9 @@ if(hcxwritecount == 1)
 	printf("\x1B[32mfound %ld usefull wpa handshake\x1B[0m\n", hcxwritecount);
 else if(hcxwritecount > 1)
 	printf("\x1B[32mfound %ld usefull wpa handshakes\x1B[0m\n", hcxwritecount);
+
+if(wpa2aes128flag == TRUE)
+	printf("\x1B[32mfound AES Cipher, AES-128 CMAC MIC\x1B[0m\n");
 
 if(hcxwritewldcount == 1)
 	{
