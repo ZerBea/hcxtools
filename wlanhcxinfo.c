@@ -125,9 +125,10 @@ long int totalrecords = 0;
 long int wldcount = 0;
 long int xverc1 = 0;
 long int xverc2 = 0;
-long int wpa1c = 0;
-long int wpa2c = 0;
-long int wpa2aes128c = 0;
+long int wpakv1c = 0;
+long int wpakv2c = 0;
+long int wpakv3c = 0;
+long int wpakv0c = 0;
 
 long int mp0c = 0;
 long int mp1c = 0;
@@ -169,13 +170,17 @@ while(c < hcxrecords)
 	memcpy(&nonceold, zeigerhcx->nonce_ap, 32);
 
 	if(keyver == 1)
-		wpa1c++;
+		wpakv1c++;
+
 	if(keyver == 2)
-		wpa2c++;
+		wpakv2c++;
 
 	if(keyver == 3)
-		wpa2aes128c++;
-		
+		wpakv3c++;
+
+	if(keyver == 0)
+		wpakv0c++;
+
 	if((outmode & OM_MAC_AP) == OM_MAC_AP)
 		{
 		printhex(zeigerhcx->mac_ap.addr, 6);
@@ -343,16 +348,17 @@ if(outmode == 0)
 			"\x1B[32mwlandump forced handshakes...: %ld\x1B[0m\n"
 			"802.1x Version 2001............: %ld\n"
 			"802.1x Version 2004............: %ld\n"
-			"RC4 Cipher, HMAC-MD5 (wpa1)....: %ld\n"
-			"AES Cipher, HMAC-SHA1 (wpa2)...: %ld\n"
-			"AES Cipher, AES-128-CMAC (wpa2): %ld\n"
+			"wpa1 RC4 Cipher, HMAC-MD5......: %ld\n"
+			"wpa2 AES Cipher, HMAC-SHA1.....: %ld\n"
+			"wpa2 AES Cipher, AES-128-CMAC2): %ld\n"
+			"unknown Cipher, (zero value)...: %ld\n"
 			"message pair M12E2.............: %ld (%ld not replaycount checked)\n"
 			"message pair M14E4.............: %ld (%ld not replaycount checked)\n"
 			"message pair M32E2.............: %ld (%ld not replaycount checked)\n"
 			"message pair M32E3.............: %ld (%ld not replaycount checked)\n"
 			"message pair M34E3.............: %ld (%ld not replaycount checked)\n"
 			"message pair M34E4.............: %ld (%ld not replaycount checked)"
-			"\n", totalrecords, wldcount, xverc1, xverc2, wpa1c, wpa2c, wpa2aes128c , mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			"\n", totalrecords, wldcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, wpakv0c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == TRUE)
 		fprintf(stdout, "\x1B[33mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");

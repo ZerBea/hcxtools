@@ -118,6 +118,12 @@ hc4800_t hcmd5;
 hc5500_t hcleap;
 hc5500chap_t hcleapchap;
 
+long int wpakv1c = 0;
+long int wpakv2c = 0;
+long int wpakv3c = 0;
+long int wpakv0c = 0;
+
+
 char *hcxoutname = NULL;
 char *hc4800outname = NULL;
 char *hc5500outname = NULL;
@@ -610,6 +616,16 @@ hcxrecord.message_pair = message_pair;
 hcxrecord.essid_len = essid_len;
 memcpy(hcxrecord.essid, essid, essid_len);
 hcxrecord.keyver = ((((eap1->keyinfo & 0xff) << 8) | (eap1->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
+if(hcxrecord.keyver == 1)
+	wpakv1c++;
+if(hcxrecord.keyver == 2)
+	wpakv2c++;
+if(hcxrecord.keyver == 3)
+	wpakv3c++;
+if(hcxrecord.keyver == 0)
+	wpakv0c++;
+
+
 memcpy(hcxrecord.mac_ap.addr, zeiger1->mac_ap.addr, 6);
 memcpy(hcxrecord.nonce_ap, eap1->nonce, 32);
 memcpy(hcxrecord.mac_sta.addr, zeiger2->mac_sta.addr, 6);
@@ -1119,7 +1135,6 @@ rth_t *rth = NULL;
 ppi_packet_header_t *ppih = NULL;
 mac_t *macf = NULL;
 eap_t *eap = NULL;
-int keyver = 0;
 eapext_t *eapext = NULL;
 essid_t *essidf = NULL;
 const uint8_t *packet = NULL;
@@ -1153,7 +1168,10 @@ int udpportd = 0;
 int c, c1;
 int llctype;
 
-uint8_t wpa2aes128flag = FALSE;
+wpakv1c = 0;
+wpakv2c = 0;
+wpakv3c = 0;
+wpakv0c = 0;
 
 uint8_t eap3flag = FALSE;
 uint8_t eap4flag = FALSE;
@@ -1661,10 +1679,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 		
-			keyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
-			if(keyver == 3)
-				wpa2aes128flag = TRUE;
-
 			continue;
 			}
 
@@ -2047,12 +2061,21 @@ printf("%ld packets processed (%ld wlan, %ld lan, %ld loopback)\n", packetcount,
 hcxwritecount -= hcxwritewldcount;
 
 if(hcxwritecount == 1)
-	printf("\x1B[32mfound %ld usefull wpa handshake\x1B[0m\n", hcxwritecount);
+	printf("\x1B[32mtotal %ld usefull wpa handshake:\x1B[0m\n", hcxwritecount);
 else if(hcxwritecount > 1)
-	printf("\x1B[32mfound %ld usefull wpa handshakes\x1B[0m\n", hcxwritecount);
+	printf("\x1B[32mtotal %ld usefull wpa handshakes:\x1B[0m\n", hcxwritecount);
 
-if(wpa2aes128flag == TRUE)
-	printf("\x1B[32mfound AES Cipher, AES-128 CMAC MIC\x1B[0m\n");
+if(wpakv1c > 0)
+	printf("\x1B[32mfound %ld wpa1 RC4 Cipher, HMAC-MD5\x1B[0m\n", wpakv1c);
+
+if(wpakv2c > 0)
+	printf("\x1B[32mfound %ld wpa2 AES Cipher, HMAC-SHA1\x1B[0m\n", wpakv2c);
+
+if(wpakv3c > 0)
+	printf("\x1B[32mfound %ld wpa2 AES Cipher, AES-128-CMAC2)\x1B[0m\n", wpakv3c);
+
+if(wpakv0c > 0)
+	printf("\x1B[32mfound %ld unknown Cipher, (zero value)\x1B[0m\n", wpakv0c);
 
 if(hcxwritewldcount == 1)
 	{
