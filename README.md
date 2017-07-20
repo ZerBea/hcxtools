@@ -17,6 +17,8 @@ Multiple stand-alone binaries.
 
 All of these utils are designed to execute only one specific function.
 
+Read this post: hcxtools - solution for capturing wlan traffic and conversion to hashcat formats (https://hashcat.net/forum/thread-6661.html)
+
 
 Detailed description
 --------------
