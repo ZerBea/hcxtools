@@ -2071,7 +2071,7 @@ if(wpakv2c > 0)
 	printf("\x1B[32mfound %ld wpa2 AES Cipher, HMAC-SHA1\x1B[0m\n", wpakv2c);
 
 if(wpakv3c > 0)
-	printf("\x1B[32mfound %ld wpa2 AES Cipher, AES-128-CMAC2)\x1B[0m\n", wpakv3c);
+	printf("\x1B[32mfound %ld wpa2 AES Cipher, AES-128-CMAC\x1B[0m\n", wpakv3c);
 
 if(wpakv0c > 0)
 	printf("\x1B[32mfound %ld unknown Cipher, (zero value)\x1B[0m\n", wpakv0c);
