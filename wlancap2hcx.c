@@ -1162,15 +1162,8 @@ uint8_t pppchapflag = FALSE;
 udp_frame_t *udph = NULL;
 int udpports = 0;
 int udpportd = 0;
-
-
 int c, c1;
 int llctype;
-
-wpakv1c = 0;
-wpakv2c = 0;
-wpakv3c = 0;
-wpakv0c = 0;
 
 uint8_t eap3flag = FALSE;
 uint8_t eap4flag = FALSE;
@@ -1244,6 +1237,12 @@ ancflag = FALSE;
 anecflag = FALSE;
 hcxwritecount = 0;
 hcxwritewldcount = 0;
+wpakv1c = 0;
+wpakv2c = 0;
+wpakv3c = 0;
+wpakv0c = 0;
+
+
 
 if(!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	{
@@ -2051,13 +2050,10 @@ if(pmkoutname != NULL)
 	fclose(fhpmk);
 	}
 
-
 free(eapdbdata);
 free(netdbdata);
 pcap_close(pcapin);
 printf("%ld packets processed (%ld wlan, %ld lan, %ld loopback)\n", packetcount, wlanpacketcount, ethpacketcount, loopbpacketcount);
-
-hcxwritecount -= hcxwritewldcount;
 
 if(hcxwritecount == 1)
 	printf("\x1B[32mtotal %ld usefull wpa handshake:\x1B[0m\n", hcxwritecount);
