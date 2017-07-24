@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <time.h>
-#include <pcap.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #include <stdio_ext.h>
 #include <openssl/sha.h>
@@ -567,6 +567,57 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
+size_t chop(char *buffer, size_t len)
+{
+char *ptr = buffer +len -1;
+
+while(len)
+	{
+	if (*ptr != '\n')
+		break;
+	*ptr-- = 0;
+	len--;
+	}
+
+while(len)
+	{
+	if (*ptr != '\r')
+		break;
+	*ptr-- = 0;
+	len--;
+	}
+return len;
+}
+/*---------------------------------------------------------------------------*/
+int fgetline(FILE *inputstream, size_t size, char *buffer)
+{
+if(feof(inputstream))
+	return -1;
+char *buffptr = fgets (buffer, size, inputstream);
+
+if(buffptr == NULL)
+	return -1;
+
+size_t len = strlen(buffptr);
+len = chop(buffptr, len);
+return len;
+}
+/*===========================================================================*/
+/*
+void hcxfile()
+{
+int len;
+
+while(len = fgetline(pwlist, 64, linein)) != -1))
+	{
+	if((pwlen < 8) || pwlen > 63)
+		{
+		}
+
+	}
+return;
+*/
+/*===========================================================================*/
 int sort_by_essid(const void *a, const void *b) 
 { 
 hcx_t *ia = (hcx_t *)a;
@@ -686,6 +737,7 @@ exit(EXIT_SUCCESS);
 int main(int argc, char *argv[])
 {
 int auswahl;
+int p;
 int essidlen = 0;
 int passwordlen = 0;
 int ret = 0;
@@ -736,10 +788,18 @@ while ((auswahl = getopt(argc, argv, "i:e:p:P:o:hv")) != -1)
 
 		case 'P':
 		pmkname = optarg;
-		if(strlen(optarg) != 64)
+		if(strlen(pmkname) != 64)
 			{
 			fprintf(stderr, "error wrong plainmasterkey len (allowed: 64 xdigits)\n");
 			exit(EXIT_FAILURE);
+			}
+		for(p = 0; p < 64; p++)
+			{
+			if(!(isxdigit(pmkname[p])))
+				{
+				fprintf(stderr, "error wrong plainmasterkey len (allowed: 64 xdigits)\n");
+				exit(EXIT_FAILURE);
+				}
 			}
 		break;
 

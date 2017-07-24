@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
+#include <ctype.h>
 #include <time.h>
 #include <signal.h>
 #include <sys/stat.h>
@@ -27,7 +28,7 @@ b64 = BIO_new(BIO_f_base64());
 bio = BIO_new(BIO_s_mem());
 bio = BIO_push(b64, bio);
 
-BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Ignore newlines - write everything in one line
+BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
 BIO_write(bio, buffer, length);
 BIO_flush(bio);
 BIO_get_mem_ptr(bio, &bufferPtr);
@@ -214,6 +215,7 @@ exit(EXIT_FAILURE);
 int main(int argc, char *argv[])
 {
 int auswahl;
+int p;
 int essidlen = 0;
 int pmklen = 0;
 char *eigenname = NULL;
@@ -254,7 +256,7 @@ while ((auswahl = getopt(argc, argv, "i:o:e:p:h")) != -1)
 		essidlen = strlen(essidname);
 		if((essidlen < 1) || (essidlen > 32))
 			{
-			fprintf(stderr, "error wrong essid len)\n");
+			fprintf(stderr, "error wrong essid len (allowed: 1 .. 32 characters)\n");
 			exit(EXIT_FAILURE);
 			}
 		break;
@@ -264,8 +266,16 @@ while ((auswahl = getopt(argc, argv, "i:o:e:p:h")) != -1)
 		pmklen = strlen(pmkname);
 		if(pmklen != 64)
 			{
-			fprintf(stderr, "error wrong plainmasterkey len)\n");
+			fprintf(stderr, "error wrong plainmasterkey len (allowed: 64 xdigits)\n");
 			exit(EXIT_FAILURE);
+			}
+		for(p = 0; p < 64; p++)
+			{
+			if(!(isxdigit(pmkname[p])))
+				{
+				fprintf(stderr, "error wrong plainmasterkey len (allowed: 64 xdigits)\n");
+				exit(EXIT_FAILURE);
+				}
 			}
  		break;
 
