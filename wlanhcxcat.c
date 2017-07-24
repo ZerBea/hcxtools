@@ -287,7 +287,7 @@ while(c < hcxrecords)
 		HMAC(EVP_md5(), &ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
 		}
 
-	if(zeigerhcx->keyver == 2)
+	else if(zeigerhcx->keyver == 2)
 		{
 		generatepke(zeigerhcx, pkedata);
 		for (p = 0; p < 4; p++)
@@ -298,7 +298,7 @@ while(c < hcxrecords)
 		HMAC(EVP_sha1(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
 		}
 
-	if(zeigerhcx->keyver == 3)
+	else if(zeigerhcx->keyver == 3)
 		{
 		generatepkeprf(zeigerhcx, pkedata);
 		pkedata_prf[0] = 1;
@@ -577,8 +577,13 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-p        : input password\n"
 	"-P        : input plainmasterkey\n"
 	"-h        : this help\n"
+	"\n"
+	"option matrix\n"
+	"-e and -p\n"
+	"-e and -P\n"
+	"-P\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
-exit(EXIT_FAILURE);
+exit(EXIT_SUCCESS);
 }
 /*===========================================================================*/
 int main(int argc, char *argv[])

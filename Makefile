@@ -80,7 +80,7 @@ endif
 	rm -f wlanhcxinfo
 	rm -f wlanhcxmnc
 	rm -f wlanhashhcx
-	rm -f wlan2hcxcat
+	rm -f wlanhcxcat
 	rm -f wlanpmk2hcx
 	rm -f wlancow2hcxpmk
 	rm -f whoismac
