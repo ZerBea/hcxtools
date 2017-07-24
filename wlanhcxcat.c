@@ -259,7 +259,7 @@ uint8_t pmk[32];
 uint8_t pmkin[32];
 uint8_t pkedata[102];
 uint8_t pkedata_prf[2 + 98 + 2];
-uint8_t ptk[64];
+uint8_t ptk[128];
 uint8_t mic[16];
 
 if(hex2bin(pmkname, pmkin, 32) != TRUE)
@@ -267,6 +267,7 @@ if(hex2bin(pmkname, pmkin, 32) != TRUE)
 	fprintf(stderr, "error wrong plainmasterkey value (allowed: 64 xdigits)\n");
 	exit(EXIT_FAILURE);
 	}
+
 c = 0;
 while(c < hcxrecords)
 	{
@@ -311,8 +312,6 @@ while(c < hcxrecords)
 		}
 	if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
 		ausgabe(zeigerhcx, pmkname);
-
-
 	c++;
 	}
 return;
@@ -328,7 +327,7 @@ uint8_t pmk[32];
 uint8_t pmkin[32];
 uint8_t pkedata[102];
 uint8_t pkedata_prf[2 + 98 + 2];
-uint8_t ptk[64];
+uint8_t ptk[128];
 uint8_t mic[16];
 
 unsigned char essid[32];
@@ -405,7 +404,7 @@ uint8_t pmk[32];
 uint8_t pmkin[32];
 uint8_t pkedata[102];
 uint8_t pkedata_prf[2 + 98 + 2];
-uint8_t ptk[64];
+uint8_t ptk[128];
 uint8_t mic[16];
 
 unsigned char essid[32];
