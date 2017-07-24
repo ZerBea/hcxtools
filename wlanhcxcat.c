@@ -603,20 +603,43 @@ len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
-/*
-void hcxfile()
+void hcxwordlist(long int hcxrecords, char *wordlistname)
 {
 int len;
+int p;
+FILE * fhpwin = NULL;
 
-while(len = fgetline(pwlist, 64, linein)) != -1))
+char linein[66];
+
+if(wordlistname == NULL)
+	return;
+
+if((fhpwin = fopen(wordlistname, "r")) == NULL)
 	{
-	if((pwlen < 8) || pwlen > 63)
-		{
-		}
-
+	fprintf(stderr, "error opening %s\n", wordlistname);
+	return;
 	}
+
+while((len = fgetline(fhpwin, 66, linein)) != -1)
+	{
+	if(len < 8)
+		continue;
+	if(len == 64)
+		{
+		for(p = 0; p < 64; p++)
+			if(!(isxdigit(linein[p])))
+				continue;
+		hcxpmk(hcxrecords, linein);
+		continue;
+		}
+	if(len < 64)
+		hcxpassword(hcxrecords, linein, len);
+	}
+
+if(fhpwin != NULL)
+	fclose(fhpwin);
 return;
-*/
+}
 /*===========================================================================*/
 int sort_by_essid(const void *a, const void *b) 
 { 
@@ -719,6 +742,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage..: %s <options>\n"
 	"options:\n"
 	"-i <file> : input hccapx file\n"
+	"-w <file> : input wordlist, plainmasterkeylist oder mixed word-/plainmasterkeylist\n"
+	"          : wordlist input is very slow\n"
 	"-e        : input ESSID\n"
 	"-p        : input password\n"
 	"-P        : input plainmasterkey\n"
@@ -730,6 +755,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-e and -P\n"
 	"-p\n"
 	"-P\n"
+	"-w\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -753,12 +779,13 @@ char *essidname = NULL;
 char *passwordname = NULL;
 char *pmkname = NULL;
 char *potname = NULL;
+char *wordlistinname = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:e:p:P:o:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:e:p:P:w:o:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -812,6 +839,10 @@ while ((auswahl = getopt(argc, argv, "i:e:p:P:o:hv")) != -1)
 			}
 		break;
 
+		case 'w':
+		wordlistinname = optarg;
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -830,14 +861,6 @@ if(hcxorgrecords == 0)
 	return EXIT_SUCCESS;
 	}
 
-if(fhpot != NULL)
-	{
-
-
-
-
-	}
-
 if((essidname != NULL) && (passwordname != NULL))
 	hcxessidpassword(hcxorgrecords, essidname, essidlen, passwordname, passwordlen);
 
@@ -849,6 +872,9 @@ if((passwordname != NULL) && (essidname == NULL))
 
 if((pmkname != NULL) && (essidname == NULL))
 	hcxpmk(hcxorgrecords, pmkname);
+
+if(wordlistinname != NULL)
+	hcxwordlist(hcxorgrecords, wordlistinname);
 
 if(hcxdata != NULL)
 	free(hcxdata);
