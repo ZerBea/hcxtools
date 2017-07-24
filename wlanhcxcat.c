@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <time.h>
 #include <ctype.h>
+#include <sys/time.h>
 #include <sys/stat.h>
 #include <stdio_ext.h>
 #include <openssl/sha.h>
@@ -641,6 +642,44 @@ if(fhpwin != NULL)
 return;
 }
 /*===========================================================================*/
+void hcxessidwordlist(long int hcxrecords, char *essidname, int essidlen, char *wordlistname)
+{
+int len;
+int p;
+FILE * fhpwin = NULL;
+
+char linein[66];
+
+if(wordlistname == NULL)
+	return;
+
+if((fhpwin = fopen(wordlistname, "r")) == NULL)
+	{
+	fprintf(stderr, "error opening %s\n", wordlistname);
+	return;
+	}
+
+while((len = fgetline(fhpwin, 66, linein)) != -1)
+	{
+	if(len < 8)
+		continue;
+	if(len == 64)
+		{
+		for(p = 0; p < 64; p++)
+			if(!(isxdigit(linein[p])))
+				continue;
+		hcxessidpmk(hcxrecords, essidname, essidlen, linein);
+		continue;
+		}
+	if(len < 64)
+		hcxessidpassword(hcxrecords, essidname, essidlen, linein, len);
+	}
+
+if(fhpwin != NULL)
+	fclose(fhpwin);
+return;
+}
+/*===========================================================================*/
 int sort_by_essid(const void *a, const void *b) 
 { 
 hcx_t *ia = (hcx_t *)a;
@@ -753,6 +792,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"input option matrix\n"
 	"-e and -p\n"
 	"-e and -P\n"
+	"-e and -w\n"
 	"-p\n"
 	"-P\n"
 	"-w\n"
@@ -771,6 +811,8 @@ long int hcxorgrecords = 0;
 hcxdata = NULL;
 fhpot = NULL;
 struct stat statpot;
+struct tm* tm_info;
+struct timeval tv;
 
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
@@ -780,6 +822,8 @@ char *passwordname = NULL;
 char *pmkname = NULL;
 char *potname = NULL;
 char *wordlistinname = NULL;
+
+char zeitstring[26];
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
@@ -853,6 +897,12 @@ while ((auswahl = getopt(argc, argv, "i:e:p:P:w:o:hv")) != -1)
 		}
 	}
 
+if((essidname == 0) && (passwordname != NULL) && (pmkname != NULL) && (wordlistinname != NULL))
+	{
+	fprintf(stderr, "nothing to do\n");
+	return EXIT_SUCCESS;
+	}
+
 hcxorgrecords = readhccapx(hcxinname);
 
 if(hcxorgrecords == 0)
@@ -860,6 +910,11 @@ if(hcxorgrecords == 0)
 	fprintf(stderr, "%ld records loaded\n", hcxorgrecords);
 	return EXIT_SUCCESS;
 	}
+
+gettimeofday(&tv, NULL);
+tm_info = localtime(&tv.tv_sec);
+strftime(zeitstring, 26, "%H:%M:%S", tm_info);
+printf("started %s to test %ld records\n", zeitstring, hcxorgrecords);
 
 if((essidname != NULL) && (passwordname != NULL))
 	hcxessidpassword(hcxorgrecords, essidname, essidlen, passwordname, passwordlen);
@@ -873,8 +928,12 @@ if((passwordname != NULL) && (essidname == NULL))
 if((pmkname != NULL) && (essidname == NULL))
 	hcxpmk(hcxorgrecords, pmkname);
 
-if(wordlistinname != NULL)
+if((wordlistinname != NULL) && (essidname != NULL))
+	hcxessidwordlist(hcxorgrecords, essidname, essidlen, wordlistinname);
+
+if((wordlistinname != NULL) && (essidname == NULL))
 	hcxwordlist(hcxorgrecords, wordlistinname);
+
 
 if(hcxdata != NULL)
 	free(hcxdata);
