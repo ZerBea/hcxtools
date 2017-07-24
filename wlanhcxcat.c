@@ -394,6 +394,91 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
+void hcxpassword(long int hcxrecords, char *passwordname, int passwordlen)
+{
+int p;
+
+long int c;
+hcx_t *zeigerhcx;
+hcx_t *zeigerhcx2;
+uint8_t pmk[32];
+uint8_t pmkin[32];
+uint8_t pkedata[102];
+uint8_t pkedata_prf[2 + 98 + 2];
+uint8_t ptk[128];
+uint8_t mic[16];
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	memset(&pkedata, 0, sizeof(pkedata));
+	memset(&pkedata_prf, 0, sizeof(pkedata_prf));
+	memset(&ptk, 0, sizeof(ptk));
+	memset(&pkedata, 0, sizeof(mic));
+	memcpy(&pmk, &pmkin, 32);
+
+	if(c > 0)
+		{
+		zeigerhcx2 = hcxdata +c -1;
+		if(memcmp(zeigerhcx->essid, zeigerhcx2->essid, 32) != 0)
+			{
+			if(PKCS5_PBKDF2_HMAC(passwordname, passwordlen, zeigerhcx->essid, zeigerhcx->essid_len, 4096, EVP_sha1(), 32, pmkin) == 0)
+				{
+				fprintf(stderr, "could not generate plainmasterkey\n");
+				return;
+				}
+			}
+		}	
+	else if(c == 0)
+		{
+		if(PKCS5_PBKDF2_HMAC(passwordname, passwordlen, zeigerhcx->essid, zeigerhcx->essid_len, 4096, EVP_sha1(), 32, pmkin) == 0)
+			{
+			fprintf(stderr, "could not generate plainmasterkey\n");
+			return;
+			}
+		}
+	if(zeigerhcx->keyver == 1)
+		{
+		generatepke(zeigerhcx, pkedata);
+		for (p = 0; p < 4; p++)
+			{
+			pkedata[99] = p;
+			HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
+			}
+		HMAC(EVP_md5(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+		}
+
+	else if(zeigerhcx->keyver == 2)
+		{
+		generatepke(zeigerhcx, pkedata);
+		for (p = 0; p < 4; p++)
+			{
+			pkedata[99] = p;
+			HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
+			}
+		HMAC(EVP_sha1(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+		}
+
+	else if(zeigerhcx->keyver == 3)
+		{
+		generatepkeprf(zeigerhcx, pkedata);
+		pkedata_prf[0] = 1;
+		pkedata_prf[1] = 0;
+		memcpy (pkedata_prf + 2, pkedata, 98);
+		pkedata_prf[100] = 0x80;
+		pkedata_prf[101] = 1;
+		HMAC(EVP_sha256(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
+		omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+		}
+
+	if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+		ausgabe(zeigerhcx, passwordname);
+	c++;
+	}
+return;
+}
+/*===========================================================================*/
 void hcxessidpassword(long int hcxrecords, char *essidname, int essidlen, char *passwordname, int passwordlen)
 {
 int p;
@@ -580,6 +665,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"option matrix\n"
 	"-e and -p\n"
 	"-e and -P\n"
+	"-p\n"
 	"-P\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
@@ -663,6 +749,9 @@ if((essidname != NULL) && (passwordname != NULL))
 
 if((essidname != NULL) && (pmkname != NULL))
 	hcxessidpmk(hcxorgrecords, essidname, essidlen, pmkname);
+
+if((passwordname != NULL) && (essidname == NULL))
+	hcxpassword(hcxorgrecords, passwordname, passwordlen);
 
 if((pmkname != NULL) && (essidname == NULL))
 	hcxpmk(hcxorgrecords, pmkname);
