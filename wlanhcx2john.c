@@ -129,7 +129,7 @@ if(fhjohn != 0)
 return;	
 }
 /*===========================================================================*/
-int processdata(char *hcxinname)
+int processdata(char *hcxinname, uint8_t noncecheckflag)
 {
 struct stat statinfo;
 FILE *fhhcx;
@@ -175,7 +175,9 @@ zeigerhcx = (hcx_t*)(data);
 if(((datasize % HCX_SIZE) == 0) && (zeigerhcx->signature == HCCAPX_SIGNATURE))
 	{
 	printf("%ld records read from %s\n", hcxsize, hcxinname);
-	if((zeigerhcx->message_pair & 0x80) != 0x80)
+	if((noncecheckflag == TRUE) && (zeigerhcx->message_pair & 0x80) != 0x80)
+		processhcx(hcxsize, zeigerhcx, hcxinname); 
+	else if(noncecheckflag == FALSE)
 		processhcx(hcxsize, zeigerhcx, hcxinname); 
 	}
 
@@ -190,6 +192,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-o <file> : output john file\n"
+	"-D        : disable nonce-correction check\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -198,7 +201,7 @@ int main(int argc, char *argv[])
 {
 int index;
 int auswahl;
-
+uint8_t noncecheckflag = TRUE;
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 
@@ -206,12 +209,16 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:Dhv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'o':
 		johnoutname = optarg;
+		break;
+
+		case 'D':
+		noncecheckflag = FALSE;
 		break;
 
 		default:
@@ -222,7 +229,7 @@ while ((auswahl = getopt(argc, argv, "o:hv")) != -1)
 
 for (index = optind; index < argc; index++)
 	{
-	if(processdata(argv[index]) == FALSE)
+	if(processdata(argv[index], noncecheckflag) == FALSE)
 		{
 		fprintf(stderr, "error processing records from %s\n", (argv[index]));
 		exit(EXIT_FAILURE);
