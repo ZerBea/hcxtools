@@ -34,7 +34,8 @@ typedef struct hcxhrc hcxhrc_t;
 /*===========================================================================*/
 /* globale Variablen */
 
-hcx_t *hcxdata = NULL;
+hcx_t *hcxdata;
+FILE *fhpot;
 /*===========================================================================*/
 void ausgabe(hcx_t *hcxrecord, char *password)
 {
@@ -158,10 +159,20 @@ md5_64 (block, hash);
 memset(&essidstring, 0, 36);
 memcpy(&essidstring, hcxrecord->essid, hcxrecord->essid_len);
 printf("%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s:%s\n",
-hash[0], hash[1], hash[2], hash[3],
-hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
-hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
-essidstring, password);
+	hash[0], hash[1], hash[2], hash[3],
+	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
+	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
+	essidstring, password);
+
+if(fhpot != NULL)
+	{
+	fprintf(fhpot, "%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s:%s\n",
+	hash[0], hash[1], hash[2], hash[3],
+	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
+	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
+	essidstring, password);
+	}
+
 return;
 }
 /*===========================================================================*/
@@ -660,9 +671,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-e        : input ESSID\n"
 	"-p        : input password\n"
 	"-P        : input plainmasterkey\n"
+	"-o <file> : output recovered network data\n"
 	"-h        : this help\n"
 	"\n"
-	"option matrix\n"
+	"input option matrix\n"
 	"-e and -p\n"
 	"-e and -P\n"
 	"-p\n"
@@ -676,20 +688,25 @@ int main(int argc, char *argv[])
 int auswahl;
 int essidlen = 0;
 int passwordlen = 0;
-
+int ret = 0;
 long int hcxorgrecords = 0;
+hcxdata = NULL;
+fhpot = NULL;
+struct stat statpot;
+
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *hcxinname = NULL;
 char *essidname = NULL;
 char *passwordname = NULL;
 char *pmkname = NULL;
+char *potname = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:e:p:P:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:e:p:P:o:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -726,6 +743,15 @@ while ((auswahl = getopt(argc, argv, "i:e:p:P:hv")) != -1)
 			}
 		break;
 
+		case 'o':
+		potname = optarg;
+		if((fhpot = fopen(potname, "a")) == NULL)
+			{
+			fprintf(stderr, "error opening %s\n", potname);
+			exit(EXIT_FAILURE);
+			}
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -744,6 +770,14 @@ if(hcxorgrecords == 0)
 	return EXIT_SUCCESS;
 	}
 
+if(fhpot != NULL)
+	{
+
+
+
+
+	}
+
 if((essidname != NULL) && (passwordname != NULL))
 	hcxessidpassword(hcxorgrecords, essidname, essidlen, passwordname, passwordlen);
 
@@ -758,6 +792,16 @@ if((pmkname != NULL) && (essidname == NULL))
 
 if(hcxdata != NULL)
 	free(hcxdata);
+
+if(fhpot != NULL)
+	{
+	fclose(fhpot);
+	stat(potname, &statpot);
+	if(statpot.st_size == 0)
+		ret = remove(potname);	
+	if(ret != 0)
+		fprintf(stderr, "could not remove empty file %s\n", potname);
+	}
 
 return EXIT_SUCCESS;
 }
