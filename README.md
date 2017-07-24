@@ -13,7 +13,7 @@ or plainmasterkey was transmitted unencrypted.
 Brief description
 --------------
 
-Multiple stand-alone binaries.
+Multiple stand-alone binaries - designed to run on Raspberry Pi's.
 
 All of these utils are designed to execute only one specific function.
 
@@ -39,6 +39,7 @@ Detailed description
 | wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                      |
 | wlanhcxmnc     | Manually do nonce correction on byte number xx of a nonce                                            |
 | wlanhashhcx    | Generate hashlist from hccapx hashfile (md5_64 hash:mac_ap:mac_sta:essid)                            |
+| wlanhcxcat     | Simple password recovery tool (hash-modes 2500, 2501 and 15800)                                      |
 | wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000                               |
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                         |
 | wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                    |
