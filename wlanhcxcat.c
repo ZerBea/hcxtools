@@ -429,7 +429,7 @@ while(c < hcxrecords)
 	memset(&ptk, 0, sizeof(ptk));
 	memset(&pkedata, 0, sizeof(mic));
 	memcpy(&pmk, &pmkin, 32);
-
+	memset(&mic, 0, 16);
 	if(c > 0)
 		{
 		zeigerhcx2 = hcxdata +c -1;
@@ -440,6 +440,7 @@ while(c < hcxrecords)
 				fprintf(stderr, "could not generate plainmasterkey\n");
 				return;
 				}
+			memcpy(&pmk, &pmkin, 32);
 			}
 		}	
 	else if(c == 0)
@@ -449,6 +450,7 @@ while(c < hcxrecords)
 			fprintf(stderr, "could not generate plainmasterkey\n");
 			return;
 			}
+		memcpy(&pmk, &pmkin, 32);
 		}
 	if(zeigerhcx->keyver == 1)
 		{
@@ -914,7 +916,7 @@ if(hcxorgrecords == 0)
 gettimeofday(&tv, NULL);
 tm_info = localtime(&tv.tv_sec);
 strftime(zeitstring, 26, "%H:%M:%S", tm_info);
-printf("started %s to test %ld records\n", zeitstring, hcxorgrecords);
+printf("started at %s to test %ld records\n", zeitstring, hcxorgrecords);
 
 if((essidname != NULL) && (passwordname != NULL))
 	hcxessidpassword(hcxorgrecords, essidname, essidlen, passwordname, passwordlen);
@@ -933,6 +935,11 @@ if((wordlistinname != NULL) && (essidname != NULL))
 
 if((wordlistinname != NULL) && (essidname == NULL))
 	hcxwordlist(hcxorgrecords, wordlistinname);
+
+gettimeofday(&tv, NULL);
+tm_info = localtime(&tv.tv_sec);
+strftime(zeitstring, 26, "%H:%M:%S", tm_info);
+printf("finished at %s\n", zeitstring);
 
 
 if(hcxdata != NULL)
