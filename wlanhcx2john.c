@@ -193,6 +193,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output john file\n"
 	"-D        : disable nonce-correction check\n"
+	"          : default: enable - you will convert less wpa handshakes\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
