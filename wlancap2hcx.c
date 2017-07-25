@@ -121,7 +121,7 @@ hc5500chap_t hcleapchap;
 long int wpakv1c = 0;
 long int wpakv2c = 0;
 long int wpakv3c = 0;
-long int wpakv0c = 0;
+long int wpakv4c = 0;
 
 
 char *hcxoutname = NULL;
@@ -646,8 +646,8 @@ if(hcxrecord.keyver == 2)
 	wpakv2c++;
 if(hcxrecord.keyver == 3)
 	wpakv3c++;
-if(hcxrecord.keyver == 0)
-	wpakv0c++;
+if((hcxrecord.keyver &4) == 4)
+	wpakv4c++;
 
 r = getreplaycount(zeiger2->eapol);
 if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
@@ -1239,7 +1239,7 @@ hcxwritewldcount = 0;
 wpakv1c = 0;
 wpakv2c = 0;
 wpakv3c = 0;
-wpakv0c = 0;
+wpakv4c = 0;
 
 
 
@@ -2068,8 +2068,8 @@ if(wpakv2c > 0)
 if(wpakv3c > 0)
 	printf("\x1B[32mfound %ld wpa2 AES Cipher, AES-128-CMAC\x1B[0m\n", wpakv3c);
 
-if(wpakv0c > 0)
-	printf("\x1B[32mfound %ld unknown Cipher, (zero value)\x1B[0m\n", wpakv0c);
+if(wpakv4c > 0)
+	printf("\x1B[32mfound %ld Groupkeys\x1B[0m\n", wpakv4c);
 
 if(hcxwritewldcount == 1)
 	{
