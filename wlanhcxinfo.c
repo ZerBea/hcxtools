@@ -120,7 +120,6 @@ uint8_t keyver;
 uint8_t keytype;
 unsigned long long int replaycount;
 
-
 long int totalrecords = 0;
 long int wldcount = 0;
 long int xverc1 = 0;
@@ -128,7 +127,7 @@ long int xverc2 = 0;
 long int wpakv1c = 0;
 long int wpakv2c = 0;
 long int wpakv3c = 0;
-long int wpakv0c = 0;
+long int wpakv4c = 0;
 
 long int mp0c = 0;
 long int mp1c = 0;
@@ -161,14 +160,6 @@ while(c < hcxrecords)
 	eapver = get8021xver(zeigerhcx->eapol);
 	keyver = geteapkeyver(zeigerhcx->eapol);
 
-	replaycount = geteapreplaycount(zeigerhcx->eapol);
-	if((replaycount == MYREPLAYCOUNT) && (memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0))
-		wldcount++;
-
-	if((memcmp(&nonceold, zeigerhcx->nonce_ap, 28) == 0) && (memcmp(&nonceold, zeigerhcx->nonce_ap, 32) != 0))
-		noncecorr = TRUE;
-	memcpy(&nonceold, zeigerhcx->nonce_ap, 32);
-
 	if(keyver == 1)
 		wpakv1c++;
 
@@ -178,8 +169,18 @@ while(c < hcxrecords)
 	if(keyver == 3)
 		wpakv3c++;
 
-	if(keyver == 0)
-		wpakv0c++;
+	if((keyver &4) == 4)
+		wpakv4c++;
+
+
+	replaycount = geteapreplaycount(zeigerhcx->eapol);
+	if((replaycount == MYREPLAYCOUNT) && (memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0))
+		wldcount++;
+
+	if((memcmp(&nonceold, zeigerhcx->nonce_ap, 28) == 0) && (memcmp(&nonceold, zeigerhcx->nonce_ap, 32) != 0))
+		noncecorr = TRUE;
+	memcpy(&nonceold, zeigerhcx->nonce_ap, 32);
+
 
 	if((outmode & OM_MAC_AP) == OM_MAC_AP)
 		{
@@ -348,17 +349,17 @@ if(outmode == 0)
 			"\x1B[32mwlandump-ng forced handshakes.....: %ld\x1B[0m\n"
 			"802.1x Version 2001...............: %ld\n"
 			"802.1x Version 2004...............: %ld\n"
-			"wpa1 RC4 Cipher, HMAC-MD5.........: %ld\n"
-			"wpa2 AES Cipher, HMAC-SHA1........: %ld\n"
-			"wpa2 AES Cipher, AES-128-CMAC2....: %ld\n"
-			"unknown Cipher, (zero value)......: %ld\n"
+			"WPA1 RC4 Cipher, HMAC-MD5.........: %ld\n"
+			"WPA2 AES Cipher, HMAC-SHA1........: %ld\n"
+			"WPA2 AES Cipher, AES-128-CMAC2....: %ld\n"
+			"Group keys........................: %ld\n"
 			"message pair M12E2................: %ld (%ld not replaycount checked)\n"
 			"message pair M14E4................: %ld (%ld not replaycount checked)\n"
 			"message pair M32E2................: %ld (%ld not replaycount checked)\n"
 			"message pair M32E3................: %ld (%ld not replaycount checked)\n"
 			"message pair M34E3................: %ld (%ld not replaycount checked)\n"
 			"message pair M34E4................: %ld (%ld not replaycount checked)"
-			"\n", totalrecords, wldcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, wpakv0c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			"\n", totalrecords, wldcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, wpakv4c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == TRUE)
 		fprintf(stdout, "\x1B[33mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");

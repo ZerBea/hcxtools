@@ -48,6 +48,16 @@ if (feof(inputstream)) return -1;
 return len;
 }
 /*===========================================================================*/
+uint8_t geteapkeyver(uint8_t *eapdata)
+{
+eap_t *eap;
+int eapkeyver;
+
+eap = (eap_t*)(uint8_t*)(eapdata);
+eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
+return eapkeyver;
+}
+/*===========================================================================*/
 unsigned long long int getreplaycount(uint8_t *eapdata)
 {
 eap_t *eap;
@@ -58,7 +68,39 @@ replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
-int writmessagepairhccapx(long int hcxrecords, char *mpname, uint8_t message_pair)
+int writekeyver(long int hcxrecords, char *keyvername)
+{
+hcx_t *zeigerhcx;
+uint8_t keyver = 0;
+long int c;
+long int rw = 0;
+FILE *fhhcx;
+char keyveroutname[PATH_MAX +1];
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+		{
+		keyver = geteapkeyver(zeigerhcx->eapol);
+		sprintf(keyveroutname, "%s.kver%d.hccapx", keyvername, keyver);
+		if((fhhcx = fopen(keyveroutname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", keyveroutname);
+			return FALSE;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		fclose(fhhcx);
+		rw++;
+		}
+	c++;
+	}
+printf("%ld records precessed\n", rw++);
+
+return TRUE;
+}
+/*===========================================================================*/
+int writemessagepairhccapx(long int hcxrecords, char *mpname, uint8_t message_pair)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -687,6 +729,16 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-3 <file>     : write only MESSAGE_PAIR_M32E3 to hccapx file\n"
 	"-4 <file>     : write only MESSAGE_PAIR_M34E3 to hccapx file\n"
 	"-5 <file>     : write only MESSAGE_PAIR_M34E4 to hccapx file\n"
+	"-k <file>     : write keyversion based files (use only basename)\n"
+	"              : output:\n"
+	"              : Groupkeys..................... basename.kv0.hccapx\n"
+	"              : WPA1 RC4 Cipher, HMAC-MD5..... basename.kv1.hccapx\n"
+	"              : WPA2 AES Cipher, HMAC-SHA1.... basename.kv2.hccapx\n"
+	"              : WPA2 AES Cipher, AES-128-CMAC2 basename.kv3.hccapx\n"
+	"              : Groupkeys..................... basename.kv4.hccapx\n"
+	"              : Groupkeys..................... basename.kv5.hccapx\n"
+	"              : Groupkeys..................... basename.kv6.hccapx\n"
+	"              : Groupkeys..................... basename.kv7.hccapx\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -715,6 +767,7 @@ char *wlandumpforcedname = NULL;
 char *rccheckedname = NULL;
 char *rcnotcheckedname = NULL;
 char *mpname = NULL;
+char *keyvername = NULL;
 char *workingdirname;
 char *wdres;
 char workingdir[PATH_MAX +1];
@@ -726,7 +779,7 @@ setbuf(stdout, NULL);
 wdres = getcwd(workingdir, PATH_MAX);
 if(wdres != NULL)
 	workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:x:p:l:L:w:W:r:R:0:1:2:3:4:5:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:x:p:l:L:w:W:r:R:0:1:2:3:4:5:k:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -879,6 +932,11 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:x:p:l:L:w:W:r:R:0:1:2:3:4:5:as
 		message_pair = MESSAGE_PAIR_M34E4;
 		break;
 
+		case 'k':
+		keyvername = optarg;
+		mode = 'k';
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -966,7 +1024,13 @@ else if(mode == 'R')
 else if(mode == 'M')
 	{
 	if(mpname != NULL)
-		writmessagepairhccapx(hcxorgrecords, mpname, message_pair);
+		writemessagepairhccapx(hcxorgrecords, mpname, message_pair);
+	}
+
+else if(mode == 'k')
+	{
+	if(keyvername != NULL)
+		writekeyver(hcxorgrecords, keyvername);
 	}
 
 
