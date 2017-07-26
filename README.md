@@ -33,15 +33,16 @@ Detailed description
 | wlancap2hcx    | Converts cap to hccapx and other formats (recommended for use with wlandump-ng and wlanresponse)     |
 | wlanhcx2cap    | Converts hccapx to cap                                                                               |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                             |
+| wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                 |
 | wlanhcx2essid  | Merges hccapx containing the same ESSID                                                              |
 | wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                             |
-| wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                |
 | wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                      |
 | wlanhcxmnc     | Manually do nonce correction on byte number xx of a nonce                                            |
 | wlanhashhcx    | Generate hashlist from hccapx hashfile (md5_64 hash:mac_ap:mac_sta:essid)                            |
 | wlanhcxcat     | Simple password recovery tool (hash-modes 2500, 2501 and 15800)                                      |
 | wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000                               |
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                         |
+| wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                |
 | wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                    |
 | whoismac       | Show vendor information                                                                              |
 
