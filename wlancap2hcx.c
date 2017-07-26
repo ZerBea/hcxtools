@@ -2060,26 +2060,26 @@ else if(hcxwritecount > 1)
 	printf("\x1B[32mtotal %ld usefull wpa handshakes:\x1B[0m\n", hcxwritecount);
 
 if(wpakv1c > 0)
-	printf("\x1B[32mfound %ld wpa1 RC4 Cipher, HMAC-MD5\x1B[0m\n", wpakv1c);
+	printf("\x1B[32mfound %ld WPA1 RC4 Cipher, HMAC-MD5\x1B[0m\n", wpakv1c);
 
 if(wpakv2c > 0)
-	printf("\x1B[32mfound %ld wpa2 AES Cipher, HMAC-SHA1\x1B[0m\n", wpakv2c);
+	printf("\x1B[32mfound %ld WPA2 AES Cipher, HMAC-SHA1\x1B[0m\n", wpakv2c);
 
 if(wpakv3c > 0)
-	printf("\x1B[32mfound %ld wpa2 AES Cipher, AES-128-CMAC\x1B[0m\n", wpakv3c);
+	printf("\x1B[32mfound %ld WPA2 AES Cipher, AES-128-CMAC\x1B[0m\n", wpakv3c);
 
 if(wpakv4c > 0)
 	printf("\x1B[32mfound %ld Groupkeys\x1B[0m\n", wpakv4c);
 
 if(hcxwritewldcount == 1)
 	{
-	printf("\x1B[32mfound %ld valid wpa handshake (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
+	printf("\x1B[32mfound %ld valid WPA handshake (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
 	if(wdfhcxoutname != NULL)
 		printf("\x1B[32myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
 	}
 else if(hcxwritewldcount > 1)
 	{
-	printf("\x1B[32mfound %ld valid wpa handshakes (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
+	printf("\x1B[32mfound %ld valid WPA handshakes (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
 	if(wdfhcxoutname != NULL)
 		printf("\x1B[32myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
 	}
