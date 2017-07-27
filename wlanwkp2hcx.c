@@ -33,6 +33,8 @@
 /* globale Variablen */
 
 long int hcxcount = 0;
+long int wkpcount = 0;
+
 char *hcxoutname = NULL;
 char *essidoutname = NULL;
 /*===========================================================================*/
@@ -155,6 +157,7 @@ int processdata(char *wkpiname)
 {
 struct stat statinfo;
 int wkpsize;
+wkpcount = 0;
 uint8_t wkpessidlen = 0;
 FILE *fhwkp = NULL;
 
@@ -221,6 +224,8 @@ if((wkpessidlen == 0) || (wkpessidlen > 32))
 	}
 
 fclose(fhwkp);
+wkpcount++;
+
 writehccapx(wkpdata);
 
 if(essidoutname != NULL)
@@ -275,14 +280,18 @@ while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 for (index = optind; index < argc; index++)
 	{
 	if(hcxoutname != NULL)
+		{
 		if(processdata(argv[index]) == FALSE)
 			{
-			fprintf(stderr, "error processing records from %s\n", (argv[index]));
+			fprintf(stderr, "error processing records from %s\n", argv[index]);
 			exit(EXIT_FAILURE);
+
 			}
+		printf("%ld record(s) read from %s\n", wkpcount, argv[index]);
+		}
 	}
 
-printf("%ld records written to %s\n", hcxcount, hcxoutname);
+printf("%ld record(s) written to %s\n", hcxcount, hcxoutname);
 
 return EXIT_SUCCESS;
 }
