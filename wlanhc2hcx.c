@@ -322,13 +322,13 @@ zeigerhcx = (hcx_t*)(data);
 zeigerhc = (hccap_t*)(data);
 if(((datasize % HCX_SIZE) == 0) && (zeigerhcx->signature == HCCAPX_SIGNATURE))
 	{
-	printf("%ld records read from %s\n", hcxsize, hcinname);
+	printf("%ld record(s) read from %s\n", hcxsize, hcinname);
 	processhcx(hcxsize, zeigerhcx); 
 	}
 
 else if((datasize % HCCAP_SIZE) == 0)
 	{
-	printf("%ld records read from %s\n", hcsize, hcinname);
+	printf("%ld record(s) read from %s\n", hcsize, hcinname);
 	processhc(hcsize, zeigerhc); 
 	}
 else
@@ -337,7 +337,7 @@ else
 
 free(data);
 if(eapolerror > 0)
-	printf("\x1B[31m%ld records ignored (wrong eapolsize)\x1B[0m\n", eapolerror);
+	printf("\x1B[31m%ld record(s) ignored (wrong eapolsize)\x1B[0m\n", eapolerror);
 
 return TRUE;
 }
