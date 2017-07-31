@@ -1592,6 +1592,10 @@ if(pcap_setfilter(pcapin, &filter) < 0)
 	}
 
 pcap_freecode(&filter);
+
+if(extfilterstring != NULL)
+	free(extfilterstring);
+
 return;
 }
 /*===========================================================================*/
