@@ -116,7 +116,7 @@ Green ACT LED flashes 10 times
 
 Raspberry Pi turned off and can be disconnected from power supply
 
-Do not use wlandump-ng, wlanresponse or pioff togehter!
+Do not use wlandump-ng, wlanresponse or pioff together!
 
 
 Hardware mod (pioff)
@@ -130,7 +130,7 @@ Green ACT LED flashes 10 times
 
 Raspberry Pi turned off and can be disconnected from power supply
 
-Do not use wlandump-ng, wlanresponse or pioff togehter!
+Do not use wlandump-ng, wlanresponse or pioff together!
 
 
 Warning
