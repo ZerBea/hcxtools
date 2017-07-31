@@ -103,7 +103,7 @@ Notice
 Most output files will be appended to existing files (with the exception of .cap files).
 
 
-Hardware mod
+Hardware mod (wlandump-ng/wlanresponse)
 --------------
 
 LED flashes 5 times if wlandump-ng/wlanresponse successfully started
@@ -116,6 +116,11 @@ Green ACT LED flashes 10 times
 
 Raspberry Pi turned off and can be disconnected from power supply
 
+Do not use wlandump-ng, wlanresponse or pioff togehter!
+
+
+Hardware mod (pioff)
+--------------
 
 LED flashes every 30 seconds 2 times if pioff successfully started
 
@@ -124,7 +129,6 @@ Press push button at least > 5 seconds until LED turns on (pioff will shut down 
 Green ACT LED flashes 10 times
 
 Raspberry Pi turned off and can be disconnected from power supply
-
 
 Do not use wlandump-ng, wlanresponse or pioff togehter!
 
