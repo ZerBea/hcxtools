@@ -1537,10 +1537,67 @@ while(1)
 return;
 }
 /*===========================================================================*/
-int startcapturing(char *pcapoutname)
+void installbpf(pcap_t *pcapin, char *externalbpfname)
 {
 struct stat statinfo;
 struct bpf_program filter;
+FILE *fhbpf = NULL;
+int bpfsize = 0;
+
+char *extfilterstring = NULL;
+
+char pcaperrorstring[PCAP_ERRBUF_SIZE];
+
+
+if(externalbpfname != NULL)
+	{
+	if(stat(externalbpfname, &statinfo) != 0)
+		{
+		fprintf(stderr, "can't stat BPF %s\n", externalbpfname);
+		exit(EXIT_FAILURE);
+		}
+	if((fhbpf = fopen(externalbpfname, "r")) == NULL)
+		{
+		fprintf(stderr, "error opening BPF %s\n", externalbpfname);
+		exit(EXIT_FAILURE);
+		}
+	extfilterstring = malloc(statinfo.st_size);
+	if(extfilterstring == NULL)	
+		{
+		fprintf(stderr, "out of memory to store BPF\n");
+		exit(EXIT_FAILURE);
+		}
+	bpfsize = fread(extfilterstring, 1, statinfo.st_size, fhbpf);
+	if(bpfsize != statinfo.st_size)	
+		{
+		fprintf(stderr, "error reading BPF %s\n", externalbpfname);
+		free(extfilterstring);
+		exit(EXIT_FAILURE);
+		}
+	fclose(fhbpf);
+	filterstring = extfilterstring;
+	}
+
+if(pcap_compile(pcapin, &filter, filterstring, 1, 0) < 0)
+	{
+	fprintf(stderr, "error compiling BPF %s \n", pcap_geterr(pcapin));
+	exit(EXIT_FAILURE);
+	}
+
+if(pcap_setfilter(pcapin, &filter) < 0)
+	{
+	sprintf(pcaperrorstring, "error installing BPF ");
+	pcap_perror(pcapin, pcaperrorstring);
+	exit(EXIT_FAILURE);
+	}
+
+pcap_freecode(&filter);
+return;
+}
+/*===========================================================================*/
+int startcapturing(char *pcapoutname, char *externalbpfname)
+{
+struct stat statinfo;
 pcap_t *pcapdh = NULL;
 int datalink = 0;
 int c = 0;
@@ -1566,20 +1623,7 @@ datalink = pcap_datalink(pcapin);
 	if (datalink == DLT_IEEE802_11_RADIO)
 		has_rth = TRUE;
 
-if(pcap_compile(pcapin, &filter,filterstring, 1, 0) < 0)
-	{
-	fprintf(stderr, "error compiling bpf filter %s \n", pcap_geterr(pcapin));
-	exit(EXIT_FAILURE);
-	}
-
-if(pcap_setfilter(pcapin, &filter) < 0)
-	{
-	sprintf(pcaperrorstring, "error installing packet filter ");
-	pcap_perror(pcapin, pcaperrorstring);
-	exit(EXIT_FAILURE);
-	}
-
-pcap_freecode(&filter);
+installbpf(pcapin, externalbpfname);
 
 strcpy(newpcapoutname, pcapoutname);
 while(stat(newpcapoutname, &statinfo) == 0)
@@ -1675,6 +1719,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-p             : passive (do not transmit)\n"
 	"-l             : capture IPv4 and IPv6 packets\n"
 	"-L             : capture wep encrypted data packets\n"
+	"-F <file>      : input file containing entries for Berkeley Packet Filter (BPF)\n"
+	"               : syntax: https://biot.com/capstats/bpf.html\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
 	"\n"
@@ -1734,6 +1780,7 @@ int auswahl;
 uint8_t channel = 1;
 char *eigenpfadname, *eigenname;
 char *pcapoutname = NULL;
+char *externalbpfname = NULL;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
@@ -1742,7 +1789,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbplLhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:F:rbplLhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1846,6 +1893,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:rbplLhv")) != -1)
 			statuslines = aplistesize -1;
 		break;
 
+		case 'F':
+		externalbpfname = optarg;
+		break;
+
 		case 'h':
 		usage(eigenname);
 		break;
@@ -1896,8 +1947,7 @@ if(initgloballists() != TRUE)
 	exit (EXIT_FAILURE);
 	}
 
-
-if(startcapturing(pcapoutname) == FALSE)
+if(startcapturing(pcapoutname, externalbpfname) == FALSE)
 	{
 	fprintf(stderr, "could not init device\n" );
 	exit (EXIT_FAILURE);

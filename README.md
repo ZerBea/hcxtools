@@ -10,6 +10,7 @@ After capturing, upload the "uncleaned" cap here
 by using common wordlists. Convert the cap to hccapx and check if wlan-key
 or plainmasterkey was transmitted unencrypted.
 
+
 Brief description
 --------------
 
@@ -131,6 +132,30 @@ Green ACT LED flashes 10 times
 Raspberry Pi turned off and can be disconnected from power supply
 
 Do not use wlandump-ng, wlanresponse or pioff together!
+
+
+Berkeley Packet Filter BPF (example)
+--------------
+
+wlan host = filter all hosts using this mac
+
+wlan dst = filter all destinations using this mac
+
+wlan src = filter all sources using this mac
+
+wlan ta = filter all transmitter addresses using this mac
+
+wlan ta = filter all receiver addresses using this mac
+
+write all filter entries into one single line !(filterenty1 || filterenty2  || filterenty2)
+
+use ! (not) to filter entries out
+
+!(wlan host 00:00:00:00:00:00 || wlan dst 00:00:00:00:00:00 || wlan src 00:00:00:00:00:00 || wlan ta 00:00:00:00:00:00 || wlan ra 00:00:00:00:00:00)
+
+or allow only this entries
+
+(wlan host 00:00:00:00:00:00 || wlan dst 00:00:00:00:00:00 || wlan src 00:00:00:00:00:00 || wlan ta 00:00:00:00:00:00 || wlan ra 00:00:00:00:00:00)
 
 
 Warning
