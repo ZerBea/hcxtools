@@ -165,7 +165,7 @@ You must use wlandump-ng and wlanresponse only on networks you have permission t
 
 * wlandump-ng/wlanresponse are able to prevent complete wlan traffic
 
-* wlandump-ng/wlanresponse are able to capture handshakes from not connected clients
+* wlandump-ng/wlanresponse are able to capture handshakes from not connected clients (only one single M2 from the client is required)
 
 * wlandump-ng/wlanresponse are able to capture handshakes from 5GHz clients on 2.4GHz
 
