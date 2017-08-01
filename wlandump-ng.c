@@ -1248,7 +1248,7 @@ while(1)
 		{
 		rth = (rth_t*)packet;
 		fcsl = 0;
-		field = 8;
+		field = 12;
 		if((rth->it_present & 0x01) == 0x01)
 			field += 8;
 		if((rth->it_present & 0x80000000) == 0x80000000)
@@ -1286,6 +1286,7 @@ while(1)
 			if (macf->subtype & MAC_ST_QOSDATA)
 				macl += QOS_SIZE;
 		}
+
 	payload = ((uint8_t*)macf)+macl;
 
 	if(lastbeaconing == TRUE)
