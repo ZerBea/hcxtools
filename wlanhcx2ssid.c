@@ -100,6 +100,71 @@ printf("%ld records precessed\n", rw++);
 return TRUE;
 }
 /*===========================================================================*/
+int sort_by_macs(const void *a, const void *b) 
+{ 
+hcx_t *ia = (hcx_t *)a;
+hcx_t *ib = (hcx_t *)b;
+
+if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) < 0)
+	return -1;
+if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) < 0)
+	return -1;
+if(memcmp(ia->essid, ib->essid, 32) > 0)
+	return 1;
+else if(memcmp(ia->essid, ib->essid, 6) < 0)
+	return -1;
+
+return 0;	
+}
+/*===========================================================================*/
+int writesinglenethccapx(long int hcxrecords, char *singlenetname)
+{
+hcx_t *zeigerhcx, *zeigerhcxa;
+long int c;
+long int rw = 0;
+FILE *fhhcx = NULL;
+
+qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_macs);
+if((fhhcx = fopen(singlenetname, "ab")) == NULL)
+	{
+	fprintf(stderr, "error opening file %s", singlenetname);
+	return FALSE;
+	}
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if(c > 0)
+		{
+		zeigerhcxa = hcxdata +c -1;
+		if((memcmp(zeigerhcx->mac_ap.addr, zeigerhcxa->mac_ap.addr, 6) == 0) && (memcmp(zeigerhcx->mac_sta.addr, zeigerhcxa->mac_sta.addr, 6) == 0) && (memcmp(zeigerhcx->essid, zeigerhcxa->essid, 32) == 0))
+			{
+			c++;
+			continue;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		}
+	else
+		{
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		}
+
+	c++;
+	}
+
+fclose(fhhcx);
+
+printf("%ld records written to %s\n", rw, singlenetname);
+return TRUE;
+}
+/*===========================================================================*/
 int writemessagepairhccapx(long int hcxrecords, char *mpname, uint8_t message_pair)
 {
 hcx_t *zeigerhcx;
@@ -723,6 +788,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-W <file>     : write only not wlandump forced to hccapx file\n"
 	"-r <file>     : write only replaycount checked to hccapx file\n"
 	"-R <file>     : write only not replaycount checked to hccapx file\n"
+	"-N <file>     : output stripped file (only one record each mac_ap, mac_sta, essid combination)\n"
 	"-0 <file>     : write only MESSAGE_PAIR_M12E2 to hccapx file\n"
 	"-1 <file>     : write only MESSAGE_PAIR_M14E4 to hccapx file\n"
 	"-2 <file>     : write only MESSAGE_PAIR_M32E2 to hccapx file\n"
@@ -768,6 +834,7 @@ char *rccheckedname = NULL;
 char *rcnotcheckedname = NULL;
 char *mpname = NULL;
 char *keyvername = NULL;
+char *singlenetname = NULL;
 char *workingdirname;
 char *wdres;
 char workingdir[PATH_MAX +1];
@@ -779,7 +846,7 @@ setbuf(stdout, NULL);
 wdres = getcwd(workingdir, PATH_MAX);
 if(wdres != NULL)
 	workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:x:p:l:L:w:W:r:R:0:1:2:3:4:5:k:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:x:p:l:L:w:W:r:R:N:0:1:2:3:4:5:k:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -894,6 +961,12 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:x:p:l:L:w:W:r:R:0:1:2:3:4:5:k:
 		case 'R':
 		rcnotcheckedname = optarg;
 		mode = 'R';
+		break;
+
+
+		case 'N':
+		singlenetname = optarg;
+		mode = 'N';
 		break;
 
 		case '0':
@@ -1014,6 +1087,13 @@ else if(mode == 'r')
 	if(rccheckedname != NULL)
 		writerccheckedhccapx(hcxorgrecords, rccheckedname);
 	}
+
+else if(mode == 'N')
+	{
+	if(singlenetname != NULL)
+		writesinglenethccapx(hcxorgrecords, singlenetname);
+	}
+
 
 else if(mode == 'R')
 	{
