@@ -570,32 +570,6 @@ typedef struct pppchap_frame pppchap_frame_t;
 #define PPPCHAP_FAILURE     4
 
 
-struct netdb
-{
- long int	tv_sec;  
- long int	tv_usec;
- adr_t		mac_ap;
- adr_t		mac_sta;
- uint8_t	essid_len;
- uint8_t	essid[32];
-};
-typedef struct netdb netdb_t;
-#define	NETDB_SIZE (sizeof(netdb_t))
-
-
-struct eapdb
-{
- long int	tv_sec;  
- time_t		tv_usec;
- adr_t		mac_ap;
- adr_t		mac_sta;
- uint16_t	eapol_len;
- uint8_t	eapol[256];
-};
-typedef struct eapdb eapdb_t;
-#define	EAPDB_SIZE (sizeof(eapdb_t))
-
-
 #define MYREPLAYCOUNT 63232
 
 #define	MESSAGE_PAIR_M12E2 0

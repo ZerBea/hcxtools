@@ -38,6 +38,22 @@ for (c = 0; c < size; c++)
 return;
 }
 /*===========================================================================*/
+int checkessid(uint8_t essid_len, uint8_t *essid)
+{
+uint8_t p;
+
+if(essid_len == 0)
+	return FALSE;
+
+if(essid_len > 32)
+	return FALSE;
+
+for(p = 0; p < essid_len; p++)
+	if((essid[p] < 0x20) || (essid[p] > 0x7e))
+		return FALSE;
+return TRUE;
+}
+/*===========================================================================*/
 uint8_t geteapkeytype(uint8_t *eapdata)
 {
 eap_t *eap;
@@ -113,7 +129,7 @@ return memcmp(ia->nonce_ap, ib->nonce_ap, 32);
 void writehcxinfo(long int hcxrecords, int outmode)
 {
 hcx_t *zeigerhcx;
-long int c, m, l;
+long int c, c1;
 uint8_t pf;
 uint8_t eapver;
 uint8_t keyver;
@@ -144,7 +160,6 @@ long int mp84c = 0;
 long int mp85c = 0;
 
 uint8_t noncecorr = FALSE;
-char *hiddenstr = "hidden ssid";
 
 uint8_t nonceold[32];
 char essidoutstr[34];
@@ -266,25 +281,21 @@ while(c < hcxrecords)
 		if(pf == TRUE)
 			fprintf(stdout, ":");
 
-		memset(&essidoutstr, 0, 34);
 		if(zeigerhcx->essid_len > 32)
 			zeigerhcx->essid_len = 32;
+		memset(&essidoutstr, 0, 34);
 		memcpy(&essidoutstr, zeigerhcx->essid, zeigerhcx->essid_len); 
-		l = zeigerhcx->essid_len;
-		if((zeigerhcx->essid[0] == 0) || (zeigerhcx->essid_len == 0))
-			{
-			strcpy(essidoutstr, hiddenstr);
-			l = 13;
-			}
 
-		for(m = 0; m < l; m++)
+		if(checkessid(zeigerhcx->essid_len, zeigerhcx->essid) == TRUE)
+			fprintf(stdout, "%s", essidoutstr);
+
+		else
 			{
-			if((essidoutstr[m] >= 0x20) && (essidoutstr[m] <= 0x7e))
-				fprintf(stdout, "%c", essidoutstr[m]);
-			else
-				fprintf(stdout, "\\%02x", essidoutstr[m] &0xff);
+			fprintf(stdout, "$HEX[");
+			for(c1 = 0; c1 < zeigerhcx->essid_len; c1++)
+				fprintf(stdout, "%02x", zeigerhcx->essid[c1]);
+			fprintf(stdout, "]");
 			}
-//		fprintf(stdout, "\n");
 		pf = TRUE;
 		}
 
