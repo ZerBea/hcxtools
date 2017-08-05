@@ -117,7 +117,10 @@ if(memcmp(ia->essid, ib->essid, 32) > 0)
 	return 1;
 else if(memcmp(ia->essid, ib->essid, 6) < 0)
 	return -1;
-
+if(ia->message_pair > ib->message_pair)
+	return 1;
+if(ia->message_pair < ib->message_pair)
+	return -1;
 return 0;	
 }
 /*===========================================================================*/
@@ -142,13 +145,11 @@ while(c < hcxrecords)
 	if(c > 0)
 		{
 		zeigerhcxa = hcxdata +c -1;
-		if((memcmp(zeigerhcx->mac_ap.addr, zeigerhcxa->mac_ap.addr, 6) == 0) && (memcmp(zeigerhcx->mac_sta.addr, zeigerhcxa->mac_sta.addr, 6) == 0) && (memcmp(zeigerhcx->essid, zeigerhcxa->essid, 32) == 0))
+		if((memcmp(zeigerhcx->mac_ap.addr, zeigerhcxa->mac_ap.addr, 6) != 0) || (memcmp(zeigerhcx->mac_sta.addr, zeigerhcxa->mac_sta.addr, 6) != 0) || (zeigerhcx->message_pair != zeigerhcxa->message_pair) || (memcmp(zeigerhcx->essid, zeigerhcxa->essid, 32) != 0))
 			{
-			c++;
-			continue;
+			fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+			rw++;
 			}
-		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
-		rw++;
 		}
 	else
 		{
@@ -788,7 +789,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-W <file>     : write only not wlandump forced to hccapx file\n"
 	"-r <file>     : write only replaycount checked to hccapx file\n"
 	"-R <file>     : write only not replaycount checked to hccapx file\n"
-	"-N <file>     : output stripped file (only one record each mac_ap, mac_sta, essid combination)\n"
+	"-N <file>     : output stripped file (only one record each mac_ap, mac_sta, essid, message_pair combination)\n"
 	"-0 <file>     : write only MESSAGE_PAIR_M12E2 to hccapx file\n"
 	"-1 <file>     : write only MESSAGE_PAIR_M14E4 to hccapx file\n"
 	"-2 <file>     : write only MESSAGE_PAIR_M32E2 to hccapx file\n"
