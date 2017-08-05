@@ -1092,6 +1092,7 @@ int addnet(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, uint8
 {
 if(memcmp(mac_ap, mac_sta, 6) == 0)
 	return FALSE;
+
 memset(newnetdbdata, 0, NETDB_SIZE);
 newnetdbdata->tv_sec = tvsec;
 newnetdbdata->tv_usec = tvusec;
@@ -1099,6 +1100,8 @@ memcpy(newnetdbdata->mac_ap.addr, mac_ap, 6);
 memcpy(newnetdbdata->mac_sta.addr, mac_sta, 6);
 newnetdbdata->essid_len = essid_len;
 memcpy(newnetdbdata->essid, essid, essid_len);
+if(newnetdbdata->essid[0] == 0)
+	return FALSE;
 newnetdbdata++;
 netdbrecords++;
 return TRUE;
@@ -1608,9 +1611,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			if(essidf->info_essid_len == 0)
 				continue;
-			if (&essidf->essid[0] == 0)
-				continue;
-
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid);
 			}
 		else if(macf->subtype == MAC_ST_PROBE_RESP)
@@ -1625,8 +1625,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(essidf->info_essid_len > 32)
 				continue;
 			if(essidf->info_essid_len == 0)
-				continue;
-			if (&essidf->essid[0] == 0)
 				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid);
 			}
@@ -1645,8 +1643,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			if(essidf->info_essid_len == 0)
 				continue;
-			if (&essidf->essid[0] == 0)
-				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
 			}
 
@@ -1664,8 +1660,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			if(essidf->info_essid_len == 0)
 				continue;
-			if (&essidf->essid[0] == 0)
-				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
 			}
 
@@ -1681,8 +1675,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(essidf->info_essid_len > 32)
 				continue;
 			if(essidf->info_essid_len == 0)
-				continue;
-			if (&essidf->essid[0] == 0)
 				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
 			}
@@ -2041,13 +2033,13 @@ if(essidoutname != NULL)
 		if(checkessid(zeigernet->essid_len, zeigernet->essid) == TRUE)
 			fprintf(fhessid, "%s\n", zeigernet->essid);
 
-		if(zeigernet->essid_len == 32)
+		else
 			{
-			for(c1 = 0; c1 < 32; c1++)
+			fprintf(fhessid, "$HEX[");
+			for(c1 = 0; c1 < zeigernet->essid_len; c1++)
 				fprintf(fhessid, "%02x", zeigernet->essid[c1]);
-			fprintf(fhessid, "\n");
+			fprintf(fhessid, "]\n");
 			}
-
 		zeigernet++;
 		}
 
