@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -87,7 +88,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(keyveroutname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", keyveroutname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		fclose(fhhcx);
@@ -96,8 +97,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records precessed\n", rw++);
-
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int sort_by_macs(const void *a, const void *b) 
@@ -135,7 +135,7 @@ qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_macs);
 if((fhhcx = fopen(singlenetname, "ab")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", singlenetname);
-	return FALSE;
+	return false;
 	}
 
 c = 0;
@@ -163,7 +163,7 @@ while(c < hcxrecords)
 fclose(fhhcx);
 
 printf("%ld records written to %s\n", rw, singlenetname);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writemessagepairhccapx(long int hcxrecords, char *mpname, uint8_t message_pair)
@@ -182,7 +182,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(mpname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", mpname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -191,7 +191,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written to %s\n", rw, mpname);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writercnotcheckedhccapx(long int hcxrecords, char *rcnotckeckedname)
@@ -210,7 +210,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(rcnotckeckedname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", rcnotckeckedname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -219,7 +219,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written to %s\n", rw, rcnotckeckedname);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writerccheckedhccapx(long int hcxrecords, char *rcckeckedname)
@@ -238,7 +238,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(rcckeckedname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", rcckeckedname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -247,7 +247,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written to %s\n", rw, rcckeckedname);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writewantessidlenhccapx(long int hcxrecords, int essidlen)
@@ -270,7 +270,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(wantessidlenoutname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", wantessidlenoutname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -279,7 +279,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written to %s\n", rw, wantessidlenoutname);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writewlandumpnotforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
@@ -301,7 +301,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(wlandumpforcedname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", wlandumpforcedname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -310,7 +310,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written to %s\n", rw, wlandumpforcedname);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writewlandumpforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
@@ -331,7 +331,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(wlandumpforcedname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", wlandumpforcedname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -340,7 +340,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written to %s\n", rw, wlandumpforcedname);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writemacaplisthccapx(long int hcxrecords, char *aplistname, char *apoutname)
@@ -359,7 +359,7 @@ char linein[14];
 if((fhaplist = fopen(aplistname, "r")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", aplistname);
-	return FALSE;
+	return false;
 	}
 
 while((len = fgetline(fhaplist, 14, linein)) != -1)
@@ -383,7 +383,7 @@ while((len = fgetline(fhaplist, 14, linein)) != -1)
 			if((fhhcx = fopen(apoutname, "ab")) == NULL)
 				{
 				fprintf(stderr, "error opening file %s", apoutname);
-				return FALSE;
+				return false;
 				}
 			fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 			rw++;
@@ -395,7 +395,7 @@ while((len = fgetline(fhaplist, 14, linein)) != -1)
 
 printf("%ld records written to %s\n", rw, apoutname);
 fclose(fhaplist);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writesearchouihccapx(long int hcxrecords, unsigned long long int oui)
@@ -423,7 +423,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(macoutname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", macoutname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -432,7 +432,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written\n", rw);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writesearchmacstahccapx(long int hcxrecords, unsigned long long int mac_sta)
@@ -463,7 +463,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(macoutname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", macoutname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -472,7 +472,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written\n", rw);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writesearchmacaphccapx(long int hcxrecords, unsigned long long int mac_ap)
@@ -503,7 +503,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(macoutname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", macoutname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -512,7 +512,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written\n", rw);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writesearchessidhccapx(long int hcxrecords, char *essidname)
@@ -537,7 +537,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(essidoutname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", essidoutname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -546,7 +546,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written\n", rw);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writesearchessidxhccapx(long int hcxrecords, char *essidxname)
@@ -571,7 +571,7 @@ while(c < hcxrecords)
 		if((fhhcx = fopen(essidxoutname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", essidxoutname);
-			return FALSE;
+			return false;
 			}
 		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 		rw++;
@@ -580,7 +580,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written\n", rw);
-return TRUE;
+return true;
 }
 int writeessidhccapx(long int hcxrecords)
 {
@@ -611,7 +611,7 @@ while(c < hcxrecords)
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening file %s", hcxoutname);
-		return FALSE;
+		return false;
 		}
 	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 	rw++;
@@ -619,7 +619,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written\n", rw);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 void oui2hxoutname(char ssid[13], unsigned char *p)
@@ -650,7 +650,7 @@ while(c < hcxrecords)
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening file %s", hcxoutname);
-		return FALSE;
+		return false;
 		}
 	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 	rw++;
@@ -658,7 +658,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written\n", rw);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writemacstahccapx(long int hcxrecords)
@@ -678,7 +678,7 @@ while(c < hcxrecords)
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening file %s", hcxoutname);
-		return FALSE;
+		return false;
 		}
 	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 	rw++;
@@ -686,7 +686,7 @@ while(c < hcxrecords)
 	c++;
 	}
 printf("%ld records written\n", rw);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int writemacaphccapx(long int hcxrecords)
@@ -706,7 +706,7 @@ while(c < hcxrecords)
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening file %s", hcxoutname);
-		return FALSE;
+		return false;
 		}
 	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 	rw++;
@@ -715,48 +715,48 @@ while(c < hcxrecords)
 	}
 
 printf("%ld records written\n", rw);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
-int readhccapx(char *hcxinname)
+long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
 long int hcxsize = 0;
 
 if(hcxinname == NULL)
-	return FALSE;
+	return false;
 
 if(stat(hcxinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 if((statinfo.st_size % HCX_SIZE) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
-	return FALSE;
+	return 0;
 	}
 
 if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 hcxdata = malloc(statinfo.st_size);
 if(hcxdata == NULL)	
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
-		return FALSE;
+		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
 if(hcxsize != statinfo.st_size)	
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 fclose(fhhcx);
 
