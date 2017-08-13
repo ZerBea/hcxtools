@@ -12,6 +12,9 @@
 #include <stdio_ext.h>
 #include <curl/curl.h>
 #include <openssl/sha.h>
+#include <openssl/hmac.h>
+#include <openssl/cmac.h>
+#include <openssl/evp.h>
 #include "common.h"
 #include "common.c"
 #include "com_md5_64.h"
@@ -122,6 +125,7 @@ eapdb_t *neweapdbdata = NULL;
 long int eapdbrecords = 0;
 long int hcxwritecount = 0;
 long int hcxwritewldcount = 0;
+long int weakpasscount = 0;
 pcap_dumper_t *pcapout = NULL;
 pcap_dumper_t *pcapextout = NULL;
 pcap_dumper_t *pcapipv46out = NULL;
@@ -135,6 +139,7 @@ uint8_t ancflag = FALSE;
 uint8_t anecflag = FALSE;
 uint8_t showinfo1 = FALSE;
 uint8_t showinfo2 = FALSE;
+uint8_t weakpassflag = FALSE;
 
 int rctimecount = 0;
 
@@ -622,6 +627,141 @@ if(showinfo2 == TRUE)
 return;
 }
 /*===========================================================================*/
+int omac1_aes_128_vector(const uint8_t *key, size_t num_elem, const uint8_t *addr[], const size_t *len, uint8_t *mac)
+{
+	CMAC_CTX *ctx;
+	int ret = -1;
+	size_t outlen, i;
+
+	ctx = CMAC_CTX_new();
+	if (ctx == NULL)
+		return -1;
+
+	if (!CMAC_Init(ctx, key, 16, EVP_aes_128_cbc(), NULL))
+		goto fail;
+	for (i = 0; i < num_elem; i++) {
+		if (!CMAC_Update(ctx, addr[i], len[i]))
+			goto fail;
+	}
+	if (!CMAC_Final(ctx, mac, &outlen) || outlen != 16)
+		goto fail;
+
+	ret = 0;
+fail:
+	CMAC_CTX_free(ctx);
+	return ret;
+}
+/*===========================================================================*/
+int omac1_aes_128(const uint8_t *key, const uint8_t *data, size_t data_len, uint8_t *mac)
+{
+	return omac1_aes_128_vector(key, 1, &data, &data_len, mac);
+}
+/*===========================================================================*/
+void generatepkeprf(hcx_t *hcxrecord, uint8_t *pke_ptr)
+{
+memcpy(pke_ptr, "Pairwise key expansion", 22);
+if(memcmp(hcxrecord->mac_ap.addr, hcxrecord->mac_sta.addr, 6) < 0)
+	{
+	memcpy(pke_ptr + 22, hcxrecord->mac_ap.addr,  6);
+	memcpy(pke_ptr + 28, hcxrecord->mac_sta.addr, 6);
+	}
+else
+	{
+	memcpy(pke_ptr + 22, hcxrecord->mac_sta.addr, 6);
+	memcpy(pke_ptr + 28, hcxrecord->mac_ap.addr,  6);
+	}
+if(memcmp(hcxrecord->nonce_ap, hcxrecord->nonce_sta, 32) < 0)
+	{
+	memcpy (pke_ptr + 34, hcxrecord->nonce_ap,  32);
+	memcpy (pke_ptr + 66, hcxrecord->nonce_sta, 32);
+	}
+else
+	{
+	memcpy (pke_ptr + 34, hcxrecord->nonce_sta, 32);
+	memcpy (pke_ptr + 66, hcxrecord->nonce_ap,  32);
+	}
+return;
+}
+/*===========================================================================*/
+void generatepke(hcx_t *hcxrecord, uint8_t *pke_ptr)
+{
+memcpy(pke_ptr, "Pairwise key expansion", 23);
+if(memcmp(hcxrecord->mac_ap.addr, hcxrecord->mac_sta.addr, 6) < 0)
+	{
+	memcpy(pke_ptr + 23, hcxrecord->mac_ap.addr,  6);
+	memcpy(pke_ptr + 29, hcxrecord->mac_sta.addr, 6);
+	}
+else
+	{
+	memcpy(pke_ptr + 23, hcxrecord->mac_sta.addr, 6);
+	memcpy(pke_ptr + 29, hcxrecord->mac_ap.addr,  6);
+	}
+
+if(memcmp(hcxrecord->nonce_ap, hcxrecord->nonce_sta, 32) < 0)
+	{
+	memcpy (pke_ptr + 35, hcxrecord->nonce_ap,  32);
+	memcpy (pke_ptr + 67, hcxrecord->nonce_sta, 32);
+	}
+else
+	{
+	memcpy (pke_ptr + 35, hcxrecord->nonce_sta, 32);
+	memcpy (pke_ptr + 67, hcxrecord->nonce_ap,  32);
+	}
+return;
+}
+/*===========================================================================*/
+int weakpasscheck(hcx_t *zeigerhcx)
+{
+int p;
+uint8_t pmk[32];
+uint8_t pkedata[102];
+uint8_t pkedata_prf[2 + 98 + 2];
+uint8_t ptk[128];
+uint8_t mic[16];
+
+memset(&pkedata, 0, sizeof(pkedata));
+memset(&pkedata_prf, 0, sizeof(pkedata_prf));
+memset(&ptk, 0, sizeof(ptk));
+memset(&pkedata, 0, sizeof(mic));
+memset(&pmk, 0, 32);
+if(zeigerhcx->keyver == 1)
+	{
+	generatepke(zeigerhcx, pkedata);
+	for (p = 0; p < 4; p++)
+		{
+		pkedata[99] = p;
+		HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
+		}
+	HMAC(EVP_md5(), &ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+	}
+
+else if(zeigerhcx->keyver == 2)
+	{
+	generatepke(zeigerhcx, pkedata);
+	for (p = 0; p < 4; p++)
+		{
+		pkedata[99] = p;
+		HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
+		}
+	HMAC(EVP_sha1(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+	}
+
+else if(zeigerhcx->keyver == 3)
+	{
+	generatepkeprf(zeigerhcx, pkedata);
+	pkedata_prf[0] = 1;
+	pkedata_prf[1] = 0;
+	memcpy (pkedata_prf + 2, pkedata, 98);
+	pkedata_prf[100] = 0x80;
+	pkedata_prf[101] = 1;
+	HMAC(EVP_sha256(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
+	omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+	}
+if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+	return TRUE;
+return FALSE;
+}
+/*===========================================================================*/
 void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 hcx_t hcxrecord;
@@ -673,12 +813,21 @@ if(hcxrecord.keyver == 3)
 if((hcxrecord.keyver &4) == 4)
 	wpakv4c++;
 
+if((weakpassflag == TRUE) && (weakpasscheck(&hcxrecord) == TRUE))
+	{
+	weakpasscount++;
+	return;
+	}
+else if(weakpasscheck(&hcxrecord) == TRUE)
+	weakpasscount++;
+
 r = getreplaycount(zeiger2->eapol);
 if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
 	{
 	hcxwritewldcount++;
 	wldflagint = TRUE;
 	}
+
 
 if((hcxaesoutname != NULL) && (hcxrecord.keyver == 3))
 	{
@@ -1324,6 +1473,7 @@ ancflag = FALSE;
 anecflag = FALSE;
 hcxwritecount = 0;
 hcxwritewldcount = 0;
+weakpasscount = 0;
 wpakv1c = 0;
 wpakv2c = 0;
 wpakv3c = 0;
@@ -2118,9 +2268,14 @@ pcap_close(pcapin);
 printf("%ld packets processed (%ld wlan, %ld lan, %ld loopback)\n", packetcount, wlanpacketcount, ethpacketcount, loopbpacketcount);
 
 if(hcxwritecount == 1)
-	printf("\x1B[32mtotal %ld usefull wpa handshake:\x1B[0m\n", hcxwritecount);
+	printf("\x1B[32mtotal %ld usefull wpa handshake\x1B[0m\n", hcxwritecount);
 else if(hcxwritecount > 1)
-	printf("\x1B[32mtotal %ld usefull wpa handshakes:\x1B[0m\n", hcxwritecount);
+	printf("\x1B[32mtotal %ld usefull wpa handshakes\x1B[0m\n", hcxwritecount);
+
+if(weakpasscount == 1)
+	printf("\x1B[32mfound %ld handshake with zeroed plainmasterkeys\x1B[0m\n", weakpasscount);
+else if(weakpasscount > 1)
+	printf("\x1B[32mfound %ld handshakes with zeroed plainmasterkeys\x1B[0m\n", weakpasscount);
 
 if(wpakv1c > 0)
 	printf("\x1B[32mfound %ld WPA1 RC4 Cipher, HMAC-MD5\x1B[0m\n", wpakv1c);
@@ -2396,6 +2551,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"          : default: disabled - you will get more authentications, but some of them are uncrackable\n"
 	"-F <file> : input file containing entries for Berkeley Packet Filter (BPF)\n"
 	"          : syntax: https://biot.com/capstats/bpf.html\n"
+	"-Z        : ignore zeroed plainmasterkeys\n"
 	"-h        : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
@@ -2432,7 +2588,7 @@ if (argc == 1)
 	}
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrishv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2515,6 +2671,10 @@ while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrishv")) 
 
 		case 'F':
 		externalbpfname = optarg;
+		break;
+
+		case 'Z':
+		weakpassflag = TRUE;
 		break;
 
 		case 'h':
