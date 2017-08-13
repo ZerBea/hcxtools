@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -43,15 +44,15 @@ int checkessid(uint8_t essid_len, uint8_t *essid)
 uint8_t p;
 
 if(essid_len == 0)
-	return FALSE;
+	return false;
 
 if(essid_len > 32)
-	return FALSE;
+	return false;
 
 for(p = 0; p < essid_len; p++)
 	if((essid[p] < 0x20) || (essid[p] > 0x7e))
-		return FALSE;
-return TRUE;
+		return false;
+return true;
 }
 /*===========================================================================*/
 uint8_t geteapkeytype(uint8_t *eapdata)
@@ -159,7 +160,7 @@ long int mp83c = 0;
 long int mp84c = 0;
 long int mp85c = 0;
 
-uint8_t noncecorr = FALSE;
+uint8_t noncecorr = false;
 
 uint8_t nonceold[32];
 char essidoutstr[34];
@@ -170,7 +171,7 @@ qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_nonce_ap);
 c = 0;
 while(c < hcxrecords)
 	{
-	pf = FALSE;
+	pf = false;
 	zeigerhcx = hcxdata +c;
 	eapver = get8021xver(zeigerhcx->eapol);
 	keyver = geteapkeyver(zeigerhcx->eapol);
@@ -193,92 +194,92 @@ while(c < hcxrecords)
 		wldcount++;
 
 	if((memcmp(&nonceold, zeigerhcx->nonce_ap, 28) == 0) && (memcmp(&nonceold, zeigerhcx->nonce_ap, 32) != 0))
-		noncecorr = TRUE;
+		noncecorr = true;
 	memcpy(&nonceold, zeigerhcx->nonce_ap, 32);
 
 
 	if((outmode & OM_MAC_AP) == OM_MAC_AP)
 		{
 		printhex(zeigerhcx->mac_ap.addr, 6);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_NONCE_AP) == OM_NONCE_AP)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 		printhex(zeigerhcx->nonce_ap, 32);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_MAC_STA) == OM_MAC_STA)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 		printhex(zeigerhcx->mac_sta.addr, 6);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_NONCE_STA) == OM_NONCE_STA)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 		printhex(zeigerhcx->nonce_sta, 32);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_KEYMIC) == OM_KEYMIC)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 		printhex(zeigerhcx->keymic, 16);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_REPLAYCOUNT) == OM_REPLAYCOUNT)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 		fprintf(stdout, "%016llx", replaycount);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_KEYVER) == OM_KEYVER)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 		fprintf(stdout, "%d", keyver);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_KEYTYPE) == OM_KEYTYPE)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 		keytype = geteapkeytype(zeigerhcx->eapol);
 		fprintf(stdout, "%d", keytype);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_MESSAGE_PAIR) == OM_MESSAGE_PAIR)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 		fprintf(stdout, "%02x", zeigerhcx->message_pair);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_ESSID_LEN) == OM_ESSID_LEN)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 		fprintf(stdout, "%02d", zeigerhcx->essid_len);
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode & OM_ESSID) == OM_ESSID)
 		{
-		if(pf == TRUE)
+		if(pf == true)
 			fprintf(stdout, ":");
 
 		if(zeigerhcx->essid_len > 32)
@@ -286,7 +287,7 @@ while(c < hcxrecords)
 		memset(&essidoutstr, 0, 34);
 		memcpy(&essidoutstr, zeigerhcx->essid, zeigerhcx->essid_len); 
 
-		if(checkessid(zeigerhcx->essid_len, zeigerhcx->essid) == TRUE)
+		if(checkessid(zeigerhcx->essid_len, zeigerhcx->essid) == true)
 			fprintf(stdout, "%s", essidoutstr);
 
 		else
@@ -296,7 +297,7 @@ while(c < hcxrecords)
 				fprintf(stdout, "%02x", zeigerhcx->essid[c1]);
 			fprintf(stdout, "]");
 			}
-		pf = TRUE;
+		pf = true;
 		}
 
 	if((outmode) != 0)
@@ -372,52 +373,52 @@ if(outmode == 0)
 			"message pair M34E4................: %ld (%ld not replaycount checked)"
 			"\n", totalrecords, wldcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, wpakv4c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
-	if(noncecorr == TRUE)
+	if(noncecorr == true)
 		fprintf(stdout, "\x1B[33mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
 	}
 
 return;
 }
 /*===========================================================================*/
-int readhccapx(char *hcxinname)
+long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
 long int hcxsize = 0;
 
 if(hcxinname == NULL)
-	return FALSE;
+	return 0;
 
 if(stat(hcxinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 if((statinfo.st_size % HCX_SIZE) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
-	return FALSE;
+	return 0;
 	}
 
 if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 hcxdata = malloc(statinfo.st_size);
 if(hcxdata == NULL)	
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
-		return FALSE;
+		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
 if(hcxsize != statinfo.st_size)	
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 fclose(fhhcx);
 return hcxsize / HCX_SIZE;

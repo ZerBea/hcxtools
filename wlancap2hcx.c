@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -131,15 +132,15 @@ pcap_dumper_t *pcapextout = NULL;
 pcap_dumper_t *pcapipv46out = NULL;
 pcap_dumper_t *pcapwepout = NULL;
 
-uint8_t netexact = FALSE;
-uint8_t replaycountcheck = FALSE;
-uint8_t idcheck = FALSE;
-uint8_t wcflag = FALSE;
-uint8_t ancflag = FALSE;
-uint8_t anecflag = FALSE;
-uint8_t showinfo1 = FALSE;
-uint8_t showinfo2 = FALSE;
-uint8_t weakpassflag = FALSE;
+uint8_t netexact = false;
+uint8_t replaycountcheck = false;
+uint8_t idcheck = false;
+uint8_t wcflag = false;
+uint8_t ancflag = false;
+uint8_t anecflag = false;
+uint8_t showinfo1 = false;
+uint8_t showinfo2 = false;
+uint8_t weakpassflag = false;
 
 int rctimecount = 0;
 
@@ -174,7 +175,7 @@ memset(&hcleapchap, 0, sizeof(hc5500chap_t));
 return;
 }
 /*===========================================================================*/
-int addpppchap(uint8_t *mac_1, uint8_t *mac_2, uint8_t *payload)
+bool addpppchap(uint8_t *mac_1, uint8_t *mac_2, uint8_t *payload)
 {
 int c;
 gre_frame_t *greh = NULL;
@@ -191,7 +192,7 @@ unsigned char digestsha1[SHA_DIGEST_LENGTH];
 greh = (gre_frame_t*)(payload);
 
 if(be16toh(greh->type) != GREPROTO_PPP)
-	return FALSE;
+	return false;
 
 grehsize = GRE_MIN_SIZE;
 if((greh->flags & GRE_FLAG_SYNSET) == GRE_FLAG_SYNSET)
@@ -201,12 +202,12 @@ if((greh->flags & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
 
 ppph = (ppp_frame_t*)(payload +grehsize);
 if(be16toh(ppph->proto) != PPPPROTO_CHAP)
-	return FALSE;
+	return false;
 
 
 pppchaph = (pppchap_frame_t*)(payload +grehsize +PPP_SIZE);
 if(be16toh(pppchaph->length) < 20)
-	return FALSE;
+	return false;
 
 if((pppchaph->code == PPPCHAP_CHALLENGE) && (pppchaph->u.challenge.datalen == 16))
 	{
@@ -216,7 +217,7 @@ if((pppchaph->code == PPPCHAP_CHALLENGE) && (pppchaph->u.challenge.datalen == 16
 	memcpy(&hcleapchap.serverchallenge, pppchaph->u.challenge.serverchallenge, 16);
 	memset(&hcleapchap.usernames, 0, 258);
 	memcpy(&hcleapchap.usernames, &pppchaph->u.challenge.names, (be16toh(pppchaph->length) -21));
-	hcleapchap.p1 = TRUE;
+	hcleapchap.p1 = true;
 	if(usernameoutname != NULL)
 		{
 		if((fhuser = fopen(usernameoutname, "a+")) == NULL)
@@ -237,7 +238,7 @@ if(pppchaph->code == PPPCHAP_RESPONSE)
 	memcpy(&hcleapchap.authresponse, pppchaph->u.response.authresponse, 24);
 	memset(&hcleapchap.usernamec, 0, 258);
 	memcpy(&hcleapchap.usernamec, &pppchaph->u.response.namec, (be16toh(pppchaph->length) -54));
-	hcleapchap.p2 = TRUE;
+	hcleapchap.p2 = true;
 	if(usernameoutname != NULL)
 		{
 		if((fhuser = fopen(usernameoutname, "a+")) == NULL)
@@ -264,11 +265,11 @@ else
 SHA1_Final(digestsha1, &ctxsha1);
 memcpy(&hcleapchap.authchallenge,  &digestsha1, 8);
 
-if((idcheck == TRUE) & (hcleapchap.id1 != hcleapchap.id2))
-	return FALSE;
+if((idcheck == true) & (hcleapchap.id1 != hcleapchap.id2))
+	return false;
 
 
-if((hcleapchap.p1 == TRUE) && (hcleapchap.p2 == TRUE) && (memcmp(&hcleapchap.mac_ap1, &hcleapchap.mac_ap2, 6) == 0) && (memcmp(&hcleapchap.mac_sta1, &hcleapchap.mac_sta2, 6) == 0))
+if((hcleapchap.p1 == true) && (hcleapchap.p2 == true) && (memcmp(&hcleapchap.mac_ap1, &hcleapchap.mac_ap2, 6) == 0) && (memcmp(&hcleapchap.mac_sta1, &hcleapchap.mac_sta2, 6) == 0))
 	{
 	if(hc5500outname != NULL)
 		{
@@ -291,16 +292,16 @@ if((hcleapchap.p1 == TRUE) && (hcleapchap.p2 == TRUE) && (memcmp(&hcleapchap.mac
 		fprintf(fhhash, "\n");
 		fclose(fhhash);
 		}
-	return TRUE;
+	return true;
 	}
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
+bool addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 eapmd5_t *eapmd5 = NULL;
 FILE *fhhash = NULL;
-uint8_t changeflag = FALSE;
+uint8_t changeflag = false;
 int c;
 
 eapmd5 = (eapmd5_t*)(eapext);
@@ -310,8 +311,8 @@ if((eapmd5->eapcode == EAP_CODE_REQ) && (eapmd5->eapvaluesize == 16))
 	memcpy(&hcmd5.mac_sta1, mac_1, 6);
 	hcmd5.id1 = eapmd5->eapid;
 	memcpy(&hcmd5.challenge, eapmd5->md5data, 16);
-	hcmd5.p1 = TRUE;
-	changeflag = TRUE;
+	hcmd5.p1 = true;
+	changeflag = true;
 	}
 
 if((eapmd5->eapcode == EAP_CODE_RESP) && (eapmd5->eapvaluesize == 16)) 
@@ -320,14 +321,14 @@ if((eapmd5->eapcode == EAP_CODE_RESP) && (eapmd5->eapvaluesize == 16))
 	memcpy(&hcmd5.mac_ap2, mac_1, 6);
 	memcpy(&hcmd5.mac_sta2, mac_2, 6);
 	memcpy(&hcmd5.response, eapmd5->md5data, 16);
-	hcmd5.p2 = TRUE;
-	changeflag = TRUE;
+	hcmd5.p2 = true;
+	changeflag = true;
 	}
 
-if((idcheck == TRUE) & (hcmd5.id1 != hcmd5.id2))
-	return FALSE;
+if((idcheck == true) & (hcmd5.id1 != hcmd5.id2))
+	return false;
 
-if((changeflag == TRUE) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == TRUE) && (hcmd5.p2 == TRUE) && (memcmp(&hcmd5.mac_ap1, &hcmd5.mac_ap2, 6) == 0) && (memcmp(&hcmd5.mac_sta1, &hcmd5.mac_sta2, 6) == 0))
+if((changeflag == true) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == true) && (hcmd5.p2 == true) && (memcmp(&hcmd5.mac_ap1, &hcmd5.mac_ap2, 6) == 0) && (memcmp(&hcmd5.mac_sta1, &hcmd5.mac_sta2, 6) == 0))
 	{
 	if(hc4800outname != NULL)
 		{
@@ -345,24 +346,24 @@ if((changeflag == TRUE) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == TRUE) && (hc
 		fprintf(fhhash, "%02x\n", hcmd5.id2);
 		fclose(fhhash);
 		}
-	return TRUE;
+	return true;
 	}
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
+bool addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 FILE *fhhash = NULL;
 FILE *fhuser = NULL;
 eapleap_t *eapleap = NULL;
 int eaplen;
 int c;
-uint8_t changeflag = FALSE;
+uint8_t changeflag = false;
 char *ptr = NULL;
 
 eapleap = (eapleap_t*)(eapext);
 if(eapleap->leapversion != 1)
-	return FALSE;
+	return false;
 
 eaplen = htobe16(eapleap->eaplen);
 if((eapleap->eapcode == EAP_CODE_REQ) && (eapleap->leapcount == 8))
@@ -373,8 +374,8 @@ if((eapleap->eapcode == EAP_CODE_REQ) && (eapleap->leapcount == 8))
 	memset(&hcleap.username, 0, 258);
 	memcpy(&hcleap.peerchallenge, eapleap->leapdata, eapleap->leapcount);
 	memcpy(&hcleap.username, eapleap->leapdata +8, (eaplen -eapleap->leapcount -8));
-	hcleap.p1 = TRUE;
-	changeflag = TRUE;
+	hcleap.p1 = true;
+	changeflag = true;
 	if(usernameoutname != NULL)
 		{
 		if((fhuser = fopen(usernameoutname, "a+")) == NULL)
@@ -393,14 +394,14 @@ if((eapleap->eapcode == EAP_CODE_RESP) && (eapleap->leapcount == 24))
 	memcpy(&hcleap.mac_sta2, mac_2, 6);
 	memcpy(&hcleap.peerresponse, eapleap->leapdata, eapleap->leapcount);
 	hcleap.leapid2 = eapleap->eapid;
-	hcleap.p2 = TRUE;
-	changeflag = TRUE;
+	hcleap.p2 = true;
+	changeflag = true;
 	}
 
-if((idcheck == TRUE) & (hcleap.leapid1 != hcleap.leapid2))
-	return FALSE;
+if((idcheck == true) & (hcleap.leapid1 != hcleap.leapid2))
+	return false;
 
-if((changeflag == TRUE) && (hcleap.p1 == TRUE) && (hcleap.p2 == TRUE) && (memcmp(&hcleap.mac_ap1, &hcleap.mac_ap2, 6) == 0) && (memcmp(&hcleap.mac_sta1, &hcleap.mac_sta2, 6) == 0))
+if((changeflag == true) && (hcleap.p1 == true) && (hcleap.p2 == true) && (memcmp(&hcleap.mac_ap1, &hcleap.mac_ap2, 6) == 0) && (memcmp(&hcleap.mac_sta1, &hcleap.mac_sta2, 6) == 0))
 	{
 	if(hc5500outname != NULL)
 		{
@@ -424,9 +425,9 @@ if((changeflag == TRUE) && (hcleap.p1 == TRUE) && (hcleap.p2 == TRUE) && (memcmp
 		fprintf(fhhash, "\n");
 		fclose(fhhash);
 		}
-	return TRUE;
+	return true;
 	}
-return FALSE;
+return false;
 }
 /*===========================================================================*/
 void addresponseidentity(eapext_t *eapext)
@@ -468,14 +469,14 @@ replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
-int checkmynonce(uint8_t *eapdata)
+bool checkmynonce(uint8_t *eapdata)
 {
 eap_t *eap;
 
 eap = (eap_t*)(uint8_t*)(eapdata);
 if(memcmp(eap->nonce, &mynonce, 32) == 0)
-	return TRUE;
-return FALSE;
+	return true;
+return false;
 }
 /*===========================================================================*/
 void showhashrecord(hcx_t *hcxrecord, uint8_t showinfo1, uint8_t showinfo2)
@@ -598,7 +599,7 @@ md5_64 (block, hash);
 
 memset(&essidstring, 0, 36);
 memcpy(&essidstring, hcxrecord->essid, hcxrecord->essid_len);
-if(showinfo1 == TRUE)
+if(showinfo1 == true)
 	{
 	printf("%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s\n",
 	hash[0], hash[1], hash[2], hash[3],
@@ -607,7 +608,7 @@ if(showinfo1 == TRUE)
 	essidstring);
 	}
 
-if(showinfo2 == TRUE)
+if(showinfo2 == true)
 	{
 	if(showinfo2outname != NULL)
 		{
@@ -710,7 +711,7 @@ else
 return;
 }
 /*===========================================================================*/
-int weakpasscheck(hcx_t *zeigerhcx)
+bool weakpasscheck(hcx_t *zeigerhcx)
 {
 int p;
 uint8_t pmk[32];
@@ -758,8 +759,8 @@ else if(zeigerhcx->keyver == 3)
 	omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
 	}
 if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-	return TRUE;
-return FALSE;
+	return true;
+return false;
 }
 /*===========================================================================*/
 void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
@@ -770,7 +771,7 @@ eap_t *eap2;
 FILE *fhhcx = NULL;
 
 unsigned long long int r;
-int wldflagint = FALSE;
+int wldflagint = false;
 eap1 = (eap_t*)(zeiger1->eapol);
 eap2 = (eap_t*)(zeiger2->eapol);
 memset(&hcxrecord, 0, HCX_SIZE);
@@ -799,7 +800,7 @@ if(oldhcxrecord.message_pair == hcxrecord.message_pair)
 	return;
 
 if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) != 0))
-		anecflag = TRUE;
+		anecflag = true;
 
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
 hcxwritecount++;
@@ -813,19 +814,19 @@ if(hcxrecord.keyver == 3)
 if((hcxrecord.keyver &4) == 4)
 	wpakv4c++;
 
-if((weakpassflag == TRUE) && (weakpasscheck(&hcxrecord) == TRUE))
+if((weakpassflag == true) && (weakpasscheck(&hcxrecord) == true))
 	{
 	weakpasscount++;
 	return;
 	}
-else if(weakpasscheck(&hcxrecord) == TRUE)
+else if(weakpasscheck(&hcxrecord) == true)
 	weakpasscount++;
 
 r = getreplaycount(zeiger2->eapol);
 if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
 	{
 	hcxwritewldcount++;
-	wldflagint = TRUE;
+	wldflagint = true;
 	}
 
 
@@ -851,7 +852,7 @@ if((hcxoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
 	fclose(fhhcx);
 	}
 
-if((wdfhcxoutname != NULL) && (wldflagint == TRUE) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
+if((wdfhcxoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
 	{
 	if((fhhcx = fopen(wdfhcxoutname, "ab")) == NULL)
 		{
@@ -862,7 +863,7 @@ if((wdfhcxoutname != NULL) && (wldflagint == TRUE) && ((hcxrecord.keyver == 1) |
 	fclose(fhhcx);
 	}
 
-if((nonwdfhcxoutname != NULL) && (wldflagint == FALSE) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
+if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
 	{
 	if((fhhcx = fopen(nonwdfhcxoutname, "ab")) == NULL)
 		{
@@ -873,7 +874,7 @@ if((nonwdfhcxoutname != NULL) && (wldflagint == FALSE) && ((hcxrecord.keyver == 
 	fclose(fhhcx);
 	}
 
-if((showinfo1 == TRUE) || (showinfo2 == TRUE))
+if((showinfo1 == true) || (showinfo2 == true))
 	{
 	showhashrecord(&hcxrecord, showinfo1, showinfo2);
 	}
@@ -981,7 +982,7 @@ while(c >= 0)
 		if((m == 1) && (r == (replaycakt -1)))
 			{
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M14E4);
-			if(netexact == TRUE)
+			if(netexact == true)
 				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M14E4);
 			return;
 			}
@@ -990,7 +991,7 @@ while(c >= 0)
 	c--;
 	}
 
-if(replaycountcheck == TRUE)
+if(replaycountcheck == true)
 	return;
 
 rctime = 10;
@@ -1008,12 +1009,12 @@ while(c >= 0)
 		{
 		m = geteapkey(zeiger->eapol);
 		r = getreplaycount(zeiger->eapol);
-		if((m == 1) && (r != MYREPLAYCOUNT) && (checkmynonce(zeiger->eapol) == FALSE))
+		if((m == 1) && (r != MYREPLAYCOUNT) && (checkmynonce(zeiger->eapol) == false))
 			{
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M14E4NR);
-			if(netexact == TRUE)
+			if(netexact == true)
 				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M14E4NR);
-			ancflag = TRUE;
+			ancflag = true;
 			return;
 			}
 		}
@@ -1045,7 +1046,7 @@ while(c >= 0)
 		if((m == 3) && (r == (replaycakt)))
 			{
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M34E4);
-			if(netexact == TRUE)
+			if(netexact == true)
 				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M34E4);
 			return;
 			}
@@ -1054,7 +1055,7 @@ while(c >= 0)
 	c--;
 	}
 
-if(replaycountcheck == TRUE)
+if(replaycountcheck == true)
 	return;
 
 rctime = 10;
@@ -1075,7 +1076,7 @@ while(c >= 0)
 		if(m == 3)
 			{
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M34E4NR);
-			if(netexact == TRUE)
+			if(netexact == true)
 				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M34E4NR);
 			return;
 			}
@@ -1108,7 +1109,7 @@ while(c >= 0)
 		if((m == 2) && (r == (replaycakt -1)))
 			{
 			lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M32E2);
-			if(netexact == TRUE)
+			if(netexact == true)
 				lookforessidexact(zeigerakt, zeiger, MESSAGE_PAIR_M32E2);
 			return;
 			}
@@ -1117,7 +1118,7 @@ while(c >= 0)
 	c--;
 	}
 
-if(replaycountcheck == TRUE)
+if(replaycountcheck == true)
 	return;
 
 rctime = 10;
@@ -1138,7 +1139,7 @@ while(c >= 0)
 		if((m == 2) && (r != MYREPLAYCOUNT))
 			{
 			lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M32E2NR);
-			if(netexact == TRUE)
+			if(netexact == true)
 				lookforessidexact(zeigerakt, zeiger, MESSAGE_PAIR_M32E2NR);
 			return;
 			}
@@ -1176,7 +1177,7 @@ while(c >= 0)
 		if((m == 1) && (r == replaycakt))
 			{
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2);
-			if(netexact == TRUE)
+			if(netexact == true)
 				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M12E2);
 			return;
 			}
@@ -1186,7 +1187,7 @@ while(c >= 0)
 	}
 
 
-if(replaycountcheck == TRUE)
+if(replaycountcheck == true)
 	return;
 	
 rctime = 10;
@@ -1204,12 +1205,12 @@ while(c >= 0)
 		{
 		m = geteapkey(zeiger->eapol);
 		r = getreplaycount(zeiger->eapol);
-		if((m == 1) && (r != MYREPLAYCOUNT) && (checkmynonce(zeiger->eapol) == FALSE))
+		if((m == 1) && (r != MYREPLAYCOUNT) && (checkmynonce(zeiger->eapol) == false))
 			{
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2NR);
-			if(netexact == TRUE)
+			if(netexact == true)
 				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M12E2NR);
-			ancflag = TRUE;
+			ancflag = true;
 			return;
 			}
 		}
@@ -1219,15 +1220,15 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
-int addeapol(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, eap_t *eap)
+bool addeapol(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, eap_t *eap)
 {
 unsigned long long int replaycount;
 uint8_t m = 0;
 
 if(memcmp(mac_ap, mac_sta, 6) == 0)
-	return FALSE;
+	return false;
 if(memcmp(eap->nonce, &nullnonce, NULLNONCE_SIZE) == 0)
-	return FALSE;
+	return false;
 memset(neweapdbdata, 0, EAPDB_SIZE);
 neweapdbdata->tv_sec = tvsec;
 neweapdbdata->tv_usec = tvusec;
@@ -1236,7 +1237,7 @@ memcpy(neweapdbdata->mac_sta.addr, mac_sta, 6);
 neweapdbdata->eapol_len = htobe16(eap->len) +4;
 
 if(neweapdbdata->eapol_len > 256)
-	return FALSE;
+	return false;
 
 memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
@@ -1258,13 +1259,13 @@ if(m == 4)
 	}
 neweapdbdata++;
 eapdbrecords++;
-return TRUE;
+return true;
 }
 /*===========================================================================*/
-int addnet(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essid)
+bool addnet(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essid)
 {
 if(memcmp(mac_ap, mac_sta, 6) == 0)
-	return FALSE;
+	return false;
 
 memset(newnetdbdata, 0, NETDB_SIZE);
 newnetdbdata->tv_sec = tvsec;
@@ -1274,10 +1275,10 @@ memcpy(newnetdbdata->mac_sta.addr, mac_sta, 6);
 newnetdbdata->essid_len = essid_len;
 memcpy(newnetdbdata->essid, essid, essid_len);
 if(newnetdbdata->essid[0] == 0)
-	return FALSE;
+	return false;
 newnetdbdata++;
 netdbrecords++;
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int checkessid(uint8_t essid_len, uint8_t *essid)
@@ -1285,15 +1286,15 @@ int checkessid(uint8_t essid_len, uint8_t *essid)
 uint8_t p;
 
 if(essid_len == 0)
-	return FALSE;
+	return false;
 
 if(essid_len > 32)
-	return FALSE;
+	return false;
 
 for(p = 0; p < essid_len; p++)
 	if((essid[p] < 0x20) || (essid[p] > 0x7e))
-		return FALSE;
-return TRUE;
+		return false;
+return true;
 }
 /*===========================================================================*/
 void installbpf(pcap_t *pcapin, char *externalbpfname)
@@ -1358,7 +1359,7 @@ if(extfilterstring != NULL)
 return;
 }
 /*===========================================================================*/
-int processcap(char *pcapinname, char *essidoutname, char *essidunicodeoutname, char *pmkoutname, char *externalbpfname)
+bool processcap(char *pcapinname, char *essidoutname, char *essidunicodeoutname, char *pmkoutname, char *externalbpfname)
 {
 struct stat statinfo;
 struct pcap_pkthdr *pkh;
@@ -1393,7 +1394,7 @@ long int loopbpacketcount = 0;
 ipv4_frame_t *ipv4h = NULL;
 ipv6_frame_t *ipv6h = NULL;
 uint8_t ipv4hlen = 0;
-uint8_t pppchapflag = FALSE;
+uint8_t pppchapflag = false;
 
 udp_frame_t *udph = NULL;
 int udpports = 0;
@@ -1401,76 +1402,76 @@ int udpportd = 0;
 int c, c1;
 int llctype;
 
-uint8_t eap3flag = FALSE;
-uint8_t eap4flag = FALSE;
-uint8_t eap5flag = FALSE;
-uint8_t eap6flag = FALSE;
-uint8_t eap9flag = FALSE;
-uint8_t eap10flag = FALSE;
-uint8_t eap11flag = FALSE;
-uint8_t eap12flag = FALSE;
-uint8_t eap13flag = FALSE;
-uint8_t eap14flag = FALSE;
-uint8_t eap15flag = FALSE;
-uint8_t eap16flag = FALSE;
-uint8_t eap17flag = FALSE;
-uint8_t eap18flag = FALSE;
-uint8_t eap19flag = FALSE;
-uint8_t eap21flag = FALSE;
-uint8_t eap22flag = FALSE;
-uint8_t eap23flag = FALSE;
-uint8_t eap24flag = FALSE;
-uint8_t eap25flag = FALSE;
-uint8_t eap26flag = FALSE;
-uint8_t eap27flag = FALSE;
-uint8_t eap28flag = FALSE;
-uint8_t eap29flag = FALSE;
-uint8_t eap30flag = FALSE;
-uint8_t eap31flag = FALSE;
-uint8_t eap32flag = FALSE;
-uint8_t eap33flag = FALSE;
-uint8_t eap34flag = FALSE;
-uint8_t eap35flag = FALSE;
-uint8_t eap36flag = FALSE;
-uint8_t eap37flag = FALSE;
-uint8_t eap38flag = FALSE;
-uint8_t eap39flag = FALSE;
-uint8_t eap40flag = FALSE;
-uint8_t eap41flag = FALSE;
-uint8_t eap42flag = FALSE;
-uint8_t eap43flag = FALSE;
-uint8_t eap44flag = FALSE;
-uint8_t eap45flag = FALSE;
-uint8_t eap46flag = FALSE;
-uint8_t eap47flag = FALSE;
-uint8_t eap48flag = FALSE;
-uint8_t eap49flag = FALSE;
-uint8_t eap50flag = FALSE;
-uint8_t eap51flag = FALSE;
-uint8_t eap52flag = FALSE;
-uint8_t eap53flag = FALSE;
-uint8_t eap54flag = FALSE;
-uint8_t eap55flag = FALSE;
-uint8_t eap254flag = FALSE;
-uint8_t eap255flag = FALSE;
+uint8_t eap3flag = false;
+uint8_t eap4flag = false;
+uint8_t eap5flag = false;
+uint8_t eap6flag = false;
+uint8_t eap9flag = false;
+uint8_t eap10flag = false;
+uint8_t eap11flag = false;
+uint8_t eap12flag = false;
+uint8_t eap13flag = false;
+uint8_t eap14flag = false;
+uint8_t eap15flag = false;
+uint8_t eap16flag = false;
+uint8_t eap17flag = false;
+uint8_t eap18flag = false;
+uint8_t eap19flag = false;
+uint8_t eap21flag = false;
+uint8_t eap22flag = false;
+uint8_t eap23flag = false;
+uint8_t eap24flag = false;
+uint8_t eap25flag = false;
+uint8_t eap26flag = false;
+uint8_t eap27flag = false;
+uint8_t eap28flag = false;
+uint8_t eap29flag = false;
+uint8_t eap30flag = false;
+uint8_t eap31flag = false;
+uint8_t eap32flag = false;
+uint8_t eap33flag = false;
+uint8_t eap34flag = false;
+uint8_t eap35flag = false;
+uint8_t eap36flag = false;
+uint8_t eap37flag = false;
+uint8_t eap38flag = false;
+uint8_t eap39flag = false;
+uint8_t eap40flag = false;
+uint8_t eap41flag = false;
+uint8_t eap42flag = false;
+uint8_t eap43flag = false;
+uint8_t eap44flag = false;
+uint8_t eap45flag = false;
+uint8_t eap46flag = false;
+uint8_t eap47flag = false;
+uint8_t eap48flag = false;
+uint8_t eap49flag = false;
+uint8_t eap50flag = false;
+uint8_t eap51flag = false;
+uint8_t eap52flag = false;
+uint8_t eap53flag = false;
+uint8_t eap54flag = false;
+uint8_t eap55flag = false;
+uint8_t eap254flag = false;
+uint8_t eap255flag = false;
 
-uint8_t ipv4flag = FALSE;
-uint8_t ipv6flag = FALSE;
-uint8_t tcpflag = FALSE;
-uint8_t udpflag = FALSE;
-uint8_t radiusflag = FALSE;
+uint8_t ipv4flag = false;
+uint8_t ipv6flag = false;
+uint8_t tcpflag = false;
+uint8_t udpflag = false;
+uint8_t radiusflag = false;
 
-uint8_t preautflag = FALSE;
-uint8_t frrrflag = FALSE;
+uint8_t preautflag = false;
+uint8_t frrrflag = false;
 
-uint8_t wepdataflag = FALSE;
-uint8_t wpadataflag = FALSE;
+uint8_t wepdataflag = false;
+uint8_t wpadataflag = false;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
-wcflag = FALSE;
-ancflag = FALSE;
-anecflag = FALSE;
+wcflag = false;
+ancflag = false;
+anecflag = false;
 hcxwritecount = 0;
 hcxwritewldcount = 0;
 weakpasscount = 0;
@@ -1483,14 +1484,14 @@ wpakv4c = 0;
 if(!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	{
 	fprintf(stderr, "error opening %s %s\n", pcaperrorstring, pcapinname);
-	return FALSE;
+	return false;
 	}
 
 datalink = pcap_datalink(pcapin);
 if((datalink != DLT_IEEE802_11) && (datalink != DLT_IEEE802_11_RADIO) && (datalink != DLT_PPI) && (datalink != DLT_EN10MB) && (datalink != DLT_NULL))
 	{
 	fprintf (stderr, "unsupported datalinktyp %d\n", datalink);
-	return FALSE;
+	return false;
 	}
 
 if((datalink == DLT_IEEE802_11) || (datalink == DLT_IEEE802_11_RADIO) || (datalink == DLT_PPI) || (datalink == DLT_EN10MB))
@@ -1501,7 +1502,7 @@ if((datalink == DLT_IEEE802_11) || (datalink == DLT_IEEE802_11_RADIO) || (datali
 if(stat(pcapinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat cap file %s\n", pcapinname);
-	return FALSE;
+	return false;
 	}
 
 netdbdata = malloc(statinfo.st_size +NETDB_SIZE);
@@ -1544,7 +1545,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 	packetcount++;
 	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_sec == 0))
-		wcflag = TRUE;
+		wcflag = true;
 
 
 	/* check Loopback-header */
@@ -1564,31 +1565,31 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if((ipv4h->ver_hlen & 0xf0) == 0x40)
 			{
 			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
-			ipv4flag = TRUE;
+			ipv4flag = true;
 			if(ipv4h->nextprotocol == NEXTHDR_NONE)
 				continue;
 
 			if(ipv4h->nextprotocol == NEXTHDR_GRE)
 				{
-				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +LOOPB_SIZE +ipv4hlen) == TRUE)
-					pppchapflag = TRUE;
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +LOOPB_SIZE +ipv4hlen) == true)
+					pppchapflag = true;
 				continue;
 				}
 
 			if(ipv4h->nextprotocol == NEXTHDR_TCP)
 				{
-				tcpflag = TRUE;
+				tcpflag = true;
 				continue;
 				}
 
 			if(ipv4h->nextprotocol == NEXTHDR_UDP)
 				{
-				udpflag = TRUE;
+				udpflag = true;
 				udph = (udp_frame_t*)(packet +LOOPB_SIZE +ipv4hlen);
 				udpports = htobe16(udph->port_source);
 				udpportd = htobe16(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
-					radiusflag = TRUE;
+					radiusflag = true;
 				continue;
 				}
 			continue;
@@ -1597,30 +1598,30 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		ipv6h = (ipv6_frame_t*)(packet +LOOPB_SIZE);
 		if((ipv6h->ver_class & 0xf0) == 0x60)
 			{
-			ipv6flag = TRUE;
+			ipv6flag = true;
 			if(ipv6h->nextprotocol == NEXTHDR_NONE)
 				continue;
 
 			if(ipv6h->nextprotocol == NEXTHDR_GRE)
 				{
-				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +IPV6_SIZE) == TRUE)
-					pppchapflag = TRUE;
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +IPV6_SIZE) == true)
+					pppchapflag = true;
 				continue;
 				}
 			if(ipv6h->nextprotocol == NEXTHDR_TCP)
 				{
-				tcpflag = TRUE;
+				tcpflag = true;
 				continue;
 				}
 
 			if(ipv6h->nextprotocol == NEXTHDR_UDP)
 				{
-				udpflag = TRUE;
+				udpflag = true;
 				udph = (udp_frame_t*)(packet +LOOPB_SIZE +IPV6_SIZE);
 				udpports = htobe16(udph->port_source);
 				udpportd = htobe16(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
-					radiusflag = TRUE;
+					radiusflag = true;
 				continue;
 				}
 			continue;
@@ -1641,7 +1642,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		llctype = be16toh(eth->ether_type);
 		if(llctype == LLC_TYPE_IPV4)
 			{
-			ipv4flag = TRUE;
+			ipv4flag = true;
 			ipv4h = (ipv4_frame_t*)(packet +ETHER_SIZE);
 			if((ipv4h->ver_hlen & 0xf0) != 0x40)
 				continue;
@@ -1650,23 +1651,23 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			if(ipv4h->nextprotocol == NEXTHDR_GRE)
 				{
-				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +ipv4hlen) == TRUE)
-					pppchapflag = TRUE;
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +ipv4hlen) == true)
+					pppchapflag = true;
 				continue;
 				}
 			if(ipv4h->nextprotocol == NEXTHDR_TCP)
 				{
-				tcpflag = TRUE;
+				tcpflag = true;
 				continue;
 				}
 			if(ipv4h->nextprotocol == NEXTHDR_UDP)
 				{
-				udpflag = TRUE;
+				udpflag = true;
 				udph = (udp_frame_t*)(packet +ETHER_SIZE +ipv4hlen);
 				udpports = htobe16(udph->port_source);
 				udpportd = htobe16(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
-					radiusflag = TRUE;
+					radiusflag = true;
 
 				continue;
 				}
@@ -1674,7 +1675,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 		else if(llctype == LLC_TYPE_IPV6)
 			{
-			ipv6flag = TRUE;
+			ipv6flag = true;
 			ipv6h = (ipv6_frame_t*)(packet +ETHER_SIZE);
 			if(be32toh(ipv6h->ver_class &0xf) != 6)
 				continue;
@@ -1682,23 +1683,23 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			if(ipv6h->nextprotocol == NEXTHDR_GRE)
 				{
-				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +IPV6_SIZE) == TRUE)
-					pppchapflag = TRUE;
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +IPV6_SIZE) == true)
+					pppchapflag = true;
 				continue;
 				}
 			if(ipv6h->nextprotocol == NEXTHDR_TCP)
 				{
-				tcpflag = TRUE;
+				tcpflag = true;
 				continue;
 				}
 			if(ipv6h->nextprotocol == NEXTHDR_UDP)
 				{
-				udpflag = TRUE;
+				udpflag = true;
 				udph = (udp_frame_t*)(packet +ETHER_SIZE +IPV6_SIZE);
 				udpports = htobe16(udph->port_source);
 				udpportd = htobe16(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
-					radiusflag = TRUE;
+					radiusflag = true;
 				continue;
 				}
 			}
@@ -1865,9 +1866,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			enc = (mpdu_frame_t*)(payload);
 			encsystem = (enc->keyid >> 5) &1;
 			if(encsystem == 0)
-				wepdataflag = TRUE;
+				wepdataflag = true;
 			if(encsystem == 1)
-				wpadataflag = TRUE;
+				wpadataflag = true;
 			if((encsystem == 0) && (pcapwepout != NULL))
 				pcap_dump((u_char *) pcapwepout, pkh, h80211);
 			continue;
@@ -1909,175 +1910,175 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				addresponseidentity(eapext);
 
 			if(eapext->eaptype == EAP_TYPE_NAK)
-				eap3flag = TRUE;
+				eap3flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_MD5)
 				{
-				if(addeapmd5(macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
-					eap4flag = TRUE;
+				if(addeapmd5(macf->addr1.addr, macf->addr2.addr, eapext) == true)
+					eap4flag = true;
 				}
 
 			if(eapext->eaptype == EAP_TYPE_OTP)
-				eap5flag = TRUE;
+				eap5flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_GTC)
-				eap6flag = TRUE;
+				eap6flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_RSA)
-				eap9flag = TRUE;
+				eap9flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_DSS)
-				eap10flag = TRUE;
+				eap10flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_KEA)
-				eap11flag = TRUE;
+				eap11flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_KEA_VALIDATE)
-				eap12flag = TRUE;
+				eap12flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_TLS)
-				eap13flag = TRUE;
+				eap13flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_AXENT)
-				eap14flag = TRUE;
+				eap14flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_RSA_SSID)
-				eap15flag = TRUE;
+				eap15flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_RSA_ARCOT)
-				eap16flag = TRUE;
+				eap16flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_LEAP)
 				{
 				if((macf->from_ds == 1) && (macf->to_ds == 0) && (eapext->eapcode == EAP_CODE_REQ))
 					{
-					if(addleap(macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
-						eap17flag = TRUE;
+					if(addleap(macf->addr1.addr, macf->addr2.addr, eapext) == true)
+						eap17flag = true;
 					}
 
 				else if((macf->from_ds == 0) && (macf->to_ds == 1) && (eapext->eapcode == EAP_CODE_RESP))
 					{
-					if(addleap(macf->addr1.addr, macf->addr2.addr, eapext) == TRUE)
-						eap17flag = TRUE;
+					if(addleap(macf->addr1.addr, macf->addr2.addr, eapext) == true)
+						eap17flag = true;
 					}
 				}
 
 			if(eapext->eaptype == EAP_TYPE_SIM)
-				eap18flag = TRUE;
+				eap18flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_SRP_SHA1)
-				eap19flag = TRUE;
+				eap19flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_TTLS)
-				eap21flag = TRUE;
+				eap21flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_RAS)
-				eap22flag = TRUE;
+				eap22flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_AKA)
-				eap23flag = TRUE;
+				eap23flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_3COMEAP)
-				eap24flag = TRUE;
+				eap24flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_PEAP)
-				eap25flag = TRUE;
+				eap25flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_MSEAP)
-				eap26flag = TRUE;
+				eap26flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_MAKE)
-				eap27flag = TRUE;
+				eap27flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_CRYPTOCARD)
-				eap28flag = TRUE;
+				eap28flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_MSCHAPV2)
-				eap29flag = TRUE;
+				eap29flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_DYNAMICID)
-				eap30flag = TRUE;
+				eap30flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_ROB)
-				eap31flag = TRUE;
+				eap31flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_POTP)
-				eap32flag = TRUE;
+				eap32flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_MSTLV)
-				eap33flag = TRUE;
+				eap33flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_SENTRI)
-				eap34flag = TRUE;
+				eap34flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_AW)
-				eap35flag = TRUE;
+				eap35flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_CSBA)
-				eap36flag = TRUE;
+				eap36flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_AIRFORT)
-				eap40flag = TRUE;
+				eap40flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_HTTPD)
-				eap38flag = TRUE;
+				eap38flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_SS)
-				eap39flag = TRUE;
+				eap39flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_DC)
-				eap40flag = TRUE;
+				eap40flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_SPEKE)
-				eap41flag = TRUE;
+				eap41flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_MOBAC)
-				eap42flag = TRUE;
+				eap42flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_FAST)
-				eap43flag = TRUE;
+				eap43flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_ZLXEAP)
-				eap44flag = TRUE;
+				eap44flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_LINK)
-				eap45flag = TRUE;
+				eap45flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_PAX)
-				eap46flag = TRUE;
+				eap46flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_PSK)
-				eap47flag = TRUE;
+				eap47flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_SAKE)
-				eap48flag = TRUE;
+				eap48flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_IKEV2)
-				eap49flag = TRUE;
+				eap49flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_AKA1)
-				eap50flag = TRUE;
+				eap50flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_GPSK)
-				eap51flag = TRUE;
+				eap51flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_PWD)
-				eap52flag = TRUE;
+				eap52flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_EKE1)
-				eap53flag = TRUE;
+				eap53flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_PTEAP)
-				eap54flag = TRUE;
+				eap54flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_TEAP)
-				eap55flag = TRUE;
+				eap55flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_EXPAND)
-				eap254flag = TRUE;
+				eap254flag = true;
 
 			if(eapext->eaptype == EAP_TYPE_EXPERIMENTAL)
-				eap255flag = TRUE;
+				eap255flag = true;
 
 			continue;
 			}
@@ -2096,7 +2097,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{
-		ipv4flag = TRUE;
+		ipv4flag = true;
 		if(pcapipv46out != NULL)
 			pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
@@ -2113,35 +2114,35 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 		if(ipv4h->nextprotocol == NEXTHDR_GRE)
 			{
-			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +ipv4hlen) == TRUE)
+			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +ipv4hlen) == true)
 				{
 				if(pcapout != NULL)
 					pcap_dump((u_char *) pcapout, pkh, h80211);
-				pppchapflag = TRUE;
+				pppchapflag = true;
 				}
 			continue;
 			}
 
 		if(ipv4h->nextprotocol == NEXTHDR_TCP)
 			{
-			tcpflag = TRUE;
+			tcpflag = true;
 			}
 
 		if(ipv4h->nextprotocol == NEXTHDR_UDP)
 			{
-			udpflag = TRUE;
+			udpflag = true;
 			udph = (udp_frame_t*)(payload + LLC_SIZE +ipv4hlen);
 			udpports = htobe16(udph->port_source);
 			udpportd = htobe16(udph->port_destination);
 			if((udpports == 1812) || (udpportd == 1812))
-				radiusflag = TRUE;
+				radiusflag = true;
 			}
 		continue;
 		}
 
 	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
 		{
-		ipv6flag = TRUE;
+		ipv6flag = true;
 		if(pcapipv46out != NULL)
 			pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
@@ -2154,29 +2155,29 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 		if(ipv6h->nextprotocol == NEXTHDR_GRE)
 			{
-			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +IPV6_SIZE) == TRUE)
+			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +IPV6_SIZE) == true)
 				{
 				if(pcapout != NULL)
 					pcap_dump((u_char *) pcapout, pkh, h80211);
-				pppchapflag = TRUE;
+				pppchapflag = true;
 				}
 			continue;
 			}
 
 		if(ipv6h->nextprotocol == NEXTHDR_TCP)
 			{
-			tcpflag = TRUE;
+			tcpflag = true;
 			continue;
 			}
 
 		if(ipv6h->nextprotocol == NEXTHDR_UDP)
 			{
-			udpflag = TRUE;
+			udpflag = true;
 			udph = (udp_frame_t*)(payload + LLC_SIZE +IPV6_SIZE);
 			udpports = htobe16(udph->port_source);
 			udpportd = htobe16(udph->port_destination);
 			if((udpports == 1812) || (udpportd == 1812))
-				radiusflag = TRUE;
+				radiusflag = true;
 			continue;
 			}
 
@@ -2185,12 +2186,12 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_PREAUT))
 		{
-		preautflag = TRUE;
+		preautflag = true;
 		continue;
 		}
 
 	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_FRRR))
-		frrrflag = TRUE;
+		frrrflag = true;
 	}
 
 if(essidoutname != NULL)
@@ -2204,7 +2205,7 @@ if(essidoutname != NULL)
 	zeigernet = netdbdata;
 	for(c = 0; c < netdbrecords; c++)
 		{
-		if(checkessid(zeigernet->essid_len, zeigernet->essid) == TRUE)
+		if(checkessid(zeigernet->essid_len, zeigernet->essid) == true)
 			fprintf(fhessid, "%s\n", zeigernet->essid);
 
 		else
@@ -2302,10 +2303,10 @@ else if(hcxwritewldcount > 1)
 		printf("\x1B[32myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
 	}
 
-if((anecflag == TRUE) && (wdfhcxoutname == NULL))
+if((anecflag == true) && (wdfhcxoutname == NULL))
 	printf("\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
 
-if((ancflag == TRUE) && (hcxoutname != NULL))
+if((ancflag == true) && (hcxoutname != NULL))
 	{
 	if((rctimecount > 2) && (rctimecount <= 4))
 		printf("\x1B[32myou should use hashcat --nonce-error-corrections=16 (or greater) on %s\x1B[0m\n", hcxoutname);
@@ -2315,7 +2316,7 @@ if((ancflag == TRUE) && (hcxoutname != NULL))
 		printf("\x1B[32myou should use hashcat --nonce-error-corrections=64 (or greater) on %s\x1B[0m\n", hcxoutname);
 	}
 
-if((ancflag == TRUE) && (nonwdfhcxoutname != NULL))
+if((ancflag == true) && (nonwdfhcxoutname != NULL))
 	{
 	if((rctimecount > 2) && (rctimecount <= 4))
 		printf("\x1B[32myou should use hashcat --nonce-error-corrections=16 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
@@ -2326,198 +2327,198 @@ if((ancflag == TRUE) && (nonwdfhcxoutname != NULL))
 	}
 
 
-if(eap3flag == TRUE)
+if(eap3flag == true)
 	printf("\x1B[36mfound Legacy Nak\x1B[0m\n");
 
-if(eap4flag == TRUE)
+if(eap4flag == true)
 	printf("\x1B[36mfound MD5-Challenge (hashcat -m 4800)\x1B[0m\n");
 
-if(eap5flag == TRUE)
+if(eap5flag == true)
 	printf("\x1B[36mfound One-Time Password (OTP)\x1B[0m\n");
 
-if(eap6flag == TRUE)
+if(eap6flag == true)
 	printf("\x1B[36mfound Generic Token Card (GTC)\x1B[0m\n");
 
-if(eap9flag == TRUE)
+if(eap9flag == true)
 	printf("\x1B[36mfound RSA Public Key Authentication\x1B[0m\n");
 
-if(eap10flag == TRUE)
+if(eap10flag == true)
 	printf("\x1B[36mfound DSS Unilateral\x1B[0m\n");
 
-if(eap11flag == TRUE)
+if(eap11flag == true)
 	printf("\x1B[36mfound KEA\x1B[0m\n");
 
-if(eap12flag == TRUE)
+if(eap12flag == true)
 	printf("\x1B[36mfound KEA-VALIDATE\x1B[0m\n");
 
-if(eap13flag == TRUE)
+if(eap13flag == true)
 	printf("\x1B[36mfound EAP-TLS Authentication\x1B[0m\n");
 
-if(eap14flag == TRUE)
+if(eap14flag == true)
 	printf("\x1B[36mfound Defender Token (AXENT)\x1B[0m\n");
 
-if(eap15flag == TRUE)
+if(eap15flag == true)
 	printf("\x1B[36mfound RSA Security SecurID EAP\x1B[0m\n");
 
-if(eap16flag == TRUE)
+if(eap16flag == true)
 	printf("\x1B[36mfound Arcot Systems EAP\x1B[0m\n");
 
-if(eap17flag == TRUE)
+if(eap17flag == true)
 	printf("\x1B[36mfound EAP-Cisco Wireless Authentication (hashcat -m 5500)\x1B[0m\n");
 
-if(eap18flag == TRUE)
+if(eap18flag == true)
 	printf("\x1B[36mfound EAP-SIM (GSM Subscriber Modules) Authentication\x1B[0m\n");
 
-if(eap19flag == TRUE)
+if(eap19flag == true)
 	printf("\x1B[36mfound SRP-SHA1 Authentication\x1B[0m\n");
 
-if(eap21flag == TRUE)
+if(eap21flag == true)
 	printf("\x1B[36mfound EAP-TTLS Authentication\x1B[0m\n");
 
-if(eap22flag == TRUE)
+if(eap22flag == true)
 	printf("\x1B[36mfound Remote Access Service\x1B[0m\n");
 
-if(eap23flag == TRUE)
+if(eap23flag == true)
 	printf("\x1B[36mfound EAP-AKA Authentication\x1B[0m\n");
 
-if(eap24flag == TRUE)
+if(eap24flag == true)
 	printf("\x1B[36mfound EAP-3Com Wireless Authentication\x1B[0m\n");
 
-if(eap25flag == TRUE)
+if(eap25flag == true)
 	printf("\x1B[36mfound PEAP Authentication\x1B[0m\n");
 
-if(eap26flag == TRUE)
+if(eap26flag == true)
 	printf("\x1B[36mfound MS-EAP Authentication\x1B[0m\n");
 
-if(eap27flag == TRUE)
+if(eap27flag == true)
 	printf("\x1B[36mfound Mutual Authentication w/Key Exchange (MAKE)\x1B[0m\n");
 
-if(eap28flag == TRUE)
+if(eap28flag == true)
 	printf("\x1B[36mfound CRYPTOCard\x1B[0m\n");
 
-if(eap29flag == TRUE)
+if(eap29flag == true)
 	printf("\x1B[36mfound EAP-MSCHAP-V2 Authentication\x1B[0m\n");
 
-if(eap30flag == TRUE)
+if(eap30flag == true)
 	printf("\x1B[36mfound DynamicID\x1B[0m\n");
 
-if(eap31flag == TRUE)
+if(eap31flag == true)
 	printf("\x1B[36mfound Rob EAP\x1B[0m\n");
 
-if(eap32flag == TRUE)
+if(eap32flag == true)
 	printf("\x1B[36mfound Protected One-Time Password\x1B[0m\n");
 
-if(eap33flag == TRUE)
+if(eap33flag == true)
 	printf("\x1B[36mfound MS-Authentication-TLV\x1B[0m\n");
 
-if(eap34flag == TRUE)
+if(eap34flag == true)
 	printf("\x1B[36mfound SentriNET\x1B[0m\n");
 
-if(eap35flag == TRUE)
+if(eap35flag == true)
 	printf("\x1B[36mfound EAP-Actiontec Wireless Authentication\x1B[0m\n");
 
-if(eap36flag == TRUE)
+if(eap36flag == true)
 	printf("\x1B[36mfound Cogent Systems Biometrics Authentication EAP\x1B[0m\n");
 
-if(eap37flag == TRUE)
+if(eap37flag == true)
 	printf("\x1B[36mfound AirFortress EAP\x1B[0m\n");
 
-if(eap38flag == TRUE)
+if(eap38flag == true)
 	printf("\x1B[36mfound EAP-HTTP Digest\x1B[0m\n");
 
-if(eap39flag == TRUE)
+if(eap39flag == true)
 	printf("\x1B[36mfound SecureSuite EAP\x1B[0m\n");
 
-if(eap40flag == TRUE)
+if(eap40flag == true)
 	printf("\x1B[36mfound DeviceConnect EAP\x1B[0m\n");
 
-if(eap41flag == TRUE)
+if(eap41flag == true)
 	printf("\x1B[36mfound EAP-SPEKE Authentication\x1B[0m\n");
 
-if(eap42flag == TRUE)
+if(eap42flag == true)
 	printf("\x1B[36mfound EAP-MOBAC Authentication\x1B[0m\n");
 
-if(eap43flag == TRUE)
+if(eap43flag == true)
 	printf("\x1B[36mfound FAST Authentication\x1B[0m\n");
 
-if(eap44flag == TRUE)
+if(eap44flag == true)
 	printf("\x1B[36mfound ZoneLabs EAP (ZLXEAP)\x1B[0m\n");
 
-if(eap45flag == TRUE)
+if(eap45flag == true)
 	printf("\x1B[36mfound EAP-Link Authetication\x1B[0m\n");
 
-if(eap46flag == TRUE)
+if(eap46flag == true)
 	printf("\x1B[36mfound EAP-PAX Authetication\x1B[0m\n");
 
-if(eap47flag == TRUE)
+if(eap47flag == true)
 	printf("\x1B[36mfound EAP-PSK Authetication\x1B[0m\n");
 
-if(eap48flag == TRUE)
+if(eap48flag == true)
 	printf("\x1B[36mfound EAP-SAKE Authetication\x1B[0m\n");
 
-if(eap49flag == TRUE)
+if(eap49flag == true)
 	printf("\x1B[36mfound EAP-IKEv2 Authetication\x1B[0m\n");
 
-if(eap50flag == TRUE)
+if(eap50flag == true)
 	printf("\x1B[36mfound EAP-AKA Authetication\x1B[0m\n");
 
-if(eap51flag == TRUE)
+if(eap51flag == true)
 	printf("\x1B[36mfound EAP-GPSK Authetication\x1B[0m\n");
 
-if(eap52flag == TRUE)
+if(eap52flag == true)
 	printf("\x1B[36mfound EAP-pwd Authetication\x1B[0m\n");
 
-if(eap53flag == TRUE)
+if(eap53flag == true)
 	printf("\x1B[36mfound EAP-EKE Version 1 Authetication\x1B[0m\n");
 
-if(eap54flag == TRUE)
+if(eap54flag == true)
 	printf("\x1B[36mfound EAP Method Type for PT-EAP Authetication\x1B[0m\n");
 
-if(eap55flag == TRUE)
+if(eap55flag == true)
 	printf("\x1B[36mfound TEAP Authetication\x1B[0m\n");
 
-if(eap254flag == TRUE)
+if(eap254flag == true)
 	printf("\x1B[36mfound WPS Authentication\x1B[0m\n");
 
-if(eap255flag == TRUE)
+if(eap255flag == true)
 	printf("\x1B[36mfound Experimental Authentication\x1B[0m\n");
 
-if(radiusflag == TRUE)
+if(radiusflag == true)
 	printf("\x1B[35mfound RADIUS Authentication\x1B[0m\n");
 
-if(preautflag == TRUE)
+if(preautflag == true)
 	printf("\x1B[35mPre-Authentication detected\x1B[0m\n");
 
-if(frrrflag == TRUE)
+if(frrrflag == true)
 	printf("\x1B[35mfound Fast Roaming Remote Request\x1B[0m\n");
 
 
-if(ipv4flag == TRUE)
+if(ipv4flag == true)
 	printf("\x1B[35mfound IPv4 packets\x1B[0m\n");
 
-if(ipv6flag == TRUE)
+if(ipv6flag == true)
 	printf("\x1B[35mfound IPv6 packets\x1B[0m\n");
 
-if(tcpflag == TRUE)
+if(tcpflag == true)
 	printf("\x1B[35mfound TCP packets\x1B[0m\n");
 
-if(udpflag == TRUE)
+if(udpflag == true)
 	printf("\x1B[35mfound UDP packets\x1B[0m\n");
 
-if(pppchapflag == TRUE)
+if(pppchapflag == true)
 	printf("\x1B[35mfound PPP CHAP Authentication packets (hashcat -m 5500)\x1B[0m\n");
 
-if(wpadataflag == TRUE)
+if(wpadataflag == true)
 	printf("\x1B[35mfound WPA encrypted data packets\x1B[0m\n");
 
-if(wepdataflag == TRUE)
+if(wepdataflag == true)
 	printf("\x1B[35mfound WEP encrypted data packets\x1B[0m\n");
 
 
-if(wcflag == TRUE)
+if(wcflag == true)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
 
-return TRUE;	
+return true;	
 }
 /*===========================================================================*/
 static void usage(char *eigenname)
@@ -2649,24 +2650,24 @@ while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv"))
 		break;
 
 		case 'x':
-		netexact = TRUE;
+		netexact = true;
 		break;
 
 		case 'r':
-		replaycountcheck = TRUE;
+		replaycountcheck = true;
 		break;
 
 		case 'i':
-		idcheck = TRUE;
+		idcheck = true;
 		break;
 
 		case 's':
-		showinfo1 = TRUE;
+		showinfo1 = true;
 		break;
 
 		case 'S':
 		showinfo2outname = optarg;
-		showinfo2 = TRUE;
+		showinfo2 = true;
 		break;
 
 		case 'F':
@@ -2674,7 +2675,7 @@ while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv"))
 		break;
 
 		case 'Z':
-		weakpassflag = TRUE;
+		weakpassflag = true;
 		break;
 
 		case 'h':
@@ -2734,7 +2735,7 @@ for (index = optind; index < argc; index++)
 			fprintf(stderr, "\x1B[31mfile skipped (inputname = outputname) %s\x1B[0m\n", (argv[index]));
 			continue;	
 			}
-	if(processcap(argv[index], essidoutname, essidunicodeoutname, pmkoutname, externalbpfname) == FALSE)
+	if(processcap(argv[index], essidoutname, essidunicodeoutname, pmkoutname, externalbpfname) == false)
 		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));
 
 	}

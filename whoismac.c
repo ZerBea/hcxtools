@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -21,7 +22,7 @@
 #define LINEBUFFER 256
 
 /*===========================================================================*/
-int downloadoui(const char *ouiname)
+bool downloadoui(const char *ouiname)
 {
 CURLcode ret;
 CURL *hnd;
@@ -54,7 +55,7 @@ if(ret != 0)
 	}
 		
 printf("download finished\n");
-return TRUE;	
+return true;	
 }
 /*===========================================================================*/
 size_t chop(char *buffer,  size_t len)

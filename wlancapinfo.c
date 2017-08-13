@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -21,7 +22,7 @@
 
 
 /*===========================================================================*/
-int getpcapinfo(char *pcapinname)
+bool getpcapinfo(char *pcapinname)
 {
 //struct stat statinfo;
 pcap_t *pcapin = NULL;
@@ -144,7 +145,7 @@ char pcaperrorstring[PCAP_ERRBUF_SIZE];
 if (!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	{
 	fprintf(stderr, "error opening %s %s\n", pcaperrorstring, pcapinname);
-	return FALSE;
+	return false;
 	}
 
 majorversion = pcap_major_version(pcapin);
@@ -170,13 +171,13 @@ pcap_close(pcapin);
 if((fhc = fopen(pcapinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s\n", pcapinname);
-	return FALSE;
+	return false;
 	}
 magicsize = fread(&magic, 4, 1, fhc);
 if(magicsize != 1)
 	{
 	fprintf(stderr, "error reading file header %s\n", pcapinname);
-	return FALSE;
+	return false;
 	}
 
 fclose(fhc);
@@ -483,7 +484,7 @@ printf( "input file.......: %s\n"
 	"last pcap error..: %s\n"
 	, pcapinname, magic, pcapformatstring, majorversion, minorversion, datalink, datalinkstring, packetcount, pcaperrorstring);
 
-return TRUE;	
+return true;	
 }
 /*===========================================================================*/
 static void usage(char *eigenname)
