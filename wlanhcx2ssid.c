@@ -45,7 +45,6 @@ if (feof(inputstream)) return -1;
 
 	size_t len = strlen(buffptr);
 	len = chop(buffptr, len);
-
 return len;
 }
 /*===========================================================================*/
