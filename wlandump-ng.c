@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -95,13 +96,13 @@ uint8_t chlistende = 13;
 int statuslines = STATUSLINES;
 uint16_t mysequencenr = 1;
 int staytime = TIME_INTERVAL_2S;
-uint8_t modepassiv = FALSE;
-uint8_t ipv46 = FALSE;
-uint8_t wepdata = FALSE;
+uint8_t modepassiv = false;
+uint8_t ipv46 = false;
+uint8_t wepdata = false;
 int deauthmaxcount = DEAUTHMAXCOUNT;
 int disassocmaxcount = DISASSOCMAXCOUNT;
-uint8_t resetdedicount = FALSE;
-uint8_t lastbeaconing = FALSE;
+uint8_t resetdedicount = false;
+uint8_t lastbeaconing = false;
 int internalbeacons = 0;
 int internalproberesponses = 0;
 int internalproberequests = 0;
@@ -257,7 +258,7 @@ const uint8_t requestidentity[] =
 #define REQUESTIDENTITY_SIZE sizeof(requestidentity)
 
 /*===========================================================================*/
-int initgloballists()
+bool initgloballists()
 {
 struct timeval starttimeval;
 
@@ -278,26 +279,26 @@ myaddr.addr[1] = (myoui >> 8) & 0xff;
 myaddr.addr[0] = (myoui >> 16) & 0xff;
 
 if((beaconliste = malloc((aplistesize +1) *APL_SIZE)) == NULL)
-	return FALSE;
+	return false;
 memset(beaconliste, 0, (aplistesize +1) *APL_SIZE);
 
 if((proberesponseliste = malloc((aplistesize +1) *CLAPL_SIZE)) == NULL)
-	return FALSE;
+	return false;
 memset(proberesponseliste, 0, (aplistesize +1) *CLAPL_SIZE);
 
 if((proberequestliste = malloc((aplistesize +1) *CLAPL_SIZE)) == NULL)
-	return FALSE;
+	return false;
 memset(proberequestliste, 0, (aplistesize +1) *CLAPL_SIZE);
 
 if((associationrequestliste = malloc((aplistesize +1) *CLAPL_SIZE)) == NULL)
-	return FALSE;
+	return false;
 memset(associationrequestliste, 0, (aplistesize +1) *CLAPL_SIZE);
 
 if((reassociationrequestliste = malloc((aplistesize +1) *CLAPL_SIZE)) == NULL)
-	return FALSE;
+	return false;
 memset(reassociationrequestliste, 0, (aplistesize +1) *CLAPL_SIZE);
 
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 void printstatus1()
@@ -391,7 +392,7 @@ essid_t essidframe;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-if(modepassiv == TRUE)
+if(modepassiv == true)
 	return;
 memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
@@ -441,7 +442,7 @@ int pcapstatus;
 mac_t grundframe;
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-if(modepassiv == TRUE)
+if(modepassiv == true)
 	return;
 if((memcmp(macaddr1, &myaddr, 3) == 0) || (memcmp(macaddr2, &myaddr, 3) == 0))
 	return;
@@ -495,7 +496,7 @@ essid_t essidframe;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-if(modepassiv == TRUE)
+if(modepassiv == true)
 	return;
 memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
@@ -545,7 +546,7 @@ int pcapstatus;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-if(modepassiv == TRUE)
+if(modepassiv == true)
 	return;
 memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
@@ -583,7 +584,7 @@ int pcapstatus;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-if(modepassiv == TRUE)
+if(modepassiv == true)
 	return;
 memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_CTRL;
@@ -614,7 +615,7 @@ assocres_t associationframe;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-if(modepassiv == TRUE)
+if(modepassiv == true)
 	return;
 memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
@@ -659,7 +660,7 @@ qos_t qosframe;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-if(modepassiv == TRUE)
+if(modepassiv == true)
 	return;
 memset(&grundframe, 0, MAC_SIZE_NORM);
 memset(&qosframe, 0, QOS_SIZE);
@@ -699,7 +700,7 @@ qos_t qosframe;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-if(modepassiv == TRUE)
+if(modepassiv == true)
 	return;
 memset(&grundframe, 0, MAC_SIZE_NORM);
 memset(&qosframe, 0, QOS_SIZE);
@@ -747,7 +748,7 @@ clapl_t *ib = (clapl_t *)b;
 return ia->tv_sec < ib->tv_sec;
 }
 /*===========================================================================*/
-int handlebeaconframes(time_t tvsec, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+bool handlebeaconframes(time_t tvsec, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
 {
 apl_t *zeiger;
 int c;
@@ -762,10 +763,10 @@ for(c = 0; c < aplistesize; c++)
 			{
 			senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastmac, zeiger->addr_ap.addr);
 			zeiger->deauthcount = deauthmaxcount;
-			return TRUE;
+			return true;
 			}
 		zeiger->deauthcount -= 1;
-		return TRUE;
+		return true;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -785,10 +786,10 @@ senddeauth(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, broadcastmac, zeiger-
 qsort(beaconliste, aplistesize +1, APL_SIZE, sortaplist_by_time);
 if(statuslines > 0)
 	printstatus1();
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int handleproberesponseframes(time_t tvsec, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+bool handleproberesponseframes(time_t tvsec, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
 {
 clapl_t *zeiger;
 int c;
@@ -800,7 +801,7 @@ for(c = 0; c < aplistesize; c++)
 		{
 		zeiger->tv_sec = tvsec;
 		internalproberesponses++;
-		return TRUE;
+		return true;
 		}
 	if(memcmp(nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -813,10 +814,10 @@ zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 qsort(proberesponseliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int handledirectproberequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+bool handledirectproberequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
 {
 clapl_t *zeiger;
 int c;
@@ -829,7 +830,7 @@ for(c = 0; c < aplistesize; c++)
 		zeiger->tv_sec = tvsec;
 		sendproberesponse(mac_sta, mac_ap, essid_len, essidname);
 		internalproberequests++;
-		return TRUE;
+		return true;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -843,10 +844,10 @@ memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
 qsort(proberequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int handleproberequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t essid_len, uint8_t **essidname)
+bool handleproberequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t essid_len, uint8_t **essidname)
 {
 clapl_t *zeiger;
 int c;
@@ -859,7 +860,7 @@ for(c = 0; c < aplistesize; c++)
 		zeiger->tv_sec = tvsec;
 		sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
 		internalproberequests++;
-		return TRUE;
+		return true;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -874,10 +875,10 @@ memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 sendproberesponse(mac_sta, zeiger->addr_ap.addr, essid_len, essidname);
 qsort(proberequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int handleassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+bool handleassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
 {
 clapl_t *zeiger;
 int c;
@@ -889,7 +890,7 @@ for(c = 0; c < aplistesize; c++)
 		{
 		zeiger->tv_sec = tvsec;
 		internalassociationrequests++;
-		return TRUE;
+		return true;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -903,10 +904,10 @@ zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 qsort(associationrequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int handlereassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+bool handlereassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
 {
 clapl_t *zeiger;
 int c;
@@ -918,7 +919,7 @@ for(c = 0; c < aplistesize; c++)
 		{
 		zeiger->tv_sec = tvsec;
 		internalreassociationrequests++;
-		return TRUE;
+		return true;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -932,10 +933,10 @@ zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
 qsort(reassociationrequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int handlextendedflagframes(time_t tvsec, uint8_t *mac_ap, int eapext)
+bool handlextendedflagframes(time_t tvsec, uint8_t *mac_ap, int eapext)
 {
 apl_t *zeiger;
 int c;
@@ -951,16 +952,16 @@ for(c = 0; c < aplistesize; c++)
 //		qsort(beaconliste, aplistesize +1, APL_SIZE, sort_by_time);
 //		if(statuslines > 0)
 //			printstatus1();
-		return TRUE;
+		return true;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
 	zeiger++;
 	}
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int handlehandshakeframes(time_t tvsec, uint8_t *mac_ap, int handshake)
+bool handlehandshakeframes(time_t tvsec, uint8_t *mac_ap, int handshake)
 {
 apl_t *zeiger;
 int c;
@@ -975,16 +976,16 @@ for(c = 0; c < aplistesize; c++)
 		qsort(beaconliste, aplistesize +1, APL_SIZE, sortaplist_by_time);
 		if(statuslines > 0)
 			printstatus1();
-		return TRUE;
+		return true;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
 	zeiger++;
 	}
-return FALSE;
+return false;
 }
 /*===========================================================================*/
-int handledisassocframes(time_t tvsec, uint8_t *mac_ap)
+bool handledisassocframes(time_t tvsec, uint8_t *mac_ap)
 {
 apl_t *zeiger;
 int c;
@@ -998,16 +999,16 @@ for(c = 0; c < aplistesize; c++)
 		if(zeiger->disassoccount <= 0)
 			{
 			zeiger->disassoccount = disassocmaxcount;
-			return TRUE;
+			return true;
 			}
 		zeiger->disassoccount -= 1;
-		return FALSE;
+		return false;
 		}
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
 	zeiger++;
 	}
-return FALSE;
+return false;
 }
 /*===========================================================================*/
 unsigned long long int getreplaycount(eap_t *eap)
@@ -1224,7 +1225,7 @@ while(1)
 		if(chptr >= chlistende)
 			{
 			chptr = 0;
-			if(resetdedicount == TRUE)
+			if(resetdedicount == true)
 				{
 				zeiger = beaconliste;
 				for(c = 0; c < aplistesize; c++)
@@ -1244,7 +1245,7 @@ while(1)
 
 	/* check radiotap-header */
 	h80211 = packet;
-	if(has_rth == TRUE)
+	if(has_rth == true)
 		{
 		rth = (rth_t*)packet;
 		fcsl = 0;
@@ -1289,7 +1290,7 @@ while(1)
 
 	payload = ((uint8_t*)macf)+macl;
 
-	if(lastbeaconing == TRUE)
+	if(lastbeaconing == true)
 		{
 		pktcount++;
 		if(pktcount == 10)
@@ -1316,7 +1317,7 @@ while(1)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-			if(handlebeaconframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+			if(handlebeaconframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == false)
 				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 				}
@@ -1332,7 +1333,7 @@ while(1)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-			if(handleproberesponseframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+			if(handleproberesponseframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == false)
 				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 				}
@@ -1351,14 +1352,14 @@ while(1)
 				continue;
 			if(memcmp(&broadcastmac, macf->addr1.addr, 6) == 0)
 				{
-				if(handleproberequestframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				if(handleproberequestframes(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == false)
 					{
 					pcap_dump((u_char *) pcapout, pkh, h80211);
 					}
 				}
 			else
 				{
-				if(handledirectproberequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+				if(handledirectproberequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == false)
 					{
 					pcap_dump((u_char *) pcapout, pkh, h80211);
 					}
@@ -1375,7 +1376,7 @@ while(1)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-			if(handleassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+			if(handleassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == false)
 				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 				}
@@ -1394,7 +1395,7 @@ while(1)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-			if(handlereassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+			if(handlereassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == false)
 				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 				}
@@ -1423,9 +1424,9 @@ while(1)
 	/* power save */
 	if((macf->type == MAC_TYPE_DATA) && ((macf->subtype == MAC_ST_NULL)|| (macf->subtype == MAC_ST_QOSNULL)))
 		{
-		if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == TRUE)
+		if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == true)
 			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, macf->addr2.addr, macf->addr1.addr);
-		else if(handledisassocframes(pkh->ts.tv_sec, macf->addr2.addr) == TRUE)
+		else if(handledisassocframes(pkh->ts.tv_sec, macf->addr2.addr) == true)
 			senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_STA_HAS_LEFT, macf->addr2.addr, macf->addr1.addr);
 		continue;
 		}
@@ -1438,7 +1439,7 @@ while(1)
 		if(macf->protected == 1)
 			{
 			enc = (mpdu_frame_t*)(payload);
-			if((wepdata == TRUE) && (((enc->keyid >> 5) &1) == 0))
+			if((wepdata == true) && (((enc->keyid >> 5) &1) == 0))
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			continue;
 			}
@@ -1483,7 +1484,7 @@ while(1)
 	
 			if(mkey == WPA_M4)
 				{
-				if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == TRUE)
+				if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == true)
 					senddeauth(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_AP_BUSY, macf->addr2.addr, macf->addr1.addr);
 				externalm4++;
 				}
@@ -1513,7 +1514,7 @@ while(1)
 			}
 		}
 
-	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
+	else if((ipv46 == true) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{
 		if(macf->from_ds == 1)
 			handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV4);
@@ -1524,7 +1525,7 @@ while(1)
 		pcap_dump((u_char *) pcapout, pkh, h80211);
 		}
 
-	else if((ipv46 == TRUE) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
+	else if((ipv46 == true) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
 		{
 		if(macf->from_ds == 1)
 			handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV6);
@@ -1600,13 +1601,13 @@ if(extfilterstring != NULL)
 return;
 }
 /*===========================================================================*/
-int startcapturing(char *pcapoutname, char *externalbpfname)
+bool startcapturing(char *pcapoutname, char *externalbpfname)
 {
 struct stat statinfo;
 pcap_t *pcapdh = NULL;
 int datalink = 0;
 int c = 0;
-int has_rth = FALSE;
+int has_rth = false;
 
 char newpcapoutname[PATH_MAX +2];
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
@@ -1626,7 +1627,7 @@ if(pcapin == NULL)
 
 datalink = pcap_datalink(pcapin);
 	if (datalink == DLT_IEEE802_11_RADIO)
-		has_rth = TRUE;
+		has_rth = true;
 
 installbpf(pcapin, externalbpfname);
 
@@ -1680,7 +1681,7 @@ pcaploop(has_rth);
 pcap_dump_flush(pcapout);
 pcap_dump_close(pcapout);
 pcap_close(pcapin);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 static void version(char *eigenname)
@@ -1859,11 +1860,11 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:F:rbplLhv")) != -1)
 		break;
 
 		case 'r':
-		resetdedicount = TRUE;
+		resetdedicount = true;
 		break;
 
 		case 'b':
-		lastbeaconing = TRUE;
+		lastbeaconing = true;
 		break;
 
 		case 'm':
@@ -1881,15 +1882,15 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:F:rbplLhv")) != -1)
 		break;
 
 		case 'p':
-		modepassiv = TRUE;
+		modepassiv = true;
 		break;
 
 		case 'l':
-		ipv46 = TRUE;
+		ipv46 = true;
 		break;
 
 		case 'L':
-		wepdata = TRUE;
+		wepdata = true;
 		break;
 
 		case 's':
@@ -1946,13 +1947,13 @@ if(interfacename == NULL)
 	exit (EXIT_FAILURE);
 	}
 
-if(initgloballists() != TRUE)
+if(initgloballists() != true)
 	{
 	fprintf(stderr, "could not allocate memory for tables\n" );
 	exit (EXIT_FAILURE);
 	}
 
-if(startcapturing(pcapoutname, externalbpfname) == FALSE)
+if(startcapturing(pcapoutname, externalbpfname) == false)
 	{
 	fprintf(stderr, "could not init device\n" );
 	exit (EXIT_FAILURE);

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -129,7 +130,7 @@ if(fhjohn != 0)
 return;	
 }
 /*===========================================================================*/
-int processdata(char *hcxinname, uint8_t noncecheckflag)
+bool processdata(char *hcxinname, uint8_t noncecheckflag)
 {
 struct stat statinfo;
 FILE *fhhcx;
@@ -139,25 +140,25 @@ long int datasize = 0;
 long int hcxsize = 0;
 
 if(hcxinname == NULL)
-	return FALSE;
+	return false;
 
 if(stat(hcxinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", hcxinname);
-	return FALSE;
+	return false;
 	}
 
 if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s\n", hcxinname);
-	return FALSE;
+	return false;
 	}
 
 data = malloc(statinfo.st_size);
 if(data == NULL)	
 	{
 	fprintf(stderr, "out of memory to store hc data\n");
-	return FALSE;
+	return false;
 	}
 
 
@@ -166,7 +167,7 @@ if(datasize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hc file %s\n", hcxinname);
 	free(data);
-	return FALSE;
+	return false;
 	}
 fclose(fhhcx);
 
@@ -175,14 +176,14 @@ zeigerhcx = (hcx_t*)(data);
 if(((datasize % HCX_SIZE) == 0) && (zeigerhcx->signature == HCCAPX_SIGNATURE))
 	{
 	printf("%ld records read from %s\n", hcxsize, hcxinname);
-	if((noncecheckflag == TRUE) && (zeigerhcx->message_pair & 0x80) != 0x80)
+	if((noncecheckflag == true) && (zeigerhcx->message_pair & 0x80) != 0x80)
 		processhcx(hcxsize, zeigerhcx, hcxinname); 
-	else if(noncecheckflag == FALSE)
+	else if(noncecheckflag == false)
 		processhcx(hcxsize, zeigerhcx, hcxinname); 
 	}
 
 free(data);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 static void usage(char *eigenname)
@@ -202,7 +203,7 @@ int main(int argc, char *argv[])
 {
 int index;
 int auswahl;
-uint8_t noncecheckflag = TRUE;
+uint8_t noncecheckflag = true;
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 
@@ -219,7 +220,7 @@ while ((auswahl = getopt(argc, argv, "o:Dhv")) != -1)
 		break;
 
 		case 'D':
-		noncecheckflag = FALSE;
+		noncecheckflag = false;
 		break;
 
 		default:
@@ -230,7 +231,7 @@ while ((auswahl = getopt(argc, argv, "o:Dhv")) != -1)
 
 for (index = optind; index < argc; index++)
 	{
-	if(processdata(argv[index], noncecheckflag) == FALSE)
+	if(processdata(argv[index], noncecheckflag) == false)
 		{
 		fprintf(stderr, "error processing records from %s\n", (argv[index]));
 		exit(EXIT_FAILURE);

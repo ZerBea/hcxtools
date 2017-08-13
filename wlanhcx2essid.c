@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -27,7 +28,7 @@ hcx_t *ib = (hcx_t *)b;
 return memcmp(ia->essid, ib->essid, 32);
 }
 /*===========================================================================*/
-int writehccapx(char *hcxoutname, long int hcxrecords, long int hcxrecords2)
+bool writehccapx(char *hcxoutname, long int hcxrecords, long int hcxrecords2)
 {
 hcx_t *zeigerhcx;
 hcx_t *zeigerhcx1;
@@ -37,12 +38,12 @@ FILE *fhhcx;
 long int c, c2;
 
 if(hcxoutname == NULL)
-	return FALSE;
+	return false;
 
 if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hcxoutname);
-	return FALSE;
+	return false;
 	}
 
 qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_essid);
@@ -73,93 +74,93 @@ while(c < hcxrecords)
 	c++;
 	}
 fclose(fhhcx);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
-int readhccapx2(char *hcxinname)
+long int readhccapx2(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
 long int hcxsize = 0;
 
 if(hcxinname == NULL)
-	return FALSE;
+	return 0;
 
 if(stat(hcxinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 if((statinfo.st_size % HCX_SIZE) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
-	return FALSE;
+	return 0;
 	}
 
 if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 hcxdata2 = malloc(statinfo.st_size);
 if(hcxdata2 == NULL)	
 		{
 		fprintf(stderr, "out of memory to store second hccapx data\n");
-		return FALSE;
+		return 0;
 		}
 
 hcxsize = fread(hcxdata2, 1, statinfo.st_size +HCX_SIZE, fhhcx);
 if(hcxsize != statinfo.st_size)	
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 fclose(fhhcx);
 printf("%ld records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
-int readhccapx(char *hcxinname)
+long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
 long int hcxsize = 0;
 
 if(hcxinname == NULL)
-	return FALSE;
+	return 0;
 
 if(stat(hcxinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 if((statinfo.st_size % HCX_SIZE) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
-	return FALSE;
+	return 0;
 	}
 
 if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 hcxdata = malloc(statinfo.st_size);
 if(hcxdata == NULL)	
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
-		return FALSE;
+		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
 if(hcxsize != statinfo.st_size)	
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 fclose(fhhcx);
 

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -190,7 +191,7 @@ pcap_dump_flush(pcapdump);
 return;
 }
 /*===========================================================================*/
-int mac12checkdouble(hcx_t *zeiger, long int akthccapset, long int hccapsets)
+bool mac12checkdouble(hcx_t *zeiger, long int akthccapset, long int hccapsets)
 {
 hcx_t *zeigertest = zeiger;
 int p;
@@ -198,11 +199,11 @@ for(p = akthccapset +1; p < hccapsets; p++)
 	{
 	zeigertest++;
 	if((memcmp(zeigertest->mac_ap.addr, zeiger->mac_ap.addr, 6) == 0) && (memcmp(zeigertest->mac_sta.addr, zeiger->mac_sta.addr, 6) == 0))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 	}
-return FALSE;
+return false;
 }
 /*===========================================================================*/
 int sort_by_mac12(const void *a, const void *b) 
@@ -242,7 +243,7 @@ for(p = 0; p < hccapsets; p++)
 	{
 	if(((zeiger->message_pair & 0x80) != 0x80) && (zeiger->message_pair != MESSAGE_PAIR_M32E3) && (zeiger->message_pair != MESSAGE_PAIR_M34E3))
 		{
-		if((mac12checkdouble(zeiger, p, hccapsets) == FALSE))
+		if((mac12checkdouble(zeiger, p, hccapsets) == false))
 			{
 			if(memcmp(lasthost, zeiger->mac_ap.addr, 6) == 0)
 				lasthostcount++;
@@ -275,7 +276,7 @@ for(p = 0; p < hccapsets; p++)
 	{
 	if(((zeiger->message_pair & 0x80) != 0x80) && (zeiger->message_pair != MESSAGE_PAIR_M32E3) && (zeiger->message_pair != MESSAGE_PAIR_M34E3))
 		{
-		if((mac12checkdouble(zeiger, p, hccapsets) == FALSE) || (lasthostcount == 1))
+		if((mac12checkdouble(zeiger, p, hccapsets) == false) || (lasthostcount == 1))
 			{
 			if(memcmp(lasthost, zeiger->mac_ap.addr, 6) == 0)
 				lasthostcount++;
@@ -307,7 +308,7 @@ printf("%d pcap(s) written\n", pcapcount);
 return;
 }
 /*===========================================================================*/
-int hccapx2cap(char *hccapxinname, char *capoutname)
+bool hccapx2cap(char *hccapxinname, char *capoutname)
 {
 struct stat statinfo;
 hcx_t *hccapxdata;
@@ -317,38 +318,38 @@ long int hccapsets;
 
 
 if(hccapxinname == NULL)
-	return FALSE;
+	return false;
 
 if(stat(hccapxinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", hccapxinname);
-	return FALSE;
+	return false;
 	}
 
 if(statinfo.st_size % sizeof(hcx_t) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
-	return FALSE;
+	return false;
 	}
 
 if((fhhccapx = fopen(hccapxinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hccapxinname);
-	return FALSE;
+	return false;
 	}
 
 hccapxdata = malloc(statinfo.st_size);
 if(hccapxdata == NULL)	
 		{
 		fprintf(stderr, "--> out of memory to store hccapx file\n");
-		return FALSE;
+		return false;
 		}
 
 hccapxsize = fread(hccapxdata, 1, statinfo.st_size, fhhccapx);
 if(hccapxsize != statinfo.st_size)	
 	{
 	fprintf(stderr, "error reading hccapx file %s", hccapxinname);
-	return FALSE;
+	return false;
 	}
 fclose(fhhccapx);
 hccapsets = hccapxsize / sizeof(hcx_t);
@@ -358,7 +359,7 @@ printf("%ld records read from %s\n", hccapxsize / sizeof(hcx_t), hccapxinname);
 if(capoutname != NULL)
 	writecap(capoutname, hccapsets, hccapxdata);
 
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 static void usage(char *eigenname)

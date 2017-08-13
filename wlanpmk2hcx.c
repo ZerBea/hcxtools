@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -38,7 +39,7 @@ BIO_free_all(bio);
 return;
 }
 /*===========================================================================*/
-int hex2bin(const char *str, uint8_t *bytes, size_t blen)
+bool hex2bin(const char *str, uint8_t *bytes, size_t blen)
 {
 size_t c;
 uint8_t pos;
@@ -60,13 +61,13 @@ const uint8_t hashmap[] =
 for(c = 0; c < blen; c++)
 	{
 	if(str[c] < '0')
-		return FALSE;
+		return false;
 	if(str[c] > 'f')
-		return FALSE;
+		return false;
 	if((str[c] > '9') && (str[c] < 'A'))
-		return FALSE;
+		return false;
 	if((str[c] > 'F') && (str[c] < 'a'))
-		return FALSE;
+		return false;
 	}
 
 bzero(bytes, blen);
@@ -76,7 +77,7 @@ for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	idx1 = ((uint8_t)str[pos+1] & 0x1F) ^ 0x10;
 	bytes[pos/2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
 	};
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 size_t chop(char *buffer, size_t len)
@@ -141,7 +142,7 @@ while((combilen = fgetline(fhcombi, 100, combiline)) != -1)
 		continue;
 		}
 
-	if(hex2bin(combiline, pmkstr, 64) != TRUE)
+	if(hex2bin(combiline, pmkstr, 64) != true)
 		{
 		skippedcount++;
 		continue;
@@ -179,7 +180,7 @@ char *hashrecord = NULL;
 unsigned char essidstr[64];
 unsigned char pmkstr[64];
 
-if(hex2bin(pmkname, pmkstr, 64) != TRUE)
+if(hex2bin(pmkname, pmkstr, 64) != true)
 	{
 	fprintf(stderr, "error wrong plainmasterkey\n");
 	return;

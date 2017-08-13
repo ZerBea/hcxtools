@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -21,7 +22,7 @@
 #include "com_md5_64.c"
 
 
-int hex2bin(const char *str, uint8_t *bytes, size_t blen);
+bool hex2bin(const char *str, uint8_t *bytes, size_t blen);
 
 struct hcxhrc
 {
@@ -274,7 +275,7 @@ uint8_t pkedata_prf[2 + 98 + 2];
 uint8_t ptk[128];
 uint8_t mic[16];
 
-if(hex2bin(pmkname, pmkin, 32) != TRUE)
+if(hex2bin(pmkname, pmkin, 32) != true)
 	{
 	fprintf(stderr, "error wrong plainmasterkey value (allowed: 64 xdigits)\n");
 	exit(EXIT_FAILURE);
@@ -344,7 +345,7 @@ uint8_t mic[16];
 
 unsigned char essid[32];
 
-if(hex2bin(pmkname, pmkin, 32) != TRUE)
+if(hex2bin(pmkname, pmkin, 32) != true)
 	{
 	fprintf(stderr, "error wrong plainmasterkey value (allowed: 64 xdigits)\n");
 	exit(EXIT_FAILURE);
@@ -690,45 +691,45 @@ hcx_t *ib = (hcx_t *)b;
 return memcmp(ia->essid, ib->essid, 32);
 }
 /*===========================================================================*/
-int readhccapx(char *hcxinname)
+long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
 long int hcxsize = 0;
 
 if(hcxinname == NULL)
-	return FALSE;
+	return 0;
 
 if(stat(hcxinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 if((statinfo.st_size % HCX_SIZE) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
-	return FALSE;
+	return 0;
 	}
 
 if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 
 hcxdata = malloc(statinfo.st_size);
 if(hcxdata == NULL)	
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
-		return FALSE;
+		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
 if(hcxsize != statinfo.st_size)	
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
-	return FALSE;
+	return 0;
 	}
 fclose(fhhcx);
 
@@ -736,7 +737,7 @@ qsort(hcxdata, hcxsize / HCX_SIZE, sizeof(hcx_t), sort_by_essid);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
-int hex2bin(const char *str, uint8_t *bytes, size_t blen)
+bool hex2bin(const char *str, uint8_t *bytes, size_t blen)
 {
 size_t c;
 uint8_t pos;
@@ -758,13 +759,13 @@ const uint8_t hashmap[] =
 for(c = 0; c < blen; c++)
 	{
 	if(str[c] < '0')
-		return FALSE;
+		return false;
 	if(str[c] > 'f')
-		return FALSE;
+		return false;
 	if((str[c] > '9') && (str[c] < 'A'))
-		return FALSE;
+		return false;
 	if((str[c] > 'F') && (str[c] < 'a'))
-		return FALSE;
+		return false;
 	}
 
 bzero(bytes, blen);
@@ -774,7 +775,7 @@ for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	idx1 = ((uint8_t)str[pos+1] & 0x1F) ^ 0x10;
 	bytes[pos/2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
 	};
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 static void usage(char *eigenname)

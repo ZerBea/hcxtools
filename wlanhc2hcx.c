@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -35,20 +36,20 @@ long int eapolerror = 0;
 char *hcxoutname = NULL;
 char *essidoutname = NULL;
 /*===========================================================================*/
-int checkessid(uint8_t essid_len, char *essid)
+bool checkessid(uint8_t essid_len, char *essid)
 {
 int p;
 
 if(essid_len == 0)
-	return FALSE;
+	return false;
 
 if(essid_len > 32)
-	return FALSE;
+	return false;
 
 for(p = 0; p < essid_len; p++)
 	if ((essid[p] < 0x20) || (essid[p] > 0x7e))
-		return FALSE;
-return TRUE;
+		return false;
+return true;
 }
 /*===========================================================================*/
 uint8_t geteapkey(uint8_t *eapdata)
@@ -147,7 +148,7 @@ for(p = 0; p < hcsize; p++)
 
 	if(fhessid != NULL)
 		{
-		if(checkessid(essid_len, essidout) == TRUE)
+		if(checkessid(essid_len, essidout) == true)
 			fprintf(fhessid, "%s\n", essidout);
 		}
 
@@ -240,7 +241,7 @@ for(p = 0; p < hcxsize; p++)
 			{
 			memset(&essidout, 0, 36);
 			memcpy(&essidout, zeiger->essid, zeiger->essid_len);
-			if(checkessid(zeiger->essid_len, essidout) == TRUE)
+			if(checkessid(zeiger->essid_len, essidout) == true)
 				fprintf(fhessid, "%s\n", essidout);
 			}
 
@@ -270,7 +271,7 @@ if(fhhcx != 0)
 return;	
 }
 /*===========================================================================*/
-int processdata(char *hcinname)
+bool processdata(char *hcinname)
 {
 struct stat statinfo;
 FILE *fhhc;
@@ -283,25 +284,25 @@ long int hcsize = 0;
 
 eapolerror = 0;
 if(hcinname == NULL)
-	return FALSE;
+	return false;
 
 if(stat(hcinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", hcinname);
-	return FALSE;
+	return false;
 	}
 
 if((fhhc = fopen(hcinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s\n", hcinname);
-	return FALSE;
+	return false;
 	}
 
 data = malloc(statinfo.st_size);
 if(data == NULL)	
 	{
 	fprintf(stderr, "out of memory to store hc data\n");
-	return FALSE;
+	return false;
 	}
 
 
@@ -310,7 +311,7 @@ if(datasize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hc file %s\n", hcinname);
 	free(data);
-	return FALSE;
+	return false;
 	}
 fclose(fhhc);
 
@@ -339,7 +340,7 @@ free(data);
 if(eapolerror > 0)
 	printf("\x1B[31m%ld record(s) ignored (wrong eapolsize)\x1B[0m\n", eapolerror);
 
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 static void usage(char *eigenname)
@@ -394,7 +395,7 @@ for (index = optind; index < argc; index++)
 			fprintf(stderr, "\x1B[31mfile skipped (inputname = outputname) %s\x1B[0m\n", (argv[index]));
 			continue;	
 			}
-	if(processdata(argv[index]) == FALSE)
+	if(processdata(argv[index]) == false)
 		{
 		fprintf(stderr, "error processing records from %s\n", (argv[index]));
 		exit(EXIT_FAILURE);

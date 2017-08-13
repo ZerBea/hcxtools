@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -57,14 +58,14 @@ char *interfacename = NULL;
 /* Konstante */
 
 /*===========================================================================*/
-int initgloballists()
+bool initgloballists()
 {
 memset(&nullmac, 0, 6);
 
 if((apliste = malloc(APLISTESIZEMAX * APL_SIZE)) == NULL)
-	return FALSE;
+	return false;
 memset(apliste, 0, APLISTESIZEMAX * APL_SIZE);
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 int sort_by_channel(const void *a, const void *b) 
@@ -110,7 +111,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 return;
 }
 /*===========================================================================*/
-int handleapframes(uint8_t channel, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+bool handleapframes(uint8_t channel, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
 {
 apl_t *zeiger;
 int c;
@@ -120,7 +121,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 	{
 	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
-		return TRUE;
+		return true;
 		}
 	if(memcmp(&nullmac.addr, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -131,7 +132,7 @@ zeiger->channel = channel;
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
 memcpy(zeiger->essid, essidname, essid_len);
-return FALSE;
+return false;
 }
 /*===========================================================================*/
 void sigalarm(int signum)
@@ -237,7 +238,7 @@ while(1)
 
 	/* check radiotap-header */
 	h80211 = packet;
-	if(has_rth == TRUE)
+	if(has_rth == true)
 		{
 		rth = (rth_t*)packet;
 		fcsl = 0;
@@ -291,7 +292,7 @@ while(1)
 				{
 				if(tagf->id == TAG_CHAN)
 					{
-					if(handleapframes(tagf->data[0], macf->addr2.addr, essidf->info_essid_len, essidf->essid) == FALSE)
+					if(handleapframes(tagf->data[0], macf->addr2.addr, essidf->info_essid_len, essidf->essid) == false)
 						netcount++;
 					break;
 					}
@@ -307,10 +308,10 @@ while(1)
 return;
 }
 /*===========================================================================*/
-int startcapturing()
+bool startcapturing()
 {
 int datalink = 0;
-int has_rth = FALSE;
+int has_rth = false;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
 
@@ -323,7 +324,7 @@ if(pcapin == NULL)
 
 datalink = pcap_datalink(pcapin);
 	if (datalink == DLT_IEEE802_11_RADIO)
-		has_rth = TRUE;
+		has_rth = true;
 
 
 setchannel();
@@ -336,7 +337,7 @@ pcaploop(has_rth);
 
 pcap_close(pcapin);
 printf("program unconditionally stopped...\n");
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 static void version(char *eigenname)
@@ -436,14 +437,14 @@ if(interfacename == NULL)
 	exit (EXIT_FAILURE);
 	}
 
-if(initgloballists() != TRUE)
+if(initgloballists() != true)
 	{
 	fprintf(stderr, "could not allocate memory for tables\n" );
 	exit (EXIT_FAILURE);
 	}
 
 
-if(startcapturing() == FALSE)
+if(startcapturing() == false)
 	{
 	fprintf(stderr, "could not init device\n" );
 	exit (EXIT_FAILURE);

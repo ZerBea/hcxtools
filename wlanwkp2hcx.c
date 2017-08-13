@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -75,7 +76,7 @@ else
 return eapkey;
 }
 /*===========================================================================*/
-int writeessid(uint8_t *essid, uint8_t essidlen)
+bool writeessid(uint8_t *essid, uint8_t essidlen)
 {
 FILE *fhessid = NULL;
 
@@ -88,7 +89,7 @@ if(essidoutname != NULL)
 	if((fhessid = fopen(essidoutname, "a")) == NULL)
 		{
 		fprintf(stderr, "error opening essid file %s\n", essidoutname);
-		return FALSE;
+		return false;
 		}
 	}
 
@@ -97,10 +98,10 @@ fprintf(fhessid, "%s\n", essidstring);
 if(fhessid != NULL)
 	fclose(fhessid);
 
-return TRUE;
+return true;
 }
 /*===========================================================================*/
-int writehccapx(uint8_t *wkpdata)
+bool writehccapx(uint8_t *wkpdata)
 {
 FILE *fhhcx = NULL;
 hcx_t hcxrecord;
@@ -141,7 +142,7 @@ if(hcxoutname != NULL)
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening essid file %s\n", hcxoutname);
-		return FALSE;
+		return false;
 		}
 	}
 
@@ -150,10 +151,10 @@ if(fhhcx != NULL)
 	fclose(fhhcx);
 
 hcxcount++;
-return TRUE;
+return true;
 }
 /*===========================================================================*/
-int processdata(char *wkpiname)
+bool processdata(char *wkpiname)
 {
 struct stat statinfo;
 int wkpsize;
@@ -166,52 +167,52 @@ char *wkpmagic = "CPWE";
 uint8_t wkpdata[WKPSIZE];
 
 if(wkpiname == NULL)
-	return FALSE;
+	return false;
 
 if(stat(wkpiname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", wkpiname);
-	return FALSE;
+	return false;
 	}
 
 if((statinfo.st_size % WKPSIZE) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
-	return FALSE;
+	return false;
 	}
 
 if((fhwkp = fopen(wkpiname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s\n", wkpiname);
-	return FALSE;
+	return false;
 	}
 
 wkpsize = fread(wkpdata, 1, WKPSIZE, fhwkp);
 if(wkpsize != WKPSIZE)
 	{
 	fprintf(stderr, "error reading file %s\n", wkpiname);
-	return FALSE;
+	return false;
 	}
 
 if(memcmp(wkpmagic, &wkpdata, 4) != 0)
 	{
 	fprintf(stderr, "wrong magic number %s\n", wkpiname);
 	fclose(fhwkp);
-	return FALSE;
+	return false;
 	}
 
 if(wkpsize != WKPSIZE)
 	{
 	fprintf(stderr, "wrong filesize %s\n", wkpiname);
 	fclose(fhwkp);
-	return FALSE;
+	return false;
 	}
 
 if(memcmp(&wkpdata[WKPESSID1], &wkpdata[WKPESSID1], 32) != 0)
 	{
 	fprintf(stderr, "error processing ESSID %s\n", wkpiname);
 	fclose(fhwkp);
-	return FALSE;
+	return false;
 	}
 
 wkpessidlen = wkpdata[WKPESSID_LEN];
@@ -220,7 +221,7 @@ if((wkpessidlen == 0) || (wkpessidlen > 32))
 	{
 	fprintf(stderr, "wrong ESSID len %s\n", wkpiname);
 	fclose(fhwkp);
-	return FALSE;
+	return false;
 	}
 
 fclose(fhwkp);
@@ -231,7 +232,7 @@ writehccapx(wkpdata);
 if(essidoutname != NULL)
 	writeessid(&wkpdata[WKPESSID2], wkpessidlen);
 
-return TRUE;
+return true;
 }
 /*===========================================================================*/
 static void usage(char *eigenname)
@@ -281,7 +282,7 @@ for (index = optind; index < argc; index++)
 	{
 	if(hcxoutname != NULL)
 		{
-		if(processdata(argv[index]) == FALSE)
+		if(processdata(argv[index]) == false)
 			{
 			fprintf(stderr, "error processing records from %s\n", argv[index]);
 			exit(EXIT_FAILURE);

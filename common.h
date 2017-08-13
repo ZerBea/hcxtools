@@ -3,14 +3,6 @@
 #define VERSION "3.6.0"
 #define VERSION_JAHR "2017"
 
-#if !defined(FALSE)
-#define FALSE 0
-#endif
-
-#if !defined(TRUE)
-#define TRUE 1
-#endif
-
 #define NEWENTY -1
 
 #define HCCAPX_SIGNATURE 0x58504348
