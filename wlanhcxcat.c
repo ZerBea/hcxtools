@@ -18,6 +18,8 @@
 #include <openssl/evp.h>
 #include "common.c"
 #include "com_md5_64.c"
+#include "com_aes.c"
+#include "com_formats.c"
 
 
 bool hex2bin(const char *str, uint8_t *bytes, size_t blen);
@@ -164,89 +166,6 @@ if(fhpot != NULL)
 	essidstring, password);
 	}
 
-return;
-}
-/*===========================================================================*/
-int omac1_aes_128_vector(const uint8_t *key, size_t num_elem, const uint8_t *addr[], const size_t *len, uint8_t *mac)
-{
-	CMAC_CTX *ctx;
-	int ret = -1;
-	size_t outlen, i;
-
-	ctx = CMAC_CTX_new();
-	if (ctx == NULL)
-		return -1;
-
-	if (!CMAC_Init(ctx, key, 16, EVP_aes_128_cbc(), NULL))
-		goto fail;
-	for (i = 0; i < num_elem; i++) {
-		if (!CMAC_Update(ctx, addr[i], len[i]))
-			goto fail;
-	}
-	if (!CMAC_Final(ctx, mac, &outlen) || outlen != 16)
-		goto fail;
-
-	ret = 0;
-fail:
-	CMAC_CTX_free(ctx);
-	return ret;
-}
-/*===========================================================================*/
-int omac1_aes_128(const uint8_t *key, const uint8_t *data, size_t data_len, uint8_t *mac)
-{
-	return omac1_aes_128_vector(key, 1, &data, &data_len, mac);
-}
-/*===========================================================================*/
-void generatepkeprf(hcx_t *hcxrecord, uint8_t *pke_ptr)
-{
-memcpy(pke_ptr, "Pairwise key expansion", 22);
-if(memcmp(hcxrecord->mac_ap.addr, hcxrecord->mac_sta.addr, 6) < 0)
-	{
-	memcpy(pke_ptr + 22, hcxrecord->mac_ap.addr,  6);
-	memcpy(pke_ptr + 28, hcxrecord->mac_sta.addr, 6);
-	}
-else
-	{
-	memcpy(pke_ptr + 22, hcxrecord->mac_sta.addr, 6);
-	memcpy(pke_ptr + 28, hcxrecord->mac_ap.addr,  6);
-	}
-if(memcmp(hcxrecord->nonce_ap, hcxrecord->nonce_sta, 32) < 0)
-	{
-	memcpy (pke_ptr + 34, hcxrecord->nonce_ap,  32);
-	memcpy (pke_ptr + 66, hcxrecord->nonce_sta, 32);
-	}
-else
-	{
-	memcpy (pke_ptr + 34, hcxrecord->nonce_sta, 32);
-	memcpy (pke_ptr + 66, hcxrecord->nonce_ap,  32);
-	}
-return;
-}
-/*===========================================================================*/
-void generatepke(hcx_t *hcxrecord, uint8_t *pke_ptr)
-{
-memcpy(pke_ptr, "Pairwise key expansion", 23);
-if(memcmp(hcxrecord->mac_ap.addr, hcxrecord->mac_sta.addr, 6) < 0)
-	{
-	memcpy(pke_ptr + 23, hcxrecord->mac_ap.addr,  6);
-	memcpy(pke_ptr + 29, hcxrecord->mac_sta.addr, 6);
-	}
-else
-	{
-	memcpy(pke_ptr + 23, hcxrecord->mac_sta.addr, 6);
-	memcpy(pke_ptr + 29, hcxrecord->mac_ap.addr,  6);
-	}
-
-if(memcmp(hcxrecord->nonce_ap, hcxrecord->nonce_sta, 32) < 0)
-	{
-	memcpy (pke_ptr + 35, hcxrecord->nonce_ap,  32);
-	memcpy (pke_ptr + 67, hcxrecord->nonce_sta, 32);
-	}
-else
-	{
-	memcpy (pke_ptr + 35, hcxrecord->nonce_sta, 32);
-	memcpy (pke_ptr + 67, hcxrecord->nonce_ap,  32);
-	}
 return;
 }
 /*===========================================================================*/
