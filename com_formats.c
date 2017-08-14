@@ -196,12 +196,10 @@ if((pwlen > 0) || (pwlen < 63))
 	essidstr, pwstr);
 	}
 
-if(pwlen == 64)
+else if(pwlen == 64)
 	{
-	do_hexify(password, 64, (uint8_t*)essidstr);
-
+	memcpy(&pwstr, password, pwlen);
 	}
-
 else
 	{
 	sprintf(out, "%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s",
