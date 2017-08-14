@@ -598,6 +598,93 @@ struct hcx
 typedef struct hcx hcx_t;
 #define	HCX_SIZE (sizeof(hcx_t))
 
+struct hc5500
+{
+ adr_t    mac_ap1;
+ adr_t    mac_sta1;
+ adr_t    mac_ap2;
+ adr_t    mac_sta2;
+ uint8_t  p1;
+ uint8_t  p2;
+ uint8_t  leapid1;
+ uint8_t  leapid2;
+ char     username[258];
+ uint8_t  peerchallenge[8];
+ uint8_t  peerresponse[24];
+} __attribute__((packed));
+typedef struct hc5500 hc5500_t;
+
+
+struct hc5500chap
+{
+ adr_t    mac_ap1;
+ adr_t    mac_sta1;
+ adr_t    mac_ap2;
+ adr_t    mac_sta2;
+ uint8_t  id1;
+ uint8_t  id2;
+ uint8_t  p1;
+ uint8_t  p2;
+ uint8_t  serverchallenge[16];
+ uint8_t  clientchallenge[16];
+ uint8_t  authchallenge[8];
+ uint8_t  authresponse[24];
+ char     usernames[258];
+ char     usernamec[258];
+} __attribute__((packed));
+typedef struct hc5500chap hc5500chap_t;
+
+
+struct hc4800
+{
+ adr_t    mac_ap1;
+ adr_t    mac_sta1;
+ adr_t    mac_ap2;
+ adr_t    mac_sta2;
+ uint8_t  id1;
+ uint8_t  id2;
+ uint8_t  p1;
+ uint8_t  p2;
+ uint8_t  challenge[16];
+ uint8_t  response[16];
+} __attribute__((packed));
+typedef struct hc4800 hc4800_t;
+
+
+struct netdb
+{
+ long int	tv_sec;  
+ long int	tv_usec;
+ adr_t		mac_ap;
+ adr_t		mac_sta;
+ uint8_t	essid_len;
+ uint8_t	essid[34];
+};
+typedef struct netdb netdb_t;
+#define	NETDB_SIZE (sizeof(netdb_t))
+
+struct eapdb
+{
+ long int	tv_sec;  
+ time_t		tv_usec;
+ adr_t		mac_ap;
+ adr_t		mac_sta;
+ uint16_t	eapol_len;
+ uint8_t	eapol[256];
+};
+typedef struct eapdb eapdb_t;
+#define	EAPDB_SIZE (sizeof(eapdb_t))
+
+
+struct hcxhrc
+{
+ uint32_t salt_buf[64];
+ uint32_t pke[25];
+ uint32_t eapol[64 + 16];
+ uint32_t keymic[4];
+};
+typedef struct hcxhrc hcxhrc_t;
+
 
 /*===========================================================================*/
 /* globale Konstante */

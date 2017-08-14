@@ -22,15 +22,6 @@
 
 bool hex2bin(const char *str, uint8_t *bytes, size_t blen);
 
-struct hcxhrc
-{
- uint32_t salt_buf[64];
- uint32_t pke[25];
- uint32_t eapol[64 + 16];
- uint32_t keymic[4];
-};
-typedef struct hcxhrc hcxhrc_t;
-
 /*===========================================================================*/
 /* globale Variablen */
 

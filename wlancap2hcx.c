@@ -18,91 +18,7 @@
 #include <openssl/evp.h>
 #include "common.c"
 #include "com_md5_64.c"
-
-struct hc5500
-{
- adr_t    mac_ap1;
- adr_t    mac_sta1;
- adr_t    mac_ap2;
- adr_t    mac_sta2;
- uint8_t  p1;
- uint8_t  p2;
- uint8_t  leapid1;
- uint8_t  leapid2;
- char     username[258];
- uint8_t  peerchallenge[8];
- uint8_t  peerresponse[24];
-} __attribute__((packed));
-typedef struct hc5500 hc5500_t;
-
-
-struct hc5500chap
-{
- adr_t    mac_ap1;
- adr_t    mac_sta1;
- adr_t    mac_ap2;
- adr_t    mac_sta2;
- uint8_t  id1;
- uint8_t  id2;
- uint8_t  p1;
- uint8_t  p2;
- uint8_t  serverchallenge[16];
- uint8_t  clientchallenge[16];
- uint8_t  authchallenge[8];
- uint8_t  authresponse[24];
- char     usernames[258];
- char     usernamec[258];
-} __attribute__((packed));
-typedef struct hc5500chap hc5500chap_t;
-
-
-struct hc4800
-{
- adr_t    mac_ap1;
- adr_t    mac_sta1;
- adr_t    mac_ap2;
- adr_t    mac_sta2;
- uint8_t  id1;
- uint8_t  id2;
- uint8_t  p1;
- uint8_t  p2;
- uint8_t  challenge[16];
- uint8_t  response[16];
-} __attribute__((packed));
-typedef struct hc4800 hc4800_t;
-
-struct hcxhrc
-{
- uint32_t salt_buf[64];
- uint32_t pke[25];
- uint32_t eapol[64 + 16];
- uint32_t keymic[4];
-};
-typedef struct hcxhrc hcxhrc_t;
-
-struct netdb
-{
- long int	tv_sec;  
- long int	tv_usec;
- adr_t		mac_ap;
- adr_t		mac_sta;
- uint8_t	essid_len;
- uint8_t	essid[34];
-};
-typedef struct netdb netdb_t;
-#define	NETDB_SIZE (sizeof(netdb_t))
-
-struct eapdb
-{
- long int	tv_sec;  
- time_t		tv_usec;
- adr_t		mac_ap;
- adr_t		mac_sta;
- uint16_t	eapol_len;
- uint8_t	eapol[256];
-};
-typedef struct eapdb eapdb_t;
-#define	EAPDB_SIZE (sizeof(eapdb_t))
+#include "com_formats.c"
 
 /*===========================================================================*/
 /* globale Variablen */
@@ -477,6 +393,7 @@ if(memcmp(eap->nonce, &mynonce, 32) == 0)
 return false;
 }
 /*===========================================================================*/
+/*
 void showhashrecord(hcx_t *hcxrecord, uint8_t showinfo1, uint8_t showinfo2)
 {
 int i;
@@ -625,6 +542,7 @@ if(showinfo2 == true)
 	}
 return;
 }
+*/
 /*===========================================================================*/
 int omac1_aes_128_vector(const uint8_t *key, size_t num_elem, const uint8_t *addr[], const size_t *len, uint8_t *mac)
 {
@@ -654,59 +572,6 @@ fail:
 int omac1_aes_128(const uint8_t *key, const uint8_t *data, size_t data_len, uint8_t *mac)
 {
 	return omac1_aes_128_vector(key, 1, &data, &data_len, mac);
-}
-/*===========================================================================*/
-void generatepkeprf(hcx_t *hcxrecord, uint8_t *pke_ptr)
-{
-memcpy(pke_ptr, "Pairwise key expansion", 22);
-if(memcmp(hcxrecord->mac_ap.addr, hcxrecord->mac_sta.addr, 6) < 0)
-	{
-	memcpy(pke_ptr + 22, hcxrecord->mac_ap.addr,  6);
-	memcpy(pke_ptr + 28, hcxrecord->mac_sta.addr, 6);
-	}
-else
-	{
-	memcpy(pke_ptr + 22, hcxrecord->mac_sta.addr, 6);
-	memcpy(pke_ptr + 28, hcxrecord->mac_ap.addr,  6);
-	}
-if(memcmp(hcxrecord->nonce_ap, hcxrecord->nonce_sta, 32) < 0)
-	{
-	memcpy (pke_ptr + 34, hcxrecord->nonce_ap,  32);
-	memcpy (pke_ptr + 66, hcxrecord->nonce_sta, 32);
-	}
-else
-	{
-	memcpy (pke_ptr + 34, hcxrecord->nonce_sta, 32);
-	memcpy (pke_ptr + 66, hcxrecord->nonce_ap,  32);
-	}
-return;
-}
-/*===========================================================================*/
-void generatepke(hcx_t *hcxrecord, uint8_t *pke_ptr)
-{
-memcpy(pke_ptr, "Pairwise key expansion", 23);
-if(memcmp(hcxrecord->mac_ap.addr, hcxrecord->mac_sta.addr, 6) < 0)
-	{
-	memcpy(pke_ptr + 23, hcxrecord->mac_ap.addr,  6);
-	memcpy(pke_ptr + 29, hcxrecord->mac_sta.addr, 6);
-	}
-else
-	{
-	memcpy(pke_ptr + 23, hcxrecord->mac_sta.addr, 6);
-	memcpy(pke_ptr + 29, hcxrecord->mac_ap.addr,  6);
-	}
-
-if(memcmp(hcxrecord->nonce_ap, hcxrecord->nonce_sta, 32) < 0)
-	{
-	memcpy (pke_ptr + 35, hcxrecord->nonce_ap,  32);
-	memcpy (pke_ptr + 67, hcxrecord->nonce_sta, 32);
-	}
-else
-	{
-	memcpy (pke_ptr + 35, hcxrecord->nonce_sta, 32);
-	memcpy (pke_ptr + 67, hcxrecord->nonce_ap,  32);
-	}
-return;
 }
 /*===========================================================================*/
 bool weakpasscheck(hcx_t *zeigerhcx)
@@ -767,9 +632,13 @@ hcx_t hcxrecord;
 eap_t *eap1;
 eap_t *eap2;
 FILE *fhhcx = NULL;
+FILE *fhshowinfo2 = NULL;
 
 unsigned long long int r;
-int wldflagint = false;
+bool wldflagint = false;
+
+char outstr[256];
+
 eap1 = (eap_t*)(zeiger1->eapol);
 eap2 = (eap_t*)(zeiger2->eapol);
 memset(&hcxrecord, 0, HCX_SIZE);
@@ -872,9 +741,29 @@ if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 
 	fclose(fhhcx);
 	}
 
-if((showinfo1 == true) || (showinfo2 == true))
+if(showinfo1 == true)
 	{
-	showhashrecord(&hcxrecord, showinfo1, showinfo2);
+	memset(&outstr, 0, 256);
+	if(showhashrecord(&hcxrecord, NULL, 0, outstr) == true)
+		printf("%s\n", outstr);
+	}
+
+if(showinfo2 == true)
+	{
+	if(showinfo2outname != NULL)
+		{
+		if((fhshowinfo2 = fopen(showinfo2outname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening hccapx file %s\n", showinfo2outname);
+			exit(EXIT_FAILURE);
+			}
+		}
+
+	memset(&outstr, 0, 256);
+	if(showhashrecord(&hcxrecord, NULL, 0, outstr) == true)
+		fprintf(fhshowinfo2, "%s\n", outstr);
+
+	fclose(fhshowinfo2);
 	}
 return;	
 }
