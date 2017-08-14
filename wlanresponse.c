@@ -1306,12 +1306,13 @@ if(externalbpfname != NULL)
 		fprintf(stderr, "error opening BPF %s\n", externalbpfname);
 		exit(EXIT_FAILURE);
 		}
-	extfilterstring = malloc(statinfo.st_size);
+	extfilterstring = malloc(statinfo.st_size +1);
 	if(extfilterstring == NULL)	
 		{
 		fprintf(stderr, "out of memory to store BPF\n");
 		exit(EXIT_FAILURE);
 		}
+	extfilterstring[statinfo.st_size] = 0;
 	bpfsize = fread(extfilterstring, 1, statinfo.st_size, fhbpf);
 	if(bpfsize != statinfo.st_size)	
 		{
