@@ -2275,9 +2275,9 @@ else if(hcxwritecount > 1)
 	printf("\x1B[32mtotal %ld usefull wpa handshakes\x1B[0m\n", hcxwritecount);
 
 if(weakpasscount == 1)
-	printf("\x1B[32mfound %ld handshake with zeroed plainmasterkeys\x1B[0m\n", weakpasscount);
+	printf("\x1B[32mfound %ld handshake with zeroed plainmasterkeys (hashcat -m 2501 with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
 else if(weakpasscount > 1)
-	printf("\x1B[32mfound %ld handshakes with zeroed plainmasterkeys\x1B[0m\n", weakpasscount);
+	printf("\x1B[32mfound %ld handshakes with zeroed plainmasterkeys (hashcat -m 2501 with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
 
 if(wpakv1c > 0)
 	printf("\x1B[32mfound %ld WPA1 RC4 Cipher, HMAC-MD5\x1B[0m\n", wpakv1c);
