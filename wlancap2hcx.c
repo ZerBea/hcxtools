@@ -20,6 +20,7 @@
 #include "com_md5_64.c"
 #include "com_aes.c"
 #include "com_formats.c"
+#include "com_wpa.c"
 
 /*===========================================================================*/
 /* globale Variablen */
@@ -394,58 +395,6 @@ if(memcmp(eap->nonce, &mynonce, 32) == 0)
 return false;
 }
 /*===========================================================================*/
-bool weakpasscheck(hcx_t *zeigerhcx)
-{
-int p;
-uint8_t pmk[32];
-uint8_t pkedata[102];
-uint8_t pkedata_prf[2 + 98 + 2];
-uint8_t ptk[128];
-uint8_t mic[16];
-
-memset(&pkedata, 0, sizeof(pkedata));
-memset(&pkedata_prf, 0, sizeof(pkedata_prf));
-memset(&ptk, 0, sizeof(ptk));
-memset(&pkedata, 0, sizeof(mic));
-memset(&pmk, 0, 32);
-if(zeigerhcx->keyver == 1)
-	{
-	generatepke(zeigerhcx, pkedata);
-	for (p = 0; p < 4; p++)
-		{
-		pkedata[99] = p;
-		HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
-		}
-	HMAC(EVP_md5(), &ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
-	}
-
-else if(zeigerhcx->keyver == 2)
-	{
-	generatepke(zeigerhcx, pkedata);
-	for (p = 0; p < 4; p++)
-		{
-		pkedata[99] = p;
-		HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
-		}
-	HMAC(EVP_sha1(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
-	}
-
-else if(zeigerhcx->keyver == 3)
-	{
-	generatepkeprf(zeigerhcx, pkedata);
-	pkedata_prf[0] = 1;
-	pkedata_prf[1] = 0;
-	memcpy (pkedata_prf + 2, pkedata, 98);
-	pkedata_prf[100] = 0x80;
-	pkedata_prf[101] = 1;
-	HMAC(EVP_sha256(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
-	omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
-	}
-if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-	return true;
-return false;
-}
-/*===========================================================================*/
 void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 hcx_t hcxrecord;
@@ -457,6 +406,7 @@ FILE *fhshowinfo2 = NULL;
 unsigned long long int r;
 bool wldflagint = false;
 
+uint8_t pmk[32];
 char outstr[256];
 
 eap1 = (eap_t*)(zeiger1->eapol);
@@ -501,12 +451,13 @@ if(hcxrecord.keyver == 3)
 if((hcxrecord.keyver &4) == 4)
 	wpakv4c++;
 
-if((weakpassflag == true) && (weakpasscheck(&hcxrecord) == true))
+memset(&pmk, 0,32);
+if((weakpassflag == true) && (wpatesthash(&hcxrecord, pmk) == true))
 	{
 	weakpasscount++;
 	return;
 	}
-else if(weakpasscheck(&hcxrecord) == true)
+else if(wpatesthash(&hcxrecord, pmk) == true)
 	weakpasscount++;
 
 r = getreplaycount(zeiger2->eapol);
@@ -515,7 +466,6 @@ if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
 	hcxwritewldcount++;
 	wldflagint = true;
 	}
-
 
 if((hcxaesoutname != NULL) && (hcxrecord.keyver == 3))
 	{
