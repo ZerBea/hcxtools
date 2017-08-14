@@ -179,11 +179,11 @@ else
 	memcpy(&essidstr, hcxrecord->essid, hcxrecord->essid_len);
 	}
 
-if(pwlen > 0)
+if((pwlen > 0) || (pwlen < 63))
 	{
 	if(need_hexify(password, pwlen) == true)
 		{
-		do_full_hexify(password, pwlen, (uint8_t*)essidstr);
+		do_full_hexify(password, pwlen, (uint8_t*)pwstr);
 		}
 	else
 		{
@@ -195,6 +195,13 @@ if(pwlen > 0)
 	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
 	essidstr, pwstr);
 	}
+
+if(pwlen == 64)
+	{
+	do_hexify(password, 64, (uint8_t*)essidstr);
+
+	}
+
 else
 	{
 	sprintf(out, "%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s",
