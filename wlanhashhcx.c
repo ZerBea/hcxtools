@@ -150,6 +150,10 @@ if(hashoutname != NULL)
 	hashhcx(hcxorgrecords, fhhash);
 	fclose(fhhash);
 	}
+else
+	hashhcx(hcxorgrecords, stdout);
+
+
 
 if(hcxdata != NULL)
 	free(hcxdata);

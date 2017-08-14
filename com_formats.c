@@ -179,7 +179,7 @@ else
 	memcpy(&essidstr, hcxrecord->essid, hcxrecord->essid_len);
 	}
 
-if((pwlen > 0) || (pwlen < 63))
+if((pwlen > 0) && (pwlen < 63))
 	{
 	if(need_hexify(password, pwlen) == true)
 		{
