@@ -16,9 +16,7 @@
 #include <openssl/hmac.h>
 #include <openssl/cmac.h>
 #include <openssl/evp.h>
-#include "common.h"
 #include "common.c"
-#include "com_md5_64.h"
 #include "com_md5_64.c"
 
 struct hc5500

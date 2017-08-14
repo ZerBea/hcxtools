@@ -11,9 +11,7 @@
 #include <pcap.h>
 #include <sys/stat.h>
 #include <stdio_ext.h>
-#include "common.h"
 #include "common.c"
-#include "com_md5_64.h"
 #include "com_md5_64.c"
 
 struct hcxhrc
