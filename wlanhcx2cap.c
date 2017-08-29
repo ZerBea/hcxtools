@@ -274,7 +274,11 @@ lasthostcount = 1;
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	if(((zeiger->message_pair & 0x80) != 0x80) && (zeiger->message_pair != MESSAGE_PAIR_M32E3) && (zeiger->message_pair != MESSAGE_PAIR_M34E3))
+	if(((zeiger->message_pair & 0x80) != 0x80) &&
+		(zeiger->message_pair != MESSAGE_PAIR_M32E3) &&
+		(zeiger->message_pair != MESSAGE_PAIR_M34E3) &&
+		(zeiger->eapol_len >= 8) &&
+		(zeiger->eapol_len <= sizeof(zeiger->eapol)))
 		{
 		if((mac12checkdouble(zeiger, p, hccapsets) == false) || (lasthostcount == 1))
 			{
