@@ -139,7 +139,7 @@ for(p = 0; p < hcsize; p++)
 		zeiger++;
 		continue;
 		}
-	if(zeiger->eapol_size > 256)
+	if((zeiger->eapol_size < 8) || (zeiger->eapol_size > sizeof(zeiger->eapol) -4))
 		{
 		zeiger++;
 		eapolerror++;
