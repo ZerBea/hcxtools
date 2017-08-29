@@ -1376,6 +1376,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	/* check radiotap-header */
 	else if(datalink == DLT_IEEE802_11_RADIO)
 		{
+		if(RTH_SIZE > pkh->len)
+			continue;
 		rth = (rth_t*)packet;
 		fcsl = 0;
 		field = 12;
