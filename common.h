@@ -110,6 +110,7 @@ struct ppi_packet_header
  uint32_t pph_dlt;
 } __attribute__((packed));
 typedef struct ppi_packet_header ppi_packet_header_t;
+#define	PPIH_SIZE (sizeof(ppi_packet_header_t))
 
 
 struct adr_frame
@@ -483,8 +484,6 @@ typedef struct udp_frame udp_frame_t;
 #define	UDP_SIZE (sizeof(udp_frame_t))
 
 
-
-
 #define NEXTHDR_HOP		0	/* Hop-by-hop option header. */
 #define NEXTHDR_TCP		6	/* TCP segment. */
 #define NEXTHDR_UDP		17	/* UDP message. */
@@ -597,6 +596,7 @@ struct hcx
 } __attribute__((packed));
 typedef struct hcx hcx_t;
 #define	HCX_SIZE (sizeof(hcx_t))
+
 
 struct hc5500
 {

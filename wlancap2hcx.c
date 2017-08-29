@@ -1398,6 +1398,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	/* check ppi-header */
 	else if(datalink == DLT_PPI)
 		{
+		if(PPIH_SIZE > pkh->len)
+			continue;
 		ppih = (ppi_packet_header_t*)packet;
 		if(ppih->pph_dlt != DLT_IEEE802_11)
 			continue;
@@ -1409,6 +1411,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		h80211 = packet + ppih->pph_len;
 		}
 
+	if(pkh->len < MAC_SIZE_NORM)
+		continue;
 	macf = (mac_t*)(h80211);
 	if((macf->to_ds == 1) && (macf->from_ds == 1))
 		macl = MAC_SIZE_LONG;
