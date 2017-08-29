@@ -282,6 +282,9 @@ if(eapleap->leapversion != 1)
 	return false;
 
 eaplen = htobe16(eapleap->eaplen);
+if((eaplen <= 8) || (eaplen > 258 +16))
+	return false;
+
 if((eapleap->eapcode == EAP_CODE_REQ) && (eapleap->leapcount == 8))
 	{
 	memcpy(&hcleap.mac_ap1, mac_2, 6);
@@ -893,7 +896,7 @@ memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
 memcpy(neweapdbdata->mac_sta.addr, mac_sta, 6);
 neweapdbdata->eapol_len = htobe16(eap->len) +4;
 
-if(neweapdbdata->eapol_len > 256)
+if(neweapdbdata->eapol_len > 256 -4)
 	return false;
 
 memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
