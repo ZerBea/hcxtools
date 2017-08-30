@@ -1411,7 +1411,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		h80211 = packet + ppih->pph_len;
 		}
 
-	if(pkh->len < MAC_SIZE_NORM)
+	if(MAC_SIZE_NORM > pkh->len)
 		continue;
 	macf = (mac_t*)(h80211);
 	if((macf->to_ds == 1) && (macf->from_ds == 1))
