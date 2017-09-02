@@ -3,8 +3,8 @@ hcxtools
 
 Small set of tools to capture and convert packets from wlan devices
 for the use with latest hashcat. The tools are 100% compatible to hashcat
-and recommended by hashcat (that means hcxtools and latest hashcat beta are pretty
-closely synced).
+and recommended by hashcat. This branch is pretty closely synced to
+hashcat git branch (that means: latest hcxtools matching on latest hashcat beta)
 Support for hashcat hash-modes (2500, 2501, 4800, 5500, 12000, 15800).
 After capturing, upload the "uncleaned" cap here
 (http://wpa-sec.stanev.org/?submit) to see if your ap is vulnerable
