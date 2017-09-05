@@ -1274,6 +1274,9 @@ while(1)
 	else
 		macl = MAC_SIZE_NORM;
 
+	if(MAC_SIZE_NORM > pkh->len)
+		continue;
+
 	if (macf->type == MAC_TYPE_CTRL)
 		{
 		if (macf->subtype == MAC_ST_RTS)
