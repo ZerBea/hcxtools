@@ -93,7 +93,7 @@ else
 	return false;
 	}
 
-for (int i = 0; i < 25; i++)
+for (i = 0; i < 25; i++)
 	{
 	hashrec.pke[i] = byte_swap_32(hashrec.pke[i]);
 	}

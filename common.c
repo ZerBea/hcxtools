@@ -113,8 +113,9 @@ return;
 /*===========================================================================*/
 void do_hexify (uint8_t *buf, int len, uint8_t *out)
 {
+int i, j;
 int max_len = (len >= PW_MAX) ? PW_MAX : len;
-for(int i = max_len - 1, j = i * 2; i >= 0; i -= 1, j -= 2)
+for(i = max_len - 1, j = i * 2; i >= 0; i -= 1, j -= 2)
 	{
 	uint8t2hex_lower(buf[i], out + j);
 	}
@@ -124,6 +125,7 @@ return;
 /*===========================================================================*/
 void do_full_hexify (uint8_t *buf, int len, uint8_t *out)
 {
+int i, j;
 int max_len = (len >= PW_MAX) ? PW_MAX : len;
 out[0] = '$';
 out[1] = 'H';
@@ -131,7 +133,7 @@ out[2] = 'E';
 out[3] = 'X';
 out[4] = '[';
 out += 5;
-for (int i = max_len - 1, j = i * 2; i >= 0; i -= 1, j -= 2)
+for (i = max_len - 1, j = i * 2; i >= 0; i -= 1, j -= 2)
 	{
 	uint8t2hex_lower(buf[i], out + j);
 	}
@@ -163,9 +165,10 @@ return false;
 /*===========================================================================*/
 bool is_valid_hex_string(uint8_t *s, int len)
 {
+int i;	
 if((len %2) != 0)
 	return false;
-for(int i = 0; i < len; i++)
+for(i = 0; i < len; i++)
 	if (is_valid_hex_char(s[i]) == false) return false;
 return true;
 }
@@ -198,7 +201,8 @@ return true;
 /*===========================================================================*/
 bool is_printable_ascii (uint8_t *in_buf, int len)
 {
-for(int i = 0; i < len; i++)
+int i;
+for(i = 0; i < len; i++)
 	{
 	if(in_buf[i] < 0x20) return false;
 	if(in_buf[i] > 0x7e) return false;
