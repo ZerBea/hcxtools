@@ -1006,6 +1006,8 @@ while(1)
 	h80211 = packet;
 	if(has_rth == true)
 		{
+		if(RTH_SIZE > pkh->len)
+			continue;
 		rth = (rth_t*)packet;
 		fcsl = 0;
 		field = 12;
