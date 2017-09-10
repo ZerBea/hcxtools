@@ -930,8 +930,6 @@ if(m == 4)
 neweapdbdata++;
 eapdbrecords++;
 
-printf("%ld\n", eapdbrecords);
-
 return true;
 }
 /*===========================================================================*/
