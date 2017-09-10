@@ -398,19 +398,46 @@ if(memcmp(eap->nonce, &mynonce, 32) == 0)
 return false;
 }
 /*===========================================================================*/
+void showinfo(hcx_t *hcxrecord)
+{
+char outstr[256] = {0};
+FILE *fhshowinfo2 = NULL;
+
+if(showinfo1 == true)
+	{
+	if(showhashrecord(hcxrecord, NULL, 0, outstr) == true)
+		printf("%s\n", outstr);
+	}
+
+if(showinfo2 == true)
+	{
+	if(showinfo2outname != NULL)
+		{
+		if((fhshowinfo2 = fopen(showinfo2outname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening hccapx file %s\n", showinfo2outname);
+			exit(EXIT_FAILURE);
+			}
+		}
+
+	if(showhashrecord(hcxrecord, NULL, 0, outstr) == true)
+		fprintf(fhshowinfo2, "%s\n", outstr);
+
+	fclose(fhshowinfo2);
+	}
+}
+/*===========================================================================*/
 void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 hcx_t hcxrecord;
 eap_t *eap1;
 eap_t *eap2;
 FILE *fhhcx = NULL;
-FILE *fhshowinfo2 = NULL;
 
 unsigned long long int r;
 bool wldflagint = false;
 
 uint8_t pmk[32];
-char outstr[256];
 
 eap1 = (eap_t*)(zeiger1->eapol);
 eap2 = (eap_t*)(zeiger2->eapol);
@@ -479,6 +506,7 @@ if((hcxaesoutname != NULL) && (hcxrecord.keyver == 3))
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	showinfo(&hcxrecord);
 	}
 
 if((hcxoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
@@ -490,6 +518,7 @@ if((hcxoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	showinfo(&hcxrecord);
 	}
 
 if((wdfhcxoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
@@ -501,6 +530,7 @@ if((wdfhcxoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver == 1) |
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	showinfo(&hcxrecord);
 	}
 
 if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
@@ -512,32 +542,9 @@ if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	showinfo(&hcxrecord);
 	}
 
-if(showinfo1 == true)
-	{
-	memset(&outstr, 0, 256);
-	if(showhashrecord(&hcxrecord, NULL, 0, outstr) == true)
-		printf("%s\n", outstr);
-	}
-
-if(showinfo2 == true)
-	{
-	if(showinfo2outname != NULL)
-		{
-		if((fhshowinfo2 = fopen(showinfo2outname, "ab")) == NULL)
-			{
-			fprintf(stderr, "error opening hccapx file %s\n", showinfo2outname);
-			exit(EXIT_FAILURE);
-			}
-		}
-
-	memset(&outstr, 0, 256);
-	if(showhashrecord(&hcxrecord, NULL, 0, outstr) == true)
-		fprintf(fhshowinfo2, "%s\n", outstr);
-
-	fclose(fhshowinfo2);
-	}
 return;	
 }
 /*===========================================================================*/
