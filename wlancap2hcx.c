@@ -576,7 +576,7 @@ long int c;
 
 c = netdbrecords;
 zeigernewnet = newnetdbdata;
-while(c >= 0)
+while(c > 0)
 	{
 	if(memcmp(zeigernewnet->mac_ap.addr, zeiger1->mac_ap.addr, 6) == 0)
 		{
@@ -701,6 +701,7 @@ uint8_t m = 0;
 
 zeiger = zeigerakt;
 c = cakt;
+
 while(c >= 0)
 	{
 	if(((zeigerakt->tv_sec - zeiger->tv_sec) < 0) || ((zeigerakt->tv_sec - zeiger->tv_sec) > rctime))
@@ -715,6 +716,7 @@ while(c >= 0)
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M34E4);
 			if(netexact == true)
 				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M34E4);
+
 			return;
 			}
 		}
@@ -924,8 +926,12 @@ if(m == 4)
 	lookfor34(eapdbrecords, neweapdbdata, replaycount);
 	lookfor14(eapdbrecords, neweapdbdata, replaycount);
 	}
+
 neweapdbdata++;
 eapdbrecords++;
+
+printf("%ld\n", eapdbrecords);
+
 return true;
 }
 /*===========================================================================*/
@@ -1559,8 +1565,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(macf->from_ds == 1) /* sta - ap */
 				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, eap);
 
-			if(macf->to_ds == 1) /* ap - sta */
+			else if(macf->to_ds == 1) /* ap - sta */
 				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, eap);
+
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 		
