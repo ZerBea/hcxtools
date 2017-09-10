@@ -1074,6 +1074,9 @@ int udpportd = 0;
 int c, c1;
 int llctype;
 
+
+uint8_t meshflag = false;
+
 uint8_t eap3flag = false;
 uint8_t eap4flag = false;
 uint8_t eap5flag = false;
@@ -1426,7 +1429,10 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 	macf = (mac_t*)(h80211);
 	if((macf->to_ds == 1) && (macf->from_ds == 1))
+		{
 		macl = MAC_SIZE_LONG;
+		meshflag = true;
+		}
 	else
 		macl = MAC_SIZE_NORM;
 
@@ -2193,6 +2199,8 @@ if(wpadataflag == true)
 if(wepdataflag == true)
 	printf("\x1B[35mfound WEP encrypted data packets\x1B[0m\n");
 
+if(meshflag == true)
+	printf("\x1B[35mfound WDS or Mesh packets\x1B[0m\n");
 
 if(wcflag == true)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
