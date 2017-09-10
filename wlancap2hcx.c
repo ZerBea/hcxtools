@@ -576,7 +576,7 @@ long int c;
 
 c = netdbrecords;
 zeigernewnet = newnetdbdata;
-while(c > 0)
+while(c >= 0)
 	{
 	if(memcmp(zeigernewnet->mac_ap.addr, zeiger1->mac_ap.addr, 6) == 0)
 		{
