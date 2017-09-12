@@ -19,7 +19,7 @@ all: build
 
 build:
 ifeq ($(GPIOSUPPORT), on)
-	$(CC) $(CFLAGS) -DDOGPIOSUPPORT -o pioff pioff.c $(LFLAGS)
+	$(CC) $(CFLAGS) -o pioff pioff.c $(LFLAGS)
 endif
 	$(CC) $(CFLAGS) -o wlandump-ng wlandump-ng.c -lpcap -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanresponse wlanresponse.c -lpcap -lrt $(LFLAGS)
