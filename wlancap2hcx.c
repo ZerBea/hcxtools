@@ -1230,7 +1230,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			continue;
 		loopbpacketcount++;
 		loopbh = (loopb_header_t*)packet;
-		if(be32toh(loopbh->family != 2))
+		if(be32toh(loopbh->family) != 2)
 			continue;
 		if(LOOPB_SIZE +IPV4_SIZE_MIN > pkh->len)
 			continue;
