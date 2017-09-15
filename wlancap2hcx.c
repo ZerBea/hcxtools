@@ -1219,7 +1219,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 
 	packetcount++;
-	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_sec == 0))
+	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_usec == 0))
 		wcflag = true;
 
 
@@ -1352,7 +1352,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			ipv6flag = true;
 			ipv6h = (ipv6_frame_t*)(packet +ETHER_SIZE);
-			if(be32toh(ipv6h->ver_class &0xf) != 6)
+			if((be32toh(ipv6h->ver_class) & 0xf) != 6)
 				continue;
 			if(ipv6h->nextprotocol == NEXTHDR_NONE)
 				continue;
@@ -1832,7 +1832,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
 		ipv6h = (ipv6_frame_t*)(payload +LLC_SIZE);
-		if(be32toh(ipv6h->ver_class &0xf) != 6)
+		if((be32toh(ipv6h->ver_class) & 0xf) != 6)
 			continue;
 
 		if(ipv6h->nextprotocol == NEXTHDR_NONE)
