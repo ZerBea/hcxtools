@@ -1219,7 +1219,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 
 	packetcount++;
-	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_sec == 0))
+	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_usec == 0))
 		wcflag = true;
 
 
