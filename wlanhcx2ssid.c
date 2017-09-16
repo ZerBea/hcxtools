@@ -111,7 +111,7 @@ else if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) < 0)
 	return -1;
 if(memcmp(ia->essid, ib->essid, 32) > 0)
 	return 1;
-else if(memcmp(ia->essid, ib->essid, 6) < 0)
+else if(memcmp(ia->essid, ib->essid, 32) < 0)
 	return -1;
 return 0;	
 }
