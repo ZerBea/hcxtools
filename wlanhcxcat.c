@@ -207,6 +207,8 @@ while(c < hcxrecords)
 			HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
 			}
 		HMAC(EVP_md5(), &ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+			ausgabe(zeigerhcx, pmkname);
 		}
 
 	else if(zeigerhcx->keyver == 2)
@@ -218,6 +220,8 @@ while(c < hcxrecords)
 			HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
 			}
 		HMAC(EVP_sha1(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+			ausgabe(zeigerhcx, pmkname);
 		}
 
 	else if(zeigerhcx->keyver == 3)
@@ -230,9 +234,27 @@ while(c < hcxrecords)
 		pkedata_prf[101] = 1;
 		HMAC(EVP_sha256(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
 		omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+			ausgabe(zeigerhcx, pmkname);
+		else
+			{
+			memset(&pkedata, 0, sizeof(pkedata));
+			memset(&pkedata_prf, 0, sizeof(pkedata_prf));
+			memset(&ptk, 0, sizeof(ptk));
+			memset(&pkedata, 0, sizeof(mic));
+			memcpy(&pmk, &pmkin, 32);
+			generatepkeprf(zeigerhcx, pkedata);
+			pkedata_prf[0] = 1;
+			pkedata_prf[1] = 0;
+			memcpy (pkedata_prf + 2, pkedata, 98);
+			pkedata_prf[100] = 0x80;
+			pkedata_prf[101] = 1;
+			HMAC(EVP_sha384(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
+			omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+			if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+				ausgabe(zeigerhcx, pmkname);
+			}
 		}
-	if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-		ausgabe(zeigerhcx, pmkname);
 	c++;
 	}
 return;
