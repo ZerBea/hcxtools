@@ -679,7 +679,7 @@ typedef struct eapdb eapdb_t;
 struct hcxhrc
 {
  uint32_t salt_buf[64];
- uint32_t pke[25];
+ uint32_t pke[32];
  uint32_t eapol[64 + 16];
  uint32_t keymic[4];
 };

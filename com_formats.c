@@ -93,7 +93,7 @@ else
 	return false;
 	}
 
-for (i = 0; i < 25; i++)
+for (i = 0; i < 32; i++)
 	{
 	hashrec.pke[i] = byte_swap_32(hashrec.pke[i]);
 	}
@@ -108,16 +108,20 @@ if(hcxrecord->keyver == 1)
 	{
 	// nothing to do
 	}
-else
+else if(hcxrecord->keyver == 2)
 	{
-	for(i = 0; i < 64; i++)
-		{
-		hashrec.eapol[i] = byte_swap_32 (hashrec.eapol[i]);
-		}
 	hashrec.keymic[0] = byte_swap_32(hashrec.keymic[0]);
 	hashrec.keymic[1] = byte_swap_32(hashrec.keymic[1]);
 	hashrec.keymic[2] = byte_swap_32(hashrec.keymic[2]);
 	hashrec.keymic[3] = byte_swap_32(hashrec.keymic[3]);
+	for(i = 0; i < 64; i++)
+		{
+		hashrec.eapol[i] = byte_swap_32 (hashrec.eapol[i]);
+		}
+	}
+else if (hcxrecord->keyver == 3)
+	{
+	// nothing to do
 	}
 
 for(i = 0; i < 16; i++)
@@ -128,7 +132,7 @@ for(i = 0; i < 16; i++)
 	block[i] = hashrec.pke[i +0];
 md5_64(block, hash);
 
-for(i = 0; i < 9; i++)
+for(i = 0; i < 16; i++)
 	block[i] = hashrec.pke[i +16];
 md5_64(block, hash);
 
