@@ -5,7 +5,7 @@ Small set of tools to capture and convert packets from wlan devices
 for the use with latest hashcat. The tools are 100% compatible to hashcat
 and recommended by hashcat. This branch is pretty closely synced to
 hashcat git branch (that means: latest hcxtools matching on latest hashcat beta).
-Support for hashcat hash-modes (2500, 2501, 4800, 5500, 12000, 15800).
+Support for hashcat hash-modes (2500, 2501, 4800, 5500, 12000).
 After capturing, upload the "uncleaned" cap here
 (http://wpa-sec.stanev.org/?submit) to see if your ap is vulnerable
 by using common wordlists. Convert the cap to hccapx and check if wlan-key
@@ -41,7 +41,7 @@ Detailed description
 | wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                      |
 | wlanhcxmnc     | Manually do nonce correction on byte number xx of a nonce                                            |
 | wlanhashhcx    | Generate hashlist from hccapx hashfile (md5_64 hash:mac_ap:mac_sta:essid)                            |
-| wlanhcxcat     | Simple password recovery tool (hash-modes 2500, 2501 and 15800)                                      |
+| wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 AES-128-CMAC (hash-modes 2500, 2501)                 |
 | wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000                               |
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                         |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                |

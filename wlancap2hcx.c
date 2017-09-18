@@ -69,9 +69,7 @@ long int wpakv2c = 0;
 long int wpakv3c = 0;
 long int wpakv4c = 0;
 
-
 char *hcxoutname = NULL;
-char *hcxaesoutname = NULL;
 char *hc4800outname = NULL;
 char *hc5500outname = NULL;
 char *wdfhcxoutname = NULL;
@@ -497,19 +495,7 @@ if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
 	wldflagint = true;
 	}
 
-if((hcxaesoutname != NULL) && (hcxrecord.keyver == 3))
-	{
-	if((fhhcx = fopen(hcxaesoutname, "ab")) == NULL)
-		{
-		fprintf(stderr, "error opening hccapx file %s\n", hcxaesoutname);
-		exit(EXIT_FAILURE);
-		}
-	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
-	fclose(fhhcx);
-	showinfo(&hcxrecord);
-	}
-
-if((hcxoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
+if((hcxoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2) || (hcxrecord.keyver == 3)))
 	{
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
@@ -521,7 +507,7 @@ if((hcxoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
 	showinfo(&hcxrecord);
 	}
 
-if((wdfhcxoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
+if((wdfhcxoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2) || (hcxrecord.keyver == 3)))
 	{
 	if((fhhcx = fopen(wdfhcxoutname, "ab")) == NULL)
 		{
@@ -533,7 +519,7 @@ if((wdfhcxoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver == 1) |
 	showinfo(&hcxrecord);
 	}
 
-if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2)))
+if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2) || (hcxrecord.keyver == 3)))
 	{
 	if((fhhcx = fopen(nonwdfhcxoutname, "ab")) == NULL)
 		{
@@ -2216,8 +2202,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
-	"-o <file> : output hccapx file (WPA/WPA2: use hashcat -m 2500 or -m 2501)\n"
-	"-O <file> : output hccapx file (WPA/WPA2 AES-CMAC: use hashcat -m 15800)\n"
+	"-o <file> : output hccapx file (WPA/WPA2/WPA2 AES-128-CMAC: use hashcat -m 2500 or -m 2501)\n"
 	"-w <file> : output only wlandump forced to hccapx file\n"
 	"-W <file> : output only not wlandump forced to hccapx file\n"
 	"-p <file> : output merged pcap file (upload this file to http://wpa-sec.stanev.org)\n"
@@ -2276,16 +2261,12 @@ if (argc == 1)
 	}
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'o':
 		hcxoutname = optarg;
-		break;
-
-		case 'O':
-		hcxaesoutname = optarg;
 		break;
 
 		case 'n':

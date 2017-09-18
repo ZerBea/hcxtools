@@ -363,7 +363,7 @@ if(outmode == 0)
 			"802.1x Version 2004...............: %ld\n"
 			"WPA1 RC4 Cipher, HMAC-MD5.........: %ld\n"
 			"WPA2 AES Cipher, HMAC-SHA1........: %ld\n"
-			"WPA2 AES Cipher, AES-128-CMAC2....: %ld\n"
+			"WPA2 AES Cipher, AES-128-CMAC.....: %ld\n"
 			"Group keys........................: %ld\n"
 			"message pair M12E2................: %ld (%ld not replaycount checked)\n"
 			"message pair M14E4................: %ld (%ld not replaycount checked)\n"
