@@ -30,145 +30,6 @@ bool hex2bin(const char *str, uint8_t *bytes, size_t blen);
 hcx_t *hcxdata;
 FILE *fhpot;
 /*===========================================================================*/
-void ausgabe(hcx_t *hcxrecord, char *password)
-{
-int i;
-hcxhrc_t hashrec;
-uint32_t hash[4];
-uint32_t block[16];
-uint8_t *block_ptr = (uint8_t*)block;
-uint8_t *pke_ptr = (uint8_t*)hashrec.pke;
-uint8_t *eapol_ptr = (uint8_t*)hashrec.eapol;
-
-char essidstring[36];
-
-hash[0] = 0;
-hash[1] = 1;
-hash[2] = 2;
-hash[3] = 3;
-memset(&block, 0, sizeof(block));
-
-memset(&hashrec, 0, sizeof(hashrec));
-memcpy(&hashrec.salt_buf, hcxrecord->essid, hcxrecord->essid_len);
-
-memcpy(pke_ptr, "Pairwise key expansion", 23);
-if(memcmp(hcxrecord->mac_ap.addr, hcxrecord->mac_sta.addr, 6) < 0)
-	{
-	memcpy(pke_ptr + 23, hcxrecord->mac_ap.addr,  6);
-	memcpy(pke_ptr + 29, hcxrecord->mac_sta.addr, 6);
-	}
-else
-	{
-	memcpy(pke_ptr + 23, hcxrecord->mac_sta.addr, 6);
-	memcpy(pke_ptr + 29, hcxrecord->mac_ap.addr,  6);
-	}
-
-if(memcmp(hcxrecord->nonce_ap, hcxrecord->nonce_sta, 32) < 0)
-	{
-	memcpy (pke_ptr + 35, hcxrecord->nonce_ap,  32);
-	memcpy (pke_ptr + 67, hcxrecord->nonce_sta, 32);
-	}
-else
-	{
-	memcpy (pke_ptr + 35, hcxrecord->nonce_sta, 32);
-	memcpy (pke_ptr + 67, hcxrecord->nonce_ap,  32);
-	}
-for (int i = 0; i < 25; i++)
-	{
-	hashrec.pke[i] = byte_swap_32(hashrec.pke[i]);
-	}
-
-memcpy(eapol_ptr, hcxrecord->eapol, hcxrecord->eapol_len);
-memset(eapol_ptr + hcxrecord->eapol_len, 0, (256 +64) -hcxrecord->eapol_len);
-eapol_ptr[hcxrecord->eapol_len] = 0x80;
-
-memcpy (&hashrec.keymic, hcxrecord->keymic, 16);
-
-if(hcxrecord->keyver == 1)
-	{
-	// nothing to do
-	}
-else
-	{
-	for(i = 0; i < 64; i++)
-		{
-		hashrec.eapol[i] = byte_swap_32 (hashrec.eapol[i]);
-		}
-	hashrec.keymic[0] = byte_swap_32(hashrec.keymic[0]);
-	hashrec.keymic[1] = byte_swap_32(hashrec.keymic[1]);
-	hashrec.keymic[2] = byte_swap_32(hashrec.keymic[2]);
-	hashrec.keymic[3] = byte_swap_32(hashrec.keymic[3]);
-	}
-
-memset(&essidstring, 0, 36);
-memcpy(&essidstring, hcxrecord->essid, hcxrecord->essid_len);
-
-for(i = 0; i < 16; i++)
-	block[i] = hashrec.salt_buf[i];
-md5_64(block, hash);
-
-for(i = 0; i < 16; i++)
-	block[i] = hashrec.pke[i +0];
-md5_64(block, hash);
-
-for(i = 0; i < 9; i++)
-	block[i] = hashrec.pke[i +16];
-md5_64(block, hash);
-
-for(i = 0; i < 16; i++)
-	block[i] = hashrec.eapol[i +0];
-md5_64 (block, hash);
-
-for(i = 0; i < 16; i++)
-	block[i] = hashrec.eapol[i +16];
-md5_64 (block, hash);
-
-for(i = 0; i < 16; i++)
-	block[i] = hashrec.eapol[i +32];
-md5_64 (block, hash);
-
-for(i = 0; i < 16; i++)
-	block[i] = hashrec.eapol[i + 48];
-md5_64 (block, hash);
-
-for(i = 0; i < 6; i++)
-	block_ptr[i +0] = hcxrecord->mac_ap.addr[i];
-for(i = 0; i < 6; i++)
-	block_ptr[i +6] = hcxrecord->mac_sta.addr[i];
-md5_64 (block, hash);
-
-for(i = 0; i < 32; i++)
-	block_ptr[i +0] = hcxrecord->nonce_ap[i];
-for(i = 0; i < 32; i++)
-	block_ptr[i +32] = hcxrecord->nonce_sta[i];
-md5_64 (block, hash);
-
-block[0] = hashrec.keymic[0];
-block[1] = hashrec.keymic[1];
-block[2] = hashrec.keymic[2];
-block[3] = hashrec.keymic[3];
-md5_64 (block, hash);
-
-memset(&essidstring, 0, 36);
-memcpy(&essidstring, hcxrecord->essid, hcxrecord->essid_len);
-printf("%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s:%s\n",
-	hash[0], hash[1], hash[2], hash[3],
-	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
-	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
-	essidstring, password);
-
-if(fhpot != NULL)
-	{
-	fprintf(fhpot, "%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s:%s\n",
-	hash[0], hash[1], hash[2], hash[3],
-	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
-	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
-	essidstring, password);
-	}
-
-return;
-}
-/*===========================================================================*/
 void hcxpmk(long int hcxrecords, char *pmkname)
 {
 int p;
@@ -182,6 +43,9 @@ uint8_t pkedata[102];
 uint8_t pkedata_prf[2 + 98 + 2];
 uint8_t ptk[128];
 uint8_t mic[16];
+
+char outstr[256];
+
 
 if(hex2bin(pmkname, pmkin, 32) != true)
 	{
@@ -208,7 +72,13 @@ while(c < hcxrecords)
 			}
 		HMAC(EVP_md5(), &ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
 		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-			ausgabe(zeigerhcx, pmkname);
+			{
+			showhashrecord(zeigerhcx, (uint8_t*)pmkname, 64, outstr);
+			if(fhpot != NULL)
+				fprintf(fhpot, "%s\n",outstr);
+			else
+				printf("%s\n",outstr);
+			}
 		}
 
 	else if(zeigerhcx->keyver == 2)
@@ -221,7 +91,13 @@ while(c < hcxrecords)
 			}
 		HMAC(EVP_sha1(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
 		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-			ausgabe(zeigerhcx, pmkname);
+			{
+			showhashrecord(zeigerhcx, (uint8_t*)pmkname, 64, outstr);
+			if(fhpot != NULL)
+				fprintf(fhpot, "%s\n",outstr);
+			else
+				printf("%s\n",outstr);
+			}
 		}
 
 	else if(zeigerhcx->keyver == 3)
@@ -235,7 +111,13 @@ while(c < hcxrecords)
 		HMAC(EVP_sha256(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
 		omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
 		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-			ausgabe(zeigerhcx, pmkname);
+			{
+			showhashrecord(zeigerhcx, (uint8_t*)pmkname, 64, outstr);
+			if(fhpot != NULL)
+				fprintf(fhpot, "%s\n",outstr);
+			else
+				printf("%s\n",outstr);
+			}
 		else
 			{
 			memset(&pkedata, 0, sizeof(pkedata));
@@ -252,7 +134,13 @@ while(c < hcxrecords)
 			HMAC(EVP_sha384(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
 			omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
 			if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-				ausgabe(zeigerhcx, pmkname);
+				{
+				showhashrecord(zeigerhcx, (uint8_t*)pmkname, 64, outstr);
+				if(fhpot != NULL)
+					fprintf(fhpot, "%s\n",outstr);
+				else
+					printf("%s\n",outstr);
+				}
 			}
 		}
 	c++;
@@ -274,6 +162,9 @@ uint8_t ptk[128];
 uint8_t mic[16];
 
 unsigned char essid[32];
+
+char outstr[256];
+
 
 if(hex2bin(pmkname, pmkin, 32) != true)
 	{
@@ -304,6 +195,14 @@ while(c < hcxrecords)
 				HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
 				}
 			HMAC(EVP_md5(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+			if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+				{
+				showhashrecord(zeigerhcx, (uint8_t*)pmkname, 64, outstr);
+				if(fhpot != NULL)
+					fprintf(fhpot, "%s\n",outstr);
+				else
+					printf("%s\n",outstr);
+				}
 			}
 
 		else if(zeigerhcx->keyver == 2)
@@ -315,6 +214,14 @@ while(c < hcxrecords)
 				HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
 				}
 			HMAC(EVP_sha1(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+			if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+				{
+				showhashrecord(zeigerhcx, (uint8_t*)pmkname, 64, outstr);
+				if(fhpot != NULL)
+					fprintf(fhpot, "%s\n",outstr);
+				else
+					printf("%s\n",outstr);
+				}
 			}
 
 		else if(zeigerhcx->keyver == 3)
@@ -327,10 +234,39 @@ while(c < hcxrecords)
 			pkedata_prf[101] = 1;
 			HMAC(EVP_sha256(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
 			omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+			if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+				{
+				showhashrecord(zeigerhcx, (uint8_t*)pmkname, 64, outstr);
+				if(fhpot != NULL)
+					fprintf(fhpot, "%s\n",outstr);
+				else
+					printf("%s\n",outstr);
+				}
+			else
+				{
+				memset(&pkedata, 0, sizeof(pkedata));
+				memset(&pkedata_prf, 0, sizeof(pkedata_prf));
+				memset(&ptk, 0, sizeof(ptk));
+				memset(&pkedata, 0, sizeof(mic));
+				memcpy(&pmk, &pmkin, 32);
+				generatepkeprf(zeigerhcx, pkedata);
+				pkedata_prf[0] = 1;
+				pkedata_prf[1] = 0;
+				memcpy (pkedata_prf + 2, pkedata, 98);
+				pkedata_prf[100] = 0x80;
+				pkedata_prf[101] = 1;
+				HMAC(EVP_sha384(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
+				omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+				if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+					{
+					showhashrecord(zeigerhcx, (uint8_t*)pmkname, 64, outstr);
+					if(fhpot != NULL)
+						fprintf(fhpot, "%s\n",outstr);
+					else
+						printf("%s\n",outstr);
+					}
+				}
 			}
-
-		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-			ausgabe(zeigerhcx, pmkname);
 		}
 	c++;
 	}
@@ -350,6 +286,8 @@ uint8_t pkedata[102];
 uint8_t pkedata_prf[2 + 98 + 2];
 uint8_t ptk[128];
 uint8_t mic[16];
+
+char outstr[256];
 
 c = 0;
 while(c < hcxrecords)
@@ -392,6 +330,14 @@ while(c < hcxrecords)
 			HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
 			}
 		HMAC(EVP_md5(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+			{
+			showhashrecord(zeigerhcx, (uint8_t*)passwordname, passwordlen, outstr);
+			if(fhpot != NULL)
+				fprintf(fhpot, "%s\n",outstr);
+			else
+				printf("%s\n",outstr);
+			}
 		}
 
 	else if(zeigerhcx->keyver == 2)
@@ -403,6 +349,14 @@ while(c < hcxrecords)
 			HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
 			}
 		HMAC(EVP_sha1(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+			{
+			showhashrecord(zeigerhcx, (uint8_t*)passwordname, passwordlen, outstr);
+			if(fhpot != NULL)
+				fprintf(fhpot, "%s\n",outstr);
+			else
+				printf("%s\n",outstr);
+			}
 		}
 
 	else if(zeigerhcx->keyver == 3)
@@ -415,10 +369,40 @@ while(c < hcxrecords)
 		pkedata_prf[101] = 1;
 		HMAC(EVP_sha256(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
 		omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+			{
+			showhashrecord(zeigerhcx, (uint8_t*)passwordname, passwordlen, outstr);
+			if(fhpot != NULL)
+				fprintf(fhpot, "%s\n",outstr);
+			else
+				printf("%s\n",outstr);
+			}
+		else
+			{
+			memset(&pkedata, 0, sizeof(pkedata));
+			memset(&pkedata_prf, 0, sizeof(pkedata_prf));
+			memset(&ptk, 0, sizeof(ptk));
+			memset(&pkedata, 0, sizeof(mic));
+			memcpy(&pmk, &pmkin, 32);
+			generatepkeprf(zeigerhcx, pkedata);
+			pkedata_prf[0] = 1;
+			pkedata_prf[1] = 0;
+			memcpy (pkedata_prf + 2, pkedata, 98);
+			pkedata_prf[100] = 0x80;
+			pkedata_prf[101] = 1;
+			HMAC(EVP_sha384(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
+			omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+			if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+				{
+				showhashrecord(zeigerhcx, (uint8_t*)passwordname, passwordlen, outstr);
+				if(fhpot != NULL)
+					fprintf(fhpot, "%s\n",outstr);
+				else
+					printf("%s\n",outstr);
+				}
+			}
 		}
 
-	if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-		ausgabe(zeigerhcx, passwordname);
 	c++;
 	}
 return;
@@ -438,6 +422,9 @@ uint8_t ptk[128];
 uint8_t mic[16];
 
 unsigned char essid[32];
+
+char outstr[256];
+
 
 memset(&essid, 0, 32);
 memcpy(&essid, essidname, essidlen);
@@ -468,6 +455,14 @@ while(c < hcxrecords)
 				HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
 				}
 			HMAC(EVP_md5(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+			if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+				{
+				showhashrecord(zeigerhcx, (uint8_t*)passwordname, passwordlen, outstr);
+				if(fhpot != NULL)
+					fprintf(fhpot, "%s\n",outstr);
+				else
+					printf("%s\n",outstr);
+				}
 			}
 
 		else if(zeigerhcx->keyver == 2)
@@ -479,6 +474,14 @@ while(c < hcxrecords)
 				HMAC(EVP_sha1(), pmk, 32, pkedata, 100, ptk + p * 20, NULL);
 				}
 			HMAC(EVP_sha1(), ptk, 16, zeigerhcx->eapol, zeigerhcx->eapol_len, mic, NULL);
+			if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+				{
+				showhashrecord(zeigerhcx, (uint8_t*)passwordname, passwordlen, outstr);
+				if(fhpot != NULL)
+					fprintf(fhpot, "%s\n",outstr);
+				else
+					printf("%s\n",outstr);
+				}
 			}
 
 		else if(zeigerhcx->keyver == 3)
@@ -491,10 +494,41 @@ while(c < hcxrecords)
 			pkedata_prf[101] = 1;
 			HMAC(EVP_sha256(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
 			omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+			if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+				{
+				showhashrecord(zeigerhcx, (uint8_t*)passwordname, passwordlen, outstr);
+				if(fhpot != NULL)
+					fprintf(fhpot, "%s\n",outstr);
+				else
+					printf("%s\n",outstr);
+				}
+
+			else
+				{
+				memset(&pkedata, 0, sizeof(pkedata));
+				memset(&pkedata_prf, 0, sizeof(pkedata_prf));
+				memset(&ptk, 0, sizeof(ptk));
+				memset(&pkedata, 0, sizeof(mic));
+				memcpy(&pmk, &pmkin, 32);
+				generatepkeprf(zeigerhcx, pkedata);
+				pkedata_prf[0] = 1;
+				pkedata_prf[1] = 0;
+				memcpy (pkedata_prf + 2, pkedata, 98);
+				pkedata_prf[100] = 0x80;
+				pkedata_prf[101] = 1;
+				HMAC(EVP_sha384(), pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
+				omac1_aes_128(ptk, zeigerhcx->eapol, zeigerhcx->eapol_len, mic);
+				if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
+					{
+					showhashrecord(zeigerhcx, (uint8_t*)passwordname, passwordlen, outstr);
+					if(fhpot != NULL)
+						fprintf(fhpot, "%s\n",outstr);
+					else
+						printf("%s\n",outstr);
+					}
+				}
 			}
 
-		if(memcmp(&mic, zeigerhcx->keymic, 16) == 0)
-			ausgabe(zeigerhcx, passwordname);
 		}
 	c++;
 	}

@@ -183,7 +183,7 @@ else
 	memcpy(&essidstr, hcxrecord->essid, hcxrecord->essid_len);
 	}
 
-if((pwlen > 0) && (pwlen < 63))
+if((pwlen > 0) && (pwlen < 65))
 	{
 	if(need_hexify(password, pwlen) == true)
 		{
@@ -200,10 +200,6 @@ if((pwlen > 0) && (pwlen < 63))
 	essidstr, pwstr);
 	}
 
-else if(pwlen == 64)
-	{
-	memcpy(&pwstr, password, pwlen);
-	}
 else
 	{
 	sprintf(out, "%08x%08x%08x%08x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%s",
