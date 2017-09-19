@@ -86,7 +86,12 @@ if(((hcxrecord->keyver & 0x3) == 1) || ((hcxrecord->keyver & 0x3) == 2))
 	}
 else if((hcxrecord->keyver & 0x3) == 3)
 	{
-	generatepkeprf(hcxrecord, pke_ptr);
+	pke_ptr[0] = 1;
+	pke_ptr[1] = 0;
+	pke_ptr[100] = 0x80;
+	pke_ptr[101] = 1;
+	
+	generatepkeprf(hcxrecord, pke_ptr +2);
 	}
 else
 	{
