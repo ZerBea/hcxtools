@@ -25,28 +25,28 @@ Read this post: hcxtools - solution for capturing wlan traffic and conversion to
 Detailed description
 --------------
 
-| Tool           | Description                                                                                          |
-| -------------- | ---------------------------------------------------------------------------------------------------- |
-| wlandump-ng    | Small, fast and powerfull deauthentication/authentication/response tool                              |
-| wlanresponse   | Extreme fast deauthentication/authentication/response tool (unattended use on Raspberry Pi's)        |
-| wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                       |
-| pioff          | Turns Raspberry Pi off via GPIO switch                                                               |
-| wlancapinfo    | Shows info of pcap file                                                                              |
-| wlancap2hcx    | Converts cap to hccapx and other formats (recommended for use with wlandump-ng and wlanresponse)     |
-| wlanhcx2cap    | Converts hccapx to cap                                                                               |
-| wlanhc2hcx     | Converts hccap to hccapx                                                                             |
-| wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                 |
-| wlanhcx2essid  | Merges hccapx containing the same ESSID                                                              |
-| wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                             |
-| wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                      |
-| wlanhcxmnc     | Manually do nonce correction on byte number xx of a nonce                                            |
-| wlanhashhcx    | Generate hashlist from hccapx hashfile (md5_64 hash:mac_ap:mac_sta:essid)                            |
-| wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 AES-128-CMAC (hash-modes 2500, 2501)                 |
-| wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000                               |
-| wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                         |
-| wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                |
-| wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                    |
-| whoismac       | Show vendor information                                                                              |
+| Tool           | Description                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| wlandump-ng    | Small, fast and powerfull deauthentication/authentication/response tool                                |
+| wlanresponse   | Extreme fast deauthentication/authentication/response tool (unattended use on Raspberry Pi's)          |
+| wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                         |
+| pioff          | Turns Raspberry Pi off via GPIO switch                                                                 |
+| wlancapinfo    | Shows info of pcap file                                                                                |
+| wlancap2hcx    | Converts cap to hccapx and other formats (recommended for use with wlandump-ng and wlanresponse)       |
+| wlanhcx2cap    | Converts hccapx to cap                                                                                 |
+| wlanhc2hcx     | Converts hccap to hccapx                                                                               |
+| wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                   |
+| wlanhcx2essid  | Merges hccapx containing the same ESSID                                                                |
+| wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                               |
+| wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                        |
+| wlanhcxmnc     | Manually do nonce correction on byte number xx of a nonce                                              |
+| wlanhashhcx    | Generate hashlist from hccapx hashfile (md5_64 hash:mac_ap:mac_sta:essid)                              |
+| wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 (SHA256 & SHA384) AES-128-CMAC (hash-modes 2500, 2501) |
+| wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000                                 |
+| wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                           |
+| wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                  |
+| wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                      |
+| whoismac       | Show vendor information                                                                                |
 
 
 Compile
