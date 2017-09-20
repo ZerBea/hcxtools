@@ -18,110 +18,70 @@
 
 hcx_t *hcxdata = NULL;
 /*===========================================================================*/
-int writeessidcorrhccapx(long int hcxrecords, int corrbyte)
+bool checknonce(uint8_t *nonce, uint8_t *eapdata)
 {
-hcx_t *zeigerhcx;
-FILE *fhhcx;
 eap_t *eap;
-long int c;
-int cb, cei, ceo;
+eap = (eap_t*)(uint8_t*)(eapdata);
 
-const char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-
-char hcxoutname[PATH_MAX +1];
-
-c = 0;
-while(c < hcxrecords)
-	{
-	zeigerhcx = hcxdata +c;
-		{
-		ceo = 0;
-		for (cei = 0; cei < zeigerhcx->essid_len; cei++)
-			{
-			hcxoutname[ceo] = digit[(zeigerhcx->essid[cei] & 0xff) >> 4];
-			ceo++;
-			hcxoutname[ceo] = digit[zeigerhcx->essid[cei] & 0x0f];
-			ceo++;
-			}
-		hcxoutname[ceo] = 0;
-		strcat(&hcxoutname[ceo], ".hccapx");
-
-
-		if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
-			{
-			fprintf(stderr, "error opening file %s", hcxoutname);
-			return false;
-			}
-		eap = (eap_t*)zeigerhcx->eapol;
-
-		if(memcmp(zeigerhcx->nonce_ap, eap->nonce, 32) != 0)
-			{
-			for(cb = 0; cb <= 0x0ff; cb++)
-				{
-				zeigerhcx->nonce_ap[corrbyte] = cb;
-				zeigerhcx->message_pair |= 0x80;
-				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
-				}
-			}
-		else
-			{
-			for(cb = 0; cb <= 0x0ff; cb++)
-				{
-				zeigerhcx->nonce_sta[corrbyte] = cb;
-				zeigerhcx->message_pair |= 0x80;
-				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
-				}
-			}
-		fclose(fhhcx);
-		}
-	c++;
-	}
-return true;
+if(memcmp(nonce, eap->nonce, 32) == 0)
+	return true;
+return false;
 }
 /*===========================================================================*/
-int writecorrhccapx(long int hcxrecords, int corrbyte, char *hcxoutname)
+void dononcecorr(long int hcxrecords, unsigned long long int mac_ap, int nb, int nc, char *hcxoutname)
 {
-hcx_t *zeigerhcx;
-FILE *fhhcx;
-eap_t *eap;
+int v;
 long int c;
-int cb;
+long int rw = 0;
+hcx_t *zeigerhcx;
+adr_t mac;
+FILE *fhhcx;
+
+mac.addr[5] = mac_ap & 0xff;
+mac.addr[4] = (mac_ap >> 8) & 0xff;
+mac.addr[3] = (mac_ap >> 16) & 0xff;
+mac.addr[2] = (mac_ap >> 24) & 0xff;
+mac.addr[1] = (mac_ap >> 32) & 0xff;
+mac.addr[0] = (mac_ap >> 40) & 0xff;
+
+if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
+	{
+	fprintf(stderr, "error opening file %s", hcxoutname);
+	return;
+	}
 
 c = 0;
 while(c < hcxrecords)
 	{
 	zeigerhcx = hcxdata +c;
+	if(memcmp(&mac.addr, zeigerhcx->mac_ap.addr, 6) == 0)
 		{
-		if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
+		if(checknonce(zeigerhcx->nonce_ap, zeigerhcx->eapol) == false)
 			{
-			fprintf(stderr, "error opening file %s", hcxoutname);
-			return false;
+			for(v = 0; v <= nc; v++)
+				{
+				zeigerhcx->nonce_ap[nb] = (zeigerhcx->nonce_ap[nb] +1) &0xff;
+				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+				rw++;
+				}
 			}
-		eap = (eap_t*)zeigerhcx->eapol;
 
-		if(memcmp(zeigerhcx->nonce_ap, eap->nonce, 32) != 0)
+		else if(checknonce(zeigerhcx->nonce_sta, zeigerhcx->eapol) == false)
 			{
-			for(cb = 0; cb <= 0x0ff; cb++)
+			for(v = 0; v <= nc; v++)
 				{
-				zeigerhcx->nonce_ap[corrbyte] = cb;
-				zeigerhcx->message_pair |= 0x80;
+				zeigerhcx->nonce_sta[nb] = (zeigerhcx->nonce_sta[nb] +1) &0xff;
 				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+				rw++;
 				}
 			}
-		else
-			{
-			for(cb = 0; cb <= 0x0ff; cb++)
-				{
-				zeigerhcx->nonce_sta[corrbyte] = cb;
-				zeigerhcx->message_pair |= 0x80;
-				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
-				}
-			}
-		fclose(fhhcx);
 		}
+
 	c++;
 	}
-return true;
+fclose(fhhcx);
+printf("%ld records written\n", rw);
+return;
 }
 /*===========================================================================*/
 long int readhccapx(char *hcxinname)
@@ -131,7 +91,7 @@ FILE *fhhcx;
 long int hcxsize = 0;
 
 if(hcxinname == NULL)
-	return 0;
+	return false;
 
 if(stat(hcxinname, &statinfo) != 0)
 	{
@@ -176,12 +136,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-i <file> : input hccapx file\n"
-	"-c <byte  : byte to correct (0 -> 31)\n"
-	"-o <file> : input hccapx file\n"
-	"          : if no output file is selected hashces written\n"
-	"          : into single files by essid (default)\n"
-	"-h        : this help\n"
+	"-i <file>   : input hccapx file\n"
+	"-o <file>   : input hccapx file\n"
+	"-a <xdigit> : mac_ap to correct\n"
+	"-b <digit>  : nonce byte to correct\n"
+	"-n <xdigit> : nonce hex value\n"
+	"-h          : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -189,8 +149,11 @@ exit(EXIT_FAILURE);
 int main(int argc, char *argv[])
 {
 int auswahl;
+int nc = 0;
+int nb = 0;
+int malen = 0;
 long int hcxorgrecords = 0;
-int corrbyte = -1;
+unsigned long long int mac_ap = 0xffffffffffffL;
 
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
@@ -201,7 +164,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:c:o:h")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:a:b:n:vh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -209,18 +172,43 @@ while ((auswahl = getopt(argc, argv, "i:c:o:h")) != -1)
 		hcxinname = optarg;
 		break;
 
-		case 'c':
-		corrbyte = atol(optarg);
-		if((corrbyte < 0) || (corrbyte > 31))
+		case 'o':
+		hcxoutname = optarg;
+		break;
+
+		case 'b':
+		nb = strtoul(optarg, NULL, 10);
+		if((nb < 0) || (nb > 31))
 			{
 			fprintf(stderr, "error wrong value (only 0 > 31 allowed)\n");
 			exit(EXIT_FAILURE);
 			}
-		corrbyte = atol(optarg);
 		break;
 
-		case 'o':
-		hcxoutname = optarg;
+		case 'a':
+		malen = strlen(optarg);
+		if(malen > 12)
+			{
+			fprintf(stderr, "error wrong mac_ap size (only 12 xdigit allowed: 112233aabbcc)\n");
+			exit(EXIT_FAILURE);
+			}
+		
+		mac_ap = strtoul(optarg, NULL, 16);
+		break;
+
+		case 'n':
+		nc = strtoul(optarg, NULL, 16) & 0xff;
+		if((nc < 0) || (nc > 0xff))
+			{
+			fprintf(stderr, "error wrong value (only 0 > 0xff allowed)\n");
+			exit(EXIT_FAILURE);
+			}
+		break;
+
+		break;
+
+		case 'v':
+		usage(eigenname);
 		break;
 
 		case 'h':
@@ -233,17 +221,18 @@ while ((auswahl = getopt(argc, argv, "i:c:o:h")) != -1)
 		}
 	}
 
+if(hcxoutname == NULL)
+	{
+	fprintf(stderr, "no outputfile selected\n");
+	exit(EXIT_FAILURE);
+	}
+	
 hcxorgrecords = readhccapx(hcxinname);
 if(hcxorgrecords == 0)
 	return EXIT_SUCCESS;
 
-if((corrbyte >= 0) && (corrbyte <= 31))
-	{
-	if(hcxoutname != NULL)
-		writecorrhccapx(hcxorgrecords, corrbyte, hcxoutname);
-	else
-		writeessidcorrhccapx(hcxorgrecords, corrbyte);
-	}
+dononcecorr(hcxorgrecords, mac_ap, nb, nc, hcxoutname);
+
 
 if(hcxdata != NULL)
 	free(hcxdata);
