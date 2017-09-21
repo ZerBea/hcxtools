@@ -18,6 +18,14 @@
 
 hcx_t *hcxdata = NULL;
 /*===========================================================================*/
+void printhex(const uint8_t *buffer, int size)
+{
+int c;
+for (c = 0; c < size; c++)
+	fprintf(stdout, "%02x", buffer[c]);
+return;
+}
+/*===========================================================================*/
 bool checknonce(uint8_t *nonce, uint8_t *eapdata)
 {
 eap_t *eap;
@@ -26,6 +34,47 @@ eap = (eap_t*)(uint8_t*)(eapdata);
 if(memcmp(nonce, eap->nonce, 32) == 0)
 	return true;
 return false;
+}
+/*===========================================================================*/
+int sort_by_data_ap(const void *a, const void *b) 
+{ 
+hcx_t *ia = (hcx_t *)a;
+hcx_t *ib = (hcx_t *)b;
+
+if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) < 0)
+	return -1;
+
+if(memcmp(ia->nonce_ap, ib->nonce_ap, 32) > 0)
+	return 1;
+else if (memcmp(ia->nonce_ap, ib->nonce_ap, 32) < 0)
+	return -1;
+
+return 0;
+}
+/*===========================================================================*/
+void getapinfo(long int hcxrecords)
+{
+int c;
+hcx_t *zeigerhcx;
+
+qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_data_ap);
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if(checknonce(zeigerhcx->nonce_ap, zeigerhcx->eapol) == false)
+		{
+		printhex(zeigerhcx->mac_ap.addr, 6);
+		fprintf(stdout, ":");
+		printhex(zeigerhcx->nonce_ap, 32);
+		fprintf(stdout, "\n");
+		}
+	c++;
+	}
+return;
 }
 /*===========================================================================*/
 void dononcecorr(long int hcxrecords, unsigned long long int mac_ap, int nb, int nc, char *hcxoutname)
@@ -61,16 +110,6 @@ while(c < hcxrecords)
 			for(v = 0; v <= nc; v++)
 				{
 				zeigerhcx->nonce_ap[nb] = (zeigerhcx->nonce_ap[nb] +1) &0xff;
-				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
-				rw++;
-				}
-			}
-
-		else if(checknonce(zeigerhcx->nonce_sta, zeigerhcx->eapol) == false)
-			{
-			for(v = 0; v <= nc; v++)
-				{
-				zeigerhcx->nonce_sta[nb] = (zeigerhcx->nonce_sta[nb] +1) &0xff;
 				fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
 				rw++;
 				}
@@ -141,6 +180,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-a <xdigit> : mac_ap to correct\n"
 	"-b <digit>  : nonce byte to correct\n"
 	"-n <xdigit> : nonce hex value\n"
+	"-I          : show mac_ap and anonces\n"
 	"-h          : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -149,6 +189,7 @@ exit(EXIT_FAILURE);
 int main(int argc, char *argv[])
 {
 int auswahl;
+int modus = 0;
 int nc = 0;
 int nb = 0;
 int malen = 0;
@@ -164,7 +205,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:a:b:n:vh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:a:b:n:Ivh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -205,6 +246,8 @@ while ((auswahl = getopt(argc, argv, "i:o:a:b:n:vh")) != -1)
 			}
 		break;
 
+		case 'I':
+		modus = 'I';
 		break;
 
 		case 'v':
@@ -221,15 +264,30 @@ while ((auswahl = getopt(argc, argv, "i:o:a:b:n:vh")) != -1)
 		}
 	}
 
+if(hcxinname == NULL)
+	{
+	fprintf(stderr, "no inputfile selected\n");
+	exit(EXIT_FAILURE);
+	}
+
+	
+hcxorgrecords = readhccapx(hcxinname);
+if(hcxorgrecords == 0)
+	return EXIT_SUCCESS;
+
+if(modus == 'I')
+	{
+	getapinfo(hcxorgrecords);
+	if(hcxdata != NULL)
+	free(hcxdata);
+	return EXIT_SUCCESS;
+	}
+
 if(hcxoutname == NULL)
 	{
 	fprintf(stderr, "no outputfile selected\n");
 	exit(EXIT_FAILURE);
 	}
-	
-hcxorgrecords = readhccapx(hcxinname);
-if(hcxorgrecords == 0)
-	return EXIT_SUCCESS;
 
 dononcecorr(hcxorgrecords, mac_ap, nb, nc, hcxoutname);
 
