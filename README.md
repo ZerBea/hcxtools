@@ -7,7 +7,7 @@ and recommended by hashcat. This branch is pretty closely synced to
 hashcat git branch (that means: latest hcxtools matching on latest hashcat beta).
 Support for hashcat hash-modes (2500, 2501, 4800, 5500, 12000).
 After capturing, upload the "uncleaned" cap here
-(http://wpa-sec.stanev.org/?submit) to see if your ap is vulnerable
+(http://wpa-sec.stanev.org/?submit) to see if your ap or the client is vulnerable
 by using common wordlists. Convert the cap to hccapx and check if wlan-key
 or plainmasterkey was transmitted unencrypted.
 
@@ -39,14 +39,14 @@ Detailed description
 | wlanhcx2essid  | Merges hccapx containing the same ESSID                                                                |
 | wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                               |
 | wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                        |
-| wlanhcxmnc     | Manually do nonce correction on byte number xx of a nonce                                              |
+| wlanhcxmnc     | Help to calculate hashcat's nonce-error-corrections value on byte number xx of an anonce               |
 | wlanhashhcx    | Generate hashlist from hccapx hashfile (md5_64 hash:mac_ap:mac_sta:essid)                              |
 | wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 SHA256 AES-128-CMAC (hash-modes 2500, 2501)            |
 | wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000                                 |
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                           |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                  |
 | wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                      |
-| whoismac       | Show vendor information                                                                                |
+| whoismac       | Show vendor information and/or download oui reference list                                             |
 
 
 Compile
@@ -84,7 +84,7 @@ Requirements
 
 * Chipset must be able to run in monitor mode. Recommended: RALINK chipset (good receiver sensitivity), rt2x00 driver (stable and fast)
 
-* Raspberry Pi (Recommended: A+ = very low power consumption or B+)
+* Raspberry Pi (Recommended: A+ = very low power consumption or B+), but notebooks and desktops should work, too.
 
 
 Useful scripts
