@@ -62,7 +62,7 @@ sprintf(ssid, "%02x%02x%02x%02x%02x%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-static void writejohn(FILE *fhjohn, hccap_t * hc, const char *basename)
+static void writejohn(FILE *fhjohn, hccap_t * hc, const char *basename, uint8_t message_pair)
 {
 unsigned int i;
 unsigned char *hcpos = (unsigned char *)hc;
@@ -81,7 +81,11 @@ hccap2base(fhjohn, &hcpos[i], 0);
 fprintf(fhjohn, ":%s:%s:%s::WPA", sta_mac, ap_mac, ap_mac_long);
 if (hc->keyver > 1)
 	fprintf(fhjohn, "%d", hc->keyver);
-fprintf(fhjohn, ":%s\n", basename);
+
+if((message_pair &0x80) > 1) 
+	fprintf(fhjohn, ":verfified:%s\n", basename);
+else
+	fprintf(fhjohn, ":not verfified:%s\n", basename);
 return;
 }
 /*===========================================================================*/
@@ -120,7 +124,7 @@ for(p = 0; p < hcxsize; p++)
 			memcpy(&hcdata.keymic, zeiger->keymic, 16);
 			if ((hcxinbasename = strrchr(hcxinname, '/')))
 				hcxinname = ++hcxinbasename;
-			writejohn(fhjohn, &hcdata, hcxinname);
+			writejohn(fhjohn, &hcdata, hcxinname, zeiger->message_pair);
 			}
 		}
 	zeiger++;
@@ -130,7 +134,7 @@ if(fhjohn != 0)
 return;	
 }
 /*===========================================================================*/
-bool processdata(char *hcxinname, uint8_t noncecheckflag)
+bool processdata(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
@@ -176,10 +180,7 @@ zeigerhcx = (hcx_t*)(data);
 if(((datasize % HCX_SIZE) == 0) && (zeigerhcx->signature == HCCAPX_SIGNATURE))
 	{
 	printf("%ld records read from %s\n", hcxsize, hcxinname);
-	if((noncecheckflag == true) && (zeigerhcx->message_pair & 0x80) != 0x80)
-		processhcx(hcxsize, zeigerhcx, hcxinname); 
-	else if(noncecheckflag == false)
-		processhcx(hcxsize, zeigerhcx, hcxinname); 
+	processhcx(hcxsize, zeigerhcx, hcxinname); 
 	}
 
 free(data);
@@ -193,8 +194,6 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-o <file> : output john file\n"
-	"-D        : disable nonce-correction check\n"
-	"          : default: enable - you will convert less wpa handshakes\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -203,7 +202,6 @@ int main(int argc, char *argv[])
 {
 int index;
 int auswahl;
-uint8_t noncecheckflag = true;
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 
@@ -211,7 +209,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:Dhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -219,8 +217,12 @@ while ((auswahl = getopt(argc, argv, "o:Dhv")) != -1)
 		johnoutname = optarg;
 		break;
 
-		case 'D':
-		noncecheckflag = false;
+		case 'h':
+		usage(eigenname);
+		break;
+
+		case 'v':
+		usage(eigenname);
 		break;
 
 		default:
@@ -231,7 +233,7 @@ while ((auswahl = getopt(argc, argv, "o:Dhv")) != -1)
 
 for (index = optind; index < argc; index++)
 	{
-	if(processdata(argv[index], noncecheckflag) == false)
+	if(processdata(argv[index]) == false)
 		{
 		fprintf(stderr, "error processing records from %s\n", (argv[index]));
 		exit(EXIT_FAILURE);
