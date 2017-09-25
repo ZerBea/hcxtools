@@ -198,7 +198,7 @@ int p;
 for(p = akthccapset +1; p < hccapsets; p++)
 	{
 	zeigertest++;
-	if((memcmp(zeigertest->mac_ap.addr, zeiger->mac_ap.addr, 6) == 0) && (memcmp(zeigertest->mac_sta.addr, zeiger->mac_sta.addr, 6) == 0))
+	if((memcmp(zeigertest->mac_ap.addr, zeiger->mac_ap.addr, 6) == 0) && (memcmp(zeigertest->mac_sta.addr, zeiger->mac_sta.addr, 6) == 0) && (zeigertest->message_pair == zeiger->message_pair))
 		return true;
 
 	return false;
@@ -219,6 +219,11 @@ if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) > 0)
 	return 1;
 else if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) < 0)
 	return -1;
+if(ia->message_pair > ib->message_pair)
+	return 1;
+else if(ia->message_pair < ib->message_pair)
+	return -1;
+
 else return 0;	
 }
 /*===========================================================================*/
@@ -241,18 +246,19 @@ qsort(hccapxdata, hccapsets, sizeof(hcx_t), sort_by_mac12);
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	if(((zeiger->message_pair & 0x80) != 0x80) && (zeiger->message_pair != MESSAGE_PAIR_M32E3) && (zeiger->message_pair != MESSAGE_PAIR_M34E3))
+	if(((zeiger->message_pair &0x80) != MESSAGE_PAIR_M32E3) && ((zeiger->message_pair &0x80) != MESSAGE_PAIR_M34E3))
 		{
 		if((mac12checkdouble(zeiger, p, hccapsets) == false))
 			{
 			if(memcmp(lasthost, zeiger->mac_ap.addr, 6) == 0)
 				lasthostcount++;
-			else lasthostcount = 1;
+			else
+				lasthostcount = 1;
 			memcpy(lasthost, zeiger->mac_ap.addr, 6);
 			if(lasthostcount > maxhostcount)
 				maxhostcount = lasthostcount;
 			}
-		}
+		}	
 	zeiger++;
 	}
 
@@ -274,9 +280,8 @@ lasthostcount = 1;
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	if(((zeiger->message_pair & 0x80) != 0x80) &&
-		(zeiger->message_pair != MESSAGE_PAIR_M32E3) &&
-		(zeiger->message_pair != MESSAGE_PAIR_M34E3) &&
+	if(((zeiger->message_pair &0x80) != MESSAGE_PAIR_M32E3) &&
+		((zeiger->message_pair &0x80) != MESSAGE_PAIR_M34E3) &&
 		(zeiger->eapol_len >= 8) &&
 		(zeiger->eapol_len <= sizeof(zeiger->eapol)))
 		{
