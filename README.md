@@ -43,6 +43,7 @@ Detailed description
 | wlanhashhcx    | Generate hashlist from hccapx hashfile (md5_64 hash:mac_ap:mac_sta:essid)                              |
 | wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 SHA256 AES-128-CMAC (hash-modes 2500, 2501)            |
 | wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000                                 |
+| wlanjohn2hcx   | Converts pjohn wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                             |
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                           |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                  |
 | wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                      |
