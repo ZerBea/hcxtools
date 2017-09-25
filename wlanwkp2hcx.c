@@ -114,11 +114,11 @@ wkpeapolsize = wkpdata[WKPEAPOL_SIZE];
 mp = geteapkey(&wkpdata[WKPEAPOLDATA]);
 
 if(mp == 2)
-	hcxrecord.message_pair = MESSAGE_PAIR_M12E2;
+	hcxrecord.message_pair = MESSAGE_PAIR_M12E2NR;
 if(mp == 3)
-	hcxrecord.message_pair = MESSAGE_PAIR_M32E3;
+	hcxrecord.message_pair = MESSAGE_PAIR_M32E3NR;
 if(mp == 4)
-	hcxrecord.message_pair = MESSAGE_PAIR_M14E4;
+	hcxrecord.message_pair = MESSAGE_PAIR_M14E4NR;
 
 memset(&hcxrecord, 0, HCX_SIZE);
 hcxrecord.signature = HCCAPX_SIGNATURE;
@@ -160,6 +160,8 @@ struct stat statinfo;
 int wkpsize;
 wkpcount = 0;
 uint8_t wkpessidlen = 0;
+uint8_t wkpeapolsize = 0;
+
 FILE *fhwkp = NULL;
 
 char *wkpmagic = "CPWE";
@@ -223,6 +225,15 @@ if((wkpessidlen == 0) || (wkpessidlen > 32))
 	fclose(fhwkp);
 	return false;
 	}
+
+wkpeapolsize = wkpdata[WKPEAPOL_SIZE];
+if((wkpeapolsize == 0) || (wkpeapolsize > 256 -4))
+	{
+	fprintf(stderr, "wrong EAPOL size %s\n", wkpiname);
+	fclose(fhwkp);
+	return false;
+	}
+
 
 fclose(fhwkp);
 wkpcount++;
