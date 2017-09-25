@@ -139,7 +139,7 @@ for(p = 0; p < hcsize; p++)
 		zeiger++;
 		continue;
 		}
-	if((zeiger->eapol_size < 8) || (zeiger->eapol_size > 256 -4))
+	if((zeiger->eapol_size < 8) || (zeiger->eapol_size > 256))
 		{
 		zeiger++;
 		eapolerror++;
@@ -164,11 +164,11 @@ for(p = 0; p < hcsize; p++)
 		hcxrecord.version = HCCAPX_VERSION;
 		m = geteapkey(zeiger->eapol);
 		if(m == 2)
-			hcxrecord.message_pair = MESSAGE_PAIR_M12E2;
+			hcxrecord.message_pair = MESSAGE_PAIR_M12E2NR;
 		if(m == 3)
-			hcxrecord.message_pair = MESSAGE_PAIR_M32E3;
+			hcxrecord.message_pair = MESSAGE_PAIR_M32E3NR;
 		if(m == 4)
-			hcxrecord.message_pair = MESSAGE_PAIR_M14E4;
+			hcxrecord.message_pair = MESSAGE_PAIR_M14E4NR;
 		hcxrecord.essid_len = essid_len;
 		memcpy(hcxrecord.essid, zeiger->essid, essid_len);
 		hcxrecord.keyver = geteapkeyver(zeiger->eapol);
@@ -230,7 +230,7 @@ for(p = 0; p < hcxsize; p++)
 			continue;
 			}
 
-		if(zeiger->eapol_len > 256)
+		if(zeiger->eapol_len > 256 -4)
 			{
 			eapolerror++;
 			zeiger++;
