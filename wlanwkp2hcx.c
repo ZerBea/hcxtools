@@ -302,8 +302,8 @@ for (index = optind; index < argc; index++)
 		printf("%ld record(s) read from %s\n", wkpcount, argv[index]);
 		}
 	}
-
-printf("%ld record(s) written to %s\n", hcxcount, hcxoutname);
+if(hcxcount > 0)
+	printf("%ld record(s) written to %s\n", hcxcount, hcxoutname);
 
 return EXIT_SUCCESS;
 }
