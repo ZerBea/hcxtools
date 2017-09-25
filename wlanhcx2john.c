@@ -93,6 +93,8 @@ void processhcx(long int hcxsize, hcx_t *zeiger, char *hcxinname)
 {
 FILE *fhjohn = NULL;
 long int p;
+long int errorcount = 0;
+long int johncount = 0;
 char *hcxinbasename = hcxinname;
 
 hccap_t hcdata;
@@ -110,6 +112,19 @@ for(p = 0; p < hcxsize; p++)
 	{
 	if(zeiger->signature == HCCAPX_SIGNATURE)
 		{
+		if(zeiger->essid_len > 32)
+			{
+			errorcount++;
+			zeiger++;
+			continue;
+			}
+		if(zeiger->eapol_len > 256 -4)
+			{
+			errorcount++;
+			zeiger++;
+			continue;
+			}
+
 		if(fhjohn != 0)
 			{
 			memset(&hcdata, 0, HCCAP_SIZE);
@@ -125,12 +140,27 @@ for(p = 0; p < hcxsize; p++)
 			if ((hcxinbasename = strrchr(hcxinname, '/')))
 				hcxinname = ++hcxinbasename;
 			writejohn(fhjohn, &hcdata, hcxinname, zeiger->message_pair);
+			johncount++;
 			}
 		}
 	zeiger++;
 	}
 if(fhjohn != 0)	
 	fclose(fhjohn);
+
+if(errorcount == 1)
+	printf("%ld error detected\n", errorcount);
+
+else if(errorcount > 1)
+	printf("%ld ersors detected\n", errorcount);
+
+
+if(johncount == 1)
+	printf("%ld record written to %s\n", johncount, johnoutname);
+
+else if(johncount > 1)
+	printf("%ld records written to %s\n", johncount, johnoutname);
+
 return;	
 }
 /*===========================================================================*/
