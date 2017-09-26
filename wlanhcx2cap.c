@@ -45,6 +45,53 @@ fprintf(stdout," ");
 return;
 }
 /*===========================================================================*/
+unsigned long long int getreplaycount(uint8_t *eapdata)
+{
+eap_t *eap;
+unsigned long long int replaycount = 0;
+
+eap = (eap_t*)(uint8_t*)(eapdata);
+replaycount = be64toh(eap->replaycount);
+return replaycount;
+}
+/*===========================================================================*/
+uint8_t geteapkey(uint8_t *eapdata)
+{
+eap_t *eap;
+uint16_t keyinfo;
+int eapkey = 0;
+
+eap = (eap_t*)(uint8_t*)(eapdata);
+keyinfo = (((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8));
+if (keyinfo & WPA_KEY_INFO_ACK)
+	{
+	if(keyinfo & WPA_KEY_INFO_INSTALL)
+		{
+		/* handshake 3 */
+		eapkey = 3;
+		}
+	else
+		{
+		/* handshake 1 */
+		eapkey = 1;
+		}
+	}
+else
+	{
+	if(keyinfo & WPA_KEY_INFO_SECURE)
+		{
+		/* handshake 4 */
+		eapkey = 4;
+		}
+	else
+		{
+		/* handshake 2 */
+		eapkey = 2;
+		}
+	}
+return eapkey;
+}
+/*===========================================================================*/
 void pcapwritepaket(pcap_dumper_t *pcapdump, hcx_t *zeigersend)
 {
 struct pcap_pkthdr pkhdump;
@@ -52,6 +99,8 @@ struct timeval tv1;
 int pp;
 int tc;
 int essidlen;
+unsigned long long int replaycount;
+uint8_t keynr;
 u_int64_t timestamp;
 
 uint8_t beaconwpa[] = {
@@ -158,7 +207,23 @@ memcpy(&mypacket[pp], anonce, 32);
 mypacket[pp + 0x08] = zeigersend->eapol[0x00];
 mypacket[pp + 0x0c] = zeigersend->eapol[0x04];
 mypacket[pp + 0x0e] = zeigersend->eapol[0x06] | 0x80;
-memcpy(&mypacket[pp + 0x11], &zeigersend->eapol[0x09], 8);
+
+keynr = geteapkey(zeigersend->eapol);
+if(keynr == 4)
+	{
+	replaycount = getreplaycount(zeigersend->eapol) -1;
+	mypacket[pp + 0x11] = (int)((replaycount >> 56) & 0xFF) ;
+	mypacket[pp + 0x12] = (int)((replaycount >> 48) & 0xFF) ;
+	mypacket[pp + 0x13] = (int)((replaycount >> 40) & 0xFF) ;
+	mypacket[pp + 0x14] = (int)((replaycount >> 32) & 0xFF) ;
+	mypacket[pp + 0x15] = (int)((replaycount >> 24) & 0xFF) ;
+	mypacket[pp + 0x16] = (int)((replaycount >> 16) & 0xFF) ;
+	mypacket[pp + 0x17] = (int)((replaycount >> 8) & 0XFF);
+	mypacket[pp + 0x18] = (int)((replaycount & 0XFF));
+	}
+else
+	memcpy(&mypacket[pp + 0x11], &zeigersend->eapol[0x09], 8);
+
 if(memcmp(&zeigersend->eapol[0x11], zeigersend->nonce_sta, 32) == 0)
 	memcpy(&mypacket[pp + 0x19], zeigersend->nonce_ap, 32);
 else
