@@ -15,7 +15,7 @@
 #include "common.h"
 
 
-#define MAXPCAPOUT 40
+#define MAXPCAPOUT     50
 #define HANDSHAKELEVEL 50
 #define HANDSHAKEART1	1
 #define HANDSHAKEART2	2
@@ -449,7 +449,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-i <file>  : input hccapx file\n"
 	"-o <file>  : output cap file\n"
-	"-m <digit> : output maximum clients per net (default 40)\n"
+	"-m <digit> : output maximum clients per net (default 50)\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -480,6 +480,14 @@ while ((auswahl = getopt(argc, argv, "i:o:m:hv")) != -1)
 
 		case 'm':
 		maxcapout = strtoul(optarg, NULL, 10);
+		break;
+
+		case 'h':
+		usage(eigenname);
+		break;
+
+		case 'v':
+		usage(eigenname);
 		break;
 
 		default:
