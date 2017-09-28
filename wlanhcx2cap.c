@@ -311,7 +311,10 @@ qsort(hccapxdata, hccapsets, sizeof(hcx_t), sort_by_mac12);
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	if(((zeiger->message_pair &0x80) != MESSAGE_PAIR_M32E3) && ((zeiger->message_pair &0x80) != MESSAGE_PAIR_M34E3))
+	if(((zeiger->message_pair) != MESSAGE_PAIR_M32E3) &&
+		((zeiger->message_pair) != MESSAGE_PAIR_M34E3) &&
+		((zeiger->message_pair) != MESSAGE_PAIR_M32E3NR) &&
+		((zeiger->message_pair) != MESSAGE_PAIR_M34E3NR))
 		{
 		if((mac12checkdouble(zeiger, p, hccapsets) == false))
 			{
@@ -345,8 +348,10 @@ lasthostcount = 1;
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	if(((zeiger->message_pair &0x80) != MESSAGE_PAIR_M32E3) &&
-		((zeiger->message_pair &0x80) != MESSAGE_PAIR_M34E3) &&
+	if(((zeiger->message_pair) != MESSAGE_PAIR_M32E3) &&
+		((zeiger->message_pair) != MESSAGE_PAIR_M34E3) &&
+		((zeiger->message_pair) != MESSAGE_PAIR_M32E3NR) &&
+		((zeiger->message_pair) != MESSAGE_PAIR_M34E3NR) &&
 		(zeiger->eapol_len >= 8) &&
 		(zeiger->eapol_len <= sizeof(zeiger->eapol)))
 		{
