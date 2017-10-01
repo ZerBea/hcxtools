@@ -134,12 +134,12 @@ for(p = 0; p < hcsize; p++)
 	memset(&essidout, 0, 36);
 	memcpy(&essidout, zeiger->essid, 36);
 	essid_len = strlen(essidout);
-	if(essid_len > 32)
+	if((essid_len == 0) || (essid_len > 32) || (zeiger->essid[0] == 0))
 		{
 		zeiger++;
 		continue;
 		}
-	if((zeiger->eapol_size < 8) || (zeiger->eapol_size > 256))
+	if((zeiger->eapol_size < 91) || (zeiger->eapol_size > 256))
 		{
 		zeiger++;
 		eapolerror++;
@@ -154,21 +154,22 @@ for(p = 0; p < hcsize; p++)
 
 	if(fhhcx != 0)
 		{
-		if(zeiger->essid[0] == 0)
-			{
-			zeiger++;
-			continue;
-			}
 		memset(&hcxrecord, 0, HCX_SIZE);
 		hcxrecord.signature = HCCAPX_SIGNATURE;
 		hcxrecord.version = HCCAPX_VERSION;
 		m = geteapkey(zeiger->eapol);
 		if(m == 2)
 			hcxrecord.message_pair = MESSAGE_PAIR_M12E2NR;
-		if(m == 3)
+		else if(m == 3)
 			hcxrecord.message_pair = MESSAGE_PAIR_M32E3NR;
-		if(m == 4)
+		else if(m == 4)
 			hcxrecord.message_pair = MESSAGE_PAIR_M14E4NR;
+		else
+			{
+			zeiger++;
+			eapolerror++;
+			continue;
+			}
 		hcxrecord.essid_len = essid_len;
 		memcpy(hcxrecord.essid, zeiger->essid, essid_len);
 		hcxrecord.keyver = geteapkeyver(zeiger->eapol);
@@ -224,13 +225,12 @@ for(p = 0; p < hcxsize; p++)
 	{
 	if(zeiger->signature == HCCAPX_SIGNATURE)
 		{
-		if(zeiger->essid_len > 32)
+		if((zeiger->essid_len == 0) || (zeiger->essid_len > 32) || (zeiger->essid[0] == 0))
 			{
 			zeiger++;
 			continue;
 			}
-
-		if(zeiger->eapol_len > 256 -4)
+		if((zeiger->eapol_len < 91) || (zeiger->eapol_len > 256 -4))
 			{
 			eapolerror++;
 			zeiger++;
@@ -250,14 +250,19 @@ for(p = 0; p < hcxsize; p++)
 			m = geteapkey(zeiger->eapol);
 			if(m == 2)
 				zeiger->message_pair = MESSAGE_PAIR_M12E2;
-			if(m == 3)
+			else if(m == 3)
 				zeiger->message_pair = MESSAGE_PAIR_M32E3;
-			if(m == 4)
+			else if(m == 4)
 				zeiger->message_pair = MESSAGE_PAIR_M14E4;
+			else
+				{
+				eapolerror++;
+				zeiger++;
+				continue;
+				}
 			zeiger->keyver = geteapkeyver(zeiger->eapol);
 			fwrite(zeiger, HCX_SIZE, 1,fhhcx);
 			}
-
 		}
 	zeiger++;
 	}

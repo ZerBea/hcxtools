@@ -348,7 +348,7 @@ zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
 	keynr = geteapkey(zeiger->eapol);
-	if((keynr != 3) && (zeiger->eapol_len >= 95) && (zeiger->eapol_len <= sizeof(zeiger->eapol)))
+	if((keynr != 3) && (zeiger->eapol_len >= 91) && (zeiger->eapol_len <= sizeof(zeiger->eapol)))
 		{
 		if((mac12checkdouble(zeiger, p, hccapsets) == false) || (lasthostcount == 1))
 			{

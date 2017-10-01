@@ -125,6 +125,25 @@ hcx_t hcxrecord;
 
 char essidout[36];
 
+memset(&essidout, 0, 36);
+memcpy(&essidout, zeiger->essid, 36);
+essid_len = strlen(essidout);
+if((essid_len == 0) || (essid_len > 32) || (zeiger->essid[0] == 0))
+	return false;
+
+if((zeiger->eapol_size < 91) || (zeiger->eapol_size > 256))
+	return false;
+
+m = geteapkey(zeiger->eapol);
+if(m == 2)
+	hcxrecord.message_pair = MESSAGE_PAIR_M12E2NR;
+else if(m == 3)
+	hcxrecord.message_pair = MESSAGE_PAIR_M32E3NR;
+else if(m == 4)
+	hcxrecord.message_pair = MESSAGE_PAIR_M14E4NR;
+else
+	return false;
+
 if(hcxoutname != NULL)
 	{
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
@@ -143,18 +162,6 @@ if(essidoutname != NULL)
 		}
 	}
 
-memset(&essidout, 0, 36);
-memcpy(&essidout, zeiger->essid, 36);
-essid_len = strlen(essidout);
-if(essid_len > 32)
-	return false;
-
-if(zeiger->essid[0] == 0)
-	return false;
-
-if((zeiger->eapol_size < 8) || (zeiger->eapol_size > 256))
-	return false;
-
 if(fhessid != NULL)
 	{
 	if(checkessid(essid_len, essidout) == true)
@@ -163,17 +170,9 @@ if(fhessid != NULL)
 
 if(fhhcx != 0)
 	{
-
 	memset(&hcxrecord, 0, HCX_SIZE);
 	hcxrecord.signature = HCCAPX_SIGNATURE;
 	hcxrecord.version = HCCAPX_VERSION;
-	m = geteapkey(zeiger->eapol);
-	if(m == 2)
-		hcxrecord.message_pair = MESSAGE_PAIR_M12E2NR;
-	if(m == 3)
-		hcxrecord.message_pair = MESSAGE_PAIR_M32E3NR;
-	if(m == 4)
-		hcxrecord.message_pair = MESSAGE_PAIR_M14E4NR;
 	hcxrecord.essid_len = essid_len;
 	memcpy(hcxrecord.essid, zeiger->essid, essid_len);
 	hcxrecord.keyver = geteapkeyver(zeiger->eapol);
