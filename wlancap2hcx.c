@@ -891,7 +891,7 @@ memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
 memcpy(neweapdbdata->mac_sta.addr, mac_sta, 6);
 neweapdbdata->eapol_len = htobe16(eap->len) +4;
 
-if(neweapdbdata->eapol_len > 256 -4)
+if((neweapdbdata->eapol_len < 95) || (neweapdbdata->eapol_len > 256 -4))
 	return false;
 
 memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
