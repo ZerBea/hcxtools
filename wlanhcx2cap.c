@@ -296,6 +296,7 @@ void writecap(char *capoutname, long int hccapsets, hcx_t *hccapxdata)
 {
 int p;
 int pcapcount = 0;
+uint8_t keynr = 0;
 hcx_t *zeiger;
 struct stat statinfo;
 
@@ -311,10 +312,8 @@ qsort(hccapxdata, hccapsets, sizeof(hcx_t), sort_by_mac12);
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	if(((zeiger->message_pair) != MESSAGE_PAIR_M32E3) &&
-		((zeiger->message_pair) != MESSAGE_PAIR_M34E3) &&
-		((zeiger->message_pair) != MESSAGE_PAIR_M32E3NR) &&
-		((zeiger->message_pair) != MESSAGE_PAIR_M34E3NR))
+	keynr = geteapkey(zeiger->eapol);
+	if(keynr != 3)
 		{
 		if((mac12checkdouble(zeiger, p, hccapsets) == false))
 			{
@@ -348,12 +347,8 @@ lasthostcount = 1;
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	if(((zeiger->message_pair) != MESSAGE_PAIR_M32E3) &&
-		((zeiger->message_pair) != MESSAGE_PAIR_M34E3) &&
-		((zeiger->message_pair) != MESSAGE_PAIR_M32E3NR) &&
-		((zeiger->message_pair) != MESSAGE_PAIR_M34E3NR) &&
-		(zeiger->eapol_len >= 8) &&
-		(zeiger->eapol_len <= sizeof(zeiger->eapol)))
+	keynr = geteapkey(zeiger->eapol);
+	if((keynr != 3) && (zeiger->eapol_len >= 95) && (zeiger->eapol_len <= sizeof(zeiger->eapol)))
 		{
 		if((mac12checkdouble(zeiger, p, hccapsets) == false) || (lasthostcount == 1))
 			{
