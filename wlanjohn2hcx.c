@@ -135,13 +135,7 @@ if((zeiger->eapol_size < 91) || (zeiger->eapol_size > 256))
 	return false;
 
 m = geteapkey(zeiger->eapol);
-if(m == 2)
-	hcxrecord.message_pair = MESSAGE_PAIR_M12E2NR;
-else if(m == 3)
-	hcxrecord.message_pair = MESSAGE_PAIR_M32E3NR;
-else if(m == 4)
-	hcxrecord.message_pair = MESSAGE_PAIR_M14E4NR;
-else
+if((m < 2) || (m > 4))
 	return false;
 
 if(hcxoutname != NULL)
@@ -174,6 +168,12 @@ if(fhhcx != 0)
 	hcxrecord.signature = HCCAPX_SIGNATURE;
 	hcxrecord.version = HCCAPX_VERSION;
 	hcxrecord.essid_len = essid_len;
+	if(m == 2)
+		hcxrecord.message_pair = MESSAGE_PAIR_M12E2NR;
+	if(m == 3)
+		hcxrecord.message_pair = MESSAGE_PAIR_M32E3NR;
+	if(m == 4)
+		hcxrecord.message_pair = MESSAGE_PAIR_M14E4NR;
 	memcpy(hcxrecord.essid, zeiger->essid, essid_len);
 	hcxrecord.keyver = geteapkeyver(zeiger->eapol);
 	memcpy(hcxrecord.mac_ap.addr, zeiger->mac1, 6);
