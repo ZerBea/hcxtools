@@ -99,11 +99,12 @@ eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO
 return eapkeyver;
 }
 /*===========================================================================*/
-void processhc(long int hcsize, hccap_t *zeiger)
+long int processhc(long int hcsize, hccap_t *zeiger)
 {
 FILE *fhhcx = NULL;
 FILE *fhessid = NULL;
 long int p;
+long int wc = 0;
 int essid_len;
 uint8_t m;
 
@@ -116,7 +117,7 @@ if(hcxoutname != NULL)
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening essid file %s\n", hcxoutname);
-		return;
+		return 0;
 		}
 	}
 
@@ -125,7 +126,7 @@ if(essidoutname != NULL)
 	if((fhessid = fopen(essidoutname, "a")) == NULL)
 		{
 		fprintf(stderr, "error opening essid file %s\n", essidoutname);
-		return;
+		return 0;
 		}
 	}
 
@@ -182,6 +183,7 @@ for(p = 0; p < hcsize; p++)
 		memcpy(hcxrecord.keymic, zeiger->keymic, 16);
 		memset(&hcxrecord.eapol[0x51], 0, 16);
 		fwrite(&hcxrecord, HCX_SIZE, 1,fhhcx);
+		wc++;
 		}
 	zeiger++;
 	}
@@ -192,14 +194,15 @@ if(fhessid != NULL)
 if(fhhcx != 0)
 	fclose(fhhcx);
 
-return;	
+return wc ;	
 }
 /*===========================================================================*/
-void processhcx(long int hcxsize, hcx_t *zeiger)
+long int processhcx(long int hcxsize, hcx_t *zeiger)
 {
 FILE *fhhcx = NULL;
 FILE *fhessid = NULL;
 long int p;
+long int wc = 0;
 uint8_t m;
 char essidout[36];
 
@@ -208,7 +211,7 @@ if(hcxoutname != NULL)
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening essid file %s\n", hcxoutname);
-		return;
+		return 0;
 		}
 	}
 
@@ -217,7 +220,7 @@ if(essidoutname != NULL)
 	if((fhessid = fopen(essidoutname, "a")) == NULL)
 		{
 		fprintf(stderr, "error opening essid file %s\n", essidoutname);
-		return;
+		return 0;
 		}
 	}
 
@@ -262,6 +265,7 @@ for(p = 0; p < hcxsize; p++)
 				}
 			zeiger->keyver = geteapkeyver(zeiger->eapol);
 			fwrite(zeiger, HCX_SIZE, 1,fhhcx);
+			wc++;
 			}
 		}
 	zeiger++;
@@ -273,7 +277,7 @@ if(fhessid != NULL)
 if(fhhcx != 0)	
 	fclose(fhhcx);
 	
-return;	
+return wc;	
 }
 /*===========================================================================*/
 bool processdata(char *hcinname)
@@ -286,6 +290,7 @@ hccap_t *zeigerhc = NULL;
 long int datasize = 0;
 long int hcxsize = 0;
 long int hcsize = 0;
+long int writecounter = 0;
 
 eapolerror = 0;
 if(hcinname == NULL)
@@ -329,13 +334,13 @@ zeigerhc = (hccap_t*)(data);
 if(((datasize % HCX_SIZE) == 0) && (zeigerhcx->signature == HCCAPX_SIGNATURE))
 	{
 	printf("%ld record(s) read from %s\n", hcxsize, hcinname);
-	processhcx(hcxsize, zeigerhcx); 
+	writecounter = processhcx(hcxsize, zeigerhcx); 
 	}
 
 else if((datasize % HCCAP_SIZE) == 0)
 	{
 	printf("%ld record(s) read from %s\n", hcsize, hcinname);
-	processhc(hcsize, zeigerhc); 
+	writecounter = processhc(hcsize, zeigerhc); 
 	}
 else
 	printf("invalid file size %s\n", hcinname);
@@ -344,6 +349,9 @@ else
 free(data);
 if(eapolerror > 0)
 	printf("\x1B[31m%ld record(s) ignored (wrong eapolsize)\x1B[0m\n", eapolerror);
+if(writecounter > 0)
+	printf("%ld record(s) written to %s\n", hcsize, hcxoutname);
+
 
 return true;
 }
