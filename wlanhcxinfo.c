@@ -159,6 +159,7 @@ long int mp82c = 0;
 long int mp83c = 0;
 long int mp84c = 0;
 long int mp85c = 0;
+long int noessidcount = 0;
 
 uint8_t noncecorr = false;
 
@@ -353,6 +354,9 @@ while(c < hcxrecords)
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 		mp85c++;
 		}	
+
+	if((zeigerhcx->essid_len == 0) && (zeigerhcx->essid[0] == 0))
+		noessidcount++;
 	
 	totalrecords++;
 	c++;
@@ -362,6 +366,7 @@ if(outmode == 0)
 	{
 	fprintf(stdout, "total hashes read from file.......: %ld\n"
 			"\x1B[32mwlandump-ng forced handshakes.....: %ld\x1B[0m\n"
+			"zeroed ESSID......................: %ld\n"
 			"802.1x Version 2001...............: %ld\n"
 			"802.1x Version 2004...............: %ld\n"
 			"WPA1 RC4 Cipher, HMAC-MD5.........: %ld\n"
@@ -374,7 +379,7 @@ if(outmode == 0)
 			"message pair M32E3................: %ld (%ld not replaycount checked)\n"
 			"message pair M34E3................: %ld (%ld not replaycount checked)\n"
 			"message pair M34E4................: %ld (%ld not replaycount checked)"
-			"\n", totalrecords, wldcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, wpakv4c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			"\n", totalrecords, wldcount, noessidcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, wpakv4c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == true)
 		fprintf(stdout, "\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
