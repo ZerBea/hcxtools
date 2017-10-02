@@ -42,6 +42,7 @@ eapdb_t *neweapdbdata = NULL;
 long int eapdbrecords = 0;
 long int hcxwritecount = 0;
 long int hcxwritewldcount = 0;
+long int hcxwriteneccount = 0;
 long int weakpasscount = 0;
 pcap_dumper_t *pcapout = NULL;
 pcap_dumper_t *pcapextout = NULL;
@@ -70,6 +71,7 @@ long int wpakv3c = 0;
 long int wpakv4c = 0;
 
 char *hcxoutname = NULL;
+char *hcxoutnamenec = NULL;
 char *hc4800outname = NULL;
 char *hc5500outname = NULL;
 char *wdfhcxoutname = NULL;
@@ -425,6 +427,85 @@ if(showinfo2 == true)
 	}
 }
 /*===========================================================================*/
+void writehcxnec(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
+{
+hcx_t hcxrecord;
+eap_t *eap1;
+eap_t *eap2;
+FILE *fhhcx = NULL;
+
+unsigned long long int r;
+
+uint8_t pmk[32];
+
+eap1 = (eap_t*)(zeiger1->eapol);
+eap2 = (eap_t*)(zeiger2->eapol);
+memset(&hcxrecord, 0, HCX_SIZE);
+hcxrecord.signature = HCCAPX_SIGNATURE;
+hcxrecord.version = HCCAPX_VERSION;
+hcxrecord.message_pair = message_pair;
+hcxrecord.essid_len = 0;
+memset(&hcxrecord.essid, 0, 32);
+hcxrecord.keyver = ((((eap1->keyinfo & 0xff) << 8) | (eap1->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
+memcpy(hcxrecord.mac_ap.addr, zeiger1->mac_ap.addr, 6);
+memcpy(hcxrecord.nonce_ap, eap1->nonce, 32);
+memcpy(hcxrecord.mac_sta.addr, zeiger2->mac_sta.addr, 6);
+memcpy(hcxrecord.nonce_sta, eap2->nonce, 32);
+hcxrecord.eapol_len = zeiger2->eapol_len;
+memcpy(hcxrecord.eapol,zeiger2->eapol, zeiger2->eapol_len +4);
+memcpy(hcxrecord.keymic, eap2->keymic, 16);
+memset(&hcxrecord.eapol[0x51], 0, 16);
+
+if(oldhcxrecord.message_pair == hcxrecord.message_pair)
+ if(memcmp(oldhcxrecord.mac_ap.addr, hcxrecord.mac_ap.addr, 6) == 0)
+  if(memcmp(oldhcxrecord.mac_sta.addr, hcxrecord.mac_sta.addr, 6) == 0)
+   if(memcmp(oldhcxrecord.keymic, hcxrecord.keymic, 16) == 0)
+    if(memcmp(oldhcxrecord.essid, hcxrecord.essid, 32) == 0)
+     if(memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) == 0)
+      if(memcmp(oldhcxrecord.nonce_sta, hcxrecord.nonce_sta, 32) == 0)
+	return;
+
+if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) != 0))
+		anecflag = true;
+
+memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
+hcxwritecount++;
+
+if(hcxrecord.keyver == 1)
+	wpakv1c++;
+if(hcxrecord.keyver == 2)
+	wpakv2c++;
+if(hcxrecord.keyver == 3)
+	wpakv3c++;
+if((hcxrecord.keyver &4) == 4)
+	wpakv4c++;
+
+memset(&pmk, 0,32);
+if((weakpassflag == true) && (wpatesthash(&hcxrecord, pmk) == true))
+	{
+	weakpasscount++;
+	return;
+	}
+else if(wpatesthash(&hcxrecord, pmk) == true)
+	weakpasscount++;
+
+r = getreplaycount(zeiger2->eapol);
+if((r == MYREPLAYCOUNT) && (memcmp(&mynonce, eap1->nonce, 32) == 0))
+	hcxwritewldcount++;
+
+if((hcxoutnamenec != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2) || (hcxrecord.keyver == 3)))
+	{
+	if((fhhcx = fopen(hcxoutnamenec, "ab")) == NULL)
+		{
+		fprintf(stderr, "error opening hccapx file %s\n", hcxoutnamenec);
+		exit(EXIT_FAILURE);
+		}
+	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
+	fclose(fhhcx);
+	}
+return;	
+}
+/*===========================================================================*/
 void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 hcx_t hcxrecord;
@@ -530,7 +611,6 @@ if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 
 	fclose(fhhcx);
 	showinfo(&hcxrecord);
 	}
-
 return;	
 }
 /*===========================================================================*/
@@ -560,6 +640,9 @@ void lookforessid(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 netdb_t *zeigernewnet;
 long int c;
 
+uint8_t nullessid[32];
+
+memset(&nullessid, 0, 32);
 c = netdbrecords;
 zeigernewnet = newnetdbdata;
 while(c >= 0)
@@ -573,6 +656,10 @@ while(c >= 0)
 	zeigernewnet--;
 	c--;
 	}
+
+if(hcxoutnamenec != NULL)
+	writehcxnec(zeiger1, zeiger2, message_pair);
+hcxwriteneccount++;
 return;
 }
 /*===========================================================================*/
@@ -1048,7 +1135,6 @@ long int packetcount = 0;
 long int wlanpacketcount = 0;
 long int ethpacketcount = 0;
 long int loopbpacketcount = 0;
-
 ipv4_frame_t *ipv4h = NULL;
 ipv6_frame_t *ipv6h = NULL;
 uint8_t ipv4hlen = 0;
@@ -1136,6 +1222,7 @@ anecflag = false;
 hcxwritecount = 0;
 hcxwritewldcount = 0;
 weakpasscount = 0;
+hcxwriteneccount = 0;
 wpakv1c = 0;
 wpakv2c = 0;
 wpakv3c = 0;
@@ -1945,9 +2032,14 @@ else if(hcxwritecount > 1)
 	printf("\x1B[32mtotal %ld usefull wpa handshakes\x1B[0m\n", hcxwritecount);
 
 if(weakpasscount == 1)
-	printf("\x1B[32mfound %ld handshake with zeroed plainmasterkeys (hashcat -m 2501 with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
+	printf("\x1B[32mfound %ld handshake with zeroed plainmasterkeys (use hashcat -m 2501 with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
 else if(weakpasscount > 1)
-	printf("\x1B[32mfound %ld handshakes with zeroed plainmasterkeys (hashcat -m 2501 with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
+	printf("\x1B[32mfound %ld handshakes with zeroed plainmasterkeys (use hashcat -m 2501 with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
+
+if(hcxwriteneccount == 1)
+	printf("\x1B[32mfound %ld handshake without ESSID (use hashcat -m 2501)\x1B[0m\n", hcxwriteneccount);
+else if(hcxwriteneccount > 1)
+	printf("\x1B[32mfound %ld handshakes without ESSIDs (use hashcat -m 2501)\x1B[0m\n", hcxwriteneccount);
 
 if(wpakv1c > 0)
 	printf("\x1B[32mfound %ld WPA1 RC4 Cipher, HMAC-MD5\x1B[0m\n", wpakv1c);
@@ -2203,6 +2295,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-o <file> : output hccapx file (WPA/WPA2/WPA2 AES-128-CMAC: use hashcat -m 2500 or -m 2501)\n"
+	"-O <file> : output hccapx file without ESSIDs (WPA/WPA2/WPA2 AES-128-CMAC: use hashcat -m 2501 only)\n"
 	"-w <file> : output only wlandump forced to hccapx file\n"
 	"-W <file> : output only not wlandump forced to hccapx file\n"
 	"-p <file> : output merged pcap file (upload this file to http://wpa-sec.stanev.org)\n"
@@ -2261,12 +2354,16 @@ if (argc == 1)
 	}
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'o':
 		hcxoutname = optarg;
+		break;
+
+		case 'O':
+		hcxoutnamenec = optarg;
 		break;
 
 		case 'n':

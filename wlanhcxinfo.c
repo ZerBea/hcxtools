@@ -290,13 +290,16 @@ while(c < hcxrecords)
 		if(checkessid(zeigerhcx->essid_len, zeigerhcx->essid) == true)
 			fprintf(stdout, "%s", essidoutstr);
 
-		else
+		else if(zeigerhcx->essid_len != 0)
 			{
 			fprintf(stdout, "$HEX[");
 			for(c1 = 0; c1 < zeigerhcx->essid_len; c1++)
 				fprintf(stdout, "%02x", zeigerhcx->essid[c1]);
 			fprintf(stdout, "]");
 			}
+		else
+			fprintf(stdout, "<empty ESSID>");
+
 		pf = true;
 		}
 
