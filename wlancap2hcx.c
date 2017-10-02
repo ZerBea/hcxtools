@@ -663,6 +663,41 @@ hcxwriteneccount++;
 return;
 }
 /*===========================================================================*/
+uint8_t geteapkeyint(eap_t *eap)
+{
+uint16_t keyinfo;
+int eapkey = 0;
+
+keyinfo = (((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8));
+if (keyinfo & WPA_KEY_INFO_ACK)
+	{
+	if(keyinfo & WPA_KEY_INFO_INSTALL)
+		{
+		/* handshake 3 */
+		eapkey = 3;
+		}
+	else
+		{
+		/* handshake 1 */
+		eapkey = 1;
+		}
+	}
+else
+	{
+	if(keyinfo & WPA_KEY_INFO_SECURE)
+		{
+		/* handshake 4 */
+		eapkey = 4;
+		}
+	else
+		{
+		/* handshake 2 */
+		eapkey = 2;
+		}
+	}
+return eapkey;
+}
+/*===========================================================================*/
 uint8_t geteapkey(uint8_t *eapdata)
 {
 eap_t *eap;
@@ -1146,7 +1181,6 @@ int udpportd = 0;
 int c, c1;
 int llctype;
 
-
 uint8_t meshflag = false;
 
 uint8_t eap3flag = false;
@@ -1416,7 +1450,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				udpportd = htobe16(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
 					radiusflag = true;
-
 				continue;
 				}
 			}
@@ -1451,6 +1484,19 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 				}
 			}
+		else if(llctype == LLC_TYPE_AUTH)
+			{
+			eap = (eap_t*)(packet +ETHER_SIZE);
+			if(eap->type == 3)
+				{
+				if((geteapkeyint(eap) == 1) || (geteapkeyint(eap) == 3))
+					addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, eth->addr1.addr, eth->addr2.addr, eap);
+				else if((geteapkeyint(eap) == 2) || (geteapkeyint(eap) == 4))
+					addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, eth->addr2.addr, eth->addr1.addr, eap);
+				}
+			continue;
+			}
+
 		continue;
 		}
 
