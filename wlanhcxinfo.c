@@ -374,7 +374,7 @@ if(outmode == 0)
 			"\n", totalrecords, wldcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, wpakv4c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == true)
-		fprintf(stdout, "\x1B[33mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
+		fprintf(stdout, "\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
 	}
 
 return;
