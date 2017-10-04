@@ -152,7 +152,7 @@ if(errorcount == 1)
 	printf("%ld error detected\n", errorcount);
 
 else if(errorcount > 1)
-	printf("%ld ersors detected\n", errorcount);
+	printf("%ld errors detected\n", errorcount);
 
 
 if(johncount == 1)
