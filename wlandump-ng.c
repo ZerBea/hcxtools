@@ -878,64 +878,6 @@ qsort(proberequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
 return false;
 }
 /*===========================================================================*/
-bool handleassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
-{
-clapl_t *zeiger;
-int c;
-
-zeiger = associationrequestliste;
-for(c = 0; c < aplistesize; c++)
-	{
-	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		zeiger->tv_sec = tvsec;
-		internalassociationrequests++;
-		return true;
-		}
-	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
-		break;
-	zeiger++;
-	}
-internalassociationrequests++;
-zeiger->tv_sec = tvsec;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-zeiger->essid_len = essid_len;
-memset(zeiger->essid, 0, 32);
-memcpy(zeiger->essid, essidname, essid_len);
-qsort(associationrequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
-return false;
-}
-/*===========================================================================*/
-bool handlereassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
-{
-clapl_t *zeiger;
-int c;
-
-zeiger = reassociationrequestliste;
-for(c = 0; c < aplistesize; c++)
-	{
-	if((memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		zeiger->tv_sec = tvsec;
-		internalreassociationrequests++;
-		return true;
-		}
-	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
-		break;
-	zeiger++;
-	}
-internalreassociationrequests++;
-zeiger->tv_sec = tvsec;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-zeiger->essid_len = essid_len;
-memset(zeiger->essid, 0, 32);
-memcpy(zeiger->essid, essidname, essid_len);
-qsort(reassociationrequestliste, aplistesize +1, CLAPL_SIZE, sortclaplist_by_time);
-return false;
-}
-/*===========================================================================*/
 bool handlextendedflagframes(time_t tvsec, uint8_t *mac_ap, int eapext)
 {
 apl_t *zeiger;
@@ -1382,10 +1324,7 @@ while(1)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-			if(handleassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == false)
-				{
-				pcap_dump((u_char *) pcapout, pkh, h80211);
-				}
+			pcap_dump((u_char *) pcapout, pkh, h80211);
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_ASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
@@ -1401,10 +1340,7 @@ while(1)
 				continue;
 			if(essidf->info_essid_len > 32)
 				continue;
-			if(handlereassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == false)
-				{
-				pcap_dump((u_char *) pcapout, pkh, h80211);
-				}
+			pcap_dump((u_char *) pcapout, pkh, h80211);
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_REASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);

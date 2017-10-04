@@ -736,60 +736,6 @@ qsort(directproberequestliste, RINGBUFFERSIZE +1, STAAPL_SIZE, sortstaaplist_by_
 return false;
 }
 /*===========================================================================*/
-bool handleassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
-{
-staapl_t *zeiger;
-int c;
-
-zeiger = associationrequestliste;
-for(c = 0; c < RINGBUFFERSIZE; c++)
-	{
-	if((memcmp(zeiger->addr_sta.addr, mac_sta, 6) == 0) && (memcmp(zeiger->addr_ap.addr, mac_ap, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		zeiger->tv_sec = tvsec;
-		return true;
-		}
-	if(memcmp(nulladdr.addr, zeiger->addr_ap.addr, 6) == 0)
-		break;
-	zeiger++;
-	}
-zeiger->tv_sec = tvsec;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-zeiger->essid_len = essid_len;
-memset(zeiger->essid, 0, 32);
-memcpy(zeiger->essid, essidname, essid_len);
-qsort(associationrequestliste, RINGBUFFERSIZE +1, STAAPL_SIZE, sortstaaplist_by_time);
-return false;
-}
-/*===========================================================================*/
-bool handlereassociationrequestframes(time_t tvsec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
-{
-staapl_t *zeiger;
-int c;
-
-zeiger = reassociationrequestliste;
-for(c = 0; c < RINGBUFFERSIZE; c++)
-	{
-	if((memcmp(zeiger->addr_sta.addr, mac_sta, 6) == 0) && (memcmp(zeiger->addr_ap.addr, mac_ap, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
-		{
-		zeiger->tv_sec = tvsec;
-		return true;
-		}
-	if(memcmp(nulladdr.addr, zeiger->addr_ap.addr, 6) == 0)
-		break;
-	zeiger++;
-	}
-zeiger->tv_sec = tvsec;
-memcpy(zeiger->addr_sta.addr, mac_sta, 6);
-memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-zeiger->essid_len = essid_len;
-memset(zeiger->essid, 0, 32);
-memcpy(zeiger->essid, essidname, essid_len);
-qsort(reassociationrequestliste, RINGBUFFERSIZE +1, STAAPL_SIZE, sortstaaplist_by_time);
-return false;
-}
-/*===========================================================================*/
 uint8_t geteapkey(eap_t *eap)
 {
 uint16_t keyinfo;
@@ -1159,10 +1105,7 @@ while(1)
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_ASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
-			if(handleassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == false)
-				{
-				pcap_dump((u_char *)pcapout, pkh, h80211);
-				}
+			pcap_dump((u_char *)pcapout, pkh, h80211);
 			continue;
 			}
 
@@ -1180,10 +1123,7 @@ while(1)
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_REASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
-			if(handlereassociationrequestframes(pkh->ts.tv_sec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == false)
-				{
-				pcap_dump((u_char *)pcapout, pkh, h80211);
-				}
+			pcap_dump((u_char *)pcapout, pkh, h80211);
 			continue;
 			}
 
