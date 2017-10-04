@@ -1328,6 +1328,7 @@ while(1)
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_ASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
+			internalassociationrequests++;
 			continue;
 			}
 
@@ -1344,6 +1345,7 @@ while(1)
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_REASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
+			internalreassociationrequests++;
 			continue;
 			}
 

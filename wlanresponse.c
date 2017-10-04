@@ -1102,10 +1102,10 @@ while(1)
 				continue;
 			if(essidf->essid[0] == 0)
 				continue;
+			pcap_dump((u_char *)pcapout, pkh, h80211);
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_ASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
-			pcap_dump((u_char *)pcapout, pkh, h80211);
 			continue;
 			}
 
@@ -1120,10 +1120,10 @@ while(1)
 				continue;
 			if(essidf->essid[0] == 0)
 				continue;
+			pcap_dump((u_char *)pcapout, pkh, h80211);
 			sendacknowledgement(macf->addr2.addr);
 			sendassociationresponse(MAC_ST_REASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 			sendkey1(macf->addr2.addr, macf->addr1.addr);
-			pcap_dump((u_char *)pcapout, pkh, h80211);
 			continue;
 			}
 
