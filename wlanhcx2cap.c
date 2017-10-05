@@ -438,7 +438,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:O:o:m:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:O:o:hv")) != -1)
 	{
 	switch (auswahl)
 		{
