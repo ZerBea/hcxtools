@@ -40,6 +40,7 @@ endif
 	$(CC) $(CFLAGS) -o wlancow2hcxpmk wlancow2hcxpmk.c
 	$(CC) $(CFLAGS) -o whoismac whoismac.c -lcurl
 	$(CC) $(CFLAGS) -o wlanhcx2john wlanhcx2john.c
+	$(CC) $(CFLAGS) -o wlanhcx2psk wlanhcx2psk.c
 	$(CC) $(CFLAGS) -o wlancap2wpasec wlancap2wpasec.c -lcurl
 
 
@@ -66,6 +67,7 @@ endif
 	install -D -m 0755 wlancow2hcxpmk $(INSTALLDIR)/wlancow2hcxpmk
 	install -D -m 0755 whoismac $(INSTALLDIR)/whoismac
 	install -D -m 0755 wlanhcx2john $(INSTALLDIR)/wlanhcx2john
+	install -D -m 0755 wlanhcx2psk $(INSTALLDIR)/wlanhcx2psk
 	install -D -m 0755 wlancap2wpasec $(INSTALLDIR)/wlancap2wpasec
 
 ifeq ($(GPIOSUPPORT), on)
@@ -91,6 +93,7 @@ endif
 	rm -f wlancow2hcxpmk
 	rm -f whoismac
 	rm -f wlanhcx2john
+	rm -f wlanhcx2psk
 	rm -f wlancap2wpasec
 	rm -f *.o *~
 
@@ -119,6 +122,7 @@ endif
 	rm -f wlancow2hcxpmk
 	rm -f whoismac
 	rm -f wlanhcx2john
+	rm -f wlanhcx2psk
 	rm -f wlancap2wpasec
 	rm -f *.o *~
 
@@ -147,4 +151,5 @@ endif
 	rm -f $(INSTALLDIR)/wlancow2hcxpmk
 	rm -f $(INSTALLDIR)/whoismac
 	rm -f $(INSTALLDIR)/wlanhcx2john
+	rm -f $(INSTALLDIR)/wlanhcx2psk
 	rm -f $(INSTALLDIR)/wlancap2wpasec
