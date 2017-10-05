@@ -25,7 +25,6 @@
 /*===========================================================================*/
 /* globale Variablen */
 
-int maxcapout = MAXPCAPOUT;
 /*===========================================================================*/
 void printhex(const uint8_t *buffer, int size)
 {
@@ -271,25 +270,10 @@ for(p = akthccapset +1; p < hccapsets; p++)
 return false;
 }
 /*===========================================================================*/
-int sort_by_mac12(const void *a, const void *b) 
-{ 
-hcx_t *ia = (hcx_t *)a;
-hcx_t *ib = (hcx_t *)b;
-
-if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) > 0)
-	return 1;
-else if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) < 0)
-	return -1;
-if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) > 0)
-	return 1;
-else if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) < 0)
-	return -1;
-if(ia->message_pair > ib->message_pair)
-	return 1;
-else if(ia->message_pair < ib->message_pair)
-	return -1;
-
-else return 0;	
+void mac2macstring(char ssid[13], unsigned char *p)
+{
+sprintf(ssid, "%02x%02x%02x%02x%02x%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
+return;
 }
 /*===========================================================================*/
 void writecap(char *capoutname, long int hccapsets, hcx_t *hccapxdata)
@@ -298,84 +282,47 @@ int p;
 int pcapcount = 0;
 uint8_t keynr = 0;
 hcx_t *zeiger;
-struct stat statinfo;
 
-pcap_dumper_t *pcapdump[maxcapout +1];
+pcap_dumper_t *pcapdump;
 pcap_t *pcapdh;
 
-int lasthostcount = 1;
-int maxhostcount = 0;
-uint8_t lasthost[6];
+char macstr_ap[PATH_MAX +1];
+char macstr_sta[PATH_MAX +1];
 char pcapoutstr[PATH_MAX +2];
 
-qsort(hccapxdata, hccapsets, sizeof(hcx_t), sort_by_mac12);
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	keynr = geteapkey(zeiger->eapol);
-	if(keynr != 3)
+	if((zeiger->message_pair & 0x80) == 0x80)
 		{
-		if((mac12checkdouble(zeiger, p, hccapsets) == false))
-			{
-			if(memcmp(lasthost, zeiger->mac_ap.addr, 6) == 0)
-				lasthostcount++;
-			else
-				lasthostcount = 1;
-			memcpy(lasthost, zeiger->mac_ap.addr, 6);
-			if(lasthostcount > maxhostcount)
-				maxhostcount = lasthostcount;
-			}
-		}	
-	zeiger++;
-	}
-
-if(maxhostcount > maxcapout)
-	maxhostcount = maxcapout;
-	
-for(p = 1; p <= maxcapout; p++)
-	{
-	sprintf(pcapoutstr,"%s-%02d.cap", capoutname, p);
-	pcapdh = pcap_open_dead(DLT_IEEE802_11, 65535);
-	if((pcapdump[p] = pcap_dump_open(pcapdh, pcapoutstr)) == NULL)
-		{
-		fprintf(stderr, "error opening dump file %s\n", pcapoutstr);
-		exit(EXIT_FAILURE);
+		zeiger++;
+		continue;
 		}
-	}
 
-lasthostcount = 1;
-zeiger = hccapxdata;
-for(p = 0; p < hccapsets; p++)
-	{
 	keynr = geteapkey(zeiger->eapol);
 	if((keynr != 3) && (zeiger->eapol_len >= 91) && (zeiger->eapol_len <= sizeof(zeiger->eapol)))
 		{
-		if((mac12checkdouble(zeiger, p, hccapsets) == false) || (lasthostcount == 1))
+		mac2macstring(macstr_ap, zeiger->mac_ap.addr);
+		mac2macstring(macstr_sta, zeiger->mac_sta.addr);
+		if(memcmp(&mynonce, zeiger->nonce_ap, 32) == 0)
+			sprintf(pcapoutstr, "%s-%s-%s-wf.cap", capoutname, macstr_ap, macstr_sta);
+
+		else
+			sprintf(pcapoutstr, "%s-%s-%s-%d.cap", capoutname, macstr_ap, macstr_sta, zeiger->message_pair);
+
+		pcapdh = pcap_open_dead(DLT_IEEE802_11, 65535);
+		if((pcapdump = pcap_dump_open(pcapdh, pcapoutstr)) != NULL)
 			{
-			if(memcmp(lasthost, zeiger->mac_ap.addr, 6) == 0)
-				lasthostcount++;
-			else lasthostcount = 1;
-			if(lasthostcount <= maxcapout)
-				{
-				pcapwritepaket(pcapdump[lasthostcount], zeiger);
-				pcapcount++;
-				}
-			memcpy(lasthost, zeiger->mac_ap.addr, 6);
+			pcapwritepaket(pcapdump, zeiger);
+			pcapcount++;
+			pcap_dump_close(pcapdump);
+			}
+		else
+			{
+			fprintf(stderr, "error opening dump file %s\n", pcapoutstr);
 			}
 		}
 	zeiger++;
-	}
-
-for(p = 1; p <= maxcapout; p++)
-	pcap_dump_close(pcapdump[p]);
-
-
-for(p = 1; p <= maxcapout; p++)
-	{
-	sprintf(pcapoutstr,"%s-%02d.cap", capoutname, p);
-	stat(pcapoutstr, &statinfo);
-	if((statinfo.st_size) == 24)
-		remove(pcapoutstr);
 	}
 
 printf("%d pcap(s) written\n", pcapcount);
@@ -429,9 +376,7 @@ fclose(fhhccapx);
 hccapsets = hccapxsize / sizeof(hcx_t);
 printf("%ld records read from %s\n", hccapxsize / sizeof(hcx_t), hccapxinname);
 
-
-if(capoutname != NULL)
-	writecap(capoutname, hccapsets, hccapxdata);
+writecap(capoutname, hccapsets, hccapxdata);
 
 return true;
 }
@@ -442,9 +387,11 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-i <file>  : input hccapx file\n"
-	"-o <file>  : output cap file\n"
-	"-m <digit> : output maximum clients per net (default 50)\n"
+	"-i <file>   : input hccapx file\n"
+	"-o <prefix> : output prefix cap file (mac_ap - mac_sta - messagepair or wldf.cap is added to the prefix)\n"
+	"            : prefix - mac_ap - mac_sta - messagepair or wf (wlandumpforced handshake).cap\n"
+	"            : example: pfx-xxxxxxxxxxxx-xxxxxxxxxxxx-xx\n"
+	"-h          : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -473,10 +420,6 @@ while ((auswahl = getopt(argc, argv, "i:o:m:hv")) != -1)
 		capoutname = optarg;
 		break;
 
-		case 'm':
-		maxcapout = strtoul(optarg, NULL, 10);
-		break;
-
 		case 'h':
 		usage(eigenname);
 		break;
@@ -491,8 +434,10 @@ while ((auswahl = getopt(argc, argv, "i:o:m:hv")) != -1)
 		}
 	}
 
-hccapx2cap(hccapxinname, capoutname);
-
+if(capoutname != NULL)
+	hccapx2cap(hccapxinname, capoutname);
+else
+	printf("no prefix for out file selected\n");
 
 return EXIT_SUCCESS;
 }
