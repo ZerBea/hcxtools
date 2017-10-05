@@ -293,12 +293,6 @@ char pcapoutstr[PATH_MAX +2];
 zeiger = hccapxdata;
 for(p = 0; p < hccapsets; p++)
 	{
-	if((zeiger->message_pair & 0x80) == 0x80)
-		{
-		zeiger++;
-		continue;
-		}
-
 	keynr = geteapkey(zeiger->eapol);
 	if((keynr != 3) && (zeiger->eapol_len >= 91) && (zeiger->eapol_len <= sizeof(zeiger->eapol)))
 		{
