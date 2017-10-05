@@ -502,6 +502,7 @@ if((hcxoutnamenec != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	showinfo(&hcxrecord);
 	}
 return;	
 }

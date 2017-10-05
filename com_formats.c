@@ -65,8 +65,7 @@ uint8_t *eapol_ptr = (uint8_t*)hashrec.eapol;
 char pwstr[256];
 char essidstr[256];
 
-
-if((hcxrecord->essid_len == 0) || (hcxrecord->essid_len > 32))
+if(hcxrecord->essid_len > 32)
 	return false;
 if(pwlen > 64)
 	return false;
