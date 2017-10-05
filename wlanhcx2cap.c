@@ -25,6 +25,7 @@
 /*===========================================================================*/
 /* globale Variablen */
 
+hcx_t *hccapxdata;
 /*===========================================================================*/
 void printhex(const uint8_t *buffer, int size)
 {
@@ -276,10 +277,10 @@ sprintf(ssid, "%02x%02x%02x%02x%02x%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-void writecap(char *capoutname, long int hccapsets, hcx_t *hccapxdata)
+void writecap(char *capoutname, long int hccapsets)
 {
 int p;
-int pcapcount = 0;
+long int pcapcount = 0;
 uint8_t keynr = 0;
 hcx_t *zeiger;
 
@@ -319,60 +320,92 @@ for(p = 0; p < hccapsets; p++)
 	zeiger++;
 	}
 
-printf("%d pcap(s) written\n", pcapcount);
+printf("%ld pcap(s) written to single cap files\n", pcapcount);
 return;
 }
 /*===========================================================================*/
-bool hccapx2cap(char *hccapxinname, char *capoutname)
+void writesinglecap(char *singlecapoutname, long int hccapsets)
+{
+int p;
+long int pcapcount = 0;
+uint8_t keynr = 0;
+hcx_t *zeiger;
+
+pcap_dumper_t *pcapdump;
+pcap_t *pcapdh;
+
+pcapdh = pcap_open_dead(DLT_IEEE802_11, 65535);
+if((pcapdump = pcap_dump_open(pcapdh, singlecapoutname)) == NULL)
+	{
+	fprintf(stderr, "error opening dump file %s\n", singlecapoutname);
+	return;
+	}
+
+zeiger = hccapxdata;
+for(p = 0; p < hccapsets; p++)
+	{
+	keynr = geteapkey(zeiger->eapol);
+	if((keynr != 3) && (zeiger->eapol_len >= 91) && (zeiger->eapol_len <= sizeof(zeiger->eapol)))
+		{
+		pcapwritepaket(pcapdump, zeiger);
+		pcapcount++;
+		}
+	zeiger++;
+	}
+pcap_dump_close(pcapdump);
+
+printf("%ld pcap(s) written to %s\n", pcapcount, singlecapoutname);
+return;
+}
+/*===========================================================================*/
+long int readhccapx(char *hccapxinname)
 {
 struct stat statinfo;
-hcx_t *hccapxdata;
 FILE *fhhccapx;
 long int hccapxsize;
 long int hccapsets;
 
 
 if(hccapxinname == NULL)
-	return false;
+	return 0;
 
 if(stat(hccapxinname, &statinfo) != 0)
 	{
 	fprintf(stderr, "can't stat %s\n", hccapxinname);
-	return false;
+	return 0;
 	}
 
 if(statinfo.st_size % sizeof(hcx_t) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
-	return false;
+	return 0;
 	}
 
 if((fhhccapx = fopen(hccapxinname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hccapxinname);
-	return false;
+	return 0;
 	}
 
 hccapxdata = malloc(statinfo.st_size);
 if(hccapxdata == NULL)	
 		{
 		fprintf(stderr, "--> out of memory to store hccapx file\n");
-		return false;
+		return 0;
 		}
 
 hccapxsize = fread(hccapxdata, 1, statinfo.st_size, fhhccapx);
 if(hccapxsize != statinfo.st_size)	
 	{
 	fprintf(stderr, "error reading hccapx file %s", hccapxinname);
-	return false;
+	return 0;
 	}
 fclose(fhhccapx);
 hccapsets = hccapxsize / sizeof(hcx_t);
-printf("%ld records read from %s\n", hccapxsize / sizeof(hcx_t), hccapxinname);
+printf("%ld records read from %s\n", hccapsets, hccapxinname);
 
-writecap(capoutname, hccapsets, hccapxdata);
 
-return true;
+return hccapsets;
 }
 /*===========================================================================*/
 static void usage(char *eigenname)
@@ -382,6 +415,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-i <file>   : input hccapx file\n"
+	"-O <file>   : output all handshakes to a single cap file\n"
 	"-o <prefix> : output prefix cap file (mac_ap - mac_sta - messagepair or wf.cap is added to the prefix)\n"
 	"            : prefix - mac_ap - mac_sta - messagepair or wf (wlandumpforced handshake).cap\n"
 	"            : example: pfx-xxxxxxxxxxxx-xxxxxxxxxxxx-xx.cap\n"
@@ -393,16 +427,18 @@ exit(EXIT_FAILURE);
 int main(int argc, char *argv[])
 {
 int auswahl;
+long int hcxrecordsorg = 0;
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 char *hccapxinname = NULL;
 char *capoutname = NULL;
+char *singlecapoutname = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:m:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:O:o:m:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -412,6 +448,10 @@ while ((auswahl = getopt(argc, argv, "i:o:m:hv")) != -1)
 
 		case 'o':
 		capoutname = optarg;
+		break;
+
+		case 'O':
+		singlecapoutname = optarg;
 		break;
 
 		case 'h':
@@ -428,10 +468,26 @@ while ((auswahl = getopt(argc, argv, "i:o:m:hv")) != -1)
 		}
 	}
 
-if(capoutname != NULL)
-	hccapx2cap(hccapxinname, capoutname);
-else
+
+if ((capoutname == NULL) && (singlecapoutname == NULL))
+	{
 	printf("no prefix for out file selected\n");
+	return EXIT_SUCCESS;
+	}
+
+hcxrecordsorg = readhccapx(hccapxinname);
+if((hcxrecordsorg != 0) && (capoutname != NULL))
+	{
+	writecap(capoutname, hcxrecordsorg);
+	}
+if((hcxrecordsorg != 0) && (singlecapoutname != NULL))
+	{
+	writesinglecap(singlecapoutname, hcxrecordsorg);
+	}
+
+
+if(hcxrecordsorg != 0)
+	free(hccapxdata);
 
 return EXIT_SUCCESS;
 }
