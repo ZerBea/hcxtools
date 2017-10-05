@@ -390,7 +390,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-i <file>   : input hccapx file\n"
 	"-o <prefix> : output prefix cap file (mac_ap - mac_sta - messagepair or wf.cap is added to the prefix)\n"
 	"            : prefix - mac_ap - mac_sta - messagepair or wf (wlandumpforced handshake).cap\n"
-	"            : example: pfx-xxxxxxxxxxxx-xxxxxxxxxxxx-xx\n"
+	"            : example: pfx-xxxxxxxxxxxx-xxxxxxxxxxxx-xx.cap\n"
 	"-h          : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
