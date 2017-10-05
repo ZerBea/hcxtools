@@ -14,36 +14,10 @@
 #include <curl/curl.h>
 #include "common.h"
 
-
-#define MAXPCAPOUT     50
-#define HANDSHAKELEVEL 50
-#define HANDSHAKEART1	1
-#define HANDSHAKEART2	2
-#define HANDSHAKEART3	3
-#define HANDSHAKEART4	4
-
 /*===========================================================================*/
 /* globale Variablen */
 
 hcx_t *hccapxdata;
-/*===========================================================================*/
-void printhex(const uint8_t *buffer, int size)
-{
-int c, d;
-d = 0;
-for (c = 0; c < size; c++)
-	{
-	fprintf(stdout, "%02x", buffer[c]);
-	d++;
-	if((d == 32) && (size > 32))
-		{
-		fprintf(stdout,"\n                 ");
-		d = 0;
-		}
-	}
-fprintf(stdout," ");
-return;
-}
 /*===========================================================================*/
 unsigned long long int getreplaycount(uint8_t *eapdata)
 {
