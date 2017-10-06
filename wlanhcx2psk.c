@@ -36,7 +36,6 @@ bool globalinit()
 time_t t = time(NULL);
 struct tm *tm = localtime(&t);
 
-
 thisyear = tm->tm_year +1900;
 return true;
 }
@@ -283,6 +282,58 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
+void sweepessidstr(int essidlenin, uint8_t *essidstrin)
+{
+int l1, l2;
+char essidstr[34];
+
+memset(&essidstr, 0, 34);
+memcpy(essidstr, essidstrin, essidlenin);
+
+for(l1 = 4; l1 <= essidlenin; l1++)
+	{
+	for(l2 = 0; l2 <= essidlenin -l1; l2++)
+		{
+		memset(&essidstr, 0, 34);
+		memcpy(&essidstr, &essidstrin[l2], l1);
+		if(l1 >= 8)
+			writepsk(essidstr);
+		if(l1 < 60)
+			keywriteessidyear(essidstr);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+void removesweepessidstr(int essidlenin, uint8_t *essidstrin, char zeichen)
+{
+int p1,p2;
+int essidlenneu;
+bool removeflag = false;
+uint8_t essidstr[34];
+
+memset(&essidstr, 0, 34);
+essidlenneu = essidlenin;
+p2 = 0;
+for(p1 = 0; p1 < essidlenin; p1++)
+	{
+	if(essidstrin[p1] != zeichen)
+		{
+		essidstr[p2] = essidstrin[p1];
+		removeflag = true;
+		p2++;
+		}
+	else
+		essidlenneu--;
+
+	}
+
+if(removeflag == true)
+	sweepessidstr(essidlenneu, essidstr);
+
+return;
+}
+/*===========================================================================*/
 int sort_by_essid(const void *a, const void *b) 
 { 
 hcx_t *ia = (hcx_t *)a;
@@ -296,10 +347,8 @@ void processessid(long int hcxrecords)
 hcx_t *zeigerhcx;
 hcx_t *zeigerhcx1;
 
-int l1, l2;
 long int c;
 
-char essidstr[34];
 
 qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_essid);
 c = 0;
@@ -318,19 +367,11 @@ while(c < hcxrecords)
 		c++;
 		continue;
 		}
-	memset(&essidstr, 0, 34);
-	memcpy(essidstr, zeigerhcx->essid, zeigerhcx->essid_len);
+	sweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
+	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid, ' ');
 
-	for(l1 = 4; l1 <= zeigerhcx->essid_len; l1++)
-		for(l2 = 0; l2 <= zeigerhcx->essid_len -l1; l2++)
-			{
-			memset(&essidstr, 0, 34);
-			memcpy(&essidstr, &zeigerhcx->essid[l2], l1);
-			if(l1 >= 8)
-				writepsk(essidstr);
-			if(l1 < 60)
-				keywriteessidyear(essidstr);
-			}
+
+
 	c++;
 	}
 
