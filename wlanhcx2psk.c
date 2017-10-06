@@ -323,9 +323,9 @@ for(l1 = 4; l1 <= essidlenin; l1++)
 			writepsk(essidstr);
 		if(l1 < 60)
 			keywriteessidyear(essidstr);
-		if((l1 > 7) && (l1 < 63))
+		if((l1 > 6) && (l1 < 63))
 			keywriteessiddigitx(essidstr);
-		if((l1 > 6) && (l1 < 62))
+		if((l1 > 5) && (l1 < 62))
 			keywriteessiddigitxx(essidstr);
 		}
 	}
