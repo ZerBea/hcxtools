@@ -369,6 +369,8 @@ while(c < hcxrecords)
 		}
 	sweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
 	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid, ' ');
+	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid, '-');
+	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid, ':');
 
 
 
