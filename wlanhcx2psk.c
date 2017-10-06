@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <stdio_ext.h>
+
 #include "common.h"
 
 
@@ -101,10 +102,6 @@ if(fileflag == true)
 return;
 }
 /*===========================================================================*/
-
-
-
-
 /*===========================================================================*/
 void keywritemac(unsigned long long int mac_in)
 {
@@ -218,6 +215,7 @@ keywritemacwps(mac -3);
 keywritemacwps(mac +3);
 keywritemacwps(mac -4);
 keywritemacwps(mac +4);
+
 return;
 }
 /*===========================================================================*/
@@ -270,6 +268,31 @@ while(c < hcxrecords)
 return;	
 }
 /*===========================================================================*/
+/*===========================================================================*/
+void keywriteessiddigitxx(char *basestring)
+{
+int d;
+
+for(d = 0; d < 100; d++)
+	{
+	snprintf(pskstring, 64, "%s%02d", basestring, d);
+	writepsk(pskstring);
+	}
+return;
+}
+/*===========================================================================*/
+void keywriteessiddigitx(char *basestring)
+{
+int d;
+
+for(d = 0; d < 10; d++)
+	{
+	snprintf(pskstring, 64, "%s%d", basestring, d);
+	writepsk(pskstring);
+	}
+return;
+}
+/*===========================================================================*/
 void keywriteessidyear(char *basestring)
 {
 int y;
@@ -300,6 +323,10 @@ for(l1 = 4; l1 <= essidlenin; l1++)
 			writepsk(essidstr);
 		if(l1 < 60)
 			keywriteessidyear(essidstr);
+		if((l1 > 7) && (l1 < 63))
+			keywriteessiddigitx(essidstr);
+		if((l1 > 6) && (l1 < 62))
+			keywriteessiddigitxx(essidstr);
 		}
 	}
 return;
@@ -510,8 +537,8 @@ if(pskfilename != NULL)
 
 if((stdoutflag == true) || (fileflag == true))
 	{
-	processbssid(hcxorgrecords);
 	processessid(hcxorgrecords);
+	processbssid(hcxorgrecords);
 	}
 
 if(hcxdata != NULL)
