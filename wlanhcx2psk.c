@@ -208,7 +208,6 @@ for(c = 0; c < 10000000; c++)
 	snprintf(pskstring, 64, "%07d%d", c, cs);
 	writepsk(pskstring);
 	}
-
 return;
 }
 /*===========================================================================*/
@@ -486,7 +485,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-i <file> : input hccapx file\n"
 	"-o <file> : output plainkeys to file\n"
-	"-s        : output plainkeys to stdout (pipe to hahscat)\n"
+	"-s        : output plainkeys to stdout (pipe to hashcat)\n"
 	"-W        : include wps keys\n"
 	"-h        : this help\n"
 	"-v        : version\n"
