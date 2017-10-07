@@ -22,6 +22,7 @@ hcx_t *hcxdata = NULL;
 
 bool stdoutflag = false;
 bool fileflag = false;
+bool wpsflag = false;
 FILE *fhpsk;
 
 int thisyear = 0; 
@@ -188,10 +189,26 @@ void keywritemacwps(unsigned long long int mac)
 {
 unsigned int pin;
 
+if(wpsflag == true)
+	return;
 pin = (mac & 0xffffff) % 10000000;
 pin = ((pin * 10) + wpspinchecksum(pin));
-snprintf(pskstring, 64,  "%08d", pin);
+snprintf(pskstring, 64, "%08d", pin);
 writepsk(pskstring);
+return;
+}
+/*===========================================================================*/
+void keywriteallwpskeys()
+{
+int c, cs;
+
+for(c = 0; c < 10000000; c++)
+	{
+	cs = wpspinchecksum(c);
+	snprintf(pskstring, 64, "%07d%d", c, cs);
+	writepsk(pskstring);
+	}
+
 return;
 }
 /*===========================================================================*/
@@ -470,6 +487,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-i <file> : input hccapx file\n"
 	"-o <file> : output plainkeys to file\n"
 	"-s        : output plainkeys to stdout (pipe to hahscat)\n"
+	"-W        : include wps keys\n"
 	"-h        : this help\n"
 	"-v        : version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname);
@@ -490,7 +508,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:shv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:sWhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -505,6 +523,10 @@ while ((auswahl = getopt(argc, argv, "i:o:shv")) != -1)
 
 		case 's':
 		stdoutflag = true;
+		break;
+
+		case 'W':
+		wpsflag = true;
 		break;
 
 		case 'v':
@@ -548,6 +570,8 @@ if((stdoutflag == true) || (fileflag == true))
 	{
 	processessid(hcxorgrecords);
 	processbssid(hcxorgrecords);
+	if(wpsflag == true)
+		keywriteallwpskeys();
 	}
 
 if(hcxdata != NULL)
