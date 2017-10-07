@@ -272,7 +272,7 @@ if(stdoutflag == true)
 if(fileflag == true)
 	fprintf(fhpsk, "\n");
 
-for (p = 1; p < 15 ; p +=2)
+for (p = 0; p < 15 ; p +=2)
 	{
 	k = (digestmd5[p] %26);
 	if(stdoutflag == true)
