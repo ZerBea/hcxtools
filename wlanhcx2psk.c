@@ -362,6 +362,29 @@ keywritemacwps(mac +4);
 return;
 }
 /*===========================================================================*/
+void keywritemacvariants(unsigned long long int mac)
+{
+snprintf(pskstring, 64, "2%012llX\n", mac);
+writepsk(pskstring);
+
+snprintf(pskstring, 64, "m%012llX\n", mac);
+writepsk(pskstring);
+
+snprintf(pskstring, 64, "8747%04llx\n", mac &0xffff);
+writepsk(pskstring);
+
+snprintf(pskstring, 64, "8747%04llx\n", (mac -1) &0xffff);
+writepsk(pskstring);
+
+snprintf(pskstring, 64, "555A5053%08llX\n", mac &0xffffffff);
+writepsk(pskstring);
+
+snprintf(pskstring, 64, "555A5053%08llX\n", (mac -1) &0xffffffff);
+writepsk(pskstring);
+
+return;
+}
+/*===========================================================================*/
 unsigned long long int net2mac(const uint8_t *netadr)
 {
 int c;
@@ -405,7 +428,7 @@ while(c < hcxrecords)
 		}
 	mac = net2mac(zeigerhcx->mac_ap.addr);
 	keywritemacrange(mac);
-
+	keywritemacvariants(mac);
 	c++;
 	}
 return;	
