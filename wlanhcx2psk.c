@@ -23,12 +23,14 @@ hcx_t *hcxdata = NULL;
 bool stdoutflag = false;
 bool fileflag = false;
 bool wpsflag = false;
+bool eudateflag = false;
+bool usdateflag = false;
+
 FILE *fhpsk;
 
 int thisyear = 0; 
 
 char pskstring[66];
-
 
 /*===========================================================================*/
 /* globale Initialisierung */
@@ -103,6 +105,131 @@ if(fileflag == true)
 return;
 }
 /*===========================================================================*/
+void keywriteeudate()
+{
+int d ,m ,y;
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(d = 1; d <= 28; d++)
+		{
+		for(m = 1; m <= 12; m++)
+			{
+			snprintf(pskstring, 64, "%02d%02d%04d", d, m, y);
+			writepsk(pskstring);
+			}
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(d = 29; d <= 30; d++)
+		{
+		for(m = 1; m <= 12; m++)
+			{
+			snprintf(pskstring, 64, "%02d%02d%04d", d, m, y);
+			writepsk(pskstring);
+			}
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	snprintf(pskstring, 64, "3101%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "3103%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "3105%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "3107%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "3108%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "3110%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "3112%04d", y);
+	writepsk(pskstring);
+	}
+	
+for(y = 1900; y <= thisyear; y++)
+	{
+	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
+		{
+		snprintf(pskstring, 64, "2902%04d", y);
+		writepsk(pskstring);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+void keywriteusdate()
+{
+int d ,m ,y;
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(d = 1; d <= 28; d++)
+		{
+		for(m = 1; m <= 12; m++)
+			{
+			snprintf(pskstring, 64, "%02d%02d%04d", m, d, y);
+			writepsk(pskstring);
+			}
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(d = 29; d <= 30; d++)
+		{
+		for(m = 1; m <= 12; m++)
+			{
+			snprintf(pskstring, 64, "%02d%02d%04d", m, d, y);
+			writepsk(pskstring);
+			}
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	snprintf(pskstring, 64, "0131%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "0331%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "0531%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "0731%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "0831%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "1031%04d", y);
+	writepsk(pskstring);
+
+	snprintf(pskstring, 64, "1231%04d", y);
+	writepsk(pskstring);
+	}
+	
+for(y = 1900; y <= thisyear; y++)
+	{
+	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
+		{
+		snprintf(pskstring, 64, "0229%04d", y);
+		writepsk(pskstring);
+		}
+	}
+return;
+}
 /*===========================================================================*/
 void keywritemac(unsigned long long int mac_in)
 {
@@ -487,6 +614,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <file> : output plainkeys to file\n"
 	"-s        : output plainkeys to stdout (pipe to hashcat)\n"
 	"-W        : include wps keys\n"
+	"-D        : include european date\n"
+	"-d        : include american date\n"
 	"-h        : this help\n"
 	"-v        : version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname);
@@ -507,7 +636,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:sWhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:sWDdhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -526,6 +655,14 @@ while ((auswahl = getopt(argc, argv, "i:o:sWhv")) != -1)
 
 		case 'W':
 		wpsflag = true;
+		break;
+
+		case 'D':
+		eudateflag = true;
+		break;
+
+		case 'd':
+		usdateflag = true;
 		break;
 
 		case 'v':
@@ -571,6 +708,10 @@ if((stdoutflag == true) || (fileflag == true))
 	processbssid(hcxorgrecords);
 	if(wpsflag == true)
 		keywriteallwpskeys();
+	if(eudateflag == true)
+		keywriteeudate();
+	if(usdateflag == true)
+		keywriteusdate();
 	}
 
 if(hcxdata != NULL)
