@@ -232,7 +232,7 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
-void keywritemd5asciimac(unsigned long long int mac_in)
+void keywritemd5mac(unsigned long long int mac_in)
 {
 MD5_CTX ctxmd5;
 int k;
@@ -245,6 +245,18 @@ snprintf(macstring, 14, "%012llX", mac_in);
 MD5_Init(&ctxmd5);
 MD5_Update(&ctxmd5, macstring, 12);
 MD5_Final(digestmd5, &ctxmd5);
+
+for (p = 0; p < 10; p++)
+	{
+	if(stdoutflag == true)
+		fprintf(stdout, "%02x",digestmd5[p]);
+	if(fileflag == true)
+		fprintf(fhpsk, "%02x",digestmd5[p]);
+	}
+if(stdoutflag == true)
+	fprintf(stdout, "\n");
+if(fileflag == true)
+	fprintf(fhpsk, "\n");
 
 for (p = 0; p < 8; p++)
 	{
@@ -297,7 +309,6 @@ if(stdoutflag == true)
 	fprintf(stdout, "\n");
 if(fileflag == true)
 	fprintf(fhpsk, "\n");
-
 return;
 }
 /*===========================================================================*/
@@ -443,13 +454,7 @@ writepsk(pskstring);
 snprintf(pskstring, 64, "8747%04llx", mac &0xffff);
 writepsk(pskstring);
 
-snprintf(pskstring, 64, "8747%04llx", (mac -1) &0xffff);
-writepsk(pskstring);
-
 snprintf(pskstring, 64, "555A5053%08llX", mac &0xffffffff);
-writepsk(pskstring);
-
-snprintf(pskstring, 64, "555A5053%08llX", (mac -1) &0xffffffff);
 writepsk(pskstring);
 
 return;
@@ -499,7 +504,9 @@ while(c < hcxrecords)
 	mac = net2mac(zeigerhcx->mac_ap.addr);
 	keywritemacrange(mac);
 	keywritemacvariants(mac);
-	keywritemd5asciimac(mac);
+	keywritemacvariants(mac -1);
+	keywritemd5mac(mac);
+	keywritemd5mac(mac -1);
 	c++;
 	}
 return;	
