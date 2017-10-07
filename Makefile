@@ -40,7 +40,7 @@ endif
 	$(CC) $(CFLAGS) -o wlancow2hcxpmk wlancow2hcxpmk.c
 	$(CC) $(CFLAGS) -o whoismac whoismac.c -lcurl
 	$(CC) $(CFLAGS) -o wlanhcx2john wlanhcx2john.c
-	$(CC) $(CFLAGS) -o wlanhcx2psk wlanhcx2psk.c
+	$(CC) $(CFLAGS) -o wlanhcx2psk wlanhcx2psk.c -lcrypto
 	$(CC) $(CFLAGS) -o wlancap2wpasec wlancap2wpasec.c -lcurl
 
 

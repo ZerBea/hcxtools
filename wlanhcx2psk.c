@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <stdio_ext.h>
+#include <openssl/md5.h>
 
 #include "common.h"
 
@@ -231,6 +232,75 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
+void keywritemd5asciimac(unsigned long long int mac_in)
+{
+MD5_CTX ctxmd5;
+int k;
+int p;
+const char keystring[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+char macstring[20];
+unsigned char digestmd5[MD5_DIGEST_LENGTH];
+
+snprintf(macstring, 14, "%012llX", mac_in);
+MD5_Init(&ctxmd5);
+MD5_Update(&ctxmd5, macstring, 12);
+MD5_Final(digestmd5, &ctxmd5);
+
+for (p = 0; p < 8; p++)
+	{
+	k = (digestmd5[p] %26);
+	if(stdoutflag == true)
+		fprintf(stdout, "%c",keystring[k]);
+	if(fileflag == true)
+		fprintf(fhpsk, "%c",keystring[k]);
+	}
+if(stdoutflag == true)
+	fprintf(stdout, "\n");
+if(fileflag == true)
+	fprintf(fhpsk, "\n");
+
+for (p = 0; p < 10; p++)
+	{
+	k = (digestmd5[p] %26);
+	if(stdoutflag == true)
+		fprintf(stdout, "%c",keystring[k]);
+	if(fileflag == true)
+		fprintf(fhpsk, "%c",keystring[k]);
+	}
+if(stdoutflag == true)
+	fprintf(stdout, "\n");
+if(fileflag == true)
+	fprintf(fhpsk, "\n");
+
+for (p = 1; p < 15 ; p +=2)
+	{
+	k = (digestmd5[p] %26);
+	if(stdoutflag == true)
+		fprintf(stdout, "%c",keystring[k]);
+	if(fileflag == true)
+		fprintf(fhpsk, "%c",keystring[k]);
+	}
+if(stdoutflag == true)
+	fprintf(stdout, "\n");
+if(fileflag == true)
+	fprintf(fhpsk, "\n");
+
+for (p = 1; p < 16 ; p +=2)
+	{
+	k = (digestmd5[p] %26);
+	if(stdoutflag == true)
+		fprintf(stdout, "%c",keystring[k]);
+	if(fileflag == true)
+		fprintf(fhpsk, "%c",keystring[k]);
+	}
+if(stdoutflag == true)
+	fprintf(stdout, "\n");
+if(fileflag == true)
+	fprintf(fhpsk, "\n");
+
+return;
+}
+/*===========================================================================*/
 void keywritemac(unsigned long long int mac_in)
 {
 unsigned long long int mac_out;
@@ -364,22 +434,22 @@ return;
 /*===========================================================================*/
 void keywritemacvariants(unsigned long long int mac)
 {
-snprintf(pskstring, 64, "2%012llX\n", mac);
+snprintf(pskstring, 64, "2%012llX", mac);
 writepsk(pskstring);
 
-snprintf(pskstring, 64, "m%012llX\n", mac);
+snprintf(pskstring, 64, "m%012llX", mac);
 writepsk(pskstring);
 
-snprintf(pskstring, 64, "8747%04llx\n", mac &0xffff);
+snprintf(pskstring, 64, "8747%04llx", mac &0xffff);
 writepsk(pskstring);
 
-snprintf(pskstring, 64, "8747%04llx\n", (mac -1) &0xffff);
+snprintf(pskstring, 64, "8747%04llx", (mac -1) &0xffff);
 writepsk(pskstring);
 
-snprintf(pskstring, 64, "555A5053%08llX\n", mac &0xffffffff);
+snprintf(pskstring, 64, "555A5053%08llX", mac &0xffffffff);
 writepsk(pskstring);
 
-snprintf(pskstring, 64, "555A5053%08llX\n", (mac -1) &0xffffffff);
+snprintf(pskstring, 64, "555A5053%08llX", (mac -1) &0xffffffff);
 writepsk(pskstring);
 
 return;
@@ -429,6 +499,7 @@ while(c < hcxrecords)
 	mac = net2mac(zeigerhcx->mac_ap.addr);
 	keywritemacrange(mac);
 	keywritemacvariants(mac);
+	keywritemd5asciimac(mac);
 	c++;
 	}
 return;	
