@@ -269,6 +269,18 @@ return;
 }
 /*===========================================================================*/
 /*===========================================================================*/
+void keywriteessiddigitxxx(char *basestring)
+{
+int d;
+
+for(d = 0; d < 1000; d++)
+	{
+	snprintf(pskstring, 64, "%s%03d", basestring, d);
+	writepsk(pskstring);
+	}
+return;
+}
+/*===========================================================================*/
 void keywriteessiddigitxx(char *basestring)
 {
 int d;
@@ -327,12 +339,14 @@ for(l1 = 4; l1 <= essidlenin; l1++)
 			keywriteessiddigitx(essidstr);
 		if((l1 > 5) && (l1 < 62))
 			keywriteessiddigitxx(essidstr);
+		if((l1 > 4) && (l1 < 61))
+			keywriteessiddigitxxx(essidstr);
 		}
 	}
 return;
 }
 /*===========================================================================*/
-void removesweepessidstr(int essidlenin, uint8_t *essidstrin, char zeichen)
+void removesweepessidstr(int essidlenin, uint8_t *essidstrin)
 {
 int p1,p2;
 int essidlenneu;
@@ -344,7 +358,7 @@ essidlenneu = essidlenin;
 p2 = 0;
 for(p1 = 0; p1 < essidlenin; p1++)
 	{
-	if(essidstrin[p1] != zeichen)
+	if(((essidstrin[p1] >= 'A') && (essidstrin[p1] <= 'Z')) || ((essidstrin[p1] >= 'a') && (essidstrin[p1] <= 'z')))
 		{
 		essidstr[p2] = essidstrin[p1];
 		removeflag = true;
@@ -395,12 +409,7 @@ while(c < hcxrecords)
 		continue;
 		}
 	sweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
-	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid, ' ');
-	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid, '-');
-	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid, ':');
-
-
-
+	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
 	c++;
 	}
 
