@@ -481,7 +481,7 @@ static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
 	"usage..: %s <options>\n"
-	"example: %s -i <hashfile> show general informations about file\n"
+	"example: %s -i <hccapx> -W -s | hashcat -m 2500 <hccapx>\n"
 	"\n"
 	"options:\n"
 	"-i <file> : input hccapx file\n"
