@@ -389,10 +389,11 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-i <file>   : input hccapx file\n"
-	"-O <file>   : output all handshakes to a single cap file\n"
+	"-O <file>   : output all possible handshakes to a single cap file\n"
 	"-o <prefix> : output prefix cap file (mac_ap - mac_sta - messagepair or wf.cap is added to the prefix)\n"
+	"            : not all possible handshakes are written to a cap file - only one each messagepair\n"
 	"            : prefix - mac_ap - mac_sta - messagepair or wf (wlandumpforced handshake).cap\n"
-	"            : example: pfx-xxxxxxxxxxxx-xxxxxxxxxxxx-xx.cap\n"
+	"            : example: pfx-xxxxxxxxxxxx-xxxxxxxxxxxx-xxx.cap\n"
 	"-h          : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
