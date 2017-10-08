@@ -29,7 +29,7 @@ CURL *hnd;
 
 FILE* fhoui;
 
-printf("start downloading to: ~/%s\n", ouiname);
+printf("start downloading oui from http://standards-oui.ieee.org to: ~/%s\n", ouiname);
 
 if((fhoui = fopen(ouiname, "w")) == NULL)
 	{
