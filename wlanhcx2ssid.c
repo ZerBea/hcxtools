@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <time.h>
-#include <pcap.h>
+#include <pwd.h>
 #include <sys/stat.h>
 #include <stdio_ext.h>
 #include "common.h"
@@ -493,6 +493,95 @@ printf("%ld records written\n", rw);
 return true;
 }
 /*===========================================================================*/
+int writesearchvendorhccapx(long int hcxrecords, unsigned long long int oui, char *vendorstring)
+{
+hcx_t *zeigerhcx;
+FILE *fhhcx;
+long int c;
+long int rw = 0;
+adr_t mac;
+char *hccapxstr = ".hccapx";
+
+char vendoroutname[PATH_MAX +1];
+
+strcpy(vendoroutname, vendorstring);
+strcat(vendoroutname,hccapxstr);
+if((fhhcx = fopen(vendoroutname, "ab")) == NULL)
+	{
+	fprintf(stderr, "error opening file %s", vendoroutname);
+	return false;
+	}
+
+mac.addr[2] = oui & 0xff;
+mac.addr[1] = (oui >> 8) & 0xff;
+mac.addr[0] = (oui >> 16) & 0xff;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if(memcmp(&mac.addr, zeigerhcx->mac_ap.addr, 3) == 0)
+		{
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		}
+	c++;
+	}
+
+fclose(fhhcx);
+if(rw > 0)
+	printf("%06llx: %ld records written to %s\n", oui, rw, vendoroutname);
+return true;
+}
+/*===========================================================================*/
+void writesearchvendornamehccapx(long int hcxrecords, char *vendorstring)
+{
+int len;
+uid_t uid;
+struct passwd *pwd;
+FILE* fhoui;
+unsigned long long int vendoroui;
+
+const char ouiname[] = "/.hcxtools/oui.txt";
+
+char ouipathname[PATH_MAX +1];
+char linein[256];
+
+uid = getuid();
+pwd = getpwuid(uid);
+if (pwd == NULL)
+	{
+	fprintf(stdout, "failed to get home dir\n");
+	exit(EXIT_FAILURE);
+	}
+
+strcpy(ouipathname, pwd->pw_dir);
+strcat(ouipathname, ouiname);
+
+if ((fhoui = fopen(ouipathname, "r")) == NULL)
+	{
+	fprintf(stderr, "unable to open database %s\n", ouipathname);
+	exit (EXIT_FAILURE);
+	}
+
+while((len = fgetline(fhoui, 256, linein)) != -1)
+	{
+	if (len < 10)
+		continue;
+
+	if(strstr(linein, "(base 16)") != NULL)
+		{
+		if(strstr(linein, vendorstring) != NULL)
+			{
+			sscanf(linein, "%06llx", &vendoroui);
+			writesearchvendorhccapx(hcxrecords, vendoroui, vendorstring);
+			}
+		}
+	}
+fclose(fhoui);
+return;	
+}
+/*===========================================================================*/
 int writesearchmacstahccapx(long int hcxrecords, unsigned long long int mac_sta)
 {
 hcx_t *zeigerhcx;
@@ -840,6 +929,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-A <mac_ap>   : output file by single mac_ap\n"
 	"-S <mac_sta>  : output file by single mac_sta\n"
 	"-O <oui>      : output file by single vendor (oui)\n"
+	"-V <name>     : output file by single vendor name or part of vendor name\n"
 	"-L <mac_list> : input list containing mac_ap's (need -l)\n"
 	"              : format of mac_ap's each line: 112233445566\n"
 	"-l <file>     : output file (hccapx) by mac_list (need -L)\n"
@@ -896,6 +986,7 @@ char *mpname = NULL;
 char *keyvername = NULL;
 char *singlenetname = NULL;
 char *singlenetname1 = NULL;
+char *vendorname = NULL;
 char *workingdirname;
 char *wdres;
 char workingdir[PATH_MAX +1];
@@ -907,7 +998,7 @@ setbuf(stdout, NULL);
 wdres = getcwd(workingdir, PATH_MAX);
 if(wdres != NULL)
 	workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:x:p:l:L:w:W:r:R:N:n:0:1:2:3:4:5:k:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:0:1:2:3:4:5:k:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -993,6 +1084,11 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:E:X:x:p:l:L:w:W:r:R:N:n:0:1:2:3:4:
 			}
 		oui = strtoul(optarg, NULL, 16);
 		mode = 'O';
+		break;
+
+		case 'V':
+		vendorname = optarg;
+		mode = 'V';
 		break;
 
 		case 'l':
@@ -1106,7 +1202,6 @@ else if(mode == 'o')
 else if(mode == 'e')
 	writeessidhccapx(hcxorgrecords);
 
-
 else if(mode == 'A')
 	writesearchmacaphccapx(hcxorgrecords, mac_ap);
 
@@ -1115,6 +1210,9 @@ else if(mode == 'S')
 
 else if(mode == 'O')
 	writesearchouihccapx(hcxorgrecords, oui);
+
+else if(mode == 'V')
+	writesearchvendornamehccapx(hcxorgrecords, vendorname);
 
 else if(essidname != NULL)
 	writesearchessidhccapx(hcxorgrecords, essidname);
