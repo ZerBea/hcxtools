@@ -232,6 +232,21 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
+void keywriteyearyear()
+{
+int y, y2;
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(y2 = 1900; y2 <= thisyear; y2++)
+		{
+		snprintf(pskstring, 64, "%04d%04d", y, y2);
+		writepsk(pskstring);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 void keywritemd5mac(unsigned long long int mac_in)
 {
 MD5_CTX ctxmd5;
@@ -439,7 +454,6 @@ keywritemacwps(mac -3);
 keywritemacwps(mac +3);
 keywritemacwps(mac -4);
 keywritemacwps(mac +4);
-
 return;
 }
 /*===========================================================================*/
@@ -813,6 +827,8 @@ if((stdoutflag == true) || (fileflag == true))
 		keywriteeudate();
 	if(usdateflag == true)
 		keywriteusdate();
+	if((eudateflag == true) ||(usdateflag == true))
+		keywriteyearyear();
 	}
 
 if(hcxdata != NULL)
