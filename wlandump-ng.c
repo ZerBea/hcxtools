@@ -307,7 +307,7 @@ int c, m, l;
 apl_t *zeiger = beaconliste;
 
 char essidstr[34];
-char *hiddenstr = "<hidden ssid>";
+const char *hiddenstr = "<hidden ssid>";
 
 printf( "\033[H\033[J"
 	"interface................................: %s\n"

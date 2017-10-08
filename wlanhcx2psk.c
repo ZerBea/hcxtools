@@ -44,7 +44,7 @@ thisyear = tm->tm_year +1900;
 return true;
 }
 /*===========================================================================*/
-void writepsk(char *pskstring)
+void writepsk(const char *pskstring)
 {
 bool lflag = false;
 bool uflag = false;
@@ -109,7 +109,7 @@ void keywriteweakpass()
 {
 size_t w;
 
-char *weakword[] =
+const char *weakword[] =
 {
 "00000000", "01234567", "0123456789", "0123456789012345", "0987654321", "11111111",
 "1111111111", "11223344", "1122334455", "123123123", "12341234", "12344321", "1234554321",

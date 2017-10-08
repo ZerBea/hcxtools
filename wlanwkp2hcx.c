@@ -164,7 +164,7 @@ uint8_t wkpeapolsize = 0;
 
 FILE *fhwkp = NULL;
 
-char *wkpmagic = "CPWE";
+const char *wkpmagic = "CPWE";
 
 uint8_t wkpdata[WKPSIZE];
 

@@ -82,7 +82,7 @@ int c, m;
 apl_t *zeiger = apliste;
 
 char essidstr[34];
-char *hiddenstr = "hidden ssid";
+const char *hiddenstr = "hidden ssid";
 
 qsort(apliste, APLISTESIZEMAX, APL_SIZE, sort_by_channel);
 

@@ -240,7 +240,7 @@ hccap_t *hc = NULL;
 char *ptr = NULL;
 char *ptre = NULL;
 char *ptressid = NULL;
-char *formatstring = "$WPAPSK$";
+const char *formatstring = "$WPAPSK$";
 
 char linein[LINEBUFFER];
 

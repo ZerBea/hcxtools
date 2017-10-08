@@ -500,7 +500,7 @@ FILE *fhhcx;
 long int c;
 long int rw = 0;
 adr_t mac;
-char *hccapxstr = ".hccapx";
+const char *hccapxstr = ".hccapx";
 
 char vendoroutname[PATH_MAX +1];
 
