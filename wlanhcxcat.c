@@ -644,6 +644,7 @@ for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 return true;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"

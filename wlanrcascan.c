@@ -350,12 +350,14 @@ printf("program unconditionally stopped...\n");
 return true;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void version(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -369,6 +371,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
+__attribute__ ((noreturn))
 static void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"

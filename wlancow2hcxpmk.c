@@ -157,6 +157,7 @@ while( fread(&recsize, sizeof(uint8_t), 1, fhcowin) ==1)
 return;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"

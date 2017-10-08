@@ -382,6 +382,7 @@ printf("%ld records read from %s\n", hccapsets, hccapxinname);
 return hccapsets;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"

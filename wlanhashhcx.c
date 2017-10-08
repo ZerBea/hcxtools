@@ -82,6 +82,7 @@ fclose(fhhcx);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"

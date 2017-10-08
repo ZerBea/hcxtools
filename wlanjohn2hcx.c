@@ -303,6 +303,7 @@ printf("%ld record(s) written to %s\n", hcxcount, hcxoutname);
 return true;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
