@@ -36,8 +36,8 @@ if(memcmp(nonce, eap->nonce, 32) == 0)
 return false;
 }
 /*===========================================================================*/
-int sort_by_data_ap(const void *a, const void *b) 
-{ 
+int sort_by_data_ap(const void *a, const void *b)
+{
 hcx_t *ia = (hcx_t *)a;
 hcx_t *ib = (hcx_t *)b;
 
@@ -151,14 +151,14 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	}
 
 hcxdata = malloc(statinfo.st_size);
-if(hcxdata == NULL)	
+if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
-if(hcxsize != statinfo.st_size)	
+if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
@@ -233,7 +233,7 @@ while ((auswahl = getopt(argc, argv, "i:o:a:b:n:Ivh")) != -1)
 			fprintf(stderr, "error wrong mac_ap size (only 12 xdigit allowed: 112233aabbcc)\n");
 			exit(EXIT_FAILURE);
 			}
-		
+
 		mac_ap = strtoul(optarg, NULL, 16);
 		break;
 
@@ -270,7 +270,7 @@ if(hcxinname == NULL)
 	exit(EXIT_FAILURE);
 	}
 
-	
+
 hcxorgrecords = readhccapx(hcxinname);
 if(hcxorgrecords == 0)
 	return EXIT_SUCCESS;

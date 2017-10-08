@@ -89,7 +89,7 @@ else if((hcxrecord->keyver & 0x3) == 3)
 	pke_ptr[1] = 0;
 	pke_ptr[100] = 0x80;
 	pke_ptr[101] = 1;
-	
+
 	generatepkeprf(hcxrecord, pke_ptr +2);
 	}
 else
@@ -211,7 +211,7 @@ else
 	hcxrecord->mac_ap.addr[0], hcxrecord->mac_ap.addr[1], hcxrecord->mac_ap.addr[2], hcxrecord->mac_ap.addr[3], hcxrecord->mac_ap.addr[4], hcxrecord->mac_ap.addr[5],
 	hcxrecord->mac_sta.addr[0], hcxrecord->mac_sta.addr[1], hcxrecord->mac_sta.addr[2], hcxrecord->mac_sta.addr[3], hcxrecord->mac_sta.addr[4], hcxrecord->mac_sta.addr[5],
 	essidstr);
-	}	
+	}
 
 return true;
 }

@@ -13,7 +13,7 @@
 #include <stdio_ext.h>
 #include "common.h"
 
-	
+
 #define MAGIC_PCAP		0xa1b2c3d4
 #define MAGIC_PCAP_SWAPPED	0xd4c3b2a1
 #define MAGIC_PCAP_NS		0xa1b23c4d
@@ -484,7 +484,7 @@ printf( "input file.......: %s\n"
 	"last pcap error..: %s\n"
 	, pcapinname, magic, pcapformatstring, majorversion, minorversion, datalink, datalinkstring, packetcount, pcaperrorstring);
 
-return true;	
+return true;
 }
 /*===========================================================================*/
 static void usage(char *eigenname)

@@ -61,7 +61,7 @@ void set_timer(timer_t timerid, int seconds, long int nanoseconds);
 
 struct aplist
 {
- long int	tv_sec;  
+ long int	tv_sec;
  adr_t		addr_ap;
  int		deauthcount;
  int		disassoccount;
@@ -141,17 +141,17 @@ char *interfacename = NULL;
 
 const int myvendor[] =
 {
-0x00006c, 0x000101, 0x00054f, 0x000578, 0x000b18, 0x000bf4, 0x000c53, 0x000d58, 
-0x000da7, 0x000dc2, 0x000df2, 0x000e17, 0x000e22, 0x000e2a, 0x000eef, 0x000f09, 
-0x0016b4, 0x001761, 0x001825, 0x002067, 0x00221c, 0x0022f1, 0x00234a, 0x00238c, 
-0x0023f7, 0x002419, 0x0024fb, 0x00259d, 0x0025df, 0x00269f, 0x005047, 0x005079, 
-0x0050c7, 0x0084ed, 0x0086a0, 0x00a054, 0x00a085, 0x00bb3a, 0x00cb00, 0x0418b6, 
-0x0c8112, 0x100000, 0x10ae60, 0x10b713, 0x1100aa, 0x111111, 0x140708, 0x146e0a, 
-0x18421d, 0x1cf4ca, 0x205b2a, 0x20d160, 0x24336c, 0x24bf74, 0x28ef01, 0x3cb87a, 
-0x487604, 0x48f317, 0x50e14a, 0x544e45, 0x580943, 0x586ed6, 0x5c6b4f, 0x609620, 
-0x68e166, 0x706f81, 0x78f944, 0x7ce4aa, 0x8c8401, 0x8ce748, 0x906f18, 0x980ee4, 
-0x9c93e4, 0xa468bc, 0xa4a6a9, 0xacde48, 0xb025aa, 0xb0ece1, 0xb0febd, 0xb4e1eb, 
-0xc02250, 0xc8aacc, 0xd85dfb, 0xdc7014, 0xe00db9, 0xe0cb1d, 0xe80410, 0xf04f7c, 
+0x00006c, 0x000101, 0x00054f, 0x000578, 0x000b18, 0x000bf4, 0x000c53, 0x000d58,
+0x000da7, 0x000dc2, 0x000df2, 0x000e17, 0x000e22, 0x000e2a, 0x000eef, 0x000f09,
+0x0016b4, 0x001761, 0x001825, 0x002067, 0x00221c, 0x0022f1, 0x00234a, 0x00238c,
+0x0023f7, 0x002419, 0x0024fb, 0x00259d, 0x0025df, 0x00269f, 0x005047, 0x005079,
+0x0050c7, 0x0084ed, 0x0086a0, 0x00a054, 0x00a085, 0x00bb3a, 0x00cb00, 0x0418b6,
+0x0c8112, 0x100000, 0x10ae60, 0x10b713, 0x1100aa, 0x111111, 0x140708, 0x146e0a,
+0x18421d, 0x1cf4ca, 0x205b2a, 0x20d160, 0x24336c, 0x24bf74, 0x28ef01, 0x3cb87a,
+0x487604, 0x48f317, 0x50e14a, 0x544e45, 0x580943, 0x586ed6, 0x5c6b4f, 0x609620,
+0x68e166, 0x706f81, 0x78f944, 0x7ce4aa, 0x8c8401, 0x8ce748, 0x906f18, 0x980ee4,
+0x9c93e4, 0xa468bc, 0xa4a6a9, 0xacde48, 0xb025aa, 0xb0ece1, 0xb0febd, 0xb4e1eb,
+0xc02250, 0xc8aacc, 0xd85dfb, 0xdc7014, 0xe00db9, 0xe0cb1d, 0xe80410, 0xf04f7c,
 0xf0a225, 0xfcc233
 };
 #define MYVENDOR_SIZE sizeof(myvendor)
@@ -263,7 +263,7 @@ bool initgloballists()
 struct timeval starttimeval;
 
 gettimeofday (&starttimeval, NULL);
- 
+
 memset(&nullmac, 0, 6);
 memset(&broadcastmac, 0xff, 6);
 
@@ -732,16 +732,16 @@ internalm1++;
 return;
 }
 /*===========================================================================*/
-int sortaplist_by_time(const void *a, const void *b) 
-{ 
+int sortaplist_by_time(const void *a, const void *b)
+{
 apl_t *ia = (apl_t *)a;
 apl_t *ib = (apl_t *)b;
 
 return ia->tv_sec < ib->tv_sec;
 }
 /*===========================================================================*/
-int sortclaplist_by_time(const void *a, const void *b) 
-{ 
+int sortclaplist_by_time(const void *a, const void *b)
+{
 clapl_t *ia = (clapl_t *)a;
 clapl_t *ib = (clapl_t *)b;
 
@@ -1425,7 +1425,7 @@ while(1)
 				{
 				externalm3++;
 				}
-	
+
 			if(mkey == WPA_M4)
 				{
 				if(handledisassocframes(pkh->ts.tv_sec, macf->addr1.addr) == true)
@@ -1508,14 +1508,14 @@ if(externalbpfname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	extfilterstring = malloc(statinfo.st_size +1);
-	if(extfilterstring == NULL)	
+	if(extfilterstring == NULL)
 		{
 		fprintf(stderr, "out of memory to store BPF\n");
 		exit(EXIT_FAILURE);
 		}
 	extfilterstring[statinfo.st_size] = 0;
 	bpfsize = fread(extfilterstring, 1, statinfo.st_size, fhbpf);
-	if(bpfsize != statinfo.st_size)	
+	if(bpfsize != statinfo.st_size)
 		{
 		fprintf(stderr, "error reading BPF %s\n", externalbpfname);
 		free(extfilterstring);

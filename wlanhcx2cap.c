@@ -362,14 +362,14 @@ if((fhhccapx = fopen(hccapxinname, "rb")) == NULL)
 	}
 
 hccapxdata = malloc(statinfo.st_size);
-if(hccapxdata == NULL)	
+if(hccapxdata == NULL)
 		{
 		fprintf(stderr, "--> out of memory to store hccapx file\n");
 		return 0;
 		}
 
 hccapxsize = fread(hccapxdata, 1, statinfo.st_size, fhhccapx);
-if(hccapxsize != statinfo.st_size)	
+if(hccapxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hccapxinname);
 	return 0;

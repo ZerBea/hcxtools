@@ -4,7 +4,7 @@
 #include <string.h>
 #include "common.h"
 
-#define PW_MAX 64 
+#define PW_MAX 64
 
 /*===========================================================================*/
 uint32_t rotl32(uint32_t a, uint32_t n)
@@ -102,7 +102,7 @@ return true;
 void uint8t2hex_lower(uint8_t v, uint8_t hex[2])
 {
 const uint8_t tbl[0x10] =
-{ 
+{
 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 };
 
@@ -165,7 +165,7 @@ return false;
 /*===========================================================================*/
 bool is_valid_hex_string(uint8_t *s, int len)
 {
-int i;	
+int i;
 if((len %2) != 0)
 	return false;
 for(i = 0; i < len; i++)

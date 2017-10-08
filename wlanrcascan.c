@@ -48,7 +48,7 @@ uint8_t chlistp = 0;
 uint8_t channel = 1;
 
 
-apl_t *apliste = NULL; 
+apl_t *apliste = NULL;
 adr_t nullmac;
 int netcount = 0;
 
@@ -68,8 +68,8 @@ memset(apliste, 0, APLISTESIZEMAX * APL_SIZE);
 return true;
 }
 /*===========================================================================*/
-int sort_by_channel(const void *a, const void *b) 
-{ 
+int sort_by_channel(const void *a, const void *b)
+{
 apl_t *ia = (apl_t *)a;
 apl_t *ib = (apl_t *)b;
 
@@ -296,7 +296,7 @@ while(1)
 			if(essidf->info_essid_len > 32)
 				continue;
 
-			taglen = pkh->len -macl -BEACONINFO_SIZE; 
+			taglen = pkh->len -macl -BEACONINFO_SIZE;
 			tagf = (tag_t*)(payload +BEACONINFO_SIZE);
 			while(taglen > 0)
 				{

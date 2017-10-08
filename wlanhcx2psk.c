@@ -28,7 +28,7 @@ bool usdateflag = false;
 
 FILE *fhpsk;
 
-int thisyear = 0; 
+int thisyear = 0;
 
 char pskstring[66];
 
@@ -83,7 +83,7 @@ for(p = 0; p < l; p++)
 		lowerpskstring[p] = pskstring[p];
 		}
 	}
-	
+
 if(stdoutflag == true)
 	{
 	fprintf(stdout,"%s\n", pskstring);
@@ -111,11 +111,11 @@ size_t w;
 
 char *weakword[] =
 {
-"00000000", "01234567", "0123456789", "0123456789012345", "0987654321", "11111111", 
-"1111111111", "11223344", "1122334455", "123123123", "12341234", "12344321", "1234554321", 
+"00000000", "01234567", "0123456789", "0123456789012345", "0987654321", "11111111",
+"1111111111", "11223344", "1122334455", "123123123", "12341234", "12344321", "1234554321",
 "12345678", "123456789", "1234567890", "123789456", "1357924680", "1q2w3e4r ", "76543210",
 "77777777", "87654321", "88888888", "987654321", "a1b2c3d4e5", "changeme", "Password",
-"qwertyuiop" 
+"qwertyuiop"
 };
 
 for(w = 0; w < (sizeof(weakword) / sizeof(weakword[0])); w++)
@@ -175,7 +175,7 @@ for(y = 1900; y <= thisyear; y++)
 	snprintf(pskstring, 64, "3112%04d", y);
 	writepsk(pskstring);
 	}
-	
+
 for(y = 1900; y <= thisyear; y++)
 	{
 	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
@@ -238,7 +238,7 @@ for(y = 1900; y <= thisyear; y++)
 	snprintf(pskstring, 64, "1231%04d", y);
 	writepsk(pskstring);
 	}
-	
+
 for(y = 1900; y <= thisyear; y++)
 	{
 	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
@@ -503,8 +503,8 @@ for (c = 0; c < 6; c++)
 return mac;
 }
 /*===========================================================================*/
-int sort_by_mac_ap(const void *a, const void *b) 
-{ 
+int sort_by_mac_ap(const void *a, const void *b)
+{
 hcx_t *ia = (hcx_t *)a;
 hcx_t *ib = (hcx_t *)b;
 
@@ -512,7 +512,7 @@ if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) > 0)
 	return 1;
 else if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) < 0)
 	return -1;
-return 0;	
+return 0;
 }
 /*===========================================================================*/
 void processbssid(long int hcxrecords)
@@ -541,7 +541,7 @@ while(c < hcxrecords)
 	keywritemd5mac(mac -1);
 	c++;
 	}
-return;	
+return;
 }
 /*===========================================================================*/
 /*===========================================================================*/
@@ -651,8 +651,8 @@ if(removeflag == true)
 return;
 }
 /*===========================================================================*/
-int sort_by_essid(const void *a, const void *b) 
-{ 
+int sort_by_essid(const void *a, const void *b)
+{
 hcx_t *ia = (hcx_t *)a;
 hcx_t *ib = (hcx_t *)b;
 
@@ -689,7 +689,7 @@ while(c < hcxrecords)
 	c++;
 	}
 
-return;	
+return;
 }
 /*===========================================================================*/
 long int readhccapx(char *hcxinname)
@@ -720,14 +720,14 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	}
 
 hcxdata = malloc(statinfo.st_size +HCX_SIZE);
-if(hcxdata == NULL)	
+if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
-if(hcxsize != statinfo.st_size)	
+if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;

@@ -262,7 +262,7 @@ while(c < hcxrecords)
 				}
 			memcpy(&pmk, &pmkin, 32);
 			}
-		}	
+		}
 	else if(c == 0)
 		{
 		if(PKCS5_PBKDF2_HMAC(passwordname, passwordlen, zeigerhcx->essid, zeigerhcx->essid_len, 4096, EVP_sha1(), 32, pmkin) == 0)
@@ -549,8 +549,8 @@ if(fhpwin != NULL)
 return;
 }
 /*===========================================================================*/
-int sort_by_essid(const void *a, const void *b) 
-{ 
+int sort_by_essid(const void *a, const void *b)
+{
 hcx_t *ia = (hcx_t *)a;
 hcx_t *ib = (hcx_t *)b;
 
@@ -585,14 +585,14 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	}
 
 hcxdata = malloc(statinfo.st_size);
-if(hcxdata == NULL)	
+if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
-if(hcxsize != statinfo.st_size)	
+if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
@@ -817,7 +817,7 @@ if(fhpot != NULL)
 	fclose(fhpot);
 	stat(potname, &statpot);
 	if(statpot.st_size == 0)
-		ret = remove(potname);	
+		ret = remove(potname);
 	if(ret != 0)
 		fprintf(stderr, "could not remove empty file %s\n", potname);
 	}

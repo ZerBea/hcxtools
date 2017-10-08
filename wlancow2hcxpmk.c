@@ -43,7 +43,7 @@ cow_head_t cowh;
 
 char networkname[34];
 
- 
+
 rd = fread(&cowh, COWHEAD_SIZE, 1, fhcowin);
 if(rd != 1)
 	{
@@ -74,7 +74,7 @@ memset(&networkname, 0, 34);
 memcpy(&networkname, &cowh.essid, cowh.essidlen);
 printf("essid: %s\n", networkname);
 
-return;	
+return;
 }
 /*===========================================================================*/
 void cowprocess(FILE *fhcowin, FILE *fhpwout, FILE *fhpmkpwout, FILE *fhpmkout, int mode)
@@ -154,7 +154,7 @@ while( fread(&recsize, sizeof(uint8_t), 1, fhcowin) ==1)
 		fprintf(stdout, "\n");
 		}
 	}
-return;	
+return;
 }
 /*===========================================================================*/
 static void usage(char *eigenname)
