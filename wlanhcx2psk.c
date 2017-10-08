@@ -15,7 +15,6 @@
 
 #include "common.h"
 
-
 /*===========================================================================*/
 /* globale Variablen */
 
@@ -114,6 +113,7 @@ char *weakword[] =
 {
 "12345678", "01234567", "123456789", "987654321", "0123456789",
 "0987654321", "87654321", "76543210", "12344321", "00000000",
+"1357924680",
 "1q2w3e4r", 
 "changeme", "Password"  
 };
@@ -837,8 +837,9 @@ if(pskfilename != NULL)
 
 if((stdoutflag == true) || (fileflag == true))
 	{
-	processessid(hcxorgrecords);
+	keywriteweakpass();
 	processbssid(hcxorgrecords);
+	processessid(hcxorgrecords);
 	if(wpsflag == true)
 		keywriteallwpskeys();
 	if(eudateflag == true)
@@ -848,7 +849,6 @@ if((stdoutflag == true) || (fileflag == true))
 	if((eudateflag == true) ||(usdateflag == true))
 		keywriteyearyear();
 	}
-	keywriteweakpass();
 
 if(hcxdata != NULL)
 	free(hcxdata);
