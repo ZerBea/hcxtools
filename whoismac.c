@@ -230,13 +230,8 @@ while ((auswahl = getopt(argc, argv, "m:v:dh")) != -1)
 		mode = 'v';
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

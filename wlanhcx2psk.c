@@ -799,17 +799,8 @@ while ((auswahl = getopt(argc, argv, "i:o:sWDdhv")) != -1)
 		usdateflag = true;
 		break;
 
-		case 'v':
-		usage(eigenname);
-		break;
-
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

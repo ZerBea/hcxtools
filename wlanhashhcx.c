@@ -123,13 +123,8 @@ while ((auswahl = getopt(argc, argv, "i:S:hv")) != -1)
 		hashoutname = optarg;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

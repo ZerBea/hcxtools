@@ -757,13 +757,8 @@ while ((auswahl = getopt(argc, argv, "i:e:p:P:w:o:hv")) != -1)
 		wordlistinname = optarg;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

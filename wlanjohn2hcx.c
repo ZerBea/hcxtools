@@ -339,17 +339,8 @@ while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 		essidoutname = optarg;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
-		case 'v':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

@@ -2398,7 +2398,6 @@ eigenname = basename(eigenpfadname);
 if (argc == 1)
 	{
 	usage(eigenname);
-	exit(EXIT_FAILURE);
 	}
 
 setbuf(stdout, NULL);
@@ -2491,13 +2490,8 @@ while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv"))
 		weakpassflag = true;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

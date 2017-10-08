@@ -286,7 +286,6 @@ while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

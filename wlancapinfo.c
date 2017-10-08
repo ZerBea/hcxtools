@@ -519,13 +519,8 @@ while ((auswahl = getopt(argc, argv, "i:hv")) != -1)
 		pcapinname = optarg;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

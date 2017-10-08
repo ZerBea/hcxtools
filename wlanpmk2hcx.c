@@ -239,13 +239,8 @@ while ((auswahl = getopt(argc, argv, "i:o:e:p:h")) != -1)
 			}
  		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

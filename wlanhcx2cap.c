@@ -430,17 +430,8 @@ while ((auswahl = getopt(argc, argv, "i:O:o:hv")) != -1)
 		singlecapoutname = optarg;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
-		case 'v':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

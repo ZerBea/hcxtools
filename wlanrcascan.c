@@ -408,15 +408,12 @@ while ((auswahl = getopt(argc, argv, "i:hv")) != -1)
 
 		case 'h':
 		usage(eigenname);
-		break;
 
 		case 'v':
 		version(eigenname);
-		break;
 
 		default:
 		usageerror(eigenname);
-		break;
 		}
 	}
 

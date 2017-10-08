@@ -1855,15 +1855,12 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:F:rbplLhv")) != -1)
 
 		case 'h':
 		usage(eigenname);
-		break;
 
 		case 'v':
 		version(eigenname);
-		break;
 
 		default:
 		usageerror(eigenname);
-		break;
 		}
 	}
 

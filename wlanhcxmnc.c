@@ -251,17 +251,8 @@ while ((auswahl = getopt(argc, argv, "i:o:a:b:n:Ivh")) != -1)
 		modus = 'I';
 		break;
 
-		case 'v':
-		usage(eigenname);
-		break;
-
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 
