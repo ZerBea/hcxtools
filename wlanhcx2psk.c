@@ -106,6 +106,24 @@ if(fileflag == true)
 return;
 }
 /*===========================================================================*/
+void keywriteweakpass()
+{
+size_t w;
+
+char *weakword[] =
+{
+"12345678", "01234567", "123456789", "987654321", "0123456789",
+"0987654321", "87654321", "76543210", "12344321", "00000000",
+"1q2w3e4r", 
+"changeme", "Password"  
+};
+
+for(w = 0; w < (sizeof(weakword) / sizeof(weakword[0])); w++)
+	writepsk(weakword[w]);
+
+return;
+}
+/*===========================================================================*/
 void keywriteeudate()
 {
 int d ,m ,y;
@@ -830,6 +848,7 @@ if((stdoutflag == true) || (fileflag == true))
 	if((eudateflag == true) ||(usdateflag == true))
 		keywriteyearyear();
 	}
+	keywriteweakpass();
 
 if(hcxdata != NULL)
 	free(hcxdata);
