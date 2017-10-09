@@ -66,14 +66,14 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	}
 
 hcxdata = malloc(statinfo.st_size);
-if(hcxdata == NULL)	
+if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
 		return false;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
-if(hcxsize != statinfo.st_size)	
+if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
@@ -82,6 +82,7 @@ fclose(fhhcx);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -122,13 +123,8 @@ while ((auswahl = getopt(argc, argv, "i:S:hv")) != -1)
 		hashoutname = optarg;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

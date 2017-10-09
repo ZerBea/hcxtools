@@ -221,7 +221,7 @@ uint8_t changeflag = false;
 int c;
 
 eapmd5 = (eapmd5_t*)(eapext);
-if((eapmd5->eapcode == EAP_CODE_REQ) && (eapmd5->eapvaluesize == 16)) 
+if((eapmd5->eapcode == EAP_CODE_REQ) && (eapmd5->eapvaluesize == 16))
 	{
 	memcpy(&hcmd5.mac_ap1, mac_2, 6);
 	memcpy(&hcmd5.mac_sta1, mac_1, 6);
@@ -231,7 +231,7 @@ if((eapmd5->eapcode == EAP_CODE_REQ) && (eapmd5->eapvaluesize == 16))
 	changeflag = true;
 	}
 
-if((eapmd5->eapcode == EAP_CODE_RESP) && (eapmd5->eapvaluesize == 16)) 
+if((eapmd5->eapcode == EAP_CODE_RESP) && (eapmd5->eapvaluesize == 16))
 	{
 	hcmd5.id2 = eapmd5->eapid;
 	memcpy(&hcmd5.mac_ap2, mac_1, 6);
@@ -504,7 +504,7 @@ if((hcxoutnamenec != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2
 	fclose(fhhcx);
 	showinfo(&hcxrecord);
 	}
-return;	
+return;
 }
 /*===========================================================================*/
 void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
@@ -612,7 +612,7 @@ if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 
 	fclose(fhhcx);
 	showinfo(&hcxrecord);
 	}
-return;	
+return;
 }
 /*===========================================================================*/
 void lookforessidexact(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
@@ -967,7 +967,7 @@ while(c >= 0)
 
 if(replaycountcheck == true)
 	return;
-	
+
 rctime = 10;
 zeiger = zeigerakt;
 c = cakt;
@@ -1102,14 +1102,14 @@ if(externalbpfname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	extfilterstring = malloc(statinfo.st_size +1);
-	if(extfilterstring == NULL)	
+	if(extfilterstring == NULL)
 		{
 		fprintf(stderr, "out of memory to store BPF\n");
 		exit(EXIT_FAILURE);
 		}
 	extfilterstring[statinfo.st_size] = 0;
 	bpfsize = fread(extfilterstring, 1, statinfo.st_size, fhbpf);
-	if(bpfsize != statinfo.st_size)	
+	if(bpfsize != statinfo.st_size)
 		{
 		fprintf(stderr, "error reading BPF %s\n", externalbpfname);
 		free(extfilterstring);
@@ -1289,7 +1289,7 @@ if(stat(pcapinname, &statinfo) != 0)
 	}
 
 netdbdata = malloc(statinfo.st_size +NETDB_SIZE);
-if(netdbdata == NULL)	
+if(netdbdata == NULL)
 		{
 		fprintf(stderr, "out of memory process nets\n");
 		exit(EXIT_FAILURE);
@@ -1298,7 +1298,7 @@ newnetdbdata = netdbdata;
 netdbrecords = 0;
 
 eapdbdata = malloc(statinfo.st_size *2 +EAPDB_SIZE);
-if(eapdbdata == NULL)	
+if(eapdbdata == NULL)
 		{
 		fprintf(stderr, "out of memory process eaps\n");
 		exit(EXIT_FAILURE);
@@ -1679,7 +1679,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			}
 		continue;
 		}
-	
+
 	/* check handshake frames */
 	if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
 		{
@@ -1694,7 +1694,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
-		
+
 			continue;
 			}
 
@@ -2330,9 +2330,10 @@ if(meshflag == true)
 if(wcflag == true)
 	printf("\x1B[31mwarning: use of wpaclean detected\x1B[0m\n");
 
-return true;	
+return true;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -2397,7 +2398,6 @@ eigenname = basename(eigenpfadname);
 if (argc == 1)
 	{
 	usage(eigenname);
-	exit(EXIT_FAILURE);
 	}
 
 setbuf(stdout, NULL);
@@ -2490,13 +2490,8 @@ while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv"))
 		weakpassflag = true;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 
@@ -2538,14 +2533,14 @@ for (index = optind; index < argc; index++)
 		if(strcmp(argv[index], pcapoutname) == 0)
 			{
 			fprintf(stderr, "\x1B[31mfile skipped (inputname = outputname) %s\x1B[0m\n", (argv[index]));
-			continue;	
+			continue;
 			}
 
 	if(pcapextoutname != NULL)
 		if(strcmp(argv[index], pcapextoutname) == 0)
 			{
 			fprintf(stderr, "\x1B[31mfile skipped (inputname = outputname) %s\x1B[0m\n", (argv[index]));
-			continue;	
+			continue;
 			}
 	if(processcap(argv[index], essidoutname, essidunicodeoutname, pmkoutname, externalbpfname) == false)
 		fprintf(stderr, "\x1B[31merror processing records from %s\x1B[0m\n", (argv[index]));

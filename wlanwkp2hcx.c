@@ -164,7 +164,7 @@ uint8_t wkpeapolsize = 0;
 
 FILE *fhwkp = NULL;
 
-char *wkpmagic = "CPWE";
+const char *wkpmagic = "CPWE";
 
 uint8_t wkpdata[WKPSIZE];
 
@@ -246,6 +246,7 @@ if(essidoutname != NULL)
 return true;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -285,7 +286,6 @@ while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

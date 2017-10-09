@@ -156,6 +156,7 @@ free(hashrecord);
 return;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -238,13 +239,8 @@ while ((auswahl = getopt(argc, argv, "i:o:e:p:h")) != -1)
 			}
  		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

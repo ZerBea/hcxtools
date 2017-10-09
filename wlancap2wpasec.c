@@ -44,7 +44,7 @@ void sendcap2wpasec(char *sendcapname, long int timeout)
 {
 CURL *curl;
 CURLcode res;
- 
+
 struct curl_httppost *formpost=NULL;
 struct curl_httppost *lastptr=NULL;
 struct curl_slist *headerlist=NULL;
@@ -77,6 +77,7 @@ if(curl)
 return;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -117,13 +118,8 @@ while ((auswahl = getopt(argc, argv, "t:hv")) != -1)
 			}
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

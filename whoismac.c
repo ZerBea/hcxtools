@@ -53,9 +53,9 @@ if(ret != 0)
 	fprintf(stderr, "download not successfull");
 	exit(EXIT_FAILURE);
 	}
-		
+
 printf("download finished\n");
-return true;	
+return true;
 }
 /*===========================================================================*/
 size_t chop(char *buffer,  size_t len)
@@ -122,7 +122,7 @@ while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
 		}
 	}
 fclose(fhoui);
-return;	
+return;
 }
 /*===========================================================================*/
 void getvendor(const char *ouiname, char *vendorstring)
@@ -158,9 +158,10 @@ while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
 		}
 	}
 fclose(fhoui);
-return;	
+return;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -204,7 +205,7 @@ while ((auswahl = getopt(argc, argv, "m:v:dh")) != -1)
 		case 'd':
 		mode = 'd';
 		break;
-		
+
 		case 'm':
 		if(strlen(optarg) == 6)
 			{
@@ -229,13 +230,8 @@ while ((auswahl = getopt(argc, argv, "m:v:dh")) != -1)
 		mode = 'v';
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

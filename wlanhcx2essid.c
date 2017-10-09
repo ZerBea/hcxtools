@@ -20,8 +20,8 @@ hcx_t *hcxdata = NULL;
 hcx_t *hcxdata2 = NULL;
 
 /*===========================================================================*/
-int sort_by_essid(const void *a, const void *b) 
-{ 
+int sort_by_essid(const void *a, const void *b)
+{
 hcx_t *ia = (hcx_t *)a;
 hcx_t *ib = (hcx_t *)b;
 
@@ -60,7 +60,7 @@ while(c < hcxrecords)
 		c++;
 		continue;
 		}
-	
+
 	zeigerhcx2 = hcxdata2;
 	c2 = 0;
 	while(c2 < hcxrecords2)
@@ -105,14 +105,14 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	}
 
 hcxdata2 = malloc(statinfo.st_size);
-if(hcxdata2 == NULL)	
+if(hcxdata2 == NULL)
 		{
 		fprintf(stderr, "out of memory to store second hccapx data\n");
 		return 0;
 		}
 
 hcxsize = fread(hcxdata2, 1, statinfo.st_size +HCX_SIZE, fhhcx);
-if(hcxsize != statinfo.st_size)	
+if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
@@ -150,14 +150,14 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	}
 
 hcxdata = malloc(statinfo.st_size);
-if(hcxdata == NULL)	
+if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
-if(hcxsize != statinfo.st_size)	
+if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
@@ -168,6 +168,7 @@ printf("%ld records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -217,7 +218,6 @@ while ((auswahl = getopt(argc, argv, "i:s:o:Ihv")) != -1)
 
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

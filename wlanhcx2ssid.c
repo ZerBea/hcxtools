@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <endian.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -100,8 +101,8 @@ printf("%ld records precessed\n", rw++);
 return true;
 }
 /*===========================================================================*/
-int sort_by_mac_staessid(const void *a, const void *b) 
-{ 
+int sort_by_mac_staessid(const void *a, const void *b)
+{
 hcx_t *ia = (hcx_t *)a;
 hcx_t *ib = (hcx_t *)b;
 
@@ -113,7 +114,7 @@ if(memcmp(ia->essid, ib->essid, 32) > 0)
 	return 1;
 else if(memcmp(ia->essid, ib->essid, 32) < 0)
 	return -1;
-return 0;	
+return 0;
 }
 /*===========================================================================*/
 int writesinglenet1hccapx(long int hcxrecords, char *singlenetname)
@@ -158,8 +159,8 @@ printf("%ld records written to %s\n", rw, singlenetname);
 return true;
 }
 /*===========================================================================*/
-int sort_by_macs(const void *a, const void *b) 
-{ 
+int sort_by_macs(const void *a, const void *b)
+{
 hcx_t *ia = (hcx_t *)a;
 hcx_t *ib = (hcx_t *)b;
 
@@ -179,7 +180,7 @@ if(ia->message_pair > ib->message_pair)
 	return 1;
 if(ia->message_pair < ib->message_pair)
 	return -1;
-return 0;	
+return 0;
 }
 /*===========================================================================*/
 int writesinglenethccapx(long int hcxrecords, char *singlenetname)
@@ -500,7 +501,7 @@ FILE *fhhcx;
 long int c;
 long int rw = 0;
 adr_t mac;
-char *hccapxstr = ".hccapx";
+const char *hccapxstr = ".hccapx";
 
 char vendoroutname[PATH_MAX +1];
 
@@ -579,7 +580,7 @@ while((len = fgetline(fhoui, 256, linein)) != -1)
 		}
 	}
 fclose(fhoui);
-return;	
+return;
 }
 /*===========================================================================*/
 int writesearchmacstahccapx(long int hcxrecords, unsigned long long int mac_sta)
@@ -893,14 +894,14 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	}
 
 hcxdata = malloc(statinfo.st_size);
-if(hcxdata == NULL)	
+if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
-if(hcxsize != statinfo.st_size)	
+if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
@@ -911,6 +912,7 @@ printf("%ld records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -987,7 +989,7 @@ char *keyvername = NULL;
 char *singlenetname = NULL;
 char *singlenetname1 = NULL;
 char *vendorname = NULL;
-char *workingdirname;
+char *workingdirname = NULL;
 char *wdres;
 char workingdir[PATH_MAX +1];
 
@@ -1052,7 +1054,7 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:0:1:2:3:
 			fprintf(stderr, "essid > 32\n");
 			exit(EXIT_FAILURE);
 			}
-	
+
 		mode = 'x';
 		break;
 
@@ -1172,13 +1174,8 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:0:1:2:3:
 		mode = 'k';
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 
@@ -1188,7 +1185,7 @@ if(hcxorgrecords == 0)
 
 retchdir = chdir(workingdirname);
 if(retchdir != 0)
-	fprintf(stderr, " couldn't change working directory to %s\nusing %s\n", workingdirname, workingdir); 
+	fprintf(stderr, " couldn't change working directory to %s\nusing %s\n", workingdirname, workingdir);
 
 if(mode == 'a')
 	writemacaphccapx(hcxorgrecords);

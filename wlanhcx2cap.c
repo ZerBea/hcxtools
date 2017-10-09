@@ -234,13 +234,11 @@ bool mac12checkdouble(hcx_t *zeiger, long int akthccapset, long int hccapsets)
 {
 hcx_t *zeigertest = zeiger;
 int p;
-for(p = akthccapset +1; p < hccapsets; p++)
+for(p = akthccapset +1; p < hccapsets;)
 	{
 	zeigertest++;
 	if((memcmp(zeigertest->mac_ap.addr, zeiger->mac_ap.addr, 6) == 0) && (memcmp(zeigertest->mac_sta.addr, zeiger->mac_sta.addr, 6) == 0) && (zeigertest->message_pair == zeiger->message_pair))
 		return true;
-
-	return false;
 	}
 return false;
 }
@@ -362,14 +360,14 @@ if((fhhccapx = fopen(hccapxinname, "rb")) == NULL)
 	}
 
 hccapxdata = malloc(statinfo.st_size);
-if(hccapxdata == NULL)	
+if(hccapxdata == NULL)
 		{
 		fprintf(stderr, "--> out of memory to store hccapx file\n");
 		return 0;
 		}
 
 hccapxsize = fread(hccapxdata, 1, statinfo.st_size, fhhccapx);
-if(hccapxsize != statinfo.st_size)	
+if(hccapxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hccapxinname);
 	return 0;
@@ -382,6 +380,7 @@ printf("%ld records read from %s\n", hccapsets, hccapxinname);
 return hccapsets;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -429,17 +428,8 @@ while ((auswahl = getopt(argc, argv, "i:O:o:hv")) != -1)
 		singlecapoutname = optarg;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
-		case 'v':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

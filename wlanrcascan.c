@@ -48,7 +48,7 @@ uint8_t chlistp = 0;
 uint8_t channel = 1;
 
 
-apl_t *apliste = NULL; 
+apl_t *apliste = NULL;
 adr_t nullmac;
 int netcount = 0;
 
@@ -68,8 +68,8 @@ memset(apliste, 0, APLISTESIZEMAX * APL_SIZE);
 return true;
 }
 /*===========================================================================*/
-int sort_by_channel(const void *a, const void *b) 
-{ 
+int sort_by_channel(const void *a, const void *b)
+{
 apl_t *ia = (apl_t *)a;
 apl_t *ib = (apl_t *)b;
 
@@ -82,7 +82,7 @@ int c, m;
 apl_t *zeiger = apliste;
 
 char essidstr[34];
-char *hiddenstr = "hidden ssid";
+const char *hiddenstr = "hidden ssid";
 
 qsort(apliste, APLISTESIZEMAX, APL_SIZE, sort_by_channel);
 
@@ -185,6 +185,7 @@ close(sock);
 return;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 void pcaploop(int has_rth)
 {
 const uint8_t *packet = NULL;
@@ -296,7 +297,7 @@ while(1)
 			if(essidf->info_essid_len > 32)
 				continue;
 
-			taglen = pkh->len -macl -BEACONINFO_SIZE; 
+			taglen = pkh->len -macl -BEACONINFO_SIZE;
 			tagf = (tag_t*)(payload +BEACONINFO_SIZE);
 			while(taglen > 0)
 				{
@@ -315,7 +316,6 @@ while(1)
 			}
 		}
 	}
-return;
 }
 /*===========================================================================*/
 bool startcapturing()
@@ -344,18 +344,17 @@ signal(SIGALRM, sigalarm);
 alarm(ALARMTIME);
 
 pcaploop(has_rth);
-
-pcap_close(pcapin);
-printf("program unconditionally stopped...\n");
 return true;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void version(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -369,6 +368,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
+__attribute__ ((noreturn))
 static void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"
@@ -405,15 +405,12 @@ while ((auswahl = getopt(argc, argv, "i:hv")) != -1)
 
 		case 'h':
 		usage(eigenname);
-		break;
 
 		case 'v':
 		version(eigenname);
-		break;
 
 		default:
 		usageerror(eigenname);
-		break;
 		}
 	}
 

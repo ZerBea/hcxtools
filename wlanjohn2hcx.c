@@ -193,7 +193,7 @@ if(fhessid != NULL)
 if(fhhcx != 0)
 	fclose(fhhcx);
 
-return true;	
+return true;
 }
 /*===========================================================================*/
 size_t chop(char *buffer,  size_t len)
@@ -240,7 +240,7 @@ hccap_t *hc = NULL;
 char *ptr = NULL;
 char *ptre = NULL;
 char *ptressid = NULL;
-char *formatstring = "$WPAPSK$";
+const char *formatstring = "$WPAPSK$";
 
 char linein[LINEBUFFER];
 
@@ -303,6 +303,7 @@ printf("%ld record(s) written to %s\n", hcxcount, hcxoutname);
 return true;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -338,17 +339,8 @@ while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 		essidoutname = optarg;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
-		case 'v':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

@@ -119,8 +119,8 @@ replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
-int sort_by_nonce_ap(const void *a, const void *b) 
-{ 
+int sort_by_nonce_ap(const void *a, const void *b)
+{
 hcx_t *ia = (hcx_t *)a;
 hcx_t *ib = (hcx_t *)b;
 
@@ -286,7 +286,7 @@ while(c < hcxrecords)
 		if(zeigerhcx->essid_len > 32)
 			zeigerhcx->essid_len = 32;
 		memset(&essidoutstr, 0, 34);
-		memcpy(&essidoutstr, zeigerhcx->essid, zeigerhcx->essid_len); 
+		memcpy(&essidoutstr, zeigerhcx->essid, zeigerhcx->essid_len);
 
 		if(checkessid(zeigerhcx->essid_len, zeigerhcx->essid) == true)
 			fprintf(stdout, "%s", essidoutstr);
@@ -318,46 +318,46 @@ while(c < hcxrecords)
 		mp0c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 		mp80c++;
-		}	
+		}
 
 	if((zeigerhcx->message_pair & 0x7f) == 1)
 		{
 		mp1c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 		mp81c++;
-		}	
+		}
 
 	if((zeigerhcx->message_pair & 0x7f) == 2)
 		{
 		mp2c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 		mp82c++;
-		}	
+		}
 
 	if((zeigerhcx->message_pair & 0x7f) == 3)
 		{
 		mp3c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 		mp83c++;
-		}	
+		}
 
 	if((zeigerhcx->message_pair & 0x7f) == 4)
 		{
 		mp4c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 		mp84c++;
-		}	
+		}
 
 	if((zeigerhcx->message_pair & 0x7f) == 5)
 		{
 		mp5c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 		mp85c++;
-		}	
+		}
 
 	if((zeigerhcx->essid_len == 0) && (zeigerhcx->essid[0] == 0))
 		noessidcount++;
-	
+
 	totalrecords++;
 	c++;
 	}
@@ -416,14 +416,14 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	}
 
 hcxdata = malloc(statinfo.st_size);
-if(hcxdata == NULL)	
+if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
-if(hcxsize != statinfo.st_size)	
+if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
@@ -432,6 +432,7 @@ fclose(fhhcx);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -483,7 +484,7 @@ while ((auswahl = getopt(argc, argv, "i:o:aAsSMRwpPlehv")) != -1)
 		case 'o':
 		infoname = optarg;
 		fclose(stdout);
-		if ((stdout = fopen(infoname,"w")) == NULL)
+		if ((fopen(infoname,"w")) == NULL)
 			{
 			fprintf(stderr, "unable to open outputfile %s\n", infoname);
 			exit (EXIT_FAILURE);
@@ -538,13 +539,8 @@ while ((auswahl = getopt(argc, argv, "i:o:aAsSMRwpPlehv")) != -1)
 		outmode |= OM_ESSID;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 

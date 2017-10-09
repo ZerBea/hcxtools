@@ -194,7 +194,7 @@ if(fhessid != NULL)
 if(fhhcx != 0)
 	fclose(fhhcx);
 
-return wc ;	
+return wc ;
 }
 /*===========================================================================*/
 long int processhcx(long int hcxsize, hcx_t *zeiger)
@@ -273,11 +273,11 @@ for(p = 0; p < hcxsize; p++)
 
 if(fhessid != NULL)
 	fclose(fhessid);
-	
-if(fhhcx != 0)	
+
+if(fhhcx != 0)
 	fclose(fhhcx);
-	
-return wc;	
+
+return wc;
 }
 /*===========================================================================*/
 bool processdata(char *hcinname)
@@ -309,7 +309,7 @@ if((fhhc = fopen(hcinname, "rb")) == NULL)
 	}
 
 data = malloc(statinfo.st_size);
-if(data == NULL)	
+if(data == NULL)
 	{
 	fprintf(stderr, "out of memory to store hc data\n");
 	return false;
@@ -317,7 +317,7 @@ if(data == NULL)
 
 
 datasize = fread(data, 1, statinfo.st_size, fhhc);
-if(datasize != statinfo.st_size)	
+if(datasize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hc file %s\n", hcinname);
 	free(data);
@@ -334,13 +334,13 @@ zeigerhc = (hccap_t*)(data);
 if(((datasize % HCX_SIZE) == 0) && (zeigerhcx->signature == HCCAPX_SIGNATURE))
 	{
 	printf("%ld record(s) read from %s\n", hcxsize, hcinname);
-	writecounter = processhcx(hcxsize, zeigerhcx); 
+	writecounter = processhcx(hcxsize, zeigerhcx);
 	}
 
 else if((datasize % HCCAP_SIZE) == 0)
 	{
 	printf("%ld record(s) read from %s\n", hcsize, hcinname);
-	writecounter = processhc(hcsize, zeigerhc); 
+	writecounter = processhc(hcsize, zeigerhc);
 	}
 else
 	printf("invalid file size %s\n", hcinname);
@@ -356,6 +356,7 @@ if(writecounter > 0)
 return true;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -396,7 +397,6 @@ while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 
@@ -406,7 +406,7 @@ for (index = optind; index < argc; index++)
 		if(strcmp(argv[index], hcxoutname) == 0)
 			{
 			fprintf(stderr, "\x1B[31mfile skipped (inputname = outputname) %s\x1B[0m\n", (argv[index]));
-			continue;	
+			continue;
 			}
 	if(processdata(argv[index]) == false)
 		{

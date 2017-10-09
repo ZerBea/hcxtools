@@ -82,7 +82,7 @@ fprintf(fhjohn, ":%s:%s:%s::WPA", sta_mac, ap_mac, ap_mac_long);
 if (hc->keyver > 1)
 	fprintf(fhjohn, "%d", hc->keyver);
 
-if((message_pair &0x80) > 1) 
+if((message_pair &0x80) > 1)
 	fprintf(fhjohn, ":verfified:%s\n", basename);
 else
 	fprintf(fhjohn, ":not verfified:%s\n", basename);
@@ -145,7 +145,7 @@ for(p = 0; p < hcxsize; p++)
 		}
 	zeiger++;
 	}
-if(fhjohn != 0)	
+if(fhjohn != 0)
 	fclose(fhjohn);
 
 if(errorcount == 1)
@@ -161,7 +161,7 @@ if(johncount == 1)
 else if(johncount > 1)
 	printf("%ld records written to %s\n", johncount, johnoutname);
 
-return;	
+return;
 }
 /*===========================================================================*/
 bool processdata(char *hcxinname)
@@ -189,7 +189,7 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	}
 
 data = malloc(statinfo.st_size);
-if(data == NULL)	
+if(data == NULL)
 	{
 	fprintf(stderr, "out of memory to store hc data\n");
 	return false;
@@ -197,7 +197,7 @@ if(data == NULL)
 
 
 datasize = fread(data, 1, statinfo.st_size, fhhcx);
-if(datasize != statinfo.st_size)	
+if(datasize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hc file %s\n", hcxinname);
 	free(data);
@@ -210,13 +210,14 @@ zeigerhcx = (hcx_t*)(data);
 if(((datasize % HCX_SIZE) == 0) && (zeigerhcx->signature == HCCAPX_SIGNATURE))
 	{
 	printf("%ld records read from %s\n", hcxsize, hcxinname);
-	processhcx(hcxsize, zeigerhcx, hcxinname); 
+	processhcx(hcxsize, zeigerhcx, hcxinname);
 	}
 
 free(data);
 return true;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -247,17 +248,8 @@ while ((auswahl = getopt(argc, argv, "o:hv")) != -1)
 		johnoutname = optarg;
 		break;
 
-		case 'h':
-		usage(eigenname);
-		break;
-
-		case 'v':
-		usage(eigenname);
-		break;
-
 		default:
 		usage(eigenname);
-		break;
 		}
 	}
 
