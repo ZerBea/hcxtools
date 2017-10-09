@@ -16,6 +16,9 @@
 #include <unistd.h>
 #include <utime.h>
 #include <curl/curl.h>
+#ifdef __APPLE__
+#define strdupa strdup
+#endif
 
 #include "common.h"
 

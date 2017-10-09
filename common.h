@@ -234,7 +234,7 @@ struct essidinfo
 {
  uint8_t info_essid;
  uint8_t info_essid_len;
- uint8_t* essid[0];
+ uint8_t* essid[1];
 } __attribute__((__packed__));
 typedef struct essidinfo essid_t;
 #define	ESSIDINFO_SIZE (sizeof(essid_t))
@@ -685,6 +685,9 @@ struct hcxhrc
 };
 typedef struct hcxhrc hcxhrc_t;
 
+#if __APPLE__
+#define be64toh(n) (((n) << 56) | (((n) & 0xff00) << 40) | (((n) & 0xff0000) << 24) | (((n) & 0xff000000) << 8) | (((n) >> 8) & 0xff000000) | (((n) >> 24) & 0xff0000) | (((n) >> 40) & 0xff00) | ((n) >> 56))
+#endif
 
 /*===========================================================================*/
 /* globale Konstante */

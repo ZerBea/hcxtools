@@ -10,7 +10,13 @@
 #include <time.h>
 #include <pcap.h>
 #include <sys/stat.h>
+#ifdef __APPLE__
+#define strdupa strdup
+#include <libgen.h>
+#else
 #include <stdio_ext.h>
+#endif
+
 #include "common.c"
 #include "com_md5_64.c"
 #include "com_formats.c"

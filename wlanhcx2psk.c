@@ -10,7 +10,12 @@
 #include <time.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#ifdef __APPLE__
+#define strdupa strdup
+#include <libgen.h>
+#else
 #include <stdio_ext.h>
+#endif
 #include <openssl/md5.h>
 
 #include "common.h"

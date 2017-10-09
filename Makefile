@@ -1,16 +1,25 @@
 INSTALLDIR	= /usr/local/bin
 
+HOSTOS := $(shell uname -s)
 OPENCLSUPPORT=off
 GPIOSUPPORT=off
 DOACTIVE=on
 DOSTATUS=on
 
 CC	= gcc
-CFLAGS	= -O3 -Wall -Wextra
+CFLAGS = -std=gnu99 -O3 -Wall -Wextra
+INSTFLAGS = -m 0755
+
+ifeq ($(HOSTOS), Linux)
+INSTFLAGS += -D
+endif
+
+ifeq ($(HOSTOS), Darwin)
+CFLAGS += -L/usr/local/opt/openssl/lib -I/usr/local/opt/openssl/include
+endif
 
 ifeq ($(GPIOSUPPORT), on)
 CFLAGS	+= -DDOGPIOSUPPORT
-
 LFLAGS	= -lcrypt -lwiringPi -lwiringPiDev
 endif
 
@@ -21,9 +30,11 @@ build:
 ifeq ($(GPIOSUPPORT), on)
 	$(CC) $(CFLAGS) -o pioff pioff.c $(LFLAGS)
 endif
+ifeq ($(HOSTOS), Linux)
 	$(CC) $(CFLAGS) -o wlandump-ng wlandump-ng.c -lpcap -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanresponse wlanresponse.c -lpcap -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
+endif
 	$(CC) $(CFLAGS) -o wlancapinfo wlancapinfo.c -lpcap
 	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap -lcrypto
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
@@ -46,36 +57,40 @@ endif
 
 install: build
 ifeq ($(GPIOSUPPORT), on)
-	install -D -m 0755 pioff $(INSTALLDIR)/pioff
+	install $(INSTFLAGS) pioff $(INSTALLDIR)/pioff
 endif
-	install -D -m 0755 wlandump-ng $(INSTALLDIR)/wlandump-ng
-	install -D -m 0755 wlanresponse $(INSTALLDIR)/wlanresponse
-	install -D -m 0755 wlanrcascan $(INSTALLDIR)/wlanrcascan
-	install -D -m 0755 wlancapinfo $(INSTALLDIR)/wlancapinfo
-	install -D -m 0755 wlancap2hcx $(INSTALLDIR)/wlancap2hcx
-	install -D -m 0755 wlanhc2hcx $(INSTALLDIR)/wlanhc2hcx
-	install -D -m 0755 wlanwkp2hcx $(INSTALLDIR)/wlanwkp2hcx
-	install -D -m 0755 wlanhcxinfo $(INSTALLDIR)/wlanhcxinfo
-	install -D -m 0755 wlanhcx2cap $(INSTALLDIR)/wlanhcx2cap
-	install -D -m 0755 wlanhcx2essid $(INSTALLDIR)/wlanhcx2essid
-	install -D -m 0755 wlanhcx2ssid $(INSTALLDIR)/wlanhcx2ssid
-	install -D -m 0755 wlanhcxmnc $(INSTALLDIR)/wlanhcxmnc
-	install -D -m 0755 wlanhashhcx $(INSTALLDIR)/wlanhashhcx
-	install -D -m 0755 wlanhcxcat $(INSTALLDIR)/wlanhcxcat
-	install -D -m 0755 wlanpmk2hcx $(INSTALLDIR)/wlanpmk2hcx
-	install -D -m 0755 wlanjohn2hcx $(INSTALLDIR)/wlanjohn2hcx
-	install -D -m 0755 wlancow2hcxpmk $(INSTALLDIR)/wlancow2hcxpmk
-	install -D -m 0755 whoismac $(INSTALLDIR)/whoismac
-	install -D -m 0755 wlanhcx2john $(INSTALLDIR)/wlanhcx2john
-	install -D -m 0755 wlanhcx2psk $(INSTALLDIR)/wlanhcx2psk
-	install -D -m 0755 wlancap2wpasec $(INSTALLDIR)/wlancap2wpasec
+ifeq ($(HOSTOS), Linux)
+	install $(INSTFLAGS) wlandump-ng $(INSTALLDIR)/wlandump-ng
+	install $(INSTFLAGS) wlanresponse $(INSTALLDIR)/wlanresponse
+	install $(INSTFLAGS) wlanrcascan $(INSTALLDIR)/wlanrcascan
+endif
+	install $(INSTFLAGS) wlancapinfo $(INSTALLDIR)/wlancapinfo
+	install $(INSTFLAGS) wlancap2hcx $(INSTALLDIR)/wlancap2hcx
+	install $(INSTFLAGS) wlanhc2hcx $(INSTALLDIR)/wlanhc2hcx
+	install $(INSTFLAGS) wlanwkp2hcx $(INSTALLDIR)/wlanwkp2hcx
+	install $(INSTFLAGS) wlanhcxinfo $(INSTALLDIR)/wlanhcxinfo
+	install $(INSTFLAGS) wlanhcx2cap $(INSTALLDIR)/wlanhcx2cap
+	install $(INSTFLAGS) wlanhcx2essid $(INSTALLDIR)/wlanhcx2essid
+	install $(INSTFLAGS) wlanhcx2ssid $(INSTALLDIR)/wlanhcx2ssid
+	install $(INSTFLAGS) wlanhcxmnc $(INSTALLDIR)/wlanhcxmnc
+	install $(INSTFLAGS) wlanhashhcx $(INSTALLDIR)/wlanhashhcx
+	install $(INSTFLAGS) wlanhcxcat $(INSTALLDIR)/wlanhcxcat
+	install $(INSTFLAGS) wlanpmk2hcx $(INSTALLDIR)/wlanpmk2hcx
+	install $(INSTFLAGS) wlanjohn2hcx $(INSTALLDIR)/wlanjohn2hcx
+	install $(INSTFLAGS) wlancow2hcxpmk $(INSTALLDIR)/wlancow2hcxpmk
+	install $(INSTFLAGS) whoismac $(INSTALLDIR)/whoismac
+	install $(INSTFLAGS) wlanhcx2john $(INSTALLDIR)/wlanhcx2john
+	install $(INSTFLAGS) wlanhcx2psk $(INSTALLDIR)/wlanhcx2psk
+	install $(INSTFLAGS) wlancap2wpasec $(INSTALLDIR)/wlancap2wpasec
 
 ifeq ($(GPIOSUPPORT), on)
 	rm -f pioff
 endif
+ifeq ($(HOSTOS), Linux)
 	rm -f wlandump-ng
 	rm -f wlanresponse
 	rm -f wlanrcascan
+endif
 	rm -f wlancapinfo
 	rm -f wlancap2hcx
 	rm -f wlanhc2hcx
@@ -102,9 +117,11 @@ clean:
 ifeq ($(GPIOSUPPORT), on)
 	rm -f pioff
 endif
+ifeq ($(HOSTOS), Linux)
 	rm -f wlandump-ng
 	rm -f wlanresponse
 	rm -f wlanrcascan
+endif
 	rm -f wlancapinfo
 	rm -f wlancap2hcx
 	rm -f wlanhc2hcx
@@ -131,9 +148,11 @@ uninstall:
 ifeq ($(GPIOSUPPORT), on)
 	rm -f $(INSTALLDIR)/pioff
 endif
+ifeq ($(HOSTOS), Linux)
 	rm -f $(INSTALLDIR)/wlandump-ng
 	rm -f $(INSTALLDIR)/wlanresponse
 	rm -f $(INSTALLDIR)/wlanrcascan
+endif
 	rm -f $(INSTALLDIR)/wlandumpfix
 	rm -f $(INSTALLDIR)/wlancapinfo
 	rm -f $(INSTALLDIR)/wlancap2hcx
