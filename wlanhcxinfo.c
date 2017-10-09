@@ -484,7 +484,7 @@ while ((auswahl = getopt(argc, argv, "i:o:aAsSMRwpPlehv")) != -1)
 		case 'o':
 		infoname = optarg;
 		fclose(stdout);
-		if ((stdout = fopen(infoname,"w")) == NULL)
+		if ((fopen(infoname,"w")) == NULL)
 			{
 			fprintf(stderr, "unable to open outputfile %s\n", infoname);
 			exit (EXIT_FAILURE);

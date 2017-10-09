@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <endian.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
