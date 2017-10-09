@@ -598,6 +598,8 @@ for(d = 0; d < 1000; d++)
 	{
 	snprintf(pskstring, 64, "%s%03d", basestring, d);
 	writepsk(pskstring);
+	snprintf(pskstring, 64, "%03d%s", d, basestring);
+	writepsk(pskstring);
 	}
 return;
 }
@@ -609,6 +611,8 @@ int d;
 for(d = 0; d < 100; d++)
 	{
 	snprintf(pskstring, 64, "%s%02d", basestring, d);
+	writepsk(pskstring);
+	snprintf(pskstring, 64, "%02d%s", d, basestring);
 	writepsk(pskstring);
 	}
 return;
@@ -622,6 +626,8 @@ for(d = 0; d < 10; d++)
 	{
 	snprintf(pskstring, 64, "%s%d", basestring, d);
 	writepsk(pskstring);
+	snprintf(pskstring, 64, "%d%s", d, basestring);
+	writepsk(pskstring);
 	}
 return;
 }
@@ -633,6 +639,8 @@ int y;
 for(y = 1900; y <= thisyear; y++)
 	{
 	snprintf(pskstring, 64, "%s%04d", basestring, y);
+	writepsk(pskstring);
+	snprintf(pskstring, 64, "%04d%s", y, basestring);
 	writepsk(pskstring);
 	}
 return;
