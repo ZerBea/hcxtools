@@ -988,7 +988,7 @@ char *keyvername = NULL;
 char *singlenetname = NULL;
 char *singlenetname1 = NULL;
 char *vendorname = NULL;
-char *workingdirname;
+char *workingdirname = NULL;
 char *wdres;
 char workingdir[PATH_MAX +1];
 

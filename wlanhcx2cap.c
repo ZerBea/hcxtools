@@ -234,13 +234,11 @@ bool mac12checkdouble(hcx_t *zeiger, long int akthccapset, long int hccapsets)
 {
 hcx_t *zeigertest = zeiger;
 int p;
-for(p = akthccapset +1; p < hccapsets; p++)
+for(p = akthccapset +1; p < hccapsets;)
 	{
 	zeigertest++;
 	if((memcmp(zeigertest->mac_ap.addr, zeiger->mac_ap.addr, 6) == 0) && (memcmp(zeigertest->mac_sta.addr, zeiger->mac_sta.addr, 6) == 0) && (zeigertest->message_pair == zeiger->message_pair))
 		return true;
-
-	return false;
 	}
 return false;
 }

@@ -185,6 +185,7 @@ close(sock);
 return;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 void pcaploop(int has_rth)
 {
 const uint8_t *packet = NULL;
@@ -315,7 +316,6 @@ while(1)
 			}
 		}
 	}
-return;
 }
 /*===========================================================================*/
 bool startcapturing()
@@ -344,9 +344,6 @@ signal(SIGALRM, sigalarm);
 alarm(ALARMTIME);
 
 pcaploop(has_rth);
-
-pcap_close(pcapin);
-printf("program unconditionally stopped...\n");
 return true;
 }
 /*===========================================================================*/

@@ -767,7 +767,6 @@ else
 		return WPA_M2;
 		}
 	}
-return 0;
 }
 /*===========================================================================*/
 
@@ -901,6 +900,7 @@ close(sock);
 return;
 }
 /*===========================================================================*/
+__attribute__ ((noreturn))
 void pcaploop(int has_rth)
 {
 const uint8_t *packet = NULL;
@@ -1226,7 +1226,6 @@ while(1)
 		continue;
 		}
 	}
-return;
 }
 /*===========================================================================*/
 void installbpf(pcap_t *pcapin, char *externalbpfname)
@@ -1365,10 +1364,6 @@ set_timer(timer1, TIME_INTERVAL_1S, TIME_INTERVAL_1NS);
 set_timer(timer2, staytime, TIME_INTERVAL_2NS);
 
 pcaploop(has_rth);
-
-pcap_dump_flush(pcapout);
-pcap_dump_close(pcapout);
-pcap_close(pcapin);
 return true;
 }
 /*===========================================================================*/
