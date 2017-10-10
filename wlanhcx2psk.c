@@ -528,10 +528,35 @@ writepsk(pskstring);
 snprintf(pskstring, 64, "m%012llX", mac);
 writepsk(pskstring);
 
-snprintf(pskstring, 64, "8747%04llx", mac &0xffff);
+snprintf(pskstring, 64, "8747%06llx", mac &0xffffff);
 writepsk(pskstring);
 
 snprintf(pskstring, 64, "555A5053%08llX", mac &0xffffffff);
+writepsk(pskstring);
+
+snprintf(pskstring, 64, "555A5053%08llX", mac &0xffffffff);
+writepsk(pskstring);
+
+snprintf(pskstring, 64, "PLDTWIFI%05llX", mac &0xfffff);
+writepsk(pskstring);
+
+snprintf(pskstring, 64, "myBROWIFI%05llX", mac &0xfffff);
+writepsk(pskstring);
+
+return;
+}
+/*===========================================================================*/
+void keywritemaccaesar(unsigned long long int mac)
+{
+int c;
+int k = 0;
+
+uint8_t caesar1[] = { 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8, 0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0 };
+
+for(c = 20; c >= 0; c -=4)
+	k |= caesar1[mac >> c &0xf] << c; 
+
+snprintf(pskstring, 64, "wlan%06x", k);
 writepsk(pskstring);
 
 return;
@@ -582,6 +607,8 @@ while(c < hcxrecords)
 	keywritemacrange(mac);
 	keywritemacvariants(mac);
 	keywritemacvariants(mac -1);
+	keywritemaccaesar(mac);
+	keywritemaccaesar(mac -1);
 	keywritemd5mac(mac);
 	keywritemd5mac(mac -1);
 	c++;
