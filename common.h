@@ -1,6 +1,6 @@
 #include "berkeleyfilter.h"
 
-#define VERSION "4.0.0-rc2"
+#define VERSION "4.0.0-rc3"
 #define VERSION_JAHR "2017"
 
 #define NEWENTY -1

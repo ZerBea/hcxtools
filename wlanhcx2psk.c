@@ -655,6 +655,15 @@ writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
+void keywritepreappend1(char *basestring)
+{
+snprintf(pskstring, 64, "%s!", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "!%s", basestring);
+writepsk(pskstring);
+return;
+}
+/*===========================================================================*/
 void sweepessidstr(int essidlenin, uint8_t *essidstrin)
 {
 int l1, l2;
@@ -677,7 +686,10 @@ for(l1 = 4; l1 <= essidlenin; l1++)
 			keywritepreappend4(essidstr);
 			}
 		if((l1 > 6) && (l1 < 63))
+			{
 			keywriteessiddigitx(essidstr);
+			keywritepreappend1(essidstr);
+			}
 		if((l1 > 5) && (l1 < 62))
 			keywriteessiddigitxx(essidstr);
 		if((l1 > 4) && (l1 < 61))
