@@ -646,6 +646,15 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
+void keywritepreappend4(char *basestring)
+{
+snprintf(pskstring, 64, "%s1234", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "1234%s", basestring);
+writepsk(pskstring);
+return;
+}
+/*===========================================================================*/
 void sweepessidstr(int essidlenin, uint8_t *essidstrin)
 {
 int l1, l2;
@@ -663,7 +672,10 @@ for(l1 = 4; l1 <= essidlenin; l1++)
 		if(l1 >= 8)
 			writepsk(essidstr);
 		if(l1 < 60)
+			{
 			keywriteessidyear(essidstr);
+			keywritepreappend4(essidstr);
+			}
 		if((l1 > 6) && (l1 < 63))
 			keywriteessiddigitx(essidstr);
 		if((l1 > 5) && (l1 < 62))
