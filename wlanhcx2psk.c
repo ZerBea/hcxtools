@@ -108,6 +108,7 @@ return;
 void keywriteweakpass()
 {
 size_t w;
+int y;
 
 const char *weakword[] =
 {
@@ -166,6 +167,11 @@ const char *weakword[] =
 for(w = 0; w < (sizeof(weakword) / sizeof(weakword[0])); w++)
 	writepsk(weakword[w]);
 
+for(y = 1900; y <= thisyear; y++)
+	{
+	snprintf(pskstring, 64, "abcd%04d", y);
+	writepsk(pskstring);
+	}
 return;
 }
 /*===========================================================================*/
