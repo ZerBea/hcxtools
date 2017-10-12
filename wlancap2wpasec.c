@@ -14,8 +14,9 @@
 /*===========================================================================*/
 /* globale Konstante */
 
+long int uploadcountok;
+long int uploadcountfailed;
 const char *wpasecurl = "http://wpa-sec.stanev.org";
-
 /*===========================================================================*/
 int testwpasec(long int timeout)
 {
@@ -64,11 +65,16 @@ if(curl)
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 	res = curl_easy_perform(curl);
-	if(res != CURLE_OK)
-		fprintf(stderr, "\x1B[31mupload to %s failed: %s\x1B[0m\n\n", wpasecurl, curl_easy_strerror(res));
-
-	else
+	if(res == CURLE_OK)
+		{
 		printf("\x1B[32mupload done\x1B[0m\n\n");
+		uploadcountok++;
+		}
+	else
+		{
+		fprintf(stderr, "\x1B[31mupload to %s failed: %s\x1B[0m\n\n", wpasecurl, curl_easy_strerror(res));
+		uploadcountfailed++;
+		}
 
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
@@ -101,6 +107,8 @@ long int timeout = 30;
 char *eigenname = NULL;
 char *eigenpfadname = NULL;
 
+uploadcountok = 0;
+uploadcountfailed = 0;
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
@@ -132,6 +140,17 @@ for(index = optind; index < argc; index++)
 		sendcap2wpasec(argv[index], timeout);
 	}
 
+if(uploadcountok == 1)
+	printf("\x1B[32m%ld cap uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
+
+if(uploadcountok > 1)
+	printf("\x1B[32m%ld caps uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
+
+if(uploadcountfailed == 1)
+	printf("\x1B[31m%ld cap failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
+
+if(uploadcountfailed > 1)
+	printf("\x1B[31m%ld caps failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
 
 return EXIT_SUCCESS;
 }
