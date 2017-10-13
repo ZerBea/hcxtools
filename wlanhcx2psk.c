@@ -746,6 +746,60 @@ for(l1 = 3; l1 <= essidlenin; l1++)
 return;
 }
 /*===========================================================================*/
+void getxdigitsweepessidstr(int essidlenin, uint8_t *essidstrin)
+{
+int p1,p2;
+int essidlenneu;
+bool removeflag = false;
+uint8_t essidstr[34];
+
+memset(&essidstr, 0, 34);
+essidlenneu = essidlenin;
+p2 = 0;
+for(p1 = 0; p1 < essidlenin; p1++)
+	{
+	if(isxdigit(essidstrin[p1]))
+		{
+		essidstr[p2] = essidstrin[p1];
+		removeflag = true;
+		p2++;
+		}
+	else
+		essidlenneu--;
+	}
+
+if(removeflag == true)
+	sweepessidstr(essidlenneu, essidstr);
+return;
+}
+/*===========================================================================*/
+void getdigitsweepessidstr(int essidlenin, uint8_t *essidstrin)
+{
+int p1,p2;
+int essidlenneu;
+bool removeflag = false;
+uint8_t essidstr[34];
+
+memset(&essidstr, 0, 34);
+essidlenneu = essidlenin;
+p2 = 0;
+for(p1 = 0; p1 < essidlenin; p1++)
+	{
+	if(isdigit(essidstrin[p1]))
+		{
+		essidstr[p2] = essidstrin[p1];
+		removeflag = true;
+		p2++;
+		}
+	else
+		essidlenneu--;
+	}
+
+if(removeflag == true)
+	sweepessidstr(essidlenneu, essidstr);
+return;
+}
+/*===========================================================================*/
 void removesweepessidstr(int essidlenin, uint8_t *essidstrin)
 {
 int p1,p2;
@@ -771,7 +825,6 @@ for(p1 = 0; p1 < essidlenin; p1++)
 
 if(removeflag == true)
 	sweepessidstr(essidlenneu, essidstr);
-
 return;
 }
 /*===========================================================================*/
@@ -810,6 +863,8 @@ while(c < hcxrecords)
 		}
 	sweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
 	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
+	getxdigitsweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
+	getdigitsweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
 	c++;
 	}
 
