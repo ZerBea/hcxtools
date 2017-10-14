@@ -100,6 +100,7 @@ int staytime = TIME_INTERVAL_2S;
 uint8_t modepassiv = false;
 uint8_t ipv46 = false;
 uint8_t wepdata = false;
+
 int deauthmaxcount = DEAUTHMAXCOUNT;
 int disassocmaxcount = DISASSOCMAXCOUNT;
 uint8_t resetdedicount = false;
@@ -115,8 +116,8 @@ int externalm1 = 0;
 int externalm2 = 0;
 int externalm3 = 0;
 int externalm4 = 0;
-
-int internalpcaperrors = 0;
+int maxerrorcount;
+int internalpcaperrors;
 int aplistesize = APLISTESIZEMAX;
 unsigned long long int myoui;
 unsigned long long int mynic;
@@ -312,7 +313,7 @@ const char *hiddenstr = "<hidden ssid>";
 
 printf( "\033[H\033[J"
 	"interface................................: %s\n"
-	"internal pcap errors.....................: %d\n"
+	"internal pcap errors/maximal pcap errors.: %d/%d\n"
 	"interface channel/hop timer..............: %02d/%d\n"
 	"private-mac (oui/nic)....................: %06llx%06llx\n"
 	"deauthentication/disassociation count....: %d/%d\n"
@@ -324,7 +325,7 @@ printf( "\033[H\033[J"
 	"\n"
 	"mac_ap       hs xe essid (countdown until next deauthentication/disassociation)\n"
 	"-------------------------------------------------------------------------------\n",
-	interfacename, internalpcaperrors, channellist[chptr], staytime, myoui, mynic, deauthmaxcount, disassocmaxcount, internalbeacons,
+	interfacename, internalpcaperrors, maxerrorcount, channellist[chptr], staytime, myoui, mynic, deauthmaxcount, disassocmaxcount, internalbeacons,
 	aplistesize,  internalproberequests, internalproberesponses, internalassociationrequests, internalreassociationrequests,
 	internalm1, internalm2, externalm1, externalm2, externalm3, externalm4);
 
@@ -1159,6 +1160,8 @@ while(1)
 		{
 		fprintf(stderr, "pcap read error: %s \n", pcap_geterr(pcapin));
 		internalpcaperrors++;
+		if((maxerrorcount > 0) && (internalpcaperrors >= maxerrorcount))
+			system("reboot");
 		continue;
 		}
 
@@ -1644,6 +1647,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-t <seconds>   : stay time on channel before hopping to the next channel\n"
 	"               : for fixed channel operation use high value (86400 for a day)\n"
 	"               : default = 5 seconds\n"
+	"-T <maxerrors> : set maximal pcap errors (default = 0)\n"
+	"               : automatic reboot the system if maximal errors reached\n"
 	"-c <channel>   : set start channel for hopping (1 - 13)\n"
 	"               : 2.4GHz (1 - 13) \n"
 	"-C <channel>   : set start channel for hopping (1 - 165)\n"
@@ -1739,9 +1744,11 @@ char pcaperrorstring[PCAP_ERRBUF_SIZE];
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
+maxerrorcount = 0;
+internalpcaperrors = 0;
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:F:rbplLhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:T:c:C:d:D:s:m:F:rbplLhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1765,6 +1772,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:c:C:d:D:s:m:F:rbplLhv")) != -1)
 			fprintf(stderr, "wrong hoptime\nsetting hoptime to 1\n");
 			staytime = TIME_INTERVAL_2S;
 			}
+		break;
+
+		case 'T':
+		maxerrorcount = strtol(optarg, NULL, 10);
 		break;
 
 		case 'c':

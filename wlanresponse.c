@@ -89,6 +89,9 @@ unsigned long long int myoui;
 unsigned long long int mynic;
 unsigned long long int mymac;
 
+int maxerrorcount;
+int internalpcaperrors;
+
 timer_t timer1;
 timer_t timer2;
 
@@ -934,6 +937,8 @@ while(1)
 	if(pcapstatus == -1)
 		{
 		fprintf(stderr, "pcap read error: %s \n", pcap_geterr(pcapin));
+		if((maxerrorcount > 0) && (internalpcaperrors >= maxerrorcount))
+			system("reboot");
 		continue;
 		}
 
@@ -1386,6 +1391,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <file>      : output cap file\n"
 	"-t <seconds>   : stay time on channel before hopping to the next channel\n"
 	"               : default: %d seconds\n"
+	"-T <maxerrors> : set maximal pcap errors (default = 0)\n"
+	"               : automatic reboot the system if maximal errors reached\n"
 	"-l             : capture IPv4 and IPv6 packets\n"
 	"-L             : capture wep encrypted data packets\n"
 	"-b             : activate beaconing on last 10 proberequests\n"
@@ -1433,9 +1440,11 @@ char pcaperrorstring[PCAP_ERRBUF_SIZE];
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
+maxerrorcount = 0;
+internalpcaperrors = 0;
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:t:F:lLbhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:t:T:F:lLbhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1463,6 +1472,10 @@ while ((auswahl = getopt(argc, argv, "i:o:t:F:lLbhv")) != -1)
 			fprintf(stderr, "wrong hoptime\nsetting hoptime to %d seconds\n", TIME_INTERVAL_2S);
 			staytime = TIME_INTERVAL_2S;
 			}
+		break;
+
+		case 'T':
+		maxerrorcount = strtol(optarg, NULL, 10);
 		break;
 
 		case 'l':
