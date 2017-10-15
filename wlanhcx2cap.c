@@ -253,6 +253,7 @@ void writecap(char *capoutname, long int hccapsets)
 {
 int p;
 long int pcapcount = 0;
+long int notwrittencount = 0;
 uint8_t keynr = 0;
 hcx_t *zeiger;
 
@@ -275,7 +276,7 @@ for(p = 0; p < hccapsets; p++)
 			sprintf(pcapoutstr, "%s-%s-%s-wf.cap", capoutname, macstr_ap, macstr_sta);
 
 		else
-			sprintf(pcapoutstr, "%s-%s-%s-%d.cap", capoutname, macstr_ap, macstr_sta, zeiger->message_pair);
+			sprintf(pcapoutstr, "%s-%s-%s-%02x.cap", capoutname, macstr_ap, macstr_sta, zeiger->message_pair);
 
 		pcapdh = pcap_open_dead(DLT_IEEE802_11, 65535);
 		if((pcapdump = pcap_dump_open(pcapdh, pcapoutstr)) != NULL)
@@ -289,10 +290,21 @@ for(p = 0; p < hccapsets; p++)
 			fprintf(stderr, "error opening dump file %s\n", pcapoutstr);
 			}
 		}
+	else
+		notwrittencount++;
 	zeiger++;
 	}
 
-printf("%ld pcap(s) written to single cap files\n", pcapcount);
+if(pcapcount == 1)
+	printf("%ld handshake written to single cap file\n", pcapcount);
+else 
+	printf("%ld handshakes written to single cap files\n", pcapcount);
+
+if(notwrittencount == 1)
+	printf("%ld handshake not written (‎irreversible messagepair)\n", notwrittencount);
+else
+	printf("%ld handshakes not written (‎irreversible messagepair)\n", notwrittencount);
+
 return;
 }
 /*===========================================================================*/
@@ -300,6 +312,7 @@ void writesinglecap(char *singlecapoutname, long int hccapsets)
 {
 int p;
 long int pcapcount = 0;
+long int notwrittencount = 0;
 uint8_t keynr = 0;
 hcx_t *zeiger;
 
@@ -322,11 +335,22 @@ for(p = 0; p < hccapsets; p++)
 		pcapwritepaket(pcapdump, zeiger);
 		pcapcount++;
 		}
+	else
+		notwrittencount++;
 	zeiger++;
 	}
 pcap_dump_close(pcapdump);
 
-printf("%ld pcap(s) written to %s\n", pcapcount, singlecapoutname);
+if(pcapcount == 1)
+	printf("%ld handshake written to %s\n", pcapcount, singlecapoutname);
+else
+	printf("%ld handshakes written to %s\n", pcapcount, singlecapoutname);
+
+if(notwrittencount == 1)
+	printf("%ld handshake not written (‎irreversible messagepair)\n", notwrittencount);
+else
+	printf("%ld handshakes not written (‎irreversible messagepair)\n", notwrittencount);
+
 return;
 }
 /*===========================================================================*/
@@ -392,7 +416,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <prefix> : output prefix cap file (mac_ap - mac_sta - messagepair or wf.cap is added to the prefix)\n"
 	"            : not all possible handshakes are written to a cap file - only one each messagepair\n"
 	"            : prefix - mac_ap - mac_sta - messagepair or wf (wlandumpforced handshake).cap\n"
-	"            : example: pfx-xxxxxxxxxxxx-xxxxxxxxxxxx-xxx.cap\n"
+	"            : example: pfx-xxxxxxxxxxxx-xxxxxxxxxxxx-xx.cap\n"
 	"-h          : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
