@@ -85,7 +85,7 @@ while(c < hcxrecords)
 	zeigerhcx = hcxdata +c;
 		{
 		keyver = geteapkeyver(zeigerhcx->eapol);
-		sprintf(keyveroutname, "%s.kver%d.hccapx", keyvername, keyver);
+		sprintf(keyveroutname, "%s.%x.hccapx", keyvername, keyver);
 		if((fhhcx = fopen(keyveroutname, "ab")) == NULL)
 			{
 			fprintf(stderr, "error opening file %s", keyveroutname);
@@ -947,16 +947,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-3 <file>     : write only MESSAGE_PAIR_M32E3 to hccapx file\n"
 	"-4 <file>     : write only MESSAGE_PAIR_M34E3 to hccapx file\n"
 	"-5 <file>     : write only MESSAGE_PAIR_M34E4 to hccapx file\n"
-	"-k <file>     : write keyversion based files (use only basename)\n"
-	"              : output:\n"
-	"              : Groupkeys..................... basename.kv0.hccapx\n"
-	"              : WPA1 RC4 Cipher, HMAC-MD5..... basename.kv1.hccapx\n"
-	"              : WPA2 AES Cipher, HMAC-SHA1.... basename.kv2.hccapx\n"
-	"              : WPA2 AES Cipher, AES-128-CMAC2 basename.kv3.hccapx\n"
-	"              : Groupkeys..................... basename.kv4.hccapx\n"
-	"              : Groupkeys..................... basename.kv5.hccapx\n"
-	"              : Groupkeys..................... basename.kv6.hccapx\n"
-	"              : Groupkeys..................... basename.kv7.hccapx\n"
+	"-k <file>     : write keyversion based on key information field (use only basename)\n"
+	"              : output: basename.x.hccapx\n"
+	"              : WPA1 RC4 Cipher, HMAC-MD5..... basename.1.hccapx\n"
+	"              : WPA2 AES Cipher, HMAC-SHA1.... basename.2.hccapx\n"
+	"              : WPA2 AES Cipher, AES-128-CMAC2 basename.3.hccapx\n"
+	"              : all other are unknown\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);

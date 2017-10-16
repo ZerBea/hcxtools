@@ -109,6 +109,16 @@ eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO
 return eapkeyver;
 }
 /*===========================================================================*/
+uint8_t getpwgpinfo(uint8_t *eapdata)
+{
+eap_t *eap;
+int eapkeyver;
+
+eap = (eap_t*)(uint8_t*)(eapdata);
+eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_KEY_TYPE);
+return eapkeyver;
+}
+/*===========================================================================*/
 unsigned long long int geteapreplaycount(uint8_t *eapdata)
 {
 eap_t *eap;
@@ -134,7 +144,9 @@ long int c, c1;
 uint8_t pf;
 uint8_t eapver;
 uint8_t keyver;
+uint8_t pwgpinfo;
 uint8_t keytype;
+
 unsigned long long int replaycount;
 
 long int totalrecords = 0;
@@ -144,7 +156,7 @@ long int xverc2 = 0;
 long int wpakv1c = 0;
 long int wpakv2c = 0;
 long int wpakv3c = 0;
-long int wpakv4c = 0;
+long int groupkeycount = 0;
 
 long int mp0c = 0;
 long int mp1c = 0;
@@ -176,7 +188,7 @@ while(c < hcxrecords)
 	zeigerhcx = hcxdata +c;
 	eapver = get8021xver(zeigerhcx->eapol);
 	keyver = geteapkeyver(zeigerhcx->eapol);
-
+	pwgpinfo = getpwgpinfo(zeigerhcx->eapol);
 	if(keyver == 1)
 		wpakv1c++;
 
@@ -186,8 +198,8 @@ while(c < hcxrecords)
 	if(keyver == 3)
 		wpakv3c++;
 
-	if((keyver &4) == 4)
-		wpakv4c++;
+	if((pwgpinfo) == 0)
+		groupkeycount++;
 
 
 	replaycount = geteapreplaycount(zeigerhcx->eapol);
@@ -372,14 +384,14 @@ if(outmode == 0)
 			"WPA1 RC4 Cipher, HMAC-MD5.........: %ld\n"
 			"WPA2 AES Cipher, HMAC-SHA1........: %ld\n"
 			"WPA2 AES Cipher, AES-128-CMAC.....: %ld\n"
-			"Group keys........................: %ld\n"
+			"Group key flag set................: %ld\n"
 			"message pair M12E2................: %ld (%ld not replaycount checked)\n"
 			"message pair M14E4................: %ld (%ld not replaycount checked)\n"
 			"message pair M32E2................: %ld (%ld not replaycount checked)\n"
 			"message pair M32E3................: %ld (%ld not replaycount checked)\n"
 			"message pair M34E3................: %ld (%ld not replaycount checked)\n"
 			"message pair M34E4................: %ld (%ld not replaycount checked)"
-			"\n", totalrecords, wldcount, noessidcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, wpakv4c, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			"\n", totalrecords, wldcount, noessidcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, groupkeycount, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == true)
 		fprintf(stdout, "\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
