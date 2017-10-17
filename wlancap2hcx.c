@@ -68,7 +68,7 @@ hc5500chap_t hcleapchap;
 long int wpakv1c = 0;
 long int wpakv2c = 0;
 long int wpakv3c = 0;
-long int wpakv4c = 0;
+long int groupkeycount = 0;
 
 char *hcxoutname = NULL;
 char *hcxoutnamenec = NULL;
@@ -478,7 +478,7 @@ if(hcxrecord.keyver == 2)
 if(hcxrecord.keyver == 3)
 	wpakv3c++;
 if((hcxrecord.keyver &4) == 4)
-	wpakv4c++;
+	groupkeycount++;
 
 memset(&pmk, 0,32);
 if((weakpassflag == true) && (wpatesthash(&hcxrecord, pmk) == true))
@@ -516,6 +516,7 @@ FILE *fhhcx = NULL;
 
 unsigned long long int r;
 bool wldflagint = false;
+uint8_t pwgpinfo;
 
 uint8_t pmk[32];
 
@@ -528,6 +529,7 @@ hcxrecord.message_pair = message_pair;
 hcxrecord.essid_len = essid_len;
 memcpy(hcxrecord.essid, essid, essid_len);
 hcxrecord.keyver = ((((eap1->keyinfo & 0xff) << 8) | (eap1->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
+pwgpinfo = ((((eap1->keyinfo & 0xff) << 8) | (eap1->keyinfo >> 8)) & WPA_KEY_INFO_KEY_TYPE);
 memcpy(hcxrecord.mac_ap.addr, zeiger1->mac_ap.addr, 6);
 memcpy(hcxrecord.nonce_ap, eap1->nonce, 32);
 memcpy(hcxrecord.mac_sta.addr, zeiger2->mac_sta.addr, 6);
@@ -558,8 +560,8 @@ if(hcxrecord.keyver == 2)
 	wpakv2c++;
 if(hcxrecord.keyver == 3)
 	wpakv3c++;
-if((hcxrecord.keyver &4) == 4)
-	wpakv4c++;
+if(pwgpinfo == 0)
+	groupkeycount++;
 
 memset(&pmk, 0,32);
 if((weakpassflag == true) && (wpatesthash(&hcxrecord, pmk) == true))
@@ -1261,7 +1263,7 @@ hcxwriteneccount = 0;
 wpakv1c = 0;
 wpakv2c = 0;
 wpakv3c = 0;
-wpakv4c = 0;
+groupkeycount = 0;
 
 
 if(!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
@@ -2097,8 +2099,8 @@ if(wpakv2c > 0)
 if(wpakv3c > 0)
 	printf("\x1B[32mfound %ld WPA2 AES Cipher, AES-128-CMAC\x1B[0m\n", wpakv3c);
 
-if(wpakv4c > 0)
-	printf("\x1B[32mfound %ld Groupkeys\x1B[0m\n", wpakv4c);
+if(groupkeycount > 0)
+	printf("\x1B[32mfound %ld groupkeys\x1B[0m\n", groupkeycount);
 
 if(hcxwritewldcount == 1)
 	{
