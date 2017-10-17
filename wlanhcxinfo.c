@@ -384,7 +384,7 @@ if(outmode == 0)
 			"WPA1 RC4 Cipher, HMAC-MD5.........: %ld\n"
 			"WPA2 AES Cipher, HMAC-SHA1........: %ld\n"
 			"WPA2 AES Cipher, AES-128-CMAC.....: %ld\n"
-			"Group key flag set................: %ld\n"
+			"group key flag set................: %ld\n"
 			"message pair M12E2................: %ld (%ld not replaycount checked)\n"
 			"message pair M14E4................: %ld (%ld not replaycount checked)\n"
 			"message pair M32E2................: %ld (%ld not replaycount checked)\n"
