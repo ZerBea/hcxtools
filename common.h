@@ -1,6 +1,6 @@
 #include "berkeleyfilter.h"
 
-#define VERSION "4.0.0-rc5"
+#define VERSION "4.0.0-rc6"
 #define VERSION_JAHR "2017"
 
 #define NEWENTY -1
@@ -299,7 +299,7 @@ struct eap_frame
  uint64_t	replaycount;
  uint8_t	nonce[32];
  uint8_t	keyiv[16];
- uint8_t	keyrsc[8];
+ uint64_t	keyrsc;
  uint8_t	keyid[8];
  uint8_t	keymic[16];
  uint16_t	wpadatalen;
