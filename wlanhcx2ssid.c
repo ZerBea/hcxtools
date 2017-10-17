@@ -253,6 +253,72 @@ printf("%ld records written to %s\n", rw, mpname);
 return true;
 }
 /*===========================================================================*/
+uint8_t getpwgpinfo(uint8_t *eapdata)
+{
+eap_t *eap;
+int eapkeyver;
+
+eap = (eap_t*)(uint8_t*)(eapdata);
+eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_KEY_TYPE);
+return eapkeyver;
+}
+/*===========================================================================*/
+int writegroupkeysethccapx(long int hcxrecords, char *groupkeyname)
+{
+hcx_t *zeigerhcx;
+long int c;
+long int rw = 0;
+FILE *fhhcx;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if(getpwgpinfo(zeigerhcx->eapol) == 0)
+		{
+		if((fhhcx = fopen(groupkeyname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", groupkeyname);
+			return false;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		fclose(fhhcx);
+		}
+	c++;
+	}
+printf("%ld records written to %s\n", rw, groupkeyname);
+return true;
+}
+/*===========================================================================*/
+int writepairwisesethccapx(long int hcxrecords, char *pairwisekeyname)
+{
+hcx_t *zeigerhcx;
+long int c;
+long int rw = 0;
+FILE *fhhcx;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	if(getpwgpinfo(zeigerhcx->eapol) == 8)
+		{
+		if((fhhcx = fopen(pairwisekeyname, "ab")) == NULL)
+			{
+			fprintf(stderr, "error opening file %s", pairwisekeyname);
+			return false;
+			}
+		fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+		rw++;
+		fclose(fhhcx);
+		}
+	c++;
+	}
+printf("%ld records written to %s\n", rw, pairwisekeyname);
+return true;
+}
+/*===========================================================================*/
 int writercnotcheckedhccapx(long int hcxrecords, char *rcnotckeckedname)
 {
 hcx_t *zeigerhcx;
@@ -941,6 +1007,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-R <file>     : write only not replaycount checked to hccapx file\n"
 	"-N <file>     : output stripped file (only one record each mac_ap, mac_sta, essid, message_pair combination)\n"
 	"-n <file>     : output stripped file (only one record each mac_sta, essid)\n"
+	"-g <file>     : write only hashes with pairwise key flag set\n"
+	"-G <file>     : write only hashes with groupkey flag set\n"
 	"-0 <file>     : write only MESSAGE_PAIR_M12E2 to hccapx file\n"
 	"-1 <file>     : write only MESSAGE_PAIR_M14E4 to hccapx file\n"
 	"-2 <file>     : write only MESSAGE_PAIR_M32E2 to hccapx file\n"
@@ -985,6 +1053,8 @@ char *keyvername = NULL;
 char *singlenetname = NULL;
 char *singlenetname1 = NULL;
 char *vendorname = NULL;
+char *groupkeyname = NULL;
+char *pairwisekeyname = NULL;
 char *workingdirname = NULL;
 char *wdres;
 char workingdir[PATH_MAX +1];
@@ -996,7 +1066,7 @@ setbuf(stdout, NULL);
 wdres = getcwd(workingdir, PATH_MAX);
 if(wdres != NULL)
 	workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:0:1:2:3:4:5:k:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:2:3:4:5:k:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1127,6 +1197,16 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:0:1:2:3:
 		case 'n':
 		singlenetname1 = optarg;
 		mode = 'n';
+		break;
+
+		case 'g':
+		pairwisekeyname = optarg;
+		mode = 'g';
+		break;
+
+		case 'G':
+		groupkeyname = optarg;
+		mode = 'G';
 		break;
 
 		case '0':
@@ -1268,6 +1348,19 @@ else if(mode == 'M')
 	if(mpname != NULL)
 		writemessagepairhccapx(hcxorgrecords, mpname, message_pair);
 	}
+
+else if(mode == 'g')
+	{
+	if(pairwisekeyname != NULL)
+		writepairwisesethccapx(hcxorgrecords, pairwisekeyname);
+	}
+
+else if(mode == 'G')
+	{
+	if(groupkeyname != NULL)
+		writegroupkeysethccapx(hcxorgrecords, groupkeyname);
+	}
+
 
 else if(mode == 'k')
 	{
