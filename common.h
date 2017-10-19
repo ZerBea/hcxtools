@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "berkeleyfilter.h"
 
 #if __APPLE__
@@ -241,12 +242,12 @@ typedef struct beaconinfo beacon_t;
 
 struct essidinfo
 {
- uint8_t info_essid;
- uint8_t info_essid_len;
- uint8_t *essid[0];
+    uint8_t info_essid;
+    uint8_t info_essid_len;
+    uint8_t *essid[1];
 } __attribute__((__packed__));
 typedef struct essidinfo essid_t;
-#define	ESSIDINFO_SIZE (sizeof(essid_t))
+#define    ESSIDINFO_SIZE offsetof(essid_t, essid)
 
 
 struct authenticationf
