@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
@@ -144,7 +145,7 @@ if((pppchaph->code == PPPCHAP_CHALLENGE) && (pppchaph->u.challenge.datalen == 16
 		{
 		if((fhuser = fopen(usernameoutname, "a+")) == NULL)
 			{
-			fprintf(stderr, "error opening username/identity file %s\n", usernameoutname);
+			fprintf(stderr, "error opening username/identity file %s: %s\n", usernameoutname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
 		fprintf(fhuser, "%s\n", hcleapchap.usernames);
@@ -165,7 +166,7 @@ if(pppchaph->code == PPPCHAP_RESPONSE)
 		{
 		if((fhuser = fopen(usernameoutname, "a+")) == NULL)
 			{
-			fprintf(stderr, "error opening username/identity file %s\n", usernameoutname);
+			fprintf(stderr, "error opening username/identity file %s: %s\n", usernameoutname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
 		fprintf(fhuser, "%s\n", hcleapchap.usernamec);
@@ -197,7 +198,7 @@ if((hcleapchap.p1 == true) && (hcleapchap.p2 == true) && (memcmp(&hcleapchap.mac
 		{
 		if((fhhash = fopen(hc5500outname, "a+")) == NULL)
 			{
-			fprintf(stderr, "error opening netNTLMv1 file %s\n", hc5500outname);
+			fprintf(stderr, "error opening netNTLMv1 file %s: %s\n", hc5500outname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
 
@@ -256,7 +257,7 @@ if((changeflag == true) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == true) && (hc
 		{
 		if((fhhash = fopen(hc4800outname, "a+")) == NULL)
 			{
-			fprintf(stderr, "error opening iSCSI CHAP authentication, MD5(CHAP) file %s\n", hc4800outname);
+			fprintf(stderr, "error opening iSCSI CHAP authentication, MD5(CHAP) file %s: %s\n", hc4800outname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
 		for(c = 0; c < 16; c++)
@@ -305,7 +306,7 @@ if((eapleap->eapcode == EAP_CODE_REQ) && (eapleap->leapcount == 8))
 		{
 		if((fhuser = fopen(usernameoutname, "a+")) == NULL)
 			{
-			fprintf(stderr, "error opening username/identity file %s\n", usernameoutname);
+			fprintf(stderr, "error opening username/identity file %s: %s\n", usernameoutname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
 		fprintf(fhuser, "%s\n", hcleap.username);
@@ -332,7 +333,7 @@ if((changeflag == true) && (hcleap.p1 == true) && (hcleap.p2 == true) && (memcmp
 		{
 		if((fhhash = fopen(hc5500outname, "a+")) == NULL)
 			{
-			fprintf(stderr, "error opening netNTLMv1 file %s\n", hc5500outname);
+			fprintf(stderr, "error opening netNTLMv1 file %s: %s\n", hc5500outname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
 
@@ -374,7 +375,7 @@ if((idlen > 0) && (idlen <= 256))
 		{
 		if((fhuser = fopen(usernameoutname, "a")) == NULL)
 			{
-			fprintf(stderr, "error opening username/identity file %s\n", usernameoutname);
+			fprintf(stderr, "error opening username/identity file %s: %s\n", usernameoutname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
 		fprintf(fhuser, "%s\n", idstring);
@@ -421,7 +422,7 @@ if(showinfo2 == true)
 		{
 		if((fhshowinfo2 = fopen(showinfo2outname, "ab")) == NULL)
 			{
-			fprintf(stderr, "error opening hccapx file %s\n", showinfo2outname);
+			fprintf(stderr, "error opening hccapx file %s: %s\n", showinfo2outname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
 		}
@@ -503,7 +504,7 @@ if((hcxoutnamenec != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2
 	{
 	if((fhhcx = fopen(hcxoutnamenec, "ab")) == NULL)
 		{
-		fprintf(stderr, "error opening hccapx file %s\n", hcxoutnamenec);
+		fprintf(stderr, "error opening hccapx file %s: %s\n", hcxoutnamenec, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
@@ -589,7 +590,7 @@ if((hcxoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2) |
 	{
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
-		fprintf(stderr, "error opening hccapx file %s\n", hcxoutname);
+			fprintf(stderr, "error opening hccapx file %s: %s\n", hcxoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
@@ -601,7 +602,7 @@ if((wdfhcxoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver == 1) |
 	{
 	if((fhhcx = fopen(wdfhcxoutname, "ab")) == NULL)
 		{
-		fprintf(stderr, "error opening hccapx file %s\n", wdfhcxoutname);
+		fprintf(stderr, "error opening hccapx file %s: %s\n", wdfhcxoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
@@ -613,7 +614,7 @@ if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 
 	{
 	if((fhhcx = fopen(nonwdfhcxoutname, "ab")) == NULL)
 		{
-		fprintf(stderr, "error opening hccapx file %s\n", nonwdfhcxoutname);
+		fprintf(stderr, "error opening hccapx file %s: %s\n", nonwdfhcxoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
@@ -1101,12 +1102,12 @@ if(externalbpfname != NULL)
 	{
 	if(stat(externalbpfname, &statinfo) != 0)
 		{
-		fprintf(stderr, "can't stat BPF %s\n", externalbpfname);
+		fprintf(stderr, "can't stat BPF %s: %s\n", externalbpfname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	if((fhbpf = fopen(externalbpfname, "r")) == NULL)
 		{
-		fprintf(stderr, "error opening BPF %s\n", externalbpfname);
+		fprintf(stderr, "error opening BPF %s: %s\n", externalbpfname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	extfilterstring = malloc(statinfo.st_size +1);
@@ -1274,7 +1275,7 @@ groupkeycount = 0;
 
 if(!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	{
-	fprintf(stderr, "error opening %s %s\n", pcaperrorstring, pcapinname);
+	fprintf(stderr, "error opening %s: %s\n", pcapinname, pcaperrorstring);
 	return false;
 	}
 
@@ -1292,7 +1293,7 @@ if((datalink == DLT_IEEE802_11) || (datalink == DLT_IEEE802_11_RADIO) || (datali
 
 if(stat(pcapinname, &statinfo) != 0)
 	{
-	fprintf(stderr, "can't stat cap file %s\n", pcapinname);
+	fprintf(stderr, "can't stat cap file %s: %s\n", pcapinname, strerror(errno));
 	return false;
 	}
 
@@ -2010,7 +2011,7 @@ if(essidoutname != NULL)
 	{
 	if((fhessid = fopen(essidoutname, "a")) == NULL)
 		{
-		fprintf(stderr, "error opening essid file %s\n", essidoutname);
+		fprintf(stderr, "error opening essid file %s: %s\n", essidoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 
@@ -2037,7 +2038,7 @@ if(essidunicodeoutname != NULL)
 	{
 	if((fhessid = fopen(essidunicodeoutname, "a")) == NULL)
 		{
-		fprintf(stderr, "error opening essid file %s\n", essidunicodeoutname);
+		fprintf(stderr, "error opening essid file %s: %s\n", essidunicodeoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 
@@ -2055,7 +2056,7 @@ if(pmkoutname != NULL)
 	{
 	if((fhpmk = fopen(pmkoutname, "a")) == NULL)
 		{
-		fprintf(stderr, "error opening essid file %s\n", pmkoutname);
+		fprintf(stderr, "error opening essid file %s: %s\n", pmkoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 
