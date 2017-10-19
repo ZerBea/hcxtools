@@ -1,5 +1,4 @@
 #define _GNU_SOURCE
-#include <endian.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -11,7 +10,15 @@
 #include <time.h>
 #include <pwd.h>
 #include <sys/stat.h>
+#ifdef __APPLE__
+#define strdupa strdup
+#include <libgen.h>
+#include <sys/types.h> /* This in turn sources machine/endian.h */
+#else
+#include <endian.h>
 #include <stdio_ext.h>
+#endif
+
 #include "common.h"
 
 /*===========================================================================*/

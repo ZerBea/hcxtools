@@ -22,6 +22,7 @@
 #include <time.h>
 #include <pcap.h>
 #include <linux/wireless.h>
+#include <netinet/in.h>
 
 #include "common.h"
 
@@ -1390,7 +1391,7 @@ while(1)
 		}
 
 	/* check handshake frames */
-	if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
+	if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 		if(eap->type == 3)
@@ -1457,7 +1458,7 @@ while(1)
 			}
 		}
 
-	else if((ipv46 == true) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
+	else if((ipv46 == true) && (ntohs(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{
 		if(macf->from_ds == 1)
 			handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV4);
@@ -1468,7 +1469,7 @@ while(1)
 		pcap_dump((u_char *) pcapout, pkh, h80211);
 		}
 
-	else if((ipv46 == true) && (be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
+	else if((ipv46 == true) && (ntohs(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
 		{
 		if(macf->from_ds == 1)
 			handlextendedflagframes(pkh->ts.tv_sec, macf->addr2.addr, XTENDED_IPV6);

@@ -10,9 +10,14 @@
 #include <time.h>
 #include <pcap.h>
 #include <sys/stat.h>
+#ifdef __APPLE__
+#define strdupa strdup
+#include <libgen.h>
+#else
 #include <stdio_ext.h>
-#include "common.h"
+#endif
 
+#include "common.h"
 
 struct hccap
 {

@@ -11,11 +11,17 @@
 #include <ctype.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#ifdef __APPLE__
+#define strdupa strdup
+#include <libgen.h>
+#else
 #include <stdio_ext.h>
+#endif
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
 #include <openssl/cmac.h>
 #include <openssl/evp.h>
+
 #include "common.c"
 #include "com_md5_64.c"
 #include "com_aes.c"

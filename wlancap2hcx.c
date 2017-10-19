@@ -10,12 +10,18 @@
 #include <time.h>
 #include <pcap.h>
 #include <sys/stat.h>
+#ifdef __APPLE__
+#define strdupa strdup
+#include <libgen.h>
+#else
 #include <stdio_ext.h>
+#endif
 #include <curl/curl.h>
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
 #include <openssl/cmac.h>
 #include <openssl/evp.h>
+#include <netinet/in.h>
 #include "common.c"
 #include "com_md5_64.c"
 #include "com_aes.c"
@@ -107,7 +113,7 @@ char *ptr = NULL;
 unsigned char digestsha1[SHA_DIGEST_LENGTH];
 greh = (gre_frame_t*)(payload);
 
-if(be16toh(greh->type) != GREPROTO_PPP)
+if(ntohs(greh->type) != GREPROTO_PPP)
 	return false;
 
 grehsize = GRE_MIN_SIZE;
@@ -117,12 +123,12 @@ if((greh->flags & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
 	grehsize += 4;
 
 ppph = (ppp_frame_t*)(payload +grehsize);
-if(be16toh(ppph->proto) != PPPPROTO_CHAP)
+if(ntohs(ppph->proto) != PPPPROTO_CHAP)
 	return false;
 
 
 pppchaph = (pppchap_frame_t*)(payload +grehsize +PPP_SIZE);
-if(be16toh(pppchaph->length) < 20)
+if(ntohs(pppchaph->length) < 20)
 	return false;
 
 if((pppchaph->code == PPPCHAP_CHALLENGE) && (pppchaph->u.challenge.datalen == 16))
@@ -132,7 +138,7 @@ if((pppchaph->code == PPPCHAP_CHALLENGE) && (pppchaph->u.challenge.datalen == 16
 	hcleapchap.id1 = pppchaph->identifier;
 	memcpy(&hcleapchap.serverchallenge, pppchaph->u.challenge.serverchallenge, 16);
 	memset(&hcleapchap.usernames, 0, 258);
-	memcpy(&hcleapchap.usernames, &pppchaph->u.challenge.names, (be16toh(pppchaph->length) -21));
+	memcpy(&hcleapchap.usernames, &pppchaph->u.challenge.names, (ntohs(pppchaph->length) -21));
 	hcleapchap.p1 = true;
 	if(usernameoutname != NULL)
 		{
@@ -153,7 +159,7 @@ if(pppchaph->code == PPPCHAP_RESPONSE)
 	memcpy(&hcleapchap.clientchallenge, pppchaph->u.response.clientchallenge, 16);
 	memcpy(&hcleapchap.authresponse, pppchaph->u.response.authresponse, 24);
 	memset(&hcleapchap.usernamec, 0, 258);
-	memcpy(&hcleapchap.usernamec, &pppchaph->u.response.namec, (be16toh(pppchaph->length) -54));
+	memcpy(&hcleapchap.usernamec, &pppchaph->u.response.namec, (ntohs(pppchaph->length) -54));
 	hcleapchap.p2 = true;
 	if(usernameoutname != NULL)
 		{
@@ -281,7 +287,7 @@ eapleap = (eapleap_t*)(eapext);
 if(eapleap->leapversion != 1)
 	return false;
 
-eaplen = htobe16(eapleap->eaplen);
+eaplen = htons(eapleap->eaplen);
 if((eaplen <= 8) || (eaplen > 258 +16))
 	return false;
 
@@ -359,7 +365,7 @@ char idstring[258];
 eapidentity = (eapri_t*)(eapext);
 if(eapidentity->eaptype != EAP_TYPE_ID)
 	return;
-idlen = htobe16(eapidentity->eaplen) -5;
+idlen = htons(eapidentity->eaplen) -5;
 if((idlen > 0) && (idlen <= 256))
 	{
 	memset(idstring, 0, 258);
@@ -1014,7 +1020,7 @@ neweapdbdata->tv_sec = tvsec;
 neweapdbdata->tv_usec = tvusec;
 memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
 memcpy(neweapdbdata->mac_sta.addr, mac_sta, 6);
-neweapdbdata->eapol_len = htobe16(eap->len) +4;
+neweapdbdata->eapol_len = htons(eap->len) +4;
 
 if((neweapdbdata->eapol_len < 91) || (neweapdbdata->eapol_len > 256 -4))
 	return false;
@@ -1340,7 +1346,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			continue;
 		loopbpacketcount++;
 		loopbh = (loopb_header_t*)packet;
-		if(be32toh(loopbh->family) != 2)
+		if(ntohl(loopbh->family) != 2)
 			continue;
 		if(LOOPB_SIZE +IPV4_SIZE_MIN > pkh->len)
 			continue;
@@ -1370,8 +1376,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				{
 				udpflag = true;
 				udph = (udp_frame_t*)(packet +LOOPB_SIZE +ipv4hlen);
-				udpports = htobe16(udph->port_source);
-				udpportd = htobe16(udph->port_destination);
+				udpports = htons(udph->port_source);
+				udpportd = htons(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
 					radiusflag = true;
 				continue;
@@ -1402,8 +1408,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				{
 				udpflag = true;
 				udph = (udp_frame_t*)(packet +LOOPB_SIZE +IPV6_SIZE);
-				udpports = htobe16(udph->port_source);
-				udpportd = htobe16(udph->port_destination);
+				udpports = htons(udph->port_source);
+				udpportd = htons(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
 					radiusflag = true;
 				continue;
@@ -1423,7 +1429,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		eth = (ether_header_t*)packet;
 		if(ETHER_SIZE +LLC_SIZE > pkh->len)
 			continue;
-		llctype = be16toh(eth->ether_type);
+		llctype = ntohs(eth->ether_type);
 		if(llctype == LLC_TYPE_IPV4)
 			{
 			ipv4flag = true;
@@ -1448,8 +1454,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				{
 				udpflag = true;
 				udph = (udp_frame_t*)(packet +ETHER_SIZE +ipv4hlen);
-				udpports = htobe16(udph->port_source);
-				udpportd = htobe16(udph->port_destination);
+				udpports = htons(udph->port_source);
+				udpportd = htons(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
 					radiusflag = true;
 				continue;
@@ -1460,7 +1466,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			ipv6flag = true;
 			ipv6h = (ipv6_frame_t*)(packet +ETHER_SIZE);
-			if((be32toh(ipv6h->ver_class) & 0xf) != 6)
+			if((ntohl(ipv6h->ver_class) & 0xf) != 6)
 				continue;
 			if(ipv6h->nextprotocol == NEXTHDR_NONE)
 				continue;
@@ -1479,8 +1485,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				{
 				udpflag = true;
 				udph = (udp_frame_t*)(packet +ETHER_SIZE +IPV6_SIZE);
-				udpports = htobe16(udph->port_source);
-				udpportd = htobe16(udph->port_destination);
+				udpports = htons(udph->port_source);
+				udpportd = htons(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
 					radiusflag = true;
 				continue;
@@ -1682,7 +1688,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		}
 
 	/* check handshake frames */
-	if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
+	if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
 		{
 		eap = (eap_t*)(payload + LLC_SIZE);
 		if(eap->type == 3)
@@ -1702,7 +1708,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		else if(eap->type == 0)
 			{
 			eapext = (eapext_t*)(payload + LLC_SIZE);
-			if((htobe16(eapext->len) < 8))
+			if((htons(eapext->len) < 8))
 				continue;
 
 			if(pcapout != NULL)
@@ -1901,7 +1907,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			}
 		}
 
-	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
+	else if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_IPV4))
 		{
 		ipv4flag = true;
 		if(pcapipv46out != NULL)
@@ -1938,22 +1944,22 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			udpflag = true;
 			udph = (udp_frame_t*)(payload + LLC_SIZE +ipv4hlen);
-			udpports = htobe16(udph->port_source);
-			udpportd = htobe16(udph->port_destination);
+			udpports = htons(udph->port_source);
+			udpportd = htons(udph->port_destination);
 			if((udpports == 1812) || (udpportd == 1812))
 				radiusflag = true;
 			}
 		continue;
 		}
 
-	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
+	else if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
 		{
 		ipv6flag = true;
 		if(pcapipv46out != NULL)
 			pcap_dump((u_char *) pcapipv46out, pkh, h80211);
 
 		ipv6h = (ipv6_frame_t*)(payload +LLC_SIZE);
-		if((be32toh(ipv6h->ver_class) & 0xf) != 6)
+		if((ntohl(ipv6h->ver_class) & 0xf) != 6)
 			continue;
 
 		if(ipv6h->nextprotocol == NEXTHDR_NONE)
@@ -1980,8 +1986,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			{
 			udpflag = true;
 			udph = (udp_frame_t*)(payload + LLC_SIZE +IPV6_SIZE);
-			udpports = htobe16(udph->port_source);
-			udpportd = htobe16(udph->port_destination);
+			udpports = htons(udph->port_source);
+			udpportd = htons(udph->port_destination);
 			if((udpports == 1812) || (udpportd == 1812))
 				radiusflag = true;
 			continue;
@@ -1990,13 +1996,13 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 		}
 
-	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_PREAUT))
+	else if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_PREAUT))
 		{
 		preautflag = true;
 		continue;
 		}
 
-	else if((be16toh(((llc_t*)payload)->type) == LLC_TYPE_FRRR))
+	else if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_FRRR))
 		frrrflag = true;
 	}
 
