@@ -4,8 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #ifdef __APPLE__
 #define strdupa strdup
 #include <libgen.h>
@@ -46,10 +48,11 @@ curl_global_cleanup();
 return res;
 }
 /*===========================================================================*/
-void sendcap2wpasec(char *sendcapname, long int timeout)
+bool sendcap2wpasec(char *sendcapname, long int timeout)
 {
 CURL *curl;
 CURLcode res;
+bool uploadflag = true;
 
 struct curl_httppost *formpost=NULL;
 struct curl_httppost *lastptr=NULL;
@@ -73,19 +76,18 @@ if(curl)
 	if(res == CURLE_OK)
 		{
 		printf("\x1B[32mupload done\x1B[0m\n\n");
-		uploadcountok++;
 		}
 	else
 		{
 		fprintf(stderr, "\x1B[31mupload to %s failed: %s\x1B[0m\n\n", wpasecurl, curl_easy_strerror(res));
-		uploadcountfailed++;
+		uploadflag = false;
 		}
 
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
 	curl_slist_free_all(headerlist);
 	}
-return;
+return uploadflag;
 }
 /*===========================================================================*/
 __attribute__ ((noreturn))
@@ -142,7 +144,19 @@ if(testwpasec(timeout) != CURLE_OK)
 for(index = optind; index < argc; index++)
 	{
 	if(stat(argv[index], &statinfo) == 0)
-		sendcap2wpasec(argv[index], timeout);
+		{
+		if(sendcap2wpasec(argv[index], timeout) == false)
+			{
+			if(sendcap2wpasec(argv[index], 60) == true)
+				{
+				uploadcountok++;
+				}
+			else
+				uploadcountfailed++;
+			}
+		else
+			uploadcountok++;
+		}
 	}
 
 if(uploadcountok == 1)
