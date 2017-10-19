@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 {
 int auswahl;
 long int hcxorgrecords = 0;
-FILE *fhhash = NULL;
+FILE *fhhash;
 char *eigenname;
 char *eigenpfadname;
 char *hcxinname = NULL;

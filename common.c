@@ -89,7 +89,7 @@ for(c = 0; c < blen; c++)
 		return false;
 	}
 
-bzero(bytes, blen);
+memset(bytes, 0, blen);
 for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	{
 	idx0 = ((uint8_t)str[pos+0] & 0x1F) ^ 0x10;

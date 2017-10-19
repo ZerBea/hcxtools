@@ -105,8 +105,8 @@ gre_frame_t *greh;
 int grehsize = 0;
 ppp_frame_t *ppph = NULL;
 pppchap_frame_t *pppchaph = NULL;
-FILE *fhuser = NULL;
-FILE *fhhash = NULL;
+FILE *fhuser;
+FILE *fhhash;
 
 SHA_CTX ctxsha1;
 char *ptr = NULL;
@@ -223,7 +223,7 @@ return false;
 bool addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 eapmd5_t *eapmd5;
-FILE *fhhash = NULL;
+FILE *fhhash;
 uint8_t changeflag = false;
 int c;
 
@@ -276,8 +276,8 @@ return false;
 /*===========================================================================*/
 bool addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
-FILE *fhhash = NULL;
-FILE *fhuser = NULL;
+FILE *fhhash;
+FILE *fhuser;
 eapleap_t *eapleap;
 int eaplen;
 int c;
@@ -359,7 +359,7 @@ return false;
 void addresponseidentity(eapext_t *eapext)
 {
 eapri_t *eapidentity;
-FILE *fhuser = NULL;
+FILE *fhuser;
 int idlen;
 char idstring[258];
 
@@ -408,7 +408,7 @@ return false;
 void showinfo(hcx_t *hcxrecord)
 {
 char outstr[256] = {0};
-FILE *fhshowinfo2 = NULL;
+FILE *fhshowinfo2;
 
 if(showinfo1 == true)
 	{
@@ -425,12 +425,12 @@ if(showinfo2 == true)
 			fprintf(stderr, "error opening hccapx file %s: %s\n", showinfo2outname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
+
+		if(showhashrecord(hcxrecord, NULL, 0, outstr) == true)
+			fprintf(fhshowinfo2, "%s\n", outstr);
+
+		fclose(fhshowinfo2);
 		}
-
-	if(showhashrecord(hcxrecord, NULL, 0, outstr) == true)
-		fprintf(fhshowinfo2, "%s\n", outstr);
-
-	fclose(fhshowinfo2);
 	}
 }
 /*===========================================================================*/
@@ -439,7 +439,7 @@ void writehcxnec(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 hcx_t hcxrecord;
 eap_t *eap1;
 eap_t *eap2;
-FILE *fhhcx = NULL;
+FILE *fhhcx;
 
 unsigned long long int r;
 
@@ -519,7 +519,7 @@ void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeig
 hcx_t hcxrecord;
 eap_t *eap1;
 eap_t *eap2;
-FILE *fhhcx = NULL;
+FILE *fhhcx;
 
 unsigned long long int r;
 bool wldflagint = false;
@@ -1090,7 +1090,7 @@ void installbpf(pcap_t *pcapin, char *externalbpfname)
 {
 struct stat statinfo;
 struct bpf_program filter;
-FILE *fhbpf = NULL;
+FILE *fhbpf;
 int bpfsize = 0;
 
 char *extfilterstring = NULL;
@@ -1169,8 +1169,8 @@ uint8_t	*payload = NULL;
 mpdu_frame_t* enc = NULL;
 int encsystem = 0;
 netdb_t *zeigernet;
-FILE *fhessid = NULL;
-FILE *fhpmk = NULL;
+FILE *fhessid;
+FILE *fhpmk;
 int macl = 0;
 int fcsl = 0;
 uint8_t field = 0;
