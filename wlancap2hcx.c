@@ -94,7 +94,7 @@ return;
 bool addpppchap(uint8_t *mac_1, uint8_t *mac_2, uint8_t *payload)
 {
 int c;
-gre_frame_t *greh = NULL;
+gre_frame_t *greh;
 int grehsize = 0;
 ppp_frame_t *ppph = NULL;
 pppchap_frame_t *pppchaph = NULL;
@@ -215,7 +215,7 @@ return false;
 /*===========================================================================*/
 bool addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
-eapmd5_t *eapmd5 = NULL;
+eapmd5_t *eapmd5;
 FILE *fhhash = NULL;
 uint8_t changeflag = false;
 int c;
@@ -271,7 +271,7 @@ bool addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 FILE *fhhash = NULL;
 FILE *fhuser = NULL;
-eapleap_t *eapleap = NULL;
+eapleap_t *eapleap;
 int eaplen;
 int c;
 uint8_t changeflag = false;
@@ -351,7 +351,7 @@ return false;
 /*===========================================================================*/
 void addresponseidentity(eapext_t *eapext)
 {
-eapri_t *eapidentity = NULL;
+eapri_t *eapidentity;
 FILE *fhuser = NULL;
 int idlen;
 char idstring[258];
@@ -852,7 +852,7 @@ while(c >= 0)
 	if((memcmp(zeiger->mac_ap.addr, zeigerakt->mac_ap.addr, 6) == 0) && (memcmp(zeiger->mac_sta.addr, zeigerakt->mac_sta.addr, 6) == 0))
 		{
 		m = geteapkey(zeiger->eapol);
-		r = getreplaycount(zeiger->eapol);
+		getreplaycount(zeiger->eapol);
 		if(m == 3)
 			{
 			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M34E4NR);
@@ -1345,7 +1345,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(LOOPB_SIZE +IPV4_SIZE_MIN > pkh->len)
 			continue;
 
-		ipv4h = (ipv4_frame_t*)(packet +LOOPB_SIZE);
 		ipv4h = (ipv4_frame_t*)(packet +LOOPB_SIZE);
 		if((ipv4h->ver_hlen & 0xf0) == 0x40)
 			{
@@ -2383,8 +2382,8 @@ pcap_t *pcapwepdh = NULL;
 int auswahl;
 int index;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *pcapoutname = NULL;
 char *pcapextoutname = NULL;
 char *pcapipv46outname = NULL;

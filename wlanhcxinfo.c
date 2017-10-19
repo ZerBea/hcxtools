@@ -313,7 +313,6 @@ while(c < hcxrecords)
 		else
 			fprintf(stdout, "<empty ESSID>");
 
-		pf = true;
 		}
 
 	if((outmode) != 0)
@@ -431,16 +430,17 @@ hcxdata = malloc(statinfo.st_size);
 if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
+		fclose(fhhcx);
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
+fclose(fhhcx);
 if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
 	}
-fclose(fhhcx);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
@@ -476,8 +476,8 @@ int auswahl;
 int outmode = 0;
 long int hcxorgrecords = 0;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *hcxinname = NULL;
 char *infoname = NULL;
 

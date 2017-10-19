@@ -181,8 +181,8 @@ char *cowinname = NULL;
 char *pwoutname = NULL;
 char *pmkpwoutname = NULL;
 char *pmkoutname = NULL;
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 
 FILE *fhcowin = NULL;
 FILE *fhpwout = NULL;
@@ -251,6 +251,7 @@ if(fhcowin == NULL)
 if((mode != 's') && (fhpwout == NULL) && (fhpmkpwout == NULL) && (fhpmkout == NULL))
 	{
 	cowinfo(fhcowin);
+	fclose(fhcowin);
 	return EXIT_SUCCESS;
 	}
 

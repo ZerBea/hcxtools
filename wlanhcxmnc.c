@@ -154,18 +154,19 @@ hcxdata = malloc(statinfo.st_size);
 if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
+		fclose(fhhcx);
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
+fclose(fhhcx);
 if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
 	}
-fclose(fhhcx);
 
-printf("%ld records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
+printf("%zu records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
@@ -197,8 +198,8 @@ int malen = 0;
 long int hcxorgrecords = 0;
 unsigned long long int mac_ap = 0xffffffffffffL;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *hcxinname = NULL;
 char *hcxoutname = NULL;
 

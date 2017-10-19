@@ -508,6 +508,7 @@ while((len = fgetline(fhaplist, 14, linein)) != -1)
 			if((fhhcx = fopen(apoutname, "ab")) == NULL)
 				{
 				fprintf(stderr, "error opening file %s", apoutname);
+				fclose(fhaplist);
 				return false;
 				}
 			fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
@@ -963,18 +964,19 @@ hcxdata = malloc(statinfo.st_size);
 if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
+		fclose(fhhcx);
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
+fclose(fhhcx);
 if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
 	}
-fclose(fhhcx);
 
-printf("%ld records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
+printf("%zu records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
@@ -1038,8 +1040,8 @@ unsigned long long int mac_sta = 0;
 unsigned long long int oui = 0;
 uint8_t message_pair = 0;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *hcxinname = NULL;
 char *essidname = NULL;
 char *essidxname = NULL;

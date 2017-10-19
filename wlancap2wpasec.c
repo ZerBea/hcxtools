@@ -104,8 +104,8 @@ struct stat statinfo;
 int auswahl;
 int index;
 long int timeout = 30;
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 
 uploadcountok = 0;
 uploadcountfailed = 0;

@@ -588,16 +588,17 @@ hcxdata = malloc(statinfo.st_size);
 if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
+		fclose(fhhcx);
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
+fclose(fhhcx);
 if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
 	}
-fclose(fhhcx);
 
 qsort(hcxdata, hcxsize / HCX_SIZE, sizeof(hcx_t), sort_by_essid);
 return hcxsize / HCX_SIZE;
@@ -684,8 +685,8 @@ struct stat statpot;
 struct tm* tm_info;
 struct timeval tv;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *hcxinname = NULL;
 char *essidname = NULL;
 char *passwordname = NULL;

@@ -402,63 +402,63 @@ unsigned long long int mac_out;
 
 snprintf(pskstring, 64,  "%012llx", mac_in);
 writepsk(pskstring);
-snprintf(pskstring, 64,  "%08lld", mac_in);
+snprintf(pskstring, 64,  "%08llu", mac_in);
 writepsk(pskstring);
 
 mac_out = mac_in & 0xfffffffffff;
 snprintf(pskstring, 64,  "%011llx", mac_out);
 writepsk(pskstring);
-snprintf(pskstring, 64,  "%08lld", mac_out);
+snprintf(pskstring, 64,  "%08llu", mac_out);
 writepsk(pskstring);
 
 mac_out = mac_in & 0xffffffffff;
 snprintf(pskstring, 64,  "%010llx", mac_out);
 writepsk(pskstring);
-snprintf(pskstring, 64,  "%08lld", mac_out);
+snprintf(pskstring, 64,  "%08llu", mac_out);
 writepsk(pskstring);
 
 mac_out = mac_in & 0xfffffffff;
 snprintf(pskstring, 64,  "%09llx", mac_out);
 writepsk(pskstring);
-snprintf(pskstring, 64,  "%08lld", mac_out);
+snprintf(pskstring, 64,  "%08llu", mac_out);
 writepsk(pskstring);
 
 mac_out = mac_in & 0xffffffff;
 snprintf(pskstring, 64,  "%08llx", mac_out);
 writepsk(pskstring);
-snprintf(pskstring, 64,  "%08lld", mac_out);
+snprintf(pskstring, 64,  "%08llu", mac_out);
 writepsk(pskstring);
 
 mac_out = mac_in & 0xfffffff;
-snprintf(pskstring, 64,  "%08lld", mac_out);
+snprintf(pskstring, 64,  "%08llu", mac_out);
 writepsk(pskstring);
 
 mac_out = mac_in & 0xffffff;
-snprintf(pskstring, 64,  "%08lld", mac_out);
+snprintf(pskstring, 64,  "%08llu", mac_out);
 writepsk(pskstring);
 
 mac_out = (mac_in & 0xfffffffffff0) >> 4;
 snprintf(pskstring, 64,  "%011llx", mac_out);
 writepsk(pskstring);
-snprintf(pskstring, 64,  "%011lld", mac_out);
+snprintf(pskstring, 64,  "%011llu", mac_out);
 writepsk(pskstring);
 
 mac_out = (mac_in & 0xffffffffff00) >> 8;
 snprintf(pskstring, 64,  "%010llx", mac_out);
 writepsk(pskstring);
-snprintf(pskstring, 64,  "%010lld", mac_out);
+snprintf(pskstring, 64,  "%010llu", mac_out);
 writepsk(pskstring);
 
 mac_out = (mac_in & 0xfffffffff000) >> 12;
 snprintf(pskstring, 64,  "%09llx", mac_out);
 writepsk(pskstring);
-snprintf(pskstring, 64,  "%09lld", mac_out);
+snprintf(pskstring, 64,  "%09llu", mac_out);
 writepsk(pskstring);
 
 mac_out = (mac_in & 0xffffffff0000) >> 16;
 snprintf(pskstring, 64,  "%08llx", mac_out);
 writepsk(pskstring);
-snprintf(pskstring, 64,  "%08lld", mac_out);
+snprintf(pskstring, 64,  "%08llu", mac_out);
 writepsk(pskstring);
 return;
 }
@@ -485,7 +485,7 @@ if(wpsflag == true)
 	return;
 pin = (mac & 0xffffff) % 10000000;
 pin = ((pin * 10) + wpspinchecksum(pin));
-snprintf(pskstring, 64, "%08d", pin);
+snprintf(pskstring, 64, "%08u", pin);
 writepsk(pskstring);
 return;
 }
@@ -902,16 +902,17 @@ hcxdata = malloc(statinfo.st_size +HCX_SIZE);
 if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
+		fclose(fhhcx);
 		return 0;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
+fclose(fhhcx);
 if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
 	}
-fclose(fhhcx);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
@@ -940,8 +941,8 @@ int main(int argc, char *argv[])
 int auswahl;
 long int hcxorgrecords = 0;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *hcxinname = NULL;
 char *pskfilename = NULL;
 

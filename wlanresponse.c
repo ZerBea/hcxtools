@@ -924,7 +924,7 @@ eap_t *eap = NULL;
 uint8_t mkey;
 int packetcount = 0;
 int proberequestcount = 0;
-apl_t *zeigerproberequest = proberequestliste;
+apl_t *zeigerproberequest;
 
 printf("capturing - %06llx%06llx (stop with ctrl+c)...\n", myoui, mynic);
 
@@ -1262,17 +1262,18 @@ if(externalbpfname != NULL)
 	if(extfilterstring == NULL)
 		{
 		fprintf(stderr, "out of memory to store BPF\n");
+		fclose(fhbpf);
 		exit(EXIT_FAILURE);
 		}
 	extfilterstring[statinfo.st_size] = 0;
 	bpfsize = fread(extfilterstring, 1, statinfo.st_size, fhbpf);
+	fclose(fhbpf);
 	if(bpfsize != statinfo.st_size)
 		{
 		fprintf(stderr, "error reading BPF %s\n", externalbpfname);
 		free(extfilterstring);
 		exit(EXIT_FAILURE);
 		}
-	fclose(fhbpf);
 	filterstring = extfilterstring;
 	}
 

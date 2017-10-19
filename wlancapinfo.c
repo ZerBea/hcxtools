@@ -174,13 +174,12 @@ if((fhc = fopen(pcapinname, "rb")) == NULL)
 	return false;
 	}
 magicsize = fread(&magic, 4, 1, fhc);
+fclose(fhc);
 if(magicsize != 1)
 	{
 	fprintf(stderr, "error reading file header %s\n", pcapinname);
 	return false;
 	}
-
-fclose(fhc);
 
 
 if(magic == MAGIC_PCAP)
@@ -503,8 +502,8 @@ int main(int argc, char *argv[])
 {
 int auswahl;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *pcapinname = NULL;
 
 eigenpfadname = strdupa(argv[0]);

@@ -178,8 +178,8 @@ int auswahl;
 int p;
 int essidlen = 0;
 int pmklen = 0;
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *pmkname = NULL;
 char *essidname = NULL;
 

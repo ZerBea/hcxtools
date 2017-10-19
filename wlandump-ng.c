@@ -280,25 +280,20 @@ myaddr.addr[2] = myoui & 0xff;
 myaddr.addr[1] = (myoui >> 8) & 0xff;
 myaddr.addr[0] = (myoui >> 16) & 0xff;
 
-if((beaconliste = malloc((aplistesize +1) *APL_SIZE)) == NULL)
+if((beaconliste = calloc((aplistesize +1), APL_SIZE)) == NULL)
 	return false;
-memset(beaconliste, 0, (aplistesize +1) *APL_SIZE);
 
-if((proberesponseliste = malloc((aplistesize +1) *CLAPL_SIZE)) == NULL)
+if((proberesponseliste = calloc((aplistesize +1), CLAPL_SIZE)) == NULL)
 	return false;
-memset(proberesponseliste, 0, (aplistesize +1) *CLAPL_SIZE);
 
-if((proberequestliste = malloc((aplistesize +1) *CLAPL_SIZE)) == NULL)
+if((proberequestliste = calloc((aplistesize +1), CLAPL_SIZE)) == NULL)
 	return false;
-memset(proberequestliste, 0, (aplistesize +1) *CLAPL_SIZE);
 
-if((associationrequestliste = malloc((aplistesize +1) *CLAPL_SIZE)) == NULL)
+if((associationrequestliste = calloc((aplistesize +1), CLAPL_SIZE)) == NULL)
 	return false;
-memset(associationrequestliste, 0, (aplistesize +1) *CLAPL_SIZE);
 
-if((reassociationrequestliste = malloc((aplistesize +1) *CLAPL_SIZE)) == NULL)
+if((reassociationrequestliste = calloc((aplistesize +1), CLAPL_SIZE)) == NULL)
 	return false;
-memset(reassociationrequestliste, 0, (aplistesize +1) *CLAPL_SIZE);
 
 return true;
 }
@@ -1514,17 +1509,18 @@ if(externalbpfname != NULL)
 	if(extfilterstring == NULL)
 		{
 		fprintf(stderr, "out of memory to store BPF\n");
+		fclose(fhbpf);
 		exit(EXIT_FAILURE);
 		}
 	extfilterstring[statinfo.st_size] = 0;
 	bpfsize = fread(extfilterstring, 1, statinfo.st_size, fhbpf);
+	fclose(fhbpf);
 	if(bpfsize != statinfo.st_size)
 		{
 		fprintf(stderr, "error reading BPF %s\n", externalbpfname);
 		free(extfilterstring);
 		exit(EXIT_FAILURE);
 		}
-	fclose(fhbpf);
 	filterstring = extfilterstring;
 	}
 
