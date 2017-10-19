@@ -1,5 +1,11 @@
 #include "berkeleyfilter.h"
 
+#if __APPLE__
+#define __BYTE_ORDER BYTE_ORDER
+#define __BIG_ENDIAN BIG_ENDIAN
+#define __LITTLE_ENDIAN LITTLE_ENDIAN
+#endif
+
 #define VERSION "4.0.0-rc6"
 #define VERSION_JAHR "2017"
 
@@ -148,6 +154,9 @@ typedef struct qos_frame qos_t;
 #define	QOS_SIZE (sizeof(qos_t))
 
 
+#if !defined __BYTE_ORDER || (__BIG_ENDIAN == __LITTLE_ENDIAN)
+#error Portability fix needed here
+#endif
 struct mac_frame
 {
 #if __BYTE_ORDER == __BIG_ENDIAN
