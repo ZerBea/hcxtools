@@ -69,16 +69,17 @@ hcxdata = malloc(statinfo.st_size);
 if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
+		fclose(fhhcx);
 		return false;
 		}
 
 hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
+fclose(fhhcx);
 if(hcxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
 	}
-fclose(fhhcx);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
@@ -102,8 +103,8 @@ int main(int argc, char *argv[])
 int auswahl;
 long int hcxorgrecords = 0;
 FILE *fhhash = NULL;
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *hcxinname = NULL;
 char *hashoutname = NULL;
 

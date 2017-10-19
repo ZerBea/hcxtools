@@ -2,14 +2,11 @@
 bool wpatesthash(hcx_t *zeigerhcx, uint8_t *pmk)
 {
 int p;
-uint8_t pkedata[102];
-uint8_t pkedata_prf[2 + 98 + 2];
-uint8_t ptk[128];
+uint8_t pkedata[102] = { 0 };
+uint8_t pkedata_prf[2 + 98 + 2] = { 0 };
+uint8_t ptk[128] = { 0 };
 uint8_t mic[16];
 
-memset(&pkedata, 0, sizeof(pkedata));
-memset(&pkedata_prf, 0, sizeof(pkedata_prf));
-memset(&ptk, 0, sizeof(ptk));
 memset(&pkedata, 0, sizeof(mic));
 if(zeigerhcx->keyver == 1)
 	{

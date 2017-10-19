@@ -192,18 +192,19 @@ data = malloc(statinfo.st_size);
 if(data == NULL)
 	{
 	fprintf(stderr, "out of memory to store hc data\n");
+	fclose(fhhcx);
 	return false;
 	}
 
 
 datasize = fread(data, 1, statinfo.st_size, fhhcx);
+fclose(fhhcx);
 if(datasize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hc file %s\n", hcxinname);
 	free(data);
 	return false;
 	}
-fclose(fhhcx);
 
 hcxsize = datasize / HCX_SIZE;
 zeigerhcx = (hcx_t*)(data);
@@ -233,8 +234,8 @@ int main(int argc, char *argv[])
 {
 int index;
 int auswahl;
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);

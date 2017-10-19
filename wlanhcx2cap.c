@@ -387,19 +387,19 @@ hccapxdata = malloc(statinfo.st_size);
 if(hccapxdata == NULL)
 		{
 		fprintf(stderr, "--> out of memory to store hccapx file\n");
+		fclose(fhhccapx);
 		return 0;
 		}
 
 hccapxsize = fread(hccapxdata, 1, statinfo.st_size, fhhccapx);
+fclose(fhhccapx);
 if(hccapxsize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hccapx file %s", hccapxinname);
 	return 0;
 	}
-fclose(fhhccapx);
 hccapsets = hccapxsize / sizeof(hcx_t);
 printf("%ld records read from %s\n", hccapsets, hccapxinname);
-
 
 return hccapsets;
 }
@@ -426,8 +426,8 @@ int main(int argc, char *argv[])
 {
 int auswahl;
 long int hcxrecordsorg = 0;
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 char *hccapxinname = NULL;
 char *capoutname = NULL;
 char *singlecapoutname = NULL;

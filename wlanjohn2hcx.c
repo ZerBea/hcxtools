@@ -152,6 +152,7 @@ if(essidoutname != NULL)
 	if((fhessid = fopen(essidoutname, "a")) == NULL)
 		{
 		fprintf(stderr, "error opening essid file %s\n", essidoutname);
+		fclose(fhhcx);
 		return false;
 		}
 	}
@@ -320,8 +321,8 @@ int main(int argc, char *argv[])
 {
 int index;
 int auswahl;
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);

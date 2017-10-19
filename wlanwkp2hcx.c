@@ -193,6 +193,7 @@ wkpsize = fread(wkpdata, 1, WKPSIZE, fhwkp);
 if(wkpsize != WKPSIZE)
 	{
 	fprintf(stderr, "error reading file %s\n", wkpiname);
+	fclose (fhwkp);
 	return false;
 	}
 
@@ -265,8 +266,8 @@ int main(int argc, char *argv[])
 int index;
 int auswahl;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);

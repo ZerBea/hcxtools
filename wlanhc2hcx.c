@@ -126,6 +126,7 @@ if(essidoutname != NULL)
 	if((fhessid = fopen(essidoutname, "a")) == NULL)
 		{
 		fprintf(stderr, "error opening essid file %s\n", essidoutname);
+		fclose(fhhcx);
 		return 0;
 		}
 	}
@@ -220,6 +221,7 @@ if(essidoutname != NULL)
 	if((fhessid = fopen(essidoutname, "a")) == NULL)
 		{
 		fprintf(stderr, "error opening essid file %s\n", essidoutname);
+		fclose(fhhcx);
 		return 0;
 		}
 	}
@@ -312,18 +314,19 @@ data = malloc(statinfo.st_size);
 if(data == NULL)
 	{
 	fprintf(stderr, "out of memory to store hc data\n");
+	fclose(fhhc);
 	return false;
 	}
 
 
 datasize = fread(data, 1, statinfo.st_size, fhhc);
+fclose(fhhc);
 if(datasize != statinfo.st_size)
 	{
 	fprintf(stderr, "error reading hc file %s\n", hcinname);
 	free(data);
 	return false;
 	}
-fclose(fhhc);
 
 hcxsize = datasize / HCX_SIZE;
 hcsize = datasize / HCCAP_SIZE;
@@ -376,8 +379,8 @@ int main(int argc, char *argv[])
 int index;
 int auswahl;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
+char *eigenname;
+char *eigenpfadname;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
