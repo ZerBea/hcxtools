@@ -171,7 +171,7 @@ if(hcxsize != statinfo.st_size)
 	return 0;
 	}
 
-printf("%zu records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
+printf("%ld records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
