@@ -982,8 +982,9 @@ if(hcxsize != statinfo.st_size)
 	fprintf(stderr, "error reading hccapx file %s", hcxinname);
 	return 0;
 	}
-printf("%ld records read from %s\n", hcxsize / HCX_SIZE, hcxinname);
-return hcxsize / HCX_SIZE;
+hcxsize /= HCX_SIZE;
+printf("%ld records read from %s\n", hcxsize, hcxinname);
+return hcxsize;
 }
 /*===========================================================================*/
 __attribute__ ((noreturn))
