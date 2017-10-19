@@ -495,12 +495,13 @@ while ((auswahl = getopt(argc, argv, "i:o:aAsSMRwpPlehv")) != -1)
 
 		case 'o':
 		infoname = optarg;
-		fclose(stdout);
-		if ((fopen(infoname,"w")) == NULL)
+		FILE *fp = fopen(infoname,"w");
+		if (fp == NULL)
 			{
 			fprintf(stderr, "unable to open outputfile %s\n", infoname);
 			exit (EXIT_FAILURE);
 			}
+		fclose (fp);
 		break;
 
 		case 'a':
@@ -568,9 +569,6 @@ writehcxinfo(hcxorgrecords, outmode);
 
 if(hcxdata != NULL)
 	free(hcxdata);
-
-if(infoname != NULL)
-	fclose(stdout);
 
 return EXIT_SUCCESS;
 }

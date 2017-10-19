@@ -64,7 +64,7 @@ if((cowh.essidlen == 0) && (memcmp(&cowh.essid, &zeroessid, ZEROESSID_SIZE) == 0
 	return;
 	}
 
-if((cowh.essidlen <= 0) || (cowh.essidlen > 32))
+if((cowh.essidlen == 0) || (cowh.essidlen > 32))
 	{
 	fprintf(stderr, "wrong essidlen\n");
 	return;
@@ -77,6 +77,7 @@ printf("essid: %s\n", networkname);
 return;
 }
 /*===========================================================================*/
+__attribute__ ((nonnull(1)))
 void cowprocess(FILE *fhcowin, FILE *fhpwout, FILE *fhpmkpwout, FILE *fhpmkout, int mode)
 {
 
@@ -105,7 +106,7 @@ if((cowh.essidlen == 0) && (memcmp(&cowh.essid, &zeroessid, ZEROESSID_SIZE) == 0
 	printf("Multi-ESSID file detected\n");
 
 
-else if((cowh.essidlen <= 0) || (cowh.essidlen > 32))
+else if((cowh.essidlen == 0) || (cowh.essidlen > 32))
 	{
 	fprintf(stderr, "wrong essidlen\n");
 	return;

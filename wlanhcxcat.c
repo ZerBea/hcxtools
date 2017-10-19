@@ -30,6 +30,7 @@ bool hex2bin(const char *str, uint8_t *bytes, size_t blen);
 hcx_t *hcxdata;
 FILE *fhpot;
 /*===========================================================================*/
+__attribute__ ((nonnull(2)))
 void hcxpmk(long int hcxrecords, char *pmkname)
 {
 int p;
@@ -124,6 +125,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
+__attribute__ ((nonnull(2,4)))
 void hcxessidpmk(long int hcxrecords, char *essidname, int essidlen, char *pmkname)
 {
 int p;
@@ -225,6 +227,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
+__attribute__ ((nonnull(2)))
 void hcxpassword(long int hcxrecords, char *passwordname, int passwordlen)
 {
 int p;
@@ -335,6 +338,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
+__attribute__ ((nonnull(2,4)))
 void hcxessidpassword(long int hcxrecords, char *essidname, int essidlen, char *passwordname, int passwordlen)
 {
 int p;
@@ -348,12 +352,10 @@ uint8_t pkedata_prf[2 + 98 + 2];
 uint8_t ptk[128];
 uint8_t mic[16];
 
-unsigned char essid[32];
+unsigned char essid[32] = { 0 };
 
 char outstr[256];
 
-
-memset(&essid, 0, 32);
 memcpy(&essid, essidname, essidlen);
 
 if(PKCS5_PBKDF2_HMAC(passwordname, passwordlen, essid, essidlen, 4096, EVP_sha1(), 32, pmkin) == 0)
@@ -473,16 +475,14 @@ len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
+__attribute__ ((nonnull(2)))
 void hcxwordlist(long int hcxrecords, char *wordlistname)
 {
 int len;
 int p;
-FILE * fhpwin = NULL;
+FILE *fhpwin;
 
 char linein[66];
-
-if(wordlistname == NULL)
-	return;
 
 if((fhpwin = fopen(wordlistname, "r")) == NULL)
 	{
@@ -506,21 +506,19 @@ while((len = fgetline(fhpwin, 66, linein)) != -1)
 		hcxpassword(hcxrecords, linein, len);
 	}
 
-if(fhpwin != NULL)
-	fclose(fhpwin);
+fclose(fhpwin);
 return;
 }
+
+__attribute__ ((nonnull(2, 4)))
 /*===========================================================================*/
 void hcxessidwordlist(long int hcxrecords, char *essidname, int essidlen, char *wordlistname)
 {
 int len;
 int p;
-FILE * fhpwin = NULL;
+FILE *fhpwin;
 
 char linein[66];
-
-if(wordlistname == NULL)
-	return;
 
 if((fhpwin = fopen(wordlistname, "r")) == NULL)
 	{
@@ -544,8 +542,7 @@ while((len = fgetline(fhpwin, 66, linein)) != -1)
 		hcxessidpassword(hcxrecords, essidname, essidlen, linein, len);
 	}
 
-if(fhpwin != NULL)
-	fclose(fhpwin);
+fclose(fhpwin);
 return;
 }
 /*===========================================================================*/
@@ -635,7 +632,7 @@ for(c = 0; c < blen; c++)
 		return false;
 	}
 
-bzero(bytes, blen);
+memset(bytes, 0, blen);
 for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	{
 	idx0 = ((uint8_t)str[pos+0] & 0x1F) ^ 0x10;

@@ -5,7 +5,7 @@ int p;
 uint8_t pkedata[102] = { 0 };
 uint8_t pkedata_prf[2 + 98 + 2] = { 0 };
 uint8_t ptk[128] = { 0 };
-uint8_t mic[16];
+uint8_t mic[16] = { 0 };
 
 memset(&pkedata, 0, sizeof(mic));
 if(zeigerhcx->keyver == 1)

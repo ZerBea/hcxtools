@@ -78,11 +78,10 @@ return eapkey;
 /*===========================================================================*/
 bool writeessid(uint8_t *essid, uint8_t essidlen)
 {
-FILE *fhessid = NULL;
+FILE *fhessid;
 
-char essidstring[34];
+char essidstring[34] = { 0 };
 
-memset(&essidstring, 0 , 34);
 memcpy(&essidstring, essid, essidlen);
 if(essidoutname != NULL)
 	{
@@ -91,19 +90,16 @@ if(essidoutname != NULL)
 		fprintf(stderr, "error opening essid file %s\n", essidoutname);
 		return false;
 		}
-	}
-
-fprintf(fhessid, "%s\n", essidstring);
-
-if(fhessid != NULL)
+	fprintf(fhessid, "%s\n", essidstring);
 	fclose(fhessid);
+	}
 
 return true;
 }
 /*===========================================================================*/
 bool writehccapx(uint8_t *wkpdata)
 {
-FILE *fhhcx = NULL;
+FILE *fhhcx;
 hcx_t hcxrecord;
 int mp;
 uint8_t wkpessidlen;
@@ -144,11 +140,9 @@ if(hcxoutname != NULL)
 		fprintf(stderr, "error opening essid file %s\n", hcxoutname);
 		return false;
 		}
-	}
-
-fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
-if(fhhcx != NULL)
+	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	}
 
 hcxcount++;
 return true;

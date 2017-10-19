@@ -1485,7 +1485,7 @@ void installbpf(pcap_t *pcapin, char *externalbpfname)
 {
 struct stat statinfo;
 struct bpf_program filter;
-FILE *fhbpf = NULL;
+FILE *fhbpf;
 int bpfsize = 0;
 
 char *extfilterstring = NULL;
