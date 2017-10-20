@@ -7,7 +7,7 @@
 #define __LITTLE_ENDIAN LITTLE_ENDIAN
 #endif
 
-#define VERSION "4.0.0-rc6"
+#define VERSION "4.0.0"
 #define VERSION_JAHR "2017"
 
 #define NEWENTY -1
