@@ -1,11 +1,13 @@
 hcxtools
 ==============
 
-Small set of tools to capture and convert packets from wlan devices
-for the use with latest hashcat. The tools are 100% compatible to hashcat
-and recommended by hashcat. This branch is pretty closely synced to
-hashcat git branch (that means: latest hcxtools matching on latest hashcat beta).
-Support for hashcat hash-modes (2500, 2501, 4800, 5500, 12000).
+Small set of tools to capture and convert packets from wlan devices for the
+use with latest hashcat or John the Ripper. The tools are 100% compatible to 
+hashcat and John the Ripper and recommended by hashcat. This branch is pretty
+closely synced to hashcat git branch (that means: latest hcxtools matching
+on latest hashcat beta) and John the Ripper git branch ( "bleeding-jumbo").
+Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000
+Support for John the Ripper hash modes: wpapsk-opencl, wpapsk-opencl
 After capturing, upload the "uncleaned" cap here
 (http://wpa-sec.stanev.org/?submit) to see if your ap or the client is vulnerable
 by using common wordlists. Convert the cap to hccapx and check if wlan-key
