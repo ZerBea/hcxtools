@@ -519,6 +519,10 @@ keywritemac(mac -3);
 keywritemac(mac +3);
 keywritemac(mac -4);
 keywritemac(mac +4);
+keywritemac(mac -5);
+keywritemac(mac +5);
+keywritemac(mac -6);
+keywritemac(mac +6);
 keywritemacwps(mac);
 keywritemacwps(mac -1);
 keywritemacwps(mac +1);
@@ -528,6 +532,10 @@ keywritemacwps(mac -3);
 keywritemacwps(mac +3);
 keywritemacwps(mac -4);
 keywritemacwps(mac +4);
+keywritemacwps(mac -5);
+keywritemacwps(mac +5);
+keywritemacwps(mac -6);
+keywritemacwps(mac +6);
 return;
 }
 /*===========================================================================*/
