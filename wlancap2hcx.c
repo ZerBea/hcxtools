@@ -95,6 +95,7 @@ long int groupkeycount = 0;
 char *hcxoutname = NULL;
 char *hcxoutnamenec = NULL;
 char *johnwpapskoutname = NULL;
+char *johnwpapskwdfoutname = NULL;
 char *johnbasename = NULL;
 char *hc4800outname = NULL;
 char *johnchapoutname = NULL;
@@ -765,8 +766,18 @@ if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 
 	showinfo(&hcxrecord);
 	}
 
-
 if((johnwpapskoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2) || (hcxrecord.keyver == 3)))
+	{
+	if((fhhcx = fopen(johnwpapskoutname, "ab")) == NULL)
+		{
+			fprintf(stderr, "error opening hccapx file %s: %s\n", johnwpapskoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	processjohn(&hcxrecord, fhhcx);
+	fclose(fhhcx);
+	}
+
+if((johnwpapskwdfoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2) || (hcxrecord.keyver == 3)))
 	{
 	if((fhhcx = fopen(johnwpapskoutname, "ab")) == NULL)
 		{
@@ -2269,36 +2280,36 @@ if(hcxwritewldcount == 1)
 	{
 	printf("\x1B[32mfound %ld valid WPA handshake (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
 	if(wdfhcxoutname != NULL)
-		printf("\x1B[32myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
+		printf("\x1B[32myou can use nonce-error-corrections 0 on %s\x1B[0m\n", wdfhcxoutname);
 	}
 else if(hcxwritewldcount > 1)
 	{
 	printf("\x1B[32mfound %ld valid WPA handshakes (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
 	if(wdfhcxoutname != NULL)
-		printf("\x1B[32myou can use hashcat --nonce-error-corrections=0 on %s\x1B[0m\n", wdfhcxoutname);
+		printf("\x1B[32myou can use nonce-error-corrections 0 on %s\x1B[0m\n", wdfhcxoutname);
 	}
 
 if((anecflag == true) && (wdfhcxoutname == NULL))
-	printf("\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
+	printf("\x1B[32mnonce-error-corrections is working on that file\x1B[0m\n");
 
 if((ancflag == true) && (hcxoutname != NULL))
 	{
 	if((rctimecount > 2) && (rctimecount <= 4))
-		printf("\x1B[32myou should use hashcat --nonce-error-corrections=16 (or greater) on %s\x1B[0m\n", hcxoutname);
+		printf("\x1B[32myou should use nonce-error-corrections 16 (or greater) on %s\x1B[0m\n", hcxoutname);
 	if((rctimecount > 4) && (rctimecount <= 8))
-		printf("\x1B[32myou should use hashcat --nonce-error-corrections=32 (or greater) on %s\x1B[0m\n", hcxoutname);
+		printf("\x1B[32myou should nonce-error-corrections 32 (or greater) on %s\x1B[0m\n", hcxoutname);
 	if(rctimecount > 8)
-		printf("\x1B[32myou should use hashcat --nonce-error-corrections=64 (or greater) on %s\x1B[0m\n", hcxoutname);
+		printf("\x1B[32myou should use nonce-error-corrections 64 (or greater) on %s\x1B[0m\n", hcxoutname);
 	}
 
 if((ancflag == true) && (nonwdfhcxoutname != NULL))
 	{
 	if((rctimecount > 2) && (rctimecount <= 4))
-		printf("\x1B[32myou should use hashcat --nonce-error-corrections=16 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
+		printf("\x1B[32myou should use nonce-error-corrections 16 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
 	if((rctimecount > 4) && (rctimecount <= 8))
-		printf("\x1B[32myou should use hashcat --nonce-error-corrections=32 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
+		printf("\x1B[32myou should use nonce-error-corrections 32 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
 	if(rctimecount > 8)
-		printf("\x1B[32myou should use hashcat --nonce-error-corrections=64 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
+		printf("\x1B[32myou should use nonce-error-corrections 64 (or greater) on %s\x1B[0m\n", nonwdfhcxoutname);
 	}
 
 
@@ -2509,9 +2520,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output hccapx file (WPA/WPA2/WPA2 AES-128-CMAC: use hashcat -m 2500 or -m 2501)\n"
 	"-O <file> : output hccapx file without ESSIDs (WPA/WPA2/WPA2 AES-128-CMAC: use hashcat -m 2501 only)\n"
-	"-w <file> : output only wlandump forced to hccapx file\n"
-	"-W <file> : output only not wlandump forced to hccapx file\n"
+	"-w <file> : output only wlandump forced handshakes to hccapx file\n"
+	"-W <file> : output only not wlandump forced handshakes to hccapx file\n"
 	"-j <file> : output john WPAPSK-PMK file\n"
+	"-J <file> : output only wlandump forced handshakes to john WPAPSK-PMK file\n"
 	"-p <file> : output merged pcap file (upload this file to http://wpa-sec.stanev.org)\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
 	"-l <file> : output IPv4/IPv6 packets pcap file (analysis purpose)\n"
@@ -2569,7 +2581,7 @@ if (argc == 1)
 	}
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:O:j:m:M:n:N:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2583,6 +2595,10 @@ while ((auswahl = getopt(argc, argv, "o:O:j:m:M:n:N:p:P:l:L:e:E:f:w:W:u:S:F:xris
 
 		case 'j':
 		johnwpapskoutname = optarg;
+		break;
+
+		case 'J':
+		johnwpapskwdfoutname = optarg;
 		break;
 
 		case 'n':
@@ -2680,28 +2696,28 @@ initgloballists();
 if(pcapoutname != NULL)
 	{
 	pcapdh = pcap_open_dead(DLT_IEEE802_11, 65535);
-	if ((pcapout = pcap_dump_open(pcapdh, pcapoutname)) == NULL)
+	if((pcapout = pcap_dump_open(pcapdh, pcapoutname)) == NULL)
 		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapoutname);
 	}
 
 if(pcapextoutname != NULL)
 	{
 	pcapextdh = pcap_open_dead(DLT_IEEE802_11, 65535);
-	if ((pcapextout = pcap_dump_open(pcapextdh, pcapextoutname)) == NULL)
+	if((pcapextout = pcap_dump_open(pcapextdh, pcapextoutname)) == NULL)
 		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapextoutname);
 	}
 
 if(pcapipv46outname != NULL)
 	{
 	pcapipv46dh = pcap_open_dead(DLT_IEEE802_11, 65535);
-	if ((pcapipv46out = pcap_dump_open(pcapipv46dh, pcapipv46outname)) == NULL)
+	if((pcapipv46out = pcap_dump_open(pcapipv46dh, pcapipv46outname)) == NULL)
 		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapipv46outname);
 	}
 
 if(pcapwepoutname != NULL)
 	{
 	pcapwepdh = pcap_open_dead(DLT_IEEE802_11, 65535);
-	if ((pcapwepout = pcap_dump_open(pcapwepdh, pcapwepoutname)) == NULL)
+	if((pcapwepout = pcap_dump_open(pcapwepdh, pcapwepoutname)) == NULL)
 		fprintf(stderr, "\x1B[31merror creating dump file %s\x1B[0m\n", pcapwepoutname);
 	}
 
