@@ -80,7 +80,9 @@ long int groupkeycount = 0;
 char *hcxoutname = NULL;
 char *hcxoutnamenec = NULL;
 char *hc4800outname = NULL;
+char *johnchapoutname = NULL;
 char *hc5500outname = NULL;
+char *johnnetntlmoutname = NULL;
 char *wdfhcxoutname = NULL;
 char *nonwdfhcxoutname = NULL;
 char *showinfo2outname = NULL;
@@ -224,6 +226,7 @@ bool addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 eapmd5_t *eapmd5;
 FILE *fhhash;
+FILE *fhjohn;
 uint8_t changeflag = false;
 int c;
 
@@ -269,6 +272,24 @@ if((changeflag == true) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == true) && (hc
 		fprintf(fhhash, "%02x\n", hcmd5.id2);
 		fclose(fhhash);
 		}
+
+	if(johnchapoutname != NULL)
+		{
+		if((fhjohn = fopen(johnchapoutname, "a+")) == NULL)
+			{
+			fprintf(stderr, "error opening iSCSI CHAP authentication, MD5(CHAP) file %s: %s\n", johnchapoutname, strerror(errno));
+			exit(EXIT_FAILURE);
+			}
+		fprintf(fhjohn, "$chap$%x*", hcmd5.id2);
+		for(c = 0; c < 16; c++)
+			fprintf(fhjohn, "%02x", hcmd5.challenge[c]);
+		fprintf(fhjohn, "*");
+		for(c = 0; c < 16; c++)
+			fprintf(fhjohn, "%02x", hcmd5.response[c]);
+		fprintf(fhjohn, "\n");
+		fclose(fhjohn);
+		}
+
 	return true;
 	}
 return false;
@@ -277,6 +298,7 @@ return false;
 bool addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 FILE *fhhash;
+FILE *fhjohn;
 FILE *fhuser;
 eapleap_t *eapleap;
 int eaplen;
@@ -351,6 +373,36 @@ if((changeflag == true) && (hcleap.p1 == true) && (hcleap.p2 == true) && (memcmp
 		fprintf(fhhash, "\n");
 		fclose(fhhash);
 		}
+
+
+	if(johnnetntlmoutname != NULL)
+		{
+		if((fhjohn = fopen(johnnetntlmoutname, "a+")) == NULL)
+			{
+			fprintf(stderr, "error opening netNTLMv1 file %s: %s\n", johnnetntlmoutname, strerror(errno));
+			exit(EXIT_FAILURE);
+			}
+
+		ptr = strchr(hcleap.username, '\\');
+		if(ptr == NULL)
+			fprintf(fhjohn, "%s:::lm-hash:", hcleap.username);
+		else
+			fprintf(fhjohn, "%s:::lm-hash:", ++ptr);
+
+		for(c = 0; c < 24; c++)
+			fprintf(fhjohn, "%02x", hcleap.peerresponse[c]);
+		fprintf(fhjohn, ":");
+		for(c = 0; c < 8; c++)
+			fprintf(fhjohn, "%02x", hcleap.peerchallenge[c]);
+		fprintf(fhjohn, "\n");
+		fclose(fhjohn);
+		}
+
+
+
+
+
+
 	return true;
 	}
 return false;
@@ -2358,8 +2410,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
 	"-l <file> : output IPv4/IPv6 packets pcap file (analysis purpose)\n"
 	"-L <file> : output wep encrypted data packets pcap file (for use with a wep cracker)\n"
-	"-m <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP): use hashcat -m 4800)\n"
-	"-n <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication: use hashcat -m 5500)\n"
+	"-m <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP), hashcat: -m 4800)\n"
+	"-M <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP), john: chap)\n"
+	"-n <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication, hashcat -m 5500)\n"
+	"-N <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication, john netntlm)\n"
 	"-e <file> : output wordlist (autohex enabled) to use as hashcat input wordlist (hashcat -m 2500)\n"
 	"-E <file> : output wordlist (autohex disabled) to use as hashcat input wordlist (hashcat -m 2500)\n"
 	"-f <file> : output possible wpa/wpa2 pmk list (hashcat -m 2501)\n"
@@ -2409,7 +2463,7 @@ if (argc == 1)
 	}
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:O:m:M:n:N:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2425,8 +2479,16 @@ while ((auswahl = getopt(argc, argv, "o:O:m:n:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv"))
 		hc5500outname = optarg;
 		break;
 
+		case 'N':
+		johnnetntlmoutname = optarg;
+		break;
+
 		case 'm':
 		hc4800outname = optarg;
+		break;
+
+		case 'M':
+		johnchapoutname = optarg;
 		break;
 
 		case 'w':
