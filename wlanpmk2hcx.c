@@ -80,8 +80,9 @@ return len;
 }
 
 /*===========================================================================*/
-void outputhashlist(FILE *fhcombi, FILE *fhhash)
+void outputhashlist(FILE *fhcombi, FILE *fhhash, FILE *fhjohn)
 {
+int c;
 int combilen;
 int essidlen;
 long int hashcount = 0;
@@ -123,14 +124,26 @@ while((combilen = fgetline(fhcombi, 100, combiline)) != -1)
 		continue;
 		}
 
-	memset(&essidstr, 0, 64);
-	memcpy(&essidstr, essidname, essidlen);
-	base64(essidstr, essidlen, &hashrecord);
-	fprintf(fhhash, "sha1:4096:%s:", hashrecord);
-	free(hashrecord);
-	base64(pmkstr, 32, &hashrecord);
-	fprintf(fhhash, "%s\n\n", hashrecord);
-	free(hashrecord);
+	if(fhhash != NULL)
+		{
+		memset(&essidstr, 0, 64);
+		memcpy(&essidstr, essidname, essidlen);
+		base64(essidstr, essidlen, &hashrecord);
+		fprintf(fhhash, "sha1:4096:%s:", hashrecord);
+		free(hashrecord);
+		base64(pmkstr, 32, &hashrecord);
+		fprintf(fhhash, "%s\n", hashrecord);
+		free(hashrecord);
+		}
+
+	if(fhjohn != NULL)
+		{
+		combiline[64] = 0;
+		fprintf(fhjohn, "$pbkdf2-hmac-sha1$4096$");
+		for(c = 0; c < essidlen; c++)
+			fprintf(fhjohn, "%02x", essidname[c]);
+		fprintf(fhjohn, "$%s\n", combiline);
+		}
 	hashcount++;
 	}
 printf("\r%ld hashrecords generated, %ld password(s) skipped\n", hashcount, skippedcount);
@@ -139,6 +152,7 @@ return;
 /*===========================================================================*/
 void outputsinglehash(char *pmkname, char *essidname, int essidlen)
 {
+int c;
 char *hashrecord = NULL;
 unsigned char essidstr[64];
 unsigned char pmkstr[64];
@@ -149,7 +163,7 @@ if(hexstr2bin(pmkname, pmkstr, 64) != true)
 	return;
 	}
 
-printf("\nuse hashcat hash-mode -m 12000 to get password\n");
+printf("\nhashcat: hash-mode -m 12000 to get password\n");
 memset(&essidstr, 0, 64);
 memcpy(&essidstr, essidname, essidlen);
 base64(essidstr, essidlen, &hashrecord);
@@ -158,6 +172,11 @@ free(hashrecord);
 base64(pmkstr, 32, &hashrecord);
 printf("%s\n\n", hashrecord);
 free(hashrecord);
+printf("\njohn: pbkdf2-hmac-sha1 to get password\n");
+printf("$pbkdf2-hmac-sha1$4096$");
+for(c = 0; c < essidlen; c++)
+	printf("%02x", essidname[c]);
+printf("$%s\n\n", pmkname);
 return;
 }
 /*===========================================================================*/
@@ -169,7 +188,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-i <file>  : input combilist (pmk:essid)\n"
- 	"-o <file>  : output hashfile (use hashcat -m 12000)\n"
+ 	"-o <file>  : output hashcat hashfile (-m 12000)\n"
+ 	"-j <file>  : output john hashfile (pbkdf2-hmac-sha1)\n"
 	"-e <essid> : input single essid (networkname: 1 .. 32 characters)\n"
 	"-p <pmk>   : input plainmasterkey (64 xdigits)\n"
 	"-h         : this help\n"
@@ -190,13 +210,13 @@ char *essidname = NULL;
 
 FILE *fhcombi = NULL;
 FILE *fhhash = NULL;
-
+FILE *fhjohn = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:e:p:h")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:j:e:p:h")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -210,6 +230,14 @@ while ((auswahl = getopt(argc, argv, "i:o:e:p:h")) != -1)
 
 		case 'o':
 		if((fhhash = fopen(optarg, "a")) == NULL)
+			{
+			fprintf(stderr, "error opening %s\n", optarg);
+			exit(EXIT_FAILURE);
+			}
+		break;
+
+		case 'j':
+		if((fhjohn = fopen(optarg, "a")) == NULL)
 			{
 			fprintf(stderr, "error opening %s\n", optarg);
 			exit(EXIT_FAILURE);
@@ -252,11 +280,15 @@ while ((auswahl = getopt(argc, argv, "i:o:e:p:h")) != -1)
 if((essidname != NULL) && (pmkname != NULL))
 	outputsinglehash(pmkname, essidname, essidlen);
 
-else if((fhcombi != NULL) && (fhhash != NULL))
-	outputhashlist(fhcombi, fhhash);
+else if((fhcombi != NULL) && ((fhhash != NULL) || (fhjohn != NULL)))
+	outputhashlist(fhcombi, fhhash, fhjohn);
+
 
 if(fhcombi != NULL)
 	fclose(fhcombi);
+
+if(fhjohn != NULL)
+	fclose(fhjohn);
 
 if(fhhash != NULL)
 	fclose(fhhash);

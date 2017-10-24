@@ -1,8 +1,9 @@
 hcxtools
 ==============
 
-Small set of tools to capture and convert packets from wlan devices for the
-use with latest hashcat or John the Ripper. The tools are 100% compatible to 
+Small set of tools to capture and convert packets from wlan devices
+(h = hash, c = capture, convert and calculate candidates, x = different hashtyppes) 
+for the use with latest hashcat or John the Ripper. The tools are 100% compatible to 
 hashcat and John the Ripper and recommended by hashcat. This branch is pretty
 closely synced to hashcat git branch (that means: latest hcxtools matching
 on latest hashcat beta) and John the Ripper git branch ( "bleeding-jumbo").
