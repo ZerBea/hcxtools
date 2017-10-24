@@ -9,7 +9,7 @@ on latest hashcat beta) and John the Ripper git branch ( "bleeding-jumbo").
 
 Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000
  
-Support for John the Ripper hash modes: wpapsk, wpapmk
+Support for John the Ripper hash modes: WPAPSK-PMK
 
 After capturing, upload the "uncleaned" cap here
 (http://wpa-sec.stanev.org/?submit) to see if your ap or the client is vulnerable
