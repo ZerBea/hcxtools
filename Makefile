@@ -47,6 +47,7 @@ endif
 	$(CC) $(CFLAGS) -o wlanhashhcx wlanhashhcx.c
 	$(CC) $(CFLAGS) -o wlanhcxcat wlanhcxcat.c -lcrypto
 	$(CC) $(CFLAGS) -o wlanpmk2hcx wlanpmk2hcx.c -lcrypto
+	$(CC) $(CFLAGS) -o wlanpmk2john wlanpmk2john.c -lcrypto
 	$(CC) $(CFLAGS) -o wlanjohn2hcx wlanjohn2hcx.c
 	$(CC) $(CFLAGS) -o wlancow2hcxpmk wlancow2hcxpmk.c
 	$(CC) $(CFLAGS) -o whoismac whoismac.c -lcurl
@@ -76,6 +77,7 @@ endif
 	install $(INSTFLAGS) wlanhashhcx $(INSTALLDIR)/wlanhashhcx
 	install $(INSTFLAGS) wlanhcxcat $(INSTALLDIR)/wlanhcxcat
 	install $(INSTFLAGS) wlanpmk2hcx $(INSTALLDIR)/wlanpmk2hcx
+	install $(INSTFLAGS) wlanpmk2john $(INSTALLDIR)/wlanpmk2john
 	install $(INSTFLAGS) wlanjohn2hcx $(INSTALLDIR)/wlanjohn2hcx
 	install $(INSTFLAGS) wlancow2hcxpmk $(INSTALLDIR)/wlancow2hcxpmk
 	install $(INSTFLAGS) whoismac $(INSTALLDIR)/whoismac
@@ -104,6 +106,7 @@ endif
 	rm -f wlanhashhcx
 	rm -f wlanhcxcat
 	rm -f wlanpmk2hcx
+	rm -f wlanpmk2john
 	rm -f wlanjohn2hcx
 	rm -f wlancow2hcxpmk
 	rm -f whoismac
@@ -135,6 +138,7 @@ endif
 	rm -f wlanhashhcx
 	rm -f wlanhcxcat
 	rm -f wlanpmk2hcx
+	rm -f wlanpmk2john
 	rm -f wlanjohn2hcx
 	rm -f wlancow2hcxpmk
 	rm -f whoismac
@@ -166,6 +170,7 @@ endif
 	rm -f $(INSTALLDIR)/wlanhashhcx
 	rm -f $(INSTALLDIR)/wlanhcxcat
 	rm -f $(INSTALLDIR)/wlanpmk2hcx
+	rm -f $(INSTALLDIR)/wlanpmk2john
 	rm -f $(INSTALLDIR)/wlanjohn2hcx
 	rm -f $(INSTALLDIR)/wlancow2hcxpmk
 	rm -f $(INSTALLDIR)/whoismac
