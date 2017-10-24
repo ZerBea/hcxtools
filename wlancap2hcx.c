@@ -29,6 +29,21 @@
 #include "com_formats.c"
 #include "com_wpa.c"
 
+struct hccap
+{
+  char essid[36];
+  unsigned char mac1[6];	/* bssid */
+  unsigned char mac2[6];	/* client */
+  unsigned char nonce1[32];	/* snonce client */
+  unsigned char nonce2[32];	/* anonce bssid */
+  unsigned char eapol[256];
+  int eapol_size;
+  int keyver;
+  unsigned char keymic[16];
+};
+typedef struct hccap hccap_t;
+#define	HCCAP_SIZE (sizeof(hccap_t))
+
 /*===========================================================================*/
 /* globale Variablen */
 
@@ -79,6 +94,8 @@ long int groupkeycount = 0;
 
 char *hcxoutname = NULL;
 char *hcxoutnamenec = NULL;
+char *johnwpapskoutname = NULL;
+char *johnbasename = NULL;
 char *hc4800outname = NULL;
 char *johnchapoutname = NULL;
 char *hc5500outname = NULL;
@@ -486,6 +503,80 @@ if(showinfo2 == true)
 	}
 }
 /*===========================================================================*/
+static void hccap2base(FILE *fhjohn, unsigned char *in, unsigned char b)
+{
+const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+fprintf(fhjohn, "%c", (itoa64[in[0] >> 2]));
+fprintf(fhjohn, "%c", (itoa64[((in[0] & 0x03) << 4) | (in[1] >> 4)]));
+if (b)
+	{
+	fprintf(fhjohn, "%c", (itoa64[((in[1] & 0x0f) << 2) | (in[2] >> 6)]));
+	fprintf(fhjohn, "%c", (itoa64[in[2] & 0x3f]));
+	}
+else
+	fprintf(fhjohn, "%c", (itoa64[((in[1] & 0x0f) << 2)]));
+return;
+}
+/*===========================================================================*/
+void mac2asciilong(char ssid[18], unsigned char *p)
+{
+sprintf(ssid, "%02x-%02x-%02x-%02x-%02x-%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
+return;
+}
+/*===========================================================================*/
+void mac2ascii(char ssid[13], unsigned char *p)
+{
+sprintf(ssid, "%02x%02x%02x%02x%02x%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
+return;
+}
+/*===========================================================================*/
+static void writejohn(FILE *fhjohn, hccap_t * hc, const char *basename, uint8_t message_pair)
+{
+unsigned int i;
+unsigned char *hcpos = (unsigned char *)hc;
+char sta_mac[18];
+char ap_mac[18];
+char ap_mac_long[13];
+
+mac2ascii(ap_mac_long, hc->mac1);
+mac2asciilong(ap_mac, hc->mac1);
+mac2asciilong(sta_mac, hc->mac2);
+
+fprintf(fhjohn, "%s:$WPAPSK$%s#", hc->essid, hc->essid);
+for (i = 36; i + 3 < HCCAP_SIZE; i += 3)
+	hccap2base(fhjohn, &hcpos[i], 1);
+hccap2base(fhjohn, &hcpos[i], 0);
+fprintf(fhjohn, ":%s:%s:%s::WPA", sta_mac, ap_mac, ap_mac_long);
+if (hc->keyver > 1)
+	fprintf(fhjohn, "%d", hc->keyver);
+
+if((message_pair &0x80) > 1)
+	fprintf(fhjohn, ":verfified:%s\n", basename);
+else
+	fprintf(fhjohn, ":not verfified:%s\n", basename);
+return;
+}
+/*===========================================================================*/
+void processjohn(hcx_t *zeiger, FILE *fhjohn)
+{
+hccap_t hcdata;
+
+memset(&hcdata, 0, HCCAP_SIZE);
+memcpy(&hcdata.essid, zeiger->essid, zeiger->essid_len);
+memcpy(&hcdata.mac1, zeiger->mac_ap.addr, 6);
+memcpy(&hcdata.mac2, zeiger->mac_sta.addr, 6);
+memcpy(&hcdata.nonce1, zeiger->nonce_sta, 32);
+memcpy(&hcdata.nonce2, zeiger->nonce_ap, 32);
+memcpy(&hcdata.eapol, zeiger->eapol, zeiger->eapol_len +4);
+hcdata.eapol_size = zeiger->eapol_len;
+hcdata.keyver = zeiger->keyver;
+memcpy(&hcdata.keymic, zeiger->keymic, 16);
+writejohn(fhjohn, &hcdata, johnbasename, zeiger->message_pair);
+
+return;
+}
+/*===========================================================================*/
 void writehcxnec(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 hcx_t hcxrecord;
@@ -672,6 +763,18 @@ if((nonwdfhcxoutname != NULL) && (wldflagint == false) && ((hcxrecord.keyver == 
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
 	showinfo(&hcxrecord);
+	}
+
+
+if((johnwpapskoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2) || (hcxrecord.keyver == 3)))
+	{
+	if((fhhcx = fopen(johnwpapskoutname, "ab")) == NULL)
+		{
+			fprintf(stderr, "error opening hccapx file %s: %s\n", johnwpapskoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	processjohn(&hcxrecord, fhhcx);
+	fclose(fhhcx);
 	}
 return;
 }
@@ -1367,6 +1470,8 @@ if(eapdbdata == NULL)
 neweapdbdata = eapdbdata;
 eapdbrecords = 0;
 
+
+if((johnbasename = strrchr(pcapinname, '/') +1))
 
 printf("start reading from %s\n", pcapinname);
 
@@ -2406,6 +2511,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-O <file> : output hccapx file without ESSIDs (WPA/WPA2/WPA2 AES-128-CMAC: use hashcat -m 2501 only)\n"
 	"-w <file> : output only wlandump forced to hccapx file\n"
 	"-W <file> : output only not wlandump forced to hccapx file\n"
+	"-j <file> : output john WPAPSK-PMK file\n"
 	"-p <file> : output merged pcap file (upload this file to http://wpa-sec.stanev.org)\n"
 	"-P <file> : output extended eapol packets pcap file (analysis purpose)\n"
 	"-l <file> : output IPv4/IPv6 packets pcap file (analysis purpose)\n"
@@ -2463,7 +2569,7 @@ if (argc == 1)
 	}
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:O:m:M:n:N:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:O:j:m:M:n:N:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2473,6 +2579,10 @@ while ((auswahl = getopt(argc, argv, "o:O:m:M:n:N:p:P:l:L:e:E:f:w:W:u:S:F:xrisZh
 
 		case 'O':
 		hcxoutnamenec = optarg;
+		break;
+
+		case 'j':
+		johnwpapskoutname = optarg;
 		break;
 
 		case 'n':
