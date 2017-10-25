@@ -2255,14 +2255,14 @@ else if(hcxwritecount > 1)
 	printf("\x1B[32mtotal %ld usefull wpa handshakes\x1B[0m\n", hcxwritecount);
 
 if(weakpasscount == 1)
-	printf("\x1B[32mfound %ld handshake with zeroed plainmasterkeys (use hashcat -m 2501 with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
+	printf("\x1B[32mfound %ld handshake with zeroed plainmasterkeys (hashcat -m 2501 or john WPAPSK-PMK with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
 else if(weakpasscount > 1)
-	printf("\x1B[32mfound %ld handshakes with zeroed plainmasterkeys (use hashcat -m 2501 with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
+	printf("\x1B[32mfound %ld handshakes with zeroed plainmasterkeys (hashcat -m 2501 john WPAPSK-PMK with a zeroed plainmasterkey)\x1B[0m\n", weakpasscount);
 
 if(hcxwriteneccount == 1)
-	printf("\x1B[32mfound %ld handshake without ESSID (use hashcat -m 2501)\x1B[0m\n", hcxwriteneccount);
+	printf("\x1B[32mfound %ld handshake without ESSID (hashcat -m 2501, john WPAPSK-PMK)\x1B[0m\n", hcxwriteneccount);
 else if(hcxwriteneccount > 1)
-	printf("\x1B[32mfound %ld handshakes without ESSIDs (use hashcat -m 2501)\x1B[0m\n", hcxwriteneccount);
+	printf("\x1B[32mfound %ld handshakes without ESSIDs (hashcat -m 2501, john WPAPSK-PMK)\x1B[0m\n", hcxwriteneccount);
 
 if(wpakv1c > 0)
 	printf("\x1B[32mfound %ld WPA1 RC4 Cipher, HMAC-MD5\x1B[0m\n", wpakv1c);
@@ -2317,7 +2317,7 @@ if(eap3flag == true)
 	printf("\x1B[36mfound Legacy Nak\x1B[0m\n");
 
 if(eap4flag == true)
-	printf("\x1B[36mfound MD5-Challenge (hashcat -m 4800)\x1B[0m\n");
+	printf("\x1B[36mfound MD5-Challenge (hashcat -m 4800, john chap)\x1B[0m\n");
 
 if(eap5flag == true)
 	printf("\x1B[36mfound One-Time Password (OTP)\x1B[0m\n");
@@ -2350,7 +2350,7 @@ if(eap16flag == true)
 	printf("\x1B[36mfound Arcot Systems EAP\x1B[0m\n");
 
 if(eap17flag == true)
-	printf("\x1B[36mfound EAP-Cisco Wireless Authentication (hashcat -m 5500)\x1B[0m\n");
+	printf("\x1B[36mfound EAP-Cisco Wireless Authentication (hashcat -m 5500, john netntlm)\x1B[0m\n");
 
 if(eap18flag == true)
 	printf("\x1B[36mfound EAP-SIM (GSM Subscriber Modules) Authentication\x1B[0m\n");
@@ -2492,7 +2492,7 @@ if(udpflag == true)
 	printf("\x1B[35mfound UDP packets\x1B[0m\n");
 
 if(pppchapflag == true)
-	printf("\x1B[35mfound PPP CHAP Authentication packets (hashcat -m 5500)\x1B[0m\n");
+	printf("\x1B[35mfound PPP CHAP Authentication packets (hashcat -m 5500, john netntlm)\x1B[0m\n");
 
 if(wpadataflag == true)
 	printf("\x1B[35mfound WPA encrypted data packets\x1B[0m\n");
@@ -2518,8 +2518,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
-	"-o <file> : output hccapx file (WPA/WPA2/WPA2 AES-128-CMAC: use hashcat -m 2500 or -m 2501)\n"
-	"-O <file> : output hccapx file without ESSIDs (WPA/WPA2/WPA2 AES-128-CMAC: use hashcat -m 2501 only)\n"
+	"-o <file> : output hccapx file (WPA/WPA2/WPA2 AES-128-CMAC: hashcat -m 2500 or -m 2501, john WPAPSK-PMK)\n"
+	"-O <file> : output hccapx file without ESSIDs (WPA/WPA2/WPA2 AES-128-CMAC: hashcat -m 2501 only or john WPAPSK-PMK)\n"
 	"-w <file> : output only wlandump forced handshakes to hccapx file\n"
 	"-W <file> : output only not wlandump forced handshakes to hccapx file\n"
 	"-j <file> : output john WPAPSK-PMK file\n"
@@ -2532,10 +2532,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-M <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP), john: chap)\n"
 	"-n <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication, hashcat -m 5500)\n"
 	"-N <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication, john netntlm)\n"
-	"-e <file> : output wordlist (autohex enabled) to use as hashcat input wordlist (hashcat -m 2500)\n"
-	"-E <file> : output wordlist (autohex disabled) to use as hashcat input wordlist (hashcat -m 2500)\n"
-	"-f <file> : output possible wpa/wpa2 pmk list (hashcat -m 2501)\n"
-	"-u <file> : output usernames/identities file (hashcat -m 2500)\n"
+	"-e <file> : output wordlist (autohex enabled) to use as hashcat input wordlist (hashcat -m 2500, john WPAPSK-PMK)\n"
+	"-E <file> : output wordlist (autohex disabled) to use as hashcat input wordlist (hashcat -m 2500, john WPAPSK-PMK)\n"
+	"-f <file> : output possible wpa/wpa2 pmk list (hashcat -m 2501, john WPAPSK-PMK)\n"
+	"-u <file> : output usernames/identities file (hashcat -m 2500, john WPAPSK-PMK)\n"
 	"-s        : show info for identified hccapx handshake\n"
 	"-S <file> : output info for identified hccapx handshake to file\n"
 	"-x        : look for net exact (ap == ap) && (sta == sta)\n"

@@ -30,11 +30,44 @@
 #define OM_ESSID_LEN	0b000000001000000000
 #define OM_ESSID	0b000000010000000000
 
+#define LINEBUFFER	1024
+#define ARCH_INDEX(x)	((unsigned int)(unsigned char)(x))
+
+struct hccap
+{
+  char essid[36];
+  unsigned char mac1[6];	/* bssid */
+  unsigned char mac2[6];	/* client */
+  unsigned char nonce1[32];	/* snonce client */
+  unsigned char nonce2[32];	/* anonce bssid */
+  unsigned char eapol[256];
+  int eapol_size;
+  int keyver;
+  unsigned char keymic[16];
+};
+typedef struct hccap hccap_t;
+#define	HCCAP_SIZE (sizeof(hccap_t))
+
+
+
 /*===========================================================================*/
 /* globale Variablen */
 
 hcx_t *hcxdata = NULL;
 
+const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+unsigned char atoi64[0x100];
+/*===========================================================================*/
+/* globale Initialisierung */
+
+void globalinit()
+{
+const char *pos;
+memset(atoi64, 0x7F, sizeof(atoi64));
+for (pos = itoa64; pos <= &itoa64[63]; pos++)
+	atoi64[ARCH_INDEX(*pos)] = pos - itoa64;
+return;
+}
 /*===========================================================================*/
 void printhex(const uint8_t *buffer, int size)
 {
@@ -398,10 +431,181 @@ if(outmode == 0)
 			"\n", totalrecords, wldcount, noessidcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, groupkeycount, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == true)
-		fprintf(stdout, "\x1B[32mhashcat --nonce-error-corrections is working on that file\x1B[0m\n");
+		fprintf(stdout, "\x1B[32mnonce-error-corrections is working on that file\x1B[0m\n");
 	}
 
 return;
+}
+/*===========================================================================*/
+bool processhc(hccap_t *zeiger, hcx_t *hcxrecord)
+{
+int essid_len;
+uint8_t m;
+
+char essidout[36];
+
+memset(&essidout, 0, 36);
+memcpy(&essidout, zeiger->essid, 36);
+essid_len = strlen(essidout);
+if((essid_len == 0) || (essid_len > 32) || (zeiger->essid[0] == 0))
+	return false;
+
+if((zeiger->eapol_size < 91) || (zeiger->eapol_size > 256))
+	return false;
+
+m = geteapkeytype(zeiger->eapol);
+if((m < 2) || (m > 4))
+	return false;
+
+memset(hcxrecord, 0, HCX_SIZE);
+hcxrecord->signature = HCCAPX_SIGNATURE;
+hcxrecord->version = HCCAPX_VERSION;
+hcxrecord->essid_len = essid_len;
+if(m == 2)
+	hcxrecord->message_pair = MESSAGE_PAIR_M12E2;
+if(m == 3)
+	hcxrecord->message_pair = MESSAGE_PAIR_M32E3;
+if(m == 4)
+	hcxrecord->message_pair = MESSAGE_PAIR_M14E4;
+memcpy(hcxrecord->essid, zeiger->essid, essid_len);
+hcxrecord->keyver = geteapkeyver(zeiger->eapol);
+memcpy(hcxrecord->mac_ap.addr, zeiger->mac1, 6);
+memcpy(hcxrecord->nonce_ap, zeiger->nonce2, 32);
+memcpy(hcxrecord->mac_sta.addr, zeiger->mac2, 6);
+memcpy(hcxrecord->nonce_sta, zeiger->nonce1, 32);
+hcxrecord->eapol_len = zeiger->eapol_size;
+memcpy(hcxrecord->eapol, zeiger->eapol, zeiger->eapol_size +4);
+memcpy(hcxrecord->keymic, zeiger->keymic, 16);
+memset(&hcxrecord->eapol[0x51], 0, 16);
+
+
+return true;
+}
+/*===========================================================================*/
+size_t chop(char *buffer,  size_t len)
+{
+char *ptr = buffer +len -1;
+
+while (len) {
+	if (*ptr != '\n') break;
+	*ptr-- = 0;
+	len--;
+	}
+
+while (len) {
+	if (*ptr != '\r') break;
+	*ptr-- = 0;
+	len--;
+	}
+return len;
+}
+/*---------------------------------------------------------------------------*/
+int fgetline(FILE *inputstream, size_t size, char *buffer)
+{
+if (feof(inputstream)) return -1;
+		char *buffptr = fgets (buffer, size, inputstream);
+
+	if (buffptr == NULL) return -1;
+
+	size_t len = strlen(buffptr);
+	len = chop(buffptr, len);
+
+return len;
+}
+/*===========================================================================*/
+long int readjohn(char *johninname)
+{
+int len;
+int l;
+int le;
+int i;
+long int hcxsize = 0;
+struct stat statinfo;
+FILE *fhjohn;
+uint8_t *hcptr = NULL;
+hccap_t *hc = NULL;
+hcx_t *hcxz = NULL;
+char *ptr = NULL;
+char *ptre = NULL;
+char *ptressid = NULL;
+const char *formatstring = "$WPAPSK$";
+
+char linein[LINEBUFFER];
+
+unsigned char hctemp[HCCAP_SIZE];
+
+if(stat(johninname, &statinfo) != 0)
+	{
+	fprintf(stderr, "can't stat %s\n", johninname);
+	return 0;
+	}
+
+if((fhjohn = fopen(johninname, "r")) == NULL)
+	{
+	fprintf(stderr, "unable to open database %s\n", johninname);
+	exit (EXIT_FAILURE);
+	}
+
+hcxdata = malloc(statinfo.st_size);
+if(hcxdata == NULL)
+		{
+		fprintf(stderr, "out of memory to store hccapx data\n");
+		fclose(fhjohn);
+		return 0;
+		}
+
+
+hcxz = hcxdata;
+while((len = fgetline(fhjohn, LINEBUFFER, linein)) != -1)
+	{
+	if (len < 10)
+		continue;
+
+	ptressid = strstr(linein, formatstring);
+	if(ptressid == NULL)
+		continue;
+	ptressid += 8;
+
+	ptr = strrchr(linein, '#');
+	if(ptr == NULL)
+		continue;
+	le = ptr - ptressid;
+	ptr++;
+
+	if(le > 32)
+		continue;
+
+	ptre = strchr(ptr, ':');
+	if(ptre == NULL)
+		continue;
+
+	ptre[0] = 0;
+	l = ptre - ptr;
+	if(l != 475)
+		continue;
+
+	memset(&hctemp, 0, HCCAP_SIZE);
+	memcpy(&hctemp, ptressid, le);
+	hcptr = hctemp +36;
+	for (i = 0; i < 118; i++)
+		{
+		hcptr[0] = (atoi64[ARCH_INDEX(ptr[0])] << 2) | (atoi64[ARCH_INDEX(ptr[1])] >> 4);
+		hcptr[1] = (atoi64[ARCH_INDEX(ptr[1])] << 4) | (atoi64[ARCH_INDEX(ptr[2])] >> 2);
+		hcptr[2] = (atoi64[ARCH_INDEX(ptr[2])] << 6) | (atoi64[ARCH_INDEX(ptr[3])]);
+		hcptr += 3;
+		ptr += 4;
+		}
+	hcptr[0] = (atoi64[ARCH_INDEX(ptr[0])] << 2) | (atoi64[ARCH_INDEX(ptr[1])] >> 4);
+	hcptr[1] = (atoi64[ARCH_INDEX(ptr[1])] << 4) | (atoi64[ARCH_INDEX(ptr[2])] >> 2);
+	hc = (hccap_t*)hctemp;
+	if(processhc(hc, hcxz) == true)
+		{
+		hcxz++;
+		hcxsize++;
+		}
+	}
+fclose(fhjohn);
+return hcxsize;
 }
 /*===========================================================================*/
 long int readhccapx(char *hcxinname)
@@ -409,9 +613,6 @@ long int readhccapx(char *hcxinname)
 struct stat statinfo;
 FILE *fhhcx;
 long int hcxsize = 0;
-
-if(hcxinname == NULL)
-	return 0;
 
 if(stat(hcxinname, &statinfo) != 0)
 	{
@@ -431,7 +632,7 @@ if((fhhcx = fopen(hcxinname, "rb")) == NULL)
 	return 0;
 	}
 
-hcxdata = malloc(statinfo.st_size);
+hcxdata = malloc(statinfo.st_size +HCX_SIZE);
 if(hcxdata == NULL)
 		{
 		fprintf(stderr, "out of memory to store hccapx data\n");
@@ -439,7 +640,7 @@ if(hcxdata == NULL)
 		return 0;
 		}
 
-hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
+hcxsize = fread(hcxdata, 1, statinfo.st_size, fhhcx);
 fclose(fhhcx);
 if(hcxsize != statinfo.st_size)
 	{
@@ -458,6 +659,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-i <file> : input hccapx file\n"
+	"-j <file> : input john file (doesn't support all list options\n"
 	"-o <file> : output info file (default stdout)\n"
 	"-a        : list access points\n"
 	"-A        : list anonce\n"
@@ -484,18 +686,23 @@ long int hcxorgrecords = 0;
 char *eigenname;
 char *eigenpfadname;
 char *hcxinname = NULL;
+char *johninname = NULL;
 char *infoname = NULL;
 
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:aAsSMRwpPlehv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:j:o:aAsSMRwpPlehv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'i':
 		hcxinname = optarg;
+		break;
+
+		case 'j':
+		johninname = optarg;
 		break;
 
 		case 'o':
@@ -562,7 +769,13 @@ while ((auswahl = getopt(argc, argv, "i:o:aAsSMRwpPlehv")) != -1)
 		}
 	}
 
-hcxorgrecords = readhccapx(hcxinname);
+globalinit();
+if(hcxinname != NULL)
+	hcxorgrecords = readhccapx(hcxinname);
+
+if(johninname != NULL)
+	hcxorgrecords = readjohn(johninname);
+
 
 if(hcxorgrecords == 0)
 	{
