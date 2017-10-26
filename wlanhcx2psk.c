@@ -30,6 +30,7 @@ bool fileflag = false;
 bool wpsflag = false;
 bool eudateflag = false;
 bool usdateflag = false;
+bool ngflag = false;
 
 FILE *fhpsk;
 
@@ -47,6 +48,26 @@ struct tm *tm = localtime(&t);
 
 thisyear = tm->tm_year +1900;
 return true;
+}
+/*===========================================================================*/
+void writepskorg(const char *pskstring)
+{
+int l;
+l = strlen(pskstring);
+
+if((l < 8) || (l > 32))
+	return;
+
+if(stdoutflag == true)
+	{
+	fprintf(stdout,"%s\n", pskstring);
+	}
+
+if(fileflag == true)
+	{
+	fprintf(fhpsk,"%s\n", pskstring);
+	}
+return;
 }
 /*===========================================================================*/
 void writepsk(const char *pskstring)
@@ -105,7 +126,6 @@ if(fileflag == true)
 		fprintf(fhpsk,"%s\n", upperpskstring);
 	if(lflag == true)
 		fprintf(fhpsk,"%s\n", lowerpskstring);
-
 	}
 return;
 }
@@ -177,6 +197,84 @@ for(y = 1900; y <= thisyear; y++)
 	snprintf(pskstring, 64, "abcd%04d", y);
 	writepsk(pskstring);
 	}
+return;
+}
+/*===========================================================================*/
+static void keywriteng()
+{
+int cn;
+size_t ca, cs;
+
+const char *adjectiv[] = { "ancient", "antique", "aquatic",
+	"baby", "basic", "big", "bitter", "black", "blue", "bold", "bottled" "brave", "breezy", "bright", "brown",
+	"calm", "carrot", "charming", "cheerful", "chip", "chummy", "classy", "clean", "clear", "clever", "cloudy", "cold", "cool", "crispy", "curly",
+	"daily", "deep", "delightful", "dizzy", "dynamic",
+	"elated", "elegant", "excite", "excited", "exotic",
+	"famous", "fancy", "fearless", "festive", "fluffy", "free", "fresh", "friendly", "funny", "fuzzy",
+	"gentle", "gifted", "gigantic", "good", "graceful", "grand", "great", "green",
+	"happy", "heavy", "helpful", "hot", "hungry", "husky",
+	"icy", "imaginary", "invisible",
+	"jagged", "jolly", "joyful", "joyous",
+	"kind",
+	"large", "light", "little", "lively", "lovely", "lucky", "lumpy",
+	"magical", "manic", "mellow", "melodic", "mighty", "misty", "modern",
+	"narrow", "new", "nifty", "noisy", "normal",
+	"odd", "old", "orange", "ordinary",
+	"painless", "pastel", "peaceful", "perfect", "phobic", "pink", "polite", "precious", "pretty", "purple",
+	"quaint", "quick", "quiet",
+	"rapid", "red", "rocky", "rough", "round", "royal", "rustic",
+	"safe", "sandy", "shiny", "short", "silent", "silky", "silly", "slender", "slow", "small", "smart", "smiling", "smooth", "snug", "soft", "sour", "strange", "strong", "sunny", "sweet", "swift",
+	"thirsty", "thoughtful", "tiny",
+	"uneven", "unusual",
+	"vanilla", "vast", "violet"
+	"warm", "watery", "weak", "white", "wide", "wild", "wilde", "windy", "wise", "witty", "wonderful",
+	"yellow", "young",
+	"zany" };
+
+const char *substantiv[] = { "airplane", "apple", "automobile",
+	 "ball", "balloon", "banana", "beach", "bird", "boat", "bolt", "boot", "bottle", "box", "bread", "breeze", "bubble", "bug", "bush", "butter",
+	 "canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "chip", "coast", "coconut", "comet", "cream", "curly", "curtain",
+	 "daisy", "deal", "desk", "diamond", "dink", "door",
+	 "earth", "elephant", "emerald",
+	 "finch", "fire", "flamingo", "flower", "flute", "forest",
+	 "gadfly", "gate", "gear", "giant", "giraffe", "glove", "grape", "grasshopper",
+	 "hair", "hat", "hill", "hippo",
+	 "ink", "iris",
+	 "jade", "jet", "jungle",
+	 "kangaroo", "kayak",
+	 "lake", "lemon", "lightning", "lion", "lotus", "lump",
+	 "mango", "mesa", "mint", "monkey", "moon", "motorcycle", "mountain",
+	 "nest",
+	 "oboe", "ocean", "octopus", "onion", "orange", "orchestra", "owl",
+	 "panda", "path", "pear", "penguin", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "potato", "prairie",
+	 "quail",
+	 "rabbit", "raccoon", "raid", "rain", "raven", "river", "road", "rosebud", "ruby",
+	 "sea", "sheep", "ship", "shoe", "shore", "shrub", "sitter", "skates", "sky", "snake", "socks", "sparrow", "spider", "squash", "squirrel", "star", "stream", "street", "sun",
+	 "table", "teapot", "terrain", "tiger", "toast", "tomato", "trail", "train", "tree", "truck", "trumpet", "tuba", "tulip", "tullip",
+	 "umbrella", "unicorn", "unit",
+	 "valley", "vase", "violet", "violin",
+	 "water", "whale", "wind", "window",
+	 "zebra", "zoo" };
+
+for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
+	for(cs = 0; cs < (sizeof(substantiv) / sizeof(char *)); cs++)
+		{
+		for (cn = 0; cn < 1000; cn++)
+			{
+			snprintf(pskstring, 64, "%s%s%d", adjectiv[ca], substantiv[cs], cn);
+			writepskorg(pskstring);
+			if(cn < 10)
+				{
+				snprintf(pskstring, 64, "%s%s%02d", adjectiv[ca], substantiv[cs], cn);
+				writepskorg(pskstring);
+				}
+			if(cn < 100)
+				{
+				snprintf(pskstring, 64, "%s%s%03d", adjectiv[ca], substantiv[cs], cn);
+				writepskorg(pskstring);
+				}
+			}
+		}
 return;
 }
 /*===========================================================================*/
@@ -940,9 +1038,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-i <file> : input hccapx file\n"
 	"-o <file> : output plainkeys to file\n"
 	"-s        : output plainkeys to stdout (pipe to hashcat)\n"
-	"-W        : include wps keys\n"
-	"-D        : include european date\n"
-	"-d        : include american date\n"
+	"-W        : include complete wps keys\n"
+	"-D        : include complete european dates\n"
+	"-d        : include complete american dates\n"
+	"-N        : include complete NETGEARxx candidates\n"
 	"-h        : this help\n"
 	"-v        : version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname);
@@ -963,7 +1062,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:sWDdhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:sWDdNhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -990,6 +1089,10 @@ while ((auswahl = getopt(argc, argv, "i:o:sWDdhv")) != -1)
 
 		case 'd':
 		usdateflag = true;
+		break;
+
+		case 'N':
+		ngflag = true;
 		break;
 
 		default:
@@ -1033,6 +1136,8 @@ if((stdoutflag == true) || (fileflag == true))
 		keywriteusdate();
 	if((eudateflag == true) ||(usdateflag == true))
 		keywriteyearyear();
+	if(ngflag == true)
+		keywriteng();
 	}
 
 if(hcxdata != NULL)
