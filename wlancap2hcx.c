@@ -392,7 +392,6 @@ if((changeflag == true) && (hcleap.p1 == true) && (hcleap.p2 == true) && (memcmp
 		fclose(fhhash);
 		}
 
-
 	if(johnnetntlmoutname != NULL)
 		{
 		if((fhjohn = fopen(johnnetntlmoutname, "a+")) == NULL)
@@ -415,12 +414,6 @@ if((changeflag == true) && (hcleap.p1 == true) && (hcleap.p2 == true) && (memcmp
 		fprintf(fhjohn, "\n");
 		fclose(fhjohn);
 		}
-
-
-
-
-
-
 	return true;
 	}
 return false;
@@ -2365,7 +2358,7 @@ if(eap22flag == true)
 	printf("\x1B[36mfound Remote Access Service\x1B[0m\n");
 
 if(eap23flag == true)
-	printf("\x1B[36mfound EAP-AKA Authentication\x1B[0m\n");
+	printf("\x1B[36mfound UMTS Authentication and Key Agreement (EAP-AKA)\x1B[0m\n");
 
 if(eap24flag == true)
 	printf("\x1B[36mfound EAP-3Com Wireless Authentication\x1B[0m\n");
