@@ -432,6 +432,8 @@ if(eapidentity->eaptype != EAP_TYPE_ID)
 idlen = htons(eapidentity->eaplen) -5;
 if((idlen > 0) && (idlen <= 256))
 	{
+	if(eapidentity->identity[0] == 0)
+		return;
 	memset(idstring, 0, 258);
 	memcpy(&idstring, eapidentity->identity, idlen);
 	if(usernameoutname != NULL)
@@ -1880,7 +1882,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				pcap_dump((u_char *) pcapextout, pkh, h80211);
 
 
-			if(eapext->eapcode == EAP_CODE_RESP)
+			if(eapext->eaptype == EAP_TYPE_ID)
 				addresponseidentity(eapext);
 
 			if(eapext->eaptype == EAP_TYPE_NAK)
