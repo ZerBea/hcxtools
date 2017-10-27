@@ -137,7 +137,7 @@ int y;
 
 const char *weakword[] =
 {
-"00000000", "0000000000", "01234567", "0123456789", "0123456789012345", "0987654321",
+"00000000", "0000000000", "01234567", "0123456789", "0123456789012345", "022844444", "0987654321",
 "1029384756", "11111111", "1111111111", "111222333", "11223344", "1122334455", "11235813",
 "1123581321", "12121212", "123123123", "123321123", "12341234", "12344321", "1234512345",
 "123454321", "1234554321", "12345678", "123456789", "1234567890", "12345678910",
@@ -160,7 +160,7 @@ const char *weakword[] =
 "Christopher", "Cocacola", "Colorado", "Computer", "Corvette", "Courtney",
 "Creative", "Danielle", "Darkness", "December", "Dolphins", "DragonBall",
 "drowssap", "Einstein", "Elephant", "Elizabeth", "Evolution", "Facebook",
-"Fernando", "Fireball", "Firebird", "Football", "Football1", "Franklin",
+"Fernando", "Fireball", "Firebird", "Football", "Football1", "free-tau", "Franklin",
 "FuckYou2", "Gangster", "Garfield", "Giovanni", "Godzilla", "Goldfish",
 "GoodLuck", "GreenDay", "Hallo123", "Hardcore", "Harrison", "HarryPotter",
 "Hello123", "HelloKitty", "Hercules", "IceCream", "idontknow", "iloveyou",
@@ -184,7 +184,7 @@ const char *weakword[] =
 "Southpark", "Spiderman", "Spitfire", "SpongeBob", "Starcraft", "Stargate",
 "StarTrek", "StarWars", "Steelers", "Stephanie", "Strawberry", "Sunflower",
 "Sunshine", "Superman", "Superstar", "Swordfish", "Serminator", "SestTest",
-"Tinkerbell", "TrustNo1", "Twilight", "Undertaker", "Valentina", "Valentine",
+"TaxiLinQ", "Tinkerbell", "TrustNo1", "Twilight", "Undertaker", "Valentina", "Valentine",
 "Veronica", "Victoria", "Warcraft", "Warhammer", "Welcome1", "Westside",
 "WhatEver", "Williams", "Wolverine", "Wordpass", "zaq12wsx", "zaq1xsw2"
 };
