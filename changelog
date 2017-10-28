@@ -21,7 +21,7 @@ wlandump-ng
 - send one undirected proberequest to broadcast after channel change
 - improved expanded EAPOL handling
 - improved authentication
-- improved beaconing on proeberequests
+- improved beaconing on proberequests
 - now wlandump-ng is passive by default (only receive) - transmit must be enabled
 - changed / new options:
   -R         : enable to respond to all requests
@@ -30,7 +30,7 @@ wlandump-ng
   -E <digit> : stop deauthentications and disassociations if xx complete handshakes received
              : default = 1 complete handshake (M1-M4)
   -U         : send undirected proberequest to broadcast after channel change
-  -B         : enable beaconig on last proberequest
+  -B         : enable beaconing on last proberequest
   "-s        : enable status messages\n"
 
 localtime, channel, mac_ap, mac_sta, information
