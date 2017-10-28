@@ -28,8 +28,8 @@ hcx_t *hcxdata2 = NULL;
 /*===========================================================================*/
 int sort_by_essid(const void *a, const void *b)
 {
-hcx_t *ia = (hcx_t *)a;
-hcx_t *ib = (hcx_t *)b;
+const hcx_t *ia = (const hcx_t *)a;
+const hcx_t *ib = (const hcx_t *)b;
 
 return memcmp(ia->essid, ib->essid, 32);
 }

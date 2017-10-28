@@ -117,13 +117,13 @@ memset(&hcleapchap, 0, sizeof(hc5500chap_t));
 return;
 }
 /*===========================================================================*/
-bool addpppchap(uint8_t *mac_1, uint8_t *mac_2, uint8_t *payload)
+bool addpppchap(uint8_t *mac_1, uint8_t *mac_2, const uint8_t *payload)
 {
 int c;
-gre_frame_t *greh;
+const gre_frame_t *greh;
 int grehsize = 0;
-ppp_frame_t *ppph = NULL;
-pppchap_frame_t *pppchaph = NULL;
+const ppp_frame_t *ppph;
+const pppchap_frame_t *pppchaph;
 FILE *fhuser;
 FILE *fhhash;
 
@@ -131,7 +131,7 @@ SHA_CTX ctxsha1;
 char *ptr = NULL;
 
 unsigned char digestsha1[SHA_DIGEST_LENGTH];
-greh = (gre_frame_t*)(payload);
+greh = (const gre_frame_t*)(payload);
 
 if(ntohs(greh->type) != GREPROTO_PPP)
 	return false;
@@ -142,12 +142,12 @@ if((greh->flags & GRE_FLAG_SYNSET) == GRE_FLAG_SYNSET)
 if((greh->flags & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
 	grehsize += 4;
 
-ppph = (ppp_frame_t*)(payload +grehsize);
+ppph = (const ppp_frame_t*)(payload +grehsize);
 if(ntohs(ppph->proto) != PPPPROTO_CHAP)
 	return false;
 
 
-pppchaph = (pppchap_frame_t*)(payload +grehsize +PPP_SIZE);
+pppchaph = (const pppchap_frame_t*)(payload +grehsize +PPP_SIZE);
 if(ntohs(pppchaph->length) < 20)
 	return false;
 
@@ -1316,10 +1316,9 @@ struct stat statinfo;
 struct pcap_pkthdr *pkh;
 pcap_t *pcapin = NULL;
 ether_header_t *eth = NULL;
-loopb_header_t *loopbh = NULL;
-
-rth_t *rth = NULL;
-ppi_packet_header_t *ppih = NULL;
+const loopb_header_t *loopbh;
+const rth_t *rth;
+const ppi_packet_header_t *ppih;
 mac_t *macf = NULL;
 eap_t *eap = NULL;
 eapext_t *eapext = NULL;
@@ -1341,12 +1340,12 @@ long int packetcount = 0;
 long int wlanpacketcount = 0;
 long int ethpacketcount = 0;
 long int loopbpacketcount = 0;
-ipv4_frame_t *ipv4h = NULL;
-ipv6_frame_t *ipv6h = NULL;
+const ipv4_frame_t *ipv4h;
+const ipv6_frame_t *ipv6h;
 uint8_t ipv4hlen = 0;
 uint8_t pppchapflag = false;
 
-udp_frame_t *udph = NULL;
+const udp_frame_t *udph;
 int udpports = 0;
 int udpportd = 0;
 int c, c1;
@@ -1509,13 +1508,13 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(LOOPB_SIZE > pkh->len)
 			continue;
 		loopbpacketcount++;
-		loopbh = (loopb_header_t*)packet;
+		loopbh = (const loopb_header_t*)packet;
 		if(ntohl(loopbh->family) != 2)
 			continue;
 		if(LOOPB_SIZE +IPV4_SIZE_MIN > pkh->len)
 			continue;
 
-		ipv4h = (ipv4_frame_t*)(packet +LOOPB_SIZE);
+		ipv4h = (const ipv4_frame_t*)(packet +LOOPB_SIZE);
 		if((ipv4h->ver_hlen & 0xf0) == 0x40)
 			{
 			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
@@ -1525,7 +1524,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			if(ipv4h->nextprotocol == NEXTHDR_GRE)
 				{
-				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +LOOPB_SIZE +ipv4hlen) == true)
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (const uint8_t*)packet +LOOPB_SIZE +ipv4hlen) == true)
 					pppchapflag = true;
 				continue;
 				}
@@ -1539,7 +1538,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(ipv4h->nextprotocol == NEXTHDR_UDP)
 				{
 				udpflag = true;
-				udph = (udp_frame_t*)(packet +LOOPB_SIZE +ipv4hlen);
+				udph = (const udp_frame_t*)(packet +LOOPB_SIZE +ipv4hlen);
 				udpports = htons(udph->port_source);
 				udpportd = htons(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
@@ -1549,7 +1548,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			continue;
 			}
 
-		ipv6h = (ipv6_frame_t*)(packet +LOOPB_SIZE);
+		ipv6h = (const ipv6_frame_t*)(packet +LOOPB_SIZE);
 		if((ipv6h->ver_class & 0xf0) == 0x60)
 			{
 			ipv6flag = true;
@@ -1558,7 +1557,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			if(ipv6h->nextprotocol == NEXTHDR_GRE)
 				{
-				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +IPV6_SIZE) == true)
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (const uint8_t*)packet +ETHER_SIZE +IPV6_SIZE) == true)
 					pppchapflag = true;
 				continue;
 				}
@@ -1571,7 +1570,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(ipv6h->nextprotocol == NEXTHDR_UDP)
 				{
 				udpflag = true;
-				udph = (udp_frame_t*)(packet +LOOPB_SIZE +IPV6_SIZE);
+				udph = (const udp_frame_t*)(packet +LOOPB_SIZE +IPV6_SIZE);
 				udpports = htons(udph->port_source);
 				udpportd = htons(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
@@ -1597,7 +1596,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(llctype == LLC_TYPE_IPV4)
 			{
 			ipv4flag = true;
-			ipv4h = (ipv4_frame_t*)(packet +ETHER_SIZE);
+			ipv4h = (const ipv4_frame_t*)(packet +ETHER_SIZE);
 			if((ipv4h->ver_hlen & 0xf0) != 0x40)
 				continue;
 			ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
@@ -1605,7 +1604,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			if(ipv4h->nextprotocol == NEXTHDR_GRE)
 				{
-				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +ipv4hlen) == true)
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (const uint8_t*)packet +ETHER_SIZE +ipv4hlen) == true)
 					pppchapflag = true;
 				continue;
 				}
@@ -1617,7 +1616,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(ipv4h->nextprotocol == NEXTHDR_UDP)
 				{
 				udpflag = true;
-				udph = (udp_frame_t*)(packet +ETHER_SIZE +ipv4hlen);
+				udph = (const udp_frame_t*)(packet +ETHER_SIZE +ipv4hlen);
 				udpports = htons(udph->port_source);
 				udpportd = htons(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
@@ -1629,14 +1628,14 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		else if(llctype == LLC_TYPE_IPV6)
 			{
 			ipv6flag = true;
-			ipv6h = (ipv6_frame_t*)(packet +ETHER_SIZE);
+			ipv6h = (const ipv6_frame_t*)(packet +ETHER_SIZE);
 			if((ntohl(ipv6h->ver_class) & 0xf) != 6)
 				continue;
 			if(ipv6h->nextprotocol == NEXTHDR_NONE)
 				continue;
 			if(ipv6h->nextprotocol == NEXTHDR_GRE)
 				{
-				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (uint8_t*)packet +ETHER_SIZE +IPV6_SIZE) == true)
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (const uint8_t*)packet +ETHER_SIZE +IPV6_SIZE) == true)
 					pppchapflag = true;
 				continue;
 				}
@@ -1648,7 +1647,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(ipv6h->nextprotocol == NEXTHDR_UDP)
 				{
 				udpflag = true;
-				udph = (udp_frame_t*)(packet +ETHER_SIZE +IPV6_SIZE);
+				udph = (const udp_frame_t*)(packet +ETHER_SIZE +IPV6_SIZE);
 				udpports = htons(udph->port_source);
 				udpportd = htons(udph->port_destination);
 				if((udpports == 1812) || (udpportd == 1812))
@@ -1683,7 +1682,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		{
 		if(RTH_SIZE > pkh->len)
 			continue;
-		rth = (rth_t*)packet;
+		rth = (const rth_t*)packet;
 		fcsl = 0;
 		field = 12;
 		if((rth->it_present & 0x01) == 0x01)
@@ -1705,7 +1704,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		{
 		if(PPIH_SIZE > pkh->len)
 			continue;
-		ppih = (ppi_packet_header_t*)packet;
+		ppih = (const ppi_packet_header_t*)packet;
 		if(ppih->pph_dlt != DLT_IEEE802_11)
 			continue;
 		fcsl = 0;
