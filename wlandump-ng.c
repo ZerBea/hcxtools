@@ -1421,6 +1421,17 @@ while(1)
 		continue;
 		}
 
+	/* power save poll */
+	if((macf->type == MAC_TYPE_CTRL) && (macf->subtype == MAC_ST_PSP))
+		{
+		if(checkapstahds(macf->addr1.addr, macf->addr2.addr) == false)
+			{
+			if(disassocflag == true)
+				send_deauthentication(MAC_ST_DEAUTH, WLAN_REASON_PREV_AUTH_NOT_VALID, macf->addr2.addr, macf->addr1.addr);
+			}
+		continue;
+		}
+
 	/* power save */
 	if((macf->type == MAC_TYPE_DATA) && ((macf->subtype == MAC_ST_NULL)|| (macf->subtype == MAC_ST_QOSNULL)))
 		{

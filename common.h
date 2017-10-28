@@ -42,11 +42,12 @@
 // data subtypes
 #define	MAC_ST_DATA		0x0
 #define	MAC_ST_NULL		0x4
-#define	MAC_ST_QOSNULL		0xC
 #define	MAC_ST_QOSDATA		0x8
+#define	MAC_ST_QOSNULL		0xC
 // control subtypes
 #define	MAC_ST_BACK_REQ		0x8
 #define	MAC_ST_BACK		0x9
+#define	MAC_ST_PSP		0xA
 #define	MAC_ST_RTS		0xB
 #define	MAC_ST_CTS		0xC
 #define	MAC_ST_ACK		0xD
