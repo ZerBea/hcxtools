@@ -17,7 +17,7 @@ wlandump-ng
 - improved deauthentication
   stop when retrieved one complete handshake (M1-M4) from ap <-> client
 - improved disassociation
-  stop when received one complete handshake (M1-M4) from ap <-> client
+  stop when retrieved one complete handshake (M1-M4) from ap <-> client
 - send one undirected proberequest to broadcast after channel change
 - improved expanded EAPOL handling
 - improved authentication
