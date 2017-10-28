@@ -478,17 +478,21 @@ struct wps_frame
 	uint8_t		flags;
 	vtag_t		tags[];
 #define	WPS_MSG_TYPE	"\x10\x22"
-#define	MSG_M1		4
-#define	MSG_M2		5
-#define	MSG_M2D		6
-#define	MSG_M3		7
-#define	MSG_M4		8
-#define	MSG_M5		9
-#define	MSG_M6		10
-#define	MSG_M7		11
-#define	MSG_M8		12
-#define	MSG_NACK	14
-#define	MSG_DONE	15
+#define	WPS_BEACON		0x01
+#define	WPS_PROBEREQUEST	0x02
+#define	WPS_PROBERESPONSE	0x03
+#define	WPS_MSG_M1		0x04
+#define	WPS_MSG_M2		0x05
+#define	WPS_MSG_M2D		0x06
+#define	WPS_MSG_M3		0x07
+#define	WPS_MSG_M4		0x08
+#define	WPS_MSG_M5		0x09
+#define	WPS_MSG_M6		0x0a
+#define	WPS_MSG_M7		0x0b
+#define	WPS_MSG_M8		0x0c
+#define	WPS_MSG_ACK		0x0d
+#define	WPS_MSG_NACK		0x0e
+#define	WPS_MSG_DONE		0x0f
 } __attribute__((__packed__));
 typedef struct wps_frame wps_t;
 #define	WPS_SIZE (sizeof(wps_t))

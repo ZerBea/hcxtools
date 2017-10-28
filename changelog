@@ -1,3 +1,42 @@
 28.10.2017
 ==========
-added changelog
+- added changelog
+- merged wlanresponse and wlandump-ng
+
+bash_profile
+------------
+adapted to new wlandump-ng
+
+wlanresponse
+------------
+- removed
+
+wlandump-ng
+-----------
+- waterfall status
+- improved deauthentication
+  stop when retrieved one complete handshake (M1-M4) from ap <-> client
+- improved disassociation
+  stop when received one complete handshake (M1-M4) from ap <-> client
+- send one undirected proberequest to broadcast after channel change
+- improved expanded EAPOL handling
+- improved authentication
+- improved beaconing on proeberequests
+- now wlandump-ng is passive by default (only receive) - transmit must be enabled
+- changed / new options:
+  -R         : enable to respond to all requests
+  -D         : enable deauthentications
+  -d         : enable disassociations
+  -E <digit> : stop deauthentications and disassociations if xx complete handshakes received
+             : default = 1 complete handshake (M1-M4)
+  -U         : send undirected proberequest to broadcast after channel change
+  -B         : enable beaconig on last proberequest
+  "-s        : enable status messages\n"
+
+localtime, channel, mac_ap, mac_sta, information
+11:02:52  11 xxxxxxxxxxxx <-> xxxxxxxxxxxx M1M2 handshake (forced)          
+11:01:45  11 xxxxxxxxxxxx <-> xxxxxxxxxxxx M1M2 handshake (forced-retransmission)          
+11:03:57  11 xxxxxxxxxxxx <-> xxxxxxxxxxxx M1M2 handshake (not verified)          
+11:03:57  11 xxxxxxxxxxxx <-> xxxxxxxxxxxx M2M3 handshake (verified)          
+11:03:57  11 xxxxxxxxxxxx <-> xxxxxxxxxxxx M3M4 handshake (established) 
+
