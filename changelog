@@ -39,4 +39,14 @@ localtime, channel, mac_ap, mac_sta, information
 11:03:57  11 xxxxxxxxxxxx <-> xxxxxxxxxxxx M1M2 handshake (not verified)          
 11:03:57  11 xxxxxxxxxxxx <-> xxxxxxxxxxxx M2M3 handshake (verified)          
 11:03:57  11 xxxxxxxxxxxx <-> xxxxxxxxxxxx M3M4 handshake (established) 
+16:36:13   1 xxxxxxxxxxxx --> xxxxxxxxxxxx identity request: hello          
+16:36:13   1 xxxxxxxxxxxx <-- xxxxxxxxxxxx identity response: WFA-SimpleConfig-Registrar-1-0          
+16:36:14   1 xxxxxxxxxxxx --> xxxxxxxxxxxx WPS-M1 message          
+16:36:14   1 xxxxxxxxxxxx <-- xxxxxxxxxxxx WPS-M2 message          
+16:36:16   1 xxxxxxxxxxxx --> xxxxxxxxxxxx WPS-M3 message          
+16:36:16   1 xxxxxxxxxxxx <-- xxxxxxxxxxxx WPS-M4 message          
+16:36:16   1 xxxxxxxxxxxx --> xxxxxxxxxxxx WPS-M5 message          
+16:36:16   1 xxxxxxxxxxxx <-- xxxxxxxxxxxx WPS-M6 message          
+16:36:16   1 xxxxxxxxxxxx --> xxxxxxxxxxxx WPS-M7 message          
+16:36:16   1 xxxxxxxxxxxx <-- xxxxxxxxxxxx WPS-M8 message          
 
