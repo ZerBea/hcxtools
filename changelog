@@ -29,7 +29,7 @@ wlandump-ng
   -d         : enable disassociations
   -E <digit> : stop deauthentications and disassociations if xx complete handshakes received
              : default = 1 complete handshake (M1-M4)
-  -U         : send undirected proberequest to broadcast after channel change
+  -U         : send one undirected proberequest to broadcast after channel change
   -B         : enable beaconing on last proberequest
   "-s        : enable status messages\n"
 
