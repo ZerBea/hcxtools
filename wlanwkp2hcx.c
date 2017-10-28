@@ -134,7 +134,7 @@ memcpy(hcxrecord.nonce_ap, &wkpdata[WKPNONCE_AP], 32);
 memcpy(hcxrecord.mac_sta.addr, &wkpdata[WKPMAC_STA], 6);
 memcpy(hcxrecord.nonce_sta, &wkpdata[WKPNONCE_STA], 32);
 hcxrecord.eapol_len = wkpeapolsize;
-memcpy(hcxrecord.eapol, &wkpdata[WKPEAPOLDATA], wkpeapolsize +4);
+memcpy(hcxrecord.eapol, &wkpdata[WKPEAPOLDATA], 256);
 memcpy(hcxrecord.keymic,  &wkpdata[WKPKEYMIC], 16);
 memset(&hcxrecord.eapol[0x51], 0, 16);
 
@@ -159,7 +159,6 @@ struct stat statinfo;
 int wkpsize;
 wkpcount = 0;
 uint8_t wkpessidlen = 0;
-uint8_t wkpeapolsize = 0;
 
 FILE *fhwkp = NULL;
 
@@ -225,15 +224,6 @@ if((wkpessidlen == 0) || (wkpessidlen > 32))
 	fclose(fhwkp);
 	return false;
 	}
-
-wkpeapolsize = wkpdata[WKPEAPOL_SIZE];
-if((wkpeapolsize == 0) || (wkpeapolsize > 256 -4))
-	{
-	fprintf(stderr, "wrong EAPOL size %s\n", wkpiname);
-	fclose(fhwkp);
-	return false;
-	}
-
 
 fclose(fhwkp);
 wkpcount++;

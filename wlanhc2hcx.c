@@ -147,12 +147,6 @@ for(p = 0; p < hcsize; p++)
 		zeiger++;
 		continue;
 		}
-	if((zeiger->eapol_size < 91) || (zeiger->eapol_size > 256))
-		{
-		zeiger++;
-		eapolerror++;
-		continue;
-		}
 
 	if(fhessid != NULL)
 		{
@@ -186,7 +180,7 @@ for(p = 0; p < hcsize; p++)
 		memcpy(hcxrecord.mac_sta.addr, zeiger->mac2, 6);
 		memcpy(hcxrecord.nonce_sta, zeiger->nonce1, 32);
 		hcxrecord.eapol_len = zeiger->eapol_size;
-		memcpy(hcxrecord.eapol, zeiger->eapol, zeiger->eapol_size +4);
+		memcpy(hcxrecord.eapol, zeiger->eapol, 256);
 		memcpy(hcxrecord.keymic, zeiger->keymic, 16);
 		memset(&hcxrecord.eapol[0x51], 0, 16);
 		fwrite(&hcxrecord, HCX_SIZE, 1,fhhcx);
@@ -238,12 +232,6 @@ for(p = 0; p < hcxsize; p++)
 		{
 		if((zeiger->essid_len == 0) || (zeiger->essid_len > 32) || (zeiger->essid[0] == 0))
 			{
-			zeiger++;
-			continue;
-			}
-		if((zeiger->eapol_len < 91) || (zeiger->eapol_len > 256 -4))
-			{
-			eapolerror++;
 			zeiger++;
 			continue;
 			}

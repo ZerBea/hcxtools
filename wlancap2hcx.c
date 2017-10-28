@@ -1183,11 +1183,12 @@ memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
 memcpy(neweapdbdata->mac_sta.addr, mac_sta, 6);
 neweapdbdata->eapol_len = htons(eap->len) +4;
 
-if((neweapdbdata->eapol_len < 91) || (neweapdbdata->eapol_len > 256 -4))
-	return false;
+if(neweapdbdata->eapol_len > 256)
+	neweapdbdata->eapol_len = 256;
 
 memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
+
 replaycount = getreplaycount(neweapdbdata->eapol);
 if(m == 2)
 	{
@@ -1480,6 +1481,7 @@ if((johnbasename = strrchr(pcapinname, '/') +1))
 
 printf("start reading from %s\n", pcapinname);
 
+
 while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	{
 	if(pcapstatus == 0)
@@ -1500,7 +1502,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	packetcount++;
 	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_usec == 0))
 		wcflag = true;
-
 
 	/* check Loopback-header */
 	if(datalink == DLT_NULL)
@@ -1864,7 +1865,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
-
 			continue;
 			}
 

@@ -137,9 +137,6 @@ essid_len = strlen(essidout);
 if((essid_len == 0) || (essid_len > 32) || (zeiger->essid[0] == 0))
 	return false;
 
-if((zeiger->eapol_size < 91) || (zeiger->eapol_size > 256))
-	return false;
-
 m = geteapkey(zeiger->eapol);
 if((m < 2) || (m > 4))
 	return false;
@@ -188,7 +185,7 @@ if(fhhcx != 0)
 	memcpy(hcxrecord.mac_sta.addr, zeiger->mac2, 6);
 	memcpy(hcxrecord.nonce_sta, zeiger->nonce1, 32);
 	hcxrecord.eapol_len = zeiger->eapol_size;
-	memcpy(hcxrecord.eapol, zeiger->eapol, zeiger->eapol_size +4);
+	memcpy(hcxrecord.eapol, zeiger->eapol, 256);
 	memcpy(hcxrecord.keymic, zeiger->keymic, 16);
 	memset(&hcxrecord.eapol[0x51], 0, 16);
 	fwrite(&hcxrecord, HCX_SIZE, 1,fhhcx);

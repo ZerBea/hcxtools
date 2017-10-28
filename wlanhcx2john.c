@@ -123,12 +123,6 @@ for(p = 0; p < hcxsize; p++)
 			zeiger++;
 			continue;
 			}
-		if(zeiger->eapol_len > 256 -4)
-			{
-			errorcount++;
-			zeiger++;
-			continue;
-			}
 
 		if(fhjohn != 0)
 			{
@@ -138,7 +132,7 @@ for(p = 0; p < hcxsize; p++)
 			memcpy(&hcdata.mac2, zeiger->mac_sta.addr, 6);
 			memcpy(&hcdata.nonce1, zeiger->nonce_sta, 32);
 			memcpy(&hcdata.nonce2, zeiger->nonce_ap, 32);
-			memcpy(&hcdata.eapol, zeiger->eapol, zeiger->eapol_len +4);
+			memcpy(&hcdata.eapol, zeiger->eapol, 256);
 			hcdata.eapol_size = zeiger->eapol_len;
 			hcdata.keyver = zeiger->keyver;
 			memcpy(&hcdata.keymic, zeiger->keymic, 16);
