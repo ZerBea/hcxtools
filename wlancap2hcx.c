@@ -107,7 +107,6 @@ char *showinfo2outname = NULL;
 char *usernameoutname = NULL;
 
 hcx_t oldhcxrecord;
-
 /*===========================================================================*/
 void initgloballists()
 {
@@ -2066,7 +2065,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			if(pcapextout != NULL)
 				pcap_dump((u_char *) pcapextout, pkh, h80211);
-
 			continue;
 			}
 		}

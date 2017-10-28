@@ -247,7 +247,7 @@ struct essidinfo
     uint8_t *essid[1];
 } __attribute__((__packed__));
 typedef struct essidinfo essid_t;
-#define    ESSIDINFO_SIZE offsetof(essid_t, essid)
+#define ESSIDINFO_SIZE offsetof(essid_t, essid)
 
 
 struct authenticationf
@@ -397,10 +397,10 @@ struct eapext_frame
 #define EAP_TYPE_TEAP		55
 #define	EAP_TYPE_EXPAND		254
 #define EAP_TYPE_EXPERIMENTAL	255
+ uint8_t		data[1];
 } __attribute__((__packed__));
 typedef struct eapext_frame eapext_t;
-#define	EAPEXT_SIZE (sizeof(eapext_t))
-
+#define	EAPEXT_SIZE offsetof(eapext_t, data)
 
 struct eapri_frame
 {
@@ -449,6 +449,49 @@ struct eapmd5_frame
 } __attribute__((__packed__));
 typedef struct eapmd5_frame eapmd5_t;
 #define	EAPMD5_SIZE (sizeof(eapmd5_t))
+
+
+struct wps_vtag
+{
+	uint16_t		id;
+#define	TAG_WPS_VERSION	"\x10\x4A"
+#define	TAG_WPS_STATE	"\x10\x44"
+#define	TAG_WPS_APLOCK	"\x10\x57"
+	uint16_t		len;
+	uint8_t		data[];
+#define	TAG_WPS_CONFIG	2
+#define	TAG_WPS_LOCKED	1
+};
+typedef struct wps_vtag vtag_t;
+#define	VTAG_SIZE (sizeof(vtag_t))
+
+
+struct wps_frame
+{
+	uint8_t		vid[3];
+#define	WPS_VENDOR	"\x00\x37\x2a"
+	uint32_t	type;
+#define	WPS_SIMPLECONF	1
+	uint8_t		op;
+#define	WSC_OP_NACK	3
+#define	WSC_OP_MSG	4
+	uint8_t		flags;
+	vtag_t		tags[];
+#define	WPS_MSG_TYPE	"\x10\x22"
+#define	MSG_M1		4
+#define	MSG_M2		5
+#define	MSG_M2D		6
+#define	MSG_M3		7
+#define	MSG_M4		8
+#define	MSG_M5		9
+#define	MSG_M6		10
+#define	MSG_M7		11
+#define	MSG_M8		12
+#define	MSG_NACK	14
+#define	MSG_DONE	15
+} __attribute__((__packed__));
+typedef struct wps_frame wps_t;
+#define	WPS_SIZE (sizeof(wps_t))
 
 
 struct ipv4_frame
