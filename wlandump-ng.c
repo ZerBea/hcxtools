@@ -354,6 +354,25 @@ else
 return;
 }
 /*===========================================================================*/
+void printidentity(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, uint8_t eapcode, eapext_t *eapext)
+{
+eapri_t *eapidentity;
+int idlen;
+char idstring[258];
+
+eapidentity = (eapri_t*)(eapext);
+if(eapidentity->eaptype != EAP_TYPE_ID)
+	return;
+idlen = htons(eapidentity->eaplen) -5;
+if((idlen > 0) && (idlen <= 256))
+	{
+	memset(&idstring, 0, 258);
+	memcpy(idstring, eapidentity->identity, idlen);
+	printmaceapcode(mac1, mac2, tods, fromds, eapcode, idstring);
+	}
+return;
+}
+/*===========================================================================*/
 void printmac(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, char *infostring)
 {
 int m;
@@ -383,25 +402,6 @@ else if((tods == 1) && (fromds == 0))
 else
 	return;
 printf(" %s          \n", infostring);
-return;
-}
-/*===========================================================================*/
-void printidentity(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, uint8_t eapcode, eapext_t *eapext)
-{
-eapri_t *eapidentity;
-int idlen;
-char idstring[258];
-
-eapidentity = (eapri_t*)(eapext);
-if(eapidentity->eaptype != EAP_TYPE_ID)
-	return;
-idlen = htons(eapidentity->eaplen) -5;
-if((idlen > 0) && (idlen <= 256))
-	{
-	memset(&idstring, 0, 258);
-	memcpy(idstring, eapidentity->identity, idlen);
-	printmaceapcode(mac1, mac2, tods, fromds, eapcode, idstring);
-	}
 return;
 }
 /*===========================================================================*/
@@ -1556,6 +1556,36 @@ while(1)
 				{
 				if(wantstatusflag == true)
 					printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "EAP-SIM (GSM Subscriber Modules) Authentication");
+				}
+			else if(eapext->eaptype == EAP_TYPE_AKA)
+				{
+				if(wantstatusflag == true)
+					printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "UMTS Authentication and Key Agreement (EAP-AKA)");
+				}
+			else if(eapext->eaptype == EAP_TYPE_TLS)
+				{
+				if(wantstatusflag == true)
+					printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "EAP-TLS Authentication");
+				}
+			else if(eapext->eaptype == EAP_TYPE_TTLS)
+				{
+				if(wantstatusflag == true)
+					printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "EAP-TTLS Authentication");
+				}
+			else if(eapext->eaptype == EAP_TYPE_PEAP)
+				{
+				if(wantstatusflag == true)
+					printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "PEAP Authentication");
+				}
+			else if(eapext->eaptype == EAP_TYPE_LEAP)
+				{
+				if(wantstatusflag == true)
+					printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "EAP-Cisco Wireless Authentication");
+				}
+			else if(eapext->eaptype == EAP_TYPE_MD5)
+				{
+				if(wantstatusflag == true)
+					printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "MD5-Challenge");
 				}
 			pcap_dump((u_char *) pcapout, pkh, h80211);
 			pcap_dump_flush(pcapout);
