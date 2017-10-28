@@ -315,7 +315,7 @@ if((accesspointhdliste = calloc((APHDLISTESIZEMAX +1), APHDL_SIZE)) == NULL)
 return true;
 }
 /*===========================================================================*/
-void printmacdir(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, uint8_t eapcode, char *infostring)
+void printmaceapcode(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, uint8_t eapcode, char *infostring)
 {
 int m;
 time_t t = time(NULL);
@@ -400,12 +400,10 @@ if((idlen > 0) && (idlen <= 256))
 	{
 	memset(&idstring, 0, 258);
 	memcpy(idstring, eapidentity->identity, idlen);
-	printmacdir(mac1, mac2, tods, fromds, eapcode, idstring);
+	printmaceapcode(mac1, mac2, tods, fromds, eapcode, idstring);
 	}
 return;
 }
-
-/*===========================================================================*/
 /*===========================================================================*/
 int getwpskey(eapext_t *eapext)
 {
@@ -1423,6 +1421,20 @@ while(1)
 		continue;
 		}
 
+	/* power save */
+	if((macf->type == MAC_TYPE_DATA) && ((macf->subtype == MAC_ST_NULL)|| (macf->subtype == MAC_ST_QOSNULL)))
+		{
+		if((macf->to_ds == 1) && (macf->from_ds == 0) && (macf->power == 0))
+			{
+			if(checkapstahds(macf->addr1.addr, macf->addr2.addr) == false)
+				{
+				if(disassocflag == true)
+					send_deauthentication(MAC_ST_DISASSOC, WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY, macf->addr2.addr, macf->addr1.addr);
+				}
+			}
+		continue;
+		}
+
 	if((macf->type != MAC_TYPE_DATA) || (macl +LLC_SIZE > pkh->len))
 		continue;
 
@@ -1437,6 +1449,7 @@ while(1)
 			}
 		continue;
 		}
+
 	/* check handshake frames */
 	if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_AUTH))
 		{
@@ -1535,7 +1548,15 @@ while(1)
 					printidentity(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, eapext->eapcode, eapext);
 				}
 			else if(eapext->eaptype == EAP_TYPE_EXPAND)
-				handlewps(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, eapext);
+				{
+				if(wantstatusflag == true)
+					handlewps(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, eapext);
+				}
+			else if(eapext->eaptype == EAP_TYPE_SIM)
+				{
+				if(wantstatusflag == true)
+					printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "EAP-SIM (GSM Subscriber Modules) Authentication");
+				}
 			pcap_dump((u_char *) pcapout, pkh, h80211);
 			pcap_dump_flush(pcapout);
 			continue;
