@@ -41,7 +41,7 @@ char pskstring[66];
 /*===========================================================================*/
 /* globale Initialisierung */
 
-bool globalinit()
+bool globalinit(void)
 {
 time_t t = time(NULL);
 struct tm *tm = localtime(&t);
@@ -130,7 +130,7 @@ if(fileflag == true)
 return;
 }
 /*===========================================================================*/
-void keywriteweakpass()
+void keywriteweakpass(void)
 {
 size_t w;
 int y;
@@ -200,7 +200,7 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
-static void keywriteng()
+static void keywriteng(void)
 {
 int cn;
 size_t ca, cs;
@@ -278,7 +278,7 @@ for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
 return;
 }
 /*===========================================================================*/
-void keywriteeudate()
+void keywriteeudate(void)
 {
 int d ,m ,y;
 
@@ -341,7 +341,7 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
-void keywriteusdate()
+void keywriteusdate(void)
 {
 int d ,m ,y;
 
@@ -404,7 +404,7 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
-void keywriteyearyear()
+void keywriteyearyear(void)
 {
 int y, y2;
 
@@ -593,7 +593,7 @@ writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
-void keywriteallwpskeys()
+void keywriteallwpskeys(void)
 {
 int c, cs;
 

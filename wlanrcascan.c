@@ -58,7 +58,7 @@ char *interfacename = NULL;
 /* Konstante */
 
 /*===========================================================================*/
-bool initgloballists()
+bool initgloballists(void)
 {
 memset(&nullmac, 0, 6);
 
@@ -76,7 +76,7 @@ apl_t *ib = (apl_t *)b;
 return ia->channel > ib->channel;
 }
 /*===========================================================================*/
-void printstatus()
+void printstatus(void)
 {
 int c, m;
 apl_t *zeiger = apliste;
@@ -158,7 +158,7 @@ if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 return;
 }
 /*===========================================================================*/
-void setchannel()
+void setchannel(void)
 {
 struct iwreq wrq;
 
@@ -318,7 +318,7 @@ while(1)
 	}
 }
 /*===========================================================================*/
-bool startcapturing()
+bool startcapturing(void)
 {
 int datalink = 0;
 int has_rth = false;
