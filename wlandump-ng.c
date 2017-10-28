@@ -414,8 +414,6 @@ wpsd = (wps_t*)(eapext->data);
 if((memcmp(wpsd->vid, WPS_VENDOR, sizeof(wpsd->vid)) != 0) || (be32toh(wpsd->type) != WPS_SIMPLECONF))
 	return 0;
 
-printf("%ld\n", EAPEXT_SIZE);
-
 int vtagl = be16toh(eapext->eaplen);
 vtag = (vtag_t*)(wpsd->tags);
 while( 0 < vtagl)
