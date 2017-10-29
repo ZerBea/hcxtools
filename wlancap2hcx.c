@@ -2498,7 +2498,7 @@ if(frrrflag == true)
 	printf("\x1B[35mfound Fast Roaming Remote Request\x1B[0m\n");
 
 if(fbsflag == true)
-	printf("\x1B[35mfound Fast BSS transition (Fast Roaming)\x1B[0m\n");
+	printf("\x1B[35mfound Fast BSS transition (fast roaming)\x1B[0m\n");
 
 if(ipv4flag == true)
 	printf("\x1B[35mfound IPv4 packets\x1B[0m\n");
