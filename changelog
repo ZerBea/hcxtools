@@ -1,5 +1,9 @@
 29.10.2017
 ==========
+wlanrcascan
+-----------
+added option -l (loopcount)
+
 wlandump-ng
 -----------
 added detection of fast BSS transition (fast roaming)

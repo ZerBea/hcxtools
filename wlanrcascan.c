@@ -29,6 +29,8 @@
 
 #define APLISTESIZEMAX 10000
 #define ALARMTIME 1
+#define DEFAULTLOOP 3
+
 
 struct aplist
 {
@@ -51,6 +53,7 @@ uint8_t channel = 1;
 apl_t *apliste = NULL;
 adr_t nullmac;
 int netcount = 0;
+int loop = DEFAULTLOOP;
 
 char *interfacename = NULL;
 
@@ -200,7 +203,6 @@ int pcapstatus = 1;
 int macl = 0;
 int fcsl = 0;
 int taglen = 0;
-int loop = 3;
 uint8_t field = 0;
 
 printf("start scanning...\n");
@@ -362,6 +364,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"(ctrl+c terminates program)\n"
 	"options:\n"
 	"-i <interface> : WLAN interface\n"
+	"-l <digit>     : loops (default = 3)\n"
 	"-h             : help screen\n"
 	"-v             : version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
@@ -390,7 +393,7 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:l:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -401,6 +404,10 @@ while ((auswahl = getopt(argc, argv, "i:hv")) != -1)
 			fprintf(stderr, "no interface specified\n");
 			exit (EXIT_FAILURE);
 			}
+		break;
+
+		case 'l':
+		loop = strtol(optarg, NULL, 10);
 		break;
 
 		case 'h':

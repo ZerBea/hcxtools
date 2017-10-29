@@ -225,6 +225,7 @@ struct ieee_tag
 #define	TAG_CHAN	0x03
 #define	TAG_XRAT	0x32
 #define	TAG_FBT		0x37
+#define TAG_VENDORSPEC	0xdd
  uint8_t		len;
  uint8_t		data[1];
 } __attribute__((__packed__));
