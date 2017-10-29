@@ -1022,6 +1022,20 @@ qsort(accesspointliste, APLISTESIZEMAX +1, APL_SIZE, sort_by_time);
 return false;
 }
 /*===========================================================================*/
+bool dotagwalk(uint8_t *tagdata, int taglen)
+{
+tag_t *tagl;
+tagl = (tag_t*)(tagdata);
+while( 0 < taglen)
+	{
+	if(tagl->id == TAG_FBT)
+		return true;
+	tagl = (tag_t*)((uint8_t*)tagl +tagl->len +TAGINFO_SIZE);
+	taglen -= tagl->len;
+	}
+return false;
+}
+/*===========================================================================*/
 /*===========================================================================*/
 void programmende(int signum)
 {
@@ -1399,6 +1413,11 @@ while(1)
 				sendacknowledgement(macf->addr2.addr);
 				sendassociationresponse(MAC_ST_REASSOC_RESP, macf->addr2.addr, macf->addr1.addr);
 				sendkey1(macf->addr2.addr, macf->addr1.addr);
+				}
+			if(wantstatusflag == true)
+				{
+				if(dotagwalk(payload +REASSOCIATIONREQF_SIZE, pkh->len -macl -REASSOCIATIONREQF_SIZE) == true)
+						printmac(macf->addr1.addr, macf->addr2.addr, 1, 0, "fast BSS transition (fast roaming)");
 				}
 			continue;
 			}

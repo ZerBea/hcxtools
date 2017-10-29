@@ -1,8 +1,14 @@
 29.10.2017
 ==========
+wlandump-ng
+-----------
+added detection of fast BSS transition (fast roaming)
+
 wlancap2hcx
 -----------
 added detection of fast BSS transition (fast roaming)
+
+
 
 28.10.2017
 ==========
