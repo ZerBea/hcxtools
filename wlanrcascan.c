@@ -88,10 +88,7 @@ char essidstr[34];
 const char *hiddenstr = "hidden ssid";
 
 qsort(apliste, APLISTESIZEMAX, APL_SIZE, sort_by_channel);
-
-
 printf("ch  mac_ap       essid\n------------------------------------------------------\n");
-
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
 	if(zeiger->channel > 0)
@@ -103,26 +100,42 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		printf("%03d ", zeiger->channel);
 		for (m = 0; m < 6; m++)
 			printf("%02x", zeiger->addr_ap.addr[m]);
-
-		printf(" %s (%d)\n", essidstr, zeiger->essid_len);
+		printf(" %s\n", essidstr);
 		}
-
 	zeiger++;
 	}
-
-
 return;
 }
 /*===========================================================================*/
-bool handleapframes(uint8_t channel, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+tag_t *dotagwalk(uint8_t *tagdata, int taglen, uint8_t searchtag)
+{
+tag_t *tagl;
+tagl = (tag_t*)(tagdata);
+while( 0 < taglen)
+	{
+	if(tagl->id == searchtag)
+		return tagl;
+	tagl = (tag_t*)((uint8_t*)tagl +tagl->len +TAGINFO_SIZE);
+	taglen -= tagl->len;
+	}
+return NULL;
+}
+/*===========================================================================*/
+bool handleapframes(uint8_t *mac_ap, uint8_t *tagdata, int taglen)
 {
 apl_t *zeiger;
+tag_t *essidtag;
+tag_t *channeltag;
 int c;
+
+essidtag = dotagwalk(tagdata, taglen, TAG_SSID);
+if((essidtag == NULL) || (essidtag->len > 32))
+	return false;
 
 zeiger = apliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
-	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
+	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essidtag->len) && (memcmp(zeiger->essid, essidtag->data, essidtag->len) == 0))
 		{
 		return true;
 		}
@@ -131,10 +144,15 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 	zeiger++;
 	}
 
-zeiger->channel = channel;
+channeltag = dotagwalk(tagdata, taglen, TAG_CHAN);
+if(channeltag != NULL)
+	zeiger->channel = *channeltag->data;
+else
+	zeiger->channel = channel;
+
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
-zeiger->essid_len = essid_len;
-memcpy(zeiger->essid, essidname, essid_len);
+zeiger->essid_len = essidtag->len;
+memcpy(zeiger->essid, essidtag->data, essidtag->len);
 return false;
 }
 /*===========================================================================*/
@@ -196,13 +214,10 @@ const uint8_t *h80211 = NULL;
 struct pcap_pkthdr *pkh;
 const rth_t *rth;
 mac_t *macf = NULL;
-tag_t *tagf = NULL;
 uint8_t	*payload = NULL;
-essid_t *essidf;
 int pcapstatus = 1;
 int macl = 0;
 int fcsl = 0;
-int taglen = 0;
 uint8_t field = 0;
 
 printf("start scanning...\n");
@@ -295,26 +310,8 @@ while(1)
 		{
 		if(macf->subtype == MAC_ST_BEACON)
 			{
-			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
-			if(essidf->info_essid_len > 32)
-				continue;
-
-			taglen = pkh->len -macl -BEACONINFO_SIZE;
-			tagf = (tag_t*)(payload +BEACONINFO_SIZE);
-			while(taglen > 0)
-				{
-				if(tagf->id == TAG_CHAN)
-					{
-					if(handleapframes(tagf->data[0], macf->addr2.addr, essidf->info_essid_len, essidf->essid) == false)
-						netcount++;
-					break;
-					}
-
-
-
-				taglen -= tagf->len +TAGINFO_SIZE;
-				tagf = (tag_t*)((uint8_t*)tagf +tagf->len +TAGINFO_SIZE);
-				}
+			if(handleapframes(macf->addr2.addr, payload +BEACONINFO_SIZE, pkh->len -macl -BEACONINFO_SIZE) == false)
+				netcount++;
 			}
 		}
 	}
