@@ -220,15 +220,16 @@ typedef struct llc_frame llc_t;
 struct ieee_tag
 {
  uint8_t		id;
-#define	TAG_SSID	0
-#define	TAG_RATE	1
-#define	TAG_CHAN	3
+#define	TAG_SSID	0x00
+#define	TAG_RATE	0x01
+#define	TAG_CHAN	0x03
 #define	TAG_XRAT	0x32
+#define	TAG_FBT		0x37
  uint8_t		len;
- uint8_t		data[];
+ uint8_t		data[1];
 } __attribute__((__packed__));
 typedef struct ieee_tag tag_t;
-#define	TAGINFO_SIZE (sizeof(tag_t))
+#define	TAGINFO_SIZE offsetof(tag_t, data)
 
 
 struct beaconinfo

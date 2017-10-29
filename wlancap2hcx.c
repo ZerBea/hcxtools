@@ -1306,8 +1306,21 @@ pcap_freecode(&filter);
 
 if(extfilterstring != NULL)
 	free(extfilterstring);
-
 return;
+}
+/*===========================================================================*/
+bool dotagwalk(uint8_t *tagdata, int taglen)
+{
+tag_t *tagl;
+tagl = (tag_t*)(tagdata);
+while( 0 < taglen)
+	{
+	if(tagl->id == TAG_FBT)
+		return true;
+	tagl = (tag_t*)((uint8_t*)tagl +tagl->len +TAGINFO_SIZE);
+	taglen -= tagl->len;
+	}
+return false;
 }
 /*===========================================================================*/
 bool processcap(char *pcapinname, char *essidoutname, char *essidunicodeoutname, char *pmkoutname, char *externalbpfname)
@@ -1414,6 +1427,8 @@ uint8_t radiusflag = false;
 
 uint8_t preautflag = false;
 uint8_t frrrflag = false;
+uint8_t fbsflag = false;
+
 
 uint8_t wepdataflag = false;
 uint8_t wpadataflag = false;
@@ -1819,6 +1834,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if((macl +REASSOCIATIONREQF_SIZE) > pkh->len)
 				continue;
 			essidf = (essid_t*)(payload +REASSOCIATIONREQF_SIZE);
+			if(dotagwalk(payload +REASSOCIATIONREQF_SIZE, pkh->len -macl -REASSOCIATIONREQF_SIZE) == true)
+				fbsflag = true;
 			if(essidf->info_essid != 0)
 				continue;
 			if(essidf->info_essid_len > 32)
@@ -2470,6 +2487,8 @@ if(preautflag == true)
 if(frrrflag == true)
 	printf("\x1B[35mfound Fast Roaming Remote Request\x1B[0m\n");
 
+if(fbsflag == true)
+	printf("\x1B[35mfound Fast BSS transition (Fast Roaming)\x1B[0m\n");
 
 if(ipv4flag == true)
 	printf("\x1B[35mfound IPv4 packets\x1B[0m\n");
