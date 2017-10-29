@@ -27,6 +27,7 @@ hcx_t *hcxdata = NULL;
 
 bool stdoutflag = false;
 bool fileflag = false;
+bool weakflag = false;
 bool wpsflag = false;
 bool eudateflag = false;
 bool usdateflag = false;
@@ -671,7 +672,7 @@ int k = 0;
 uint8_t caesar1[] = { 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8, 0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0 };
 
 for(c = 20; c >= 0; c -=4)
-	k |= caesar1[mac >> c &0xf] << c; 
+	k |= caesar1[mac >> c &0xf] << c;
 
 snprintf(pskstring, 64, "wlan%06x", k);
 writepsk(pskstring);
@@ -1038,6 +1039,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-i <file> : input hccapx file\n"
 	"-o <file> : output plainkeys to file\n"
 	"-s        : output plainkeys to stdout (pipe to hashcat)\n"
+	"-w        : include generic weak passwords\n"
 	"-W        : include complete wps keys\n"
 	"-D        : include complete european dates\n"
 	"-d        : include complete american dates\n"
@@ -1062,7 +1064,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:sWDdNhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:swWDdNhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1077,6 +1079,10 @@ while ((auswahl = getopt(argc, argv, "i:o:sWDdNhv")) != -1)
 
 		case 's':
 		stdoutflag = true;
+		break;
+
+		case 'w':
+		weakflag = true;
 		break;
 
 		case 'W':
@@ -1106,12 +1112,15 @@ if(globalinit() == false)
 	exit(EXIT_FAILURE);
 	}
 
-hcxorgrecords = readhccapx(hcxinname);
-
-if(hcxorgrecords == 0)
+if (hcxinname != NULL)
 	{
-	fprintf(stderr, "%ld records loaded\n", hcxorgrecords);
-	return EXIT_SUCCESS;
+	hcxorgrecords = readhccapx(hcxinname);
+
+	if(hcxorgrecords == 0)
+		{
+		fprintf(stderr, "%ld records loaded\n", hcxorgrecords);
+		return EXIT_SUCCESS;
+		}
 	}
 
 if(pskfilename != NULL)
@@ -1125,9 +1134,13 @@ if(pskfilename != NULL)
 
 if((stdoutflag == true) || (fileflag == true))
 	{
-	keywriteweakpass();
-	processbssid(hcxorgrecords);
-	processessid(hcxorgrecords);
+	if(weakflag == true)
+		keywriteweakpass();
+	if(hcxorgrecords > 0)
+	{
+		processbssid(hcxorgrecords);
+		processessid(hcxorgrecords);
+	}
 	if(wpsflag == true)
 		keywriteallwpskeys();
 	if(eudateflag == true)
