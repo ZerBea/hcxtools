@@ -1823,16 +1823,22 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
 			}
-
+		else if(macf->subtype == MAC_ST_ASSOC_RESP)
+			{
+			if((macl +ASSOCIATIONRESF_SIZE) > pkh->len)
+				continue;
+			if(dotagwalk(payload +ASSOCIATIONRESF_SIZE, pkh->len -macl -ASSOCIATIONRESF_SIZE) == true)
+				fbsflag = true;
+			}
 		else if(macf->subtype == MAC_ST_REASSOC_REQ)
 			{
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if((macl +REASSOCIATIONREQF_SIZE) > pkh->len)
 				continue;
-			essidf = (essid_t*)(payload +REASSOCIATIONREQF_SIZE);
 			if(dotagwalk(payload +REASSOCIATIONREQF_SIZE, pkh->len -macl -REASSOCIATIONREQF_SIZE) == true)
 				fbsflag = true;
+			essidf = (essid_t*)(payload +REASSOCIATIONREQF_SIZE);
 			if(essidf->info_essid != 0)
 				continue;
 			if(essidf->info_essid_len > 32)
@@ -1840,6 +1846,13 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(essidf->info_essid_len == 0)
 				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
+			}
+		else if(macf->subtype == MAC_ST_REASSOC_RESP)
+			{
+			if((macl +ASSOCIATIONRESF_SIZE) > pkh->len)
+				continue;
+			if(dotagwalk(payload +ASSOCIATIONRESF_SIZE, pkh->len -macl -ASSOCIATIONRESF_SIZE) == true)
+				fbsflag = true;
 			}
 		continue;
 		}
