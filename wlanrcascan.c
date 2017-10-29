@@ -70,8 +70,8 @@ return true;
 /*===========================================================================*/
 int sort_by_channel(const void *a, const void *b)
 {
-apl_t *ia = (apl_t *)a;
-apl_t *ib = (apl_t *)b;
+const apl_t *ia = (const apl_t *)a;
+const apl_t *ib = (const apl_t *)b;
 
 return ia->channel > ib->channel;
 }
@@ -191,7 +191,7 @@ void pcaploop(int has_rth)
 const uint8_t *packet = NULL;
 const uint8_t *h80211 = NULL;
 struct pcap_pkthdr *pkh;
-rth_t *rth = NULL;
+const rth_t *rth;
 mac_t *macf = NULL;
 tag_t *tagf = NULL;
 uint8_t	*payload = NULL;
@@ -243,7 +243,7 @@ while(1)
 		{
 		if(RTH_SIZE > pkh->len)
 			continue;
-		rth = (rth_t*)packet;
+		rth = (const rth_t*)packet;
 		fcsl = 0;
 		field = 8;
 		if((rth->it_present & 0x01) == 0x01)

@@ -110,8 +110,8 @@ return true;
 /*===========================================================================*/
 int sort_by_mac_staessid(const void *a, const void *b)
 {
-hcx_t *ia = (hcx_t *)a;
-hcx_t *ib = (hcx_t *)b;
+const hcx_t *ia = (const hcx_t *)a;
+const hcx_t *ib = (const hcx_t *)b;
 
 if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) > 0)
 	return 1;
@@ -168,8 +168,8 @@ return true;
 /*===========================================================================*/
 int sort_by_macs(const void *a, const void *b)
 {
-hcx_t *ia = (hcx_t *)a;
-hcx_t *ib = (hcx_t *)b;
+const hcx_t *ia = (const hcx_t *)a;
+const hcx_t *ib = (const hcx_t *)b;
 
 if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) > 0)
 	return 1;

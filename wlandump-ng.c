@@ -373,7 +373,7 @@ if((idlen > 0) && (idlen <= 256))
 return;
 }
 /*===========================================================================*/
-void printmac(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, char *infostring)
+void printmac(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, const char *infostring)
 {
 int m;
 time_t t = time(NULL);
@@ -891,8 +891,8 @@ return ;
 /*===========================================================================*/
 int sort_by_time(const void *a, const void *b)
 {
-apl_t *ia = (apl_t *)a;
-apl_t *ib = (apl_t *)b;
+const apl_t *ia = (const apl_t *)a;
+const apl_t *ib = (const apl_t *)b;
 
 return ia->tv_sec < ib->tv_sec;
 }
@@ -1156,7 +1156,7 @@ void pcaploop(int has_rth)
 const uint8_t *packet = NULL;
 const uint8_t *h80211 = NULL;
 struct pcap_pkthdr *pkh;
-rth_t *rth = NULL;
+const rth_t *rth;
 mac_t *macf = NULL;
 essid_t *essidf;
 eapext_t *eapext = NULL;
@@ -1218,7 +1218,7 @@ while(1)
 		{
 		if(RTH_SIZE > pkh->len)
 			continue;
-		rth = (rth_t*)packet;
+		rth = (const rth_t*)packet;
 		fcsl = 0;
 		field = 12;
 		if((rth->it_present & 0x01) == 0x01)
