@@ -37,7 +37,7 @@ Detailed description
 | wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                         |
 | pioff          | Turns Raspberry Pi off via GPIO switch                                                                 |
 | wlancapinfo    | Shows info of pcap file                                                                                |
-| wlancap2hcx    | Converts cap to hccapx and other formats (recommended for use with wlandump-ng and wlanresponse)       |
+| wlancap2hcx    | Converts cap to hccapx and other formats (recommended for use with wlandump-ng)                        |
 | wlanhcx2cap    | Converts hccapx to cap                                                                                 |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                               |
 | wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                   |
@@ -114,20 +114,20 @@ Notice
 Most output files will be appended to existing files (with the exception of .cap files).
 
 
-Hardware mod (wlandump-ng/wlanresponse)
+Hardware mod (wlandump-ng)
 --------------
 
-LED flashes 5 times if wlandump-ng/wlanresponse successfully started
+LED flashes 5 times if wlandump-ng successfully started
 
 LED flashes every 5 seconds if everything is fine
 
-Press push button at least > 5 seconds until LED turns on (LED turns on if wlandump-ng/wlanresponse terminates)
+Press push button at least > 5 seconds until LED turns on (LED turns on if wlandump-ng terminates)
 
 Green ACT LED flashes 10 times
 
 Raspberry Pi turned off and can be disconnected from power supply
 
-Do not use wlandump-ng, wlanresponse or pioff together!
+Do not use wlandump-ng and pioff together!
 
 
 Hardware mod (pioff)
@@ -141,7 +141,7 @@ Green ACT LED flashes 10 times
 
 Raspberry Pi turned off and can be disconnected from power supply
 
-Do not use wlandump-ng, wlanresponse or pioff together!
+Do not use wlandump-ng or pioff together!
 
 
 Berkeley Packet Filter BPF (example)
@@ -171,18 +171,18 @@ or allow only this entries
 Warning
 --------------
 
-You must use wlandump-ng and wlanresponse only on networks you have permission to do this, because
+You must use wlandump-ng only on networks you have permission to do this, because
 
-* wlandump-ng/wlanresponse are able to prevent complete wlan traffic
+* wlandump-ng is able to prevent complete wlan traffic
 
-* wlandump-ng/wlanresponse are able to capture handshakes from not connected clients (only one single M2 from the client is required)
+* wlandump-ng is able to capture handshakes from not connected clients (only one single M2 from the client is required)
 
-* wlandump-ng/wlanresponse are able to capture handshakes from 5GHz clients on 2.4GHz (only one single M2 from the client is required)
+* wlandump-ng is are able to capture handshakes from 5GHz clients on 2.4GHz (only one single M2 from the client is required)
 
-* wlandump-ng/wlanresponse are able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
+* wlandump-ng is able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
 
-* wlandump-ng/wlanresponse are able to capture passwords from the wlan traffic
+* wlandump-ng is able to capture passwords from the wlan traffic
 
-* wlandump-ng/wlanresponse are able to capture plainmasterkeys from the wlan traffic
+* wlandump-ng is able to capture plainmasterkeys from the wlan traffic
 
-* wlandump-ng/wlanresponse are able to capture usernames and identities from the wlan traffic
+* wlandump-ng is able to capture usernames and identities from the wlan traffic
