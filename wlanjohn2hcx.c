@@ -49,7 +49,7 @@ unsigned char atoi64[0x100];
 /*===========================================================================*/
 /* globale Initialisierung */
 
-void globalinit()
+void globalinit(void)
 {
 const char *pos;
 memset(atoi64, 0x7F, sizeof(atoi64));

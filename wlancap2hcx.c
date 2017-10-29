@@ -108,7 +108,7 @@ char *usernameoutname = NULL;
 
 hcx_t oldhcxrecord;
 /*===========================================================================*/
-void initgloballists()
+void initgloballists(void)
 {
 memset(&hcmd5, 0, sizeof(hc4800_t));
 memset(&hcleap, 0, sizeof(hc5500_t));

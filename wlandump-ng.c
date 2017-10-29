@@ -286,7 +286,7 @@ const uint8_t requestidentity[] =
 #define REQUESTIDENTITY_SIZE sizeof(requestidentity)
 
 /*===========================================================================*/
-bool initgloballists()
+bool initgloballists(void)
 {
 struct timeval starttimeval;
 
@@ -428,7 +428,7 @@ return 0;
 /*===========================================================================*/
 void handlewps(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, eapext_t *eapext)
 {
-int wpskey; 
+int wpskey;
 int m;
 time_t t = time(NULL);
 struct tm *tm = localtime(&t);
@@ -474,7 +474,7 @@ if(wpskey == WPS_MSG_M5)
 	printf(" WPS-M5 message          \n");
 if(wpskey == WPS_MSG_M6)
 	printf(" WPS-M6 message          \n");
-if(wpskey == WPS_MSG_M7)	
+if(wpskey == WPS_MSG_M7)
 	printf(" WPS-M7 message          \n");
 if(wpskey == WPS_MSG_M8)
 	printf(" WPS-M8 message          \n");
@@ -487,7 +487,7 @@ if(wpskey == WPS_MSG_DONE)
 return;
 }
 /*===========================================================================*/
-void nextmac()
+void nextmac(void)
 {
 mynic++;
 myaddr[5] = mynic & 0xff;
@@ -537,7 +537,7 @@ else
 	}
 }
 /*===========================================================================*/
-void sendundirectedpr()
+void sendundirectedpr(void)
 {
 int pcapstatus;
 mac_t grundframe;
@@ -1112,7 +1112,7 @@ if(signo == TT_SIGUSR2)
 return;
 }
 /*===========================================================================*/
-void setchannel()
+void setchannel(void)
 {
 struct iwreq wrq;
 
