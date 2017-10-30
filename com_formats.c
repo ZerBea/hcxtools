@@ -1,3 +1,7 @@
+void generatepkeprf(hcx_t *hcxrecord, uint8_t *pke_ptr);
+void generatepke(hcx_t *hcxrecord, uint8_t *pke_ptr);
+bool showhashrecord(hcx_t *hcxrecord, uint8_t *password, int pwlen, char *out);
+
 /*===========================================================================*/
 void generatepkeprf(hcx_t *hcxrecord, uint8_t *pke_ptr)
 {

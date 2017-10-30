@@ -123,3 +123,5 @@ typedef enum md5_constants
 
 } md5_constants_t;
 /*===========================================================================*/
+
+void md5_64 (uint32_t block[16], uint32_t digest[4]);

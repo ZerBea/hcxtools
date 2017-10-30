@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stddef.h>
 #include "berkeleyfilter.h"
 
@@ -773,3 +774,30 @@ const uint8_t mynonce[] =
 #define ANONCE_SIZE sizeof(anonce)
 
 /*===========================================================================*/
+
+uint32_t rotl32(uint32_t a, uint32_t n);
+uint64_t rotl64(uint64_t a, uint64_t n);
+uint32_t rotr32(uint32_t a, uint32_t n);
+uint64_t rotr64(uint64_t a, uint64_t n);
+uint16_t byte_swap_16 (uint16_t n);
+uint32_t byte_swap_32(int32_t n);
+uint64_t byte_swap_64(uint64_t n);
+
+bool hexstr2bin(const char *str, uint8_t *bytes, size_t blen);
+void uint8t2hex_lower(uint8_t v, uint8_t hex[2]);
+void do_hexify (uint8_t *buf, int len, uint8_t *out);
+void do_full_hexify (uint8_t *buf, int len, uint8_t *out);
+uint8_t hex_convert(uint8_t c);
+uint8_t hex2uint8t(uint8_t hex[2]);
+bool is_valid_hex_char(uint8_t c);
+bool is_valid_hex_string(uint8_t *s, int len);
+int do_unhexify(uint8_t *in_buf, int in_len, uint8_t *out_buf, int out_size);
+bool is_hexify(uint8_t *in_buf, int len);
+bool is_printable_ascii (uint8_t *in_buf, int len);
+bool need_hexify(uint8_t *in_buf, int len);
+
+int mystrlen(uint8_t *in_buf);
+
+int countdelimiter(uint8_t *in_buf, char delimiter);
+int getdelimiterpos(uint8_t *in_buf, char delimiter);
+

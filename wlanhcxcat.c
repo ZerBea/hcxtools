@@ -28,16 +28,16 @@
 #include "com_formats.c"
 
 
-bool hex2bin(const char *str, uint8_t *bytes, size_t blen);
+static bool hex2bin(const char *str, uint8_t *bytes, size_t blen);
 
 /*===========================================================================*/
 /* globale Variablen */
 
-hcx_t *hcxdata;
-FILE *fhpot;
+static hcx_t *hcxdata;
+static FILE *fhpot;
 /*===========================================================================*/
 __attribute__ ((nonnull(2)))
-void hcxpmk(long int hcxrecords, char *pmkname)
+static void hcxpmk(long int hcxrecords, char *pmkname)
 {
 int p;
 
@@ -131,8 +131,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
-__attribute__ ((nonnull(2,4)))
-void hcxessidpmk(long int hcxrecords, char *essidname, int essidlen, char *pmkname)
+static void hcxessidpmk(long int hcxrecords, char *essidname, int essidlen, char *pmkname)
 {
 int p;
 
@@ -233,8 +232,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
-__attribute__ ((nonnull(2)))
-void hcxpassword(long int hcxrecords, char *passwordname, int passwordlen)
+static void hcxpassword(long int hcxrecords, char *passwordname, int passwordlen)
 {
 int p;
 long int c;
@@ -344,8 +342,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
-__attribute__ ((nonnull(2,4)))
-void hcxessidpassword(long int hcxrecords, char *essidname, int essidlen, char *passwordname, int passwordlen)
+static void hcxessidpassword(long int hcxrecords, char *essidname, int essidlen, char *passwordname, int passwordlen)
 {
 int p;
 
@@ -445,7 +442,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
-size_t chop(char *buffer, size_t len)
+static size_t chop(char *buffer, size_t len)
 {
 char *ptr = buffer +len -1;
 
@@ -467,7 +464,7 @@ while(len)
 return len;
 }
 /*---------------------------------------------------------------------------*/
-int fgetline(FILE *inputstream, size_t size, char *buffer)
+static int fgetline(FILE *inputstream, size_t size, char *buffer)
 {
 if(feof(inputstream))
 	return -1;
@@ -481,8 +478,7 @@ len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
-__attribute__ ((nonnull(2)))
-void hcxwordlist(long int hcxrecords, char *wordlistname)
+static void hcxwordlist(long int hcxrecords, char *wordlistname)
 {
 int len;
 int p;
@@ -516,9 +512,8 @@ fclose(fhpwin);
 return;
 }
 
-__attribute__ ((nonnull(2, 4)))
 /*===========================================================================*/
-void hcxessidwordlist(long int hcxrecords, char *essidname, int essidlen, char *wordlistname)
+static void hcxessidwordlist(long int hcxrecords, char *essidname, int essidlen, char *wordlistname)
 {
 int len;
 int p;
@@ -552,7 +547,7 @@ fclose(fhpwin);
 return;
 }
 /*===========================================================================*/
-int sort_by_essid(const void *a, const void *b)
+static int sort_by_essid(const void *a, const void *b)
 {
 const hcx_t *ia = (const hcx_t *)a;
 const hcx_t *ib = (const hcx_t *)b;
@@ -560,7 +555,7 @@ const hcx_t *ib = (const hcx_t *)b;
 return memcmp(ia->essid, ib->essid, 32);
 }
 /*===========================================================================*/
-long int readhccapx(char *hcxinname)
+static long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
@@ -607,14 +602,14 @@ qsort(hcxdata, hcxsize / HCX_SIZE, sizeof(hcx_t), sort_by_essid);
 return hcxsize / HCX_SIZE;
 }
 /*===========================================================================*/
-bool hex2bin(const char *str, uint8_t *bytes, size_t blen)
+static bool hex2bin(const char *str, uint8_t *bytes, size_t blen)
 {
 size_t c;
 uint8_t pos;
 uint8_t idx0;
 uint8_t idx1;
 
-const uint8_t hashmap[] =
+uint8_t hashmap[] =
 {
 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 89:;<=>?
