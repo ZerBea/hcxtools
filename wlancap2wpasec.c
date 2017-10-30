@@ -21,11 +21,11 @@
 /*===========================================================================*/
 /* globale Konstante */
 
-long int uploadcountok;
-long int uploadcountfailed;
-const char *wpasecurl = "http://wpa-sec.stanev.org";
+static long int uploadcountok;
+static long int uploadcountfailed;
+static const char *wpasecurl = "http://wpa-sec.stanev.org";
 /*===========================================================================*/
-int testwpasec(long int timeout)
+static int testwpasec(long int timeout)
 {
 CURL *curl;
 CURLcode res = 0;
@@ -48,7 +48,7 @@ curl_global_cleanup();
 return res;
 }
 /*===========================================================================*/
-bool sendcap2wpasec(char *sendcapname, long int timeout)
+static bool sendcap2wpasec(char *sendcapname, long int timeout)
 {
 CURL *curl;
 CURLcode res;
