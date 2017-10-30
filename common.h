@@ -752,6 +752,8 @@ typedef struct hcxhrc hcxhrc_t;
 /*===========================================================================*/
 /* globale Konstante */
 
+extern const uint8_t channellist[];
+extern const uint8_t mynonce[];
 
 const uint8_t channellist[] =
 {
