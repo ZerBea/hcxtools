@@ -23,26 +23,26 @@
 /*===========================================================================*/
 /* globale Variablen */
 
-hcx_t *hcxdata = NULL;
+static hcx_t *hcxdata = NULL;
 
-bool stdoutflag = false;
-bool fileflag = false;
-bool weakflag = false;
-bool wpsflag = false;
-bool eudateflag = false;
-bool usdateflag = false;
-bool ngflag = false;
+static bool stdoutflag = false;
+static bool fileflag = false;
+static bool weakflag = false;
+static bool wpsflag = false;
+static bool eudateflag = false;
+static bool usdateflag = false;
+static bool ngflag = false;
 
-FILE *fhpsk;
+static FILE *fhpsk;
 
-int thisyear = 0;
+static int thisyear = 0;
 
-char pskstring[66];
+static char pskstring[66];
 
 /*===========================================================================*/
 /* globale Initialisierung */
 
-bool globalinit(void)
+static bool globalinit(void)
 {
 time_t t = time(NULL);
 struct tm *tm = localtime(&t);
@@ -51,7 +51,7 @@ thisyear = tm->tm_year +1900;
 return true;
 }
 /*===========================================================================*/
-void writepskorg(const char *pskstring)
+static inline void writepskorg(const char *pskstring)
 {
 int l;
 l = strlen(pskstring);
@@ -71,7 +71,7 @@ if(fileflag == true)
 return;
 }
 /*===========================================================================*/
-void writepsk(const char *pskstring)
+static void writepsk(const char *pskstring)
 {
 bool lflag = false;
 bool uflag = false;
@@ -79,14 +79,11 @@ bool uflag = false;
 int p, l;
 l = strlen(pskstring);
 
-char lowerpskstring[66];
-char upperpskstring[66];
+char lowerpskstring[66] = {};
+char upperpskstring[66] = {};
 
 if((l < 8) || (l > 32))
 	return;
-
-memset(&lowerpskstring, 0, 66);
-memset(&upperpskstring, 0, 66);
 
 for(p = 0; p < l; p++)
 	{
@@ -131,7 +128,7 @@ if(fileflag == true)
 return;
 }
 /*===========================================================================*/
-void keywriteweakpass(void)
+static void keywriteweakpass(void)
 {
 size_t w;
 int y;
@@ -203,8 +200,7 @@ return;
 /*===========================================================================*/
 static void keywriteng(void)
 {
-int cn;
-size_t ca, cs;
+size_t ca, cn, cs;
 
 const char *adjectiv[] = { "ancient", "antique", "aquatic",
 	"baby", "basic", "big", "bitter", "black", "blue", "bold", "bottled" "brave", "breezy", "bright", "brown",
@@ -262,16 +258,16 @@ for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
 		{
 		for (cn = 0; cn < 1000; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%d", adjectiv[ca], substantiv[cs], cn);
+			snprintf(pskstring, 64, "%s%s%zu", adjectiv[ca], substantiv[cs], cn);
 			writepskorg(pskstring);
 			if(cn < 10)
 				{
-				snprintf(pskstring, 64, "%s%s%02d", adjectiv[ca], substantiv[cs], cn);
+				snprintf(pskstring, 64, "%s%s%02zu", adjectiv[ca], substantiv[cs], cn);
 				writepskorg(pskstring);
 				}
 			if(cn < 100)
 				{
-				snprintf(pskstring, 64, "%s%s%03d", adjectiv[ca], substantiv[cs], cn);
+				snprintf(pskstring, 64, "%s%s%03zu", adjectiv[ca], substantiv[cs], cn);
 				writepskorg(pskstring);
 				}
 			}
@@ -279,7 +275,7 @@ for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
 return;
 }
 /*===========================================================================*/
-void keywriteeudate(void)
+static void keywriteeudate(void)
 {
 int d ,m ,y;
 
@@ -342,7 +338,7 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
-void keywriteusdate(void)
+static void keywriteusdate(void)
 {
 int d ,m ,y;
 
@@ -405,7 +401,7 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
-void keywriteyearyear(void)
+static void keywriteyearyear(void)
 {
 int y, y2;
 
@@ -420,12 +416,12 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
-void keywritemd5mac(unsigned long long int mac_in)
+static void keywritemd5mac(unsigned long long int mac_in)
 {
 MD5_CTX ctxmd5;
 int k;
 int p;
-const char keystring[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+char keystring[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 char macstring[20];
 unsigned char digestmd5[MD5_DIGEST_LENGTH];
 
@@ -500,7 +496,7 @@ if(fileflag == true)
 return;
 }
 /*===========================================================================*/
-void keywritemac(unsigned long long int mac_in)
+static void keywritemac(unsigned long long int mac_in)
 {
 unsigned long long int mac_out;
 
@@ -567,7 +563,7 @@ writepsk(pskstring);
 return;
 }
 /*---------------------------------------------------------------------------*/
-unsigned int wpspinchecksum(unsigned int pin)
+static unsigned int wpspinchecksum(unsigned int pin)
 {
 unsigned int accum = 0;
 
@@ -581,7 +577,7 @@ while (pin)
 return (10 - accum % 10) % 10;
 }
 /*---------------------------------------------------------------------------*/
-void keywritemacwps(unsigned long long int mac)
+static void keywritemacwps(unsigned long long int mac)
 {
 unsigned int pin;
 
@@ -594,7 +590,7 @@ writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
-void keywriteallwpskeys(void)
+static void keywriteallwpskeys(void)
 {
 int c, cs;
 
@@ -607,7 +603,7 @@ for(c = 0; c < 10000000; c++)
 return;
 }
 /*===========================================================================*/
-void keywritemacrange(unsigned long long int mac)
+static void keywritemacrange(unsigned long long int mac)
 {
 keywritemac(mac);
 keywritemac(mac -1);
@@ -638,7 +634,7 @@ keywritemacwps(mac +6);
 return;
 }
 /*===========================================================================*/
-void keywritemacvariants(unsigned long long int mac)
+static void keywritemacvariants(unsigned long long int mac)
 {
 snprintf(pskstring, 64, "2%012llX", mac);
 writepsk(pskstring);
@@ -664,7 +660,7 @@ writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
-void keywritemaccaesar(unsigned long long int mac)
+static void keywritemaccaesar(unsigned long long int mac)
 {
 int c;
 int k = 0;
@@ -680,7 +676,7 @@ writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
-unsigned long long int net2mac(const uint8_t *netadr)
+static unsigned long long int net2mac(const uint8_t *netadr)
 {
 int c;
 unsigned long long int mac;
@@ -691,7 +687,7 @@ for (c = 0; c < 6; c++)
 return mac;
 }
 /*===========================================================================*/
-int sort_by_mac_ap(const void *a, const void *b)
+static int sort_by_mac_ap(const void *a, const void *b)
 {
 const hcx_t *ia = (const hcx_t *)a;
 const hcx_t *ib = (const hcx_t *)b;
@@ -703,7 +699,7 @@ else if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) < 0)
 return 0;
 }
 /*===========================================================================*/
-void processbssid(long int hcxrecords)
+static void processbssid(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 hcx_t *zeigerhcx1;
@@ -735,7 +731,7 @@ return;
 }
 /*===========================================================================*/
 /*===========================================================================*/
-void keywriteessiddigitxxx(char *basestring)
+static void keywriteessiddigitxxx(char *basestring)
 {
 int d;
 
@@ -749,7 +745,7 @@ for(d = 0; d < 1000; d++)
 return;
 }
 /*===========================================================================*/
-void keywriteessiddigitxx(char *basestring)
+static void keywriteessiddigitxx(char *basestring)
 {
 int d;
 
@@ -763,7 +759,7 @@ for(d = 0; d < 100; d++)
 return;
 }
 /*===========================================================================*/
-void keywriteessiddigitx(char *basestring)
+static void keywriteessiddigitx(char *basestring)
 {
 int d;
 
@@ -777,7 +773,7 @@ for(d = 0; d < 10; d++)
 return;
 }
 /*===========================================================================*/
-void keywriteessidyear(char *basestring)
+static void keywriteessidyear(char *basestring)
 {
 int y;
 
@@ -791,7 +787,7 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
-void keywritepreappend5(char *basestring)
+static void keywritepreappend5(char *basestring)
 {
 snprintf(pskstring, 64, "%s12345", basestring);
 writepsk(pskstring);
@@ -800,7 +796,7 @@ writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
-void keywritepreappend4(char *basestring)
+static void keywritepreappend4(char *basestring)
 {
 snprintf(pskstring, 64, "%s1234", basestring);
 writepsk(pskstring);
@@ -809,7 +805,7 @@ writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
-void keywritepreappend1(char *basestring)
+static void keywritepreappend1(char *basestring)
 {
 snprintf(pskstring, 64, "%s!", basestring);
 writepsk(pskstring);
@@ -818,7 +814,7 @@ writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
-void sweepessidstr(int essidlenin, uint8_t *essidstrin)
+static void sweepessidstr(int essidlenin, uint8_t *essidstrin)
 {
 int l1, l2;
 char essidstr[34];
@@ -858,7 +854,7 @@ for(l1 = 3; l1 <= essidlenin; l1++)
 return;
 }
 /*===========================================================================*/
-void getxdigitsweepessidstr(int essidlenin, uint8_t *essidstrin)
+static void getxdigitsweepessidstr(int essidlenin, uint8_t *essidstrin)
 {
 int p1,p2;
 int essidlenneu;
@@ -885,7 +881,7 @@ if(removeflag == true)
 return;
 }
 /*===========================================================================*/
-void getdigitsweepessidstr(int essidlenin, uint8_t *essidstrin)
+static void getdigitsweepessidstr(int essidlenin, uint8_t *essidstrin)
 {
 int p1,p2;
 int essidlenneu;
@@ -912,7 +908,7 @@ if(removeflag == true)
 return;
 }
 /*===========================================================================*/
-void removesweepessidstr(int essidlenin, uint8_t *essidstrin)
+static void removesweepessidstr(int essidlenin, uint8_t *essidstrin)
 {
 int p1,p2;
 int essidlenneu;
@@ -940,7 +936,7 @@ if(removeflag == true)
 return;
 }
 /*===========================================================================*/
-int sort_by_essid(const void *a, const void *b)
+static int sort_by_essid(const void *a, const void *b)
 {
 const hcx_t *ia = (const hcx_t *)a;
 const hcx_t *ib = (const hcx_t *)b;
@@ -948,7 +944,7 @@ const hcx_t *ib = (const hcx_t *)b;
 return memcmp(ia->essid, ib->essid, 32);
 }
 /*===========================================================================*/
-void processessid(long int hcxrecords)
+static void processessid(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 hcx_t *zeigerhcx1;
@@ -983,7 +979,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
-long int readhccapx(char *hcxinname)
+static long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
