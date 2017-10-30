@@ -54,8 +54,6 @@
 #define WPA_M3  0b00000100
 #define WPA_M4  0b00001000
 
-void set_timer(timer_t timerid, int seconds, long int nanoseconds);
-
 struct aplist
 {
  long int	tv_sec;
@@ -108,54 +106,52 @@ typedef struct handshake hds_t;
 /*===========================================================================*/
 /* globale variablen */
 
-pcap_t *pcapin = NULL;
-pcap_dumper_t *pcapout = NULL;
-uint8_t chptr = 0;
-uint8_t chlistende = 13;
-uint16_t mysequencenr = 1;
-int staytime = TIME_INTERVAL_2S;
+static pcap_t *pcapin = NULL;
+static pcap_dumper_t *pcapout = NULL;
+static uint8_t chptr = 0;
+static uint8_t chlistende = 13;
+static uint16_t mysequencenr = 1;
+static int staytime = TIME_INTERVAL_2S;
 
-int maxerrorcount;
-int internalpcaperrors;
-unsigned long long int myoui;
-unsigned long long int mynic;
-unsigned long long int mymac;
+static int maxerrorcount;
+static int internalpcaperrors;
+static unsigned long long int myoui;
+static unsigned long long int mynic;
+static unsigned long long int mymac;
 
-timer_t timer1;
-timer_t timer2;
+static timer_t timer1;
+static timer_t timer2;
 
-uint8_t nullmac[6];
-uint8_t broadcastmac[6];
-uint8_t myaddr[6];
+static uint8_t broadcastmac[6];
+static uint8_t myaddr[6];
 
-int establishedhandshakes = ESTABLISHEDHANDSHAKESMAX;
+static int establishedhandshakes = ESTABLISHEDHANDSHAKESMAX;
 
-apl_t *accesspointliste = NULL;
-aphdl_t *accesspointhdliste = NULL;
-char *interfacename = NULL;
+static apl_t *accesspointliste = NULL;
+static aphdl_t *accesspointhdliste = NULL;
+static char *interfacename = NULL;
 
-bool wantstatusflag = false;
-bool deauthflag = false;
-bool disassocflag = false;
-bool sendundirectedprflag = false;
-bool beaconingflag = false;
-bool respondflag = false;
-bool wepdataflag = false;
+static bool wantstatusflag = false;
+static bool deauthflag = false;
+static bool disassocflag = false;
+static bool sendundirectedprflag = false;
+static bool beaconingflag = false;
+static bool respondflag = false;
+static bool wepdataflag = false;
 
-
-adr_t	lastbeaconap;
-uint8_t lastbeaconessid_len = 0;
-uint8_t lastbeaconessid[32];
+static adr_t	lastbeaconap;
+static uint8_t lastbeaconessid_len = 0;
+static uint8_t lastbeaconessid[32];
 
 /*===========================================================================*/
 /* Konstante */
 
-const uint8_t txvendor1[] =
+static const uint8_t txvendor1[] =
 {
 0x00, 0x00, 0x6c, 0x20, 0x5b, 0x2a
 };
 
-const int myvendor[] =
+static const int myvendor[] =
 {
 0x000101, 0x00054f, 0x000578, 0x000b18, 0x000bf4, 0x000c53, 0x000d58,
 0x000da7, 0x000dc2, 0x000df2, 0x000e17, 0x000e22, 0x000e2a, 0x000eef, 0x000f09,
@@ -173,7 +169,7 @@ const int myvendor[] =
 #define MYVENDOR_SIZE sizeof(myvendor)
 
 
-const uint8_t hdradiotap[] =
+static const uint8_t hdradiotap[] =
 {
  0x00, 0x00, // <-- radiotap version
  0x0c, 0x00, // <- radiotap header length
@@ -185,7 +181,7 @@ const uint8_t hdradiotap[] =
 #define HDRRT_SIZE sizeof(hdradiotap)
 
 
-uint8_t authenticationframe[] =
+static const uint8_t authenticationframe[] =
 {
 0x00, 0x00, 0x02, 0x00, 0x00, 0x00
 };
@@ -193,7 +189,7 @@ uint8_t authenticationframe[] =
 
 
 /*undirected proberequest*/
-uint8_t undirectedpr[] =
+static const uint8_t undirectedpr[] =
 {
 0x00, 0x00,
 0x01, 0x08, 0x02, 0x04, 0x0b, 0x0c, 0x12, 0x16, 0x18, 0x24,
@@ -205,7 +201,7 @@ uint8_t undirectedpr[] =
 
 
 /* Fritzbox 3272 Beacon */
-uint8_t beaconfb3272[] =
+static const uint8_t beaconfb3272[] =
 {
 0x01, 0x08, 0x82, 0x84, 0x8b, 0x96, 0x0c, 0x12, 0x18, 0x24,
 0x03, 0x01, 0x0b, //channel
@@ -227,7 +223,7 @@ uint8_t beaconfb3272[] =
 
 
 /* Fritzbox 3272 Proberesponse*/
-uint8_t proberesponsefb3272[] =
+static const uint8_t proberesponsefb3272[] =
 {
 0x01, 0x08, 0x82, 0x84, 0x8b, 0x96, 0x0c, 0x12, 0x18, 0x24,
 0x03, 0x01, 0x0b,
@@ -251,7 +247,7 @@ uint8_t proberesponsefb3272[] =
 #define FB3272PROBERESPONSE_SIZE sizeof(proberesponsefb3272)
 
 
-const uint8_t associationresponse[] =
+static const uint8_t associationresponse[] =
 {
 0x01, 0x08, 0x82, 0x84, 0x8b, 0x0c, 0x12, 0x96, 0x18, 0x24,
 0x32, 0x04, 0x30, 0x48, 0x60, 0x6c,
@@ -264,7 +260,7 @@ const uint8_t associationresponse[] =
 #define ASSOCRESP_SIZE sizeof(associationresponse)
 
 
-const uint8_t anonce[] =
+static const uint8_t anonce[] =
 {
 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x88, 0x8e,
 0x02, 0x03, 0x00, 0x5f, 0x02, 0x00, 0x8a, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf7,
@@ -278,21 +274,22 @@ const uint8_t anonce[] =
 #define ANONCE_SIZE sizeof(anonce)
 
 
-const uint8_t requestidentity[] =
+static const uint8_t requestidentity[] =
 {
 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x88, 0x8e,
 0x02, 0x00, 0x00, 0x05, 0x01, 0xb8, 0x00, 0x05, 0x01
 };
 #define REQUESTIDENTITY_SIZE sizeof(requestidentity)
 
+static const uint8_t nullmac[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
 /*===========================================================================*/
-bool initgloballists(void)
+static bool initgloballists(void)
 {
 struct timeval starttimeval;
 
 gettimeofday (&starttimeval, NULL);
 
-memset(&nullmac, 0, 6);
 memset(&broadcastmac, 0xff, 6);
 
 mynic = rand() & 0xffff;
@@ -315,7 +312,7 @@ if((accesspointhdliste = calloc((APHDLISTESIZEMAX +1), APHDL_SIZE)) == NULL)
 return true;
 }
 /*===========================================================================*/
-void printmaceapcode(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, uint8_t eapcode, char *infostring)
+static void printmaceapcode(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, uint8_t eapcode, char *infostring)
 {
 int m;
 time_t t = time(NULL);
@@ -354,7 +351,7 @@ else
 return;
 }
 /*===========================================================================*/
-void printidentity(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, uint8_t eapcode, eapext_t *eapext)
+static void printidentity(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, uint8_t eapcode, eapext_t *eapext)
 {
 eapri_t *eapidentity;
 int idlen;
@@ -373,7 +370,7 @@ if((idlen > 0) && (idlen <= 256))
 return;
 }
 /*===========================================================================*/
-void printmac(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, const char *infostring)
+static void printmac(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, const char *infostring)
 {
 int m;
 time_t t = time(NULL);
@@ -405,7 +402,7 @@ printf(" %s          \n", infostring);
 return;
 }
 /*===========================================================================*/
-int getwpskey(eapext_t *eapext)
+static int getwpskey(eapext_t *eapext)
 {
 wps_t *wpsd;
 vtag_t *vtag;
@@ -426,7 +423,7 @@ while( 0 < vtagl)
 return 0;
 }
 /*===========================================================================*/
-void handlewps(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, eapext_t *eapext)
+static void handlewps(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, eapext_t *eapext)
 {
 int wpskey;
 int m;
@@ -487,7 +484,7 @@ if(wpskey == WPS_MSG_DONE)
 return;
 }
 /*===========================================================================*/
-void nextmac(void)
+static void nextmac(void)
 {
 mynic++;
 myaddr[5] = mynic & 0xff;
@@ -496,15 +493,15 @@ myaddr[3] = (mynic >> 16) & 0xff;
 return;
 }
 /*===========================================================================*/
-unsigned long long int getreplaycount(eap_t *eap)
+static unsigned long long int getreplaycount(eap_t *eap)
 {
-unsigned long long int replaycount = 0;
+unsigned long long int replaycount;
 
 replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
-uint8_t geteapkey(eap_t *eap)
+static uint8_t geteapkey(eap_t *eap)
 {
 uint16_t keyinfo;
 
@@ -537,13 +534,12 @@ else
 	}
 }
 /*===========================================================================*/
-void sendundirectedpr(void)
+static void sendundirectedpr(void)
 {
 int pcapstatus;
-mac_t grundframe;
+mac_t grundframe = {};
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
 grundframe.subtype = MAC_ST_PROBE_REQ;
 grundframe.duration = 0x0000;
@@ -572,17 +568,16 @@ if(mysequencenr > 9999)
 return ;
 }
 /*===========================================================================*/
-void sendbeacon(uint8_t *macaddr2, uint8_t essid_len, uint8_t *essid)
+static void sendbeacon(uint8_t *macaddr2, uint8_t essid_len, uint8_t *essid)
 {
 struct timeval tv1;
 int pcapstatus;
-mac_t grundframe;
+mac_t grundframe = {};
 beacon_t beacontsframe;
 essid_t essidframe;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
 grundframe.subtype = MAC_ST_BEACON;
 grundframe.duration = 0;
@@ -624,17 +619,16 @@ if(mysequencenr > 9999)
 return;
 }
 /*===========================================================================*/
-void sendproberesponse(uint8_t *macaddr1, uint8_t *macaddr2, uint8_t essid_len, uint8_t **essid)
+static void sendproberesponse(uint8_t *macaddr1, uint8_t *macaddr2, uint8_t essid_len, uint8_t **essid)
 {
 struct timeval tv1;
 int pcapstatus;
-mac_t grundframe;
+mac_t grundframe = {};
 beacon_t beacontsframe;
 essid_t essidframe;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
 grundframe.subtype = MAC_ST_PROBE_RESP;
 grundframe.duration = 0x013a;
@@ -675,15 +669,14 @@ if(mysequencenr > 9999)
 return;
 }
 /*===========================================================================*/
-void sendassociationresponse(uint8_t dart, uint8_t *macaddr1, uint8_t *macaddr2)
+static inline void sendassociationresponse(uint8_t dart, uint8_t *macaddr1, uint8_t *macaddr2)
 {
 int pcapstatus;
-mac_t grundframe;
+mac_t grundframe = {};
 assocres_t associationframe;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
 grundframe.subtype = dart;
 grundframe.duration = 0x013a;
@@ -717,14 +710,13 @@ if(mysequencenr > 9999)
 return;
 }
 /*===========================================================================*/
-void sendacknowledgement(uint8_t *macaddr1)
+static inline void sendacknowledgement(uint8_t *macaddr1)
 {
-mac_t grundframe;
+mac_t grundframe = {};
 int pcapstatus;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_CTRL;
 grundframe.subtype = MAC_ST_ACK;
 grundframe.duration = 0;
@@ -745,16 +737,14 @@ if(pcapstatus == -1)
 return;
 }
 /*===========================================================================*/
-void sendrequestidentity(uint8_t *macaddr1, uint8_t *macaddr2)
+static void sendrequestidentity(uint8_t *macaddr1, uint8_t *macaddr2)
 {
 int pcapstatus;
-mac_t grundframe;
-qos_t qosframe;
+mac_t grundframe = {};
+qos_t qosframe = {};
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-memset(&grundframe, 0, MAC_SIZE_NORM);
-memset(&qosframe, 0, QOS_SIZE);
 grundframe.type = MAC_TYPE_DATA;
 grundframe.subtype = MAC_ST_QOSDATA;
 grundframe.from_ds = 1;
@@ -782,16 +772,14 @@ if(pcapstatus == -1)
 return;
 }
 /*===========================================================================*/
-void sendkey1(uint8_t *macaddr1, uint8_t *macaddr2)
+static inline void sendkey1(uint8_t *macaddr1, uint8_t *macaddr2)
 {
 int pcapstatus;
-mac_t grundframe;
-qos_t qosframe;
+mac_t grundframe = {};
+qos_t qosframe = {};
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-memset(&grundframe, 0, MAC_SIZE_NORM);
-memset(&qosframe, 0, QOS_SIZE);
 grundframe.type = MAC_TYPE_DATA;
 grundframe.subtype = MAC_ST_QOSDATA;
 grundframe.from_ds = 1;
@@ -819,14 +807,13 @@ if(pcapstatus == -1)
 return;
 }
 /*===========================================================================*/
-void sendauthentication(uint8_t *macaddr1, uint8_t *macaddr2)
+static void sendauthentication(uint8_t *macaddr1, uint8_t *macaddr2)
 {
-mac_t grundframe;
+mac_t grundframe = {};
 int pcapstatus;
 
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
 grundframe.subtype = MAC_ST_AUTH;
 grundframe.duration = 0x013a;
@@ -855,13 +842,12 @@ if(mysequencenr > 9999)
 return;
 }
 /*===========================================================================*/
-void send_deauthentication(uint8_t dart, uint8_t reason, uint8_t *macaddr1, uint8_t *macaddr2)
+static inline void send_deauthentication(uint8_t dart, uint8_t reason, uint8_t *macaddr1, uint8_t *macaddr2)
 {
 int pcapstatus;
-mac_t grundframe;
+mac_t grundframe = {};
 uint8_t sendpacket[SENDPACKETSIZEMAX];
 
-memset(&grundframe, 0, MAC_SIZE_NORM);
 grundframe.type = MAC_TYPE_MGMT;
 grundframe.subtype = dart;
 grundframe.duration = 0x013a;
@@ -889,7 +875,7 @@ if(mysequencenr > 9999)
 return ;
 }
 /*===========================================================================*/
-int sort_by_time(const void *a, const void *b)
+static int sort_by_time(const void *a, const void *b)
 {
 const apl_t *ia = (const apl_t *)a;
 const apl_t *ib = (const apl_t *)b;
@@ -897,7 +883,7 @@ const apl_t *ib = (const apl_t *)b;
 return ia->tv_sec < ib->tv_sec;
 }
 /*===========================================================================*/
-bool checkaphds(uint8_t *mac_ap)
+static bool checkaphds(uint8_t *mac_ap)
 {
 aphdl_t *zeiger;
 int c;
@@ -914,7 +900,7 @@ for(c = 0; c < APHDLISTESIZEMAX; c++)
 return false;
 }
 /*===========================================================================*/
-bool checkapstahds(uint8_t *mac_ap,  uint8_t *mac_sta)
+static inline bool checkapstahds(uint8_t *mac_ap,  uint8_t *mac_sta)
 {
 aphdl_t *zeiger;
 int c;
@@ -931,7 +917,7 @@ for(c = 0; c < APHDLISTESIZEMAX; c++)
 return false;
 }
 /*===========================================================================*/
-void addaphds(time_t tvsec, uint8_t *mac_ap,  uint8_t *mac_sta)
+static void addaphds(time_t tvsec, uint8_t *mac_ap,  uint8_t *mac_sta)
 {
 aphdl_t *zeiger;
 int c;
@@ -959,7 +945,7 @@ qsort(accesspointhdliste, APHDLISTESIZEMAX +1, APHDL_SIZE, sort_by_time);
 return;
 }
 /*===========================================================================*/
-bool handleaps(time_t tvsec, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
+static inline bool handleaps(time_t tvsec, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essidname)
 {
 apl_t *zeiger;
 int c;
@@ -985,7 +971,7 @@ qsort(accesspointliste, APLISTESIZEMAX +1, APL_SIZE, sort_by_time);
 return false;
 }
 /*===========================================================================*/
-bool handleapsrnd(time_t tvsec, uint8_t *mac_sta, uint8_t essid_len, uint8_t **essidname)
+static bool handleapsrnd(time_t tvsec, uint8_t *mac_sta, uint8_t essid_len, uint8_t **essidname)
 {
 apl_t *zeiger;
 int c;
@@ -1022,7 +1008,7 @@ qsort(accesspointliste, APLISTESIZEMAX +1, APL_SIZE, sort_by_time);
 return false;
 }
 /*===========================================================================*/
-bool dotagwalk(uint8_t *tagdata, int taglen)
+static bool dotagwalk(uint8_t *tagdata, int taglen)
 {
 tag_t *tagl;
 tagl = (tag_t*)(tagdata);
@@ -1037,7 +1023,7 @@ return false;
 }
 /*===========================================================================*/
 /*===========================================================================*/
-void programmende(int signum)
+static void programmende(int signum)
 {
 if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 	{
@@ -1050,7 +1036,7 @@ if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 return;
 }
 /*===========================================================================*/
-timer_t create_timer(int signo)
+static inline timer_t create_timer(int signo)
 {
 timer_t timerid;
 struct sigevent se;
@@ -1064,7 +1050,7 @@ if(timer_create(CLOCK_REALTIME, &se, &timerid) == -1)
 return timerid;
 }
 /*===========================================================================*/
-void set_timer(timer_t timerid, int seconds, long int nanoseconds)
+static inline void set_timer(timer_t timerid, int seconds, long int nanoseconds)
 {
 struct itimerspec timervals;
 timervals.it_value.tv_sec = seconds;
@@ -1080,7 +1066,7 @@ if(timer_settime(timerid, 0, &timervals, NULL) == -1)
 return;
 }
 /*===========================================================================*/
-void install_sighandler(int signo, void(*handler)(int))
+static inline void install_sighandler(int signo, void(*handler)(int))
 {
 sigset_t set;
 struct sigaction act;
@@ -1097,7 +1083,7 @@ sigprocmask(SIG_UNBLOCK, &set, NULL);
 return;
 }
 /*===========================================================================*/
-void signal_handler(int signo)
+static void signal_handler(int signo)
 {
 if(signo == TT_SIGUSR1)
 	{
@@ -1126,13 +1112,12 @@ if(signo == TT_SIGUSR2)
 return;
 }
 /*===========================================================================*/
-void setchannel(void)
+static void setchannel(void)
 {
-struct iwreq wrq;
+struct iwreq wrq = {};
 
 int sock = 0;
 int result = 0;
-memset(&wrq, 0, sizeof(struct iwreq));
 strncpy(wrq.ifr_name, interfacename , IFNAMSIZ);
 if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
@@ -1165,7 +1150,7 @@ return;
 }
 /*===========================================================================*/
 __attribute__ ((noreturn))
-void pcaploop(int has_rth)
+static void pcaploop(int has_rth)
 {
 const uint8_t *packet = NULL;
 const uint8_t *h80211 = NULL;
@@ -1189,9 +1174,8 @@ ipv6_frame_t *ipv6h = NULL;
 int beaconcount = 0;
 unsigned long long int receivepacketcount = 0;
 adr_t lastap;
-hds_t akthds;
+hds_t akthds = {};
 
-memset(&akthds, 0, HDS_SIZE);
 if(wantstatusflag == true)
 	printf("\e[?25lstart capturing on channel %d using mac_ap %06llx%06llx (stop with ctrl+c)...\n", channellist[chptr], myoui, mynic);
 while(1)
@@ -1523,7 +1507,7 @@ while(1)
 					{
 					if(macf->retry == 1)
 						printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "M1M2 handshake (forced-retransmission)");
-					else	
+					else
 						printmac(macf->addr1.addr, macf->addr2.addr, macf->to_ds, macf->from_ds, "M1M2 handshake (forced)");
 					}
 				akthds.af |= WPA_M1;
@@ -1695,7 +1679,7 @@ while(1)
 	}
 }
 /*===========================================================================*/
-void installbpf(pcap_t *pcapin, char *externalbpfname)
+static void installbpf(pcap_t *pcapin, char *externalbpfname)
 {
 struct stat statinfo;
 struct bpf_program filter;
@@ -1759,7 +1743,7 @@ if(extfilterstring != NULL)
 return;
 }
 /*===========================================================================*/
-bool startcapturing(char *pcapoutname, char *externalbpfname)
+static bool startcapturing(char *pcapoutname, char *externalbpfname)
 {
 struct stat statinfo;
 pcap_t *pcapdh = NULL;
