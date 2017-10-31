@@ -597,7 +597,8 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE + MAC_SIZE_NORM +UNDIRE
 if(pcapstatus == -1)
 	{
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 	fprintf(stderr, "error while sending deauthentication %s \n", pcap_geterr(pcapin));
 	internalpcaperrors++;
@@ -648,7 +649,8 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +BEACON
 if(pcapstatus == -1)
 	{
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 
 	fprintf(stderr, "error while sending beacon %s \n", pcap_geterr(pcapin));
@@ -699,7 +701,8 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +BEACON
 if(pcapstatus == -1)
 	{
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 	fprintf(stderr, "error while sending probe response %s \n", pcap_geterr(pcapin));
 	internalpcaperrors++;
@@ -740,7 +743,8 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +ASSOCI
 if(pcapstatus == -1)
 	{
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 	fprintf(stderr, "error while sending associationresponce %s \n", pcap_geterr(pcapin));
 	internalpcaperrors++;
@@ -770,7 +774,8 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE +MAC_SIZE_ACK);
 if(pcapstatus == -1)
 	{
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 	fprintf(stderr, "error while sending acknowledgement %s \n", pcap_geterr(pcapin));
 	internalpcaperrors++;
@@ -804,7 +809,8 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +QOS_SI
 if(pcapstatus == -1)
 	{
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 	fprintf(stderr, "error while sending request identity %s \n", pcap_geterr(pcapin));
 	internalpcaperrors++;
@@ -839,7 +845,8 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, +HDRRT_SIZE +MAC_SIZE_NORM +QOS_SI
 if(pcapstatus == -1)
 	{
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 	fprintf(stderr, "error while sending key 1 %s \n", pcap_geterr(pcapin));
 	internalpcaperrors++;
@@ -872,7 +879,8 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE +MAC_SIZE_NORM +AUTHENT
 if(pcapstatus == -1)
 	{
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 	fprintf(stderr, "error while sending authentication %s \n", pcap_geterr(pcapin));
 	internalpcaperrors++;
@@ -904,7 +912,8 @@ pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE + MAC_SIZE_NORM +2);
 if(pcapstatus == -1)
 	{
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 	fprintf(stderr, "error while sending deauthentication %s \n", pcap_geterr(pcapin));
 	internalpcaperrors++;
@@ -1139,7 +1148,9 @@ if(signo == TT_SIGUSR1)
 		pcap_dump_flush(pcapout);
 		pcap_dump_close(pcapout);
 		pcap_close(pcapin);
-		system("poweroff");
+		if(system("poweroff") != 0)
+			printf("can't power off\n");
+
 		}
 #endif
 	return;
@@ -1164,7 +1175,8 @@ if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
         fprintf(stderr, "socket open for ioctl() on '%s' failed with '%d'\n", interfacename, sock);
 #ifdef DOGPIOSUPPORT
-	system("reboot");
+	if(system("reboot") != 0)
+		printf("can't reboot\n");
 #endif
 	programmende(SIGINT);
 	return;
@@ -1181,7 +1193,8 @@ if(ioctl(sock, SIOCSIWFREQ, &wrq) < 0)
 		fprintf(stderr, "ioctl(SIOCSIWFREQ) on '%s' failed with '%d'\n", interfacename, result);
 		fprintf(stderr, "unable to set channel %d on '%s'\n", channellist[chptr], interfacename);
 #ifdef DOGPIOSUPPORT
-		system("reboot");
+		if(system("reboot") != 0)
+			printf("can't reboot\n");
 #endif
 		programmende(SIGINT);
 		}
