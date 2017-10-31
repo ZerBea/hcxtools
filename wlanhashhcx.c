@@ -24,9 +24,9 @@
 /*===========================================================================*/
 /* globale Variablen */
 
-hcx_t *hcxdata = NULL;
+static hcx_t *hcxdata = NULL;
 /*===========================================================================*/
-void hashhcx(long int hcxrecords, FILE* fhhash)
+static void hashhcx(long int hcxrecords, FILE* fhhash)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -44,7 +44,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
-long int readhccapx(char *hcxinname)
+static long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;

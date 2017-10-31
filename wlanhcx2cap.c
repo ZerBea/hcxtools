@@ -23,25 +23,25 @@
 /*===========================================================================*/
 /* globale Variablen */
 
-hcx_t *hccapxdata;
+static hcx_t *hccapxdata;
 /*===========================================================================*/
-unsigned long long int getreplaycount(uint8_t *eapdata)
+static unsigned long long int getreplaycount(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 unsigned long long int replaycount = 0;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
-uint8_t geteapkey(uint8_t *eapdata)
+static uint8_t geteapkey(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 uint16_t keyinfo;
 int eapkey = 0;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 keyinfo = (((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8));
 if (keyinfo & WPA_KEY_INFO_ACK)
 	{
@@ -72,7 +72,7 @@ else
 return eapkey;
 }
 /*===========================================================================*/
-void pcapwritepaket(pcap_dumper_t *pcapdump, hcx_t *zeigersend)
+static void pcapwritepaket(pcap_dumper_t *pcapdump, hcx_t *zeigersend)
 {
 struct pcap_pkthdr pkhdump;
 struct timeval tv1;
@@ -106,11 +106,11 @@ uint8_t beaconwpa2[] = {
 0xdd, 0x09, 0x00, 0x03, 0x7f, 0x01, 0x01, 0x00, 0x00, 0xff, 0x7f,
 0xdd, 0x0c, 0x00, 0x04, 0x0e, 0x01, 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-const uint8_t anonce[] = {
+uint8_t anonce[] = {
 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x88, 0x8e,
 0x01, 0x03, 0x00, 0x5f, 0x02, 0x00, 0x8a, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-const uint8_t snonce[] = {
+uint8_t snonce[] = {
 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x88, 0x8e };
 
 uint8_t mypacket[0xfff];
@@ -236,7 +236,8 @@ pcap_dump_flush(pcapdump);
 return;
 }
 /*===========================================================================*/
-bool mac12checkdouble(hcx_t *zeiger, long int akthccapset, long int hccapsets)
+__attribute__ ((unused))
+static bool mac12checkdouble(hcx_t *zeiger, long int akthccapset, long int hccapsets)
 {
 hcx_t *zeigertest = zeiger;
 int p;
@@ -249,13 +250,13 @@ for(p = akthccapset +1; p < hccapsets;)
 return false;
 }
 /*===========================================================================*/
-void mac2macstring(char ssid[13], unsigned char *p)
+static void mac2macstring(char ssid[13], unsigned char *p)
 {
 sprintf(ssid, "%02x%02x%02x%02x%02x%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-void writecap(char *capoutname, long int hccapsets)
+static void writecap(char *capoutname, long int hccapsets)
 {
 int p;
 long int pcapcount = 0;
@@ -303,7 +304,7 @@ for(p = 0; p < hccapsets; p++)
 
 if(pcapcount == 1)
 	printf("%ld handshake written to single cap file\n", pcapcount);
-else 
+else
 	printf("%ld handshakes written to single cap files\n", pcapcount);
 
 if(notwrittencount == 1)
@@ -314,7 +315,7 @@ else
 return;
 }
 /*===========================================================================*/
-void writesinglecap(char *singlecapoutname, long int hccapsets)
+static void writesinglecap(char *singlecapoutname, long int hccapsets)
 {
 int p;
 long int pcapcount = 0;
@@ -360,7 +361,7 @@ else
 return;
 }
 /*===========================================================================*/
-long int readhccapx(char *hccapxinname)
+static long int readhccapx(char *hccapxinname)
 {
 struct stat statinfo;
 FILE *fhhccapx;

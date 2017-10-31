@@ -125,7 +125,7 @@ static timer_t timer2;
 static uint8_t broadcastmac[6];
 static uint8_t myaddr[6];
 static uint8_t mytxaddr[6];
-int mytxvendor =0x00006c;
+static int mytxvendor =0x00006c;
 
 static int establishedhandshakes = ESTABLISHEDHANDSHAKESMAX;
 

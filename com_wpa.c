@@ -1,3 +1,5 @@
+bool wpatesthash(hcx_t *zeigerhcx, uint8_t *pmk);
+
 /*===========================================================================*/
 bool wpatesthash(hcx_t *zeigerhcx, uint8_t *pmk)
 {

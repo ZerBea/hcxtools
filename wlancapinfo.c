@@ -27,7 +27,7 @@
 
 
 /*===========================================================================*/
-bool getpcapinfo(char *pcapinname)
+static bool getpcapinfo(char *pcapinname)
 {
 //struct stat statinfo;
 pcap_t *pcapin = NULL;
@@ -41,7 +41,7 @@ int minorversion = 0;
 int pcapstatus;
 long int packetcount = 0;
 uint32_t magic = 0;
-const uint8_t *packet = NULL;
+const uint8_t *packet;
 
 const char *datalinkstring = "";
 const char *pcapformatstring = "";
