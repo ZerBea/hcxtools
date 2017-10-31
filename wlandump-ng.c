@@ -1385,12 +1385,13 @@ while(1)
 		else if(macf->subtype == MAC_ST_ASSOC_RESP)
 			{
 			if((macl +ASSOCIATIONRESF_SIZE) > pkh->len)
-				continue;
-			pcap_dump((u_char *) pcapout, pkh, h80211);
-			if(wantstatusflag == true)
 				{
 				if(dotagwalk(payload +ASSOCIATIONRESF_SIZE, pkh->len -macl -ASSOCIATIONRESF_SIZE) == true)
-					printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition response (fast roaming)");
+					{
+					pcap_dump((u_char *) pcapout, pkh, h80211);
+					if(wantstatusflag == true)
+						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition response (fast roaming)");
+					}
 				}
 			continue;
 			}
@@ -1424,12 +1425,13 @@ while(1)
 		else if(macf->subtype == MAC_ST_REASSOC_RESP)
 			{
 			if((macl +ASSOCIATIONRESF_SIZE) > pkh->len)
-				continue;
-			pcap_dump((u_char *) pcapout, pkh, h80211);
-			if(wantstatusflag == true)
 				{
 				if(dotagwalk(payload +ASSOCIATIONRESF_SIZE, pkh->len -macl -ASSOCIATIONRESF_SIZE) == true)
-					printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition response (fast roaming)");
+					{
+					pcap_dump((u_char *) pcapout, pkh, h80211);
+					if(wantstatusflag == true)
+						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition response (fast roaming)");
+					}
 				}
 			continue;
 			}
