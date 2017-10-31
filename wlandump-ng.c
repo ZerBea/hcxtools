@@ -1189,7 +1189,10 @@ while(1)
 		fprintf(stderr, "pcap read error: %s \n", pcap_geterr(pcapin));
 		internalpcaperrors++;
 		if((maxerrorcount > 0) && (internalpcaperrors >= maxerrorcount))
-			system("reboot");
+			{
+			if(system("reboot") != 0)
+				printf("can't reboot\n");
+			}
 		continue;
 		}
 
