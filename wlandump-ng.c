@@ -124,6 +124,8 @@ static timer_t timer2;
 
 static uint8_t broadcastmac[6];
 static uint8_t myaddr[6];
+static uint8_t mytxaddr[6];
+int mytxvendor =0x00006c;
 
 static int establishedhandshakes = ESTABLISHEDHANDSHAKESMAX;
 
@@ -145,11 +147,6 @@ static uint8_t lastbeaconessid[32];
 
 /*===========================================================================*/
 /* Konstante */
-
-static const uint8_t txvendor1[] =
-{
-0x00, 0x00, 0x6c, 0x20, 0x5b, 0x2a
-};
 
 static const int myvendor[] =
 {
@@ -303,6 +300,15 @@ myaddr[2] = myoui & 0xff;
 myaddr[1] = (myoui >> 8) & 0xff;
 myaddr[0] = (myoui >> 16) & 0xff;
 
+memset(&mytxaddr, 0, 6);
+mytxaddr[5] = mynic & 0xff;
+mytxaddr[4] = (mynic >> 8) & 0xff;
+mytxaddr[3] = (mynic >> 16) & 0xff;
+mytxaddr[2] = mytxvendor & 0xff;
+mytxaddr[1] = (mytxvendor >> 8) & 0xff;
+mytxaddr[0] = (mytxvendor >> 16) & 0xff;
+
+
 if((accesspointliste = calloc((APLISTESIZEMAX +1), APL_SIZE)) == NULL)
 	return false;
 
@@ -367,6 +373,41 @@ if((idlen > 0) && (idlen <= 256))
 	memcpy(idstring, eapidentity->identity, idlen);
 	printmaceapcode(mac1, mac2, tods, fromds, eapcode, idstring);
 	}
+return;
+}
+/*===========================================================================*/
+static void printmacessid(uint8_t *mac1, uint8_t *mac2, uint8_t tods, uint8_t fromds, uint8_t essidlen, uint8_t **essid, char *infostring)
+{
+int m;
+time_t t = time(NULL);
+struct tm *tm = localtime(&t);
+char timestring[64];
+char essidstring[34];
+
+memset(&essidstring, 0, 34);
+memcpy(essidstring, essid, essidlen);
+strftime(timestring, sizeof(timestring), "%H:%M:%S", tm);
+printf("%s % 3d ", timestring, channellist[chptr]);
+
+if((tods == 0) && (fromds == 1))
+	{
+	for (m = 0; m < 6; m++)
+		printf("%02x", mac2[m]);
+	printf(" --> ");
+	for (m = 0; m < 6; m++)
+		printf("%02x", mac1[m]);
+	}
+else if((tods == 1) && (fromds == 0))
+	{
+	for (m = 0; m < 6; m++)
+		printf("%02x", mac1[m]);
+	printf(" <-- ");
+	for (m = 0; m < 6; m++)
+		printf("%02x", mac2[m]);
+	}
+else
+	return;
+printf(" %s: %s          \n", infostring, essidstring);
 return;
 }
 /*===========================================================================*/
@@ -544,7 +585,7 @@ grundframe.type = MAC_TYPE_MGMT;
 grundframe.subtype = MAC_ST_PROBE_REQ;
 grundframe.duration = 0x0000;
 memcpy(grundframe.addr1.addr, &broadcastmac, 6);
-memcpy(grundframe.addr2.addr, &txvendor1, 6);
+memcpy(grundframe.addr2.addr, &mytxaddr, 6);
 memcpy(grundframe.addr3.addr, &broadcastmac, 6);
 grundframe.sequence = htole16(mysequencenr++ << 4);
 memcpy(sendpacket, hdradiotap, HDRRT_SIZE);
@@ -1296,7 +1337,11 @@ while(1)
 			if(essidf->essid[0] == 0)
 				continue;
 			if(handleaps(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == false)
+				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+				if(wantstatusflag == true)
+					printmacessid(macf->addr1.addr, macf->addr2.addr, 0, 1, essidf->info_essid_len, essidf->essid, "beacon");
+				}
 			if(deauthflag == false)
 				continue;
 			if(memcmp(&lastap.addr, macf->addr2.addr, 6) == 0)
@@ -1323,7 +1368,11 @@ while(1)
 			if(essidf->essid[0] == 0)
 				continue;
 			if(handleaps(pkh->ts.tv_sec, macf->addr2.addr, essidf->info_essid_len, essidf->essid) == false)
+				{
 				pcap_dump((u_char *) pcapout, pkh, h80211);
+				if(wantstatusflag == true)
+					printmacessid(macf->addr1.addr, macf->addr2.addr, 0, 1, essidf->info_essid_len, essidf->essid, "proberesponse");
+				}
 			continue;
 			}
 
@@ -1343,7 +1392,11 @@ while(1)
 			if(memcmp(&broadcastmac, macf->addr1.addr, 6) != 0)
 				{
 				if(handleaps(pkh->ts.tv_sec, macf->addr1.addr, essidf->info_essid_len, essidf->essid) == false)
+					{
 					pcap_dump((u_char *) pcapout, pkh, h80211);
+					if(wantstatusflag == true)
+						printmacessid(macf->addr1.addr, macf->addr2.addr, 1, 0, essidf->info_essid_len, essidf->essid, "proberequest");
+					}
 				if(respondflag == true)
 					sendproberesponse(macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
 				lastbeaconessid_len = essidf->info_essid_len;
@@ -1381,7 +1434,9 @@ while(1)
 			if(wantstatusflag == true)
 				{
 				if(dotagwalk(payload +ASSOCIATIONREQF_SIZE, pkh->len -macl -ASSOCIATIONREQF_SIZE) == true)
-						printmac(macf->addr1.addr, macf->addr2.addr, 1, 0, "fast BSS transition request (fast roaming)");
+						printmac(macf->addr1.addr, macf->addr2.addr, 1, 0, "fast BSS transition associationrequest (fast roaming)");
+				else
+					printmacessid(macf->addr1.addr, macf->addr2.addr, 1, 0, essidf->info_essid_len, essidf->essid, "associationerequest");
 				}
 			continue;
 			}
@@ -1393,7 +1448,7 @@ while(1)
 					{
 					pcap_dump((u_char *) pcapout, pkh, h80211);
 					if(wantstatusflag == true)
-						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition response (fast roaming)");
+						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition reassociationresponse (fast roaming)");
 					}
 				}
 			continue;
@@ -1421,7 +1476,9 @@ while(1)
 			if(wantstatusflag == true)
 				{
 				if(dotagwalk(payload +REASSOCIATIONREQF_SIZE, pkh->len -macl -REASSOCIATIONREQF_SIZE) == true)
-						printmac(macf->addr1.addr, macf->addr2.addr, 1, 0, "fast BSS transition request (fast roaming)");
+						printmac(macf->addr1.addr, macf->addr2.addr, 1, 0, "fast BSS transition reassociationrequest (fast roaming)");
+				else
+					printmacessid(macf->addr1.addr, macf->addr2.addr, 1, 0, essidf->info_essid_len, essidf->essid, "reassociationerequest");
 				}
 			continue;
 			}
@@ -1433,7 +1490,7 @@ while(1)
 					{
 					pcap_dump((u_char *) pcapout, pkh, h80211);
 					if(wantstatusflag == true)
-						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition response (fast roaming)");
+						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition reassociationresponse (fast roaming)");
 					}
 				}
 			continue;
