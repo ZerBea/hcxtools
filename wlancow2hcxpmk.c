@@ -31,7 +31,7 @@ typedef struct cow_head cow_head_t;
 /*===========================================================================*/
 /* globale Konstante */
 
-uint8_t zeroessid[] =
+static const uint8_t zeroessid[] =
 {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -41,7 +41,7 @@ uint8_t zeroessid[] =
 #define ZEROESSID_SIZE sizeof(zeroessid)
 
 /*===========================================================================*/
-void cowinfo(FILE *fhcowin)
+static void cowinfo(FILE *fhcowin)
 {
 int rd;
 cow_head_t cowh;
@@ -82,10 +82,8 @@ printf("essid: %s\n", networkname);
 return;
 }
 /*===========================================================================*/
-__attribute__ ((nonnull(1)))
-void cowprocess(FILE *fhcowin, FILE *fhpwout, FILE *fhpmkpwout, FILE *fhpmkout, int mode)
+static void cowprocess(FILE *fhcowin, FILE *fhpwout, FILE *fhpmkpwout, FILE *fhpmkout, const int mode)
 {
-
 int rd, c;
 uint8_t pwlen = 0;
 cow_head_t cowh;

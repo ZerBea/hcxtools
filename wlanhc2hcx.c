@@ -37,12 +37,12 @@ typedef struct hccap hccap_t;
 /*===========================================================================*/
 /* globale Variablen */
 
-long int eapolerror = 0;
+static long int eapolerror = 0;
 
-char *hcxoutname = NULL;
-char *essidoutname = NULL;
+static char *hcxoutname = NULL;
+static char *essidoutname = NULL;
 /*===========================================================================*/
-bool checkessid(uint8_t essid_len, char *essid)
+static bool checkessid(uint8_t essid_len, char *essid)
 {
 int p;
 
@@ -58,13 +58,13 @@ for(p = 0; p < essid_len; p++)
 return true;
 }
 /*===========================================================================*/
-uint8_t geteapkey(uint8_t *eapdata)
+static uint8_t geteapkey(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 uint16_t keyinfo;
 int eapkey = 0;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 keyinfo = (((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8));
 if (keyinfo & WPA_KEY_INFO_ACK)
 	{
@@ -95,17 +95,17 @@ else
 return eapkey;
 }
 /*===========================================================================*/
-uint8_t geteapkeyver(uint8_t *eapdata)
+static uint8_t geteapkeyver(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 int eapkeyver;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
 return eapkeyver;
 }
 /*===========================================================================*/
-long int processhc(long int hcsize, hccap_t *zeiger)
+static long int processhc(long int hcsize, hccap_t *zeiger)
 {
 FILE *fhhcx = NULL;
 FILE *fhessid = NULL;
@@ -198,7 +198,7 @@ if(fhhcx != 0)
 return wc ;
 }
 /*===========================================================================*/
-long int processhcx(long int hcxsize, hcx_t *zeiger)
+static long int processhcx(long int hcxsize, hcx_t *zeiger)
 {
 FILE *fhhcx = NULL;
 FILE *fhessid = NULL;
@@ -276,7 +276,7 @@ if(fhhcx != 0)
 return wc;
 }
 /*===========================================================================*/
-bool processdata(char *hcinname)
+static bool processdata(char *hcinname)
 {
 struct stat statinfo;
 FILE *fhhc;

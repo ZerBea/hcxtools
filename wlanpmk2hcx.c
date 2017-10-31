@@ -24,7 +24,7 @@
 #include "common.c"
 
 /*===========================================================================*/
-void base64(const unsigned char* buffer, size_t length, char** b64text)
+static void base64(const unsigned char* buffer, size_t length, char** b64text)
 {
 BIO *bio, *b64;
 BUF_MEM *bufferPtr;
@@ -43,7 +43,7 @@ BIO_free_all(bio);
 return;
 }
 /*===========================================================================*/
-size_t chop(char *buffer, size_t len)
+static size_t chop(char *buffer, size_t len)
 {
 char *ptr = buffer +len -1;
 
@@ -65,7 +65,7 @@ while(len)
 return len;
 }
 /*---------------------------------------------------------------------------*/
-int fgetline(FILE *inputstream, size_t size, char *buffer)
+static int fgetline(FILE *inputstream, size_t size, char *buffer)
 {
 if(feof(inputstream))
 	return -1;
@@ -80,7 +80,7 @@ return len;
 }
 
 /*===========================================================================*/
-void outputhashlist(FILE *fhcombi, FILE *fhhash, FILE *fhjohn)
+static void outputhashlist(FILE *fhcombi, FILE *fhhash, FILE *fhjohn)
 {
 int c;
 int combilen;
@@ -150,7 +150,7 @@ printf("\r%ld hashrecords generated, %ld password(s) skipped\n", hashcount, skip
 return;
 }
 /*===========================================================================*/
-void outputsinglehash(char *pmkname, char *essidname, int essidlen)
+static void outputsinglehash(char *pmkname, char *essidname, int essidlen)
 {
 int c;
 char *hashrecord = NULL;
