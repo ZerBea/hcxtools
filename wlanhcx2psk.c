@@ -203,7 +203,7 @@ static void keywriteng(void)
 size_t ca, cn, cs;
 
 const char *adjectiv[] = { "ancient", "antique", "aquatic",
-	"baby", "basic", "big", "bitter", "black", "blue", "bold", "bottled" "brave", "breezy", "bright", "brown",
+	"baby", "basic", "big", "bitter", "black", "blue", "bold", "bottled", "brave", "breezy", "bright", "brown",
 	"calm", "carrot", "charming", "cheerful", "chip", "chummy", "classy", "clean", "clear", "clever", "cloudy", "cold", "cool", "crispy", "curly",
 	"daily", "deep", "delightful", "dizzy", "dynamic",
 	"elated", "elegant", "excite", "excited", "exotic",
