@@ -21,9 +21,9 @@
 /*===========================================================================*/
 /* globale Variablen */
 
-hcx_t *hcxdata = NULL;
+static hcx_t *hcxdata = NULL;
 /*===========================================================================*/
-void printhex(const uint8_t *buffer, int size)
+static void printhex(const uint8_t *buffer, int size)
 {
 int c;
 for (c = 0; c < size; c++)
@@ -31,17 +31,17 @@ for (c = 0; c < size; c++)
 return;
 }
 /*===========================================================================*/
-bool checknonce(uint8_t *nonce, uint8_t *eapdata)
+static bool checknonce(uint8_t *nonce, uint8_t *eapdata)
 {
-eap_t *eap;
-eap = (eap_t*)(uint8_t*)(eapdata);
+const eap_t *eap;
+eap = (const eap_t*)(uint8_t*)(eapdata);
 
 if(memcmp(nonce, eap->nonce, 32) == 0)
 	return true;
 return false;
 }
 /*===========================================================================*/
-int sort_by_data_ap(const void *a, const void *b)
+static int sort_by_data_ap(const void *a, const void *b)
 {
 const hcx_t *ia = (const hcx_t *)a;
 const hcx_t *ib = (const hcx_t *)b;
@@ -59,7 +59,7 @@ else if (memcmp(ia->nonce_ap, ib->nonce_ap, 32) < 0)
 return 0;
 }
 /*===========================================================================*/
-void getapinfo(long int hcxrecords)
+static void getapinfo(long int hcxrecords)
 {
 int c;
 hcx_t *zeigerhcx;
@@ -82,7 +82,7 @@ while(c < hcxrecords)
 return;
 }
 /*===========================================================================*/
-void dononcecorr(long int hcxrecords, unsigned long long int mac_ap, int nb, int nc, char *hcxoutname)
+static void dononcecorr(long int hcxrecords, unsigned long long int mac_ap, int nb, int nc, char *hcxoutname)
 {
 int v;
 long int c;
@@ -128,7 +128,7 @@ printf("%ld records written\n", rw);
 return;
 }
 /*===========================================================================*/
-long int readhccapx(char *hcxinname)
+static long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;

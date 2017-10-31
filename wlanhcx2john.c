@@ -37,11 +37,11 @@ typedef struct hccap hccap_t;
 /*===========================================================================*/
 /* globale Variablen */
 
-char *johnoutname = NULL;
+static char *johnoutname = NULL;
 /*===========================================================================*/
 static void hccap2base(FILE *fhjohn, unsigned char *in, unsigned char b)
 {
-const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 fprintf(fhjohn, "%c", (itoa64[in[0] >> 2]));
 fprintf(fhjohn, "%c", (itoa64[((in[0] & 0x03) << 4) | (in[1] >> 4)]));
@@ -55,13 +55,13 @@ else
 return;
 }
 /*===========================================================================*/
-void mac2asciilong(char ssid[18], unsigned char *p)
+static void mac2asciilong(char ssid[18], unsigned char *p)
 {
 sprintf(ssid, "%02x-%02x-%02x-%02x-%02x-%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-void mac2ascii(char ssid[13], unsigned char *p)
+static void mac2ascii(char ssid[13], unsigned char *p)
 {
 sprintf(ssid, "%02x%02x%02x%02x%02x%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
@@ -94,7 +94,7 @@ else
 return;
 }
 /*===========================================================================*/
-void processhcx(long int hcxsize, hcx_t *zeiger, char *hcxinname)
+static void processhcx(long int hcxsize, hcx_t *zeiger, char *hcxinname)
 {
 FILE *fhjohn = NULL;
 long int p;
@@ -163,7 +163,7 @@ else if(johncount > 1)
 return;
 }
 /*===========================================================================*/
-bool processdata(char *hcxinname)
+static bool processdata(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;

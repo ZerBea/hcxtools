@@ -38,13 +38,13 @@
 /*===========================================================================*/
 /* globale Variablen */
 
-long int hcxcount = 0;
-long int wkpcount = 0;
+static long int hcxcount = 0;
+static long int wkpcount = 0;
 
-char *hcxoutname = NULL;
-char *essidoutname = NULL;
+static char *hcxoutname = NULL;
+static char *essidoutname = NULL;
 /*===========================================================================*/
-uint8_t geteapkey(uint8_t *eapdata)
+static uint8_t geteapkey(uint8_t *eapdata)
 {
 eap_t *eap;
 uint16_t keyinfo;
@@ -81,7 +81,7 @@ else
 return eapkey;
 }
 /*===========================================================================*/
-bool writeessid(uint8_t *essid, uint8_t essidlen)
+static bool writeessid(uint8_t *essid, uint8_t essidlen)
 {
 FILE *fhessid;
 
@@ -102,7 +102,7 @@ if(essidoutname != NULL)
 return true;
 }
 /*===========================================================================*/
-bool writehccapx(uint8_t *wkpdata)
+static bool writehccapx(uint8_t *wkpdata)
 {
 FILE *fhhcx;
 hcx_t hcxrecord;
@@ -153,7 +153,7 @@ hcxcount++;
 return true;
 }
 /*===========================================================================*/
-bool processdata(char *wkpiname)
+static bool processdata(char *wkpiname)
 {
 struct stat statinfo;
 int wkpsize;

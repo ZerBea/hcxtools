@@ -24,9 +24,9 @@
 /*===========================================================================*/
 /* globale Variablen */
 
-hcx_t *hcxdata = NULL;
+static hcx_t *hcxdata = NULL;
 /*===========================================================================*/
-size_t chop(char *buffer,  size_t len)
+static size_t chop(char *buffer,  size_t len)
 {
 char *ptr = buffer +len -1;
 
@@ -44,7 +44,7 @@ while (len) {
 return len;
 }
 /*---------------------------------------------------------------------------*/
-int fgetline(FILE *inputstream, size_t size, char *buffer)
+static int fgetline(FILE *inputstream, size_t size, char *buffer)
 {
 if (feof(inputstream)) return -1;
 		char *buffptr = fgets (buffer, size, inputstream);
@@ -57,27 +57,27 @@ if (feof(inputstream)) return -1;
 return len;
 }
 /*===========================================================================*/
-uint8_t geteapkeyver(uint8_t *eapdata)
+static uint8_t geteapkeyver(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 int eapkeyver;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
 return eapkeyver;
 }
 /*===========================================================================*/
-unsigned long long int getreplaycount(uint8_t *eapdata)
+static unsigned long long int getreplaycount(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 unsigned long long int replaycount = 0;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
-int writekeyver(long int hcxrecords, char *keyvername)
+static int writekeyver(long int hcxrecords, char *keyvername)
 {
 hcx_t *zeigerhcx;
 uint8_t keyver = 0;
@@ -108,7 +108,7 @@ printf("%ld records precessed\n", rw++);
 return true;
 }
 /*===========================================================================*/
-int sort_by_mac_staessid(const void *a, const void *b)
+static int sort_by_mac_staessid(const void *a, const void *b)
 {
 const hcx_t *ia = (const hcx_t *)a;
 const hcx_t *ib = (const hcx_t *)b;
@@ -124,7 +124,7 @@ else if(memcmp(ia->essid, ib->essid, 32) < 0)
 return 0;
 }
 /*===========================================================================*/
-int writesinglenet1hccapx(long int hcxrecords, char *singlenetname)
+static int writesinglenet1hccapx(long int hcxrecords, char *singlenetname)
 {
 hcx_t *zeigerhcx, *zeigerhcxa;
 long int c;
@@ -166,7 +166,7 @@ printf("%ld records written to %s\n", rw, singlenetname);
 return true;
 }
 /*===========================================================================*/
-int sort_by_macs(const void *a, const void *b)
+static int sort_by_macs(const void *a, const void *b)
 {
 const hcx_t *ia = (const hcx_t *)a;
 const hcx_t *ib = (const hcx_t *)b;
@@ -190,7 +190,7 @@ if(ia->message_pair < ib->message_pair)
 return 0;
 }
 /*===========================================================================*/
-int writesinglenethccapx(long int hcxrecords, char *singlenetname)
+static int writesinglenethccapx(long int hcxrecords, char *singlenetname)
 {
 hcx_t *zeigerhcx, *zeigerhcxa;
 long int c;
@@ -232,7 +232,7 @@ printf("%ld records written to %s\n", rw, singlenetname);
 return true;
 }
 /*===========================================================================*/
-int writemessagepairhccapx(long int hcxrecords, char *mpname, uint8_t message_pair)
+static int writemessagepairhccapx(long int hcxrecords, char *mpname, uint8_t message_pair)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -260,17 +260,17 @@ printf("%ld records written to %s\n", rw, mpname);
 return true;
 }
 /*===========================================================================*/
-uint8_t getpwgpinfo(uint8_t *eapdata)
+static uint8_t getpwgpinfo(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 int eapkeyver;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_KEY_TYPE);
 return eapkeyver;
 }
 /*===========================================================================*/
-int writegroupkeysethccapx(long int hcxrecords, char *groupkeyname)
+static int writegroupkeysethccapx(long int hcxrecords, char *groupkeyname)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -298,7 +298,7 @@ printf("%ld records written to %s\n", rw, groupkeyname);
 return true;
 }
 /*===========================================================================*/
-int writepairwisesethccapx(long int hcxrecords, char *pairwisekeyname)
+static int writepairwisesethccapx(long int hcxrecords, char *pairwisekeyname)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -326,7 +326,7 @@ printf("%ld records written to %s\n", rw, pairwisekeyname);
 return true;
 }
 /*===========================================================================*/
-int writercnotcheckedhccapx(long int hcxrecords, char *rcnotckeckedname)
+static int writercnotcheckedhccapx(long int hcxrecords, char *rcnotckeckedname)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -354,7 +354,7 @@ printf("%ld records written to %s\n", rw, rcnotckeckedname);
 return true;
 }
 /*===========================================================================*/
-int writerccheckedhccapx(long int hcxrecords, char *rcckeckedname)
+static int writerccheckedhccapx(long int hcxrecords, char *rcckeckedname)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -382,7 +382,7 @@ printf("%ld records written to %s\n", rw, rcckeckedname);
 return true;
 }
 /*===========================================================================*/
-int writewantessidlenhccapx(long int hcxrecords, int essidlen)
+static int writewantessidlenhccapx(long int hcxrecords, int essidlen)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -414,7 +414,7 @@ printf("%ld records written to %s\n", rw, wantessidlenoutname);
 return true;
 }
 /*===========================================================================*/
-int writewlandumpnotforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
+static int writewlandumpnotforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -445,7 +445,7 @@ printf("%ld records written to %s\n", rw, wlandumpforcedname);
 return true;
 }
 /*===========================================================================*/
-int writewlandumpforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
+static int writewlandumpforcedhccapx(long int hcxrecords, char *wlandumpforcedname)
 {
 hcx_t *zeigerhcx;
 long int c;
@@ -475,7 +475,7 @@ printf("%ld records written to %s\n", rw, wlandumpforcedname);
 return true;
 }
 /*===========================================================================*/
-int writemacaplisthccapx(long int hcxrecords, char *aplistname, char *apoutname)
+static int writemacaplisthccapx(long int hcxrecords, char *aplistname, char *apoutname)
 {
 adr_t mac;
 hcx_t *zeigerhcx;
@@ -531,7 +531,7 @@ fclose(fhaplist);
 return true;
 }
 /*===========================================================================*/
-int writesearchouihccapx(long int hcxrecords, unsigned long long int oui)
+static int writesearchouihccapx(long int hcxrecords, unsigned long long int oui)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -568,7 +568,7 @@ printf("%ld records written\n", rw);
 return true;
 }
 /*===========================================================================*/
-int writesearchvendorhccapx(long int hcxrecords, unsigned long long int oui, char *vendorstring)
+static int writesearchvendorhccapx(long int hcxrecords, unsigned long long int oui, char *vendorstring)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -609,7 +609,7 @@ if(rw > 0)
 return true;
 }
 /*===========================================================================*/
-void writesearchvendornamehccapx(long int hcxrecords, char *vendorstring)
+static void writesearchvendornamehccapx(long int hcxrecords, char *vendorstring)
 {
 int len;
 uid_t uid;
@@ -657,7 +657,7 @@ fclose(fhoui);
 return;
 }
 /*===========================================================================*/
-int writesearchmacstahccapx(long int hcxrecords, unsigned long long int mac_sta)
+static int writesearchmacstahccapx(long int hcxrecords, unsigned long long int mac_sta)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -697,7 +697,7 @@ printf("%ld records written\n", rw);
 return true;
 }
 /*===========================================================================*/
-int writesearchmacaphccapx(long int hcxrecords, unsigned long long int mac_ap)
+static int writesearchmacaphccapx(long int hcxrecords, unsigned long long int mac_ap)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -737,7 +737,7 @@ printf("%ld records written\n", rw);
 return true;
 }
 /*===========================================================================*/
-int writesearchessidhccapx(long int hcxrecords, char *essidname)
+static int writesearchessidhccapx(long int hcxrecords, char *essidname)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -771,7 +771,7 @@ printf("%ld records written\n", rw);
 return true;
 }
 /*===========================================================================*/
-int writesearchessidxhccapx(long int hcxrecords, char *essidxname)
+static int writesearchessidxhccapx(long int hcxrecords, char *essidxname)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -804,7 +804,7 @@ while(c < hcxrecords)
 printf("%ld records written\n", rw);
 return true;
 }
-int writeessidhccapx(long int hcxrecords)
+static int writeessidhccapx(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -812,7 +812,7 @@ long int c;
 long int rw = 0;
 int cei, ceo;
 
-const char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
 char hcxoutname[PATH_MAX +1];
 
@@ -844,19 +844,19 @@ printf("%ld records written\n", rw);
 return true;
 }
 /*===========================================================================*/
-void oui2hxoutname(char ssid[13], unsigned char *p)
+static void oui2hxoutname(char ssid[13], unsigned char *p)
 {
 sprintf(ssid, "%02x%02x%02x.hccapx",p[0],p[1],p[2]);
 return;
 }
 /*===========================================================================*/
-void mac2hxoutname(char ssid[13], unsigned char *p)
+static void mac2hxoutname(char ssid[13], unsigned char *p)
 {
 sprintf(ssid, "%02x%02x%02x%02x%02x%02x.hccapx",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-int writeouiaphccapx(long int hcxrecords)
+static int writeouiaphccapx(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -883,7 +883,7 @@ printf("%ld records written\n", rw);
 return true;
 }
 /*===========================================================================*/
-int writemacstahccapx(long int hcxrecords)
+static int writemacstahccapx(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -911,7 +911,7 @@ printf("%ld records written\n", rw);
 return true;
 }
 /*===========================================================================*/
-int writemacaphccapx(long int hcxrecords)
+static int writemacaphccapx(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 FILE *fhhcx;
@@ -940,7 +940,7 @@ printf("%ld records written\n", rw);
 return true;
 }
 /*===========================================================================*/
-long int readhccapx(char *hcxinname)
+static long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;

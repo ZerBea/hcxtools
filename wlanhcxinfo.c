@@ -53,14 +53,14 @@ typedef struct hccap hccap_t;
 /*===========================================================================*/
 /* globale Variablen */
 
-hcx_t *hcxdata = NULL;
+static hcx_t *hcxdata = NULL;
 
-const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-unsigned char atoi64[0x100];
+static const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+static unsigned char atoi64[0x100];
 /*===========================================================================*/
 /* globale Initialisierung */
 
-void globalinit(void)
+static void globalinit(void)
 {
 const char *pos;
 memset(atoi64, 0x7F, sizeof(atoi64));
@@ -69,7 +69,7 @@ for (pos = itoa64; pos <= &itoa64[63]; pos++)
 return;
 }
 /*===========================================================================*/
-void printhex(const uint8_t *buffer, int size)
+static void printhex(const uint8_t *buffer, int size)
 {
 int c;
 for (c = 0; c < size; c++)
@@ -77,7 +77,7 @@ for (c = 0; c < size; c++)
 return;
 }
 /*===========================================================================*/
-int checkessid(uint8_t essid_len, uint8_t *essid)
+static int checkessid(uint8_t essid_len, uint8_t *essid)
 {
 uint8_t p;
 
@@ -93,7 +93,7 @@ for(p = 0; p < essid_len; p++)
 return true;
 }
 /*===========================================================================*/
-uint8_t geteapkeytype(uint8_t *eapdata)
+static uint8_t geteapkeytype(uint8_t *eapdata)
 {
 eap_t *eap;
 uint16_t keyinfo;
@@ -130,44 +130,44 @@ else
 return eapkey;
 }
 /*===========================================================================*/
-uint8_t get8021xver(uint8_t *eapdata)
+static uint8_t get8021xver(uint8_t *eapdata)
 {
-eap_t *eap;
-eap = (eap_t*)(uint8_t*)(eapdata);
+const eap_t *eap;
+eap = (const eap_t*)(uint8_t*)(eapdata);
 return eap->version;
 }
 /*===========================================================================*/
-uint8_t geteapkeyver(uint8_t *eapdata)
+static uint8_t geteapkeyver(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 int eapkeyver;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
 return eapkeyver;
 }
 /*===========================================================================*/
-uint8_t getpwgpinfo(uint8_t *eapdata)
+static uint8_t getpwgpinfo(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 int eapkeyver;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_KEY_TYPE);
 return eapkeyver;
 }
 /*===========================================================================*/
-unsigned long long int geteapreplaycount(uint8_t *eapdata)
+static unsigned long long int geteapreplaycount(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 unsigned long long int replaycount = 0;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
-int sort_by_nonce_ap(const void *a, const void *b)
+static int sort_by_nonce_ap(const void *a, const void *b)
 {
 const hcx_t *ia = (const hcx_t *)a;
 const hcx_t *ib = (const hcx_t *)b;
@@ -175,7 +175,7 @@ const hcx_t *ib = (const hcx_t *)b;
 return memcmp(ia->nonce_ap, ib->nonce_ap, 32);
 }
 /*===========================================================================*/
-void writehcxinfo(long int hcxrecords, int outmode)
+static void writehcxinfo(long int hcxrecords, int outmode)
 {
 hcx_t *zeigerhcx;
 long int c, c1;
@@ -213,10 +213,9 @@ long int noessidcount = 0;
 
 uint8_t noncecorr = false;
 
-uint8_t nonceold[32];
+uint8_t nonceold[32] = {};
 char essidoutstr[34];
 
-memset(nonceold, 0, 32);
 qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_nonce_ap);
 
 c = 0;
@@ -437,7 +436,7 @@ if(outmode == 0)
 return;
 }
 /*===========================================================================*/
-bool processhc(hccap_t *zeiger, hcx_t *hcxrecord)
+static bool processhc(hccap_t *zeiger, hcx_t *hcxrecord)
 {
 int essid_len;
 uint8_t m;
@@ -482,7 +481,7 @@ memset(&hcxrecord->eapol[0x51], 0, 16);
 return true;
 }
 /*===========================================================================*/
-size_t chop(char *buffer,  size_t len)
+static size_t chop(char *buffer,  size_t len)
 {
 char *ptr = buffer +len -1;
 
@@ -500,7 +499,7 @@ while (len) {
 return len;
 }
 /*---------------------------------------------------------------------------*/
-int fgetline(FILE *inputstream, size_t size, char *buffer)
+static int fgetline(FILE *inputstream, size_t size, char *buffer)
 {
 if (feof(inputstream)) return -1;
 		char *buffptr = fgets (buffer, size, inputstream);
@@ -513,7 +512,7 @@ if (feof(inputstream)) return -1;
 return len;
 }
 /*===========================================================================*/
-long int readjohn(char *johninname)
+static long int readjohn(char *johninname)
 {
 int len;
 int l;
@@ -608,7 +607,7 @@ fclose(fhjohn);
 return hcxsize;
 }
 /*===========================================================================*/
-long int readhccapx(char *hcxinname)
+static long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;

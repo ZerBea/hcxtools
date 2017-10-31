@@ -41,15 +41,15 @@ typedef struct hccap hccap_t;
 /*===========================================================================*/
 /* globale Variablen */
 
-char *hcxoutname = NULL;
-char *essidoutname = NULL;
+static char *hcxoutname = NULL;
+static char *essidoutname = NULL;
 
-const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-unsigned char atoi64[0x100];
+static const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+static unsigned char atoi64[0x100];
 /*===========================================================================*/
 /* globale Initialisierung */
 
-void globalinit(void)
+static void globalinit(void)
 {
 const char *pos;
 memset(atoi64, 0x7F, sizeof(atoi64));
@@ -58,7 +58,7 @@ for (pos = itoa64; pos <= &itoa64[63]; pos++)
 return;
 }
 /*===========================================================================*/
-bool checkessid(uint8_t essid_len, char *essid)
+static bool checkessid(uint8_t essid_len, char *essid)
 {
 int p;
 
@@ -74,7 +74,7 @@ for(p = 0; p < essid_len; p++)
 return true;
 }
 /*===========================================================================*/
-uint8_t geteapkey(uint8_t *eapdata)
+static uint8_t geteapkey(uint8_t *eapdata)
 {
 eap_t *eap;
 uint16_t keyinfo;
@@ -111,17 +111,17 @@ else
 return eapkey;
 }
 /*===========================================================================*/
-uint8_t geteapkeyver(uint8_t *eapdata)
+static uint8_t geteapkeyver(uint8_t *eapdata)
 {
-eap_t *eap;
+const eap_t *eap;
 int eapkeyver;
 
-eap = (eap_t*)(uint8_t*)(eapdata);
+eap = (const eap_t*)(uint8_t*)(eapdata);
 eapkeyver = ((((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8)) & WPA_KEY_INFO_TYPE_MASK);
 return eapkeyver;
 }
 /*===========================================================================*/
-bool processhc(hccap_t *zeiger)
+static bool processhc(hccap_t *zeiger)
 {
 FILE *fhhcx = NULL;
 FILE *fhessid = NULL;
@@ -200,7 +200,7 @@ if(fhhcx != 0)
 return true;
 }
 /*===========================================================================*/
-size_t chop(char *buffer,  size_t len)
+static size_t chop(char *buffer,  size_t len)
 {
 char *ptr = buffer +len -1;
 
@@ -218,7 +218,7 @@ while (len) {
 return len;
 }
 /*---------------------------------------------------------------------------*/
-int fgetline(FILE *inputstream, size_t size, char *buffer)
+static int fgetline(FILE *inputstream, size_t size, char *buffer)
 {
 if (feof(inputstream)) return -1;
 		char *buffptr = fgets (buffer, size, inputstream);
@@ -231,7 +231,7 @@ if (feof(inputstream)) return -1;
 return len;
 }
 /*===========================================================================*/
-bool processjohn(char *johninname)
+static bool processjohn(char *johninname)
 {
 int len;
 int l;

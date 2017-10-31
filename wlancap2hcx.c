@@ -47,68 +47,68 @@ typedef struct hccap hccap_t;
 /*===========================================================================*/
 /* globale Variablen */
 
-const uint8_t nullnonce[] =
+static const uint8_t nullnonce[] =
 {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 #define	NULLNONCE_SIZE (sizeof(nullnonce))
 
-netdb_t *netdbdata = NULL;
-netdb_t *newnetdbdata = NULL;
-long int netdbrecords = 0;
+static netdb_t *netdbdata = NULL;
+static netdb_t *newnetdbdata = NULL;
+static long int netdbrecords = 0;
 
-eapdb_t *eapdbdata = NULL;
-eapdb_t *neweapdbdata = NULL;
+static eapdb_t *eapdbdata = NULL;
+static eapdb_t *neweapdbdata = NULL;
 
-long int eapdbrecords = 0;
-long int hcxwritecount = 0;
-long int hcxwritewldcount = 0;
-long int hcxwriteneccount = 0;
-long int weakpasscount = 0;
-pcap_dumper_t *pcapout = NULL;
-pcap_dumper_t *pcapextout = NULL;
-pcap_dumper_t *pcapipv46out = NULL;
-pcap_dumper_t *pcapwepout = NULL;
+static long int eapdbrecords = 0;
+static long int hcxwritecount = 0;
+static long int hcxwritewldcount = 0;
+static long int hcxwriteneccount = 0;
+static long int weakpasscount = 0;
+static pcap_dumper_t *pcapout = NULL;
+static pcap_dumper_t *pcapextout = NULL;
+static pcap_dumper_t *pcapipv46out = NULL;
+static pcap_dumper_t *pcapwepout = NULL;
 
-uint8_t netexact = false;
-uint8_t replaycountcheck = false;
-uint8_t idcheck = false;
-uint8_t wcflag = false;
-uint8_t ancflag = false;
-uint8_t anecflag = false;
-uint8_t showinfo1 = false;
-uint8_t showinfo2 = false;
-uint8_t weakpassflag = false;
+static uint8_t netexact = false;
+static uint8_t replaycountcheck = false;
+static uint8_t idcheck = false;
+static uint8_t wcflag = false;
+static uint8_t ancflag = false;
+static uint8_t anecflag = false;
+static uint8_t showinfo1 = false;
+static uint8_t showinfo2 = false;
+static uint8_t weakpassflag = false;
 
-int rctimecount = 0;
+static int rctimecount = 0;
 
-hc4800_t hcmd5;
-hc5500_t hcleap;
-hc5500chap_t hcleapchap;
+static hc4800_t hcmd5;
+static hc5500_t hcleap;
+static hc5500chap_t hcleapchap;
 
-long int wpakv1c = 0;
-long int wpakv2c = 0;
-long int wpakv3c = 0;
-long int groupkeycount = 0;
+static long int wpakv1c = 0;
+static long int wpakv2c = 0;
+static long int wpakv3c = 0;
+static long int groupkeycount = 0;
 
-char *hcxoutname = NULL;
-char *hcxoutnamenec = NULL;
-char *johnwpapskoutname = NULL;
-char *johnwpapskwdfoutname = NULL;
-char *johnbasename = NULL;
-char *hc4800outname = NULL;
-char *johnchapoutname = NULL;
-char *hc5500outname = NULL;
-char *johnnetntlmoutname = NULL;
-char *wdfhcxoutname = NULL;
-char *nonwdfhcxoutname = NULL;
-char *showinfo2outname = NULL;
-char *usernameoutname = NULL;
+static char *hcxoutname = NULL;
+static char *hcxoutnamenec = NULL;
+static char *johnwpapskoutname = NULL;
+static char *johnwpapskwdfoutname = NULL;
+static char *johnbasename = NULL;
+static char *hc4800outname = NULL;
+static char *johnchapoutname = NULL;
+static char *hc5500outname = NULL;
+static char *johnnetntlmoutname = NULL;
+static char *wdfhcxoutname = NULL;
+static char *nonwdfhcxoutname = NULL;
+static char *showinfo2outname = NULL;
+static char *usernameoutname = NULL;
 
-hcx_t oldhcxrecord;
+static hcx_t oldhcxrecord;
 /*===========================================================================*/
-void initgloballists(void)
+static void initgloballists(void)
 {
 memset(&hcmd5, 0, sizeof(hc4800_t));
 memset(&hcleap, 0, sizeof(hc5500_t));
@@ -117,7 +117,7 @@ memset(&hcleapchap, 0, sizeof(hc5500chap_t));
 return;
 }
 /*===========================================================================*/
-bool addpppchap(uint8_t *mac_1, uint8_t *mac_2, const uint8_t *payload)
+static bool addpppchap(uint8_t *mac_1, uint8_t *mac_2, const uint8_t *payload)
 {
 int c;
 const gre_frame_t *greh;
@@ -239,7 +239,7 @@ if((hcleapchap.p1 == true) && (hcleapchap.p2 == true) && (memcmp(&hcleapchap.mac
 return false;
 }
 /*===========================================================================*/
-bool addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
+static bool addeapmd5(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 eapmd5_t *eapmd5;
 FILE *fhhash;
@@ -312,7 +312,7 @@ if((changeflag == true) && (hcmd5.id1 == hcmd5.id2) && (hcmd5.p1 == true) && (hc
 return false;
 }
 /*===========================================================================*/
-bool addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
+static bool addleap(uint8_t *mac_1, uint8_t *mac_2, eapext_t *eapext)
 {
 FILE *fhhash;
 FILE *fhjohn;
@@ -418,7 +418,7 @@ if((changeflag == true) && (hcleap.p1 == true) && (hcleap.p2 == true) && (memcmp
 return false;
 }
 /*===========================================================================*/
-void addresponseidentity(eapext_t *eapext)
+static void addresponseidentity(eapext_t *eapext)
 {
 eapri_t *eapidentity;
 FILE *fhuser;
@@ -449,7 +449,7 @@ if((idlen > 0) && (idlen <= 256))
 return;
 }
 /*===========================================================================*/
-unsigned long long int getreplaycount(uint8_t *eapdata)
+static unsigned long long int getreplaycount(uint8_t *eapdata)
 {
 eap_t *eap;
 unsigned long long int replaycount = 0;
@@ -459,7 +459,7 @@ replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
 /*===========================================================================*/
-bool checkmynonce(uint8_t *eapdata)
+static bool checkmynonce(uint8_t *eapdata)
 {
 eap_t *eap;
 
@@ -469,7 +469,7 @@ if(memcmp(eap->nonce, &mynonce, 32) == 0)
 return false;
 }
 /*===========================================================================*/
-void showinfo(hcx_t *hcxrecord)
+static void showinfo(hcx_t *hcxrecord)
 {
 char outstr[256] = {0};
 FILE *fhshowinfo2;
@@ -514,13 +514,13 @@ else
 return;
 }
 /*===========================================================================*/
-void mac2asciilong(char ssid[18], unsigned char *p)
+static void mac2asciilong(char ssid[18], unsigned char *p)
 {
 sprintf(ssid, "%02x-%02x-%02x-%02x-%02x-%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-void mac2ascii(char ssid[13], unsigned char *p)
+static void mac2ascii(char ssid[13], unsigned char *p)
 {
 sprintf(ssid, "%02x%02x%02x%02x%02x%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
@@ -553,7 +553,7 @@ else
 return;
 }
 /*===========================================================================*/
-void processjohn(hcx_t *zeiger, FILE *fhjohn)
+static void processjohn(hcx_t *zeiger, FILE *fhjohn)
 {
 hccap_t hcdata;
 
@@ -572,7 +572,7 @@ writejohn(fhjohn, &hcdata, johnbasename, zeiger->message_pair);
 return;
 }
 /*===========================================================================*/
-void writehcxnec(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
+static void writehcxnec(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 hcx_t hcxrecord;
 eap_t *eap1;
@@ -652,7 +652,7 @@ if((hcxoutnamenec != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2
 return;
 }
 /*===========================================================================*/
-void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
+static void writehcx(uint8_t essid_len, uint8_t *essid, eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 hcx_t hcxrecord;
 eap_t *eap1;
@@ -784,7 +784,7 @@ if((johnwpapskwdfoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver 
 return;
 }
 /*===========================================================================*/
-void lookforessidexact(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
+static void lookforessidexact(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 netdb_t *zeigernewnet;
 long int c;
@@ -805,7 +805,7 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
-void lookforessid(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
+static void lookforessid(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 netdb_t *zeigernewnet;
 long int c;
@@ -833,7 +833,7 @@ hcxwriteneccount++;
 return;
 }
 /*===========================================================================*/
-uint8_t geteapkeyint(eap_t *eap)
+static uint8_t geteapkeyint(eap_t *eap)
 {
 uint16_t keyinfo;
 int eapkey = 0;
@@ -868,7 +868,7 @@ else
 return eapkey;
 }
 /*===========================================================================*/
-uint8_t geteapkey(uint8_t *eapdata)
+static uint8_t geteapkey(uint8_t *eapdata)
 {
 eap_t *eap;
 uint16_t keyinfo;
@@ -905,7 +905,7 @@ else
 return eapkey;
 }
 /*===========================================================================*/
-void lookfor14(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
+static void lookfor14(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
 {
 eapdb_t *zeiger;
 unsigned long long int r;
@@ -969,7 +969,7 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
-void lookfor34(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
+static void lookfor34(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
 {
 eapdb_t *zeiger;
 unsigned long long int r;
@@ -1034,7 +1034,7 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
-void lookfor23(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
+static void lookfor23(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
 {
 eapdb_t *zeiger;
 unsigned long long int r;
@@ -1097,7 +1097,7 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
-void lookfor12(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
+static void lookfor12(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
 {
 eapdb_t *zeiger;
 unsigned long long int r;
@@ -1167,7 +1167,7 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
-bool addeapol(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, eap_t *eap)
+static bool addeapol(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, eap_t *eap)
 {
 unsigned long long int replaycount;
 uint8_t m = 0;
@@ -1209,7 +1209,7 @@ eapdbrecords++;
 return true;
 }
 /*===========================================================================*/
-bool addnet(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essid)
+static bool addnet(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essid_len, uint8_t **essid)
 {
 if(memcmp(mac_ap, mac_sta, 6) == 0)
 	return false;
@@ -1228,7 +1228,7 @@ netdbrecords++;
 return true;
 }
 /*===========================================================================*/
-int checkessid(uint8_t essid_len, uint8_t *essid)
+static int checkessid(uint8_t essid_len, uint8_t *essid)
 {
 uint8_t p;
 
@@ -1244,7 +1244,7 @@ for(p = 0; p < essid_len; p++)
 return true;
 }
 /*===========================================================================*/
-void installbpf(pcap_t *pcapin, char *externalbpfname)
+static void installbpf(pcap_t *pcapin, char *externalbpfname)
 {
 struct stat statinfo;
 struct bpf_program filter;
@@ -1306,7 +1306,7 @@ if(extfilterstring != NULL)
 return;
 }
 /*===========================================================================*/
-bool dotagwalk(uint8_t *tagdata, int taglen)
+static bool dotagwalk(uint8_t *tagdata, int taglen)
 {
 tag_t *tagl;
 tagl = (tag_t*)(tagdata);
@@ -1320,7 +1320,7 @@ while( 0 < taglen)
 return false;
 }
 /*===========================================================================*/
-bool processcap(char *pcapinname, char *essidoutname, char *essidunicodeoutname, char *pmkoutname, char *externalbpfname)
+static bool processcap(char *pcapinname, char *essidoutname, char *essidunicodeoutname, char *pmkoutname, char *externalbpfname)
 {
 struct stat statinfo;
 struct pcap_pkthdr *pkh;

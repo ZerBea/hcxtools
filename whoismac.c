@@ -25,7 +25,7 @@
 #define LINEBUFFER 256
 
 /*===========================================================================*/
-bool downloadoui(const char *ouiname)
+static bool downloadoui(const char *ouiname)
 {
 CURLcode ret;
 CURL *hnd;
@@ -61,7 +61,7 @@ printf("download finished\n");
 return true;
 }
 /*===========================================================================*/
-size_t chop(char *buffer,  size_t len)
+static size_t chop(char *buffer,  size_t len)
 {
 char *ptr = buffer +len -1;
 
@@ -79,7 +79,7 @@ while (len) {
 return len;
 }
 /*---------------------------------------------------------------------------*/
-int fgetline(FILE *inputstream, size_t size, char *buffer)
+static int fgetline(FILE *inputstream, size_t size, char *buffer)
 {
 if (feof(inputstream)) return -1;
 		char *buffptr = fgets (buffer, size, inputstream);
@@ -92,7 +92,7 @@ if (feof(inputstream)) return -1;
 return len;
 }
 /*===========================================================================*/
-void getoui(const char *ouiname, unsigned long long int oui)
+static void getoui(const char *ouiname, unsigned long long int oui)
 {
 int len;
 
@@ -128,7 +128,7 @@ fclose(fhoui);
 return;
 }
 /*===========================================================================*/
-void getvendor(const char *ouiname, char *vendorstring)
+static void getvendor(const char *ouiname, char *vendorstring)
 {
 int len;
 

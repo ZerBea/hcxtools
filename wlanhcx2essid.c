@@ -22,11 +22,11 @@
 /*===========================================================================*/
 /* globale Variablen */
 
-hcx_t *hcxdata = NULL;
-hcx_t *hcxdata2 = NULL;
+static hcx_t *hcxdata = NULL;
+static hcx_t *hcxdata2 = NULL;
 
 /*===========================================================================*/
-int sort_by_essid(const void *a, const void *b)
+static int sort_by_essid(const void *a, const void *b)
 {
 const hcx_t *ia = (const hcx_t *)a;
 const hcx_t *ib = (const hcx_t *)b;
@@ -34,7 +34,7 @@ const hcx_t *ib = (const hcx_t *)b;
 return memcmp(ia->essid, ib->essid, 32);
 }
 /*===========================================================================*/
-bool writehccapx(char *hcxoutname, long int hcxrecords, long int hcxrecords2)
+static bool writehccapx(char *hcxoutname, long int hcxrecords, long int hcxrecords2)
 {
 hcx_t *zeigerhcx;
 hcx_t *zeigerhcx1;
@@ -83,7 +83,7 @@ fclose(fhhcx);
 return true;
 }
 /*===========================================================================*/
-long int readhccapx2(char *hcxinname)
+static long int readhccapx2(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;
@@ -130,7 +130,7 @@ printf("%ld records read from %s\n", hcxsize, hcxinname);
 return hcxsize;
 }
 /*===========================================================================*/
-long int readhccapx(char *hcxinname)
+static long int readhccapx(char *hcxinname)
 {
 struct stat statinfo;
 FILE *fhhcx;

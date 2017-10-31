@@ -45,23 +45,23 @@ typedef struct aplist apl_t;
 /*===========================================================================*/
 /* globale variablen */
 
-pcap_t *pcapin = NULL;
-uint8_t chlistp = 0;
-uint8_t channel = 1;
+static pcap_t *pcapin = NULL;
+static uint8_t chlistp = 0;
+static uint8_t channel = 1;
 
 
-apl_t *apliste = NULL;
-adr_t nullmac;
-int netcount = 0;
-int loop = DEFAULTLOOP;
+static apl_t *apliste = NULL;
+static adr_t nullmac;
+static int netcount = 0;
+static int loop = DEFAULTLOOP;
 
-char *interfacename = NULL;
+static char *interfacename = NULL;
 
 /*===========================================================================*/
 /* Konstante */
 
 /*===========================================================================*/
-bool initgloballists(void)
+static bool initgloballists(void)
 {
 memset(&nullmac, 0, 6);
 
@@ -71,7 +71,7 @@ memset(apliste, 0, APLISTESIZEMAX * APL_SIZE);
 return true;
 }
 /*===========================================================================*/
-int sort_by_channel(const void *a, const void *b)
+static int sort_by_channel(const void *a, const void *b)
 {
 const apl_t *ia = (const apl_t *)a;
 const apl_t *ib = (const apl_t *)b;
@@ -79,7 +79,7 @@ const apl_t *ib = (const apl_t *)b;
 return ia->channel > ib->channel;
 }
 /*===========================================================================*/
-void printstatus(void)
+static void printstatus(void)
 {
 int c, m;
 apl_t *zeiger = apliste;
@@ -107,7 +107,7 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 return;
 }
 /*===========================================================================*/
-tag_t *dotagwalk(uint8_t *tagdata, int taglen, uint8_t searchtag)
+static tag_t *dotagwalk(uint8_t *tagdata, int taglen, uint8_t searchtag)
 {
 tag_t *tagl;
 tagl = (tag_t*)(tagdata);
@@ -121,7 +121,7 @@ while( 0 < taglen)
 return NULL;
 }
 /*===========================================================================*/
-bool handleapframes(uint8_t *mac_ap, uint8_t *tagdata, int taglen)
+static bool handleapframes(uint8_t *mac_ap, uint8_t *tagdata, int taglen)
 {
 apl_t *zeiger;
 tag_t *essidtag;
@@ -156,7 +156,7 @@ memcpy(zeiger->essid, essidtag->data, essidtag->len);
 return false;
 }
 /*===========================================================================*/
-void sigalarm(int signum)
+static void sigalarm(int signum)
 {
 if(signum == SIGALRM)
 	{
@@ -166,7 +166,7 @@ if(signum == SIGALRM)
 return;
 }
 /*===========================================================================*/
-void programmende(int signum)
+static void programmende(int signum)
 {
 if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 	{
@@ -179,7 +179,7 @@ if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 return;
 }
 /*===========================================================================*/
-void setchannel(void)
+static void setchannel(void)
 {
 struct iwreq wrq;
 
@@ -207,7 +207,7 @@ return;
 }
 /*===========================================================================*/
 __attribute__ ((noreturn))
-void pcaploop(int has_rth)
+static void pcaploop(int has_rth)
 {
 const uint8_t *packet = NULL;
 const uint8_t *h80211 = NULL;
@@ -317,7 +317,7 @@ while(1)
 	}
 }
 /*===========================================================================*/
-bool startcapturing(void)
+static bool startcapturing(void)
 {
 int datalink = 0;
 int has_rth = false;
