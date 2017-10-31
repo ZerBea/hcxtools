@@ -292,7 +292,7 @@ gettimeofday (&starttimeval, NULL);
 
 memset(&broadcastmac, 0xff, 6);
 
-mynic = rand() & 0xffff;
+mynic = rand() & 0xffffff;
 myoui = myvendor[rand() % ((MYVENDOR_SIZE / sizeof(int))-1)];
 mymac = (myoui << 24) | mynic;
 memset(&myaddr, 0, 6);
@@ -891,10 +891,10 @@ int c;
 zeiger = accesspointhdliste;
 for(c = 0; c < APHDLISTESIZEMAX; c++)
 	{
-	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->hdc == establishedhandshakes))
-		return true;
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
+	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->hdc == establishedhandshakes))
+		return true;
 	zeiger++;
 	}
 return false;
@@ -908,10 +908,10 @@ int c;
 zeiger = accesspointhdliste;
 for(c = 0; c < APHDLISTESIZEMAX; c++)
 	{
-	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (zeiger->hdc == establishedhandshakes))
-		return true;
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
+	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0) && (zeiger->hdc == establishedhandshakes))
+		return true;
 	zeiger++;
 	}
 return false;
@@ -925,6 +925,8 @@ int c;
 zeiger = accesspointhdliste;
 for(c = 0; c < APHDLISTESIZEMAX; c++)
 	{
+	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
+		break;
 	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (memcmp(mac_sta, zeiger->addr_sta.addr, 6) == 0))
 		{
 		zeiger->tv_sec = tvsec;
@@ -933,8 +935,6 @@ for(c = 0; c < APHDLISTESIZEMAX; c++)
 		zeiger->hdc += 1;
 		return;
 		}
-	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
-		break;
 	zeiger++;
 	}
 zeiger->tv_sec = tvsec;
@@ -953,13 +953,13 @@ int c;
 zeiger = accesspointliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
+	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
+		break;
 	if((memcmp(mac_ap, zeiger->addr_ap.addr, 6) == 0) && (zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
 		return true;
 		}
-	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
-		break;
 	zeiger++;
 	}
 zeiger->tv_sec = tvsec;
@@ -979,6 +979,8 @@ int c;
 zeiger = accesspointliste;
 for(c = 0; c < APLISTESIZEMAX; c++)
 	{
+	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
+		break;
 	if((zeiger->essid_len == essid_len) && (memcmp(zeiger->essid, essidname, essid_len) == 0))
 		{
 		zeiger->tv_sec = tvsec;
@@ -989,8 +991,6 @@ for(c = 0; c < APLISTESIZEMAX; c++)
 		memcpy(lastbeaconap.addr, zeiger->addr_ap.addr, 6);
 		return true;
 		}
-	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
-		break;
 	zeiger++;
 	}
 nextmac();
