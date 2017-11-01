@@ -2210,10 +2210,13 @@ if(essidoutname != NULL)
 
 		else
 			{
-			fprintf(fhessid, "$HEX[");
-			for(c1 = 0; c1 < zeigernet->essid_len; c1++)
-				fprintf(fhessid, "%02x", zeigernet->essid[c1]);
-			fprintf(fhessid, "]\n");
+			if(zeigernet->essid_len < 32)
+				{
+				fprintf(fhessid, "$HEX[");
+				for(c1 = 0; c1 < zeigernet->essid_len; c1++)
+					fprintf(fhessid, "%02x", zeigernet->essid[c1]);
+				fprintf(fhessid, "]\n");
+				}
 			}
 		zeigernet++;
 		}
@@ -2225,7 +2228,7 @@ if(essidunicodeoutname != NULL)
 	{
 	if((fhessid = fopen(essidunicodeoutname, "a")) == NULL)
 		{
-		fprintf(stderr, "error opening essid file %s: %s\n", essidunicodeoutname, strerror(errno));
+		fprintf(stderr, "error opening essid unicode file %s: %s\n", essidunicodeoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 
@@ -2243,7 +2246,7 @@ if(pmkoutname != NULL)
 	{
 	if((fhpmk = fopen(pmkoutname, "a")) == NULL)
 		{
-		fprintf(stderr, "error opening essid file %s: %s\n", pmkoutname, strerror(errno));
+		fprintf(stderr, "error opening plainmasterkey file %s: %s\n", pmkoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 
