@@ -1893,6 +1893,9 @@ install_sighandler(TT_SIGUSR2, signal_handler);
 set_timer(timer1, TIME_INTERVAL_1S, TIME_INTERVAL_1NS);
 set_timer(timer2, staytime, TIME_INTERVAL_2NS);
 
+if(sendundirectedprflag == true)
+	sendundirectedpr();
+
 pcaploop(has_rth);
 return true;
 }

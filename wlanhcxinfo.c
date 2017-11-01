@@ -449,9 +449,6 @@ essid_len = strlen(essidout);
 if((essid_len == 0) || (essid_len > 32) || (zeiger->essid[0] == 0))
 	return false;
 
-if((zeiger->eapol_size < 91) || (zeiger->eapol_size > 256))
-	return false;
-
 m = geteapkeytype(zeiger->eapol);
 if((m < 2) || (m > 4))
 	return false;
