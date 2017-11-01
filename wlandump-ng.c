@@ -1445,9 +1445,9 @@ while(1)
 			if(wantstatusflag == true)
 				{
 				if(dotagwalk(payload +ASSOCIATIONREQF_SIZE, pkh->len -macl -ASSOCIATIONREQF_SIZE) == true)
-						printmac(macf->addr1.addr, macf->addr2.addr, 1, 0, "fast BSS transition associationrequest (fast roaming)");
+						printmac(macf->addr1.addr, macf->addr2.addr, 1, 0, "FTS associationrequest");
 				else
-					printmacessid(macf->addr1.addr, macf->addr2.addr, 1, 0, essidf->info_essid_len, essidf->essid, "associationerequest");
+					printmacessid(macf->addr1.addr, macf->addr2.addr, 1, 0, essidf->info_essid_len, essidf->essid, "associationrequest");
 				}
 			continue;
 			}
@@ -1459,7 +1459,7 @@ while(1)
 					{
 					pcap_dump((u_char *) pcapout, pkh, h80211);
 					if(wantstatusflag == true)
-						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition reassociationresponse (fast roaming)");
+						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "FTS reassociationresponse");
 					}
 				}
 			continue;
@@ -1487,9 +1487,9 @@ while(1)
 			if(wantstatusflag == true)
 				{
 				if(dotagwalk(payload +REASSOCIATIONREQF_SIZE, pkh->len -macl -REASSOCIATIONREQF_SIZE) == true)
-						printmac(macf->addr1.addr, macf->addr2.addr, 1, 0, "fast BSS transition reassociationrequest (fast roaming)");
+						printmac(macf->addr1.addr, macf->addr2.addr, 1, 0, "FTS reassociationrequest");
 				else
-					printmacessid(macf->addr1.addr, macf->addr2.addr, 1, 0, essidf->info_essid_len, essidf->essid, "reassociationerequest");
+					printmacessid(macf->addr1.addr, macf->addr2.addr, 1, 0, essidf->info_essid_len, essidf->essid, "reassociationrequest");
 				}
 			continue;
 			}
@@ -1501,7 +1501,7 @@ while(1)
 					{
 					pcap_dump((u_char *) pcapout, pkh, h80211);
 					if(wantstatusflag == true)
-						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "fast BSS transition reassociationresponse (fast roaming)");
+						printmac(macf->addr1.addr, macf->addr2.addr, 0, 1, "FTS reassociationresponse");
 					}
 				}
 			continue;
