@@ -117,7 +117,6 @@ static int maxerrorcount;
 static int internalpcaperrors;
 static int myoui;
 static int mynic;
-static int mymac;
 
 static timer_t timer1;
 static timer_t timer2;
@@ -291,7 +290,6 @@ memset(&broadcastmac, 0xff, 6);
 
 mynic = rand() & 0xffffff;
 myoui = myvendor[rand() % ((MYVENDOR_SIZE / sizeof(int))-1)];
-mymac = (myoui << 24) | mynic;
 memset(&myaddr, 0, 6);
 myaddr[5] = mynic & 0xff;
 myaddr[4] = (mynic >> 8) & 0xff;
