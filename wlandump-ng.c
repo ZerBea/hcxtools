@@ -115,9 +115,9 @@ static int staytime = TIME_INTERVAL_2S;
 
 static int maxerrorcount;
 static int internalpcaperrors;
-static unsigned long long int myoui;
-static unsigned long long int mynic;
-static unsigned long long int mymac;
+static int myoui;
+static int mynic;
+static int mymac;
 
 static timer_t timer1;
 static timer_t timer2;
@@ -1231,7 +1231,7 @@ adr_t lastap;
 hds_t akthds = {};
 
 if(wantstatusflag == true)
-	printf("\e[?25lstart capturing on channel %d using mac_ap %06llx%06llx (stop with ctrl+c)...\n", channellist[chptr], myoui, mynic);
+	printf("\e[?25lstart capturing on channel %d using mac_ap %06x%06x (stop with ctrl+c)...\n", channellist[chptr], myoui, mynic);
 while(1)
 	{
 	pcapstatus = pcap_next_ex(pcapin, &pkh, &packet);
