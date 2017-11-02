@@ -853,7 +853,7 @@ if(pcapstatus == -1)
 return;
 }
 /*===========================================================================*/
-static void sendauthentication(uint8_t *macaddr1, uint8_t *macaddr2)
+static void sendauthentication(uint8_t aart, uint8_t *macaddr1, uint8_t *macaddr2)
 {
 mac_t grundframe = {};
 int pcapstatus;
@@ -871,6 +871,7 @@ grundframe.sequence = htole16(mysequencenr++ << 4);
 memcpy(sendpacket, hdradiotap, HDRRT_SIZE);
 memcpy(sendpacket +HDRRT_SIZE, &grundframe, MAC_SIZE_NORM);
 memcpy(sendpacket +HDRRT_SIZE +MAC_SIZE_NORM, &authenticationframe, AUTHENTICATION_SIZE);
+sendpacket[HDRRT_SIZE +MAC_SIZE_NORM +2] = aart;
 
 pcapstatus = pcap_inject(pcapin, &sendpacket, HDRRT_SIZE +MAC_SIZE_NORM +AUTHENTICATION_SIZE);
 
@@ -1514,7 +1515,7 @@ while(1)
 				if(respondflag == true)
 					{
 					sendacknowledgement(macf->addr2.addr);
-					sendauthentication(macf->addr2.addr, macf->addr1.addr);
+					sendauthentication(MAC_ST_AUTH_RESP, macf->addr2.addr, macf->addr1.addr);
 					}
 				}
 			continue;

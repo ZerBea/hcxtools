@@ -38,6 +38,8 @@
 #define	MAC_ST_BEACON		0x8
 #define	MAC_ST_DISASSOC		0xA
 #define	MAC_ST_AUTH		0xB
+#define	MAC_ST_AUTH_REQ		0x1
+#define	MAC_ST_AUTH_RESP	0x2
 #define	MAC_ST_DEAUTH		0xC
 #define	MAC_ST_ACTION		0xD
 // data subtypes
@@ -106,7 +108,7 @@ struct radiotap_header
  uint8_t	it_pad;
  uint16_t	it_len;
  uint32_t	it_present;
-};
+} __attribute__((__packed__));
 typedef struct radiotap_header rth_t;
 #define	RTH_SIZE (sizeof(rth_t))
 
