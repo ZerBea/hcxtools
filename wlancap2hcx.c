@@ -1696,7 +1696,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			continue;
 		rth = (const rth_t*)packet;
 		fcsl = 0;
-		field = 12;
+		field = 8;
 		if((rth->it_present & 0x01) == 0x01)
 			field += 8;
 		if((rth->it_present & 0x80000000) == 0x80000000)
