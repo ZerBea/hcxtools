@@ -96,6 +96,24 @@ Requirements
 To install requirements on Kali use the following 'apt-get install libpcap-dev libcurl4-openssl-dev libssl-dev'
 
 
+Tested adapters
+--------------
+
+USB ID 148f:7601 Ralink Technology, Corp. MT7601U Wireless Adapter
+
+USB ID 148f:3070 Ralink Technology, Corp. RT2870/RT3070 Wireless Adapter
+
+USB ID 148f:5370 Ralink Technology, Corp. RT5370 Wireless Adapter
+
+USB ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless Adapter
+
+USB ID 0bda:8189 Realtek Semiconductor Corp. RTL8187B Wireless 802.11g 54Mbps Network Adapter
+
+USB ID 0cf3:9271 Qualcomm Atheros Communications AR9271 802.11n
+
+PCIe RTL8821AE 802.11ac PCIe Wireless Network Adapter
+
+
 Useful scripts
 --------------
 
