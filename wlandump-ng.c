@@ -1173,11 +1173,7 @@ strncpy(wrq.ifr_name, interfacename , IFNAMSIZ);
 if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
         fprintf(stderr, "socket open for ioctl() on '%s' failed with '%d'\n", interfacename, sock);
-#ifdef DOGPIOSUPPORT
-	if(system("reboot") != 0)
-		printf("can't reboot\n");
-#endif
-	programmende(SIGINT);
+	internalpcaperrors++;
 	return;
 	}
 
@@ -1189,13 +1185,7 @@ if(ioctl(sock, SIOCSIWFREQ, &wrq) < 0)
 	usleep(100);
 	if((result = ioctl(sock, SIOCSIWFREQ, &wrq)) < 0)
 		{
-		fprintf(stderr, "ioctl(SIOCSIWFREQ) on '%s' failed with '%d'\n", interfacename, result);
-		fprintf(stderr, "unable to set channel %d on '%s'\n", channellist[chptr], interfacename);
-#ifdef DOGPIOSUPPORT
-		if(system("reboot") != 0)
-			printf("can't reboot\n");
-#endif
-		programmende(SIGINT);
+		internalpcaperrors++;
 		}
 	}
 close(sock);
