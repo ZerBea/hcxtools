@@ -102,7 +102,6 @@ struct handshake
 };
 typedef struct handshake hds_t;
 #define	HDS_SIZE (sizeof(hds_t))
- 
 /*===========================================================================*/
 /* globale variablen */
 
@@ -307,10 +306,10 @@ mytxaddr[1] = (mytxvendor >> 8) & 0xff;
 mytxaddr[0] = (mytxvendor >> 16) & 0xff;
 
 
-if((accesspointliste = calloc((APLISTESIZEMAX +1), APL_SIZE)) == NULL)
+if((accesspointliste = calloc((APLISTESIZEMAX), APL_SIZE)) == NULL)
 	return false;
 
-if((accesspointhdliste = calloc((APHDLISTESIZEMAX +1), APHDL_SIZE)) == NULL)
+if((accesspointhdliste = calloc((APHDLISTESIZEMAX), APHDL_SIZE)) == NULL)
 	return false;
 
 return true;
@@ -972,7 +971,7 @@ aphdl_t *zeiger;
 int c;
 
 zeiger = accesspointhdliste;
-for(c = 0; c < APHDLISTESIZEMAX; c++)
+for(c = 0; c < APHDLISTESIZEMAX -1; c++)
 	{
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -990,7 +989,7 @@ zeiger->tv_sec = tvsec;
 memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 memcpy(zeiger->addr_sta.addr, mac_sta, 6);
 zeiger->hdc = 1;
-qsort(accesspointhdliste, APHDLISTESIZEMAX +1, APHDL_SIZE, sort_by_time);
+qsort(accesspointhdliste, APHDLISTESIZEMAX, APHDL_SIZE, sort_by_time);
 return;
 }
 /*===========================================================================*/
@@ -1000,7 +999,7 @@ apl_t *zeiger;
 int c;
 
 zeiger = accesspointliste;
-for(c = 0; c < APLISTESIZEMAX; c++)
+for(c = 0; c < APLISTESIZEMAX -1; c++)
 	{
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -1016,7 +1015,7 @@ memcpy(zeiger->addr_ap.addr, mac_ap, 6);
 zeiger->essid_len = essid_len;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essidname, essid_len);
-qsort(accesspointliste, APLISTESIZEMAX +1, APL_SIZE, sort_by_time);
+qsort(accesspointliste, APLISTESIZEMAX, APL_SIZE, sort_by_time);
 return false;
 }
 /*===========================================================================*/
@@ -1026,7 +1025,7 @@ apl_t *zeiger;
 int c;
 
 zeiger = accesspointliste;
-for(c = 0; c < APLISTESIZEMAX; c++)
+for(c = 0; c < APLISTESIZEMAX -1; c++)
 	{
 	if(memcmp(&nullmac, zeiger->addr_ap.addr, 6) == 0)
 		break;
@@ -1053,7 +1052,7 @@ memcpy(zeiger->essid, essidname, essid_len);
 lastbeaconessid_len = essid_len;
 memcpy(lastbeaconessid, essidname, essid_len);
 memcpy(lastbeaconap.addr, zeiger->addr_ap.addr, 6);
-qsort(accesspointliste, APLISTESIZEMAX +1, APL_SIZE, sort_by_time);
+qsort(accesspointliste, APLISTESIZEMAX, APL_SIZE, sort_by_time);
 return false;
 }
 /*===========================================================================*/
