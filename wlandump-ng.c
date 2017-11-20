@@ -1186,6 +1186,11 @@ if(ioctl(sock, SIOCSIWFREQ, &wrq) < 0)
 	if((result = ioctl(sock, SIOCSIWFREQ, &wrq)) < 0)
 		{
 		internalpcaperrors++;
+		chptr = 0;
+		wrq.u.freq.m = channellist[chptr];
+		wrq.u.freq.e = 0;
+		wrq.u.freq.flags = IW_FREQ_FIXED;
+		ioctl(sock, SIOCSIWFREQ, &wrq);
 		}
 	}
 close(sock);

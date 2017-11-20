@@ -1,3 +1,11 @@
+20.11.2017
+==========
+wlandump-ng
+-----------
+do not terminate wlandum-ng if channel set failed
+instead reset channel back to 1
+
+
 31.10.2017
 ==========
 wlandump-ng
