@@ -1,3 +1,12 @@
+21.11.2017
+==========
+wlandump-ng
+-----------
+added new option -P for use with hard coded GPIO switch
+-P : terminate program and poweroff raspberry pi by GPIO switch
+   : default: terminate program and do not power off
+
+
 20.11.2017
 ==========
 wlandump-ng

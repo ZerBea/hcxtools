@@ -138,6 +138,7 @@ static bool sendundirectedprflag = false;
 static bool beaconingflag = false;
 static bool respondflag = false;
 static bool wepdataflag = false;
+static bool poweroffflag = false;
 
 static adr_t	lastbeaconap;
 static uint8_t lastbeaconessid_len = 0;
@@ -1146,9 +1147,16 @@ if(signo == TT_SIGUSR1)
 		pcap_dump_flush(pcapout);
 		pcap_dump_close(pcapout);
 		pcap_close(pcapin);
-		if(system("poweroff") != 0)
-			printf("can't power off\n");
-
+		if(poweroffflag == true)
+			{
+			if(system("poweroff") != 0)
+				printf("can't power off\n");
+			}
+		else
+			{
+			printf("\nterminated...\e[?25h\n");
+			exit (EXIT_SUCCESS);
+			}
 		}
 #endif
 	return;
@@ -1931,6 +1939,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-U             : send one undirected proberequest to broadcast after channel change\n"
 	"-B             : enable beaconig on last proberequest\n"
 	"-L             : enable capture of wep encrypted data packets\n"
+	"-P             : terminate program and poweroff raspberry pi by GPIO switch\n"
+	"               : default: terminate program and do not power off\n"
 	"-s             : enable status messages\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
@@ -1962,7 +1972,7 @@ maxerrorcount = 0;
 internalpcaperrors = 0;
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:c:C:t:T:F:E:RDdUBLshv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:c:C:t:T:F:E:RDdUBLPshv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2052,6 +2062,10 @@ while ((auswahl = getopt(argc, argv, "i:o:c:C:t:T:F:E:RDdUBLshv")) != -1)
 
 		case 'L':
 		wepdataflag = true;
+		break;
+
+		case 'P':
+		poweroffflag = true;
 		break;
 
 		case 's':
