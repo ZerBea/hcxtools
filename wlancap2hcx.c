@@ -1097,6 +1097,44 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
+static void lookfor21(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
+{
+eapdb_t *zeiger;
+unsigned long long int r;
+long int c;
+int rctime = 120;
+uint8_t m = 0;
+
+if (replaycakt != MYREPLAYCOUNT)
+	{
+	return;
+	}
+
+zeiger = zeigerakt;
+c = cakt;
+while(c >= 0)
+	{
+	if(((zeigerakt->tv_sec - zeiger->tv_sec) < 0) || ((zeigerakt->tv_sec - zeiger->tv_sec) > rctime))
+		break;
+
+	if((memcmp(zeiger->mac_ap.addr, zeigerakt->mac_ap.addr, 6) == 0) && (memcmp(zeiger->mac_sta.addr, zeigerakt->mac_sta.addr, 6) == 0))
+		{
+		m = geteapkey(zeiger->eapol);
+		r = getreplaycount(zeiger->eapol);
+		if((m == 2) && (r == replaycakt))
+			{
+			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2);
+			if(netexact == true)
+				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M12E2);
+			return;
+			}
+		}
+	zeiger--;
+	c--;
+	}
+return;
+}
+/*===========================================================================*/
 static void lookfor12(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
 {
 eapdb_t *zeiger;
@@ -1187,6 +1225,11 @@ memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
 
 replaycount = getreplaycount(neweapdbdata->eapol);
+if(m == 1)
+	{
+	lookfor21(eapdbrecords, neweapdbdata, replaycount);
+	}
+
 if(m == 2)
 	{
 	lookfor12(eapdbrecords, neweapdbdata, replaycount);
@@ -1509,7 +1552,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 	if(pkh->caplen != pkh->len)
 		continue;
-
 	packetcount++;
 	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_usec == 0))
 		wcflag = true;
@@ -1596,7 +1638,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		}
 
 	/* check Ethernet-header */
-	if(datalink == DLT_EN10MB)
+	else if(datalink == DLT_EN10MB)
 		{
 		if(ETHER_SIZE > pkh->len)
 			continue;
