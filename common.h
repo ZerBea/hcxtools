@@ -17,6 +17,38 @@
 #define HCCAPX_VERSION 4
 
 
+enum ieee80211_radiotap_presence {
+	IEEE80211_RADIOTAP_TSFT = 0,
+	IEEE80211_RADIOTAP_FLAGS = 1,
+	IEEE80211_RADIOTAP_RATE = 2,
+	IEEE80211_RADIOTAP_CHANNEL = 3,
+	IEEE80211_RADIOTAP_FHSS = 4,
+	IEEE80211_RADIOTAP_DBM_ANTSIGNAL = 5,
+	IEEE80211_RADIOTAP_DBM_ANTNOISE = 6,
+	IEEE80211_RADIOTAP_LOCK_QUALITY = 7,
+	IEEE80211_RADIOTAP_TX_ATTENUATION = 8,
+	IEEE80211_RADIOTAP_DB_TX_ATTENUATION = 9,
+	IEEE80211_RADIOTAP_DBM_TX_POWER = 10,
+	IEEE80211_RADIOTAP_ANTENNA = 11,
+	IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
+	IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
+	IEEE80211_RADIOTAP_RX_FLAGS = 14,
+	IEEE80211_RADIOTAP_TX_FLAGS = 15,
+	IEEE80211_RADIOTAP_RTS_RETRIES = 16,
+	IEEE80211_RADIOTAP_DATA_RETRIES = 17,
+	/* 18 is XChannel, but it's not defined yet */
+	IEEE80211_RADIOTAP_MCS = 19,
+	IEEE80211_RADIOTAP_AMPDU_STATUS = 20,
+	IEEE80211_RADIOTAP_VHT = 21,
+	IEEE80211_RADIOTAP_TIMESTAMP = 22,
+
+	/* valid in every it_present bitmap, even vendor namespaces */
+	IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE = 29,
+	IEEE80211_RADIOTAP_VENDOR_NAMESPACE = 30,
+	IEEE80211_RADIOTAP_EXT = 31
+};
+
+
 #define	MAC_SIZE_ACK	(10)
 #define	MAC_SIZE_RTS	(16)
 #define	MAC_SIZE_NORM	(24)
@@ -562,6 +594,35 @@ typedef struct udp_frame udp_frame_t;
 #define NEXTHDR_SCTP		132	/* SCTP message. */
 #define NEXTHDR_MOBILITY	135	/* Mobility header. */
 #define NEXTHDR_MAX		255
+
+
+struct tcp_frame
+{
+ uint16_t   sourceport;
+ uint16_t   destinationport;
+ uint32_t   relsequencenumber;
+ uint32_t   relacknumber;
+ uint8_t    tcphdlen /* x 4 */;
+ uint8_t    tcpflags;
+} __attribute__ ((packed));
+typedef struct tcp_frame tcp_frame_t;
+
+
+struct tacacsp_frame
+{
+ uint8_t   version_major;
+#define TACACSP_VERSION 0xc0
+ uint8_t   version_minor;
+ uint8_t   type;
+#define TACACS_AUTHENTICATION 1
+ uint8_t   sequencenumber;
+ uint8_t   flags;
+ uint32_t  sessionid;
+ uint32_t  packetlen;
+ uint8_t   data[1];
+} __attribute__ ((packed));
+typedef struct tacacsp_frame tacacsp_frame_t;
+#define	TACACSP_SIZE offsetof(tacacsp_frame_t, data)
 
 
 struct gre_frame

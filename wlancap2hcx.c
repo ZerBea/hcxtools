@@ -418,6 +418,31 @@ if((changeflag == true) && (hcleap.p1 == true) && (hcleap.p2 == true) && (memcmp
 return false;
 }
 /*===========================================================================*/
+static bool checktacacs(const uint8_t *payload, int pklen)
+{
+int tcplen;
+const tcp_frame_t *tcpf;
+const tacacsp_frame_t *tacacspf;
+tcpf = (tcp_frame_t*)(payload);
+tcplen = (tcpf->tcphdlen >> 4) *4;
+
+if((pklen -tcplen) < (int)TACACSP_SIZE)
+	{
+	return false;
+	}
+
+tacacspf = (tacacsp_frame_t*)(payload +tcplen);
+if(tacacspf->version_major != TACACSP_VERSION)
+	{
+	return false;
+	}
+
+//printf("%d %x\n", (tcpf->tcphdlen >> 4) *4, tacacspf->version_major);
+
+
+return true;
+}
+/*===========================================================================*/
 static void addresponseidentity(eapext_t *eapext)
 {
 eapri_t *eapidentity;
@@ -1464,6 +1489,7 @@ uint8_t ipv6flag = false;
 uint8_t tcpflag = false;
 uint8_t udpflag = false;
 uint8_t radiusflag = false;
+uint8_t tacacsflag = false;
 
 uint8_t preautflag = false;
 uint8_t frrrflag = false;
@@ -1586,6 +1612,10 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(ipv4h->nextprotocol == NEXTHDR_TCP)
 				{
 				tcpflag = true;
+				if(checktacacs((const uint8_t*)packet +LOOPB_SIZE +ipv4hlen, pkh->len -LOOPB_SIZE -ipv4hlen) == true)
+					{
+					tacacsflag = true;
+					}
 				continue;
 				}
 
@@ -1611,13 +1641,17 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			if(ipv6h->nextprotocol == NEXTHDR_GRE)
 				{
-				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (const uint8_t*)packet +ETHER_SIZE +IPV6_SIZE) == true)
+				if(addpppchap(eth->addr1.addr, eth->addr2.addr, (const uint8_t*)packet +LOOPB_SIZE +IPV6_SIZE) == true)
 					pppchapflag = true;
 				continue;
 				}
 			if(ipv6h->nextprotocol == NEXTHDR_TCP)
 				{
 				tcpflag = true;
+				if(checktacacs((const uint8_t*)packet +LOOPB_SIZE +IPV6_SIZE, pkh->len -LOOPB_SIZE -IPV6_SIZE) == true)
+					{
+					tacacsflag = true;
+					}
 				continue;
 				}
 
@@ -1665,6 +1699,10 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(ipv4h->nextprotocol == NEXTHDR_TCP)
 				{
 				tcpflag = true;
+				if(checktacacs((const uint8_t*)packet +ETHER_SIZE +ipv4hlen, pkh->len -ETHER_SIZE -ipv4hlen) == true)
+					{
+					tacacsflag = true;
+					}
 				continue;
 				}
 			if(ipv4h->nextprotocol == NEXTHDR_UDP)
@@ -1696,6 +1734,10 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(ipv6h->nextprotocol == NEXTHDR_TCP)
 				{
 				tcpflag = true;
+				if(checktacacs((const uint8_t*)packet +ETHER_SIZE +IPV6_SIZE, pkh->len -ETHER_SIZE -IPV6_SIZE) == true)
+					{
+					tacacsflag = true;
+					}
 				continue;
 				}
 			if(ipv6h->nextprotocol == NEXTHDR_UDP)
@@ -2150,13 +2192,12 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		ipv4hlen = (ipv4h->ver_hlen & 0x0f) * 4;
 		if((ipv4h->ver_hlen & 0xf0) != 0x40)
 			continue;
-
 		if(ipv4h->nextprotocol == NEXTHDR_NONE)
 			continue;
 
 		if(ipv4h->nextprotocol == NEXTHDR_GRE)
 			{
-			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload + LLC_SIZE +ipv4hlen) == true)
+			if(addpppchap(macf->addr1.addr, macf->addr2.addr, payload +LLC_SIZE +ipv4hlen) == true)
 				{
 				if(pcapout != NULL)
 					pcap_dump((u_char *) pcapout, pkh, h80211);
@@ -2168,6 +2209,11 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(ipv4h->nextprotocol == NEXTHDR_TCP)
 			{
 			tcpflag = true;
+			if(checktacacs(payload + LLC_SIZE +ipv4hlen, pkh->len -LLC_SIZE -ipv4hlen) == true)
+				{
+				tacacsflag = true;
+				}
+			continue;
 			}
 
 		if(ipv4h->nextprotocol == NEXTHDR_UDP)
@@ -2209,6 +2255,10 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(ipv6h->nextprotocol == NEXTHDR_TCP)
 			{
 			tcpflag = true;
+			if(checktacacs(payload + LLC_SIZE +IPV6_SIZE, pkh->len -LLC_SIZE -IPV6_SIZE) == true)
+				{
+				tacacsflag = true;
+				}
 			continue;
 			}
 
@@ -2559,6 +2609,9 @@ if(udpflag == true)
 
 if(pppchapflag == true)
 	printf("\x1B[35mfound PPP CHAP Authentication packets (hashcat -m 5500, john netntlm)\x1B[0m\n");
+
+if(tacacsflag == true)
+	printf("\x1B[35mfound CISCO TACACS+ Authentication packets\x1B[0m\n");
 
 if(wpadataflag == true)
 	printf("\x1B[35mfound WPA encrypted data packets\x1B[0m\n");
