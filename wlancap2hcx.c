@@ -441,6 +441,10 @@ if(tacacspf->version != TACACSP_VERSION)
 	}
 
 datalen = be32toh(tacacspf->datalen);
+if(datalen > pklen)
+	{
+	return false;
+	}
 
 if(tacacspoutname != NULL)
 	{
