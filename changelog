@@ -2,7 +2,8 @@
 ==========
 wlancap2hcx
 -----------
-added detection of TACACS+ Authentication
+added detection and conversation of TACACS+ Authentication
+-t <file> : output TACACS+ file (hashcat -m 16100, john tacacs-plus)
 
 
 21.11.2017

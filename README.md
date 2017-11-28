@@ -8,9 +8,9 @@ hashcat and John the Ripper and recommended by hashcat. This branch is pretty
 closely synced to hashcat git branch (that means: latest hcxtools matching
 on latest hashcat beta) and John the Ripper git branch ( "bleeding-jumbo").
 
-Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000
+Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000, 16100
  
-Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm
+Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm, tacacs-plus
 
 After capturing, upload the "uncleaned" cap here
 (http://wpa-sec.stanev.org/?submit) to see if your ap or the client is vulnerable

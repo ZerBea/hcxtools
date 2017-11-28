@@ -610,15 +610,14 @@ typedef struct tcp_frame tcp_frame_t;
 
 struct tacacsp_frame
 {
- uint8_t   version_major;
+ uint8_t   version;
 #define TACACSP_VERSION 0xc0
- uint8_t   version_minor;
  uint8_t   type;
 #define TACACS_AUTHENTICATION 1
  uint8_t   sequencenumber;
  uint8_t   flags;
  uint32_t  sessionid;
- uint32_t  packetlen;
+ uint32_t  datalen;
  uint8_t   data[1];
 } __attribute__ ((packed));
 typedef struct tacacsp_frame tacacsp_frame_t;

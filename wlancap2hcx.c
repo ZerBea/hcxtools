@@ -105,6 +105,7 @@ static char *wdfhcxoutname = NULL;
 static char *nonwdfhcxoutname = NULL;
 static char *showinfo2outname = NULL;
 static char *usernameoutname = NULL;
+static char *tacacspoutname = NULL;
 
 static hcx_t oldhcxrecord;
 /*===========================================================================*/
@@ -398,13 +399,11 @@ if((changeflag == true) && (hcleap.p1 == true) && (hcleap.p2 == true) && (memcmp
 			fprintf(stderr, "error opening netNTLMv1 file %s: %s\n", johnnetntlmoutname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
-
 		ptr = strchr(hcleap.username, '\\');
 		if(ptr == NULL)
 			fprintf(fhjohn, "%s:::lm-hash:", hcleap.username);
 		else
 			fprintf(fhjohn, "%s:::lm-hash:", ++ptr);
-
 		for(c = 0; c < 24; c++)
 			fprintf(fhjohn, "%02x", hcleap.peerresponse[c]);
 		fprintf(fhjohn, ":");
@@ -420,9 +419,13 @@ return false;
 /*===========================================================================*/
 static bool checktacacs(const uint8_t *payload, int pklen)
 {
-int tcplen;
+static int tcplen;
+static int c;
+static int datalen;
 const tcp_frame_t *tcpf;
 const tacacsp_frame_t *tacacspf;
+static FILE *fhtacacsp;
+
 tcpf = (tcp_frame_t*)(payload);
 tcplen = (tcpf->tcphdlen >> 4) *4;
 
@@ -432,13 +435,28 @@ if((pklen -tcplen) < (int)TACACSP_SIZE)
 	}
 
 tacacspf = (tacacsp_frame_t*)(payload +tcplen);
-if(tacacspf->version_major != TACACSP_VERSION)
+if(tacacspf->version != TACACSP_VERSION)
 	{
 	return false;
 	}
 
-//printf("%d %x\n", (tcpf->tcphdlen >> 4) *4, tacacspf->version_major);
+datalen = be32toh(tacacspf->datalen);
 
+if(tacacspoutname != NULL)
+	{
+	if((fhtacacsp = fopen(tacacspoutname, "a+")) == NULL)
+			{
+			fprintf(stderr, "error opening TACACS+ file %s: %s\n", tacacspoutname, strerror(errno));
+			exit(EXIT_FAILURE);
+			}
+	fprintf(fhtacacsp, "$tacacs-plus$0$%08x$", be32toh(tacacspf->sessionid));
+	for(c = 0; c < datalen; c++)
+		{
+		fprintf(fhtacacsp, "%02x", tacacspf->data[c]);
+		}
+	fprintf(fhtacacsp, "$%02x%02x\n", tacacspf->version, tacacspf->sequencenumber);
+	fclose(fhtacacsp);
+	}
 
 return true;
 }
@@ -2651,6 +2669,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-M <file> : output extended eapol file (iSCSI CHAP authentication, MD5(CHAP), john: chap)\n"
 	"-n <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication, hashcat -m 5500)\n"
 	"-N <file> : output extended eapol file (PPP-CHAP and NetNTLMv1 authentication, john netntlm)\n"
+	"-t <file> : output TACACS+ file (hashcat -m 16100, john tacacs-plus)\n"
 	"-e <file> : output wordlist (autohex enabled) to use as hashcat input wordlist (hashcat -m 2500, john WPAPSK-PMK)\n"
 	"-E <file> : output wordlist (autohex disabled) to use as hashcat input wordlist (hashcat -m 2500, john WPAPSK-PMK)\n"
 	"-f <file> : output possible wpa/wpa2 pmk list (hashcat -m 2501, john WPAPSK-PMK)\n"
@@ -2700,7 +2719,7 @@ if (argc == 1)
 	}
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:t:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2726,6 +2745,10 @@ while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:p:P:l:L:e:E:f:w:W:u:S:F:xr
 
 		case 'N':
 		johnnetntlmoutname = optarg;
+		break;
+
+		case 't':
+		tacacspoutname = optarg;
 		break;
 
 		case 'm':
