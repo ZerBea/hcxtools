@@ -2633,7 +2633,7 @@ if(pppchapflag == true)
 	printf("\x1B[35mfound PPP CHAP Authentication packets (hashcat -m 5500, john netntlm)\x1B[0m\n");
 
 if(tacacsflag == true)
-	printf("\x1B[35mfound CISCO TACACS+ Authentication packets\x1B[0m\n");
+	printf("\x1B[35mfound CISCO TACACS+ Authentication packets (hashcat -m 16100, john tacacs-plus)\x1B[0m\n");
 
 if(wpadataflag == true)
 	printf("\x1B[35mfound WPA encrypted data packets\x1B[0m\n");
