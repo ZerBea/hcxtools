@@ -440,7 +440,7 @@ if(tacacspf->version != TACACSP_VERSION)
 	return false;
 	}
 
-datalen = be32toh(tacacspf->datalen);
+datalen = ntohl(tacacspf->datalen);
 if(datalen > pklen)
 	{
 	return false;
@@ -453,7 +453,7 @@ if(tacacspoutname != NULL)
 			fprintf(stderr, "error opening TACACS+ file %s: %s\n", tacacspoutname, strerror(errno));
 			exit(EXIT_FAILURE);
 			}
-	fprintf(fhtacacsp, "$tacacs-plus$0$%08x$", be32toh(tacacspf->sessionid));
+	fprintf(fhtacacsp, "$tacacs-plus$0$%08x$", ntohl(tacacspf->sessionid));
 	for(c = 0; c < datalen; c++)
 		{
 		fprintf(fhtacacsp, "%02x", tacacspf->data[c]);
