@@ -1,4 +1,14 @@
-21.18.2017
+05.12.2017
+==========
+wlanhcx2ssid
+-----------
+added option to strip damaged records from hccapx file
+-F <file>     : strip bad records and write only flawless records to hccapx file
+Detected errors (more follows later):
+- bad keytype in EAPOL frame
+
+
+21.11.2017
 ==========
 wlancap2hcx
 -----------
