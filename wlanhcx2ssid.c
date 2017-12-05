@@ -57,6 +57,43 @@ if (feof(inputstream)) return -1;
 return len;
 }
 /*===========================================================================*/
+static uint8_t geteapkey(uint8_t *eapdata)
+{
+eap_t *eap;
+uint16_t keyinfo;
+int eapkey = 0;
+
+eap = (eap_t*)(uint8_t*)(eapdata);
+keyinfo = (((eap->keyinfo & 0xff) << 8) | (eap->keyinfo >> 8));
+if (keyinfo & WPA_KEY_INFO_ACK)
+	{
+	if(keyinfo & WPA_KEY_INFO_INSTALL)
+		{
+		/* handshake 3 */
+		eapkey = 3;
+		}
+	else
+		{
+		/* handshake 1 */
+		eapkey = 1;
+		}
+	}
+else
+	{
+	if(keyinfo & WPA_KEY_INFO_SECURE)
+		{
+		/* handshake 4 */
+		eapkey = 4;
+		}
+	else
+		{
+		/* handshake 2 */
+		eapkey = 2;
+		}
+	}
+return eapkey;
+}
+/*===========================================================================*/
 static uint8_t geteapkeyver(uint8_t *eapdata)
 {
 const eap_t *eap;
@@ -75,6 +112,41 @@ unsigned long long int replaycount = 0;
 eap = (const eap_t*)(uint8_t*)(eapdata);
 replaycount = be64toh(eap->replaycount);
 return replaycount;
+}
+/*===========================================================================*/
+static int writerepaired(long int hcxrecords, char *repairedname)
+{
+hcx_t *zeigerhcx;
+uint8_t keynr = 0;
+long int c;
+long int rw = 0;
+long int rwerr = 0;
+FILE *fhhcx;
+
+c = 0;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	keynr = geteapkey(zeigerhcx->eapol);
+	if(keynr == 1)
+		{
+		rwerr++;
+		c++;
+		continue;
+		}
+	if((fhhcx = fopen(repairedname, "ab")) == NULL)
+		{
+		fprintf(stderr, "error opening file %s", repairedname);
+		return false;
+		}
+	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+	fclose(fhhcx);
+	rw++;
+	c++;
+	}
+printf("%ld records precessed\n%ld damaged records stripped", rw, rwerr);
+
+return true;
 }
 /*===========================================================================*/
 static int writekeyver(long int hcxrecords, char *keyvername)
@@ -104,7 +176,7 @@ while(c < hcxrecords)
 		}
 	c++;
 	}
-printf("%ld records precessed\n", rw++);
+printf("%ld records precessed\n", rw);
 return true;
 }
 /*===========================================================================*/
@@ -1030,6 +1102,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"              : WPA2 AES Cipher, HMAC-SHA1.... basename.2.hccapx\n"
 	"              : WPA2 AES Cipher, AES-128-CMAC2 basename.3.hccapx\n"
 	"              : all other are unknown\n"
+	"-F <file>     : strip bad records and write only flawless records to hccapx file\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -1066,6 +1139,7 @@ char *groupkeyname = NULL;
 char *pairwisekeyname = NULL;
 char *workingdirname = NULL;
 char *wdres;
+char *repairedname = NULL;
 char workingdir[PATH_MAX +1];
 
 eigenpfadname = strdupa(argv[0]);
@@ -1075,7 +1149,7 @@ setbuf(stdout, NULL);
 wdres = getcwd(workingdir, PATH_MAX);
 if(wdres != NULL)
 	workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:2:3:4:5:k:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:2:3:4:5:k:F:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1102,7 +1176,6 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:
 		case 'p':
 		workingdirname = optarg;
 		break;
-
 
 		case 'E':
 		essidname = optarg;
@@ -1259,6 +1332,11 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:
 		mode = 'k';
 		break;
 
+		case 'F':
+		repairedname = optarg;
+		mode = 'F';
+		break;
+
 		default:
 		usage(eigenname);
 		}
@@ -1377,6 +1455,11 @@ else if(mode == 'k')
 		writekeyver(hcxorgrecords, keyvername);
 	}
 
+else if(mode == 'F')
+	{
+	if(repairedname != NULL)
+		writerepaired(hcxorgrecords, repairedname);
+	}
 
 if(hcxdata != NULL)
 	free(hcxdata);
