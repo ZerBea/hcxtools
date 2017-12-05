@@ -144,7 +144,7 @@ while(c < hcxrecords)
 	rw++;
 	c++;
 	}
-printf("%ld records precessed\n%ld damaged records stripped", rw, rwerr);
+printf("%ld records precessed\n%ld damaged records stripped\n", rw, rwerr);
 
 return true;
 }

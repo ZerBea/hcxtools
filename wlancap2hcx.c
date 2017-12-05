@@ -1144,7 +1144,6 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
-/*
 static void lookfor21(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
 {
 eapdb_t *zeiger;
@@ -1171,9 +1170,9 @@ while(c >= 0)
 		r = getreplaycount(zeiger->eapol);
 		if((m == 2) && (r == replaycakt))
 			{
-			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2);
+			lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M12E2);
 			if(netexact == true)
-				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M12E2);
+				lookforessidexact(zeigerakt, zeiger, MESSAGE_PAIR_M12E2);
 			return;
 			}
 		}
@@ -1182,7 +1181,6 @@ while(c >= 0)
 	}
 return;
 }
-*/
 /*===========================================================================*/
 static void lookfor12(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
 {
@@ -1274,12 +1272,10 @@ memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
 
 replaycount = getreplaycount(neweapdbdata->eapol);
-/*
 if(m == 1)
 	{
 	lookfor21(eapdbrecords, neweapdbdata, replaycount);
 	}
-*/
 
 if(m == 2)
 	{
