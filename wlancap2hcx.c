@@ -1144,6 +1144,7 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
+/*
 static void lookfor21(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
 {
 eapdb_t *zeiger;
@@ -1181,6 +1182,7 @@ while(c >= 0)
 	}
 return;
 }
+*/
 /*===========================================================================*/
 static void lookfor12(long int cakt, eapdb_t *zeigerakt, unsigned long long int replaycakt)
 {
@@ -1272,10 +1274,12 @@ memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
 
 replaycount = getreplaycount(neweapdbdata->eapol);
+/*
 if(m == 1)
 	{
 	lookfor21(eapdbrecords, neweapdbdata, replaycount);
 	}
+*/
 
 if(m == 2)
 	{
