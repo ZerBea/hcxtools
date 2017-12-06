@@ -1102,7 +1102,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"              : WPA2 AES Cipher, HMAC-SHA1.... basename.2.hccapx\n"
 	"              : WPA2 AES Cipher, AES-128-CMAC2 basename.3.hccapx\n"
 	"              : all other are unknown\n"
-	"-F <file>     : strip bad records and write only flawless records to hccapx file\n"
+	"-F <file>     : remove bad records and write only flawless records to hccapx file\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
