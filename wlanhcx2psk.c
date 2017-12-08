@@ -32,6 +32,7 @@ static bool wpsflag = false;
 static bool eudateflag = false;
 static bool usdateflag = false;
 static bool ngflag = false;
+static bool ftflag = false;
 
 static FILE *fhpsk;
 
@@ -124,6 +125,21 @@ if(fileflag == true)
 		fprintf(fhpsk,"%s\n", upperpskstring);
 	if(lflag == true)
 		fprintf(fhpsk,"%s\n", lowerpskstring);
+	}
+return;
+}
+/*===========================================================================*/
+static void keywriteft(void)
+{
+int weakft;
+for(weakft = 0; weakft < 10000000; weakft++)
+	{
+	snprintf(pskstring, 64, "004%07d", weakft);
+	writepsk(pskstring);
+	snprintf(pskstring, 64, "010%07d", weakft);
+	writepsk(pskstring);
+	snprintf(pskstring, 64, "014%07d", weakft);
+	writepsk(pskstring);
 	}
 return;
 }
@@ -1039,7 +1055,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-W        : include complete wps keys\n"
 	"-D        : include complete european dates\n"
 	"-d        : include complete american dates\n"
-	"-N        : include complete NETGEARxx candidates\n"
+	"-N        : include complete NETGEARxx weak candidates\n"
+	"-F        : include complete Fibertel weak candidates\n"
 	"-h        : this help\n"
 	"-v        : version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname);
@@ -1060,7 +1077,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "i:o:swWDdNhv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:swWDdNFhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1095,6 +1112,10 @@ while ((auswahl = getopt(argc, argv, "i:o:swWDdNhv")) != -1)
 
 		case 'N':
 		ngflag = true;
+		break;
+
+		case 'F':
+		ftflag = true;
 		break;
 
 		default:
@@ -1147,6 +1168,8 @@ if((stdoutflag == true) || (fileflag == true))
 		keywriteyearyear();
 	if(ngflag == true)
 		keywriteng();
+	if(ftflag == true)
+		keywriteft();
 	}
 
 if(hcxdata != NULL)
