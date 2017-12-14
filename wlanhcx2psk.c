@@ -419,7 +419,7 @@ return;
 /*===========================================================================*/
 static void keywriteyearyear(void)
 {
-int y, y2;
+int y, y2, y3;
 
 for(y = 1900; y <= thisyear; y++)
 	{
@@ -427,6 +427,18 @@ for(y = 1900; y <= thisyear; y++)
 		{
 		snprintf(pskstring, 64, "%04d%04d", y, y2);
 		writepsk(pskstring);
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(y2 = 1900; y2 <= thisyear; y2++)
+		{
+		for(y3 = 1900; y3 <= thisyear; y3++)
+			{
+			snprintf(pskstring, 64, "%04d%04d%04d", y, y2, y3);
+			writepsk(pskstring);
+			}
 		}
 	}
 return;
