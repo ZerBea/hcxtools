@@ -24,6 +24,7 @@
 static long int uploadcountok;
 static long int uploadcountfailed;
 static const char *wpasecurl = "http://wpa-sec.stanev.org";
+static bool removeflag = false;
 /*===========================================================================*/
 static int testwpasec(long int timeout)
 {
@@ -53,6 +54,7 @@ static bool sendcap2wpasec(char *sendcapname, long int timeout)
 CURL *curl;
 CURLcode res;
 bool uploadflag = true;
+int ret;
 
 struct curl_httppost *formpost=NULL;
 struct curl_httppost *lastptr=NULL;
@@ -76,6 +78,12 @@ if(curl)
 	if(res == CURLE_OK)
 		{
 		printf("\x1B[32mupload done\x1B[0m\n\n");
+		if(removeflag == true)
+			{
+			ret = remove(sendcapname);
+			if(ret != 0)
+				fprintf(stderr, "couldn't remove %s\n", sendcapname);
+			}
 		}
 	else
 		{
@@ -100,6 +108,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-t <seconds> : set connection timeout (default 30 seconds)\n"
+	"-R           : remove cap if upload was successfull\n"
 	"-h           : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
@@ -120,7 +129,7 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "t:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "t:Rhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -131,6 +140,10 @@ while ((auswahl = getopt(argc, argv, "t:hv")) != -1)
 			fprintf(stderr, "wrong connection timeout\nsetting connection timeout to 30 seconds\n");
 			timeout = 30;
 			}
+		break;
+
+		case 'R':
+		removeflag = true;
 		break;
 
 		default:
