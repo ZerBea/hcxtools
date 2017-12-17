@@ -17,6 +17,7 @@
 #include <stdio_ext.h>
 #endif
 
+#include "include/version.h"
 #include "common.h"
 
 struct hccap

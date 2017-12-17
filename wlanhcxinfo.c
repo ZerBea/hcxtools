@@ -16,6 +16,8 @@
 #else
 #include <stdio_ext.h>
 #endif
+
+#include "include/version.h"
 #include "common.h"
 
 #define OM_MAC_AP	0b000000000000000001

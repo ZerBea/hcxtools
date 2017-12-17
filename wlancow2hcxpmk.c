@@ -13,6 +13,8 @@
 #include <stdio_ext.h>
 #endif
 #include <curl/curl.h>
+
+#include "include/version.h"
 #include "common.h"
 
 

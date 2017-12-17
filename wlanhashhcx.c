@@ -17,6 +17,7 @@
 #include <stdio_ext.h>
 #endif
 
+#include "include/version.h"
 #include "common.c"
 #include "com_md5_64.c"
 #include "com_formats.c"

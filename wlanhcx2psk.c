@@ -18,6 +18,7 @@
 #endif
 #include <openssl/md5.h>
 
+#include "include/version.h"
 #include "common.h"
 
 /*===========================================================================*/

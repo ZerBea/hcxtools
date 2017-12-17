@@ -21,6 +21,8 @@
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
 #include <math.h>
+
+#include "include/version.h"
 #include "common.c"
 
 /*===========================================================================*/

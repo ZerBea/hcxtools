@@ -20,6 +20,7 @@
 #define strdupa strdup
 #endif
 
+#include "include/version.h"
 #include "common.h"
 
 #define LINEBUFFER 256

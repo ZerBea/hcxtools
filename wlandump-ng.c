@@ -24,6 +24,7 @@
 #include <linux/wireless.h>
 #include <netinet/in.h>
 
+#include "include/version.h"
 #include "common.h"
 
 #ifdef DOGPIOSUPPORT

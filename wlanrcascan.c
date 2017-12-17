@@ -22,6 +22,7 @@
 #include <pcap.h>
 #include <linux/wireless.h>
 
+#include "include/version.h"
 #include "common.h"
 
 /*===========================================================================*/

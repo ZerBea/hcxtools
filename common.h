@@ -8,9 +8,6 @@
 #define __LITTLE_ENDIAN LITTLE_ENDIAN
 #endif
 
-#define VERSION "4.0.0"
-#define VERSION_JAHR "2017"
-
 #define NEWENTY -1
 
 #define HCCAPX_SIGNATURE 0x58504348

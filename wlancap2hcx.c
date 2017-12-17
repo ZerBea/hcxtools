@@ -23,6 +23,8 @@
 #include <openssl/cmac.h>
 #include <openssl/evp.h>
 #include <netinet/in.h>
+
+#include "include/version.h"
 #include "common.c"
 #include "com_md5_64.c"
 #include "com_aes.c"
