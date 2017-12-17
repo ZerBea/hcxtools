@@ -2,8 +2,8 @@
 ==========
 wlancap2wpasec
 -----------
-added option to remove cap file if upload was successfull
--R           : remove cap if upload was successfull
+added option to remove cap file if upload was successful
+-R           : remove cap if upload was successful
 
 
 05.12.2017

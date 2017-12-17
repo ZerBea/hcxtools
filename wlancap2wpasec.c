@@ -108,7 +108,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-t <seconds> : set connection timeout (default 30 seconds)\n"
-	"-R           : remove cap if upload was successfull\n"
+	"-R           : remove cap if upload was successful\n"
 	"-h           : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
