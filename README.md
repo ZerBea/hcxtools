@@ -34,6 +34,7 @@ Detailed description
 | Tool           | Description                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------ |
 | wlandump-ng    | Small, fast and powerfull deauthentication/authentication/response tool                                |
+| wlandump-rs    | raw socket version of wlandump-ng                                                                      |
 | wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                         |
 | pioff          | Turns Raspberry Pi off via GPIO switch                                                                 |
 | wlancapinfo    | Shows info of pcap file                                                                                |

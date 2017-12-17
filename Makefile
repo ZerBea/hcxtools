@@ -32,6 +32,7 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	$(CC) $(CFLAGS) -o wlandump-ng wlandump-ng.c -lpcap -lrt $(LFLAGS)
+	$(CC) $(CFLAGS) -o wlandump-rs wlandump-rs.c -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
 endif
 	$(CC) $(CFLAGS) -o wlancapinfo wlancapinfo.c -lpcap
@@ -60,6 +61,7 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	install $(INSTFLAGS) wlandump-ng $(INSTALLDIR)/wlandump-ng
+	install $(INSTFLAGS) wlandump-rs $(INSTALLDIR)/wlandump-rs
 	install $(INSTFLAGS) wlanrcascan $(INSTALLDIR)/wlanrcascan
 endif
 	install $(INSTFLAGS) wlancapinfo $(INSTALLDIR)/wlancapinfo
@@ -86,6 +88,7 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	rm -f wlandump-ng
+	rm -f wlandump-rs
 	rm -f wlanrcascan
 endif
 	rm -f wlancapinfo
@@ -116,6 +119,7 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	rm -f wlandump-ng
+	rm -f wlandump-rs
 	rm -f wlanrcascan
 endif
 	rm -f wlancapinfo
@@ -146,6 +150,7 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	rm -f $(INSTALLDIR)/wlandump-ng
+	rm -f $(INSTALLDIR)/wlandump-rs
 	rm -f $(INSTALLDIR)/wlanrcascan
 endif
 	rm -f $(INSTALLDIR)/wlandumpfix

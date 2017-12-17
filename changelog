@@ -2,6 +2,35 @@
 ==========
 moved to version 4.0.1
 
+added wlandump-rs
+- use raw sockets instead of libpcap
+- faster and more aggressive than wlandump-ng
+- able to capture more handchakes than wlandump-ng
+- automatic use channel 14 and 5GHz channels if driver supports this
+- improvements on scan engine
+- improvements on authentication engine
+- use ap blacklist instead of BPF
+
+$ wlandump-rs -h
+wlandump-rs 4.0.1 (C) 2017 ZeroBeat
+usage: wlandump-rs <options>
+
+options:
+-i <interface> : interface
+-o <dump file> : output file in pcapformat including radiotap header (LINKTYPE_IEEE802_11_RADIOTAP)
+-c <digit>     : set channel (default = channel 1)
+-t <seconds>   : stay time on channel before hopping to the next channel
+               : default = 5 seconds
+-B <file>      : blacklist (do not deauthenticate clients from this hosts - format: xxxxxxxxxxxx)
+-I             : show suitable wlan interfaces and quit
+-T <maxerrors> : terminate after <xx> maximal errors
+               : default: 1000000
+-D             : enable to transmit deauthentication- and disassociation-frames
+-P             : enable poweroff
+-s             : enable status messages
+-h             : show this help
+-v             : show version
+
 
 16.12.2017
 ==========
