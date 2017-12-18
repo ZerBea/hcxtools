@@ -2416,13 +2416,13 @@ if(groupkeycount > 0)
 
 if(hcxwritewldcount == 1)
 	{
-	printf("\x1B[32mfound %ld valid WPA handshake (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
+	printf("\x1B[32mfound %ld valid WPA handshake (retrieved from a client)\x1B[0m\n", hcxwritewldcount);
 	if(wdfhcxoutname != NULL)
 		printf("\x1B[32myou can use nonce-error-corrections 0 on %s\x1B[0m\n", wdfhcxoutname);
 	}
 else if(hcxwritewldcount > 1)
 	{
-	printf("\x1B[32mfound %ld valid WPA handshakes (by wlandump-ng/wlanresponse)\x1B[0m\n", hcxwritewldcount);
+	printf("\x1B[32mfound %ld valid WPA handshakes (retrieved from clients)\x1B[0m\n", hcxwritewldcount);
 	if(wdfhcxoutname != NULL)
 		printf("\x1B[32myou can use nonce-error-corrections 0 on %s\x1B[0m\n", wdfhcxoutname);
 	}
