@@ -1269,7 +1269,8 @@ neweapdbdata->tv_usec = tvusec;
 memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
 memcpy(neweapdbdata->mac_sta.addr, mac_sta, 6);
 neweapdbdata->eapol_len = htons(eap->len) +4;
-
+if(neweapdbdata->eapol_len > 256)
+	return false;
 memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
 
