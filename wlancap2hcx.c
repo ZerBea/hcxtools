@@ -1402,7 +1402,7 @@ static bool dotagwalk(uint8_t *tagdata, int taglen)
 {
 tag_t *tagl;
 tagl = (tag_t*)(tagdata);
-while( 0 < taglen)
+while(0 < taglen)
 	{
 	if(tagl->id == TAG_FBT)
 		return true;
@@ -1536,7 +1536,6 @@ wpakv1c = 0;
 wpakv2c = 0;
 wpakv3c = 0;
 groupkeycount = 0;
-
 
 if(!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
 	{
