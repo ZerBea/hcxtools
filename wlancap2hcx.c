@@ -646,7 +646,7 @@ memcpy(hcxrecord.nonce_ap, eap1->nonce, 32);
 memcpy(hcxrecord.mac_sta.addr, zeiger2->mac_sta.addr, 6);
 memcpy(hcxrecord.nonce_sta, eap2->nonce, 32);
 hcxrecord.eapol_len = zeiger2->eapol_len;
-memcpy(hcxrecord.eapol,zeiger2->eapol, zeiger2->eapol_len +4);
+memcpy(hcxrecord.eapol,zeiger2->eapol, zeiger2->eapol_len);
 memcpy(hcxrecord.keymic, eap2->keymic, 16);
 memset(&hcxrecord.eapol[0x51], 0, 16);
 
@@ -729,7 +729,7 @@ memcpy(hcxrecord.nonce_ap, eap1->nonce, 32);
 memcpy(hcxrecord.mac_sta.addr, zeiger2->mac_sta.addr, 6);
 memcpy(hcxrecord.nonce_sta, eap2->nonce, 32);
 hcxrecord.eapol_len = zeiger2->eapol_len;
-memcpy(hcxrecord.eapol,zeiger2->eapol, zeiger2->eapol_len +4);
+memcpy(hcxrecord.eapol,zeiger2->eapol, zeiger2->eapol_len);
 memcpy(hcxrecord.keymic, eap2->keymic, 16);
 memset(&hcxrecord.eapol[0x51], 0, 16);
 
