@@ -839,7 +839,7 @@ netdb_t *zeigernewnet;
 long int c;
 
 c = netdbrecords;
-zeigernewnet = newnetdbdata -1;
+zeigernewnet = newnetdbdata;
 while(c >= 0)
 	{
 	if((memcmp(zeigernewnet->mac_ap.addr, zeiger1->mac_ap.addr, 6) == 0) && (memcmp(zeigernewnet->mac_sta.addr, zeiger1->mac_sta.addr, 6) == 0))
@@ -863,7 +863,7 @@ uint8_t nullessid[32];
 
 memset(&nullessid, 0, 32);
 c = netdbrecords;
-zeigernewnet = newnetdbdata -1;
+zeigernewnet = newnetdbdata;
 
 while(c >= 0)
 	{
@@ -963,7 +963,7 @@ long int c;
 int rctime = 2;
 uint8_t m = 0;
 
-zeiger = zeigerakt -1;
+zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
 	{
@@ -990,7 +990,7 @@ if(replaycountcheck == true)
 	return;
 
 rctime = 10;
-zeiger = zeigerakt -1;
+zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
 	{
@@ -1027,7 +1027,7 @@ long int c;
 int rctime = 2;
 uint8_t m = 0;
 
-zeiger = zeigerakt -1;
+zeiger = zeigerakt;
 c = cakt;
 
 while(c >= 0)
@@ -1056,7 +1056,7 @@ if(replaycountcheck == true)
 	return;
 
 rctime = 10;
-zeiger = zeigerakt -1;
+zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
 	{
@@ -1092,7 +1092,7 @@ long int c;
 int rctime = 2;
 uint8_t m = 0;
 
-zeiger = zeigerakt -1;
+zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
 	{
@@ -1119,7 +1119,7 @@ if(replaycountcheck == true)
 	return;
 
 rctime = 10;
-zeiger = zeigerakt -1;
+zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
 	{
@@ -1160,7 +1160,7 @@ if (replaycakt != MYREPLAYCOUNT)
 	return;
 	}
 
-zeiger = zeigerakt -1;
+zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
 	{
@@ -1198,7 +1198,7 @@ if (replaycakt == MYREPLAYCOUNT)
 	rctime = 120;
 	}
 
-zeiger = zeigerakt -1;
+zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
 	{
@@ -1226,7 +1226,7 @@ if(replaycountcheck == true)
 	return;
 
 rctime = 10;
-zeiger = zeigerakt -1;
+zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
 	{
@@ -1264,7 +1264,6 @@ if(memcmp(mac_ap, mac_sta, 6) == 0)
 	return false;
 if(memcmp(eap->nonce, &nullnonce, NULLNONCE_SIZE) == 0)
 	return false;
-memset(neweapdbdata, 0, EAPDB_SIZE);
 neweapdbdata->tv_sec = tvsec;
 neweapdbdata->tv_usec = tvusec;
 memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
@@ -1308,7 +1307,6 @@ static bool addnet(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_a
 if(memcmp(mac_ap, mac_sta, 6) == 0)
 	return false;
 
-memset(newnetdbdata, 0, NETDB_SIZE);
 newnetdbdata->tv_sec = tvsec;
 newnetdbdata->tv_usec = tvusec;
 memcpy(newnetdbdata->mac_ap.addr, mac_ap, 6);
@@ -1564,7 +1562,8 @@ if(stat(pcapinname, &statinfo) != 0)
 	return false;
 	}
 
-netdbdata = malloc(statinfo.st_size *2 +NETDB_SIZE);
+netdbdata = malloc(statinfo.st_size +NETDB_SIZE);
+memset(netdbdata, 0, statinfo.st_size +NETDB_SIZE);
 if(netdbdata == NULL)
 		{
 		fprintf(stderr, "out of memory process nets\n");
@@ -1574,6 +1573,7 @@ newnetdbdata = netdbdata;
 netdbrecords = 0;
 
 eapdbdata = malloc(statinfo.st_size *2 +EAPDB_SIZE);
+memset(eapdbdata, 0, statinfo.st_size *2 +EAPDB_SIZE);
 if(eapdbdata == NULL)
 		{
 		fprintf(stderr, "out of memory process eaps\n");
@@ -1582,11 +1582,9 @@ if(eapdbdata == NULL)
 neweapdbdata = eapdbdata;
 eapdbrecords = 0;
 
-
 if((johnbasename = strrchr(pcapinname, '/') +1))
 
 printf("start reading from %s\n", pcapinname);
-
 
 while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	{
