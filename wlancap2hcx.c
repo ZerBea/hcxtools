@@ -839,7 +839,7 @@ netdb_t *zeigernewnet;
 long int c;
 
 c = netdbrecords;
-zeigernewnet = newnetdbdata;
+zeigernewnet = newnetdbdata -1;
 while(c >= 0)
 	{
 	if((memcmp(zeigernewnet->mac_ap.addr, zeiger1->mac_ap.addr, 6) == 0) && (memcmp(zeigernewnet->mac_sta.addr, zeiger1->mac_sta.addr, 6) == 0))
@@ -863,7 +863,8 @@ uint8_t nullessid[32];
 
 memset(&nullessid, 0, 32);
 c = netdbrecords;
-zeigernewnet = newnetdbdata;
+zeigernewnet = newnetdbdata -1;
+
 while(c >= 0)
 	{
 	if(memcmp(zeigernewnet->mac_ap.addr, zeiger1->mac_ap.addr, 6) == 0)
@@ -962,7 +963,7 @@ long int c;
 int rctime = 2;
 uint8_t m = 0;
 
-zeiger = zeigerakt;
+zeiger = zeigerakt -1;
 c = cakt;
 while(c >= 0)
 	{
@@ -989,7 +990,7 @@ if(replaycountcheck == true)
 	return;
 
 rctime = 10;
-zeiger = zeigerakt;
+zeiger = zeigerakt -1;
 c = cakt;
 while(c >= 0)
 	{
@@ -1026,7 +1027,7 @@ long int c;
 int rctime = 2;
 uint8_t m = 0;
 
-zeiger = zeigerakt;
+zeiger = zeigerakt -1;
 c = cakt;
 
 while(c >= 0)
@@ -1055,7 +1056,7 @@ if(replaycountcheck == true)
 	return;
 
 rctime = 10;
-zeiger = zeigerakt;
+zeiger = zeigerakt -1;
 c = cakt;
 while(c >= 0)
 	{
@@ -1091,7 +1092,7 @@ long int c;
 int rctime = 2;
 uint8_t m = 0;
 
-zeiger = zeigerakt;
+zeiger = zeigerakt -1;
 c = cakt;
 while(c >= 0)
 	{
@@ -1118,7 +1119,7 @@ if(replaycountcheck == true)
 	return;
 
 rctime = 10;
-zeiger = zeigerakt;
+zeiger = zeigerakt -1;
 c = cakt;
 while(c >= 0)
 	{
@@ -1159,7 +1160,7 @@ if (replaycakt != MYREPLAYCOUNT)
 	return;
 	}
 
-zeiger = zeigerakt;
+zeiger = zeigerakt -1;
 c = cakt;
 while(c >= 0)
 	{
@@ -1197,7 +1198,7 @@ if (replaycakt == MYREPLAYCOUNT)
 	rctime = 120;
 	}
 
-zeiger = zeigerakt;
+zeiger = zeigerakt -1;
 c = cakt;
 while(c >= 0)
 	{
@@ -1225,7 +1226,7 @@ if(replaycountcheck == true)
 	return;
 
 rctime = 10;
-zeiger = zeigerakt;
+zeiger = zeigerakt -1;
 c = cakt;
 while(c >= 0)
 	{
@@ -1275,6 +1276,7 @@ memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
 
 replaycount = getreplaycount(neweapdbdata->eapol);
+
 if(m == 1)
 	{
 	lookfor21(eapdbrecords, neweapdbdata, replaycount);
@@ -1298,7 +1300,6 @@ if(m == 4)
 
 neweapdbdata++;
 eapdbrecords++;
-
 return true;
 }
 /*===========================================================================*/
@@ -1563,7 +1564,7 @@ if(stat(pcapinname, &statinfo) != 0)
 	return false;
 	}
 
-netdbdata = malloc(statinfo.st_size +NETDB_SIZE);
+netdbdata = malloc(statinfo.st_size *2 +NETDB_SIZE);
 if(netdbdata == NULL)
 		{
 		fprintf(stderr, "out of memory process nets\n");
