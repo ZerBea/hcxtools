@@ -6,7 +6,6 @@ added new option to remove handshakes that that belong to the same authenticatio
           : you must use nonce-error-corrections on that file!
 
 wlanhcx2ssid
-wlancap2hcx
 added new option to remove handshakes that that belong to the same authentication sequence
 -D <file> : remove handshakes that belong to the same authentication sequence
           : you must use nonce-error-corrections on that file!
