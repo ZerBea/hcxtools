@@ -163,7 +163,7 @@ if(hcxrecords == 0)
 	return false;
 	}
 qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_ap_record);
-if((fhhcx = fopen(rmdupesname, "ab")) == NULL)
+if((fhhcx = fopen(rmdupesname, "w+b")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", rmdupesname);
 	return false;
@@ -2819,7 +2819,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-F <file> : input file containing entries for Berkeley Packet Filter (BPF)\n"
 	"          : syntax: https://biot.com/capstats/bpf.html\n"
 	"-Z        : ignore zeroed plainmasterkeys\n"
-	"-D        : remove handshakes that belong to the same authentication sequence\n"
+	"-D        : remove duplicates from the same authentication sequence\n"
 	"          : you must use nonce-error-corrections on that file!\n"
 	"-h        : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
