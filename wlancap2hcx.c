@@ -110,6 +110,8 @@ static char *usernameoutname = NULL;
 static char *tacacspoutname = NULL;
 
 static hcx_t oldhcxrecord;
+static hcx_t *hcxdata = NULL;
+
 /*===========================================================================*/
 static void initgloballists(void)
 {
@@ -118,6 +120,129 @@ memset(&hcleap, 0, sizeof(hc5500_t));
 memset(&hcleapchap, 0, sizeof(hc5500chap_t));
 
 return;
+}
+/*===========================================================================*/
+static int sort_by_ap_record(const void *a, const void *b)
+{
+const hcx_t *ia = (const hcx_t *)a;
+const hcx_t *ib = (const hcx_t *)b;
+
+if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) < 0)
+	return -1;
+if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) < 0)
+	return -1;
+if(memcmp(ia->essid, ib->essid, 32) > 0)
+	return 1;
+else if(memcmp(ia->essid, ib->essid, 6) < 0)
+	return -1;
+if(memcmp(ia->nonce_ap, ib->nonce_ap, 32) > 0)
+	return 1;
+else if(memcmp(ia->nonce_ap, ib->nonce_ap, 32) < 0)
+	return -1;
+if(ia->message_pair > ib->message_pair)
+	return 1;
+if(ia->message_pair < ib->message_pair)
+	return -1;
+return 0;
+}
+/*===========================================================================*/
+static int writermdupes(long int hcxrecords, char *rmdupesname)
+{
+hcx_t *zeigerhcx, *zeigerhcxold;
+FILE *fhhcx;
+long int c;
+long int rw = 0;
+long int removedcount = 0;
+
+if(hcxrecords == 0)
+	{
+	return false;
+	}
+qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_ap_record);
+if((fhhcx = fopen(rmdupesname, "ab")) == NULL)
+	{
+	fprintf(stderr, "error opening file %s", rmdupesname);
+	return false;
+	}
+fwrite(hcxdata, HCX_SIZE, 1, fhhcx);
+c = 1;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	zeigerhcxold = hcxdata +c -1;
+	if(memcmp(zeigerhcx->mac_ap.addr, zeigerhcxold->mac_ap.addr, 6) == 0)
+		{
+		if(memcmp(zeigerhcx->mac_sta.addr, zeigerhcxold->mac_sta.addr, 6) == 0)
+			{
+			if(memcmp(zeigerhcx->nonce_ap, zeigerhcxold->nonce_ap, 28) == 0)
+				{
+				if(memcmp(zeigerhcx->essid, zeigerhcxold->essid, 32) == 0)
+					{
+					removedcount++;
+					c++;
+					continue;
+					}
+				}
+			}
+		}
+	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+	c++;
+	rw++;
+	}
+fclose(fhhcx);
+printf("%ld records written\n%ld records removed\n", rw, removedcount);
+return true;
+}
+/*===========================================================================*/
+static long int readhccapx(char *hcxinname)
+{
+struct stat statinfo;
+FILE *fhhcx;
+long int hcxsize = 0;
+
+if(hcxinname == NULL)
+	return false;
+
+if(stat(hcxinname, &statinfo) != 0)
+	{
+	fprintf(stderr, "can't stat %s\n", hcxinname);
+	return 0;
+	}
+
+if((statinfo.st_size % HCX_SIZE) != 0)
+	{
+	fprintf(stderr, "file corrupt\n");
+	return 0;
+	}
+
+if((fhhcx = fopen(hcxinname, "rb")) == NULL)
+	{
+	fprintf(stderr, "error opening file %s", hcxinname);
+	return 0;
+	}
+
+hcxdata = malloc(statinfo.st_size);
+if(hcxdata == NULL)
+		{
+		fprintf(stderr, "out of memory to store hccapx data\n");
+		fclose(fhhcx);
+		return 0;
+		}
+
+hcxsize = fread(hcxdata, 1, statinfo.st_size +HCX_SIZE, fhhcx);
+fclose(fhhcx);
+if(hcxsize != statinfo.st_size)
+	{
+	fprintf(stderr, "error reading hccapx file %s", hcxinname);
+	return 0;
+	}
+hcxsize /= HCX_SIZE;
+printf("%ld records read from %s\n", hcxsize, hcxinname);
+return hcxsize;
 }
 /*===========================================================================*/
 static bool addpppchap(uint8_t *mac_1, uint8_t *mac_2, const uint8_t *payload)
@@ -2694,6 +2819,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-F <file> : input file containing entries for Berkeley Packet Filter (BPF)\n"
 	"          : syntax: https://biot.com/capstats/bpf.html\n"
 	"-Z        : ignore zeroed plainmasterkeys\n"
+	"-D        : remove handshakes that belong to the same authentication sequence\n"
+	"          : you must use nonce-error-corrections on that file!\n"
 	"-h        : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
@@ -2708,6 +2835,9 @@ pcap_t *pcapwepdh = NULL;
 
 int auswahl;
 int index;
+long int hcxorgrecords = 0;
+
+bool rmdupesflag = false;
 
 char *eigenname;
 char *eigenpfadname;
@@ -2729,13 +2859,18 @@ if (argc == 1)
 	}
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:t:p:P:l:L:e:E:f:w:W:u:S:F:xrisZhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:t:p:P:l:L:e:E:f:w:W:u:S:F:DxrisZhv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'o':
 		hcxoutname = optarg;
 		break;
+
+		case 'D':
+		rmdupesflag = true;
+		break;
+
 
 		case 'O':
 		hcxoutnamenec = optarg;
@@ -2895,6 +3030,19 @@ for (index = optind; index < argc; index++)
 
 	}
 
+
+if((hcxoutname != NULL) && (rmdupesflag == true))
+	{
+	hcxorgrecords = readhccapx(hcxoutname);
+	if(hcxorgrecords != 0)
+		{
+		printf("running second stage to clean hccapx fo use with a database\n");
+		writermdupes(hcxorgrecords, hcxoutname);
+		}
+	}
+
+if(hcxdata != NULL)
+	free(hcxdata);
 
 if(pcapwepout != NULL)
 	pcap_dump_close(pcapwepout);

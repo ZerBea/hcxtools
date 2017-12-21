@@ -1,5 +1,19 @@
 17.12.2017
 ==========
+wlancap2hcx
+added new option to remove handshakes that that belong to the same authentication sequence
+-D        : remove handshakes that belong to the same authentication sequence
+          : you must use nonce-error-corrections on that file!
+
+wlanhcx2ssid
+wlancap2hcx
+added new option to remove handshakes that that belong to the same authentication sequence
+-D <file> : remove handshakes that belong to the same authentication sequence
+          : you must use nonce-error-corrections on that file!
+
+
+17.12.2017
+==========
 moved to version 4.0.1
 
 added wlandump-rs
