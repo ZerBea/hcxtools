@@ -174,11 +174,14 @@ while(c < hcxrecords)
 		{
 		if(memcmp(zeigerhcx->mac_sta.addr, zeigerhcxold->mac_sta.addr, 6) == 0)
 			{
-			if (memcmp(zeigerhcx->nonce_ap, zeigerhcxold->nonce_ap, 28) == 0)
+			if(memcmp(zeigerhcx->nonce_ap, zeigerhcxold->nonce_ap, 28) == 0)
 				{
-				removedcount++;
-				c++;
-				continue;
+				if(memcmp(zeigerhcx->essid, zeigerhcxold->essid, 32) == 0)
+					{
+					removedcount++;
+					c++;
+					continue;
+					}
 				}
 			}
 		}
