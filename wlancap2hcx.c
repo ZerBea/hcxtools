@@ -787,7 +787,6 @@ if(oldhcxrecord.message_pair == hcxrecord.message_pair)
 if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) != 0))
 		{
 		anecflag = true;
-		return;
 		}
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
 
@@ -872,7 +871,6 @@ if(oldhcxrecord.message_pair == hcxrecord.message_pair)
 if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) != 0))
 		{
 		anecflag = true;
-		return;
 		}
 
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
