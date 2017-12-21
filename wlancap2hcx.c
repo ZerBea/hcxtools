@@ -660,10 +660,11 @@ if(oldhcxrecord.message_pair == hcxrecord.message_pair)
 	return;
 
 if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) != 0))
+		{
 		anecflag = true;
-
+		return;
+		}
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
-hcxwritecount++;
 
 if(hcxrecord.keyver == 1)
 	wpakv1c++;
@@ -696,6 +697,7 @@ if((hcxoutnamenec != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	hcxwritecount++;
 	showinfo(&hcxrecord);
 	}
 return;
@@ -743,10 +745,12 @@ if(oldhcxrecord.message_pair == hcxrecord.message_pair)
 	return;
 
 if((memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 28) == 0) && (memcmp(oldhcxrecord.nonce_ap, hcxrecord.nonce_ap, 32) != 0))
+		{
 		anecflag = true;
+		return;
+		}
 
 memcpy(&oldhcxrecord, &hcxrecord, HCX_SIZE);
-hcxwritecount++;
 
 if(hcxrecord.keyver == 1)
 	wpakv1c++;
@@ -794,6 +798,7 @@ if((wdfhcxoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver == 1) |
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
 	fclose(fhhcx);
+	hcxwritecount++;
 	showinfo(&hcxrecord);
 	}
 
