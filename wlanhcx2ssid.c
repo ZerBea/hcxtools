@@ -114,6 +114,82 @@ eap = (const eap_t*)(uint8_t*)(eapdata);
 replaycount = be64toh(eap->replaycount);
 return replaycount;
 }
+
+/*===========================================================================*/
+static int sort_by_ap_record(const void *a, const void *b)
+{
+const hcx_t *ia = (const hcx_t *)a;
+const hcx_t *ib = (const hcx_t *)b;
+
+if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_ap.addr, ib->mac_ap.addr, 6) < 0)
+	return -1;
+if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_sta.addr, ib->mac_sta.addr, 6) < 0)
+	return -1;
+if(memcmp(ia->essid, ib->essid, 32) > 0)
+	return 1;
+else if(memcmp(ia->essid, ib->essid, 6) < 0)
+	return -1;
+if(ia->message_pair > ib->message_pair)
+	return 1;
+if(ia->message_pair < ib->message_pair)
+	return -1;
+if(memcmp(ia->nonce_ap, ib->nonce_ap, 32) > 0)
+	return 1;
+
+else if(memcmp(ia->nonce_ap, ib->nonce_ap, 32) < 0)
+	return -1;
+return 0;
+}
+/*===========================================================================*/
+static int writermdupes(long int hcxrecords, char *rmdupesname)
+{
+hcx_t *zeigerhcx, *zeigerhcxold;
+FILE *fhhcx;
+long int c;
+long int rw = 0;
+long int removedcount = 0;
+
+
+if(hcxrecords == 0)
+	{
+	return false;
+	}
+qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_ap_record);
+if((fhhcx = fopen(rmdupesname, "ab")) == NULL)
+	{
+	fprintf(stderr, "error opening file %s", rmdupesname);
+	return false;
+	}
+fwrite(hcxdata, HCX_SIZE, 1, fhhcx);
+c = 1;
+while(c < hcxrecords)
+	{
+	zeigerhcx = hcxdata +c;
+	zeigerhcxold = hcxdata +c -1;
+	if(memcmp(zeigerhcx->mac_ap.addr, zeigerhcxold->mac_ap.addr, 6) == 0)
+		{
+		if(memcmp(zeigerhcx->mac_sta.addr, zeigerhcxold->mac_sta.addr, 6) == 0)
+			{
+			if (memcmp(zeigerhcx->nonce_ap, zeigerhcxold->nonce_ap, 28) == 0)
+				{
+				removedcount++;
+				c++;
+				continue;
+				}
+			}
+		}
+	fwrite(zeigerhcx, HCX_SIZE, 1, fhhcx);
+	c++;
+	rw++;
+	}
+fclose(fhhcx);
+printf("%ld records written\n%ld records removed\n", rw, removedcount);
+return true;
+}
 /*===========================================================================*/
 static int writerepaired(long int hcxrecords, char *repairedname)
 {
@@ -1104,6 +1180,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"              : WPA2 AES Cipher, AES-128-CMAC2 basename.3.hccapx\n"
 	"              : all other are unknown\n"
 	"-F <file>     : remove bad records and write only flawless records to hccapx file\n"
+	"-D <file>     : remove duplicates from the same authentication sequence\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
@@ -1141,6 +1218,7 @@ char *pairwisekeyname = NULL;
 char *workingdirname = NULL;
 char *wdres;
 char *repairedname = NULL;
+char *rmdupesname = NULL;
 char workingdir[PATH_MAX +1];
 
 eigenpfadname = strdupa(argv[0]);
@@ -1150,7 +1228,7 @@ setbuf(stdout, NULL);
 wdres = getcwd(workingdir, PATH_MAX);
 if(wdres != NULL)
 	workingdirname = workingdir;
-while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:2:3:4:5:k:F:asoeh")) != -1)
+while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:2:3:4:5:k:F:D:asoeh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1271,7 +1349,6 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:
 		mode = 'R';
 		break;
 
-
 		case 'N':
 		singlenetname = optarg;
 		mode = 'N';
@@ -1336,6 +1413,11 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:
 		case 'F':
 		repairedname = optarg;
 		mode = 'F';
+		break;
+
+		case 'D':
+		rmdupesname = optarg;
+		mode = 'D';
 		break;
 
 		default:
@@ -1461,6 +1543,13 @@ else if(mode == 'F')
 	if(repairedname != NULL)
 		writerepaired(hcxorgrecords, repairedname);
 	}
+
+else if(mode == 'D')
+	{
+	if(rmdupesname != NULL)
+		writermdupes(hcxorgrecords, rmdupesname);
+	}
+
 
 if(hcxdata != NULL)
 	free(hcxdata);
