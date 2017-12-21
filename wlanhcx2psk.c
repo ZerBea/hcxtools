@@ -212,6 +212,12 @@ for(y = 1900; y <= thisyear; y++)
 	snprintf(pskstring, 64, "abcd%04d", y);
 	writepsk(pskstring);
 	}
+
+for(y = 0; y < 1000; y++)
+	{
+	snprintf(pskstring, 64, "%03d%03d%03d", y, y, y);
+	writepsk(pskstring);
+	}
 return;
 }
 /*===========================================================================*/
