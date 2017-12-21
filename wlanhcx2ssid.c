@@ -1184,6 +1184,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"              : all other are unknown\n"
 	"-F <file>     : remove bad records and write only flawless records to hccapx file\n"
 	"-D <file>     : remove duplicates from the same authentication sequence\n"
+	"              : you must use nonce-error-corrections on that file!\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_FAILURE);
