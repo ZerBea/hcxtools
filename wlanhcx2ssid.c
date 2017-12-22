@@ -132,9 +132,9 @@ if(memcmp(ia->essid, ib->essid, 32) > 0)
 	return 1;
 else if(memcmp(ia->essid, ib->essid, 6) < 0)
 	return -1;
-if(memcmp(ia->nonce_ap, ib->nonce_ap, 32) > 0)
+if(memcmp(ia->nonce_ap, ib->nonce_ap, 28) > 0)
 	return 1;
-else if(memcmp(ia->nonce_ap, ib->nonce_ap, 32) < 0)
+else if(memcmp(ia->nonce_ap, ib->nonce_ap, 28) < 0)
 	return -1;
 if(ia->message_pair > ib->message_pair)
 	return 1;
@@ -1180,7 +1180,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"              : WPA2 AES Cipher, AES-128-CMAC2 basename.3.hccapx\n"
 	"              : all other are unknown\n"
 	"-F <file>     : remove bad records and write only flawless records to hccapx file\n"
-	"-D <file>     : remove handshakes that belong to the same authentication sequence\n"
+	"-D <file>     : remove duplicates from the same authentication sequence\n"
 	"              : you must use nonce-error-corrections on that file!\n"
 	"-h            : this help\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);

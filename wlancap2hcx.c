@@ -139,9 +139,9 @@ if(memcmp(ia->essid, ib->essid, 32) > 0)
 	return 1;
 else if(memcmp(ia->essid, ib->essid, 6) < 0)
 	return -1;
-if(memcmp(ia->nonce_ap, ib->nonce_ap, 32) > 0)
+if(memcmp(ia->nonce_ap, ib->nonce_ap, 28) > 0)
 	return 1;
-else if(memcmp(ia->nonce_ap, ib->nonce_ap, 32) < 0)
+else if(memcmp(ia->nonce_ap, ib->nonce_ap, 28) < 0)
 	return -1;
 if(ia->message_pair > ib->message_pair)
 	return 1;
