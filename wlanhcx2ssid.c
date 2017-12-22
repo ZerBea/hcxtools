@@ -187,7 +187,7 @@ while(c < hcxrecords)
 	rw++;
 	}
 fclose(fhhcx);
-printf("%ld records removed\n%ld records written\n", removedcount, rw);
+printf("%ld records removed\n%ld records written to %s\n", removedcount, rw, rmdupesname);
 return true;
 }
 /*===========================================================================*/
