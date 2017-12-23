@@ -1556,20 +1556,16 @@ if(fd == -1)
 	{
 	return false;
 	}
-
 res = read(fd, magic, 2);
+close(fd);
 if(res != 2)
 	{
-	close(fd);
 	return false;
 	}
-
 if((magic[0] != 0x1f) && (magic[1] != 0x8b))
 	{
-	close(fd);
 	return false;
 	}
-
 return true;
 }
 /*===========================================================================*/
