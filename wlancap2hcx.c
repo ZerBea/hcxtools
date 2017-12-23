@@ -1388,10 +1388,11 @@ while(c >= 0)
 return;
 }
 /*===========================================================================*/
-static bool addeapol(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, eap_t *eap)
+static bool addeapol(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_ap, eap_t *eap, long int packetcount)
 {
 unsigned long long int replaycount;
 uint8_t m = 0;
+int eapolchecksize;
 
 if(memcmp(mac_ap, mac_sta, 6) == 0)
 	return false;
@@ -1402,12 +1403,15 @@ neweapdbdata->tv_usec = tvusec;
 memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
 memcpy(neweapdbdata->mac_sta.addr, mac_sta, 6);
 neweapdbdata->eapol_len = htons(eap->len) +4;
-if(neweapdbdata->eapol_len > 256)
-	return false;
 memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
-
 replaycount = getreplaycount(neweapdbdata->eapol);
+eapolchecksize = htons(eap->len) +4;
+if((eapolchecksize > 256) && ((m == 2) || (m == 4)))
+	{
+	printf("\x1B[31mWarning: EAPOL > 256 bytes in M%d of packet %ld detected\x1B[0m\n", m, packetcount);
+	return false;
+	}
 
 if(m == 1)
 	{
@@ -1945,9 +1949,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(eap->type == 3)
 				{
 				if((geteapkeyint(eap) == 1) || (geteapkeyint(eap) == 3))
-					addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, eth->addr1.addr, eth->addr2.addr, eap);
+					addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, eth->addr1.addr, eth->addr2.addr, eap, packetcount);
 				else if((geteapkeyint(eap) == 2) || (geteapkeyint(eap) == 4))
-					addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, eth->addr2.addr, eth->addr1.addr, eap);
+					addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, eth->addr2.addr, eth->addr1.addr, eap, packetcount);
 				}
 			continue;
 			}
@@ -2156,10 +2160,10 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		if(eap->type == 3)
 			{
 			if(macf->from_ds == 1) /* sta - ap */
-				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, eap);
+				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, eap, packetcount);
 
 			else if(macf->to_ds == 1) /* ap - sta */
-				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, eap);
+				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, eap, packetcount);
 
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
