@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
@@ -11,6 +12,8 @@
 #include <time.h>
 #include <pcap.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+
 #ifdef __APPLE__
 #define strdupa strdup
 #include <libgen.h>
@@ -23,6 +26,8 @@
 #include <openssl/cmac.h>
 #include <openssl/evp.h>
 #include <netinet/in.h>
+//#include <zlib.h>
+
 
 #include "include/version.h"
 #include "common.c"
@@ -1540,6 +1545,34 @@ while(0 < taglen)
 return false;
 }
 /*===========================================================================*/
+bool checkgz(char *pcapinname)
+{
+static int fd;
+static int res;
+static uint8_t magic[2];
+
+fd = open(pcapinname, O_RDONLY);
+if(fd == -1)
+	{
+	return false;
+	}
+
+res = read(fd, magic, 2);
+if(res != 2)
+	{
+	close(fd);
+	return false;
+	}
+
+if((magic[0] != 0x1f) && (magic[1] != 0x8b))
+	{
+	close(fd);
+	return false;
+	}
+
+return true;
+}
+/*===========================================================================*/
 static bool processcap(char *pcapinname, char *essidoutname, char *essidunicodeoutname, char *pmkoutname, char *externalbpfname)
 {
 struct stat statinfo;
@@ -1665,10 +1698,18 @@ wpakv2c = 0;
 wpakv3c = 0;
 groupkeycount = 0;
 
-if(!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
+if(checkgz(pcapinname) == true)
 	{
-	fprintf(stderr, "error opening %s: %s\n", pcapinname, pcaperrorstring);
+	printf("\x1B[31mgzip compressed cap files not yet supported\n");
 	return false;
+	}
+else
+	{
+	if(!(pcapin = pcap_open_offline(pcapinname, pcaperrorstring)))
+		{
+		fprintf(stderr, "error opening %s: %s\n", pcapinname, pcaperrorstring);
+		return false;
+		}
 	}
 
 datalink = pcap_datalink(pcapin);
