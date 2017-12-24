@@ -170,7 +170,7 @@ pkhdump.caplen = pp;
 pkhdump.len = pp;
 pcap_dump((u_char *) pcapdump, &pkhdump, mypacket);
 
-usleep(2);
+usleep(1);
 /* anonce */
 pp = 0;
 gettimeofday( &tv1,  NULL );
@@ -214,7 +214,7 @@ pkhdump.caplen = 0x85;
 pkhdump.len = 0x85;
 pcap_dump((u_char *) pcapdump, &pkhdump, mypacket);
 
-usleep(2);
+usleep(1);
 /* snonce */
 pp = 0;
 gettimeofday( &tv1,  NULL );
