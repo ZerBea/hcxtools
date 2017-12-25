@@ -1,6 +1,15 @@
 21.12.2017
 ==========
 wlancap2hcx
+removed option -x
+now wlancap2hcx looks first for association/re-associationrequests
+or for directed proberequests or for proberesponseses
+and at last (if no other frames found in the cap) for a beacon
+
+
+21.12.2017
+==========
+wlancap2hcx
 added new option to remove handshakes that that belong to the same authentication sequence
 -D        : remove handshakes that belong to the same authentication sequence
           : you must use nonce-error-corrections on that file!

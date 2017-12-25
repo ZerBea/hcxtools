@@ -78,7 +78,6 @@ static pcap_dumper_t *pcapextout = NULL;
 static pcap_dumper_t *pcapipv46out = NULL;
 static pcap_dumper_t *pcapwepout = NULL;
 
-static uint8_t netexact = false;
 static uint8_t replaycountcheck = false;
 static uint8_t idcheck = false;
 static uint8_t wcflag = false;
@@ -966,7 +965,7 @@ if((johnwpapskwdfoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver 
 return;
 }
 /*===========================================================================*/
-static void lookforessidexact(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
+static bool lookforessidexact(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
 {
 netdb_t *zeigernewnet;
 long int c;
@@ -979,12 +978,12 @@ while(c >= 0)
 		{
 		if((zeigernewnet->essid_len <= 32) && (zeigernewnet->essid_len != 0) && (zeigernewnet->essid[0] != 0))
 			writehcx(zeigernewnet->essid_len, zeigernewnet->essid, zeiger1, zeiger2, message_pair);
-		return;
+		return true;
 		}
 	zeigernewnet--;
 	c--;
 	}
-return;
+return false;
 }
 /*===========================================================================*/
 static void lookforessid(eapdb_t *zeiger1, eapdb_t *zeiger2, uint8_t message_pair)
@@ -1109,9 +1108,8 @@ while(c >= 0)
 		r = getreplaycount(zeiger->eapol);
 		if((m == 1) && (r == (replaycakt -1)))
 			{
-			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M14E4);
-			if(netexact == true)
-				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M14E4);
+			if(lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M14E4) != true)
+				lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M14E4);
 			return;
 			}
 		}
@@ -1139,9 +1137,8 @@ while(c >= 0)
 		r = getreplaycount(zeiger->eapol);
 		if((m == 1) && (r != MYREPLAYCOUNT) && (checkmynonce(zeiger->eapol) == false))
 			{
-			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M14E4NR);
-			if(netexact == true)
-				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M14E4NR);
+			if(lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M14E4NR) != true)
+				lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M14E4NR);
 			ancflag = true;
 			return;
 			}
@@ -1174,9 +1171,8 @@ while(c >= 0)
 		r = getreplaycount(zeiger->eapol);
 		if((m == 3) && (r == (replaycakt)))
 			{
-			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M34E4);
-			if(netexact == true)
-				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M34E4);
+			if(lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M34E4) != true)
+				lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M34E4);
 
 			return;
 			}
@@ -1205,9 +1201,8 @@ while(c >= 0)
 		getreplaycount(zeiger->eapol);
 		if(m == 3)
 			{
-			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M34E4NR);
-			if(netexact == true)
-				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M34E4NR);
+			if(lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M34E4NR) != true)
+				lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M34E4NR);
 			return;
 			}
 		}
@@ -1238,9 +1233,8 @@ while(c >= 0)
 		r = getreplaycount(zeiger->eapol);
 		if((m == 2) && (r == (replaycakt -1)))
 			{
-			lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M32E2);
-			if(netexact == true)
-				lookforessidexact(zeigerakt, zeiger, MESSAGE_PAIR_M32E2);
+			if(lookforessidexact(zeigerakt, zeiger, MESSAGE_PAIR_M32E2) != true)
+				lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M32E2);
 			return;
 			}
 		}
@@ -1268,9 +1262,8 @@ while(c >= 0)
 		r = getreplaycount(zeiger->eapol);
 		if((m == 2) && (r != MYREPLAYCOUNT))
 			{
-			lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M32E2NR);
-			if(netexact == true)
-				lookforessidexact(zeigerakt, zeiger, MESSAGE_PAIR_M32E2NR);
+			if(lookforessidexact(zeigerakt, zeiger, MESSAGE_PAIR_M32E2NR) != true)
+				lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M32E2NR);
 			return;
 			}
 		}
@@ -1306,9 +1299,8 @@ while(c >= 0)
 		r = getreplaycount(zeiger->eapol);
 		if((m == 2) && (r == replaycakt))
 			{
-			lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M12E2);
-			if(netexact == true)
-				lookforessidexact(zeigerakt, zeiger, MESSAGE_PAIR_M12E2);
+			if(lookforessidexact(zeigerakt, zeiger, MESSAGE_PAIR_M12E2) != true)
+				lookforessid(zeigerakt, zeiger, MESSAGE_PAIR_M12E2);
 			return;
 			}
 		}
@@ -1344,9 +1336,8 @@ while(c >= 0)
 		r = getreplaycount(zeiger->eapol);
 		if((m == 1) && (r == replaycakt))
 			{
-			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2);
-			if(netexact == true)
-				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M12E2);
+			if(lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M12E2) != true)
+				lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2);
 			return;
 			}
 		}
@@ -1375,9 +1366,8 @@ while(c >= 0)
 		r = getreplaycount(zeiger->eapol);
 		if((m == 1) && (r != MYREPLAYCOUNT) && (checkmynonce(zeiger->eapol) == false))
 			{
-			lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2NR);
-			if(netexact == true)
-				lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M12E2NR);
+			if(lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M12E2NR) != true)
+				lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M12E2NR);
 			ancflag = true;
 			return;
 			}
@@ -2850,7 +2840,6 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-u <file> : output usernames/identities file (hashcat -m 2500, john WPAPSK-PMK)\n"
 	"-s        : show info for identified hccapx handshake\n"
 	"-S <file> : output info for identified hccapx handshake to file\n"
-	"-x        : look for net exact (ap == ap) && (sta == sta)\n"
 	"-r        : enable replaycountcheck\n"
 	"          : default: disabled - you will get more wpa handshakes, but some of them are uncrackable\n"
 	"-i        : enable id check (default: disabled)\n"
@@ -2898,7 +2887,7 @@ if (argc == 1)
 	}
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:t:p:P:l:L:e:E:f:w:W:u:S:F:DxrisZhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:t:p:P:l:L:e:E:f:w:W:u:S:F:DrisZhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2981,10 +2970,6 @@ while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:t:p:P:l:L:e:E:f:w:W:u:S:F:
 
 		case 'u':
 		usernameoutname = optarg;
-		break;
-
-		case 'x':
-		netexact = true;
 		break;
 
 		case 'r':
