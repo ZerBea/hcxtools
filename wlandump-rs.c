@@ -119,8 +119,15 @@ static uint8_t mac_black_ap[BLACKLISTESIZEMAX][6];
 /*===========================================================================*/
 static void programmende(int signum)
 {
+int ret;
 if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 	{
+	ret = timer_delete(timer1);
+	if(ret == -1)
+		printf("\ntimer 1 is not disarmed\n");
+	ret = timer_delete(timer2);
+	if(ret == -1)
+		printf("\ntimer 1 is not disarmed\n");
 	if(fd_main > 0)
 		{
 		close(fd_main);

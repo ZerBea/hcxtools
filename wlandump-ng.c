@@ -1075,8 +1075,15 @@ return false;
 /*===========================================================================*/
 static void programmende(int signum)
 {
+int ret;
 if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 	{
+	ret = timer_delete(timer1);
+	if(ret == -1)
+		printf("\ntimer 1 is not disarmed\n");
+	ret = timer_delete(timer2);
+	if(ret == -1)
+		printf("\ntimer 1 is not disarmed\n");
 	pcap_dump_flush(pcapout);
 	pcap_dump_close(pcapout);
 	pcap_close(pcapin);
