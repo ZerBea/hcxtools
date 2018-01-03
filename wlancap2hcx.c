@@ -992,7 +992,6 @@ netdb_t *zeigernewnet;
 long int c;
 
 uint8_t nullessid[32];
-
 memset(&nullessid, 0, 32);
 c = netdbrecords;
 zeigernewnet = newnetdbdata;
@@ -1120,7 +1119,7 @@ while(c >= 0)
 if(replaycountcheck == true)
 	return;
 
-rctime = 10;
+rctime = 60;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
@@ -1184,7 +1183,7 @@ while(c >= 0)
 if(replaycountcheck == true)
 	return;
 
-rctime = 10;
+rctime = 60;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
@@ -1245,7 +1244,7 @@ while(c >= 0)
 if(replaycountcheck == true)
 	return;
 
-rctime = 10;
+rctime = 60;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
@@ -1278,7 +1277,7 @@ static void lookfor21(long int cakt, eapdb_t *zeigerakt, unsigned long long int 
 eapdb_t *zeiger;
 unsigned long long int r;
 long int c;
-int rctime = 120;
+int rctime = 240;
 uint8_t m = 0;
 
 if (replaycakt != MYREPLAYCOUNT)
@@ -1320,7 +1319,7 @@ uint8_t m = 0;
 
 if (replaycakt == MYREPLAYCOUNT)
 	{
-	rctime = 120;
+	rctime = 240;
 	}
 
 zeiger = zeigerakt;
@@ -1349,7 +1348,7 @@ while(c >= 0)
 if(replaycountcheck == true)
 	return;
 
-rctime = 10;
+rctime = 60;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
