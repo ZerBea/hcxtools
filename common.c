@@ -32,7 +32,7 @@ uint16_t byte_swap_16 (uint16_t n)
 return (n & 0xff00) >> 8 | (n & 0x00ff) << 8;
 }
 /*===========================================================================*/
-uint32_t byte_swap_32(int32_t n)
+uint32_t byte_swap_32(uint32_t n)
 {
 #if defined (__clang__) || defined (__GNUC__)
 return __builtin_bswap32 (n);

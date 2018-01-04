@@ -36,6 +36,10 @@
 #include "com_formats.c"
 #include "com_wpa.c"
 
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define BIG_ENDIAN_HOST
+#endif
+
 struct hccap
 {
   char essid[36];

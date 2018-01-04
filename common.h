@@ -839,7 +839,7 @@ uint64_t rotl64(uint64_t a, uint64_t n);
 uint32_t rotr32(uint32_t a, uint32_t n);
 uint64_t rotr64(uint64_t a, uint64_t n);
 uint16_t byte_swap_16 (uint16_t n);
-uint32_t byte_swap_32(int32_t n);
+uint32_t byte_swap_32(uint32_t n);
 uint64_t byte_swap_64(uint64_t n);
 
 bool hexstr2bin(const char *str, uint8_t *bytes, size_t blen);
