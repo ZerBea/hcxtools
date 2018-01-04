@@ -828,6 +828,8 @@ snprintf(pskstring, 64, "%s12345", basestring);
 writepsk(pskstring);
 snprintf(pskstring, 64, "12345%s", basestring);
 writepsk(pskstring);
+snprintf(pskstring, 64, "%s@1234", basestring);
+writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
@@ -836,6 +838,8 @@ static void keywritepreappend4(char *basestring)
 snprintf(pskstring, 64, "%s1234", basestring);
 writepsk(pskstring);
 snprintf(pskstring, 64, "1234%s", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "%s@123", basestring);
 writepsk(pskstring);
 return;
 }
