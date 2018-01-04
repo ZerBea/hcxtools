@@ -1119,7 +1119,7 @@ while(c >= 0)
 if(replaycountcheck == true)
 	return;
 
-rctime = 60;
+rctime = 120;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
@@ -1183,7 +1183,7 @@ while(c >= 0)
 if(replaycountcheck == true)
 	return;
 
-rctime = 60;
+rctime = 120;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
@@ -1244,7 +1244,7 @@ while(c >= 0)
 if(replaycountcheck == true)
 	return;
 
-rctime = 60;
+rctime = 120;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
@@ -1348,7 +1348,7 @@ while(c >= 0)
 if(replaycountcheck == true)
 	return;
 
-rctime = 60;
+rctime = 120;
 zeiger = zeigerakt;
 c = cakt;
 while(c >= 0)
