@@ -31,6 +31,10 @@
 #include <wiringPi.h>
 #endif
 
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define BIG_ENDIAN_HOST
+#endif
+
 /*===========================================================================*/
 /* Definitionen */
 
