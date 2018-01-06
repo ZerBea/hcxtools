@@ -415,7 +415,7 @@ while(c < hcxrecords)
 if(outmode == 0)
 	{
 	fprintf(stdout, "total hashes read from file.......: %ld\n"
-			"\x1B[32mwlandump-ng forced handshakes.....: %ld\x1B[0m\n"
+			"\x1B[32mhandshakes from clients...........: %ld\x1B[0m\n"
 			"zeroed ESSID......................: %ld\n"
 			"802.1x Version 2001...............: %ld\n"
 			"802.1x Version 2004...............: %ld\n"
