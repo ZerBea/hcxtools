@@ -143,6 +143,7 @@ static bool sendundirectedprflag = false;
 static bool beaconingflag = false;
 static bool respondflag = false;
 static bool wepdataflag = false;
+static bool ipv4v6flag = false;
 static bool poweroffflag = false;
 
 static adr_t	lastbeaconap;
@@ -1741,12 +1742,13 @@ while(1)
 			continue;
 		if(ipv4h->nextprotocol == NEXTHDR_NONE)
 			continue;
-		if(ipv4h->nextprotocol == NEXTHDR_GRE)
+		if((ipv4h->nextprotocol == NEXTHDR_GRE) || (ipv4v6flag == true))
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
 			pcap_dump_flush(pcapout);
 			continue;
 			}
+		continue;
 		}
 	else if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_IPV6))
 		{
@@ -1757,12 +1759,13 @@ while(1)
 			continue;
 		if(ipv6h->nextprotocol == NEXTHDR_NONE)
 			continue;
-		if(ipv6h->nextprotocol == NEXTHDR_GRE)
+		if((ipv6h->nextprotocol == NEXTHDR_GRE) || (ipv4v6flag == true))
 			{
 			pcap_dump((u_char *) pcapout, pkh, h80211);
 			pcap_dump_flush(pcapout);
 			continue;
 			}
+		continue;
 		}
 	}
 }
@@ -1951,6 +1954,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-U             : send one undirected proberequest to broadcast after channel change\n"
 	"-B             : enable beaconig on last proberequest\n"
 	"-L             : enable capture of wep encrypted data packets\n"
+	"-l             : enable capture of IPv4/IPv6 packets\n"
 	"-P             : terminate program and poweroff raspberry pi by GPIO switch\n"
 	"               : default: terminate program and do not power off\n"
 	"-s             : enable status messages\n"
@@ -1984,7 +1988,7 @@ maxerrorcount = 0;
 internalpcaperrors = 0;
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "i:o:c:C:t:T:F:E:RDdUBLPshv")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:c:C:t:T:F:E:RDdUBLlPshv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2074,6 +2078,10 @@ while ((auswahl = getopt(argc, argv, "i:o:c:C:t:T:F:E:RDdUBLPshv")) != -1)
 
 		case 'L':
 		wepdataflag = true;
+		break;
+
+		case 'l':
+		ipv4v6flag = true;
 		break;
 
 		case 'P':
