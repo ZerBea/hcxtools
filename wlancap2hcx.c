@@ -1762,9 +1762,23 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	if(pkh->caplen != pkh->len)
 		continue;
 
+	/* check Loopback-header */
+	if(datalink == DLT_NULL)
+		{
+		continue;
+		}
+
+	/* check Ethernet-header */
+	else if(datalink == DLT_EN10MB)
+		{
+		continue;
+		}
+
 	/* check 802.11-header */
-	if(datalink == DLT_IEEE802_11)
+	else if(datalink == DLT_IEEE802_11)
+		{
 		h80211 = packet;
+		}
 
 	/* check radiotap-header */
 	else if(datalink == DLT_IEEE802_11_RADIO)
@@ -1802,6 +1816,10 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		pkh->caplen -= ppih->pph_len +fcsl;
 		pkh->len -=  ppih->pph_len +fcsl;
 		h80211 = packet + ppih->pph_len;
+		}
+	else
+		{
+		continue;
 		}
 
 	if(MAC_SIZE_NORM > pkh->len)
@@ -2134,7 +2152,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				}
 			continue;
 			}
-
 		continue;
 		}
 
@@ -2180,6 +2197,10 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		pkh->caplen -= ppih->pph_len +fcsl;
 		pkh->len -=  ppih->pph_len +fcsl;
 		h80211 = packet + ppih->pph_len;
+		}
+	else
+		{
+		continue;
 		}
 
 	if(MAC_SIZE_NORM > pkh->len)
