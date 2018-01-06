@@ -1856,8 +1856,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		{
 		if(macf->subtype == MAC_ST_BEACON)
 			{
-			if(pcapout != NULL)
-				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if((macl +BEACONINFO_SIZE) > pkh->len)
 				continue;
 			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
@@ -1871,8 +1869,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			}
 		else if(macf->subtype == MAC_ST_PROBE_RESP)
 			{
-			if(pcapout != NULL)
-				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if((macl +BEACONINFO_SIZE) > pkh->len)
 				continue;
 			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
@@ -1888,8 +1884,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		/* check proberequest frames */
 		else if(macf->subtype == MAC_ST_PROBE_REQ)
 			{
-			if(pcapout != NULL)
-				pcap_dump((u_char *) pcapout, pkh, h80211);
 			if((macl +BEACONINFO_SIZE) > pkh->len)
 				continue;
 			essidf = (essid_t*)(payload);
@@ -2235,6 +2229,46 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	/* check management frames */
 	if(macf->type == MAC_TYPE_MGMT)
 		{
+		if(macf->subtype == MAC_ST_BEACON)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
+		else if(macf->subtype == MAC_ST_PROBE_RESP)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
+
+		/* check proberequest frames */
+		else if(macf->subtype == MAC_ST_PROBE_REQ)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
+
+		/* check associationrequest - reassociationrequest frames */
+		else if(macf->subtype == MAC_ST_ASSOC_REQ)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
+		else if(macf->subtype == MAC_ST_REASSOC_REQ)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
+		/* check associationresponse - reassociationresponse frames */
+		else if(macf->subtype == MAC_ST_ASSOC_RESP)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
+		else if(macf->subtype == MAC_ST_REASSOC_RESP)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			}
 		continue;
 		}
 
