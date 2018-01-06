@@ -912,7 +912,7 @@ if((hcxoutname != NULL) && ((hcxrecord.keyver == 1) || (hcxrecord.keyver == 2) |
 	{
 	if((fhhcx = fopen(hcxoutname, "ab")) == NULL)
 		{
-			fprintf(stderr, "error opening hccapx file %s: %s\n", hcxoutname, strerror(errno));
+		fprintf(stderr, "error opening hccapx file %s: %s\n", hcxoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	fwrite(&hcxrecord, 1 * HCX_SIZE, 1, fhhcx);
@@ -960,7 +960,7 @@ if((johnwpapskwdfoutname != NULL) && (wldflagint == true) && ((hcxrecord.keyver 
 	{
 	if((fhhcx = fopen(johnwpapskoutname, "ab")) == NULL)
 		{
-			fprintf(stderr, "error opening hccapx file %s: %s\n", johnwpapskoutname, strerror(errno));
+		fprintf(stderr, "error opening hccapx file %s: %s\n", johnwpapskoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	processjohn(&hcxrecord, fhhcx);
@@ -1389,6 +1389,7 @@ if(memcmp(mac_ap, mac_sta, 6) == 0)
 	return false;
 if(memcmp(eap->nonce, &nullnonce, NULLNONCE_SIZE) == 0)
 	return false;
+
 neweapdbdata->tv_sec = tvsec;
 neweapdbdata->tv_usec = tvusec;
 memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
@@ -1929,6 +1930,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	}
 pcap_close(pcapin);
 
+packetcount= 0;
+wlanpacketcount= 0;
+
 pcapin = pcap_open_offline(pcapinname, pcaperrorstring);
 while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	{
@@ -1945,7 +1949,10 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		}
 
 	if(pkh->caplen != pkh->len)
+		{
 		continue;
+		}
+
 	packetcount++;
 	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_usec == 0))
 		wcflag = true;
@@ -2035,7 +2042,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				}
 			continue;
 			}
-
 		continue;
 		}
 
@@ -2338,11 +2344,14 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		eap = (eap_t*)(payload + LLC_SIZE);
 		if(eap->type == 3)
 			{
-			if(macf->from_ds == 1) /* sta - ap */
+//			if(macf->from_ds == 1) /* sta - ap */
+			if((geteapkeyint(eap) == 1) || (geteapkeyint(eap) == 3))
 				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, eap, packetcount);
 
-			else if(macf->to_ds == 1) /* ap - sta */
+//			else if(macf->to_ds == 1) /* ap - sta */
+			else if((geteapkeyint(eap) == 2) || (geteapkeyint(eap) == 4))
 				addeapol(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, eap, packetcount);
+
 
 			if(pcapout != NULL)
 				pcap_dump((u_char *) pcapout, pkh, h80211);
@@ -2656,7 +2665,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	else if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_FRRR))
 		frrrflag = true;
 	}
-
 
 if(essidoutname != NULL)
 	{
