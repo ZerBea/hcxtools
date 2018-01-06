@@ -1722,8 +1722,8 @@ if(stat(pcapinname, &statinfo) != 0)
 	return false;
 	}
 
-netdbdata = malloc(statinfo.st_size +statinfo.st_size/2 +NETDB_SIZE);
-memset(netdbdata, 0, statinfo.st_size +statinfo.st_size/2 +NETDB_SIZE);
+netdbdata = malloc(statinfo.st_size +statinfo.st_size +NETDB_SIZE);
+memset(netdbdata, 0, statinfo.st_size +statinfo.st_size +NETDB_SIZE);
 if(netdbdata == NULL)
 		{
 		fprintf(stderr, "out of memory process nets\n");
@@ -1732,8 +1732,8 @@ if(netdbdata == NULL)
 newnetdbdata = netdbdata;
 netdbrecords = 0;
 
-eapdbdata = malloc(statinfo.st_size +statinfo.st_size/2 +EAPDB_SIZE);
-memset(eapdbdata, 0, statinfo.st_size +statinfo.st_size/2 +EAPDB_SIZE);
+eapdbdata = malloc(statinfo.st_size +statinfo.st_size +EAPDB_SIZE);
+memset(eapdbdata, 0, statinfo.st_size +statinfo.st_size +EAPDB_SIZE);
 if(eapdbdata == NULL)
 		{
 		fprintf(stderr, "out of memory process eaps\n");
