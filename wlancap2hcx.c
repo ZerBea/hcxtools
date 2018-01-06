@@ -1176,7 +1176,6 @@ while(c >= 0)
 			{
 			if(lookforessidexact(zeiger, zeigerakt, MESSAGE_PAIR_M34E4) != true)
 				lookforessid(zeiger, zeigerakt, MESSAGE_PAIR_M34E4);
-
 			return;
 			}
 		}
@@ -1746,7 +1745,194 @@ eapdbrecords = 0;
 if((johnbasename = strrchr(pcapinname, '/') +1))
 
 printf("start reading from %s\n", pcapinname);
+while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
+	{
+	if(pcapstatus == 0)
+		{
+		fprintf(stderr, "pcapstatus %d\n", pcapstatus);
+		continue;
+		}
 
+	if(pcapstatus == -1)
+		{
+		fprintf(stderr, "pcap read error: %s \n", pcap_geterr(pcapin));
+		continue;
+		}
+
+	if(pkh->caplen != pkh->len)
+		continue;
+
+	/* check 802.11-header */
+	if(datalink == DLT_IEEE802_11)
+		h80211 = packet;
+
+	/* check radiotap-header */
+	else if(datalink == DLT_IEEE802_11_RADIO)
+		{
+		if(RTH_SIZE > pkh->len)
+			continue;
+		rth = (const rth_t*)packet;
+		fcsl = 0;
+		field = 8;
+		if((rth->it_present & 0x01) == 0x01)
+			field += 8;
+		if((rth->it_present & 0x80000000) == 0x80000000)
+			field += 4;
+		if((rth->it_present & 0x02) == 0x02)
+			{
+			if((packet[field] & 0x10) == 0x10)
+				fcsl = 4;
+			}
+		pkh->caplen -= rth->it_len +fcsl;
+		pkh->len -=  rth->it_len +fcsl;
+		h80211 = packet + rth->it_len;
+		}
+
+	/* check ppi-header */
+	else if(datalink == DLT_PPI)
+		{
+		if(PPIH_SIZE > pkh->len)
+			continue;
+		ppih = (const ppi_packet_header_t*)packet;
+		if(ppih->pph_dlt != DLT_IEEE802_11)
+			continue;
+		fcsl = 0;
+		if((packet[0x14] & 1) == 1)
+			fcsl = 4;
+		pkh->caplen -= ppih->pph_len +fcsl;
+		pkh->len -=  ppih->pph_len +fcsl;
+		h80211 = packet + ppih->pph_len;
+		}
+
+	if(MAC_SIZE_NORM > pkh->len)
+		continue;
+	macf = (mac_t*)(h80211);
+	if((macf->to_ds == 1) && (macf->from_ds == 1))
+		{
+		macl = MAC_SIZE_LONG;
+		meshflag = true;
+		}
+	else
+		macl = MAC_SIZE_NORM;
+
+	if (macf->type == MAC_TYPE_CTRL)
+		{
+		if (macf->subtype == MAC_ST_RTS)
+			macl = MAC_SIZE_RTS;
+		else
+			{
+			if (macf->subtype == MAC_ST_ACK)
+				macl = MAC_SIZE_ACK;
+			}
+		}
+	 else
+		{
+		if (macf->type == MAC_TYPE_DATA)
+			if (macf->subtype & MAC_ST_QOSDATA)
+				macl += QOS_SIZE;
+		}
+	payload = ((uint8_t*)macf)+macl;
+
+	/* check management frames */
+	if(macf->type == MAC_TYPE_MGMT)
+		{
+		if(macf->subtype == MAC_ST_BEACON)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
+			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
+			if(essidf->info_essid != 0)
+				continue;
+			if(essidf->info_essid_len > 32)
+				continue;
+			if(essidf->info_essid_len == 0)
+				continue;
+			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid);
+			}
+		else if(macf->subtype == MAC_ST_PROBE_RESP)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
+			essidf = (essid_t*)(payload +BEACONINFO_SIZE);
+			if(essidf->info_essid != 0)
+				continue;
+			if(essidf->info_essid_len > 32)
+				continue;
+			if(essidf->info_essid_len == 0)
+				continue;
+			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid);
+			}
+
+		/* check proberequest frames */
+		else if(macf->subtype == MAC_ST_PROBE_REQ)
+			{
+			if(pcapout != NULL)
+				pcap_dump((u_char *) pcapout, pkh, h80211);
+			if((macl +BEACONINFO_SIZE) > pkh->len)
+				continue;
+			essidf = (essid_t*)(payload);
+			if(essidf->info_essid != 0)
+				continue;
+			if(essidf->info_essid_len > 32)
+				continue;
+			if(essidf->info_essid_len == 0)
+				continue;
+			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
+			}
+
+		/* check associationrequest - reassociationrequest frames */
+		else if(macf->subtype == MAC_ST_ASSOC_REQ)
+			{
+			if((macl +ASSOCIATIONREQF_SIZE) > pkh->len)
+				continue;
+			essidf = (essid_t*)(payload +ASSOCIATIONREQF_SIZE);
+			if(essidf->info_essid != 0)
+				continue;
+			if(essidf->info_essid_len > 32)
+				continue;
+			if(essidf->info_essid_len == 0)
+				continue;
+			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
+			}
+		else if(macf->subtype == MAC_ST_ASSOC_RESP)
+			{
+			if((macl +ASSOCIATIONRESF_SIZE) > pkh->len)
+				continue;
+			if(dotagwalk(payload +ASSOCIATIONRESF_SIZE, pkh->len -macl -ASSOCIATIONRESF_SIZE) == true)
+				fbsflag = true;
+			}
+		else if(macf->subtype == MAC_ST_REASSOC_REQ)
+			{
+			if((macl +REASSOCIATIONREQF_SIZE) > pkh->len)
+				continue;
+			if(dotagwalk(payload +REASSOCIATIONREQF_SIZE, pkh->len -macl -REASSOCIATIONREQF_SIZE) == true)
+				fbsflag = true;
+			essidf = (essid_t*)(payload +REASSOCIATIONREQF_SIZE);
+			if(essidf->info_essid != 0)
+				continue;
+			if(essidf->info_essid_len > 32)
+				continue;
+			if(essidf->info_essid_len == 0)
+				continue;
+			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
+			}
+		else if(macf->subtype == MAC_ST_REASSOC_RESP)
+			{
+			if((macl +ASSOCIATIONRESF_SIZE) > pkh->len)
+				continue;
+			if(dotagwalk(payload +ASSOCIATIONRESF_SIZE, pkh->len -macl -ASSOCIATIONRESF_SIZE) == true)
+				fbsflag = true;
+			}
+		continue;
+		}
+	}
+pcap_close(pcapin);
+
+pcapin = pcap_open_offline(pcapinname, pcaperrorstring);
 while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	{
 	if(pcapstatus == 0)
@@ -2470,6 +2656,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	else if((ntohs(((llc_t*)payload)->type) == LLC_TYPE_FRRR))
 		frrrflag = true;
 	}
+
 
 if(essidoutname != NULL)
 	{
