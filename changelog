@@ -1,3 +1,10 @@
+07.01.2018
+==========
+wlandump-rs
+added option -l
+-l             : enable capture of IPv4/IPv6 packets
+
+
 06.01.2018
 ==========
 wlandump-ng

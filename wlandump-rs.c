@@ -29,7 +29,7 @@
 
 #include "include/version.h"
 #include "include/pcap.h"
-#include "include/wlandump-ng.h"
+#include "include/hcxdumptool.h"
 #include "include/radiotap.h"
 #include "include/ieee80211.h"
 
@@ -50,6 +50,7 @@ static int errorcount = 0;
 static int maxerrorcount = 1000000;
 static unsigned long long int packetcount = 0;
 static bool deauthenticationflag = false; 
+static bool ipv4v6flag = false;
 static bool poweroffflag = false;
 static bool wantstatusflag = false; 
 static bool showstatusflag = true; 
@@ -1302,7 +1303,7 @@ while(1)
 			else if(ntohs(llcf->type) == LLC_TYPE_IPV4)
 				{
 				ipv4f = (ipv4_t*)&packetin[PCAPREC_SIZE +rthlen +maclen +LLC_SIZE];
-				if((ipv4f->nextprotocol == NEXTHDR_GRE) || (ipv4f->nextprotocol == NEXTHDR_ESP) || (ipv4f->nextprotocol == NEXTHDR_AUTH))
+				if((ipv4v6flag == true) || (ipv4f->nextprotocol == NEXTHDR_GRE) || (ipv4f->nextprotocol == NEXTHDR_ESP) || (ipv4f->nextprotocol == NEXTHDR_AUTH))
 					{
 					write(fd_pcap, packetsave, pklen + PCAPREC_SIZE);
 					}
@@ -1311,7 +1312,7 @@ while(1)
 			else if(ntohs(llcf->type) == LLC_TYPE_IPV6)
 				{
 				ipv6f = (ipv6_t*)&packetin[PCAPREC_SIZE +rthlen +maclen +LLC_SIZE];
-				if((ipv6f->nextprotocol == NEXTHDR_GRE) || (ipv6f->nextprotocol == NEXTHDR_ESP) || (ipv6f->nextprotocol == NEXTHDR_AUTH))
+				if((ipv4v6flag == true) || (ipv6f->nextprotocol == NEXTHDR_GRE) || (ipv6f->nextprotocol == NEXTHDR_ESP) || (ipv6f->nextprotocol == NEXTHDR_AUTH))
 					{
 					write(fd_pcap, packetsave, pklen + PCAPREC_SIZE);
 					}
@@ -1759,6 +1760,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-T <maxerrors> : terminate after <xx> maximal errors\n"
 	"               : default: 1000000\n"
 	"-D             : enable to transmit deauthentication- and disassociation-frames\n"
+	"-l             : enable capture of IPv4/IPv6 packets\n"
 	"-P             : enable poweroff\n"
 	"-s             : enable status messages\n"
 	"-h             : show this help\n"
@@ -1789,7 +1791,7 @@ interfacename = NULL;
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
-while ((auswahl = getopt(argc, argv, "i:o:c:t:B:T:DPIshvu")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:c:t:B:T:DlPIshvu")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1841,6 +1843,10 @@ while ((auswahl = getopt(argc, argv, "i:o:c:t:B:T:DPIshvu")) != -1)
 
 		case 'D':
 		deauthenticationflag = true;
+		break;
+
+		case 'l':
+		ipv4v6flag = true;
 		break;
 
 		case 'P':
