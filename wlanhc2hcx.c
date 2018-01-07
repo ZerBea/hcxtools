@@ -113,6 +113,7 @@ FILE *fhessid = NULL;
 long int p;
 long int wc = 0;
 int essid_len;
+int c1;
 uint8_t m;
 
 hcx_t hcxrecord;
@@ -141,7 +142,7 @@ if(essidoutname != NULL)
 for(p = 0; p < hcsize; p++)
 	{
 	memset(&essidout, 0, 36);
-	memcpy(&essidout, zeiger->essid, 36);
+	memcpy(&essidout, zeiger->essid, 32);
 	essid_len = strlen(essidout);
 	if((essid_len == 0) || (essid_len > 32) || (zeiger->essid[0] == 0))
 		{
@@ -153,6 +154,13 @@ for(p = 0; p < hcsize; p++)
 		{
 		if(checkessid(essid_len, essidout) == true)
 			fprintf(fhessid, "%s\n", essidout);
+		else
+			{
+			fprintf(fhessid, "$HEX[");
+			for(c1 = 0; c1 < essid_len; c1++)
+				fprintf(fhessid, "%02x", essidout[c1]);
+			fprintf(fhessid, "]\n");
+			}
 		}
 
 	if(fhhcx != 0)
@@ -205,6 +213,7 @@ FILE *fhhcx = NULL;
 FILE *fhessid = NULL;
 long int p;
 long int wc = 0;
+int c1;
 uint8_t m;
 char essidout[36];
 
@@ -243,6 +252,13 @@ for(p = 0; p < hcxsize; p++)
 			memcpy(&essidout, zeiger->essid, zeiger->essid_len);
 			if(checkessid(zeiger->essid_len, essidout) == true)
 				fprintf(fhessid, "%s\n", essidout);
+			else
+				{
+				fprintf(fhessid, "$HEX[");
+				for(c1 = 0; c1 < zeiger->essid_len; c1++)
+					fprintf(fhessid, "%02x", essidout[c1]);
+				fprintf(fhessid, "]\n");
+				}
 			}
 
 		if(fhhcx != 0)
