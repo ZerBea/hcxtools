@@ -1865,6 +1865,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			if(essidf->info_essid_len == 0)
 				continue;
+			if(essidf->essid[0] == 0)
+				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid);
 			}
 		else if(macf->subtype == MAC_ST_PROBE_RESP)
@@ -1877,6 +1879,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(essidf->info_essid_len > 32)
 				continue;
 			if(essidf->info_essid_len == 0)
+				continue;
+			if(essidf->essid[0] == 0)
 				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr1.addr, macf->addr2.addr, essidf->info_essid_len, essidf->essid);
 			}
@@ -1893,6 +1897,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			if(essidf->info_essid_len == 0)
 				continue;
+			if(essidf->essid[0] == 0)
+				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
 			}
 
@@ -1908,6 +1914,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 			if(essidf->info_essid_len == 0)
 				continue;
+			if(essidf->essid[0] == 0)
+				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
 			}
 		else if(macf->subtype == MAC_ST_REASSOC_REQ)
@@ -1922,6 +1930,8 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 			if(essidf->info_essid_len > 32)
 				continue;
 			if(essidf->info_essid_len == 0)
+				continue;
+			if(essidf->essid[0] == 0)
 				continue;
 			addnet(pkh->ts.tv_sec, pkh->ts.tv_usec, macf->addr2.addr, macf->addr1.addr, essidf->info_essid_len, essidf->essid);
 			}
