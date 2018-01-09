@@ -28,10 +28,10 @@
 #endif
 
 #include "include/version.h"
-#include "include/pcap.h"
 #include "include/hcxdumptool.h"
 #include "include/radiotap.h"
 #include "include/ieee80211.h"
+#include "include/pcap.c"
 
 /*===========================================================================*/
 /* global var */
@@ -1323,42 +1323,6 @@ while(1)
 	}
 }
 /*===========================================================================*/
-static bool pcapwritehdr(int fd)
-{
-static pcap_hdr_t pcap_hdr;
-static int written;
-
-memset(&pcap_hdr, 0, PCAPHDR_SIZE);
-pcap_hdr.magic_number = PCAPMAGICNUMBER;
-pcap_hdr.version_major = PCAP_MAJOR_VER;
-pcap_hdr.version_minor = PCAP_MINOR_VER;
-pcap_hdr.snaplen = PCAP_SNAPLEN;
-pcap_hdr.network = LINKTYPE_IEEE802_11_RADIOTAP;
-written = write(fd, &pcap_hdr, PCAPHDR_SIZE);
-if(written != PCAPHDR_SIZE)
-	return false;
-return true;
-}
-/*===========================================================================*/
-int pcapopendump(char *pcapdumpname)
-{
-int fd;
-
-umask(0);
-fd = open(pcapdumpname, O_WRONLY | O_CREAT, 0644);
-if(fd == -1)
-	{
-	return -1;
-	}
-
-if(pcapwritehdr(fd) == false)
-	{
-	close(fd);
-	return 0;
-	}
-return fd;
-}
-/*===========================================================================*/
 static bool opensockets()
 {
 struct sockaddr_ll sll;
@@ -1634,7 +1598,7 @@ if(pcapname != NULL)
 		snprintf(newpcapoutname, PATH_MAX, "%s-%d.pcap", pcapname, c);
 		c++;
 		}
-	fd_pcap = pcapopendump(newpcapoutname);
+	fd_pcap = hcxopenpcapdump(newpcapoutname);
 	if(fd_pcap <= 0)
 		{
 		fprintf(stderr, "could not create dumpfile %s\n", newpcapoutname);
@@ -1747,7 +1711,8 @@ __attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
-	"usage: %s <options>\n"
+	"usage:\n"
+	"%s <options>\n"
 	"\n"
 	"options:\n"
 	"-i <interface> : interface\n"

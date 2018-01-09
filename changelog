@@ -1,3 +1,24 @@
+09.01.2018
+==========
+- move hcxtools to v 4.0.2
+- renamed wlandump-rs to hcxdumptool
+- removed wlancapinfo -> replaced by hcxpcaptool
+  +get rid of libpcap dependency)
+  +added full pcapng support
+
+$ hcxpcaptool -h
+hcxpcaptool 4.0.2 (C) 2017 ZeroBeat
+usage:
+hcxpcaptool <options>
+hcxpcaptool <options> [input.pcap] [input.pcap] ...
+hcxpcaptool <options> *.cap
+hcxpcaptool <options> *.*
+
+options:
+-h        : show this help
+-v        : show version
+
+
 07.01.2018
 ==========
 wlandump-rs

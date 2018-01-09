@@ -20,7 +20,7 @@ endif
 
 ifeq ($(GPIOSUPPORT), on)
 CFLAGS	+= -DDOGPIOSUPPORT
-LFLAGS	= -lcrypt -lwiringPi -lwiringPiDev
+LFLAGS	= -lwiringPi
 endif
 
 
@@ -32,10 +32,10 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	$(CC) $(CFLAGS) -o wlandump-ng wlandump-ng.c -lpcap -lrt $(LFLAGS)
-	$(CC) $(CFLAGS) -o wlandump-rs wlandump-rs.c -lrt $(LFLAGS)
+	$(CC) $(CFLAGS) -o hcxdumptool hcxdumptool.c -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
 endif
-	$(CC) $(CFLAGS) -o wlancapinfo wlancapinfo.c -lpcap
+	$(CC) $(CFLAGS) -o hcxpcaptool hcxpcaptool.c
 	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap -lcrypto
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
 	$(CC) $(CFLAGS) -o wlanwkp2hcx wlanwkp2hcx.c
@@ -61,10 +61,10 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	install $(INSTFLAGS) wlandump-ng $(INSTALLDIR)/wlandump-ng
-	install $(INSTFLAGS) wlandump-rs $(INSTALLDIR)/wlandump-rs
+	install $(INSTFLAGS) hcxdumptool $(INSTALLDIR)/hcxdumptool
 	install $(INSTFLAGS) wlanrcascan $(INSTALLDIR)/wlanrcascan
 endif
-	install $(INSTFLAGS) wlancapinfo $(INSTALLDIR)/wlancapinfo
+	install $(INSTFLAGS) hcxpcaptool $(INSTALLDIR)/hcxpcaptool
 	install $(INSTFLAGS) wlancap2hcx $(INSTALLDIR)/wlancap2hcx
 	install $(INSTFLAGS) wlanhc2hcx $(INSTALLDIR)/wlanhc2hcx
 	install $(INSTFLAGS) wlanwkp2hcx $(INSTALLDIR)/wlanwkp2hcx
@@ -88,10 +88,10 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	rm -f wlandump-ng
-	rm -f wlandump-rs
+	rm -f hcxdumptool
 	rm -f wlanrcascan
 endif
-	rm -f wlancapinfo
+	rm -f hcxpcaptool
 	rm -f wlancap2hcx
 	rm -f wlanhc2hcx
 	rm -f wlanwkp2hcx
@@ -119,10 +119,10 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	rm -f wlandump-ng
-	rm -f wlandump-rs
+	rm -f hcxdumptool
 	rm -f wlanrcascan
 endif
-	rm -f wlancapinfo
+	rm -f hcxpcaptool
 	rm -f wlancap2hcx
 	rm -f wlanhc2hcx
 	rm -f wlanwkp2hcx
@@ -150,11 +150,10 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	rm -f $(INSTALLDIR)/wlandump-ng
-	rm -f $(INSTALLDIR)/wlandump-rs
+	rm -f $(INSTALLDIR)/hcxdumptool
 	rm -f $(INSTALLDIR)/wlanrcascan
 endif
-	rm -f $(INSTALLDIR)/wlandumpfix
-	rm -f $(INSTALLDIR)/wlancapinfo
+	rm -f $(INSTALLDIR)/hcxpcaptool
 	rm -f $(INSTALLDIR)/wlancap2hcx
 	rm -f $(INSTALLDIR)/wlanhc2hcx
 	rm -f $(INSTALLDIR)/wlanwkp2hcx

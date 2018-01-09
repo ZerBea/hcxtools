@@ -34,10 +34,10 @@ Detailed description
 | Tool           | Description                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------ |
 | wlandump-ng    | Small, fast and powerfull deauthentication/authentication/response tool                                |
-| wlandump-rs    | raw socket version of wlandump-ng                                                                      |
+| hcxdumptool    | raw socket version of wlandump-ng                                                                      |
 | wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                         |
 | pioff          | Turns Raspberry Pi off via GPIO switch                                                                 |
-| wlancapinfo    | Shows info of pcap file                                                                                |
+| hcxpcaptool    | Shows info of pcap / pcapng file                                                                       |
 | wlancap2hcx    | Converts cap to hccapx and other formats (recommended for use with wlandump-ng)                        |
 | wlanhcx2cap    | Converts hccapx to cap                                                                                 |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                               |
