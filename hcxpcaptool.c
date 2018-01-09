@@ -151,21 +151,27 @@ switch(endianess)
 return "unknow endian";
 }
 /*===========================================================================*/
-void printcapstatus(char *pcaptype, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, char *pcapreaderrors)
+void printcapstatus(char *pcaptype, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, char *pcapreaderrors, bool wpacleanflag)
 {
 printf("file type........: %s %d.%d\n"
 	"network type.....: %s (%d)\n"
 	"endianess........: %s\n"
 	"packets inside...: %lld\n"
 	"read errors......: %s\n"
-	"\n",
-	pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), rawpacketcount, pcapreaderrors);
+	, pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), rawpacketcount, pcapreaderrors);
+
+if(wpacleanflag == true)
+	{
+	printf("warning..........: use of wpaclean detected\n");
+	}
+printf("\n");
 return;
 }
 /*===========================================================================*/
 void processpcapng(int fd, char *pcapinname)
 {
 bool pcapreaderrors = false;
+bool wpacleanflag = false;
 int endianess = 0;
 unsigned int res;
 unsigned long long int rawpacketcount = 0;
@@ -287,8 +293,21 @@ while(1)
 			pcapreaderrors = true;
 			break;
 			}
+		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
+			{
+			wpacleanflag = true;
+			}
+
+		res = read(fd, &packet, pcapngpb.caplen);
+		if(res != pcapngpb.caplen)
+			{
+			printf("failed to read packet\n");
+			pcapreaderrors = true;
+			break;
+			}
+
 		rawpacketcount++;
-		lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE, SEEK_CUR);
+		lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngpb.caplen, SEEK_CUR);
 		}
 
 	else if(pcapngbh.block_type == 3)
@@ -336,6 +355,12 @@ while(1)
 			pcapreaderrors = true;
 			break;
 			}
+
+		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
+			{
+			wpacleanflag = true;
+			}
+
 		res = read(fd, &packet, pcapngepb.caplen);
 		if(res != pcapngepb.caplen)
 			{
@@ -360,11 +385,11 @@ while(1)
 
 if(pcapreaderrors == false)
 	{
-	printcapstatus("pcapng", pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, "flawless");
+	printcapstatus("pcapng", pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, "flawless", wpacleanflag);
 	}
 else
 	{
-	printcapstatus("pcapng", pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, "yes");
+	printcapstatus("pcapng", pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, "yes", wpacleanflag);
 	}
 return;
 }
@@ -372,6 +397,7 @@ return;
 void processpcap(int fd, char *pcapinname)
 {
 bool pcapreaderrors = false;
+bool wpacleanflag = false;
 int endianess = 0;
 unsigned int res;
 unsigned long long int rawpacketcount = 0;
@@ -443,6 +469,10 @@ while(1)
 		pcapreaderrors = true;
 		break;
 		}
+	if((pcaprhdr.ts_sec == 0) && (pcaprhdr.ts_usec == 0))
+		{
+		wpacleanflag = true;
+		}
 
 	res = read(fd, &packet, pcaprhdr.incl_len);
 	if(res != pcaprhdr.incl_len)
@@ -461,11 +491,11 @@ while(1)
 
 if(pcapreaderrors == false)
 	{
-	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, "flawless");
+	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, "flawless", wpacleanflag);
 	}
 else
 	{
-	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, "yes");
+	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, "yes", wpacleanflag);
 	}
 return;
 }
