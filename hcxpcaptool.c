@@ -9,6 +9,12 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
+#ifdef __APPLE__
+#define strdupa strdup
+#include <libgen.h>
+#else
+#include <stdio_ext.h>
+#endif
 
 #include "include/version.h"
 #include "include/byteops.c"
