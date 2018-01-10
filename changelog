@@ -1,3 +1,10 @@
+10.01.2018
+==========
+hcxpcaptool
+added option -H
+-H        : dump raw packets in hex
+
+
 09.01.2018
 ==========
 - move hcxtools to v 4.0.2

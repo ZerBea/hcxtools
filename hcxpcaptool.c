@@ -28,7 +28,7 @@
 /*===========================================================================*/
 /* global var */
 
-
+bool hexmodeflag = false;
 /*===========================================================================*/
 char *getdltstring(int networktype) 
 {
@@ -146,6 +146,17 @@ switch(networktype)
 return "unknown network type";
 }
 /*===========================================================================*/
+char *geterrorstat(int errorstat) 
+{
+switch(errorstat)
+	{
+	case 0: return "flawless";
+	case 1: return "yes";
+	default: return "unknown";
+	}
+return "unknown";
+}
+/*===========================================================================*/
 char *getendianessstring(int endianess) 
 {
 switch(endianess)
@@ -154,33 +165,100 @@ switch(endianess)
 	case 1: return "big endian";
 	default: return "unknown endian";
 	}
-return "unknow endian";
+return "unknow nendian";
 }
 /*===========================================================================*/
-void printcapstatus(char *pcaptype, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, char *pcapreaderrors, bool wpacleanflag)
+void printcapstatus(char *pcaptype, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, unsigned long long int skippedpacketcount, int pcapreaderrors, bool tscleanflag)
 {
 printf("file type........: %s %d.%d\n"
 	"network type.....: %s (%d)\n"
 	"endianess........: %s\n"
 	"packets inside...: %lld\n"
+	"skippedpackets...: %lld\n"
 	"read errors......: %s\n"
-	, pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), rawpacketcount, pcapreaderrors);
+	, pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), rawpacketcount, skippedpacketcount, geterrorstat(pcapreaderrors));
 
-if(wpacleanflag == true)
+if(tscleanflag == true)
 	{
-	printf("warning..........: use of wpaclean detected\n");
+	printf("warning..........: zeroed timestamp detected\n");
 	}
 printf("\n");
 return;
 }
 /*===========================================================================*/
+void packethexdump(uint32_t ts_sec, uint32_t ts_usec, unsigned long long int packetnr, int networktype, int snaplen, int caplen, int len, uint8_t *packet)
+{
+int c, d;
+time_t pkttime;
+struct tm *pkttm;
+char tmbuf[64], pcktimestr[64];
+
+pkttime = ts_sec;
+pkttm = localtime(&pkttime);
+strftime(tmbuf, sizeof tmbuf, "%d.%m.%Y\ntime.......: %H:%M:%S", pkttm);
+snprintf(pcktimestr, sizeof(pcktimestr), "%s.%06lu", tmbuf, (long int)ts_usec);
+
+printf("packet.....: %lld\n"
+	"date.......: %s\n"
+	"networktype: %s (%d)\n"
+	"snaplen....: %d\n"
+	"caplen.....: %d\n"
+	"len........: %d\n", packetnr, pcktimestr, getdltstring(networktype), networktype, snaplen, caplen, len);
+
+d = 0;
+while(d < caplen)
+	{
+	for(c = 0; c < 16; c++)
+		{
+		if((d +c) < caplen)
+			{
+			printf("%02x ", packet[d +c]);
+			}
+		else
+			{
+			printf("   ");
+			}
+		
+		}
+	printf("    ");
+	for(c = 0; c < 16; c++)
+		{
+		if((d +c < caplen) && (packet[d +c] >= 0x20) && (packet[d +c] < 0x7f))
+			{
+			printf("%c", packet[d +c]);
+			}
+		else
+			{
+			printf(".");
+			}
+		}
+	printf("\n");
+	d += 16;
+	}
+
+
+
+
+printf("\n");
+return;
+}
+/*===========================================================================*/
+/*
+void processpacket(uint32_t ts_sec, uint32_t ts_usec, unsigned long long int packetnr, int linktype, int snaplen, int caplen, int len, uint8_t *packet)
+{
+
+return;
+}
+*/
+/*===========================================================================*/
 void processpcapng(int fd, char *pcapinname)
 {
-bool pcapreaderrors = false;
-bool wpacleanflag = false;
+bool tscleanflag = false;
 int endianess = 0;
+int pcapreaderrors = 0;
 unsigned int res;
 unsigned long long int rawpacketcount = 0;
+unsigned long long int skippedpacketcount = 0;
 
 block_header_t pcapngbh;
 section_header_block_t pcapngshb;
@@ -199,7 +277,7 @@ while(1)
 		}
 	if(res != BH_SIZE)
 		{
-		pcapreaderrors = true;
+		pcapreaderrors = 1;
 		printf("failed to read pcapng header block\n");
 		break;
 		}
@@ -208,7 +286,7 @@ while(1)
 		res = read(fd, &pcapngshb, SHB_SIZE);
 		if(res != SHB_SIZE)
 			{
-			pcapreaderrors = true;
+			pcapreaderrors = 1;
 			printf("failed to read pcapng section header block\n");
 			break;
 			}
@@ -246,7 +324,7 @@ while(1)
 		res = read(fd, &pcapngidb, IDB_SIZE);
 		if(res != IDB_SIZE)
 			{
-			pcapreaderrors = true;
+			pcapreaderrors = 1;
 			printf("failed to get pcapng interface description block\n");
 			break;
 			}
@@ -262,7 +340,7 @@ while(1)
 		if(pcapngidb.snaplen > MAXPACPSNAPLEN)
 			{
 			printf("detected oversized snaplen (%d) \n", pcapngidb.snaplen);
-			pcapreaderrors = true;
+			pcapreaderrors = 1;
 			}
 		lseek(fd, pcapngbh.total_length -BH_SIZE -IDB_SIZE, SEEK_CUR);
 		}
@@ -272,7 +350,7 @@ while(1)
 		res = read(fd, &pcapngpb, PB_SIZE);
 		if(res != PB_SIZE)
 			{
-			pcapreaderrors = true;
+			pcapreaderrors = 1;
 			printf("failed to get pcapng packet block (obsolete)\n");
 			break;
 			}
@@ -293,22 +371,37 @@ while(1)
 			pcapngpb.caplen		= byte_swap_32(pcapngpb.caplen);
 			pcapngpb.len		= byte_swap_32(pcapngpb.len);
 			}
-		if(pcapngpb.caplen > MAXPACPSNAPLEN)
-			{
-			printf("detected oversized snaplen (%d) \n", pcapngpb.caplen);
-			pcapreaderrors = true;
-			break;
-			}
+
 		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
 			{
-			wpacleanflag = true;
+			tscleanflag = true;
+			}
+
+		if(pcapngpb.caplen < MAXPACPSNAPLEN)
+			{
+			res = read(fd, &packet, pcapngpb.caplen);
+			if(res != pcapngpb.caplen)
+				{
+				printf("failed to read packet\n");
+				pcapreaderrors = 1;
+				break;
+				}
+			lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngepb.caplen, SEEK_CUR);
+			rawpacketcount++;
+			}
+		else
+			{
+			lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE +pcapngpb.caplen, SEEK_CUR);
+			pcapngpb.caplen = 0;
+			pcapngpb.len = 0;
+			skippedpacketcount++;
 			}
 
 		res = read(fd, &packet, pcapngpb.caplen);
 		if(res != pcapngpb.caplen)
 			{
 			printf("failed to read packet\n");
-			pcapreaderrors = true;
+			pcapreaderrors = 1;
 			break;
 			}
 
@@ -336,7 +429,7 @@ while(1)
 		res = read(fd, &pcapngepb, EPB_SIZE);
 		if(res != EPB_SIZE)
 			{
-			pcapreaderrors = true;
+			pcapreaderrors = 1;
 			printf("failed to get pcapng enhanced packet block\n");
 			break;
 			}
@@ -355,58 +448,58 @@ while(1)
 			pcapngepb.caplen		= byte_swap_32(pcapngepb.caplen);
 			pcapngepb.len			= byte_swap_32(pcapngepb.len);
 			}
-		if(pcapngepb.caplen > MAXPACPSNAPLEN)
-			{
-			printf("detected oversized snaplen (%d) \n", pcapngepb.caplen);
-			pcapreaderrors = true;
-			break;
-			}
 
 		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
 			{
-			wpacleanflag = true;
+			tscleanflag = true;
 			}
 
-		res = read(fd, &packet, pcapngepb.caplen);
-		if(res != pcapngepb.caplen)
+		if(pcapngepb.caplen < MAXPACPSNAPLEN)
 			{
-			printf("failed to read packet\n");
-			pcapreaderrors = true;
-			break;
+			res = read(fd, &packet, pcapngepb.caplen);
+			if(res != pcapngepb.caplen)
+				{
+				printf("failed to read packet\n");
+				pcapreaderrors = 1;
+				break;
+				}
+			lseek(fd, pcapngbh.total_length -BH_SIZE -EPB_SIZE -pcapngepb.caplen, SEEK_CUR);
+			rawpacketcount++;
 			}
-		rawpacketcount++;
-		lseek(fd, pcapngbh.total_length -BH_SIZE -EPB_SIZE -pcapngepb.caplen, SEEK_CUR);
+		else
+			{
+			lseek(fd, pcapngbh.total_length -BH_SIZE -EPB_SIZE +pcapngepb.caplen, SEEK_CUR);
+			pcapngepb.caplen = 0;
+			pcapngepb.len = 0;
+			skippedpacketcount++;
+			}
 		}
-
 	else
 		{
 		lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
 		}
-
-
-/* process packet */
-
-
+	if(pcapngepb.caplen > 0)
+		{
+		if(hexmodeflag == true)
+			{
+			packethexdump(pcapngepb.timestamp_high, pcapngepb.timestamp_low, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
+			}
+//		processpacket(pcapngepb.timestamp_high, pcapngepb.timestamp_low, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
+		}
 	}
 
-if(pcapreaderrors == false)
-	{
-	printcapstatus("pcapng", pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, "flawless", wpacleanflag);
-	}
-else
-	{
-	printcapstatus("pcapng", pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, "yes", wpacleanflag);
-	}
+printcapstatus("pcapng", pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 return;
 }
 /*===========================================================================*/
 void processpcap(int fd, char *pcapinname)
 {
-bool pcapreaderrors = false;
-bool wpacleanflag = false;
+bool tscleanflag = false;
 int endianess = 0;
+int pcapreaderrors = 0;
 unsigned int res;
 unsigned long long int rawpacketcount = 0;
+unsigned long long int skippedpacketcount = 0;
 
 pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
@@ -450,7 +543,7 @@ while(1)
 		}
 	if(res != PCAPREC_SIZE)
 		{
-		pcapreaderrors = true;
+		pcapreaderrors = 1;
 		printf("failed to read pcap packet header\n");
 		break;
 		}
@@ -469,39 +562,47 @@ while(1)
 		pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
 		}
 
-	if(pcaprhdr.incl_len > MAXPACPSNAPLEN)
-		{
-		printf("detected oversized snaplen\n");
-		pcapreaderrors = true;
-		break;
-		}
 	if((pcaprhdr.ts_sec == 0) && (pcaprhdr.ts_usec == 0))
 		{
-		wpacleanflag = true;
+		tscleanflag = true;
 		}
 
-	res = read(fd, &packet, pcaprhdr.incl_len);
-	if(res != pcaprhdr.incl_len)
+	if(pcaprhdr.incl_len < MAXPACPSNAPLEN)
 		{
-		printf("failed to read packet\n");
-		pcapreaderrors = true;
-		break;
+		res = read(fd, &packet, pcaprhdr.incl_len);
+		if(res != pcaprhdr.incl_len)
+			{
+			printf("failed to read packet\n");
+			pcapreaderrors = 1;
+			break;
+			}
+		rawpacketcount++;
 		}
-	rawpacketcount++;
+	else
+		{
+		lseek(fd, pcaprhdr.incl_len, SEEK_CUR);
+		pcaprhdr.incl_len = 0;
+		pcaprhdr.orig_len = 0;
+		skippedpacketcount++;
+		}
 
-
-/* process packet */
-
-
+	if(pcaprhdr.incl_len > 0)
+		{
+		if(hexmodeflag == true)
+			{
+			packethexdump(pcaprhdr.ts_sec, pcaprhdr.ts_sec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
+			}
+//		processpacket(pcaprhdr.ts_sec, pcaprhdr.ts_sec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
+		}
 	}
-
-if(pcapreaderrors == false)
+	
+if(pcapreaderrors == 0)
 	{
-	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, "flawless", wpacleanflag);
+	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 	}
 else
 	{
-	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, "yes", wpacleanflag);
+	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 	}
 return;
 }
@@ -575,6 +676,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options> *.*\n"
 	"\n"
 	"options:\n"
+	"-H        : dump raw packets in hex\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname);
@@ -600,10 +702,14 @@ eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "hv")) != -1)
+while ((auswahl = getopt(argc, argv, "Hhv")) != -1)
 	{
 	switch (auswahl)
 		{
+		case 'H':
+		hexmodeflag = true;
+		break;
+
 		case 'h':
 		usage(eigenname);
 
