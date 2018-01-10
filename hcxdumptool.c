@@ -29,7 +29,6 @@
 
 #include "include/version.h"
 #include "include/hcxdumptool.h"
-#include "include/radiotap.h"
 #include "include/ieee80211.h"
 #include "include/pcap.c"
 

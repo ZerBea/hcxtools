@@ -104,6 +104,56 @@
 #define WPA_KEY_INFO_ENCR_KEY_DATA WBIT(12) /* IEEE 802.11i/RSN only */
 
 /*===========================================================================*/
+struct radiotap_header
+{
+ uint8_t	it_version;
+ uint8_t	it_pad;
+ uint16_t	it_len;
+ uint32_t	it_present;
+} __attribute__((__packed__));
+typedef struct radiotap_header rth_t;
+#define	RTH_SIZE (sizeof(rth_t))
+
+/*===========================================================================*/
+#define WLAN_DEVNAMELEN_MAX 16
+struct prism_item
+{
+ uint32_t did;
+ uint16_t status;
+ uint16_t len;
+ uint32_t data;
+} __attribute__((packed));
+
+struct prism_header
+{
+ uint32_t msgcode;
+ uint32_t msglen;
+ char devname[WLAN_DEVNAMELEN_MAX];
+ struct prism_item hosttime;
+ struct prism_item mactime;
+ struct prism_item channel;
+ struct prism_item rssi;
+ struct prism_item sq;
+ struct prism_item signal;
+ struct prism_item noise;
+ struct prism_item rate;
+ struct prism_item istx;
+ struct prism_item frmlen;
+} __attribute__((packed));
+typedef struct prism_item prism_item_t;
+typedef struct prism_header prism_t;
+#define	PRISM_SIZE (sizeof(prism_t))
+/*===========================================================================*/
+struct ppi_header
+{
+ uint8_t  pph_version;
+ uint8_t  pph_flags;
+ uint16_t pph_len;
+ uint32_t pph_dlt;
+} __attribute__((packed));
+typedef struct ppi_header ppi_t;
+#define	PPI_SIZE (sizeof(ppi_t))
+/*===========================================================================*/
 struct qos_frame
 {
  uint8_t	control;
@@ -129,7 +179,7 @@ typedef struct qos_frame qos_t;
  */
 struct mac_frame
 {
-#if __BYTE_ORDER == __BIG_ENDIAN
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
  unsigned	subtype : 4;
  unsigned	type : 	2;
  unsigned	version : 2;
