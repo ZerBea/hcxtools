@@ -1383,7 +1383,6 @@ static bool addeapol(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac
 {
 unsigned long long int replaycount;
 uint8_t m = 0;
-int eapolchecksize;
 
 if(memcmp(mac_ap, mac_sta, 6) == 0)
 	return false;
@@ -1395,11 +1394,14 @@ neweapdbdata->tv_usec = tvusec;
 memcpy(neweapdbdata->mac_ap.addr, mac_ap, 6);
 memcpy(neweapdbdata->mac_sta.addr, mac_sta, 6);
 neweapdbdata->eapol_len = htons(eap->len) +4;
+if(neweapdbdata->eapol_len > 256)
+	{
+	neweapdbdata->eapol_len = 256;
+	}
 memcpy(neweapdbdata->eapol, eap, neweapdbdata->eapol_len);
 m = geteapkey(neweapdbdata->eapol);
 replaycount = getreplaycount(neweapdbdata->eapol);
-eapolchecksize = htons(eap->len) +4;
-if((eapolchecksize > 256) && ((m == 2) || (m == 4)))
+if((neweapdbdata->eapol_len > 256) && ((m == 2) || (m == 4)))
 	{
 	printf("\x1B[31mWarning: EAPOL > 256 bytes in M%d of packet %ld detected\x1B[0m\n", m, packetcount);
 	return false;
@@ -1436,6 +1438,10 @@ static bool addnet(time_t tvsec, time_t tvusec, uint8_t *mac_sta, uint8_t *mac_a
 if(memcmp(mac_ap, mac_sta, 6) == 0)
 	return false;
 
+if(essid_len > 32)
+	{
+	return false;
+	}
 newnetdbdata->tv_sec = tvsec;
 newnetdbdata->tv_usec = tvusec;
 memcpy(newnetdbdata->mac_ap.addr, mac_ap, 6);
@@ -1940,7 +1946,7 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	}
 pcap_close(pcapin);
 
-packetcount= 0;
+packetcount = 0;
 wlanpacketcount= 0;
 
 pcapin = pcap_open_offline(pcapinname, pcaperrorstring);
@@ -2100,7 +2106,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 				continue;
 				}
 			}
-
 		else if(llctype == LLC_TYPE_IPV6)
 			{
 			ipv6flag = true;
@@ -2557,7 +2562,6 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 
 			continue;
 			}
-
 		else if(eap->type == 1)
 			{
 			if(pcapout != NULL)
@@ -2747,9 +2751,10 @@ if(pmkoutname != NULL)
 
 	fclose(fhpmk);
 	}
-
-free(eapdbdata);
-free(netdbdata);
+if(eapdbdata != NULL)
+	free(eapdbdata);
+if(netdbdata != NULL)
+	free(netdbdata);
 pcap_close(pcapin);
 printf("%ld packets processed (%ld wlan, %ld lan, %ld loopback)\n", packetcount, wlanpacketcount, ethpacketcount, loopbpacketcount);
 
