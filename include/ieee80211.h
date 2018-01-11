@@ -242,6 +242,23 @@ struct capabilities_ap_frame
 typedef struct capabilities_ap_frame capap_t;
 #define	CAPABILITIESAP_SIZE sizeof(capap_t)
 /*===========================================================================*/
+struct capabilities_sta_frame
+{
+ uint16_t client_capabilities;
+ uint16_t client_listeninterval;
+} __attribute__((__packed__));
+typedef struct capabilities_sta_frame capsta_t;
+#define	CAPABILITIESSTA_SIZE sizeof(capsta_t)
+/*===========================================================================*/
+struct capabilitiesre_sta_frame
+{
+ uint16_t client_capabilities;
+ uint16_t client_listeninterval;
+ uint8_t	addr1[6];
+} __attribute__((__packed__));
+typedef struct capabilitiesre_sta_frame capresta_t;
+#define	CAPABILITIESRESTA_SIZE sizeof(capresta_t)
+/*===========================================================================*/
 struct ie_tag
 {
 	uint8_t		id;

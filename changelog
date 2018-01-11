@@ -1,3 +1,11 @@
+11.01.2018
+==========
+hcxpcaptool
+added new options
+-E <file> : output wordlist (autohex enabled) to use as wordlist
+-T <file> : output traffic information list
+
+
 10.01.2018
 ==========
 hcxpcaptool

@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <ctype.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -17,6 +18,9 @@
 #endif
 
 #include "include/version.h"
+#include "include/ieee80211.h"
+#include "include/hcxpcaptool.h"
+#include "include/common.c"
 #include "include/byteops.c"
 #include "include/fileops.c"
 #include "include/pcap.c"
@@ -28,7 +32,39 @@
 /*===========================================================================*/
 /* global var */
 
-bool hexmodeflag = false;
+bool hexmodeflag;
+
+int apstaessidcount;
+apstaessidl_t *apstaessidliste;
+
+unsigned long long int beaconframecount;
+unsigned long long int proberequestframecount;
+unsigned long long int proberesponseframecount;
+unsigned long long int associationrequestframecount;
+unsigned long long int associationresponseframecount;
+unsigned long long int reassociationrequestframecount;
+unsigned long long int reassociationresponseframecount;
+
+char *hexmodeoutname;
+char *essidoutname;
+char *trafficoutname;
+
+FILE *fhhexmode;
+/*===========================================================================*/
+/* global init */
+
+bool globalinit()
+{
+hexmodeoutname = NULL;
+essidoutname = NULL;
+trafficoutname = NULL;
+
+hexmodeflag = false;
+
+setbuf(stdout, NULL);
+srand(time(NULL));
+return true;
+}
 /*===========================================================================*/
 char *getdltstring(int networktype) 
 {
@@ -168,20 +204,51 @@ switch(endianess)
 return "unknow nendian";
 }
 /*===========================================================================*/
-void printcapstatus(char *pcaptype, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, unsigned long long int skippedpacketcount, int pcapreaderrors, bool tscleanflag)
+void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, unsigned long long int skippedpacketcount, int pcapreaderrors, bool tscleanflag)
 {
-printf("file type........: %s %d.%d\n"
-	"network type.....: %s (%d)\n"
-	"endianess........: %s\n"
-	"packets inside...: %lld\n"
-	"skippedpackets...: %lld\n"
-	"read errors......: %s\n"
-	, pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), rawpacketcount, skippedpacketcount, geterrorstat(pcapreaderrors));
+printf("summary:\n--------\n"
+	"file name..............: %s\n"
+	"file type..............: %s %d.%d\n"
+	"network type...........: %s (%d)\n"
+	"endianess..............: %s\n"
+	"read errors............: %s\n"
+	"packets inside.........: %lld\n"
+	"skippedpackets.........: %lld\n"
+	, basename(pcapinname), pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount);
 
 if(tscleanflag == true)
 	{
-	printf("warning..........: zeroed timestamp detected\n");
+	printf("warning................: zero value timestamps detected\n");
 	}
+if(beaconframecount != 0)
+	{
+	printf("beacons................: %lld\n", beaconframecount);
+	}
+if(proberequestframecount != 0)
+	{
+	printf("probe requests.........: %lld\n", proberequestframecount);
+	}
+if(proberesponseframecount != 0)
+	{
+	printf("probe responses........: %lld\n", proberesponseframecount);
+	}
+if(associationrequestframecount != 0)
+	{
+	printf("association requests...: %lld\n", associationrequestframecount);
+	}
+if(associationresponseframecount != 0)
+	{
+	printf("association responses..: %lld\n", associationresponseframecount);
+	}
+if(reassociationrequestframecount != 0)
+	{
+	printf("reassociation requests.: %lld\n", reassociationrequestframecount);
+	}
+if(reassociationresponseframecount != 0)
+	{
+	printf("reassociation responses: %lld\n", reassociationresponseframecount);
+	}
+
 printf("\n");
 return;
 }
@@ -198,7 +265,7 @@ pkttm = localtime(&pkttime);
 strftime(tmbuf, sizeof tmbuf, "%d.%m.%Y\ntime.......: %H:%M:%S", pkttm);
 snprintf(pcktimestr, sizeof(pcktimestr), "%s.%06lu", tmbuf, (long int)ts_usec);
 
-printf("packet.....: %lld\n"
+fprintf(fhhexmode, "packet.....: %lld\n"
 	"date.......: %s\n"
 	"networktype: %s (%d)\n"
 	"snaplen....: %d\n"
@@ -212,44 +279,503 @@ while(d < caplen)
 		{
 		if((d +c) < caplen)
 			{
-			printf("%02x ", packet[d +c]);
+			fprintf(fhhexmode, "%02x ", packet[d +c]);
 			}
 		else
 			{
-			printf("   ");
+			fprintf(fhhexmode, "   ");
 			}
 		
 		}
-	printf("    ");
+	fprintf(fhhexmode, "    ");
 	for(c = 0; c < 16; c++)
 		{
 		if((d +c < caplen) && (packet[d +c] >= 0x20) && (packet[d +c] < 0x7f))
 			{
-			printf("%c", packet[d +c]);
+			fprintf(fhhexmode, "%c", packet[d +c]);
 			}
-		else
+		else if(d +c < caplen)
 			{
-			printf(".");
+			fprintf(fhhexmode, ".");
 			}
 		}
-	printf("\n");
+	fprintf(fhhexmode, "\n");
 	d += 16;
 	}
-
-
-
-
-printf("\n");
+fprintf(fhhexmode, "\n");
 return;
 }
 /*===========================================================================*/
-/*
-void processpacket(uint32_t ts_sec, uint32_t ts_usec, unsigned long long int packetnr, int linktype, int snaplen, int caplen, int len, uint8_t *packet)
+void outputlists()
 {
+int c, p;
+FILE *fhoutlist = NULL;
+apstaessidl_t *zeiger, *zeigerold;
+time_t pkttime;
+struct tm *pkttm;
+
+char tmbuf[64];
+uint8_t essidstring[34];
+
+if((apstaessidliste != NULL) && (essidoutname != NULL)) 
+	{
+	if((fhoutlist = fopen(essidoutname, "a+")) != NULL)
+		{
+		zeiger = apstaessidliste;
+		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_essid);
+		memset(&essidstring, 0, 34);
+		memcpy(&essidstring,  zeiger->essid, 32);
+		if(isasciistring(zeiger->essidlen, essidstring) != false)
+			{
+			fprintf(fhoutlist, "%s\n", essidstring);
+			}
+		else
+			{
+			fprintf(fhoutlist, "$HEX[");
+			for(p = 0; p < zeiger->essidlen; p++)
+				{
+				fprintf(fhoutlist, "%02x", essidstring[p]);
+				}
+			fprintf(fhoutlist, "]\n");
+			}
+		zeiger++;
+		for(c = 1; c < apstaessidcount; c++)
+			{
+			if(memcmp(&essidstring, zeiger->essid, 32) != 0)
+				{
+				memset(&essidstring, 0, 34);
+				memcpy(&essidstring,  zeiger->essid, 32);
+				if(isasciistring(zeiger->essidlen, essidstring) != false)
+					{
+					fprintf(fhoutlist, "%s\n", essidstring);
+					}
+				else
+					{
+					fprintf(fhoutlist, "$HEX[");
+					for(p = 0; p < zeiger->essidlen; p++)
+						{
+						fprintf(fhoutlist, "%02x", essidstring[p]);
+						}
+					fprintf(fhoutlist, "]\n");
+					}
+				}
+			zeiger++;
+			}
+		}
+	fclose(fhoutlist);
+	}
+
+if((apstaessidliste != NULL) && (trafficoutname != NULL))
+	{
+	if((fhoutlist = fopen(trafficoutname, "a+")) != NULL)
+		{
+		zeiger = apstaessidliste;
+		zeigerold = apstaessidliste;
+		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap);
+		memset(&essidstring, 0, 34);
+		memcpy(&essidstring,  zeiger->essid, 32);
+		pkttime = zeiger->tv_sec;
+		pkttm = localtime(&pkttime);
+		strftime(tmbuf, sizeof tmbuf, "%d%m%Y", pkttm);
+		fprintf(fhoutlist, "%s:", tmbuf);
+		for(p = 0; p< 6; p++)
+			{
+			fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+			}
+		fprintf(fhoutlist, ":");
+		for(p = 0; p< 6; p++)
+			{
+			fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+			}
+		fprintf(fhoutlist, ":");
+		if(isasciistring(zeiger->essidlen, essidstring) != false)
+			{
+			fprintf(fhoutlist, "%s\n", essidstring);
+			}
+		else
+			{
+			fprintf(fhoutlist, "$HEX[");
+			for(p = 0; p < zeiger->essidlen; p++)
+				{
+				fprintf(fhoutlist, "%02x", essidstring[p]);
+				}
+			fprintf(fhoutlist, "]\n");
+			}
+		zeiger++;
+
+		for(c = 1; c < apstaessidcount; c++)
+			{
+			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) != 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) != 0) && (memcmp(&essidstring, zeiger->essid, 32) != 0))
+				{
+				memset(&essidstring, 0, 34);
+				memcpy(&essidstring,  zeiger->essid, 32);
+				pkttime = zeiger->tv_sec;
+				pkttm = localtime(&pkttime);
+				strftime(tmbuf, sizeof tmbuf, "%d%m%Y", pkttm);
+				fprintf(fhoutlist, "%s:", tmbuf);
+				for(p = 0; p< 6; p++)
+					{
+					fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+					}
+				fprintf(fhoutlist, ":");
+				for(p = 0; p< 6; p++)
+					{
+					fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+					}
+				fprintf(fhoutlist, ":");
+				if(zeiger->essidlen > 32)
+					printf("warning\n");
+
+				if(isasciistring(zeiger->essidlen, essidstring) != false)
+					{
+					fprintf(fhoutlist, "%s\n", essidstring);
+					}
+				else
+					{
+					fprintf(fhoutlist, "$HEX[");
+					for(p = 0; p < zeiger->essidlen; p++)
+						{
+						fprintf(fhoutlist, "%02x", essidstring[p]);
+						}
+					fprintf(fhoutlist, "]\n");
+					}
+				}
+			zeigerold = zeiger;
+			zeiger++;
+			}
+		}
+	fclose(fhoutlist);
+	}
 
 return;
 }
+/*===========================================================================*/
+void addapstaessid(uint32_t tv_sec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
+{
+apstaessidl_t *zeiger, *tmp;
+int c;
+
+zeiger = apstaessidliste;
+for(c = 0; c < apstaessidcount; c++)
+	{
+	if((memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(essid, zeiger->essid, 32) == 0) && (essidlen == zeiger->essidlen))
+		{
+		if(zeiger->tv_sec == 0)
+			{
+			zeiger->tv_sec = tv_sec;
+			}
+		return;
+		}
+	zeiger++;
+	}
+
+zeiger->tv_sec = tv_sec;
+memcpy(zeiger->mac_ap, mac_ap, 6);
+memcpy(zeiger->mac_sta, mac_sta, 6);
+memcpy(zeiger->essid, essid, 32);
+zeiger->essidlen = essidlen;
+
+apstaessidcount++;
+tmp = realloc(apstaessidliste, (apstaessidcount +1) *APSTAESSIDLIST_SIZE);
+if(tmp == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+apstaessidliste = tmp;
+return;
+}
+/*===========================================================================*/
+uint8_t getessid(uint8_t *tagdata, int taglen, uint8_t *essidstr)
+{
+int c;
+ietag_t *tagl;
+tagl = (ietag_t*)tagdata;
+while(0 < taglen)
+	{
+	if(tagl->id == TAG_SSID)
+		{
+		if((tagl->len == 0) || (tagl->len > 32))
+			{
+			return 0;
+			}
+		if(tagl->data[0] == 0)
+			{
+			return 0;
+			}
+		/* only allow essids that contains no function characters */
+		for(c = 0; c < tagl->len; c++)
+			{
+			if(tagl->data[c] < 0x20)
+				{
+				return 0;
+				}
+			if(tagl->data[c] == 0x7f)
+				{
+				return 0;
+				}
+			}
+		memcpy(essidstr, tagl->data, tagl->len);
+		return tagl->len;
+		}
+	tagl = (ietag_t*)((uint8_t*)tagl +tagl->len +IETAG_SIZE);
+	taglen -= tagl->len;
+	}
+return 0;
+}
+/*===========================================================================*/
+void process80211beacon(uint32_t ts_sec, int caplen, uint8_t *packet)
+{
+uint8_t *packet_ptr;
+mac_t *macf;
+int essidlen;
+uint8_t essidstr[32];
+
+if(caplen < (int)MAC_SIZE_NORM +(int)CAPABILITIESAP_SIZE +2)
+	{
+	return;
+	}
+macf = (mac_t*)packet;
+packet_ptr = packet +MAC_SIZE_NORM +CAPABILITIESAP_SIZE;
+memset(&essidstr, 0, 32);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -CAPABILITIESAP_SIZE, essidstr);
+if(essidlen == 0)
+	{
+	return;
+	}
+addapstaessid(ts_sec, macf->addr1, macf->addr2, essidlen, essidstr);
+beaconframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211probe_req(uint32_t ts_sec, int caplen, uint8_t *packet)
+{
+uint8_t *packet_ptr;
+mac_t *macf;
+int essidlen;
+uint8_t essidstr[32];
+
+if(caplen < (int)MAC_SIZE_NORM +2)
+	{
+	return;
+	}
+macf = (mac_t*)packet;
+packet_ptr = packet +MAC_SIZE_NORM;
+memset(&essidstr, 0, 32);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM +2, essidstr);
+if(essidlen == 0)
+	{
+	return;
+	}
+addapstaessid(ts_sec, macf->addr2, macf->addr1, essidlen, essidstr);
+proberequestframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211probe_resp(uint32_t ts_sec, int caplen, uint8_t *packet)
+{
+uint8_t *packet_ptr;
+mac_t *macf;
+int essidlen;
+uint8_t essidstr[32];
+
+if(caplen < (int)MAC_SIZE_NORM +(int)CAPABILITIESAP_SIZE +2)
+	{
+	return;
+	}
+macf = (mac_t*)packet;
+packet_ptr = packet +MAC_SIZE_NORM +CAPABILITIESAP_SIZE;
+memset(&essidstr, 0, 32);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -CAPABILITIESAP_SIZE, essidstr);
+if(essidlen == 0)
+	{
+	return;
+	}
+addapstaessid(ts_sec, macf->addr1, macf->addr2, essidlen, essidstr);
+proberesponseframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211assoc_req(uint32_t ts_sec, int caplen, uint8_t *packet)
+{
+uint8_t *packet_ptr;
+mac_t *macf;
+int essidlen;
+uint8_t essidstr[32];
+
+if(caplen < (int)MAC_SIZE_NORM +(int)CAPABILITIESSTA_SIZE +2)
+	{
+	return;
+	}
+macf = (mac_t*)packet;
+packet_ptr = packet +MAC_SIZE_NORM +CAPABILITIESSTA_SIZE;
+memset(&essidstr, 0, 32);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -CAPABILITIESSTA_SIZE, essidstr);
+if(essidlen == 0)
+	{
+	return;
+	}
+
+addapstaessid(ts_sec, macf->addr2, macf->addr1, essidlen, essidstr);
+associationrequestframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211assoc_resp()
+{
+
+associationresponseframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211reassoc_req(uint32_t ts_sec, int caplen, uint8_t *packet)
+{
+uint8_t *packet_ptr;
+mac_t *macf;
+int essidlen;
+uint8_t essidstr[32];
+
+if(caplen < (int)MAC_SIZE_NORM +(int)CAPABILITIESRESTA_SIZE +2)
+	{
+	return;
+	}
+macf = (mac_t*)packet;
+packet_ptr = packet +MAC_SIZE_NORM +CAPABILITIESRESTA_SIZE;
+memset(&essidstr, 0, 32);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -CAPABILITIESRESTA_SIZE, essidstr);
+if(essidlen == 0)
+	{
+	return;
+	}
+addapstaessid(ts_sec, macf->addr2, macf->addr1, essidlen, essidstr);
+
+reassociationrequestframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211reassoc_resp()
+{
+
+reassociationresponseframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211packet(uint32_t ts_sec, int caplen, uint8_t *packet)
+{
+mac_t *macf;
+
+if(caplen < MAC_SIZE_NORM)
+	{
+	return;
+	}
+macf = (mac_t*)packet;
+if(macf->type == IEEE80211_FTYPE_MGMT)
+	{
+	if(macf->subtype == IEEE80211_STYPE_BEACON)
+		{
+		process80211beacon(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_PROBE_REQ)
+		{
+		process80211probe_req(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_PROBE_RESP)
+		{
+		process80211probe_resp(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_ASSOC_REQ)
+		{
+		process80211assoc_req(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_ASSOC_RESP)
+		{
+		process80211assoc_resp(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_REASSOC_REQ)
+		{
+		process80211reassoc_req(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_REASSOC_RESP)
+		{
+		process80211reassoc_resp(ts_sec, caplen, packet);
+		}
+	return;
+	}
+/*
+else if(macf->type == IEEE80211_STYPE_DATA) 
+	{
+	}
+else if(macf->type == IEEE80211_STYPE_QOS_DATA) 
+	{
+	}
+
 */
+
+
+return;
+}
+/*===========================================================================*/
+void processpacket(uint32_t ts_sec, int linktype, int caplen, uint8_t *packet)
+{
+uint8_t *packet_ptr;
+rth_t *rth;
+prism_t *prism;
+ppi_t *ppi;
+
+packet_ptr = packet;
+if(linktype == DLT_IEEE802_11_RADIO)
+	{
+	if(caplen < (int)RTH_SIZE)
+		{
+		printf("failed to read radiotap header\n");
+		return;
+		}
+	rth = (rth_t*)packet;
+	#ifdef BIG_ENDIAN_HOST
+	rth->it_len	 = byte_swap_16(rth->it_len);
+	rth->it_present	= byte_swap_32(rth->it_present);
+	#endif
+	packet_ptr += rth->it_len;
+	caplen -= rth->it_len;
+	process80211packet(ts_sec, caplen, packet_ptr);
+	}
+else if(linktype == DLT_IEEE802_11)
+	{
+	process80211packet(ts_sec, caplen, packet);
+	}
+else if(linktype == DLT_PRISM_HEADER)
+	{
+	if(caplen < (int)PRISM_SIZE)
+		{
+		printf("failed to read prism header\n");
+		return;
+		}
+	prism = (prism_t*)packet;
+	#ifdef BIG_ENDIAN_HOST
+	prism->msgcode	= byte_swap_32(prism->msgcode);
+	prism->msglen	= byte_swap_32(prism->msglen);
+	#endif
+	packet_ptr += prism->msglen;
+	caplen -= prism->msglen;
+	process80211packet(ts_sec, caplen, packet_ptr);
+	}
+else if(linktype == DLT_PPI)
+	{
+	if(caplen < (int)PPI_SIZE)
+		{
+		printf("failed to read ppi header\n");
+		return;
+		}
+	ppi = (ppi_t*)packet;
+	#ifdef BIG_ENDIAN_HOST
+	ppi->pph_len	byte_swap_16(ppi->pph_len);
+	#endif
+	packet_ptr += ppi->pph_len;
+	caplen -= ppi->pph_len;
+	process80211packet(ts_sec, caplen, packet_ptr);
+	}
+return;
+}
 /*===========================================================================*/
 void processpcapng(int fd, char *pcapinname)
 {
@@ -267,7 +793,7 @@ packet_block_t pcapngpb;
 enhanced_packet_block_t pcapngepb;
 uint8_t packet[MAXPACPSNAPLEN];
 
-printf("start reading from %s\n", basename(pcapinname));
+printf("start reading from %s\n\n", pcapinname);
 while(1)
 	{
 	res = read(fd, &pcapngbh, BH_SIZE);
@@ -484,11 +1010,11 @@ while(1)
 			{
 			packethexdump(pcapngepb.timestamp_high, pcapngepb.timestamp_low, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
 			}
-//		processpacket(pcapngepb.timestamp_high, pcapngepb.timestamp_low, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
+		processpacket(pcapngepb.timestamp_high, pcapngidb.linktype, pcapngepb.caplen, packet);
 		}
 	}
 
-printcapstatus("pcapng", pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
+printcapstatus("pcapng", pcapinname, pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 return;
 }
 /*===========================================================================*/
@@ -505,7 +1031,7 @@ pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
 uint8_t packet[MAXPACPSNAPLEN];
 
-printf("start reading from %s\n", basename(pcapinname));
+printf("start reading from %s\n\n", pcapinname);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
 	{
@@ -590,20 +1116,13 @@ while(1)
 		{
 		if(hexmodeflag == true)
 			{
-			packethexdump(pcaprhdr.ts_sec, pcaprhdr.ts_sec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
+			packethexdump(pcaprhdr.ts_sec, pcaprhdr.ts_usec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
 			}
-//		processpacket(pcaprhdr.ts_sec, pcaprhdr.ts_sec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
+		processpacket(pcaprhdr.ts_sec, pcapfhdr.network, pcaprhdr.incl_len, packet);
 		}
 	}
 	
-if(pcapreaderrors == 0)
-	{
-	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
-	}
-else
-	{
-	printcapstatus("pcap", pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
-	}
+printcapstatus("pcap", pcapinname, pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 return;
 }
 /*===========================================================================*/
@@ -611,6 +1130,14 @@ void processcapfile(char *pcapinname)
 {
 int pcapr_fd;
 uint32_t magicnumber;
+
+beaconframecount = 0;
+proberequestframecount = 0;
+proberesponseframecount = 0;
+associationrequestframecount = 0;
+associationresponseframecount = 0;
+reassociationrequestframecount = 0;
+reassociationresponseframecount = 0;
 
 pcapr_fd = open(pcapinname, O_RDONLY);
 if(pcapr_fd == -1)
@@ -627,13 +1154,31 @@ if(magicnumber == 0)
 	}
 lseek(pcapr_fd, 0L, SEEK_SET);
 
+apstaessidliste = malloc(APSTAESSIDLIST_SIZE);
+if(apstaessidliste == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+apstaessidcount = 0;
+
 if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	processpcap(pcapr_fd, pcapinname);
 
 else if(magicnumber == PCAPNGBLOCKTYPE)
 	processpcapng(pcapr_fd, pcapinname);
-
 close(pcapr_fd);
+
+
+if(apstaessidcount > 0) 
+	{
+	outputlists();
+	}
+
+if(apstaessidliste != NULL)
+	{
+	free(apstaessidliste);
+	}
 return;
 }
 /*===========================================================================*/
@@ -654,7 +1199,7 @@ if((magicnumber &0xffff) != GZIPMAGICNUMBER)
 	{
 	return false;
 	}
-printf("gezipped %s\n", pcapinname);
+printf("unzip from %s not yet\n", pcapinname);
 return true;
 }
 /*===========================================================================*/
@@ -676,7 +1221,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options> *.*\n"
 	"\n"
 	"options:\n"
-	"-H        : dump raw packets in hex\n"
+	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
+	"-T <file> : output traffic information list\n"
+	"-H <file> : output dump raw packets in hex\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname);
@@ -700,14 +1247,26 @@ char *eigenpfadname, *eigenname;
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
-setbuf(stdout, NULL);
-srand(time(NULL));
-while ((auswahl = getopt(argc, argv, "Hhv")) != -1)
+if(globalinit() == false)
+	{
+	printf("global  ‎initialization failed\n");
+	exit(EXIT_FAILURE);
+	}
+while ((auswahl = getopt(argc, argv, "E:T:H:hv")) != -1)
 	{
 	switch (auswahl)
 		{
+		case 'E':
+		essidoutname = optarg;
+		break;
+
+		case 'T':
+		trafficoutname = optarg;
+		break;
+
 		case 'H':
 		hexmodeflag = true;
+		hexmodeoutname = optarg;
 		break;
 
 		case 'h':
@@ -721,11 +1280,24 @@ while ((auswahl = getopt(argc, argv, "Hhv")) != -1)
 		}
 	}
 
+if(hexmodeflag == true) 
+	{
+	if((fhhexmode = fopen(hexmodeoutname, "a+")) == NULL)
+		{
+		fprintf(stderr, "error opening file %s: %s\n", hexmodeoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
 
 for(index = optind; index < argc; index++)
 	{
-	testgzipfile(argv[index]);
-	processcapfile(argv[index]);
+	if(testgzipfile(argv[index]) == false)
+		processcapfile(argv[index]);
+	}
+
+if(hexmodeflag == true)
+	{
+	fclose(fhhexmode);
 	}
 
 return EXIT_SUCCESS;
