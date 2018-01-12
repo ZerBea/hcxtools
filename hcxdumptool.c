@@ -1672,7 +1672,7 @@ while(ptr != NULL)
 	{
 	channellist[cpa] = atoi(ptr);
 	cpa++;
-	if(cpa > 127)
+	if(cpa > 126)
 		{
 		return;
 		}
