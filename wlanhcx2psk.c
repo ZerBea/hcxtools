@@ -252,7 +252,7 @@ const char *adjectiv[] = { "ancient", "antique", "aquatic",
 	"zany" };
 
 const char *substantiv[] = { "airplane", "apple", "automobile",
-	 "ball", "balloon", "banana", "beach", "bird", "boat", "bolt", "boot", "bottle", "box", "bread", "breeze", "bubble", "bug", "bush", "butter",
+	 "ball", "balloon", "banana", "beach", "bird", "boat", "bolt", "boot", "bottle", "box", "bread", "breeze", "bubble", "bug", "bunny", "bush", "butter",
 	 "canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "chip", "coast", "coconut", "comet", "cream", "curly", "curtain",
 	 "daisy", "deal", "desk", "diamond", "dink", "door",
 	 "earth", "elephant", "emerald",
