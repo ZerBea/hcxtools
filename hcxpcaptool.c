@@ -368,7 +368,7 @@ if((apstaessidliste != NULL) && (essidoutname != NULL))
 				{
 				memset(&essidstring, 0, 34);
 				memcpy(&essidstring,  zeiger->essid, 32);
-				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
+				fwriteessidstr(zeiger->essidlen, essidstring, fhoutlist); 
 				}
 			zeiger++;
 			}
@@ -387,7 +387,7 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 		memcpy(&essidstring,  zeiger->essid, 32);
 		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
 		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
-		fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
+		fwriteessidstr(zeiger->essidlen, essidstring, fhoutlist); 
 		zeiger++;
 		for(c = 1; c < apstaessidcount; c++)
 			{
