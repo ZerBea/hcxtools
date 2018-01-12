@@ -2,6 +2,14 @@
 ==========
 hcxpcaptool
 added new options
+-A <file> : output access point anonce information list (forensics purpose)
+date:mac_sta:mac_ap:keyver(1=M1, 2=M3, 3=M1+M3):replaycount(in hex):anonce
+
+
+11.01.2018
+==========
+hcxpcaptool
+added new options
 -E <file> : output wordlist (autohex enabled) to use as wordlist
 -T <file> : output traffic information list
 

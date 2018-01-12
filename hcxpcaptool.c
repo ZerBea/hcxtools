@@ -38,6 +38,10 @@ bool hexmodeflag;
 int apstaessidcount;
 apstaessidl_t *apstaessidliste;
 
+int anoncecount;
+anoncel_t *anonceliste;
+
+
 unsigned long long int beaconframecount;
 unsigned long long int proberequestframecount;
 unsigned long long int proberesponseframecount;
@@ -58,6 +62,7 @@ unsigned long long int eapframecount;
 char *hexmodeoutname;
 char *essidoutname;
 char *trafficoutname;
+char *anonceoutname;
 
 FILE *fhhexmode;
 /*===========================================================================*/
@@ -68,6 +73,7 @@ bool globalinit()
 hexmodeoutname = NULL;
 essidoutname = NULL;
 trafficoutname = NULL;
+anonceoutname = NULL;
 
 hexmodeflag = false;
 
@@ -324,7 +330,6 @@ while(d < caplen)
 			{
 			fprintf(fhhexmode, "   ");
 			}
-		
 		}
 	fprintf(fhhexmode, "    ");
 	for(c = 0; c < 16; c++)
@@ -405,6 +410,81 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 		}
 	fclose(fhoutlist);
 	}
+return;
+}
+/*===========================================================================*/
+void outputlists2()
+{
+int c;
+FILE *fhoutlist = NULL;
+anoncel_t *zeiger, *zeigerold;
+
+if((anonceliste != NULL) && (anonceoutname != NULL))
+	{
+	if((fhoutlist = fopen(anonceoutname, "a+")) != NULL)
+		{
+		zeiger = anonceliste;
+		zeigerold = anonceliste;
+		qsort(anonceliste, anoncecount, ANONCELIST_SIZE, sort_anoncelist_by_ap);
+		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+		fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
+		fwritenonce(zeiger->anonce, fhoutlist);
+		zeiger++;
+		for(c = 1; c < anoncecount; c++)
+			{
+			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) != 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) != 0) && (memcmp(zeigerold->anonce, zeiger->anonce, 32) != 0))
+				{
+				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+				fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
+				fwritenonce(zeiger->anonce, fhoutlist);
+				}
+			zeigerold = zeiger;
+			zeiger++;
+			}
+		}
+	fclose(fhoutlist);
+	}
+return;
+}
+/*===========================================================================*/
+void addapanonce(uint32_t tv_sec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint8_t *anonce)
+{
+anoncel_t *zeiger, *tmp;
+int c;
+
+zeiger = anonceliste;
+for(c = 0; c < anoncecount; c++)
+	{
+	if((memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(anonce, zeiger->anonce, 32) == 0))
+		{
+		zeiger->keyinfo |= ki;
+		if(zeiger->tv_sec == 0)
+			{
+			zeiger->tv_sec = tv_sec;
+			}
+		return;
+		}
+	zeiger++;
+	}
+
+zeiger->tv_sec = tv_sec;
+memcpy(zeiger->mac_ap, mac_ap, 6);
+memcpy(zeiger->mac_sta, mac_sta, 6);
+memcpy(zeiger->anonce, anonce, 32);
+zeiger->replaycount = rc;
+zeiger->keyinfo = ki;
+
+
+anoncecount++;
+tmp = realloc(anonceliste, (anoncecount +1) *ANONCELIST_SIZE);
+if(tmp == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+anonceliste = tmp;
 return;
 }
 /*===========================================================================*/
@@ -659,33 +739,27 @@ void process80211eapolauthentication(uint32_t ts_sec, int caplen, uint8_t *macad
 wpakey_t *wpak;
 uint16_t keyinfo;
 
+
 if(caplen < (int)EAPAUTH_SIZE -(int)WPAKEY_SIZE)
 	{
 	return;
 	}
+
 wpak = (wpakey_t*)packet;
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
+#ifdef BIG_ENDIAN_HOST
+wpak->replaycount = byte_swap_64(wpak->replaycount);
+#endif
+if(keyinfo == 1)
+	{
+	addapanonce(ts_sec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), wpak->nonce);
+	}
+if(keyinfo == 3)
+	{
+	addapanonce(ts_sec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
+	}
 
 eapolframecount++;
-
-/* nonsense - only to satisfy gcc - will be removed on final version) */
-if(ts_sec == 0)
-	{
-	return;
-	}
-if(memcmp(macaddr1, macaddr2, 6) == 0)
-	{
-	return;
-	}
-if(packet[0] == 10)
-	{
-	return;
-	}
-if(keyinfo == 0)
-	{
-	return;
-	}
-
 return;
 }
 /*===========================================================================*/
@@ -1277,6 +1351,15 @@ if(apstaessidliste == NULL)
 	}
 apstaessidcount = 0;
 
+anonceliste = malloc(ANONCELIST_SIZE);
+if(anonceliste == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+anoncecount = 0;
+
+
 if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	processpcap(pcapr_fd, pcapinname);
 
@@ -1288,6 +1371,16 @@ close(pcapr_fd);
 if(apstaessidcount > 0) 
 	{
 	outputlists();
+	}
+
+if(anoncecount > 0) 
+	{
+	outputlists2();
+	}
+
+if(anonceliste != NULL)
+	{
+	free(anonceliste);
 	}
 
 if(apstaessidliste != NULL)
@@ -1338,6 +1431,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-T <file> : output management traffic information list\n"
+	"-A <file> : output access point anonce information list\n"
 	"-H <file> : output dump raw packets in hex\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
@@ -1367,7 +1461,7 @@ if(globalinit() == false)
 	printf("global  ‎initialization failed\n");
 	exit(EXIT_FAILURE);
 	}
-while ((auswahl = getopt(argc, argv, "E:T:H:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "E:T:A:H:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1377,6 +1471,10 @@ while ((auswahl = getopt(argc, argv, "E:T:H:hv")) != -1)
 
 		case 'T':
 		trafficoutname = optarg;
+		break;
+
+		case 'A':
+		anonceoutname = optarg;
 		break;
 
 		case 'H':
