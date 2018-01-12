@@ -44,6 +44,13 @@ unsigned long long int associationrequestframecount;
 unsigned long long int associationresponseframecount;
 unsigned long long int reassociationrequestframecount;
 unsigned long long int reassociationresponseframecount;
+unsigned long long int authenticationframecount;
+unsigned long long int deauthenticationframecount;
+unsigned long long int disassociationframecount;
+unsigned long long int deauthenticationframecount;
+unsigned long long int actionframecount;
+unsigned long long int atimframecount;
+
 
 char *hexmodeoutname;
 char *essidoutname;
@@ -248,7 +255,26 @@ if(reassociationresponseframecount != 0)
 	{
 	printf("reassociation responses: %lld\n", reassociationresponseframecount);
 	}
-
+if(authenticationframecount != 0)
+	{
+	printf("authentications........: %lld\n", authenticationframecount);
+	}
+if(deauthenticationframecount != 0)
+	{
+	printf("deauthentications......: %lld\n", deauthenticationframecount);
+	}
+if(disassociationframecount != 0)
+	{
+	printf("disassociations........: %lld\n", disassociationframecount);
+	}
+if(actionframecount != 0)
+	{
+	printf("action packets.........: %lld\n", actionframecount);
+	}
+if(atimframecount != 0)
+	{
+	printf("atim packets...........: %lld\n", atimframecount);
+	}
 printf("\n");
 return;
 }
@@ -674,6 +700,41 @@ reassociationresponseframecount++;
 return;
 }
 /*===========================================================================*/
+void process80211authentication()
+{
+
+authenticationframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211deauthentication()
+{
+
+deauthenticationframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211disassociation()
+{
+
+disassociationframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211action()
+{
+
+actionframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211atim()
+{
+
+atimframecount++;
+return;
+}
+/*===========================================================================*/
 void process80211packet(uint32_t ts_sec, int caplen, uint8_t *packet)
 {
 mac_t *macf;
@@ -712,6 +773,26 @@ if(macf->type == IEEE80211_FTYPE_MGMT)
 	else if (macf->subtype == IEEE80211_STYPE_REASSOC_RESP)
 		{
 		process80211reassoc_resp(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_AUTH)
+		{
+		process80211authentication(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_DEAUTH)
+		{
+		process80211deauthentication(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_DISASSOC)
+		{
+		process80211disassociation(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_ACTION)
+		{
+		process80211action(ts_sec, caplen, packet);
+		}
+	else if (macf->subtype == IEEE80211_STYPE_ATIM)
+		{
+		process80211atim(ts_sec, caplen, packet);
 		}
 	return;
 	}
@@ -922,7 +1003,7 @@ while(1)
 			res = read(fd, &packet, pcapngpb.caplen);
 			if(res != pcapngpb.caplen)
 				{
-				printf("failed to read packet\n");
+				printf("failed to read packet %lld\n", rawpacketcount);
 				pcapreaderrors = 1;
 				break;
 				}
@@ -940,7 +1021,7 @@ while(1)
 		res = read(fd, &packet, pcapngpb.caplen);
 		if(res != pcapngpb.caplen)
 			{
-			printf("failed to read packet\n");
+			printf("failed to read packet %lld\n", rawpacketcount);
 			pcapreaderrors = 1;
 			break;
 			}
@@ -999,7 +1080,7 @@ while(1)
 			res = read(fd, &packet, pcapngepb.caplen);
 			if(res != pcapngepb.caplen)
 				{
-				printf("failed to read packet\n");
+				printf("failed to read packet %lld\n", rawpacketcount);
 				pcapreaderrors = 1;
 				break;
 				}
@@ -1084,7 +1165,7 @@ while(1)
 	if(res != PCAPREC_SIZE)
 		{
 		pcapreaderrors = 1;
-		printf("failed to read pcap packet header\n");
+		printf("failed to read pcap packet header for packet %lld\n", rawpacketcount);
 		break;
 		}
 
@@ -1112,7 +1193,7 @@ while(1)
 		res = read(fd, &packet, pcaprhdr.incl_len);
 		if(res != pcaprhdr.incl_len)
 			{
-			printf("failed to read packet\n");
+			printf("failed to read packet %lld\n", rawpacketcount);
 			pcapreaderrors = 1;
 			break;
 			}
@@ -1152,6 +1233,11 @@ associationrequestframecount = 0;
 associationresponseframecount = 0;
 reassociationrequestframecount = 0;
 reassociationresponseframecount = 0;
+authenticationframecount = 0;
+deauthenticationframecount = 0;
+disassociationframecount = 0;
+actionframecount = 0;
+atimframecount = 0;
 
 pcapr_fd = open(pcapinname, O_RDONLY);
 if(pcapr_fd == -1)
