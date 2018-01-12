@@ -374,10 +374,17 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap);
 		memset(&essidstring, 0, 34);
 		memcpy(&essidstring,  zeiger->essid, 32);
-		pkttime = zeiger->tv_sec;
-		pkttm = localtime(&pkttime);
-		strftime(tmbuf, sizeof tmbuf, "%d%m%Y", pkttm);
-		fprintf(fhoutlist, "%s:", tmbuf);
+		if(zeiger->tv_sec != 0)
+			{
+			pkttime = zeiger->tv_sec;
+			pkttm = localtime(&pkttime);
+			strftime(tmbuf, sizeof tmbuf, "%d%m%Y", pkttm);
+			fprintf(fhoutlist, "%s:", tmbuf);
+			}
+		else
+			{
+			fprintf(fhoutlist, "00000000:");
+			}
 		for(p = 0; p< 6; p++)
 			{
 			fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
@@ -409,10 +416,17 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 				{
 				memset(&essidstring, 0, 34);
 				memcpy(&essidstring,  zeiger->essid, 32);
-				pkttime = zeiger->tv_sec;
-				pkttm = localtime(&pkttime);
-				strftime(tmbuf, sizeof tmbuf, "%d%m%Y", pkttm);
-				fprintf(fhoutlist, "%s:", tmbuf);
+				if(zeiger->tv_sec != 0)
+					{
+					pkttime = zeiger->tv_sec;
+					pkttm = localtime(&pkttime);
+					strftime(tmbuf, sizeof tmbuf, "%d%m%Y", pkttm);
+					fprintf(fhoutlist, "%s:", tmbuf);
+					}
+				else
+					{
+					fprintf(fhoutlist, "00000000:");
+					}
 				for(p = 0; p< 6; p++)
 					{
 					fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
@@ -793,7 +807,7 @@ packet_block_t pcapngpb;
 enhanced_packet_block_t pcapngepb;
 uint8_t packet[MAXPACPSNAPLEN];
 
-printf("start reading from %s\n\n", pcapinname);
+printf("start reading from %s\n", pcapinname);
 while(1)
 	{
 	res = read(fd, &pcapngbh, BH_SIZE);
@@ -1031,7 +1045,7 @@ pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
 uint8_t packet[MAXPACPSNAPLEN];
 
-printf("start reading from %s\n\n", pcapinname);
+printf("start reading from %s\n", pcapinname);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
 	{
