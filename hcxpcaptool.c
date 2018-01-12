@@ -19,8 +19,8 @@
 #endif
 
 #include "include/version.h"
-#include "include/ieee80211.h"
 #include "include/hcxpcaptool.h"
+#include "include/ieee80211.c"
 #include "include/common.c"
 #include "include/byteops.c"
 #include "include/fileops.c"
@@ -656,13 +656,16 @@ return;
 /*===========================================================================*/
 void process80211eapolauthentication(uint32_t ts_sec, int caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
-//wpakey_t *wpak;
+wpakey_t *wpak;
+uint16_t keyinfo;
 
 if(caplen < (int)EAPAUTH_SIZE -(int)WPAKEY_SIZE)
 	{
 	return;
 	}
-//wpak = (wpakey_t*)packet;
+wpak = (wpakey_t*)packet;
+keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
+
 eapolframecount++;
 
 /* nonsense - only to satisfy gcc - will be removed on final version) */
@@ -675,6 +678,10 @@ if(memcmp(macaddr1, macaddr2, 6) == 0)
 	return;
 	}
 if(packet[0] == 10)
+	{
+	return;
+	}
+if(keyinfo == 0)
 	{
 	return;
 	}
@@ -695,7 +702,7 @@ if(caplen < (int)EAPAUTH_SIZE)
 eap = (eapauth_t*)packet;
 if(eap->type == 3)
 	{
-	packet_ptr += MAC_SIZE_NORM +EAPAUTH_SIZE;
+	packet_ptr += EAPAUTH_SIZE;
 	process80211eapolauthentication(ts_sec, caplen -EAPAUTH_SIZE, macaddr1, macaddr2, packet_ptr);
 	}
 else if(eap->type == 0)

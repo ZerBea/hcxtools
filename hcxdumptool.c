@@ -29,7 +29,7 @@
 
 #include "include/version.h"
 #include "include/hcxdumptool.h"
-#include "include/ieee80211.h"
+#include "include/ieee80211.c"
 #include "include/pcap.c"
 
 /*===========================================================================*/
@@ -945,40 +945,6 @@ qsort(proberequestliste, PROBEREQUESTLISTESIZEMAX, MACESSIDLIST_SIZE, sort_maces
 return false;
 }
 /*===========================================================================*/
-static uint8_t geteapkey(wpakey_t *key)
-{
-static uint16_t keyinfo;
-
-keyinfo = (((key->keyinfo & 0xff) << 8) | (key->keyinfo >> 8));
-if (keyinfo & WPA_KEY_INFO_ACK)
-	{
-	if(keyinfo & WPA_KEY_INFO_INSTALL)
-		{
-		/* handshake 3 */
-		return WPA_M3;
-		}
-	else
-		{
-		/* handshake 1 */
-		return WPA_M1;
-		}
-	}
-else
-	{
-	if(keyinfo & WPA_KEY_INFO_SECURE)
-		{
-		/* handshake 4 */
-		return WPA_M4;
-		}
-	else
-		{
-		/* handshake 2 */
-		return WPA_M2;
-		}
-	}
-return 0;
-}
-/*===========================================================================*/
 static bool set_channel()
 {
 static struct iwreq pwrq;
@@ -1242,9 +1208,9 @@ while(1)
 				eapauthf = (eapauth_t*)&packetin[PCAPREC_SIZE +rthlen +maclen +LLC_SIZE];
 				if(eapauthf->type == 3)
 					{
-					write(fd_pcap, packetsave, pklen + PCAPREC_SIZE);
+					write(fd_pcap, packetsave, pklen +PCAPREC_SIZE);
 					wpakeyf = (wpakey_t*)&packetin[PCAPREC_SIZE +rthlen +maclen +LLC_SIZE +EAPAUTH_SIZE];
-					mk = geteapkey(wpakeyf);
+					mk = (getkeyinfo(ntohs(wpakeyf->keyinfo)));
 					rc = be64toh(wpakeyf->replaycount);
 					if((mk == WPA_M1) && (rc != MYREPLAYCOUNT))
 						{
