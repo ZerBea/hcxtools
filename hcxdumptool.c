@@ -59,9 +59,7 @@ static macessidl_t *proberequestliste;
 static macl_t *proberesponseliste;
 static macapstal_t *handshakeliste;
 
-static uint8_t cps = 0;
 static uint8_t cpa = 0;
-static uint8_t cpe = 0;
 
 static int myouiap;
 static int mynicap;
@@ -69,12 +67,6 @@ static int myouista;
 static int mynicsta;
 static int mysequencenr = 0;
 
-static const uint8_t channellist[] =
-{
-1, 36, 3, 40, 5, 44, 7, 48, 9, 52, 11, 56, 13, 60, 2, 64, 4, 100, 6, 104, 8, 108, 10, 112, 12, 116, 14, 120,
-1, 124, 3, 128, 5, 132, 7, 136, 9, 140, 11, 149, 13, 153, 2, 157, 4, 161, 6, 165, 1, 11, 8, 6, 10, 12
-};
-#define CHANNELLIST_SIZE sizeof(channellist)
 
 static const int myvendorap[] =
 {
@@ -116,6 +108,13 @@ static uint8_t mac_mysta[6];
 
 static uint8_t mac_black_ap[BLACKLISTESIZEMAX][6];
 
+uint8_t channellist[128] =
+{
+1, 36, 3, 40, 5, 44, 7, 48, 9, 52, 11, 56, 13, 60, 2, 64, 4, 100, 6, 104, 8, 108, 10, 112, 12, 116, 14, 120,
+1, 124, 3, 128, 5, 132, 7, 136, 9, 140, 11, 149, 13, 153, 2, 157, 4, 161, 6, 165, 1, 11, 8, 6, 10, 12, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
 /*===========================================================================*/
 static void programmende(int signum)
 {
@@ -1435,22 +1434,18 @@ if(signo == TT_SIGUSR1)
 if(signo == TT_SIGUSR2)
 	{
 	cpa++;
-	if(cpa > cpe)
+	if(channellist[cpa] == 0)
 		{
-		cpa = cps;
+		cpa = 0;
 		}
 	while(set_channel() == false)
 		{
-		if(cpa == 0)
+		if(channellist[cpa] == 0)
 			{
 			errorcount++;
 			break;
 			}
 		cpa++;
-		if(cpa >= cpe)
-			{
-			cpa = cps;
-			}
 		}
 	send_undirected_proberequest();
 	}
@@ -1600,7 +1595,6 @@ if(set_timer(timer2, staytime, TIME_INTERVAL_2NS) == false)
 	return false;
 	}
 
-cpe = CHANNELLIST_SIZE;
 if(set_channel() == false)
 	{
 	printf("failed to set channel\n");
@@ -1665,6 +1659,30 @@ else
 	}
 }
 /*===========================================================================*/
+void processscanlist(char *list)
+{
+char *ptr;
+
+printf("%s\n", list);
+
+
+cpa = 0;
+ptr = strtok(list, ",");
+while(ptr != NULL)
+	{
+	channellist[cpa] = atoi(ptr);
+	cpa++;
+	if(cpa > 127)
+		{
+		return;
+		}
+	ptr = strtok(NULL, ",");
+	}
+channellist[cpa] = 0;
+cpa = 0;
+return;
+}
+/*===========================================================================*/
 __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
@@ -1683,6 +1701,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-i <interface> : interface\n"
 	"-o <dump file> : output file in pcapformat including radiotap header (LINKTYPE_IEEE802_11_RADIOTAP)\n"
 	"-c <digit>     : set channel (default = channel 1)\n"
+	"-C <digit>     : comma separated scanlist (1,3,5,7...)\n"
 	"-t <seconds>   : stay time on channel before hopping to the next channel\n"
 	"               : default = 5 seconds\n"
 	"-B <file>      : blacklist (do not deauthenticate clients from this hosts - format: xxxxxxxxxxxx)\n"
@@ -1721,7 +1740,7 @@ interfacename = NULL;
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
-while ((auswahl = getopt(argc, argv, "i:o:c:t:B:T:DlPIshvu")) != -1)
+while ((auswahl = getopt(argc, argv, "i:o:c:C:t:B:T:DlPIshvu")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1740,19 +1759,25 @@ while ((auswahl = getopt(argc, argv, "i:o:c:t:B:T:DlPIshvu")) != -1)
 
 		case 'c':
 		startchannel = strtol(optarg, NULL, 10);
-		for(cpa = 0; cpa < CHANNELLIST_SIZE; cpa++)
+		while(channellist[cpa] != 0)
 			{
 			if(startchannel == channellist[cpa])
 				{
 				break;
 				}
+			cpa++;
 			}
-		if(cpa >= CHANNELLIST_SIZE)
+		if(channellist[cpa] == 0)
 			{
-			fprintf(stderr, "unsupported channel (see -h for supported channels)\n");
-			exit (EXIT_FAILURE);
+			cpa = 0;
+			fprintf(stderr, "channel not in scanlist, setting channel to %d\n", channellist[cpa]);
 			}
 		break;
+
+		case 'C':
+		processscanlist(optarg);
+		break;
+
 
 		case 't':
 		staytime = strtol(optarg, NULL, 10);

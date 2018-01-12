@@ -1,7 +1,12 @@
 11.01.2018
 ==========
+hcxdumptool
+added new option
+-C <digit>     : comma separated scanlist (1,3,5,7...)
+support for scanlist
+
 hcxpcaptool
-added new options
+added new option
 -A <file> : output access point anonce information list (forensics purpose)
 date:mac_sta:mac_ap:keyver(1=M1, 2=M3, 3=M1+M3):replaycount(in hex):anonce
 
