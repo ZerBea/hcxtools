@@ -9,6 +9,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <netinet/in.h>
 #include <sys/types.h>
 #ifdef __APPLE__
 #define strdupa strdup
@@ -50,6 +51,8 @@ unsigned long long int disassociationframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int actionframecount;
 unsigned long long int atimframecount;
+unsigned long long int eapolframecount;
+unsigned long long int eapframecount;
 
 
 char *hexmodeoutname;
@@ -275,6 +278,16 @@ if(atimframecount != 0)
 	{
 	printf("atim packets...........: %lld\n", atimframecount);
 	}
+if(eapolframecount != 0)
+	{
+	printf("eapol packets..........: %lld\n", eapolframecount);
+	}
+if(eapframecount != 0)
+	{
+	printf("eap packets............: %lld\n", eapframecount);
+	}
+
+
 printf("\n");
 return;
 }
@@ -334,13 +347,9 @@ return;
 /*===========================================================================*/
 void outputlists()
 {
-int c, p;
+int c;
 FILE *fhoutlist = NULL;
 apstaessidl_t *zeiger, *zeigerold;
-time_t pkttime;
-struct tm *pkttm;
-
-char tmbuf[64];
 uint8_t essidstring[34];
 
 if((apstaessidliste != NULL) && (essidoutname != NULL)) 
@@ -351,19 +360,7 @@ if((apstaessidliste != NULL) && (essidoutname != NULL))
 		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_essid);
 		memset(&essidstring, 0, 34);
 		memcpy(&essidstring,  zeiger->essid, 32);
-		if(isasciistring(zeiger->essidlen, essidstring) != false)
-			{
-			fprintf(fhoutlist, "%s\n", essidstring);
-			}
-		else
-			{
-			fprintf(fhoutlist, "$HEX[");
-			for(p = 0; p < zeiger->essidlen; p++)
-				{
-				fprintf(fhoutlist, "%02x", essidstring[p]);
-				}
-			fprintf(fhoutlist, "]\n");
-			}
+		fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
 		zeiger++;
 		for(c = 1; c < apstaessidcount; c++)
 			{
@@ -371,19 +368,7 @@ if((apstaessidliste != NULL) && (essidoutname != NULL))
 				{
 				memset(&essidstring, 0, 34);
 				memcpy(&essidstring,  zeiger->essid, 32);
-				if(isasciistring(zeiger->essidlen, essidstring) != false)
-					{
-					fprintf(fhoutlist, "%s\n", essidstring);
-					}
-				else
-					{
-					fprintf(fhoutlist, "$HEX[");
-					for(p = 0; p < zeiger->essidlen; p++)
-						{
-						fprintf(fhoutlist, "%02x", essidstring[p]);
-						}
-					fprintf(fhoutlist, "]\n");
-					}
+				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
 				}
 			zeiger++;
 			}
@@ -400,85 +385,19 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap);
 		memset(&essidstring, 0, 34);
 		memcpy(&essidstring,  zeiger->essid, 32);
-		if(zeiger->tv_sec != 0)
-			{
-			pkttime = zeiger->tv_sec;
-			pkttm = localtime(&pkttime);
-			strftime(tmbuf, sizeof tmbuf, "%d%m%Y", pkttm);
-			fprintf(fhoutlist, "%s:", tmbuf);
-			}
-		else
-			{
-			fprintf(fhoutlist, "00000000:");
-			}
-		for(p = 0; p< 6; p++)
-			{
-			fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
-			}
-		fprintf(fhoutlist, ":");
-		for(p = 0; p< 6; p++)
-			{
-			fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
-			}
-		fprintf(fhoutlist, ":");
-		if(isasciistring(zeiger->essidlen, essidstring) != false)
-			{
-			fprintf(fhoutlist, "%s\n", essidstring);
-			}
-		else
-			{
-			fprintf(fhoutlist, "$HEX[");
-			for(p = 0; p < zeiger->essidlen; p++)
-				{
-				fprintf(fhoutlist, "%02x", essidstring[p]);
-				}
-			fprintf(fhoutlist, "]\n");
-			}
+		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+		fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
 		zeiger++;
-
 		for(c = 1; c < apstaessidcount; c++)
 			{
 			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) != 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) != 0) && (memcmp(&essidstring, zeiger->essid, 32) != 0))
 				{
 				memset(&essidstring, 0, 34);
 				memcpy(&essidstring,  zeiger->essid, 32);
-				if(zeiger->tv_sec != 0)
-					{
-					pkttime = zeiger->tv_sec;
-					pkttm = localtime(&pkttime);
-					strftime(tmbuf, sizeof tmbuf, "%d%m%Y", pkttm);
-					fprintf(fhoutlist, "%s:", tmbuf);
-					}
-				else
-					{
-					fprintf(fhoutlist, "00000000:");
-					}
-				for(p = 0; p< 6; p++)
-					{
-					fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
-					}
-				fprintf(fhoutlist, ":");
-				for(p = 0; p< 6; p++)
-					{
-					fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
-					}
-				fprintf(fhoutlist, ":");
-				if(zeiger->essidlen > 32)
-					printf("warning\n");
-
-				if(isasciistring(zeiger->essidlen, essidstring) != false)
-					{
-					fprintf(fhoutlist, "%s\n", essidstring);
-					}
-				else
-					{
-					fprintf(fhoutlist, "$HEX[");
-					for(p = 0; p < zeiger->essidlen; p++)
-						{
-						fprintf(fhoutlist, "%02x", essidstring[p]);
-						}
-					fprintf(fhoutlist, "]\n");
-					}
+				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
 				}
 			zeigerold = zeiger;
 			zeiger++;
@@ -486,7 +405,6 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 		}
 	fclose(fhoutlist);
 	}
-
 return;
 }
 /*===========================================================================*/
@@ -703,6 +621,7 @@ return;
 void process80211authentication()
 {
 
+
 authenticationframecount++;
 return;
 }
@@ -735,6 +654,98 @@ atimframecount++;
 return;
 }
 /*===========================================================================*/
+void process80211eapolauthentication(uint32_t ts_sec, int caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
+{
+//wpakey_t *wpak;
+
+if(caplen < (int)EAPAUTH_SIZE -(int)WPAKEY_SIZE)
+	{
+	return;
+	}
+//wpak = (wpakey_t*)packet;
+eapolframecount++;
+
+/* nonsense - only to satisfy gcc - will be removed on final version) */
+if(ts_sec == 0)
+	{
+	return;
+	}
+if(memcmp(macaddr1, macaddr2, 6) == 0)
+	{
+	return;
+	}
+if(packet[0] == 10)
+	{
+	return;
+	}
+
+return;
+}
+/*===========================================================================*/
+void process80211networkauthentication(uint32_t ts_sec, int caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
+{
+eapauth_t *eap;
+uint8_t *packet_ptr;
+
+packet_ptr = packet;
+if(caplen < (int)EAPAUTH_SIZE)
+	{
+	return;
+	}
+eap = (eapauth_t*)packet;
+if(eap->type == 3)
+	{
+	packet_ptr += MAC_SIZE_NORM +EAPAUTH_SIZE;
+	process80211eapolauthentication(ts_sec, caplen -EAPAUTH_SIZE, macaddr1, macaddr2, packet_ptr);
+	}
+else if(eap->type == 0)
+	{
+	if(caplen < (int)EAPAUTH_SIZE -(int)EXTEAP_SIZE)
+		{
+		return;
+		}
+	eapframecount++;
+	}
+return;
+}
+/*===========================================================================*/
+void process80211datapacket(uint32_t ts_sec, int caplen, uint8_t *packet)
+{
+mac_t *macf;
+llc_t *llc;
+uint8_t *packet_ptr;
+
+macf = (mac_t*)packet;
+packet_ptr = packet;
+if(macf->subtype == IEEE80211_STYPE_DATA) 
+	{
+	if(caplen < (int)MAC_SIZE_NORM +(int)LLC_SIZE)
+		{
+		return;
+		}
+	llc = (llc_t*)(packet+MAC_SIZE_NORM);
+	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
+		{
+		packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
+		process80211networkauthentication(ts_sec, caplen -MAC_SIZE_NORM -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
+		}
+	}
+else if(macf->subtype == IEEE80211_STYPE_QOS_DATA) 
+	{
+	if(caplen < (int)MAC_SIZE_QOS +(int)LLC_SIZE)
+		{
+		return;
+		}
+	llc = (llc_t*)(packet +MAC_SIZE_QOS);
+	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
+		{
+		packet_ptr += MAC_SIZE_QOS +LLC_SIZE;
+		process80211networkauthentication(ts_sec, caplen -MAC_SIZE_QOS -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 void process80211packet(uint32_t ts_sec, int caplen, uint8_t *packet)
 {
 mac_t *macf;
@@ -764,7 +775,7 @@ if(macf->type == IEEE80211_FTYPE_MGMT)
 		}
 	else if (macf->subtype == IEEE80211_STYPE_ASSOC_RESP)
 		{
-		process80211assoc_resp(ts_sec, caplen, packet);
+		process80211assoc_resp();
 		}
 	else if (macf->subtype == IEEE80211_STYPE_REASSOC_REQ)
 		{
@@ -776,36 +787,31 @@ if(macf->type == IEEE80211_FTYPE_MGMT)
 		}
 	else if (macf->subtype == IEEE80211_STYPE_AUTH)
 		{
-		process80211authentication(ts_sec, caplen, packet);
+		process80211authentication();
 		}
 	else if (macf->subtype == IEEE80211_STYPE_DEAUTH)
 		{
-		process80211deauthentication(ts_sec, caplen, packet);
+		process80211deauthentication();
 		}
 	else if (macf->subtype == IEEE80211_STYPE_DISASSOC)
 		{
-		process80211disassociation(ts_sec, caplen, packet);
+		process80211disassociation();
 		}
 	else if (macf->subtype == IEEE80211_STYPE_ACTION)
 		{
-		process80211action(ts_sec, caplen, packet);
+		process80211action();
 		}
 	else if (macf->subtype == IEEE80211_STYPE_ATIM)
 		{
-		process80211atim(ts_sec, caplen, packet);
+		process80211atim();
 		}
 	return;
 	}
-/*
-else if(macf->type == IEEE80211_STYPE_DATA) 
-	{
-	}
-else if(macf->type == IEEE80211_STYPE_QOS_DATA) 
-	{
-	}
 
-*/
-
+else if (macf->type == IEEE80211_FTYPE_DATA)
+	{
+	process80211datapacket(ts_sec, caplen, packet);
+	}
 
 return;
 }
@@ -1238,6 +1244,8 @@ deauthenticationframecount = 0;
 disassociationframecount = 0;
 actionframecount = 0;
 atimframecount = 0;
+eapolframecount = 0;
+eapframecount = 0;
 
 pcapr_fd = open(pcapinname, O_RDONLY);
 if(pcapr_fd == -1)
@@ -1322,7 +1330,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
-	"-T <file> : output traffic information list\n"
+	"-T <file> : output management traffic information list\n"
 	"-H <file> : output dump raw packets in hex\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"

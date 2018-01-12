@@ -216,23 +216,6 @@ struct mac_frame
 } __attribute__((__packed__));
 typedef struct mac_frame mac_t;
 /*===========================================================================*/
-struct llc_frame
-{
- uint8_t	dsap;
- uint8_t	ssap;
- uint8_t	control;
- uint8_t	org[3];
- uint16_t	type;
-#define	LLC_TYPE_AUTH	0x888e
-#define	LLC_TYPE_IPV4	0x0800
-#define	LLC_TYPE_IPV6	0x86dd
-#define	LLC_TYPE_PREAUT	0x88c7
-#define	LLC_TYPE_FRRR	0x890d
-} __attribute__((__packed__));
-typedef struct llc_frame llc_t;
-#define	LLC_SIZE (sizeof(llc_t))
-#define LLC_SNAP 0xaa
-/*===========================================================================*/
 struct capabilities_ap_frame
 {
  uint64_t	timestamp;
@@ -270,6 +253,23 @@ struct ie_tag
 } __attribute__((__packed__));
 typedef struct ie_tag ietag_t;
 #define	IETAG_SIZE offsetof(ietag_t, data)
+/*===========================================================================*/
+struct llc_frame
+{
+ uint8_t	dsap;
+ uint8_t	ssap;
+ uint8_t	control;
+ uint8_t	org[3];
+ uint16_t	type;
+#define	LLC_TYPE_AUTH	0x888e
+#define	LLC_TYPE_IPV4	0x0800
+#define	LLC_TYPE_IPV6	0x86dd
+#define	LLC_TYPE_PREAUT	0x88c7
+#define	LLC_TYPE_FRRR	0x890d
+};
+typedef struct llc_frame llc_t;
+#define	LLC_SIZE (sizeof(llc_t))
+#define	LLC_SNAP 0xaa
 /*===========================================================================*/
 struct authentication_frame
 {
@@ -318,7 +318,7 @@ struct exteap_frame
 #define	EAP_CODE_FAIL	4
  uint8_t		id;
 #define	EAP_TYPE_ID	1
- uint16_t	extlen;
+ uint16_t		extlen;
  uint8_t		exttype;
 #define	EAP_TYPE_EXPAND	254
  uint8_t		data[1];
