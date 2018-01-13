@@ -445,7 +445,7 @@ if((anonceliste != NULL) && (anonceoutname != NULL))
 			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) != 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) != 0) && (memcmp(zeigerold->anonce, zeiger->anonce, 32) != 0))
 				{
 				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
-				fprintf(fhoutlist, "%8x:", zeiger->tv_sec);
+				fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 				fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
 				fwritehexbuff(32, zeiger->anonce, fhoutlist);
@@ -476,7 +476,7 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 		fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 		fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
-		fprintf(fhoutlist, "%03d:", zeiger->authlen -4);
+		fprintf(fhoutlist, "%02x:", zeiger->authlen -4);
 		fwritehexbuff(zeiger->authlen, zeiger->eapol, fhoutlist);
 		zeiger++;
 		for(c = 1; c < eapolcount; c++)
@@ -487,7 +487,7 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 				fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 				fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
-				fprintf(fhoutlist, "%03d:", zeiger->authlen -4);
+				fprintf(fhoutlist, "%02x:", zeiger->authlen -4);
 				fwritehexbuff(zeiger->authlen, zeiger->eapol, fhoutlist);
 				}
 			zeigerold = zeiger;
