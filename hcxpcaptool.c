@@ -95,7 +95,14 @@ char *geteaptypestring(int exapt)
 switch(exapt)
 	{
 	case EAP_TYPE_ID: return "EAP type ID";
+	case EAP_TYPE_NAK: return "Legacy Nak";
+	case EAP_TYPE_MD5: return "MD5-Challenge";
+	case EAP_TYPE_OTP: return "One-Time Password (OTP)";
+	case EAP_TYPE_GTC: return "Generic Token Card (GTC)";
+	case EAP_TYPE_RSA: return "RSA Public Key Authentication";
 	case EAP_TYPE_EXPAND: return "WPS Authentication";
+	case EAP_TYPE_SIM: return "EAP-SIM (GSM Subscriber Modules) Authentication";
+	case EAP_TYPE_EXPERIMENTAL: return "Experimental Authentication";
 	default: return "unknown authentication type";
 	}
 return "unknown authentication type";
@@ -1627,7 +1634,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
-	"-P <file> : output possible WPA/WPA22 plainmasterkey list\n"
+	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
 	"-A <file> : output nonce information list\n"
