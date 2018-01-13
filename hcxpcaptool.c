@@ -470,6 +470,7 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 		qsort(eapolliste, eapolcount, EAPOLLIST_SIZE, sort_eapollist_by_ap);
 		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
 		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+		fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
 		fprintf(fhoutlist, "%03d:", zeiger->authlen -4);
 		fwritehexbuff(zeiger->authlen, zeiger->eapol, fhoutlist);
 		zeiger++;
@@ -479,6 +480,7 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 				{
 				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
 				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+				fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
 				fprintf(fhoutlist, "%03d:", zeiger->authlen -4);
 				fwritehexbuff(zeiger->authlen, zeiger->eapol, fhoutlist);
 				}
@@ -491,7 +493,7 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 return;
 }
 /*===========================================================================*/
-void addeapol(uint32_t tv_sec, uint8_t *mac_sta, uint8_t *mac_ap, uint32_t authlen, uint8_t *authpacket)
+void addeapol(uint32_t tv_sec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint32_t authlen, uint8_t *authpacket)
 {
 eapoll_t *zeiger, *tmp;
 int c;
@@ -517,6 +519,8 @@ for(c = 0; c < eapolcount; c++)
 zeiger->tv_sec = tv_sec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
+zeiger->replaycount = rc;
+zeiger->keyinfo = ki;
 zeiger->authlen = authlen;
 memset(zeiger->eapol, 0, 256);
 memcpy(zeiger->eapol, authpacket, authlen);
@@ -555,9 +559,9 @@ for(c = 0; c < anoncecount; c++)
 zeiger->tv_sec = tv_sec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
-memcpy(zeiger->anonce, anonce, 32);
 zeiger->replaycount = rc;
 zeiger->keyinfo = ki;
+memcpy(zeiger->anonce, anonce, 32);
 
 anoncecount++;
 tmp = realloc(anonceliste, (anoncecount +1) *ANONCELIST_SIZE);
@@ -849,7 +853,7 @@ else if(keyinfo == 2)
 	{
 	if(ntohs(eap->len) == caplen -4)
 		{
-		addeapol(ts_sec, macaddr1, macaddr2, caplen, packet);
+		addeapol(ts_sec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), caplen, packet);
 		}
 	}
 else if(keyinfo == 4)
@@ -860,7 +864,7 @@ else if(keyinfo == 4)
 		}
 	if(ntohs(eap->len) == caplen -4)
 		{
-		addeapol(ts_sec, macaddr1, macaddr2, caplen, packet);
+		addeapol(ts_sec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), caplen, packet);
 		}
 	}
 else

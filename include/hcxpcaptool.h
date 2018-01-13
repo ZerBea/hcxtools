@@ -84,6 +84,8 @@ struct eapollist_s
  uint32_t	tv_sec;
  uint8_t	mac_ap[6];
  uint8_t	mac_sta[6];
+ uint8_t	keyinfo;
+ uint64_t	replaycount;
  uint8_t	authlen;
  uint8_t	eapol[256];
 } __attribute__((__packed__));
