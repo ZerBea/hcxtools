@@ -867,6 +867,7 @@ else if(keyinfo == 3)
 
 else if(keyinfo == 2)
 	{
+	addapanonce(ts_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), wpak->nonce);
 	if(ntohs(eap->len) == caplen -4)
 		{
 		addeapol(ts_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), caplen, packet);
@@ -878,6 +879,7 @@ else if(keyinfo == 4)
 		{
 		return;
 		}
+	addapanonce(ts_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), wpak->nonce);
 	if(ntohs(eap->len) == caplen -4)
 		{
 		addeapol(ts_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), caplen, packet);
@@ -1575,11 +1577,20 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-T <file> : output management traffic information list\n"
-	"-A <file> : output access point anonce information list\n"
+	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
+	"-A <file> : output nonce information list\n"
+	"          : european date : timestamp : mac_sta : mac_ap : message : replaycount : nonce\n"
 	"-S <file> : output EAPOL information list\n"
+	"          : european date : timestamp : mac_sta : mac_ap : message : replaycount : eapol_len : eapol\n"
 	"-H <file> : output dump raw packets in hex\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
+	"\n"
+	"bitmask for message:\n"
+	"0001 M1\n"
+	"0010 M2\n"
+	"0100 M3\n"
+	"1000 M4\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname);
 exit(EXIT_SUCCESS);
 }
