@@ -1671,7 +1671,10 @@ ptr = strtok(list, ",");
 while(ptr != NULL)
 	{
 	channellist[cpa] = atoi(ptr);
-	cpa++;
+	if(channellist[cpa] != 0)
+		{
+		cpa++;
+		}
 	if(cpa > 126)
 		{
 		return;
