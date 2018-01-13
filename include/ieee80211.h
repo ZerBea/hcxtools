@@ -313,14 +313,71 @@ typedef struct wpakey_frame wpakey_t;
 struct exteap_frame
 {
  uint8_t		code;
-#define	EAP_CODE_REQ	1
-#define	EAP_CODE_RESP	2
-#define	EAP_CODE_FAIL	4
+#define	EAP_CODE_REQ		1
+#define	EAP_CODE_RESP		2
+#define	EAP_CODE_SUCCESS	3
+#define	EAP_CODE_FAILURE	4
+#define	EAP_CODE_INITIATE	5
+#define	EAP_CODE_FINISH		6
  uint8_t		id;
 #define	EAP_TYPE_ID	1
  uint16_t		extlen;
  uint8_t		exttype;
-#define	EAP_TYPE_EXPAND	254
+#define EAP_TYPE_EAP		0
+#define EAP_TYPE_ID		1
+#define EAP_TYPE_NOTIFY		2
+#define EAP_TYPE_NAK		3
+#define EAP_TYPE_MD5		4
+#define EAP_TYPE_OTP		5
+#define EAP_TYPE_GTC		6
+#define EAP_TYPE_RSA		9
+#define EAP_TYPE_DSS		10
+#define EAP_TYPE_KEA		11
+#define EAP_TYPE_KEA_VALIDATE	12
+#define EAP_TYPE_TLS		13
+#define EAP_TYPE_AXENT		14
+#define EAP_TYPE_RSA_SSID	15
+#define EAP_TYPE_RSA_ARCOT	16
+#define EAP_TYPE_LEAP		17
+#define EAP_TYPE_SIM		18
+#define EAP_TYPE_SRP_SHA1	19
+#define EAP_TYPE_TTLS		21
+#define EAP_TYPE_RAS		22
+#define EAP_TYPE_AKA		23
+#define EAP_TYPE_3COMEAP	24
+#define EAP_TYPE_PEAP		25
+#define EAP_TYPE_MSEAP		26
+#define EAP_TYPE_MAKE		27
+#define EAP_TYPE_CRYPTOCARD	28
+#define EAP_TYPE_MSCHAPV2	29
+#define EAP_TYPE_DYNAMICID	30
+#define EAP_TYPE_ROB		31
+#define EAP_TYPE_POTP		32
+#define EAP_TYPE_MSTLV		33
+#define EAP_TYPE_SENTRI		34
+#define EAP_TYPE_AW		35
+#define EAP_TYPE_CSBA		36
+#define EAP_TYPE_AIRFORT	37
+#define EAP_TYPE_HTTPD		38
+#define EAP_TYPE_SS		39
+#define EAP_TYPE_DC		40
+#define EAP_TYPE_SPEKE		41
+#define EAP_TYPE_MOBAC		42
+#define EAP_TYPE_FAST		43
+#define EAP_TYPE_ZLXEAP		44
+#define EAP_TYPE_LINK		45
+#define EAP_TYPE_PAX		46
+#define EAP_TYPE_PSK		47
+#define EAP_TYPE_SAKE		48
+#define EAP_TYPE_IKEV2		49
+#define EAP_TYPE_AKA1		50
+#define EAP_TYPE_GPSK		51
+#define EAP_TYPE_PWD		52
+#define EAP_TYPE_EKE1		53
+#define EAP_TYPE_PTEAP		54
+#define EAP_TYPE_TEAP		55
+#define	EAP_TYPE_EXPAND		254
+#define EAP_TYPE_EXPERIMENTAL	255
  uint8_t		data[1];
 } __attribute__((__packed__));
 typedef struct exteap_frame exteap_t;

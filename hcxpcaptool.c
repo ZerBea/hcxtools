@@ -44,8 +44,6 @@ anoncel_t *anonceliste;
 int eapolcount;
 eapoll_t *eapolliste;
 
-
-
 unsigned long long int beaconframecount;
 unsigned long long int proberequestframecount;
 unsigned long long int proberesponseframecount;
@@ -62,14 +60,17 @@ unsigned long long int atimframecount;
 unsigned long long int eapolframecount;
 unsigned long long int eapframecount;
 
-
 char *hexmodeoutname;
 char *essidoutname;
 char *trafficoutname;
 char *anonceoutname;
 char *eapoloutname;
+char *pmkoutname;
 
 FILE *fhhexmode;
+
+int exeaptype[256];
+
 /*===========================================================================*/
 /* global init */
 
@@ -80,12 +81,24 @@ essidoutname = NULL;
 trafficoutname = NULL;
 anonceoutname = NULL;
 eapoloutname = NULL;
+pmkoutname = NULL;
 
 hexmodeflag = false;
 
 setbuf(stdout, NULL);
 srand(time(NULL));
 return true;
+}
+/*===========================================================================*/
+char *geteaptypestring(int exapt) 
+{
+switch(exapt)
+	{
+	case EAP_TYPE_ID: return "EAP type ID";
+	case EAP_TYPE_EXPAND: return "WPS Authentication";
+	default: return "unknown authentication type";
+	}
+return "unknown authentication type";
 }
 /*===========================================================================*/
 char *getdltstring(int networktype) 
@@ -228,6 +241,7 @@ return "unknow nendian";
 /*===========================================================================*/
 void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, unsigned long long int skippedpacketcount, int pcapreaderrors, bool tscleanflag)
 {
+int p;
 printf("summary:\n--------\n"
 	"file name..............: %s\n"
 	"file type..............: %s %d.%d\n"
@@ -299,7 +313,13 @@ if(eapframecount != 0)
 	printf("eap packets............: %lld\n", eapframecount);
 	}
 
-
+for(p = 0; p < 256; p++)
+	{
+	if(exeaptype[p] != 0)
+		{
+		printf("found..................: %s\n", geteaptypestring(p));
+		}
+	}
 printf("\n");
 return;
 }
@@ -380,6 +400,36 @@ if((apstaessidliste != NULL) && (essidoutname != NULL))
 				memset(&essidstring, 0, 34);
 				memcpy(&essidstring,  zeiger->essid, 32);
 				fwriteessidstr(zeiger->essidlen, essidstring, fhoutlist); 
+				}
+			zeiger++;
+			}
+		}
+	fclose(fhoutlist);
+	}
+
+if((apstaessidliste != NULL) && (pmkoutname != NULL)) 
+	{
+	if((fhoutlist = fopen(pmkoutname, "a+")) != NULL)
+		{
+		zeiger = apstaessidliste;
+		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_essid);
+		memset(&essidstring, 0, 34);
+		memcpy(&essidstring,  zeiger->essid, 32);
+		if(zeiger->essidlen == 32)
+			{
+			fwritehexbuff(32, zeiger->essid, fhoutlist);
+			}
+		zeiger++;
+		for(c = 1; c < apstaessidcount; c++)
+			{
+			if(memcmp(&essidstring, zeiger->essid, 32) != 0)
+				{
+				memset(&essidstring, 0, 34);
+				memcpy(&essidstring,  zeiger->essid, 32);
+				if(zeiger->essidlen == 32)
+					{
+					fwritehexbuff(32, zeiger->essid, fhoutlist);
+					}
 				}
 			zeiger++;
 			}
@@ -625,7 +675,6 @@ return;
 /*===========================================================================*/
 uint8_t getessid(uint8_t *tagdata, uint8_t taglen, uint8_t *essidstr)
 {
-int c;
 ietag_t *tagl;
 tagl = (ietag_t*)tagdata;
 while(0 < taglen)
@@ -639,18 +688,6 @@ while(0 < taglen)
 		if(tagl->data[0] == 0)
 			{
 			return 0;
-			}
-		/* only allow essids that contains no function characters */
-		for(c = 0; c < tagl->len; c++)
-			{
-			if(tagl->data[c] < 0x20)
-				{
-				return 0;
-				}
-			if(tagl->data[c] == 0x7f)
-				{
-				return 0;
-				}
 			}
 		memcpy(essidstr, tagl->data, tagl->len);
 		return tagl->len;
@@ -893,6 +930,22 @@ eapolframecount++;
 return;
 }
 /*===========================================================================*/
+void processexeapauthentication(uint32_t eaplen, uint8_t *packet)
+{
+exteap_t *exeap; 
+
+if(eaplen < (uint32_t)EXTEAP_SIZE)
+	{
+	return;
+	}
+exeap = (exteap_t*)(packet +EAPAUTH_SIZE);
+
+exeaptype[exeap->exttype] = 1;
+eapframecount++;
+return;
+}
+/*===========================================================================*/
+
 void process80211networkauthentication(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
 eapauth_t *eap;
@@ -908,11 +961,7 @@ if(eap->type == 3)
 	}
 else if(eap->type == 0)
 	{
-	if(caplen < (uint32_t)EAPAUTH_SIZE -(uint32_t)EXTEAP_SIZE)
-		{
-		return;
-		}
-	eapframecount++;
+	 processexeapauthentication(ntohs(eap->len), packet);
 	}
 return;
 }
@@ -1455,6 +1504,8 @@ atimframecount = 0;
 eapolframecount = 0;
 eapframecount = 0;
 
+memset(exeaptype, 0, sizeof(int) *256);
+
 pcapr_fd = open(pcapinname, O_RDONLY);
 if(pcapr_fd == -1)
 	{
@@ -1576,6 +1627,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
+	"-P <file> : output possible WPA/WPA22 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
 	"-A <file> : output nonce information list\n"
@@ -1617,12 +1669,16 @@ if(globalinit() == false)
 	printf("global  ‎initialization failed\n");
 	exit(EXIT_FAILURE);
 	}
-while ((auswahl = getopt(argc, argv, "E:T:A:S:H:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "E:P:T:A:S:H:hv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'E':
 		essidoutname = optarg;
+		break;
+
+		case 'P':
+		pmkoutname = optarg;
 		break;
 
 		case 'T':
