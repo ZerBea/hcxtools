@@ -393,10 +393,11 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 		{
 		zeiger = apstaessidliste;
 		zeigerold = apstaessidliste;
-		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap);
+		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_timestamp);
 		memset(&essidstring, 0, 34);
 		memcpy(&essidstring,  zeiger->essid, 32);
 		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+		fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 		fwriteessidstr(zeiger->essidlen, essidstring, fhoutlist); 
 		zeiger++;
@@ -407,6 +408,7 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 				memset(&essidstring, 0, 34);
 				memcpy(&essidstring,  zeiger->essid, 32);
 				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+				fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
 				}
@@ -431,8 +433,9 @@ if((anonceliste != NULL) && (anonceoutname != NULL))
 		{
 		zeiger = anonceliste;
 		zeigerold = anonceliste;
-		qsort(anonceliste, anoncecount, ANONCELIST_SIZE, sort_anoncelist_by_ap);
+		qsort(anonceliste, anoncecount, ANONCELIST_SIZE, sort_anoncelist_by_timestamp);
 		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+		fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 		fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
 		fwritehexbuff(32, zeiger->anonce, fhoutlist);
@@ -442,6 +445,7 @@ if((anonceliste != NULL) && (anonceoutname != NULL))
 			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) != 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) != 0) && (memcmp(zeigerold->anonce, zeiger->anonce, 32) != 0))
 				{
 				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+				fprintf(fhoutlist, "%8x:", zeiger->tv_sec);
 				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 				fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
 				fwritehexbuff(32, zeiger->anonce, fhoutlist);
@@ -467,8 +471,9 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 		{
 		zeiger = eapolliste;
 		zeigerold = eapolliste;
-		qsort(eapolliste, eapolcount, EAPOLLIST_SIZE, sort_eapollist_by_ap);
+		qsort(eapolliste, eapolcount, EAPOLLIST_SIZE, sort_eapollist_by_timestamp);
 		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+		fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 		fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
 		fprintf(fhoutlist, "%03d:", zeiger->authlen -4);
@@ -479,6 +484,7 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) != 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) != 0) && (memcmp(zeigerold->eapol, zeiger->eapol, 256) != 0))
 				{
 				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+				fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 				fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
 				fprintf(fhoutlist, "%03d:", zeiger->authlen -4);
@@ -493,7 +499,7 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 return;
 }
 /*===========================================================================*/
-void addeapol(uint32_t tv_sec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint32_t authlen, uint8_t *authpacket)
+void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint32_t authlen, uint8_t *authpacket)
 {
 eapoll_t *zeiger, *tmp;
 int c;
@@ -510,6 +516,7 @@ for(c = 0; c < eapolcount; c++)
 		if(zeiger->tv_sec == 0)
 			{
 			zeiger->tv_sec = tv_sec;
+			zeiger->tv_usec = tv_usec;
 			}
 		return;
 		}
@@ -517,6 +524,7 @@ for(c = 0; c < eapolcount; c++)
 	}
 
 zeiger->tv_sec = tv_sec;
+zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
 zeiger->replaycount = rc;
@@ -536,7 +544,7 @@ eapolliste = tmp;
 return;
 }
 /*===========================================================================*/
-void addapanonce(uint32_t tv_sec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint8_t *anonce)
+void addapanonce(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint8_t *anonce)
 {
 anoncel_t *zeiger, *tmp;
 int c;
@@ -550,6 +558,7 @@ for(c = 0; c < anoncecount; c++)
 		if(zeiger->tv_sec == 0)
 			{
 			zeiger->tv_sec = tv_sec;
+			zeiger->tv_usec = tv_usec;
 			}
 		return;
 		}
@@ -557,6 +566,7 @@ for(c = 0; c < anoncecount; c++)
 	}
 
 zeiger->tv_sec = tv_sec;
+zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
 zeiger->replaycount = rc;
@@ -574,7 +584,7 @@ anonceliste = tmp;
 return;
 }
 /*===========================================================================*/
-void addapstaessid(uint32_t tv_sec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
+void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
 {
 apstaessidl_t *zeiger, *tmp;
 int c;
@@ -587,6 +597,7 @@ for(c = 0; c < apstaessidcount; c++)
 		if(zeiger->tv_sec == 0)
 			{
 			zeiger->tv_sec = tv_sec;
+			zeiger->tv_usec = tv_usec;
 			}
 		return;
 		}
@@ -594,6 +605,7 @@ for(c = 0; c < apstaessidcount; c++)
 	}
 
 zeiger->tv_sec = tv_sec;
+zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
 memset(zeiger->essid, 0, 32);
@@ -649,7 +661,7 @@ while(0 < taglen)
 return 0;
 }
 /*===========================================================================*/
-void process80211beacon(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
+void process80211beacon(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -668,12 +680,12 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(ts_sec, macf->addr1, macf->addr2, essidlen, essidstr);
+addapstaessid(ts_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
 beaconframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211probe_req(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
+void process80211probe_req(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -692,12 +704,12 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(ts_sec, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(ts_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 proberequestframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211probe_resp(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
+void process80211probe_resp(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -716,12 +728,12 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(ts_sec, macf->addr1, macf->addr2, essidlen, essidstr);
+addapstaessid(ts_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
 proberesponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211assoc_req(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
+void process80211assoc_req(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -741,7 +753,7 @@ if(essidlen == 0)
 	return;
 	}
 
-addapstaessid(ts_sec, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(ts_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 associationrequestframecount++;
 return;
 }
@@ -753,7 +765,7 @@ associationresponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211reassoc_req(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
+void process80211reassoc_req(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -772,7 +784,7 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(ts_sec, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(ts_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 
 reassociationrequestframecount++;
 return;
@@ -821,7 +833,7 @@ atimframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211eapolauthentication(uint32_t ts_sec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
+void process80211eapolauthentication(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
 eapauth_t *eap;
 wpakey_t *wpak;
@@ -842,14 +854,14 @@ wpak->replaycount = byte_swap_64(wpak->replaycount);
 #endif
 if(keyinfo == 1)
 	{
-	addapanonce(ts_sec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), wpak->nonce);
+	addapanonce(ts_sec, tv_usec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), wpak->nonce);
 	}
 else if(keyinfo == 3)
 	{
-	addapanonce(ts_sec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
+	addapanonce(ts_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
 	if(ntohs(eap->len) == caplen -4)
 		{
-		addeapol(ts_sec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), caplen, packet);
+		addeapol(ts_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), caplen, packet);
 		}
 	}
 
@@ -857,7 +869,7 @@ else if(keyinfo == 2)
 	{
 	if(ntohs(eap->len) == caplen -4)
 		{
-		addeapol(ts_sec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), caplen, packet);
+		addeapol(ts_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), caplen, packet);
 		}
 	}
 else if(keyinfo == 4)
@@ -868,7 +880,7 @@ else if(keyinfo == 4)
 		}
 	if(ntohs(eap->len) == caplen -4)
 		{
-		addeapol(ts_sec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), caplen, packet);
+		addeapol(ts_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), caplen, packet);
 		}
 	}
 else
@@ -879,7 +891,7 @@ eapolframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211networkauthentication(uint32_t ts_sec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
+void process80211networkauthentication(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
 eapauth_t *eap;
 
@@ -890,7 +902,7 @@ if(caplen < (uint32_t)EAPAUTH_SIZE)
 eap = (eapauth_t*)packet;
 if(eap->type == 3)
 	{
-	process80211eapolauthentication(ts_sec, caplen, macaddr1, macaddr2, packet);
+	process80211eapolauthentication(ts_sec, tv_usec, caplen, macaddr1, macaddr2, packet);
 	}
 else if(eap->type == 0)
 	{
@@ -903,7 +915,7 @@ else if(eap->type == 0)
 return;
 }
 /*===========================================================================*/
-void process80211datapacket(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
+void process80211datapacket(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 mac_t *macf;
 llc_t *llc;
@@ -921,7 +933,7 @@ if(macf->subtype == IEEE80211_STYPE_DATA)
 	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
 		{
 		packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
-		process80211networkauthentication(ts_sec, caplen -MAC_SIZE_NORM -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
+		process80211networkauthentication(ts_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
 	}
 else if(macf->subtype == IEEE80211_STYPE_QOS_DATA) 
@@ -934,13 +946,13 @@ else if(macf->subtype == IEEE80211_STYPE_QOS_DATA)
 	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
 		{
 		packet_ptr += MAC_SIZE_QOS +LLC_SIZE;
-		process80211networkauthentication(ts_sec, caplen -MAC_SIZE_QOS -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
+		process80211networkauthentication(ts_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
 	}
 return;
 }
 /*===========================================================================*/
-void process80211packet(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
+void process80211packet(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 mac_t *macf;
 
@@ -953,19 +965,19 @@ if(macf->type == IEEE80211_FTYPE_MGMT)
 	{
 	if(macf->subtype == IEEE80211_STYPE_BEACON)
 		{
-		process80211beacon(ts_sec, caplen, packet);
+		process80211beacon(ts_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_PROBE_REQ)
 		{
-		process80211probe_req(ts_sec, caplen, packet);
+		process80211probe_req(ts_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_PROBE_RESP)
 		{
-		process80211probe_resp(ts_sec, caplen, packet);
+		process80211probe_resp(ts_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_ASSOC_REQ)
 		{
-		process80211assoc_req(ts_sec, caplen, packet);
+		process80211assoc_req(ts_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_ASSOC_RESP)
 		{
@@ -973,11 +985,11 @@ if(macf->type == IEEE80211_FTYPE_MGMT)
 		}
 	else if (macf->subtype == IEEE80211_STYPE_REASSOC_REQ)
 		{
-		process80211reassoc_req(ts_sec, caplen, packet);
+		process80211reassoc_req(ts_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_REASSOC_RESP)
 		{
-		process80211reassoc_resp(ts_sec, caplen, packet);
+		process80211reassoc_resp(ts_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_AUTH)
 		{
@@ -1004,13 +1016,13 @@ if(macf->type == IEEE80211_FTYPE_MGMT)
 
 else if (macf->type == IEEE80211_FTYPE_DATA)
 	{
-	process80211datapacket(ts_sec, caplen, packet);
+	process80211datapacket(ts_sec, tv_usec, caplen, packet);
 	}
 
 return;
 }
 /*===========================================================================*/
-void processpacket(uint32_t ts_sec, int linktype, uint32_t caplen, uint8_t *packet)
+void processpacket(uint32_t ts_sec, uint32_t tv_usec, int linktype, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 rth_t *rth;
@@ -1032,11 +1044,11 @@ if(linktype == DLT_IEEE802_11_RADIO)
 	#endif
 	packet_ptr += rth->it_len;
 	caplen -= rth->it_len;
-	process80211packet(ts_sec, caplen, packet_ptr);
+	process80211packet(ts_sec, tv_usec, caplen, packet_ptr);
 	}
 else if(linktype == DLT_IEEE802_11)
 	{
-	process80211packet(ts_sec, caplen, packet);
+	process80211packet(ts_sec, tv_usec, caplen, packet);
 	}
 else if(linktype == DLT_PRISM_HEADER)
 	{
@@ -1052,7 +1064,7 @@ else if(linktype == DLT_PRISM_HEADER)
 	#endif
 	packet_ptr += prism->msglen;
 	caplen -= prism->msglen;
-	process80211packet(ts_sec, caplen, packet_ptr);
+	process80211packet(ts_sec, tv_usec, caplen, packet_ptr);
 	}
 else if(linktype == DLT_PPI)
 	{
@@ -1067,7 +1079,7 @@ else if(linktype == DLT_PPI)
 	#endif
 	packet_ptr += ppi->pph_len;
 	caplen -= ppi->pph_len;
-	process80211packet(ts_sec, caplen, packet_ptr);
+	process80211packet(ts_sec, tv_usec, caplen, packet_ptr);
 	}
 return;
 }
@@ -1305,7 +1317,7 @@ while(1)
 			{
 			packethexdump(pcapngepb.timestamp_high, pcapngepb.timestamp_low, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
 			}
-		processpacket(pcapngepb.timestamp_high, pcapngidb.linktype, pcapngepb.caplen, packet);
+		processpacket(pcapngepb.timestamp_high, pcapngepb.timestamp_low, pcapngidb.linktype, pcapngepb.caplen, packet);
 		}
 	}
 
@@ -1413,7 +1425,7 @@ while(1)
 			{
 			packethexdump(pcaprhdr.ts_sec, pcaprhdr.ts_usec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
 			}
-		processpacket(pcaprhdr.ts_sec, pcapfhdr.network, pcaprhdr.incl_len, packet);
+		processpacket(pcaprhdr.ts_sec, pcaprhdr.ts_usec, pcapfhdr.network, pcaprhdr.incl_len, packet);
 		}
 	}
 	

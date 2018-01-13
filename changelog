@@ -3,7 +3,8 @@
 hcxpcaptool
 added new option
 -S <file> : output station EAPOL information list
-date:mac_sta:mac_ap:epol_len:eapol
+date::timestamp:mac_sta:mac_ap:epol_len:eapol
+moved internal to tv_usec timestamp
 
 
 12.01.2018
