@@ -79,3 +79,37 @@ else if(ia->tv_sec < ib->tv_sec)
 return 0;
 }
 /*===========================================================================*/
+struct eapollist_s
+{
+ uint32_t	tv_sec;
+ uint8_t	mac_ap[6];
+ uint8_t	mac_sta[6];
+ uint8_t	authlen;
+ uint8_t	eapol[256];
+} __attribute__((__packed__));
+typedef struct eapollist_s eapoll_t;
+#define	EAPOLLIST_SIZE (sizeof(eapoll_t))
+/*===========================================================================*/
+static int sort_eapollist_by_ap(const void *a, const void *b)
+{
+const eapoll_t *ia = (const eapoll_t *)a;
+const eapoll_t *ib = (const eapoll_t *)b;
+if(memcmp(ia->mac_ap, ib->mac_ap, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_ap, ib->mac_ap, 6) < 0)
+	return -1;
+if(memcmp(ia->mac_sta, ib->mac_sta, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_sta, ib->mac_sta, 6) < 0)
+	return -1;
+if(memcmp(ia->eapol, ib->eapol, 256) > 0)
+	return 1;
+else if(memcmp(ia->eapol, ib->eapol, 256) < 0)
+	return -1;
+if(ia->tv_sec > ib->tv_sec)
+	return 1;
+else if(ia->tv_sec < ib->tv_sec)
+	return -1;
+return 0;
+}
+/*===========================================================================*/

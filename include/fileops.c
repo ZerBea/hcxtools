@@ -81,13 +81,13 @@ else
 return;
 }
 /*===========================================================================*/
-void fwritenonce(uint8_t *nonce, FILE *fhd)
+void fwritehexbuff(uint8_t bufflen, uint8_t *buff, FILE *fhd)
 {
 int p;
 
-for(p = 0; p < 32; p++)
+for(p = 0; p < bufflen; p++)
 	{
-	fprintf(fhd, "%02x", nonce[p]);
+	fprintf(fhd, "%02x", buff[p]);
 	}
 fprintf(fhd, "\n");
 return;

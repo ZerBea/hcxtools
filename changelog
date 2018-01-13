@@ -1,4 +1,12 @@
-11.01.2018
+13.01.2018
+==========
+hcxpcaptool
+added new option
+-S <file> : output station EAPOL information list
+date:mac_sta:mac_ap:epol_len:eapol
+
+
+12.01.2018
 ==========
 hcxdumptool
 added new option

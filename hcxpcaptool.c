@@ -41,6 +41,10 @@ apstaessidl_t *apstaessidliste;
 int anoncecount;
 anoncel_t *anonceliste;
 
+int eapolcount;
+eapoll_t *eapolliste;
+
+
 
 unsigned long long int beaconframecount;
 unsigned long long int proberequestframecount;
@@ -63,6 +67,7 @@ char *hexmodeoutname;
 char *essidoutname;
 char *trafficoutname;
 char *anonceoutname;
+char *eapoloutname;
 
 FILE *fhhexmode;
 /*===========================================================================*/
@@ -74,6 +79,7 @@ hexmodeoutname = NULL;
 essidoutname = NULL;
 trafficoutname = NULL;
 anonceoutname = NULL;
+eapoloutname = NULL;
 
 hexmodeflag = false;
 
@@ -429,7 +435,7 @@ if((anonceliste != NULL) && (anonceoutname != NULL))
 		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
 		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 		fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
-		fwritenonce(zeiger->anonce, fhoutlist);
+		fwritehexbuff(32, zeiger->anonce, fhoutlist);
 		zeiger++;
 		for(c = 1; c < anoncecount; c++)
 			{
@@ -438,7 +444,7 @@ if((anonceliste != NULL) && (anonceoutname != NULL))
 				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
 				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 				fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
-				fwritenonce(zeiger->anonce, fhoutlist);
+				fwritehexbuff(32, zeiger->anonce, fhoutlist);
 				}
 			zeigerold = zeiger;
 			zeiger++;
@@ -446,6 +452,83 @@ if((anonceliste != NULL) && (anonceoutname != NULL))
 		}
 	fclose(fhoutlist);
 	}
+return;
+}
+/*===========================================================================*/
+void outputlists3()
+{
+int c;
+FILE *fhoutlist = NULL;
+eapoll_t *zeiger, *zeigerold;
+
+if((eapolliste != NULL) && (eapoloutname != NULL))
+	{
+	if((fhoutlist = fopen(eapoloutname, "a+")) != NULL)
+		{
+		zeiger = eapolliste;
+		zeigerold = eapolliste;
+		qsort(eapolliste, eapolcount, EAPOLLIST_SIZE, sort_eapollist_by_ap);
+		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+		fprintf(fhoutlist, "%03d:", zeiger->authlen -4);
+		fwritehexbuff(zeiger->authlen, zeiger->eapol, fhoutlist);
+		zeiger++;
+		for(c = 1; c < eapolcount; c++)
+			{
+			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) != 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) != 0) && (memcmp(zeigerold->eapol, zeiger->eapol, 256) != 0))
+				{
+				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+				fprintf(fhoutlist, "%03d:", zeiger->authlen -4);
+				fwritehexbuff(zeiger->authlen, zeiger->eapol, fhoutlist);
+				}
+			zeigerold = zeiger;
+			zeiger++;
+			}
+		}
+	fclose(fhoutlist);
+	}
+return;
+}
+/*===========================================================================*/
+void addeapol(uint32_t tv_sec, uint8_t *mac_sta, uint8_t *mac_ap, uint32_t authlen, uint8_t *authpacket)
+{
+eapoll_t *zeiger, *tmp;
+int c;
+
+if(authlen > 256)
+	{
+	return;
+	}
+zeiger = eapolliste;
+for(c = 0; c < eapolcount; c++)
+	{
+	if((memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(authpacket, zeiger->eapol, 256) == 0))
+		{
+		if(zeiger->tv_sec == 0)
+			{
+			zeiger->tv_sec = tv_sec;
+			}
+		return;
+		}
+	zeiger++;
+	}
+
+zeiger->tv_sec = tv_sec;
+memcpy(zeiger->mac_ap, mac_ap, 6);
+memcpy(zeiger->mac_sta, mac_sta, 6);
+zeiger->authlen = authlen;
+memset(zeiger->eapol, 0, 256);
+memcpy(zeiger->eapol, authpacket, authlen);
+
+eapolcount++;
+tmp = realloc(eapolliste, (eapolcount +1) *EAPOLLIST_SIZE);
+if(tmp == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+eapolliste = tmp;
 return;
 }
 /*===========================================================================*/
@@ -475,7 +558,6 @@ memcpy(zeiger->mac_sta, mac_sta, 6);
 memcpy(zeiger->anonce, anonce, 32);
 zeiger->replaycount = rc;
 zeiger->keyinfo = ki;
-
 
 anoncecount++;
 tmp = realloc(anonceliste, (anoncecount +1) *ANONCELIST_SIZE);
@@ -510,6 +592,7 @@ for(c = 0; c < apstaessidcount; c++)
 zeiger->tv_sec = tv_sec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
+memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essid, 32);
 zeiger->essidlen = essidlen;
 
@@ -524,7 +607,7 @@ apstaessidliste = tmp;
 return;
 }
 /*===========================================================================*/
-uint8_t getessid(uint8_t *tagdata, int taglen, uint8_t *essidstr)
+uint8_t getessid(uint8_t *tagdata, uint8_t taglen, uint8_t *essidstr)
 {
 int c;
 ietag_t *tagl;
@@ -562,14 +645,14 @@ while(0 < taglen)
 return 0;
 }
 /*===========================================================================*/
-void process80211beacon(uint32_t ts_sec, int caplen, uint8_t *packet)
+void process80211beacon(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (int)MAC_SIZE_NORM +(int)CAPABILITIESAP_SIZE +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
 	return;
 	}
@@ -586,14 +669,14 @@ beaconframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211probe_req(uint32_t ts_sec, int caplen, uint8_t *packet)
+void process80211probe_req(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (int)MAC_SIZE_NORM +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +2)
 	{
 	return;
 	}
@@ -610,14 +693,14 @@ proberequestframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211probe_resp(uint32_t ts_sec, int caplen, uint8_t *packet)
+void process80211probe_resp(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (int)MAC_SIZE_NORM +(int)CAPABILITIESAP_SIZE +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
 	return;
 	}
@@ -634,14 +717,14 @@ proberesponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211assoc_req(uint32_t ts_sec, int caplen, uint8_t *packet)
+void process80211assoc_req(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (int)MAC_SIZE_NORM +(int)CAPABILITIESSTA_SIZE +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)CAPABILITIESSTA_SIZE +2)
 	{
 	return;
 	}
@@ -666,14 +749,14 @@ associationresponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211reassoc_req(uint32_t ts_sec, int caplen, uint8_t *packet)
+void process80211reassoc_req(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (int)MAC_SIZE_NORM +(int)CAPABILITIESRESTA_SIZE +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)CAPABILITIESRESTA_SIZE +2)
 	{
 	return;
 	}
@@ -734,18 +817,21 @@ atimframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211eapolauthentication(uint32_t ts_sec, int caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
+void process80211eapolauthentication(uint32_t ts_sec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
+eapauth_t *eap;
 wpakey_t *wpak;
 uint16_t keyinfo;
 
 
-if(caplen < (int)EAPAUTH_SIZE -(int)WPAKEY_SIZE)
+if(caplen < (uint32_t)WPAKEY_SIZE)
 	{
 	return;
 	}
 
-wpak = (wpakey_t*)packet;
+eap = (eapauth_t*)packet;
+wpak = (wpakey_t*)(packet +EAPAUTH_SIZE);
+
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
 #ifdef BIG_ENDIAN_HOST
 wpak->replaycount = byte_swap_64(wpak->replaycount);
@@ -754,34 +840,53 @@ if(keyinfo == 1)
 	{
 	addapanonce(ts_sec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), wpak->nonce);
 	}
-if(keyinfo == 3)
+else if(keyinfo == 3)
 	{
 	addapanonce(ts_sec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
 	}
 
+else if(keyinfo == 2)
+	{
+	if(ntohs(eap->len) == caplen -4)
+		{
+		addeapol(ts_sec, macaddr1, macaddr2, caplen, packet);
+		}
+	}
+else if(keyinfo == 4)
+	{
+	if(memcmp(wpak->nonce, nullnonce, 32) == 0)
+		{
+		return;
+		}
+	if(ntohs(eap->len) == caplen -4)
+		{
+		addeapol(ts_sec, macaddr1, macaddr2, caplen, packet);
+		}
+	}
+else
+	{
+	return;
+	}
 eapolframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211networkauthentication(uint32_t ts_sec, int caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
+void process80211networkauthentication(uint32_t ts_sec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
 eapauth_t *eap;
-uint8_t *packet_ptr;
 
-packet_ptr = packet;
-if(caplen < (int)EAPAUTH_SIZE)
+if(caplen < (uint32_t)EAPAUTH_SIZE)
 	{
 	return;
 	}
 eap = (eapauth_t*)packet;
 if(eap->type == 3)
 	{
-	packet_ptr += EAPAUTH_SIZE;
-	process80211eapolauthentication(ts_sec, caplen -EAPAUTH_SIZE, macaddr1, macaddr2, packet_ptr);
+	process80211eapolauthentication(ts_sec, caplen, macaddr1, macaddr2, packet);
 	}
 else if(eap->type == 0)
 	{
-	if(caplen < (int)EAPAUTH_SIZE -(int)EXTEAP_SIZE)
+	if(caplen < (uint32_t)EAPAUTH_SIZE -(uint32_t)EXTEAP_SIZE)
 		{
 		return;
 		}
@@ -790,7 +895,7 @@ else if(eap->type == 0)
 return;
 }
 /*===========================================================================*/
-void process80211datapacket(uint32_t ts_sec, int caplen, uint8_t *packet)
+void process80211datapacket(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
 {
 mac_t *macf;
 llc_t *llc;
@@ -800,7 +905,7 @@ macf = (mac_t*)packet;
 packet_ptr = packet;
 if(macf->subtype == IEEE80211_STYPE_DATA) 
 	{
-	if(caplen < (int)MAC_SIZE_NORM +(int)LLC_SIZE)
+	if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)LLC_SIZE)
 		{
 		return;
 		}
@@ -813,7 +918,7 @@ if(macf->subtype == IEEE80211_STYPE_DATA)
 	}
 else if(macf->subtype == IEEE80211_STYPE_QOS_DATA) 
 	{
-	if(caplen < (int)MAC_SIZE_QOS +(int)LLC_SIZE)
+	if(caplen < (uint32_t)MAC_SIZE_QOS +(uint32_t)LLC_SIZE)
 		{
 		return;
 		}
@@ -827,11 +932,11 @@ else if(macf->subtype == IEEE80211_STYPE_QOS_DATA)
 return;
 }
 /*===========================================================================*/
-void process80211packet(uint32_t ts_sec, int caplen, uint8_t *packet)
+void process80211packet(uint32_t ts_sec, uint32_t caplen, uint8_t *packet)
 {
 mac_t *macf;
 
-if(caplen < MAC_SIZE_NORM)
+if(caplen < (uint32_t)MAC_SIZE_NORM)
 	{
 	return;
 	}
@@ -897,7 +1002,7 @@ else if (macf->type == IEEE80211_FTYPE_DATA)
 return;
 }
 /*===========================================================================*/
-void processpacket(uint32_t ts_sec, int linktype, int caplen, uint8_t *packet)
+void processpacket(uint32_t ts_sec, int linktype, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 rth_t *rth;
@@ -907,7 +1012,7 @@ ppi_t *ppi;
 packet_ptr = packet;
 if(linktype == DLT_IEEE802_11_RADIO)
 	{
-	if(caplen < (int)RTH_SIZE)
+	if(caplen < (uint32_t)RTH_SIZE)
 		{
 		printf("failed to read radiotap header\n");
 		return;
@@ -927,7 +1032,7 @@ else if(linktype == DLT_IEEE802_11)
 	}
 else if(linktype == DLT_PRISM_HEADER)
 	{
-	if(caplen < (int)PRISM_SIZE)
+	if(caplen < (uint32_t)PRISM_SIZE)
 		{
 		printf("failed to read prism header\n");
 		return;
@@ -943,7 +1048,7 @@ else if(linktype == DLT_PRISM_HEADER)
 	}
 else if(linktype == DLT_PPI)
 	{
-	if(caplen < (int)PPI_SIZE)
+	if(caplen < (uint32_t)PPI_SIZE)
 		{
 		printf("failed to read ppi header\n");
 		return;
@@ -1359,6 +1464,14 @@ if(anonceliste == NULL)
 	}
 anoncecount = 0;
 
+eapolliste = malloc(EAPOLLIST_SIZE);
+if(eapolliste == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+eapolcount = 0;
+
 
 if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	processpcap(pcapr_fd, pcapinname);
@@ -1376,6 +1489,17 @@ if(apstaessidcount > 0)
 if(anoncecount > 0) 
 	{
 	outputlists2();
+	}
+
+if(eapolcount > 0) 
+	{
+	outputlists3();
+	}
+
+
+if(eapolliste != NULL)
+	{
+	free(eapolliste);
 	}
 
 if(anonceliste != NULL)
@@ -1432,6 +1556,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-T <file> : output management traffic information list\n"
 	"-A <file> : output access point anonce information list\n"
+	"-S <file> : output station EAPOL information list\n"
 	"-H <file> : output dump raw packets in hex\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
@@ -1461,7 +1586,7 @@ if(globalinit() == false)
 	printf("global  ‎initialization failed\n");
 	exit(EXIT_FAILURE);
 	}
-while ((auswahl = getopt(argc, argv, "E:T:A:H:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "E:T:A:S:H:hv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -1475,6 +1600,10 @@ while ((auswahl = getopt(argc, argv, "E:T:A:H:hv")) != -1)
 
 		case 'A':
 		anonceoutname = optarg;
+		break;
+
+		case 'S':
+		eapoloutname = optarg;
 		break;
 
 		case 'H':
