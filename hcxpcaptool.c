@@ -847,6 +847,10 @@ if(keyinfo == 1)
 else if(keyinfo == 3)
 	{
 	addapanonce(ts_sec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
+	if(ntohs(eap->len) == caplen -4)
+		{
+		addeapol(ts_sec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), caplen, packet);
+		}
 	}
 
 else if(keyinfo == 2)
