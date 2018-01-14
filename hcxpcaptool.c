@@ -25,6 +25,7 @@
 #include "include/byteops.c"
 #include "include/fileops.c"
 #include "include/pcap.c"
+#include "include/gzops.c"
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST
@@ -317,7 +318,7 @@ if(tscleanflag == true)
 
 if(wdsframecount != 0)
 	{
-	printf("wds packets............: %lld\n", wdsframecount);
+	printf("WDS packets............: %lld\n", wdsframecount);
 	}
 if(beaconframecount != 0)
 	{
@@ -1657,7 +1658,6 @@ void processcapfile(char *pcapinname)
 {
 int pcapr_fd;
 uint32_t magicnumber;
-
 wdsframecount = 0;
 beaconframecount = 0;
 proberequestframecount = 0;
@@ -1675,9 +1675,20 @@ eapolframecount = 0;
 eapframecount = 0;
 ipv4framecount = 0;
 ipv6framecount = 0;
+char tmpoutname[PATH_MAX+1];
+
+if(testgzipfile(pcapinname) == true)
+	{
+	memset(&tmpoutname, 0, PATH_MAX+1);
+	snprintf(tmpoutname, PATH_MAX, "/tmp/%s.tmp", basename(pcapinname));
+	if(decompressgz(pcapinname, tmpoutname) == false)
+		{
+		return;
+		}
+	pcapinname = tmpoutname;
+	}
 
 memset(exeaptype, 0, sizeof(int) *256);
-
 pcapr_fd = open(pcapinname, O_RDONLY);
 if(pcapr_fd == -1)
 	{
@@ -1759,27 +1770,6 @@ if(apstaessidliste != NULL)
 return;
 }
 /*===========================================================================*/
-bool testgzipfile(char *pcapinname)
-{
-int pcapr_fd;
-uint32_t magicnumber;
-
-pcapr_fd = open(pcapinname, O_RDONLY);
-if(pcapr_fd == -1)
-	{
-	return false;
-	}
-magicnumber = getmagicnumber(pcapr_fd);
-close(pcapr_fd);
-
-if((magicnumber &0xffff) != GZIPMAGICNUMBER)
-	{
-	return false;
-	}
-printf("unzip from %s not yet\n", pcapinname);
-return true;
-}
-/*===========================================================================*/
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
@@ -1800,6 +1790,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-I <file> : output identitylist\n"
+	"          : needs to be sorted unique\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
@@ -1902,8 +1893,7 @@ if(hexmodeflag == true)
 
 for(index = optind; index < argc; index++)
 	{
-	if(testgzipfile(argv[index]) == false)
-		processcapfile(argv[index]);
+	processcapfile(argv[index]);
 	}
 
 if(hexmodeflag == true)

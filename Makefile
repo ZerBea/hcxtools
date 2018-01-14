@@ -35,7 +35,7 @@ ifeq ($(HOSTOS), Linux)
 	$(CC) $(CFLAGS) -o hcxdumptool hcxdumptool.c -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
 endif
-	$(CC) $(CFLAGS) -o hcxpcaptool hcxpcaptool.c
+	$(CC) $(CFLAGS) -o hcxpcaptool hcxpcaptool.c -lz
 	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap -lcrypto
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
 	$(CC) $(CFLAGS) -o wlanwkp2hcx wlanwkp2hcx.c

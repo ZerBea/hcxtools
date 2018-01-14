@@ -86,6 +86,8 @@ Requirements
 
 * librt and librt-dev installed (should be installed by default)
 
+* zlib and zlib-dev installed (for gzip compressed cap/pcap/pcapng files)
+
 * libcurl and curl-dev installed (used by whoismac and wlancap2wpasec)
 
 * Raspberry Pi: additionally libwiringpi and wiringpi dev installed (Raspberry Pi GPIO support)

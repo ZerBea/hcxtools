@@ -1,6 +1,13 @@
 14.01.2018
 ==========
 hcxpcaptool
+added suport for gzip compressed cap/pcap/pcapng files
+new dependency: zlib
+
+
+14.01.2018
+==========
+hcxpcaptool
 added new options -P -I
 -I <file> : output identities list
 -P <file> : output possible WPA/WPA2 plainmasterkey list
