@@ -45,6 +45,7 @@ anoncel_t *anonceliste;
 int eapolcount;
 eapoll_t *eapolliste;
 
+unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
 unsigned long long int proberequestframecount;
 unsigned long long int proberesponseframecount;
@@ -312,6 +313,11 @@ printf("summary:                                        \n--------\n"
 if(tscleanflag == true)
 	{
 	printf("warning................: zero value timestamps detected\n");
+	}
+
+if(wdsframecount != 0)
+	{
+	printf("wds packets............: %lld\n", wdsframecount);
 	}
 if(beaconframecount != 0)
 	{
@@ -805,6 +811,13 @@ while(0 < taglen)
 return 0;
 }
 /*===========================================================================*/
+void process80211wds()
+{
+
+wdsframecount++;
+return;
+}
+/*===========================================================================*/
 void process80211beacon(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
@@ -1156,7 +1169,12 @@ if(caplen < (uint32_t)MAC_SIZE_NORM)
 	return;
 	}
 macf = (mac_t*)packet;
-if(macf->type == IEEE80211_FTYPE_MGMT)
+if((macf->from_ds == 1) && (macf->to_ds == 1))
+	{
+	process80211wds();
+	}
+
+else if(macf->type == IEEE80211_FTYPE_MGMT)
 	{
 	if(macf->subtype == IEEE80211_STYPE_BEACON)
 		{
@@ -1640,6 +1658,7 @@ void processcapfile(char *pcapinname)
 int pcapr_fd;
 uint32_t magicnumber;
 
+wdsframecount = 0;
 beaconframecount = 0;
 proberequestframecount = 0;
 proberesponseframecount = 0;
