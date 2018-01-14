@@ -60,6 +60,8 @@ unsigned long long int actionframecount;
 unsigned long long int atimframecount;
 unsigned long long int eapolframecount;
 unsigned long long int eapframecount;
+unsigned long long int ipv4framecount;
+unsigned long long int ipv6framecount;
 
 char *hexmodeoutname;
 char *essidoutname;
@@ -367,6 +369,15 @@ if(eapframecount != 0)
 	{
 	printf("EAP packets............: %lld\n", eapframecount);
 	}
+if(ipv4framecount != 0)
+	{
+	printf("IPv4 packets...........: %lld\n", ipv4framecount);
+	}
+if(ipv6framecount != 0)
+	{
+	printf("IPv6 packets...........: %lld\n", ipv6framecount);
+	}
+
 
 for(p = 0; p < 256; p++)
 	{
@@ -379,9 +390,10 @@ printf("\n");
 return;
 }
 /*===========================================================================*/
-void packethexdump(uint32_t ts_sec, uint32_t ts_usec, unsigned long long int packetnr, int networktype, int snaplen, int caplen, int len, uint8_t *packet)
+void packethexdump(uint32_t ts_sec, uint32_t ts_usec, unsigned long long int packetnr, uint32_t networktype, uint32_t snaplen, uint32_t caplen, uint32_t len, uint8_t *packet)
 {
-int c, d;
+int c;
+uint32_t d;
 time_t pkttime;
 struct tm *pkttm;
 char tmbuf[64], pcktimestr[64];
@@ -1068,6 +1080,20 @@ else if(eap->type == 0)
 return;
 }
 /*===========================================================================*/
+void processipv4packet()
+{
+
+ipv4framecount++;
+return;
+}
+/*===========================================================================*/
+void processipv6packet()
+{
+
+ipv6framecount++;
+return;
+}
+/*===========================================================================*/
 void process80211datapacket(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 mac_t *macf;
@@ -1088,6 +1114,14 @@ if(macf->subtype == IEEE80211_STYPE_DATA)
 		packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
 		process80211networkauthentication(ts_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
+	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
+		{
+		processipv4packet();
+		}
+	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP))
+		{
+		processipv6packet();
+		}
 	}
 else if(macf->subtype == IEEE80211_STYPE_QOS_DATA) 
 	{
@@ -1100,6 +1134,14 @@ else if(macf->subtype == IEEE80211_STYPE_QOS_DATA)
 		{
 		packet_ptr += MAC_SIZE_QOS +LLC_SIZE;
 		process80211networkauthentication(ts_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
+		}
+	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
+		{
+		processipv4packet();
+		}
+	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP))
+		{
+		processipv6packet();
 		}
 	}
 return;
@@ -1612,6 +1654,8 @@ actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
 eapframecount = 0;
+ipv4framecount = 0;
+ipv6framecount = 0;
 
 memset(exeaptype, 0, sizeof(int) *256);
 
@@ -1736,7 +1780,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
-	"-I <file> : output identities list\n"
+	"-I <file> : output identitylist\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
