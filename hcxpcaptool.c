@@ -101,7 +101,51 @@ switch(exapt)
 	case EAP_TYPE_GTC: return "Generic Token Card (GTC)";
 	case EAP_TYPE_RSA: return "RSA Public Key Authentication";
 	case EAP_TYPE_EXPAND: return "WPS Authentication";
+	case EAP_TYPE_LEAP: return "EAP-Cisco Wireless Authentication";
+	case EAP_TYPE_DSS: return "DSS Unilateral";
+	case EAP_TYPE_KEA: return "KEA";
+	case EAP_TYPE_KEA_VALIDATE: return "KEA-VALIDATE";
+	case EAP_TYPE_TLS: return "EAP-TLS Authentication";
+	case EAP_TYPE_AXENT: return "Defender Token (AXENT)";
+	case EAP_TYPE_RSA_SSID: return "RSA Security SecurID EAP";
+	case EAP_TYPE_RSA_ARCOT: return "Arcot Systems EAP";
 	case EAP_TYPE_SIM: return "EAP-SIM (GSM Subscriber Modules) Authentication";
+	case EAP_TYPE_SRP_SHA1: return "SRP-SHA1 Authentication";
+	case EAP_TYPE_TTLS: return "EAP-TTLS Authentication";
+	case EAP_TYPE_RAS: return "Remote Access Service";
+	case EAP_TYPE_AKA: return "UMTS Authentication and Key Agreement (EAP-AKA)";
+	case EAP_TYPE_3COMEAP: return "EAP-3Com Wireless Authentication";
+	case EAP_TYPE_PEAP: return "PEAP Authentication";
+	case EAP_TYPE_MSEAP: return "MS-EAP Authentication";
+	case EAP_TYPE_MAKE: return "Mutual Authentication w/Key Exchange (MAKE)";
+	case EAP_TYPE_CRYPTOCARD: return "CRYPTOCard";
+	case EAP_TYPE_MSCHAPV2: return "EAP-MSCHAP-V2 Authentication";
+	case EAP_TYPE_DYNAMICID: return "DynamicID";
+	case EAP_TYPE_ROB: return "Rob EAP";
+	case EAP_TYPE_POTP: return "Protected One-Time Password";
+	case EAP_TYPE_MSTLV: return "MS-Authentication-TLV";
+	case EAP_TYPE_SENTRI: return "SentriNET";
+	case EAP_TYPE_AW: return "EAP-Actiontec Wireless Authentication";
+	case EAP_TYPE_CSBA: return "Cogent Systems Biometrics Authentication EAP";
+	case EAP_TYPE_AIRFORT: return "AirFortress EAP";
+	case EAP_TYPE_HTTPD: return "EAP-HTTP Digest";
+	case EAP_TYPE_SS: return "SecureSuite EAP";
+	case EAP_TYPE_DC: return "DeviceConnect EAP";
+	case EAP_TYPE_SPEKE: return "EAP-SPEKE Authentication";
+	case EAP_TYPE_MOBAC: return "EAP-MOBAC Authentication";
+	case EAP_TYPE_FAST: return "FAST Authentication";
+	case EAP_TYPE_ZLXEAP: return "ZoneLabs EAP (ZLXEAP)";
+	case EAP_TYPE_LINK: return "EAP-Link Authetication";
+	case EAP_TYPE_PAX: return "EAP-PAX Authetication";
+	case EAP_TYPE_PSK: return "EAP-PSK Authetication";
+	case EAP_TYPE_SAKE: return "EAP-SAKE Authetication";
+	case EAP_TYPE_IKEV2: return "EAP-IKEv2 Authetication";
+	case EAP_TYPE_AKA1: return "EAP-AKA Authetication";
+	case EAP_TYPE_GPSK: return "EAP-GPSK Authetication";
+	case EAP_TYPE_PWD: return "EAP-pwd Authetication";
+	case EAP_TYPE_EKE1: return "EAP-EKE Version 1 Authetication";
+	case EAP_TYPE_PTEAP: return "EAP Method Type for PT-EAP Authetication";
+	case EAP_TYPE_TEAP: return "TEAP Authetication";
 	case EAP_TYPE_EXPERIMENTAL: return "Experimental Authentication";
 	default: return "unknown authentication type";
 	}
@@ -309,15 +353,15 @@ if(actionframecount != 0)
 	}
 if(atimframecount != 0)
 	{
-	printf("atim packets...........: %lld\n", atimframecount);
+	printf("ATIM packets...........: %lld\n", atimframecount);
 	}
 if(eapolframecount != 0)
 	{
-	printf("eapol packets..........: %lld\n", eapolframecount);
+	printf("EAPOL packets..........: %lld\n", eapolframecount);
 	}
 if(eapframecount != 0)
 	{
-	printf("eap packets............: %lld\n", eapframecount);
+	printf("EAP packets............: %lld\n", eapframecount);
 	}
 
 for(p = 0; p < 256; p++)
