@@ -34,6 +34,7 @@
 /* global var */
 
 bool hexmodeflag;
+bool wantlistflag;
 
 int apstaessidcount;
 apstaessidl_t *apstaessidliste;
@@ -86,6 +87,7 @@ pmkoutname = NULL;
 identityoutname = NULL;
 
 hexmodeflag = false;
+wantlistflag = false;
 
 setbuf(stdout, NULL);
 srand(time(NULL));
@@ -295,7 +297,7 @@ return "unknow nendian";
 void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, unsigned long long int skippedpacketcount, int pcapreaderrors, bool tscleanflag)
 {
 int p;
-printf("summary:\n--------\n"
+printf("summary:                                        \n--------\n"
 	"file name..............: %s\n"
 	"file type..............: %s %d.%d\n"
 	"network type...........: %s (%d)\n"
@@ -632,6 +634,11 @@ void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_
 eapoll_t *zeiger, *tmp;
 int c;
 
+if(wantlistflag == false)
+	{
+	return;
+	}
+
 if(authlen > 256)
 	{
 	return;
@@ -677,6 +684,11 @@ void addapanonce(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *m
 anoncel_t *zeiger, *tmp;
 int c;
 
+if(wantlistflag == false)
+	{
+	return;
+	}
+
 zeiger = anonceliste;
 for(c = 0; c < anoncecount; c++)
 	{
@@ -716,6 +728,11 @@ void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t 
 {
 apstaessidl_t *zeiger, *tmp;
 int c;
+
+if(wantlistflag == false)
+	{
+	return;
+	}
 
 zeiger = apstaessidliste;
 for(c = 0; c < apstaessidcount; c++)
@@ -1454,6 +1471,10 @@ while(1)
 			packethexdump(pcapngepb.timestamp_high, pcapngepb.timestamp_low, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
 			}
 		processpacket(pcapngepb.timestamp_high, pcapngepb.timestamp_low, pcapngidb.linktype, pcapngepb.caplen, packet);
+		if((rawpacketcount % 100000) == 0)
+			{
+			printf("%lld packets processed - be patient!\r", rawpacketcount);
+			}
 		}
 	}
 
@@ -1562,9 +1583,12 @@ while(1)
 			packethexdump(pcaprhdr.ts_sec, pcaprhdr.ts_usec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
 			}
 		processpacket(pcaprhdr.ts_sec, pcaprhdr.ts_usec, pcapfhdr.network, pcaprhdr.incl_len, packet);
+		if((rawpacketcount % 100000) == 0)
+			{
+			printf("%lld packets processed - be patient!\r", rawpacketcount);
+			}
 		}
 	}
-	
 printcapstatus("pcap", pcapinname, pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 return;
 }
@@ -1761,6 +1785,7 @@ while ((auswahl = getopt(argc, argv, "E:I:P:T:A:S:H:hv")) != -1)
 		{
 		case 'E':
 		essidoutname = optarg;
+		wantlistflag = true;
 		break;
 
 		case 'I':
@@ -1769,18 +1794,22 @@ while ((auswahl = getopt(argc, argv, "E:I:P:T:A:S:H:hv")) != -1)
 
 		case 'P':
 		pmkoutname = optarg;
+		wantlistflag = true;
 		break;
 
 		case 'T':
 		trafficoutname = optarg;
+		wantlistflag = true;
 		break;
 
 		case 'A':
 		anonceoutname = optarg;
+		wantlistflag = true;
 		break;
 
 		case 'S':
 		eapoloutname = optarg;
+		wantlistflag = true;
 		break;
 
 		case 'H':
