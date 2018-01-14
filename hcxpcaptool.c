@@ -1658,6 +1658,7 @@ void processcapfile(char *pcapinname)
 {
 int pcapr_fd;
 uint32_t magicnumber;
+bool needrmflag = false;
 wdsframecount = 0;
 beaconframecount = 0;
 proberequestframecount = 0;
@@ -1686,12 +1687,17 @@ if(testgzipfile(pcapinname) == true)
 		return;
 		}
 	pcapinname = tmpoutname;
+	needrmflag = true;
 	}
 
 memset(exeaptype, 0, sizeof(int) *256);
 pcapr_fd = open(pcapinname, O_RDONLY);
 if(pcapr_fd == -1)
 	{
+	if(needrmflag == true)
+		{
+		remove(tmpoutname);
+		}
 	return;
 	}
 
@@ -1700,6 +1706,10 @@ if(magicnumber == 0)
 	{
 	printf("failed to get magicnumber from %s\n", basename(pcapinname));
 	close(pcapr_fd);
+	if(needrmflag == true)
+		{
+		remove(tmpoutname);
+		}
 	return;
 	}
 lseek(pcapr_fd, 0L, SEEK_SET);
@@ -1716,6 +1726,10 @@ anonceliste = malloc(ANONCELIST_SIZE);
 if(anonceliste == NULL)
 	{
 	printf("failed to allocate memory\n");
+	if(needrmflag == true)
+		{
+		remove(tmpoutname);
+		}
 	exit(EXIT_FAILURE);
 	}
 anoncecount = 0;
@@ -1724,6 +1738,10 @@ eapolliste = malloc(EAPOLLIST_SIZE);
 if(eapolliste == NULL)
 	{
 	printf("failed to allocate memory\n");
+	if(needrmflag == true)
+		{
+		remove(tmpoutname);
+		}
 	exit(EXIT_FAILURE);
 	}
 eapolcount = 0;
@@ -1735,6 +1753,10 @@ if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 else if(magicnumber == PCAPNGBLOCKTYPE)
 	processpcapng(pcapr_fd, pcapinname);
 close(pcapr_fd);
+if(needrmflag == true)
+	{
+	remove(tmpoutname);
+	}
 
 
 if(apstaessidcount > 0) 
@@ -1767,6 +1789,7 @@ if(apstaessidliste != NULL)
 	{
 	free(apstaessidliste);
 	}
+
 return;
 }
 /*===========================================================================*/

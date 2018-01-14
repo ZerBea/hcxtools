@@ -1,4 +1,3 @@
-#include <sys/time.h>
 #include <zlib.h>
 #include "gzops.h"
 
