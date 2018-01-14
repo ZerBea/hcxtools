@@ -66,6 +66,7 @@ char *trafficoutname;
 char *anonceoutname;
 char *eapoloutname;
 char *pmkoutname;
+char *identityoutname;
 
 FILE *fhhexmode;
 
@@ -82,6 +83,7 @@ trafficoutname = NULL;
 anonceoutname = NULL;
 eapoloutname = NULL;
 pmkoutname = NULL;
+identityoutname = NULL;
 
 hexmodeflag = false;
 
@@ -600,6 +602,31 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 return;
 }
 /*===========================================================================*/
+void outlistidentity(uint32_t idlen, uint8_t *packet)
+{
+FILE *fhoutlist = NULL;
+
+if(idlen <= 5)
+	{
+	return;
+	}
+
+if(packet[5] == 0)
+	{
+	return;
+	}
+
+if(identityoutname != NULL)
+	{
+	if((fhoutlist = fopen(identityoutname, "a+")) != NULL)
+		{
+		fwriteessidstr(idlen -5, (packet +5), fhoutlist);
+		fclose(fhoutlist);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint32_t authlen, uint8_t *authpacket)
 {
 eapoll_t *zeiger, *tmp;
@@ -985,11 +1012,18 @@ void processexeapauthentication(uint32_t eaplen, uint8_t *packet)
 {
 exteap_t *exeap; 
 
+
+
 if(eaplen < (uint32_t)EXTEAP_SIZE)
 	{
 	return;
 	}
 exeap = (exteap_t*)(packet +EAPAUTH_SIZE);
+
+if(exeap->exttype == EAP_TYPE_ID)
+	{
+	outlistidentity(eaplen, packet +EAPAUTH_SIZE);
+	}
 
 exeaptype[exeap->exttype] = 1;
 eapframecount++;
@@ -1678,6 +1712,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
+	"-I <file> : output identities list\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
@@ -1720,12 +1755,16 @@ if(globalinit() == false)
 	printf("global  ‎initialization failed\n");
 	exit(EXIT_FAILURE);
 	}
-while ((auswahl = getopt(argc, argv, "E:P:T:A:S:H:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "E:I:P:T:A:S:H:hv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'E':
 		essidoutname = optarg;
+		break;
+
+		case 'I':
+		identityoutname = optarg;
 		break;
 
 		case 'P':

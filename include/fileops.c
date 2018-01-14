@@ -67,7 +67,9 @@ int p;
 
 if(isasciistring(len, essidstr) != false)
 	{
-	fprintf(fhd, "%s\n", essidstr);
+	fwrite(essidstr, len, 1, fhd);
+	fprintf(fhd, "\n");
+//	fprintf(fhd, "%s\n", essidstr);
 	}
 else
 	{

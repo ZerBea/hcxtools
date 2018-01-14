@@ -1,3 +1,11 @@
+14.01.2018
+==========
+hcxpcaptool
+added new options -P -I
+-I <file> : output identities list
+-P <file> : output possible WPA/WPA2 plainmasterkey list
+
+
 13.01.2018
 ==========
 hcxpcaptool
