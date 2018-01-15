@@ -49,7 +49,7 @@ else if(memcmp(ia->essid, ib->essid, 32) < 0)
 return 0;
 }
 /*===========================================================================*/
-struct anoncelist_s
+struct noncelist_s
 {
  uint32_t	tv_sec;
  uint32_t	tv_usec;
@@ -57,15 +57,15 @@ struct anoncelist_s
  uint8_t	mac_sta[6];
  uint8_t	keyinfo;
  uint64_t	replaycount;
- uint8_t	anonce[32];
+ uint8_t	nonce[32];
 } __attribute__((__packed__));
-typedef struct anoncelist_s anoncel_t;
-#define	ANONCELIST_SIZE (sizeof(anoncel_t))
+typedef struct noncelist_s noncel_t;
+#define	NONCELIST_SIZE (sizeof(noncel_t))
 /*===========================================================================*/
-static int sort_anoncelist_by_timestamp(const void *a, const void *b)
+static int sort_noncelist_by_timestamp(const void *a, const void *b)
 {
-const anoncel_t *ia = (const anoncel_t *)a;
-const anoncel_t *ib = (const anoncel_t *)b;
+const noncel_t *ia = (const noncel_t *)a;
+const noncel_t *ib = (const noncel_t *)b;
 if(ia->tv_sec > ib->tv_sec)
 	return 1;
 else if(ia->tv_sec < ib->tv_sec)
@@ -82,9 +82,9 @@ if(memcmp(ia->mac_sta, ib->mac_sta, 6) > 0)
 	return 1;
 else if(memcmp(ia->mac_sta, ib->mac_sta, 6) < 0)
 	return -1;
-if(memcmp(ia->anonce, ib->anonce, 32) > 0)
+if(memcmp(ia->nonce, ib->nonce, 32) > 0)
 	return 1;
-else if(memcmp(ia->anonce, ib->anonce, 32) < 0)
+else if(memcmp(ia->nonce, ib->nonce, 32) < 0)
 	return -1;
 return 0;
 }
@@ -129,4 +129,50 @@ else if(memcmp(ia->eapol, ib->eapol, 256) < 0)
 	return -1;
 return 0;
 }
+/*===========================================================================*/
+struct hcxtoollist_s
+{
+ uint32_t	tv_sec;
+ uint32_t	tv_usec;
+ uint32_t	tv_diff;
+ uint8_t	mac_ap[6];
+ uint8_t	mac_sta[6];
+ uint8_t	keyinfo_ap;
+ uint8_t	keyinfo_sta;
+ uint64_t	rc_diff;
+ uint64_t	replaycount_ap;
+ uint64_t	replaycount_sta;
+ uint8_t	nonce[32];
+ uint8_t	authlen;
+ uint8_t	eapol[256];
+ uint8_t	essidlen;
+ uint8_t	essid[32];
+} __attribute__((__packed__));
+typedef struct hcxtoollist_s hcxl_t;
+#define	HCXLIST_SIZE (sizeof(hcxl_t))
+/*===========================================================================*/
+/*
+static int sort_hcxlist_by_timestamp(const void *a, const void *b)
+{
+const hcxl_t *ia = (const hcxl_t *)a;
+const hcxl_t *ib = (const hcxl_t *)b;
+if(ia->tv_sec > ib->tv_sec)
+	return 1;
+else if(ia->tv_sec < ib->tv_sec)
+	return -1;
+if(memcmp(ia->mac_ap, ib->mac_ap, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_ap, ib->mac_ap, 6) < 0)
+	return -1;
+if(memcmp(ia->mac_sta, ib->mac_sta, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_sta, ib->mac_sta, 6) < 0)
+	return -1;
+if(memcmp(ia->nonce, ib->nonce, 32) > 0)
+	return 1;
+else if(memcmp(ia->nonce, ib->nonce, 32) < 0)
+	return -1;
+return 0;
+}
+*/
 /*===========================================================================*/
