@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #ifdef __APPLE__
 #define strdupa strdup
+#define PATH_MAX 255
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
