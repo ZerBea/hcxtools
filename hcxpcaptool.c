@@ -79,6 +79,17 @@ char *identityoutname;
 
 FILE *fhhexmode;
 
+bool tscleanflag;
+int endianess;
+int pcapreaderrors;
+unsigned long long int rawpacketcount;
+unsigned long long int skippedpacketcount;
+uint16_t versionmajor;
+uint16_t versionminor;
+uint16_t dltlinktype;
+
+
+
 int exeaptype[256];
 
 /*===========================================================================*/
@@ -388,8 +399,6 @@ if(ipv6framecount != 0)
 	{
 	printf("IPv6 packets...........: %lld\n", ipv6framecount);
 	}
-
-
 for(p = 0; p < 256; p++)
 	{
 	if(exeaptype[p] != 0)
@@ -397,7 +406,12 @@ for(p = 0; p < 256; p++)
 		printf("found..................: %s\n", geteaptypestring(p));
 		}
 	}
+if(handshakecount != 0)
+	{
+	printf("usable handshakes......: %lld\n", handshakecount);
+	}
 printf("\n");
+
 return;
 }
 /*===========================================================================*/
@@ -683,8 +697,6 @@ unsigned long long int c, d;
 uint32_t timegap;
 uint64_t rcgap;
 apstaessidl_t *zeigeressid;
-//qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_timestamp);
-//zeigernw = apstaessidliste;
 
 zeiger = handshakeliste;
 for(c = 0; c < handshakecount; c++)
@@ -768,7 +780,6 @@ memcpy(zeiger->nonce, zeigerno->nonce, 32);
 zeiger->authlen = zeigerea->authlen;
 memset(zeiger->eapol, 0, 256);
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-
 
 zeigeressid = apstaessidliste;
 for(d = 0; d < apstaessidcount; d++)
@@ -1481,12 +1492,7 @@ return;
 /*===========================================================================*/
 void processpcapng(int fd, char *pcapinname)
 {
-bool tscleanflag = false;
-int endianess = 0;
-int pcapreaderrors = 0;
 unsigned int res;
-unsigned long long int rawpacketcount = 0;
-unsigned long long int skippedpacketcount = 0;
 
 block_header_t pcapngbh;
 section_header_block_t pcapngshb;
@@ -1719,19 +1725,15 @@ while(1)
 			}
 		}
 	}
-
-printcapstatus("pcapng", pcapinname, pcapngshb.major_version, pcapngshb.minor_version, pcapngidb.linktype, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
+versionmajor = pcapngshb.major_version;
+versionminor = pcapngshb.minor_version;
+dltlinktype = pcapngidb.linktype;
 return;
 }
 /*===========================================================================*/
 void processpcap(int fd, char *pcapinname)
 {
-bool tscleanflag = false;
-int endianess = 0;
-int pcapreaderrors = 0;
 unsigned int res;
-unsigned long long int rawpacketcount = 0;
-unsigned long long int skippedpacketcount = 0;
 
 pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
@@ -1831,7 +1833,9 @@ while(1)
 			}
 		}
 	}
-printcapstatus("pcap", pcapinname, pcapfhdr.version_major, pcapfhdr.version_minor, pcapfhdr.network, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
+versionmajor = pcapfhdr.version_major;
+versionminor = pcapfhdr.version_minor;
+dltlinktype  = pcapfhdr.network;
 return;
 }
 /*===========================================================================*/
@@ -1840,6 +1844,23 @@ void processcapfile(char *pcapinname)
 int pcapr_fd;
 uint32_t magicnumber;
 bool needrmflag = false;
+apstaessidliste = NULL;
+nonceliste = NULL;
+eapolliste = NULL;
+handshakeliste = NULL;
+char *pcapart;
+char *pcapstr = "pcap";
+char *pcapngstr = "pcapng";
+
+versionmajor = 0;
+versionminor = 0;
+dltlinktype  = 0;
+tscleanflag = false;
+endianess = 0;
+pcapreaderrors = 0;
+rawpacketcount = 0;
+skippedpacketcount = 0;
+
 wdsframecount = 0;
 beaconframecount = 0;
 proberequestframecount = 0;
@@ -1857,6 +1878,8 @@ eapolframecount = 0;
 eapframecount = 0;
 ipv4framecount = 0;
 ipv6framecount = 0;
+
+
 char tmpoutname[PATH_MAX+1];
 
 if(testgzipfile(pcapinname) == true)
@@ -1927,12 +1950,19 @@ if(eapolliste == NULL)
 	}
 eapolcount = 0;
 
-
+pcapart = pcapstr;
 if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
+	{
 	processpcap(pcapr_fd, pcapinname);
+	pcapart = pcapstr;
+	}
 
 else if(magicnumber == PCAPNGBLOCKTYPE)
+	{
 	processpcapng(pcapr_fd, pcapinname);
+	pcapart = pcapngstr;
+	}
+
 close(pcapr_fd);
 if(needrmflag == true)
 	{
@@ -1951,6 +1981,7 @@ if((apstaessidcount > 0) && (noncecount > 0) && (eapolcount > 0))
 	detectwpahandshakes();
 	}
 
+printcapstatus(pcapart, pcapinname, versionmajor, versionminor, dltlinktype, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 
 if(apstaessidcount > 0) 
 	{
@@ -1972,7 +2003,6 @@ if(handshakecount > 0)
 	outputlists4();
 	}
 
-
 if(handshakeliste != NULL)
 	{
 	free(handshakeliste);
@@ -1992,7 +2022,6 @@ if(apstaessidliste != NULL)
 	{
 	free(apstaessidliste);
 	}
-
 return;
 }
 /*===========================================================================*/
