@@ -36,7 +36,7 @@
 /* global var */
 
 bool hexmodeflag;
-bool wantlistflag;
+bool verboseflag;
 
 unsigned long long int apstaessidcount;
 apstaessidl_t *apstaessidliste;
@@ -104,9 +104,8 @@ nonceoutname = NULL;
 eapoloutname = NULL;
 pmkoutname = NULL;
 identityoutname = NULL;
-
+verboseflag = false;
 hexmodeflag = false;
-wantlistflag = false;
 
 setbuf(stdout, NULL);
 srand(time(NULL));
@@ -845,11 +844,6 @@ void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_
 eapoll_t *zeiger, *tmp;
 unsigned long long int c;
 
-if(wantlistflag == false)
-	{
-	return;
-	}
-
 if(authlen > 256)
 	{
 	return;
@@ -895,11 +889,6 @@ void addnonce(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_
 noncel_t *zeiger, *tmp;
 unsigned long long int c;
 
-if(wantlistflag == false)
-	{
-	return;
-	}
-
 zeiger = nonceliste;
 for(c = 0; c < noncecount; c++)
 	{
@@ -939,11 +928,6 @@ void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t 
 {
 apstaessidl_t *zeiger, *tmp;
 unsigned long long int c;
-
-if(wantlistflag == false)
-	{
-	return;
-	}
 
 zeiger = apstaessidliste;
 for(c = 0; c < apstaessidcount; c++)
@@ -1718,8 +1702,11 @@ while(1)
 			{
 			packethexdump(pcapngepb.timestamp_high, pcapngepb.timestamp_low, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
 			}
-		processpacket(pcapngepb.timestamp_high, pcapngepb.timestamp_low, pcapngidb.linktype, pcapngepb.caplen, packet);
-		if((rawpacketcount % 100000) == 0)
+		if(verboseflag == true)
+			{
+			processpacket(pcapngepb.timestamp_high, pcapngepb.timestamp_low, pcapngidb.linktype, pcapngepb.caplen, packet);
+			}
+		if((rawpacketcount %100000) == 0)
 			{
 			printf("%lld packets processed - be patient!\r", rawpacketcount);
 			}
@@ -1826,8 +1813,11 @@ while(1)
 			{
 			packethexdump(pcaprhdr.ts_sec, pcaprhdr.ts_usec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
 			}
-		processpacket(pcaprhdr.ts_sec, pcaprhdr.ts_usec, pcapfhdr.network, pcaprhdr.incl_len, packet);
-		if((rawpacketcount % 100000) == 0)
+		if(verboseflag == true)
+			{
+			processpacket(pcaprhdr.ts_sec, pcaprhdr.ts_usec, pcapfhdr.network, pcaprhdr.incl_len, packet);
+			}
+		if((rawpacketcount %100000) == 0)
 			{
 			printf("%lld packets processed - be patient!\r", rawpacketcount);
 			}
@@ -2054,6 +2044,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-S <file> : output EAPOL information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : message : replaycount : eapol_len : eapol\n"
 	"-H <file> : output dump raw packets in hex\n"
+	"-V        : verbose (but slow) status output\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
@@ -2088,42 +2079,46 @@ if(globalinit() == false)
 	printf("global  ‎initialization failed\n");
 	exit(EXIT_FAILURE);
 	}
-while ((auswahl = getopt(argc, argv, "E:I:P:T:A:S:H:hv")) != -1)
+while ((auswahl = getopt(argc, argv, "E:I:P:T:A:S:H:Vhv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'E':
 		essidoutname = optarg;
-		wantlistflag = true;
+		verboseflag = true;
 		break;
 
 		case 'I':
 		identityoutname = optarg;
+		verboseflag = true;
 		break;
 
 		case 'P':
 		pmkoutname = optarg;
-		wantlistflag = true;
+		verboseflag = true;
 		break;
 
 		case 'T':
 		trafficoutname = optarg;
-		wantlistflag = true;
+		verboseflag = true;
 		break;
 
 		case 'A':
 		nonceoutname = optarg;
-		wantlistflag = true;
+		verboseflag = true;
 		break;
 
 		case 'S':
 		eapoloutname = optarg;
-		wantlistflag = true;
 		break;
 
 		case 'H':
 		hexmodeflag = true;
 		hexmodeoutname = optarg;
+		break;
+
+		case 'V':
+		verboseflag = true;
 		break;
 
 		case 'h':

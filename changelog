@@ -1,3 +1,13 @@
+15.01.2018
+==========
+hcxpcaptool
+added new option -V
+-V        : verbose (but slow) status output
+Running hcxpcaptool without options on cap/pcap/pcapng files
+shows only limited stauts output
+If you need detailed informations, use -V
+
+
 14.01.2018
 ==========
 hcxpcaptool
