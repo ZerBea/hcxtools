@@ -1,3 +1,11 @@
+16.01.2018
+==========
+hcxpcaptool
+added new option -o
+-o <file> : output hccapx file
+convert cap/pcap/pcapng to hccapx
+
+
 15.01.2018
 ==========
 hcxpcaptool

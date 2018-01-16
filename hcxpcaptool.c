@@ -27,10 +27,14 @@
 #include "include/fileops.c"
 #include "include/pcap.c"
 #include "include/gzops.c"
+#include "include/hashcatops.c"
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST
 #endif
+
+#define MAX_TV_DIFF 10000
+#define MAX_RC_DIFF 8
 
 /*===========================================================================*/
 /* global var */
@@ -70,6 +74,7 @@ unsigned long long int ipv4framecount;
 unsigned long long int ipv6framecount;
 
 char *hexmodeoutname;
+char *hccapxbestoutname;
 char *essidoutname;
 char *trafficoutname;
 char *nonceoutname;
@@ -88,16 +93,14 @@ uint16_t versionmajor;
 uint16_t versionminor;
 uint16_t dltlinktype;
 
-
-
 int exeaptype[256];
-
 /*===========================================================================*/
 /* global init */
 
 bool globalinit()
 {
 hexmodeoutname = NULL;
+hccapxbestoutname = NULL;
 essidoutname = NULL;
 trafficoutname = NULL;
 nonceoutname = NULL;
@@ -414,7 +417,7 @@ printf("\n");
 return;
 }
 /*===========================================================================*/
-void packethexdump(uint32_t ts_sec, uint32_t ts_usec, unsigned long long int packetnr, uint32_t networktype, uint32_t snaplen, uint32_t caplen, uint32_t len, uint8_t *packet)
+void packethexdump(uint32_t tv_sec, uint32_t ts_usec, unsigned long long int packetnr, uint32_t networktype, uint32_t snaplen, uint32_t caplen, uint32_t len, uint8_t *packet)
 {
 int c;
 uint32_t d;
@@ -422,7 +425,7 @@ time_t pkttime;
 struct tm *pkttm;
 char tmbuf[64], pcktimestr[64];
 
-pkttime = ts_sec;
+pkttime = tv_sec;
 pkttm = localtime(&pkttime);
 strftime(tmbuf, sizeof tmbuf, "%d.%m.%Y\ntime.......: %H:%M:%S", pkttm);
 snprintf(pcktimestr, sizeof(pcktimestr), "%s.%06lu", tmbuf, (long int)ts_usec);
@@ -648,18 +651,28 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 	}
 return;
 }
-
-
 /*===========================================================================*/
 void outputlists4()
 {
 unsigned long long int c;
 hcxl_t *zeiger;
+FILE *fhoutlist = NULL;
 
-zeiger = handshakeliste;
-for(c = 0; c < handshakecount; c++)
+if(( handshakeliste != NULL) && (hccapxbestoutname != NULL))
 	{
-	zeiger++;
+	if((fhoutlist = fopen(hccapxbestoutname, "a+")) != NULL)
+		{
+		zeiger = handshakeliste;
+		for(c = 0; c < handshakecount; c++)
+			{
+			if((zeiger-> tv_diff <= MAX_TV_DIFF) && (zeiger->rc_diff <= MAX_RC_DIFF))
+				{
+				writehccapxrecord(zeiger, fhoutlist);
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		}
 	}
 return;
 }
@@ -722,6 +735,25 @@ for(c = 0; c < handshakecount; c++)
 			{
 			rcgap = zeigerno->replaycount - zeigerea->replaycount;
 			}
+
+		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT))
+			{
+			zeiger->tv_diff = timegap;
+			zeiger->rc_diff = rcgap;
+			zeiger->tv_sec = zeigerea->tv_sec;
+			zeiger->tv_usec = zeigerea->tv_usec;
+			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+			zeiger->keyinfo_ap = zeigerno->keyinfo;
+			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			zeiger->replaycount_ap = zeigerno->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
+			memcpy(zeiger->nonce, zeigerno->nonce, 32);
+			zeiger->authlen = zeigerea->authlen;
+			memset(zeiger->eapol, 0, 256);
+			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+			}
+
 		if(timegap > zeiger->tv_diff)
 			{
 			return;
@@ -863,6 +895,7 @@ for(c = 0; c < eapolcount; c++)
 	zeiger++;
 	}
 
+
 zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
@@ -912,7 +945,6 @@ memcpy(zeiger->mac_sta, mac_sta, 6);
 zeiger->replaycount = rc;
 zeiger->keyinfo = ki;
 memcpy(zeiger->nonce, nonce, 32);
-
 noncecount++;
 tmp = realloc(nonceliste, (noncecount +1) *NONCELIST_SIZE);
 if(tmp == NULL)
@@ -995,7 +1027,7 @@ wdsframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211beacon(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211beacon(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -1014,12 +1046,12 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(ts_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
 beaconframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211probe_req(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211probe_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -1038,12 +1070,12 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(ts_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 proberequestframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211probe_resp(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211probe_resp(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -1062,12 +1094,12 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(ts_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
 proberesponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211assoc_req(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211assoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -1087,7 +1119,7 @@ if(essidlen == 0)
 	return;
 	}
 
-addapstaessid(ts_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 associationrequestframecount++;
 return;
 }
@@ -1099,7 +1131,7 @@ associationresponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211reassoc_req(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211reassoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
@@ -1118,7 +1150,7 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(ts_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 
 reassociationrequestframecount++;
 return;
@@ -1167,7 +1199,7 @@ atimframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211eapolauthentication(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
+void process80211eapolauthentication(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
 eapauth_t *eap;
 wpakey_t *wpak;
@@ -1188,23 +1220,23 @@ wpak->replaycount = byte_swap_64(wpak->replaycount);
 #endif
 if(keyinfo == 1)
 	{
-	addnonce(ts_sec, tv_usec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), wpak->nonce);
+	addnonce(tv_sec, tv_usec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), wpak->nonce);
 	}
 else if(keyinfo == 3)
 	{
-	addnonce(ts_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
+	addnonce(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
 	if(ntohs(eap->len) == caplen -4)
 		{
-		addeapol(ts_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), caplen, packet);
+		addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), caplen, packet);
 		}
 	}
 
 else if(keyinfo == 2)
 	{
-	addnonce(ts_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), wpak->nonce);
+	addnonce(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), wpak->nonce);
 	if(ntohs(eap->len) == caplen -4)
 		{
-		addeapol(ts_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), caplen, packet);
+		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), caplen, packet);
 		}
 	}
 else if(keyinfo == 4)
@@ -1213,10 +1245,10 @@ else if(keyinfo == 4)
 		{
 		return;
 		}
-	addnonce(ts_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), wpak->nonce);
+	addnonce(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), wpak->nonce);
 	if(ntohs(eap->len) == caplen -4)
 		{
-		addeapol(ts_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), caplen, packet);
+		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), caplen, packet);
 		}
 	}
 else
@@ -1250,7 +1282,7 @@ return;
 }
 /*===========================================================================*/
 
-void process80211networkauthentication(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
+void process80211networkauthentication(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
 eapauth_t *eap;
 
@@ -1261,7 +1293,7 @@ if(caplen < (uint32_t)EAPAUTH_SIZE)
 eap = (eapauth_t*)packet;
 if(eap->type == 3)
 	{
-	process80211eapolauthentication(ts_sec, tv_usec, caplen, macaddr1, macaddr2, packet);
+	process80211eapolauthentication(tv_sec, tv_usec, caplen, macaddr1, macaddr2, packet);
 	}
 else if(eap->type == 0)
 	{
@@ -1284,7 +1316,7 @@ ipv6framecount++;
 return;
 }
 /*===========================================================================*/
-void process80211datapacket(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211datapacket(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 mac_t *macf;
 llc_t *llc;
@@ -1302,7 +1334,7 @@ if(macf->subtype == IEEE80211_STYPE_DATA)
 	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
 		{
 		packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
-		process80211networkauthentication(ts_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
+		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
 		{
@@ -1323,7 +1355,7 @@ else if(macf->subtype == IEEE80211_STYPE_QOS_DATA)
 	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
 		{
 		packet_ptr += MAC_SIZE_QOS +LLC_SIZE;
-		process80211networkauthentication(ts_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
+		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
 		{
@@ -1337,7 +1369,7 @@ else if(macf->subtype == IEEE80211_STYPE_QOS_DATA)
 return;
 }
 /*===========================================================================*/
-void process80211packet(uint32_t ts_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 mac_t *macf;
 
@@ -1355,19 +1387,19 @@ else if(macf->type == IEEE80211_FTYPE_MGMT)
 	{
 	if(macf->subtype == IEEE80211_STYPE_BEACON)
 		{
-		process80211beacon(ts_sec, tv_usec, caplen, packet);
+		process80211beacon(tv_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_PROBE_REQ)
 		{
-		process80211probe_req(ts_sec, tv_usec, caplen, packet);
+		process80211probe_req(tv_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_PROBE_RESP)
 		{
-		process80211probe_resp(ts_sec, tv_usec, caplen, packet);
+		process80211probe_resp(tv_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_ASSOC_REQ)
 		{
-		process80211assoc_req(ts_sec, tv_usec, caplen, packet);
+		process80211assoc_req(tv_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_ASSOC_RESP)
 		{
@@ -1375,11 +1407,11 @@ else if(macf->type == IEEE80211_FTYPE_MGMT)
 		}
 	else if (macf->subtype == IEEE80211_STYPE_REASSOC_REQ)
 		{
-		process80211reassoc_req(ts_sec, tv_usec, caplen, packet);
+		process80211reassoc_req(tv_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_REASSOC_RESP)
 		{
-		process80211reassoc_resp(ts_sec, tv_usec, caplen, packet);
+		process80211reassoc_resp(tv_sec, tv_usec, caplen, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_AUTH)
 		{
@@ -1406,18 +1438,23 @@ else if(macf->type == IEEE80211_FTYPE_MGMT)
 
 else if (macf->type == IEEE80211_FTYPE_DATA)
 	{
-	process80211datapacket(ts_sec, tv_usec, caplen, packet);
+	process80211datapacket(tv_sec, tv_usec, caplen, packet);
 	}
 
 return;
 }
 /*===========================================================================*/
-void processpacket(uint32_t ts_sec, uint32_t tv_usec, int linktype, uint32_t caplen, uint8_t *packet)
+void processpacket(uint32_t tv_sec, uint32_t tv_usec, int linktype, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 rth_t *rth;
 prism_t *prism;
 ppi_t *ppi;
+
+if((tv_sec == 0) && (tv_usec == 0)) 
+	{
+	tscleanflag = true;
+	}
 
 packet_ptr = packet;
 if(linktype == DLT_IEEE802_11_RADIO)
@@ -1434,11 +1471,11 @@ if(linktype == DLT_IEEE802_11_RADIO)
 	#endif
 	packet_ptr += rth->it_len;
 	caplen -= rth->it_len;
-	process80211packet(ts_sec, tv_usec, caplen, packet_ptr);
+	process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 	}
 else if(linktype == DLT_IEEE802_11)
 	{
-	process80211packet(ts_sec, tv_usec, caplen, packet);
+	process80211packet(tv_sec, tv_usec, caplen, packet);
 	}
 else if(linktype == DLT_PRISM_HEADER)
 	{
@@ -1454,7 +1491,7 @@ else if(linktype == DLT_PRISM_HEADER)
 	#endif
 	packet_ptr += prism->msglen;
 	caplen -= prism->msglen;
-	process80211packet(ts_sec, tv_usec, caplen, packet_ptr);
+	process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 	}
 else if(linktype == DLT_PPI)
 	{
@@ -1469,7 +1506,7 @@ else if(linktype == DLT_PPI)
 	#endif
 	packet_ptr += ppi->pph_len;
 	caplen -= ppi->pph_len;
-	process80211packet(ts_sec, tv_usec, caplen, packet_ptr);
+	process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 	}
 return;
 }
@@ -1667,11 +1704,6 @@ while(1)
 			pcapngepb.len			= byte_swap_32(pcapngepb.len);
 			}
 
-		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
-			{
-			tscleanflag = true;
-			}
-
 		if(pcapngepb.caplen < MAXPACPSNAPLEN)
 			{
 			res = read(fd, &packet, pcapngepb.caplen);
@@ -1781,11 +1813,6 @@ while(1)
 		pcaprhdr.ts_usec	= byte_swap_32(pcaprhdr.ts_usec);
 		pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
 		pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
-		}
-
-	if((pcaprhdr.ts_sec == 0) && (pcaprhdr.ts_usec == 0))
-		{
-		tscleanflag = true;
 		}
 
 	if(pcaprhdr.incl_len < MAXPACPSNAPLEN)
@@ -2033,6 +2060,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options> *.*\n"
 	"\n"
 	"options:\n"
+	"-o <file> : output hccapx file\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-I <file> : output identitylist\n"
 	"          : needs to be sorted unique\n"
@@ -2079,10 +2107,16 @@ if(globalinit() == false)
 	printf("global  ‎initialization failed\n");
 	exit(EXIT_FAILURE);
 	}
-while ((auswahl = getopt(argc, argv, "E:I:P:T:A:S:H:Vhv")) != -1)
+while ((auswahl = getopt(argc, argv, "o:E:I:P:T:A:S:H:Vhv")) != -1)
 	{
 	switch (auswahl)
 		{
+		case 'o':
+		hccapxbestoutname = optarg;
+		verboseflag = true;
+		break;
+
+
 		case 'E':
 		essidoutname = optarg;
 		verboseflag = true;
