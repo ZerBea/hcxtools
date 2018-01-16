@@ -1768,6 +1768,9 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 	if(pkh->caplen != pkh->len)
 		continue;
 
+	if(pkh->caplen == 0)
+		continue;
+
 	/* check Loopback-header */
 	if(datalink == DLT_NULL)
 		{

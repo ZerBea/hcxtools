@@ -1281,6 +1281,9 @@ while(1)
 	if(pkh->caplen != pkh->len)
 		continue;
 
+	if(pkh->caplen == 0)
+		continue;
+
 	/* check radiotap-header */
 	h80211 = packet;
 	if(has_rth == true)
