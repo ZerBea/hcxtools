@@ -574,6 +574,10 @@ if(tacacspf->version != TACACSP_VERSION)
 	{
 	return false;
 	}
+if(tacacspf->type != 1)
+	{
+	return false;
+	}
 
 datalen = ntohl(tacacspf->datalen);
 if(datalen > pklen)
@@ -1972,9 +1976,12 @@ while((pcapstatus = pcap_next_ex(pcapin, &pkh, &packet)) != -2)
 		continue;
 		}
 
+	if(pkh->caplen == 0)
+		{
+		continue;
+		}
+
 	packetcount++;
-	if((pkh->ts.tv_sec == 0) && (pkh->ts.tv_usec == 0))
-		wcflag = true;
 
 	/* check Loopback-header */
 	if(datalink == DLT_NULL)
