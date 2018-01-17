@@ -3,10 +3,13 @@
 hcxpcaptool
 added new options
 -O <file> : output raw hccapx file
+-x <file> : output hccap file
+-X <file> : output raw hccap file
 --time-error-corrections  : maximum allowed time gap (default: 10000ms)
 --nonce-error-corrections : maximum allowed nonce gap (default: 8)
                           : should be the same value as in hashcat
 option -O is designed for third party tools which like to strip handshakes by themselves
+options -x and -X are designed for use on older systems and old hashcat version
 
 
 16.01.2018

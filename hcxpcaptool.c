@@ -87,6 +87,8 @@ unsigned long long int ipv6framecount;
 char *hexmodeoutname;
 char *hccapxbestoutname;
 char *hccapxrawoutname;
+char *hccapbestoutname;
+char *hccaprawoutname;
 char *essidoutname;
 char *trafficoutname;
 char *nonceoutname;
@@ -114,6 +116,8 @@ bool globalinit()
 hexmodeoutname = NULL;
 hccapxbestoutname = NULL;
 hccapxrawoutname = NULL;
+hccapbestoutname = NULL;
+hccaprawoutname = NULL;
 essidoutname = NULL;
 trafficoutname = NULL;
 nonceoutname = NULL;
@@ -719,6 +723,44 @@ if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 		}
 	}
 removeemptyfile(hccapxrawoutname);
+
+
+if((handshakeliste != NULL) && (hccapbestoutname != NULL))
+	{
+	if((fhoutlist = fopen(hccapbestoutname, "a+")) != NULL)
+		{
+		zeiger = handshakeliste;
+		for(c = 0; c < handshakecount; c++)
+			{
+			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+				{
+				writehccaprecord(zeiger, fhoutlist);
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		}
+	}
+removeemptyfile(hccapbestoutname);
+
+if((rawhandshakeliste != NULL) && (hccaprawoutname != NULL))
+	{
+	if((fhoutlist = fopen(hccaprawoutname, "a+")) != NULL)
+		{
+		zeiger = rawhandshakeliste;
+		for(c = 0; c < rawhandshakecount; c++)
+			{
+			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+				{
+				writehccaprecord(zeiger, fhoutlist);
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		}
+	}
+removeemptyfile(hccaprawoutname);
+
 return;
 }
 /*===========================================================================*/
@@ -2197,6 +2239,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output hccapx file\n"
 	"-O <file> : output raw hccapx file\n"
+	"-x <file> : output hccap file\n"
+	"-X <file> : output raw hccap file\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-I <file> : output identitylist\n"
 	"          : needs to be sorted unique\n"
@@ -2241,7 +2285,7 @@ int auswahl;
 int index;
 char *eigenpfadname, *eigenname;
 
-static const char *short_options = "o:O:E:I:P:T:A:S:H:Vhv";
+static const char *short_options = "o:O:x:X:E:I:P:T:A:S:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	0, HCXT_REPLAYCOUNTGAP},
@@ -2297,6 +2341,16 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case 'O':
 		hccapxrawoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case 'x':
+		hccapbestoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case 'X':
+		hccaprawoutname = optarg;
 		verboseflag = true;
 		break;
 
