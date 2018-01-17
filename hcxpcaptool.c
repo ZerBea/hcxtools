@@ -29,6 +29,7 @@
 #include "include/pcap.c"
 #include "include/gzops.c"
 #include "include/hashcatops.c"
+#include "include/johnops.c"
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST
@@ -89,6 +90,8 @@ char *hccapxbestoutname;
 char *hccapxrawoutname;
 char *hccapbestoutname;
 char *hccaprawoutname;
+char *johnbestoutname;
+char *johnrawoutname;
 char *essidoutname;
 char *trafficoutname;
 char *nonceoutname;
@@ -118,6 +121,8 @@ hccapxbestoutname = NULL;
 hccapxrawoutname = NULL;
 hccapbestoutname = NULL;
 hccaprawoutname = NULL;
+johnbestoutname = NULL;
+johnrawoutname = NULL;
 essidoutname = NULL;
 trafficoutname = NULL;
 nonceoutname = NULL;
@@ -682,7 +687,7 @@ removeemptyfile(eapoloutname);
 return;
 }
 /*===========================================================================*/
-void outputlists4()
+void outputlists4(char *pcapinname)
 {
 unsigned long long int c;
 hcxl_t *zeiger;
@@ -724,7 +729,6 @@ if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 	}
 removeemptyfile(hccapxrawoutname);
 
-
 if((handshakeliste != NULL) && (hccapbestoutname != NULL))
 	{
 	if((fhoutlist = fopen(hccapbestoutname, "a+")) != NULL)
@@ -760,6 +764,43 @@ if((rawhandshakeliste != NULL) && (hccaprawoutname != NULL))
 		}
 	}
 removeemptyfile(hccaprawoutname);
+
+if((handshakeliste != NULL) && (johnbestoutname != NULL))
+	{
+	if((fhoutlist = fopen(johnbestoutname, "a+")) != NULL)
+		{
+		zeiger = handshakeliste;
+		for(c = 0; c < handshakecount; c++)
+			{
+			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+				{
+				writejohnrecord(zeiger, fhoutlist, pcapinname);
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		}
+	}
+removeemptyfile(johnbestoutname);
+
+if((rawhandshakeliste != NULL) && (johnrawoutname != NULL))
+	{
+	if((fhoutlist = fopen(johnrawoutname, "a+")) != NULL)
+		{
+		zeiger = rawhandshakeliste;
+		for(c = 0; c < rawhandshakecount; c++)
+			{
+			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+				{
+				writejohnrecord(zeiger, fhoutlist, pcapinname);
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		}
+	}
+removeemptyfile(hccaprawoutname);
+
 
 return;
 }
@@ -2194,7 +2235,7 @@ if(eapolcount > 0)
 
 if(handshakecount > 0) 
 	{
-	outputlists4();
+	outputlists4(pcapinname);
 	}
 
 if(handshakeliste != NULL)
@@ -2241,8 +2282,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-O <file> : output raw hccapx file\n"
 	"-x <file> : output hccap file\n"
 	"-X <file> : output raw hccap file\n"
+	"-j <file> : output john WPAPSK-PMK file\n"
+	"-J <file> : output raw john WPAPSK-PMK file\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
-	"-I <file> : output identitylist\n"
+	"-I <file> : output identity list\n"
 	"          : needs to be sorted unique\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
@@ -2285,7 +2328,7 @@ int auswahl;
 int index;
 char *eigenpfadname, *eigenname;
 
-static const char *short_options = "o:O:x:X:E:I:P:T:A:S:H:Vhv";
+static const char *short_options = "o:O:x:X:j:J:E:I:P:T:A:S:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	0, HCXT_REPLAYCOUNTGAP},
@@ -2351,6 +2394,16 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case 'X':
 		hccaprawoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case 'j':
+		johnbestoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case 'J':
+		johnrawoutname = optarg;
 		verboseflag = true;
 		break;
 

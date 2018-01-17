@@ -5,6 +5,8 @@ added new options
 -O <file> : output raw hccapx file
 -x <file> : output hccap file
 -X <file> : output raw hccap file
+-j <file> : output john WPAPSK-PMK file
+-J <file> : output raw john WPAPSK-PMK file
 --time-error-corrections  : maximum allowed time gap (default: 10000ms)
 --nonce-error-corrections : maximum allowed nonce gap (default: 8)
                           : should be the same value as in hashcat
