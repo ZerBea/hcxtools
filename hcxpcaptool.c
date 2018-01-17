@@ -2097,7 +2097,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"0010 M2\n"
 	"0100 M3\n"
 	"1000 M4\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff, maxrcdiff);
+	"\n"
+	"do not use %s in combination with third party cap/pcap/pcapng cleaning tools!\n"
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff, maxrcdiff, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
