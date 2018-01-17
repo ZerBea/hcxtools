@@ -1901,6 +1901,7 @@ reassociationresponseframecount = 0;
 authenticationframecount = 0;
 deauthenticationframecount = 0;
 disassociationframecount = 0;
+handshakecount = 0;
 actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
@@ -2098,7 +2099,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"0100 M3\n"
 	"1000 M4\n"
 	"\n"
-	"do not use %s in combination with third party cap/pcap/pcapng cleaning tools!\n"
+	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools!\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff, maxrcdiff, eigenname);
 exit(EXIT_SUCCESS);
 }
