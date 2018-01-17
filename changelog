@@ -1,3 +1,12 @@
+17.01.2018
+==========
+hcxpcaptool
+added new options
+--time-error-corrections  : maximum allowed time gap (default: 10000ms)
+--nonce-error-corrections : maximum allowed nonce gap (default: 8)
+                          : should be the same value as in hashcat
+
+
 16.01.2018
 ==========
 hcxpcaptool

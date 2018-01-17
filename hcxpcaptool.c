@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <getopt.h>
 #include <time.h>
 #include <unistd.h>
 #include <netinet/in.h>
@@ -36,11 +37,19 @@
 #define MAX_TV_DIFF 10000
 #define MAX_RC_DIFF 8
 
+#define HCXT_TIMEGAP		1
+#define HCXT_REPLAYCOUNTGAP	2
+
+
 /*===========================================================================*/
 /* global var */
 
 bool hexmodeflag;
 bool verboseflag;
+
+uint32_t maxtvdiff;
+uint32_t maxrcdiff;
+
 
 unsigned long long int apstaessidcount;
 apstaessidl_t *apstaessidliste;
@@ -109,6 +118,9 @@ pmkoutname = NULL;
 identityoutname = NULL;
 verboseflag = false;
 hexmodeflag = false;
+
+maxtvdiff = MAX_TV_DIFF;
+maxrcdiff = MAX_RC_DIFF;
 
 setbuf(stdout, NULL);
 srand(time(NULL));
@@ -665,7 +677,7 @@ if(( handshakeliste != NULL) && (hccapxbestoutname != NULL))
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
-			if((zeiger-> tv_diff <= MAX_TV_DIFF) && (zeiger->rc_diff <= MAX_RC_DIFF))
+			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writehccapxrecord(zeiger, fhoutlist);
 				}
@@ -2076,12 +2088,16 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
+	"--time-error-corrections  : maximum allowed time gap (default: %dms)\n"
+	"--nonce-error-corrections : maximum allowed nonce gap (default: %d)\n"
+	"                          : should be the same value as in hashcat\n"
+	"\n"
 	"bitmask for message:\n"
 	"0001 M1\n"
 	"0010 M2\n"
 	"0100 M3\n"
 	"1000 M4\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff, maxrcdiff);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -2099,6 +2115,14 @@ int auswahl;
 int index;
 char *eigenpfadname, *eigenname;
 
+static const char *short_options = "o:E:I:P:T:A:S:H:Vhv";
+static const struct option long_options[] =
+{
+	{"time-error-corrections",	required_argument,	0, HCXT_TIMEGAP},
+	{"nonce-error-corrections",	required_argument,	0, HCXT_REPLAYCOUNTGAP},
+	{0, 0, 0, 0}
+};
+
 eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
@@ -2107,7 +2131,36 @@ if(globalinit() == false)
 	printf("global  ‎initialization failed\n");
 	exit(EXIT_FAILURE);
 	}
-while ((auswahl = getopt(argc, argv, "o:E:I:P:T:A:S:H:Vhv")) != -1)
+
+auswahl = -1;
+index = 0;
+optind = 1;
+optopt = 0;
+
+while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
+	{
+	switch (auswahl)
+		{
+		case HCXT_TIMEGAP:
+		maxtvdiff = atoi(optarg);
+		break;
+
+		case HCXT_REPLAYCOUNTGAP:
+		maxrcdiff = atoi(optarg);
+		break;
+
+		case '?':
+		printf("invalid argument specified\n");
+		exit(EXIT_FAILURE);
+		break;
+		}
+	}
+
+optind = 1;
+optopt = 0;
+index = 0;
+
+while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
 	switch (auswahl)
 		{
@@ -2115,7 +2168,6 @@ while ((auswahl = getopt(argc, argv, "o:E:I:P:T:A:S:H:Vhv")) != -1)
 		hccapxbestoutname = optarg;
 		verboseflag = true;
 		break;
-
 
 		case 'E':
 		essidoutname = optarg;
@@ -2157,12 +2209,16 @@ while ((auswahl = getopt(argc, argv, "o:E:I:P:T:A:S:H:Vhv")) != -1)
 
 		case 'h':
 		usage(eigenname);
+		break;
 
 		case 'v':
 		version(eigenname);
+		break;
 
-		default:
-		usageerror(eigenname);
+		case '?':
+		printf("invalid argument specified\n");
+		exit(EXIT_FAILURE);
+		break;
 		}
 	}
 
