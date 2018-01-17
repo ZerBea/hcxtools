@@ -69,7 +69,6 @@ if(isasciistring(len, essidstr) != false)
 	{
 	fwrite(essidstr, len, 1, fhd);
 	fprintf(fhd, "\n");
-//	fprintf(fhd, "%s\n", essidstr);
 	}
 else
 	{
@@ -92,6 +91,27 @@ for(p = 0; p < bufflen; p++)
 	fprintf(fhd, "%02x", buff[p]);
 	}
 fprintf(fhd, "\n");
+return;
+}
+/*===========================================================================*/
+void removeemptyfile(char *filenametoremove)
+{
+struct stat statinfo;
+
+if(filenametoremove == NULL)
+	{
+	return;
+	}
+if(stat(filenametoremove, &statinfo) != 0)
+	{
+	return;
+	}
+
+if(statinfo.st_size == 0)
+	{
+	remove(filenametoremove);
+	return;
+	}
 return;
 }
 /*===========================================================================*/

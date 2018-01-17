@@ -40,7 +40,6 @@
 #define HCXT_REPLAYCOUNTGAP	1
 #define HCXT_TIMEGAP		2
 
-
 /*===========================================================================*/
 /* global var */
 
@@ -522,6 +521,7 @@ if((apstaessidliste != NULL) && (essidoutname != NULL))
 		}
 	fclose(fhoutlist);
 	}
+removeemptyfile(essidoutname);
 
 if((apstaessidliste != NULL) && (pmkoutname != NULL)) 
 	{
@@ -552,6 +552,7 @@ if((apstaessidliste != NULL) && (pmkoutname != NULL))
 		}
 	fclose(fhoutlist);
 	}
+removeemptyfile(pmkoutname);
 
 if((apstaessidliste != NULL) && (trafficoutname != NULL))
 	{
@@ -587,6 +588,7 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 		}
 	fclose(fhoutlist);
 	}
+removeemptyfile(trafficoutname);
 return;
 }
 /*===========================================================================*/
@@ -628,6 +630,7 @@ if((nonceliste != NULL) && (nonceoutname != NULL))
 		}
 	fclose(fhoutlist);
 	}
+removeemptyfile(nonceoutname);
 return;
 }
 /*===========================================================================*/
@@ -671,6 +674,7 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 		}
 	fclose(fhoutlist);
 	}
+removeemptyfile(eapoloutname);
 return;
 }
 /*===========================================================================*/
@@ -696,6 +700,7 @@ if((handshakeliste != NULL) && (hccapxbestoutname != NULL))
 		fclose(fhoutlist);
 		}
 	}
+removeemptyfile(hccapxbestoutname);
 
 if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 	{
@@ -713,10 +718,7 @@ if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 		fclose(fhoutlist);
 		}
 	}
-
-
-
-
+removeemptyfile(hccapxrawoutname);
 return;
 }
 /*===========================================================================*/
@@ -2369,6 +2371,7 @@ if(hexmodeflag == true)
 	{
 	fclose(fhhexmode);
 	}
+removeemptyfile(hexmodeoutname);
 
 return EXIT_SUCCESS;
 }
