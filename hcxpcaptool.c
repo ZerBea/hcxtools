@@ -63,6 +63,9 @@ eapoll_t *eapolliste;
 unsigned long long int handshakecount;
 hcxl_t *handshakeliste;
 
+unsigned long long int rawhandshakecount;
+hcxl_t *rawhandshakeliste;
+
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
 unsigned long long int proberequestframecount;
@@ -84,6 +87,7 @@ unsigned long long int ipv6framecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
+char *hccapxrawoutname;
 char *essidoutname;
 char *trafficoutname;
 char *nonceoutname;
@@ -110,6 +114,7 @@ bool globalinit()
 {
 hexmodeoutname = NULL;
 hccapxbestoutname = NULL;
+hccapxrawoutname = NULL;
 essidoutname = NULL;
 trafficoutname = NULL;
 nonceoutname = NULL;
@@ -420,10 +425,15 @@ for(p = 0; p < 256; p++)
 		printf("found..................: %s\n", geteaptypestring(p));
 		}
 	}
+if(rawhandshakecount != 0)
+	{
+	printf("raw handshakes.........: %lld\n", rawhandshakecount);
+	}
 if(handshakecount != 0)
 	{
 	printf("usable handshakes......: %lld\n", handshakecount);
 	}
+
 printf("\n");
 
 return;
@@ -670,7 +680,7 @@ unsigned long long int c;
 hcxl_t *zeiger;
 FILE *fhoutlist = NULL;
 
-if(( handshakeliste != NULL) && (hccapxbestoutname != NULL))
+if((handshakeliste != NULL) && (hccapxbestoutname != NULL))
 	{
 	if((fhoutlist = fopen(hccapxbestoutname, "a+")) != NULL)
 		{
@@ -686,6 +696,27 @@ if(( handshakeliste != NULL) && (hccapxbestoutname != NULL))
 		fclose(fhoutlist);
 		}
 	}
+
+if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
+	{
+	if((fhoutlist = fopen(hccapxrawoutname, "a+")) != NULL)
+		{
+		zeiger = rawhandshakeliste;
+		for(c = 0; c < rawhandshakecount; c++)
+			{
+			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+				{
+				writehccapxrecord(zeiger, fhoutlist);
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		}
+	}
+
+
+
+
 return;
 }
 /*===========================================================================*/
@@ -711,6 +742,87 @@ if(identityoutname != NULL)
 		fclose(fhoutlist);
 		}
 	}
+return;
+}
+/*===========================================================================*/
+void addrawhandshake(eapoll_t *zeigerea, noncel_t *zeigerno)
+{
+hcxl_t *zeiger, *tmp;
+unsigned long long int c, d;
+uint32_t timegap;
+uint64_t rcgap;
+apstaessidl_t *zeigeressid;
+
+zeiger = rawhandshakeliste;
+for(c = 0; c < rawhandshakecount; c++)
+	{
+	if((memcmp(zeiger->mac_ap, zeigerea->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigerea->mac_sta, 6) == 0))
+		{
+		if((memcmp(zeiger->nonce, zeigerno->nonce, 32) == 0) && (memcmp(zeiger->eapol, zeigerea->eapol, zeigerea->authlen) == 0))
+			{
+			return;
+			}
+		}
+	zeiger++;
+	}
+
+if(zeigerea->tv_sec > zeigerno->tv_sec)
+	{
+	timegap = zeigerea->tv_sec - zeigerno->tv_sec;
+	}
+else
+	{
+	timegap = zeigerno->tv_sec - zeigerea->tv_sec;
+	}
+if(zeigerea->replaycount > zeigerno->replaycount)
+	{
+	rcgap = zeigerea->replaycount - zeigerno->replaycount;
+	}
+else
+	{
+	rcgap = zeigerno->replaycount - zeigerea->replaycount;
+	}
+
+memset(zeiger, 0, sizeof(hcxl_t));
+zeiger->tv_diff = timegap;
+zeiger->rc_diff = rcgap;
+zeiger->tv_sec = zeigerea->tv_sec;
+zeiger->tv_usec = zeigerea->tv_usec;
+memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+zeiger->keyinfo_ap = zeigerno->keyinfo;
+zeiger->keyinfo_sta = zeigerea->keyinfo;
+zeiger->replaycount_ap = zeigerno->replaycount;
+zeiger->replaycount_sta = zeigerea->replaycount;
+memcpy(zeiger->nonce, zeigerno->nonce, 32);
+zeiger->authlen = zeigerea->authlen;
+memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+
+zeigeressid = apstaessidliste;
+for(d = 0; d < apstaessidcount; d++)
+	{
+	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+		{
+		zeiger->essidlen = zeigeressid->essidlen;
+		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+		break;
+		}
+	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
+		{
+		zeiger->essidlen = zeigeressid->essidlen;
+		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+		}
+	zeigeressid++;
+	}
+
+rawhandshakecount++;
+tmp = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
+if(tmp == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+rawhandshakeliste = tmp;
 return;
 }
 /*===========================================================================*/
@@ -807,6 +919,8 @@ else
 	{
 	rcgap = zeigerno->replaycount - zeigerea->replaycount;
 	}
+
+memset(zeiger, 0, sizeof(hcxl_t));
 zeiger->tv_diff = timegap;
 zeiger->rc_diff = rcgap;
 zeiger->tv_sec = zeigerea->tv_sec;
@@ -871,6 +985,7 @@ for(ea = 0; ea < eapolcount; ea++)
 				if((memcmp(zeigerea->mac_ap, zeigerno->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigerno->mac_sta, 6) == 0))
 					{
 					addhandshake(zeigerea, zeigerno);
+					addrawhandshake(zeigerea, zeigerno);
 					}
 				}
 			zeigerno++;
@@ -905,7 +1020,7 @@ for(c = 0; c < eapolcount; c++)
 	zeiger++;
 	}
 
-
+memset(zeiger, 0, sizeof(eapoll_t));
 zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
@@ -947,7 +1062,7 @@ for(c = 0; c < noncecount; c++)
 		}
 	zeiger++;
 	}
-
+memset(zeiger, 0, sizeof(noncel_t));
 zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
@@ -986,6 +1101,7 @@ for(c = 0; c < apstaessidcount; c++)
 	zeiger++;
 	}
 
+memset(zeiger, 0, sizeof(apstaessidl_t));
 zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
@@ -1900,6 +2016,7 @@ authenticationframecount = 0;
 deauthenticationframecount = 0;
 disassociationframecount = 0;
 handshakecount = 0;
+rawhandshakecount = 0;
 actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
@@ -2005,7 +2122,12 @@ if((apstaessidcount > 0) && (noncecount > 0) && (eapolcount > 0))
 		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
-	handshakecount = 0;
+	rawhandshakeliste = malloc(HCXLIST_SIZE);
+	if(rawhandshakeliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
 	detectwpahandshakes();
 	}
 
@@ -2072,6 +2194,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-o <file> : output hccapx file\n"
+	"-O <file> : output raw hccapx file\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-I <file> : output identitylist\n"
 	"          : needs to be sorted unique\n"
@@ -2116,7 +2239,7 @@ int auswahl;
 int index;
 char *eigenpfadname, *eigenname;
 
-static const char *short_options = "o:E:I:P:T:A:S:H:Vhv";
+static const char *short_options = "o:O:E:I:P:T:A:S:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	0, HCXT_REPLAYCOUNTGAP},
@@ -2167,6 +2290,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		{
 		case 'o':
 		hccapxbestoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case 'O':
+		hccapxrawoutname = optarg;
 		verboseflag = true;
 		break;
 
