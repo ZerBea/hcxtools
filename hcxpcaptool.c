@@ -37,8 +37,8 @@
 #define MAX_TV_DIFF 10000
 #define MAX_RC_DIFF 8
 
-#define HCXT_TIMEGAP		1
-#define HCXT_REPLAYCOUNTGAP	2
+#define HCXT_REPLAYCOUNTGAP	1
+#define HCXT_TIMEGAP		2
 
 
 /*===========================================================================*/
@@ -727,8 +727,22 @@ for(c = 0; c < handshakecount; c++)
 	{
 	if((memcmp(zeiger->mac_ap, zeigerea->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigerea->mac_sta, 6) == 0))
 		{
-		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT))
+		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
 			{
+			zeiger->tv_diff = 0;
+			zeiger->rc_diff = 0;
+			zeiger->tv_sec = zeigerea->tv_sec;
+			zeiger->tv_usec = zeigerea->tv_usec;
+			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+			zeiger->keyinfo_ap = zeigerno->keyinfo;
+			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			zeiger->replaycount_ap = zeigerno->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
+			memcpy(zeiger->nonce, zeigerno->nonce, 32);
+			zeiger->authlen = zeigerea->authlen;
+			memset(zeiger->eapol, 0, 256);
+			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
 		if(zeigerea->tv_sec > zeigerno->tv_sec)
@@ -747,32 +761,16 @@ for(c = 0; c < handshakecount; c++)
 			{
 			rcgap = zeigerno->replaycount - zeigerea->replaycount;
 			}
-
-		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT))
-			{
-			zeiger->tv_diff = timegap;
-			zeiger->rc_diff = rcgap;
-			zeiger->tv_sec = zeigerea->tv_sec;
-			zeiger->tv_usec = zeigerea->tv_usec;
-			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
-			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
-			zeiger->keyinfo_ap = zeigerno->keyinfo;
-			zeiger->keyinfo_sta = zeigerea->keyinfo;
-			zeiger->replaycount_ap = zeigerno->replaycount;
-			zeiger->replaycount_sta = zeigerea->replaycount;
-			memcpy(zeiger->nonce, zeigerno->nonce, 32);
-			zeiger->authlen = zeigerea->authlen;
-			memset(zeiger->eapol, 0, 256);
-			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-			}
-
 		if(timegap > zeiger->tv_diff)
 			{
 			return;
 			}
 		if(rcgap > zeiger->rc_diff)
 			{
-			return;
+			if((rcgap != 1) && (zeigerno->keyinfo != 2)) 
+				{
+				return;
+				}
 			}
 		zeiger->tv_diff = timegap;
 		zeiger->rc_diff = rcgap;
@@ -2121,8 +2119,8 @@ char *eigenpfadname, *eigenname;
 static const char *short_options = "o:E:I:P:T:A:S:H:Vhv";
 static const struct option long_options[] =
 {
-	{"time-error-corrections",	required_argument,	0, HCXT_TIMEGAP},
 	{"nonce-error-corrections",	required_argument,	0, HCXT_REPLAYCOUNTGAP},
+	{"time-error-corrections",	required_argument,	0, HCXT_TIMEGAP},
 	{0, 0, 0, 0}
 };
 
