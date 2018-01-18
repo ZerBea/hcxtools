@@ -1026,24 +1026,19 @@ while(1)
 		showstatusflag = false;
 		}
 	pklen = read(fd_out, &packetin[PCAPREC_SIZE], PCAP_SNAPLEN-PCAPREC_SIZE);
-	packetcount++;
+	if(pklen < (int)RTH_SIZE)
+		{
+		errorcount++;
+		continue;
+		}
 	gettimeofday(&tv, NULL);
 	packetsave->ts_sec = tv.tv_sec;
 	packetsave->ts_usec = tv.tv_usec;
 	packetsave->incl_len = pklen;
 	packetsave->orig_len = pklen;
-	if(pklen == -1)
-		{
-		errorcount++;
-		continue;
-		}
-	if(pklen < (int)RTH_SIZE)
-		{
-		continue;
-		}
+	packetcount++;
 	rth = (rth_t*)&packetin[PCAPREC_SIZE];
 	rthlen = le16toh(rth->it_len);
-
 	macf = (mac_t*)&packetin[PCAPREC_SIZE +rthlen];
 	maclen = MAC_SIZE_NORM;
 	if(macf->type == IEEE80211_FTYPE_CTL)
