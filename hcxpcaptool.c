@@ -47,6 +47,7 @@
 
 bool hexmodeflag;
 bool verboseflag;
+bool fcsflag;
 
 uint32_t maxtvdiff;
 uint32_t maxrcdiff;
@@ -353,6 +354,11 @@ printf("summary:                                        \n--------\n"
 	"packets inside.........: %lld\n"
 	"skippedpackets.........: %lld\n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount);
+
+if(fcsflag == true)
+	{
+	printf("FCS supported..........: yes\n");
+	}
 
 if(tscleanflag == true)
 	{
@@ -1477,8 +1483,6 @@ void processexeapauthentication(uint32_t eaplen, uint8_t *packet)
 {
 exteap_t *exeap; 
 
-
-
 if(eaplen < (uint32_t)EXTEAP_SIZE)
 	{
 	return;
@@ -1583,7 +1587,7 @@ else if(macf->subtype == IEEE80211_STYPE_QOS_DATA)
 return;
 }
 /*===========================================================================*/
-void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet, bool fcsflag)
+void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 mac_t *macf;
 
@@ -1655,14 +1659,11 @@ else if (macf->type == IEEE80211_FTYPE_DATA)
 	process80211datapacket(tv_sec, tv_usec, caplen, packet);
 	}
 
-if(fcsflag == true)
-	return;
 return;
 }
 /*===========================================================================*/
 void processpacket(uint32_t tv_sec, uint32_t tv_usec, int linktype, uint32_t caplen, uint8_t *packet)
 {
-bool fcsflag;
 uint8_t *packet_ptr;
 rth_t *rth;
 fcs_t *fcs;
@@ -1674,7 +1675,7 @@ if((tv_sec == 0) && (tv_usec == 0))
 	{
 	tscleanflag = true;
 	}
-fcsflag = false;
+
 packet_ptr = packet;
 if(linktype == DLT_IEEE802_11_RADIO)
 	{
@@ -1690,21 +1691,6 @@ if(linktype == DLT_IEEE802_11_RADIO)
 	#endif
 	packet_ptr += rth->it_len;
 	caplen -= rth->it_len;
-	fcs = (fcs_t*)(packet_ptr +caplen -4);
-	#ifdef BIG_ENDIAN_HOST
-	fcs->fcs	= byte_swap_32(fcs->fcs);
-	#endif
-	crc = byte_swap_32(fcscrc32check(packet_ptr, caplen -4));
-	if(crc == ntohl(fcs->fcs))
-		{
-		fcsflag = true;
-		}
-//	printf("check %04x %04x\n", crc, ntohl(fcs->fcs));
-	process80211packet(tv_sec, tv_usec, caplen, packet_ptr, fcsflag);
-	}
-else if(linktype == DLT_IEEE802_11)
-	{
-	process80211packet(tv_sec, tv_usec, caplen, packet, fcsflag);
 	}
 else if(linktype == DLT_PRISM_HEADER)
 	{
@@ -1720,7 +1706,6 @@ else if(linktype == DLT_PRISM_HEADER)
 	#endif
 	packet_ptr += prism->msglen;
 	caplen -= prism->msglen;
-	process80211packet(tv_sec, tv_usec, caplen, packet_ptr, fcsflag);
 	}
 else if(linktype == DLT_PPI)
 	{
@@ -1735,8 +1720,24 @@ else if(linktype == DLT_PPI)
 	#endif
 	packet_ptr += ppi->pph_len;
 	caplen -= ppi->pph_len;
-	process80211packet(tv_sec, tv_usec, caplen, packet_ptr, fcsflag);
 	}
+else
+	{
+	return;
+	}
+
+fcs = (fcs_t*)(packet_ptr +caplen -4);
+#ifdef BIG_ENDIAN_HOST
+fcs->fcs	= byte_swap_32(fcs->fcs);
+#endif
+crc = byte_swap_32(fcscrc32check(packet_ptr, caplen -4));
+if(crc == ntohl(fcs->fcs))
+	{
+	fcsflag = true;
+	}
+
+process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
+
 return;
 }
 /*===========================================================================*/
@@ -2090,11 +2091,13 @@ void processcapfile(char *pcapinname)
 int pcapr_fd;
 uint32_t magicnumber;
 bool needrmflag = false;
+char *pcapart;
+
+fcsflag = false;
 apstaessidliste = NULL;
 nonceliste = NULL;
 eapolliste = NULL;
 handshakeliste = NULL;
-char *pcapart;
 char *pcapstr = "pcap";
 char *pcapngstr = "pcapng";
 
