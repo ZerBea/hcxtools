@@ -1692,6 +1692,10 @@ if(linktype == DLT_IEEE802_11_RADIO)
 	packet_ptr += rth->it_len;
 	caplen -= rth->it_len;
 	}
+else if(linktype == DLT_IEEE802_11)
+	{
+	/* nothing to do */
+	}
 else if(linktype == DLT_PRISM_HEADER)
 	{
 	if(caplen < (uint32_t)PRISM_SIZE)
