@@ -39,6 +39,9 @@
 #define MAX_TV_DIFF 10000
 #define MAX_RC_DIFF 8
 
+#define MAX_RAW_TV_DIFF 60
+#define MAX_RAW_RC_DIFF 64
+
 #define HCXT_REPLAYCOUNTGAP	1
 #define HCXT_TIMEGAP		2
 
@@ -51,6 +54,9 @@ bool fcsflag;
 
 uint32_t maxtvdiff;
 uint32_t maxrcdiff;
+
+uint32_t maxrawtvdiff;
+uint32_t maxrawrcdiff;
 
 
 unsigned long long int apstaessidcount;
@@ -136,6 +142,9 @@ hexmodeflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
+
+maxrawtvdiff = MAX_RAW_TV_DIFF;
+maxrawrcdiff = MAX_RAW_RC_DIFF;
 
 setbuf(stdout, NULL);
 srand(time(NULL));
@@ -850,7 +859,53 @@ for(c = 0; c < rawhandshakecount; c++)
 	{
 	if((memcmp(zeiger->mac_ap, zeigerea->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigerea->mac_sta, 6) == 0))
 		{
-		if((memcmp(zeiger->nonce, zeigerno->nonce, 32) == 0) && (memcmp(zeiger->eapol, zeigerea->eapol, zeigerea->authlen) == 0))
+		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
+			{
+			zeiger->tv_diff = 0;
+			zeiger->rc_diff = 0;
+			zeiger->tv_sec = zeigerea->tv_sec;
+			zeiger->tv_usec = zeigerea->tv_usec;
+			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+			zeiger->keyinfo_ap = zeigerno->keyinfo;
+			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			zeiger->replaycount_ap = zeigerno->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
+			memcpy(zeiger->nonce, zeigerno->nonce, 32);
+			zeiger->authlen = zeigerea->authlen;
+			memset(zeiger->eapol, 0, 256);
+			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+			return;
+			}
+		if(zeigerea->replaycount > zeigerno->replaycount)
+			{
+			rcgap = zeigerea->replaycount - zeigerno->replaycount;
+			}
+		else
+			{
+			rcgap = zeigerno->replaycount - zeigerea->replaycount;
+			}
+		if(zeigerea->tv_sec > zeigerno->tv_sec)
+			{
+			timegap = zeigerea->tv_sec - zeigerno->tv_sec;
+			}
+		else
+			{
+			timegap = zeigerno->tv_sec - zeigerea->tv_sec;
+			}
+		if(zeigerea->replaycount > zeigerno->replaycount)
+			{
+			rcgap = zeigerea->replaycount - zeigerno->replaycount;
+			}
+		else
+			{
+			rcgap = zeigerno->replaycount - zeigerea->replaycount;
+			}
+		if(timegap > maxrawtvdiff)
+			{
+			return;
+			}
+		if(rcgap > maxrawrcdiff)
 			{
 			return;
 			}
@@ -888,6 +943,7 @@ zeiger->replaycount_ap = zeigerno->replaycount;
 zeiger->replaycount_sta = zeigerea->replaycount;
 memcpy(zeiger->nonce, zeigerno->nonce, 32);
 zeiger->authlen = zeigerea->authlen;
+memset(zeiger->eapol, 0, 256);
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 
 zeigeressid = apstaessidliste;
@@ -1065,6 +1121,7 @@ noncel_t *zeigerno;
 qsort(nonceliste, noncecount, NONCELIST_SIZE, sort_noncelist_by_timestamp);
 qsort(eapolliste, eapolcount, EAPOLLIST_SIZE, sort_eapollist_by_timestamp);
 zeigerea = eapolliste;
+
 for(ea = 0; ea < eapolcount; ea++)
 	{
 	if((zeigerea->keyinfo) >= 4)
@@ -1445,15 +1502,10 @@ if(keyinfo == 1)
 else if(keyinfo == 3)
 	{
 	addnonce(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
-	if(authlen <= caplen -4)
-		{
-		addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), authlen +4, packet);
-		}
 	}
 
 else if(keyinfo == 2)
 	{
-	addnonce(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), wpak->nonce);
 	if(authlen <= caplen -4)
 		{
 		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), authlen +4, packet);
@@ -1465,7 +1517,6 @@ else if(keyinfo == 4)
 		{
 		return;
 		}
-	addnonce(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), wpak->nonce);
 	if(authlen <= caplen -4)
 		{
 		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), authlen +4, packet);
