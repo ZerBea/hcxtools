@@ -26,6 +26,7 @@
 #include "include/common.c"
 #include "include/byteops.c"
 #include "include/fileops.c"
+#include "include/hashops.c"
 #include "include/pcap.c"
 #include "include/gzops.c"
 #include "include/hashcatops.c"
@@ -1582,7 +1583,7 @@ else if(macf->subtype == IEEE80211_STYPE_QOS_DATA)
 return;
 }
 /*===========================================================================*/
-void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet, bool fcsflag)
 {
 mac_t *macf;
 
@@ -1654,21 +1655,26 @@ else if (macf->type == IEEE80211_FTYPE_DATA)
 	process80211datapacket(tv_sec, tv_usec, caplen, packet);
 	}
 
+if(fcsflag == true)
+	return;
 return;
 }
 /*===========================================================================*/
 void processpacket(uint32_t tv_sec, uint32_t tv_usec, int linktype, uint32_t caplen, uint8_t *packet)
 {
+bool fcsflag;
 uint8_t *packet_ptr;
 rth_t *rth;
+fcs_t *fcs;
 prism_t *prism;
 ppi_t *ppi;
+uint32_t crc;
 
 if((tv_sec == 0) && (tv_usec == 0)) 
 	{
 	tscleanflag = true;
 	}
-
+fcsflag = false;
 packet_ptr = packet;
 if(linktype == DLT_IEEE802_11_RADIO)
 	{
@@ -1679,16 +1685,26 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		}
 	rth = (rth_t*)packet;
 	#ifdef BIG_ENDIAN_HOST
-	rth->it_len	 = byte_swap_16(rth->it_len);
+	rth->it_len	= byte_swap_16(rth->it_len);
 	rth->it_present	= byte_swap_32(rth->it_present);
 	#endif
 	packet_ptr += rth->it_len;
 	caplen -= rth->it_len;
-	process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
+	fcs = (fcs_t*)(packet_ptr +caplen -4);
+	#ifdef BIG_ENDIAN_HOST
+	fcs->fcs	= byte_swap_32(fcs->fcs);
+	#endif
+	crc = byte_swap_32(fcscrc32check(packet_ptr, caplen -4));
+	if(crc == ntohl(fcs->fcs))
+		{
+		fcsflag = true;
+		}
+//	printf("check %04x %04x\n", crc, ntohl(fcs->fcs));
+	process80211packet(tv_sec, tv_usec, caplen, packet_ptr, fcsflag);
 	}
 else if(linktype == DLT_IEEE802_11)
 	{
-	process80211packet(tv_sec, tv_usec, caplen, packet);
+	process80211packet(tv_sec, tv_usec, caplen, packet, fcsflag);
 	}
 else if(linktype == DLT_PRISM_HEADER)
 	{
@@ -1704,7 +1720,7 @@ else if(linktype == DLT_PRISM_HEADER)
 	#endif
 	packet_ptr += prism->msglen;
 	caplen -= prism->msglen;
-	process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
+	process80211packet(tv_sec, tv_usec, caplen, packet_ptr, fcsflag);
 	}
 else if(linktype == DLT_PPI)
 	{
@@ -1719,7 +1735,7 @@ else if(linktype == DLT_PPI)
 	#endif
 	packet_ptr += ppi->pph_len;
 	caplen -= ppi->pph_len;
-	process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
+	process80211packet(tv_sec, tv_usec, caplen, packet_ptr, fcsflag);
 	}
 return;
 }

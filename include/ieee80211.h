@@ -416,6 +416,13 @@ struct ipv6_frame
 typedef struct ipv6_frame ipv6_t;
 #define	IPV6_SIZE (sizeof(ipv6_t))
 /*===========================================================================*/
+struct fcs_frame
+{
+ uint32_t	fcs;
+};
+typedef struct fcs_frame fcs_t;
+#define	FCS_SIZE (sizeof(fcs_t))
+/*===========================================================================*/
 /* global var */
 
 static const uint8_t nullnonce[] =
