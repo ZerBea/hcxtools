@@ -1415,7 +1415,7 @@ void process80211eapolauthentication(uint32_t tv_sec, uint32_t tv_usec, uint32_t
 eapauth_t *eap;
 wpakey_t *wpak;
 uint16_t keyinfo;
-
+uint16_t authlen;
 
 if(caplen < (uint32_t)WPAKEY_SIZE)
 	{
@@ -1429,6 +1429,8 @@ keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
 #ifdef BIG_ENDIAN_HOST
 wpak->replaycount = byte_swap_64(wpak->replaycount);
 #endif
+
+authlen = ntohs(eap->len);
 if(keyinfo == 1)
 	{
 	addnonce(tv_sec, tv_usec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), wpak->nonce);
@@ -1436,18 +1438,18 @@ if(keyinfo == 1)
 else if(keyinfo == 3)
 	{
 	addnonce(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
-	if(ntohs(eap->len) == caplen -4)
+	if(authlen <= caplen -4)
 		{
-		addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), caplen, packet);
+		addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), authlen +4, packet);
 		}
 	}
 
 else if(keyinfo == 2)
 	{
 	addnonce(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), wpak->nonce);
-	if(ntohs(eap->len) == caplen -4)
+	if(authlen <= caplen -4)
 		{
-		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), caplen, packet);
+		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), authlen +4, packet);
 		}
 	}
 else if(keyinfo == 4)
@@ -1457,9 +1459,9 @@ else if(keyinfo == 4)
 		return;
 		}
 	addnonce(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), wpak->nonce);
-	if(ntohs(eap->len) == caplen -4)
+	if(authlen <= caplen -4)
 		{
-		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), caplen, packet);
+		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), authlen +4, packet);
 		}
 	}
 else
