@@ -439,7 +439,7 @@ if(rawhandshakecount != 0)
 	}
 if(handshakecount != 0)
 	{
-	printf("usable handshakes......: %lld\n", handshakecount);
+	printf("best handshakes........: %lld\n", handshakecount);
 	}
 
 printf("\n");
