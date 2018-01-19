@@ -728,7 +728,7 @@ if((handshakeliste != NULL) && (hccapxbestoutname != NULL))
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshakes written to %s\n", writtencount, hccapxbestoutname);
+		printf("%llu handshake(s) written to %s\n", writtencount, hccapxbestoutname);
 		}
 	}
 removeemptyfile(hccapxbestoutname);
@@ -749,7 +749,7 @@ if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshakes written to %s\n", writtencount, hccapxrawoutname);
+		printf("%llu handshake(s) written to %s\n", writtencount, hccapxrawoutname);
 		}
 	}
 removeemptyfile(hccapxrawoutname);
@@ -767,7 +767,7 @@ if((handshakeliste != NULL) && (hccapbestoutname != NULL))
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshakes written to %s\n", writtencount, hccapbestoutname);
+		printf("%llu handshake(s) written to %s\n", writtencount, hccapbestoutname);
 		}
 	}
 removeemptyfile(hccapbestoutname);
@@ -788,7 +788,7 @@ if((rawhandshakeliste != NULL) && (hccaprawoutname != NULL))
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshakes written to %s\n", writtencount, hccaprawoutname);
+		printf("%llu handshake(s) written to %s\n", writtencount, hccaprawoutname);
 		}
 	}
 removeemptyfile(hccaprawoutname);
@@ -805,7 +805,7 @@ if((handshakeliste != NULL) && (johnbestoutname != NULL))
 			writtencount++;
 			zeiger++;
 			}
-		printf("%llu handshakes written to %s\n", writtencount, johnbestoutname);
+		printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
 		fclose(fhoutlist);
 		}
 	}
@@ -827,7 +827,7 @@ if((rawhandshakeliste != NULL) && (johnrawoutname != NULL))
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshakes written to %s\n", writtencount, johnrawoutname);
+		printf("%llu handshake(s) written to %s\n", writtencount, johnrawoutname);
 		}
 	}
 removeemptyfile(hccaprawoutname);
