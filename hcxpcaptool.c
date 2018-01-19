@@ -1690,7 +1690,6 @@ fcs_t *fcs;
 prism_t *prism;
 ppi_t *ppi;
 uint32_t crc;
-printf("hallo\n");
 
 if((tv_sec == 0) && (tv_usec == 0)) 
 	{
