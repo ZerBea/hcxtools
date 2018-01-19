@@ -48,6 +48,7 @@
 bool hexmodeflag;
 bool verboseflag;
 bool fcsflag;
+bool wantrawhandshakeflag;
 
 uint32_t maxtvdiff;
 uint32_t maxrcdiff;
@@ -132,6 +133,7 @@ pmkoutname = NULL;
 identityoutname = NULL;
 verboseflag = false;
 hexmodeflag = false;
+wantrawhandshakeflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
@@ -1088,7 +1090,10 @@ for(ea = 0; ea < eapolcount; ea++)
 		if((memcmp(zeigerea->mac_ap, zeigerno->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigerno->mac_sta, 6) == 0))
 			{
 			addhandshake(zeigerea, zeigerno);
-			addrawhandshake(zeigerea, zeigerno);
+			if(wantrawhandshakeflag == true)
+				{
+				addrawhandshake(zeigerea, zeigerno);
+				}
 			}
 		zeigerno++;
 		}
@@ -2412,6 +2417,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case 'O':
 		hccapxrawoutname = optarg;
+		wantrawhandshakeflag = true;
 		verboseflag = true;
 		break;
 
@@ -2422,6 +2428,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case 'X':
 		hccaprawoutname = optarg;
+		wantrawhandshakeflag = true;
 		verboseflag = true;
 		break;
 
@@ -2432,6 +2439,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case 'J':
 		johnrawoutname = optarg;
+		wantrawhandshakeflag = true;
 		verboseflag = true;
 		break;
 
