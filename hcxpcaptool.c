@@ -868,7 +868,7 @@ else
 	{
 	rcgap = zeigerno->replaycount - zeigerea->replaycount;
 	}
-if(timegap > maxtvdiff)
+if(timegap > 600)
 	{
 	return;
 	}
