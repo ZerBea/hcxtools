@@ -42,6 +42,21 @@
 #define HCXT_REPLAYCOUNTGAP	1
 #define HCXT_TIMEGAP		2
 
+#define HCXT_HCCAPX_OUT		'o'
+#define HCXT_HCCAPX_OUT_RAW	'O'
+#define HCXT_HCCAP_OUT		'x'
+#define HCXT_HCCAP_OUT_RAW	'X'
+#define HCXT_JOHN_OUT		'j'
+#define HCXT_JOHN_OUT_RAW	'J'
+#define HCXT_ESSID_OUT		'E'
+#define HCXT_TRAFFIC_OUT	'T'
+#define HCXT_EAPOL_OUT		'S'
+#define HCXT_NONCE_OUT		'A'
+#define HCXT_IDENTITY_OUT	'I'
+#define HCXT_PMK_OUT		'P'
+#define HCXT_HEXDUMP_OUT	'H'
+#define HCXT_VERBOSE_OUT	'V'
+
 /*===========================================================================*/
 /* global var */
 
@@ -68,6 +83,7 @@ hcxl_t *handshakeliste;
 unsigned long long int rawhandshakecount;
 hcxl_t *rawhandshakeliste;
 
+unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
 unsigned long long int proberequestframecount;
@@ -355,12 +371,8 @@ printf( "                                               \n"
 	"read errors............: %s\n"
 	"packets inside.........: %lld\n"
 	"skippedpackets.........: %lld\n"
-	, basename(pcapinname), pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount);
-
-if(fcsflag == true)
-	{
-	printf("FCS supported..........: yes\n");
-	}
+	"packets with FCS.......: %lld\n"
+	, basename(pcapinname), pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, fcsframecount);
 
 if(tscleanflag == true)
 	{
@@ -1678,6 +1690,7 @@ fcs_t *fcs;
 prism_t *prism;
 ppi_t *ppi;
 uint32_t crc;
+printf("hallo\n");
 
 if((tv_sec == 0) && (tv_usec == 0)) 
 	{
@@ -1742,12 +1755,12 @@ fcs = (fcs_t*)(packet_ptr +caplen -4);
 #ifdef BIG_ENDIAN_HOST
 fcs->fcs	= byte_swap_32(fcs->fcs);
 #endif
-crc = byte_swap_32(fcscrc32check(packet_ptr, caplen -4));
-if(crc == ntohl(fcs->fcs))
+crc = fcscrc32check(packet_ptr, caplen -4);
+if(crc == fcs->fcs)
 	{
 	fcsflag = true;
+	fcsframecount++;
 	}
-
 process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 
 return;
@@ -2122,6 +2135,7 @@ pcapreaderrors = 0;
 rawpacketcount = 0;
 skippedpacketcount = 0;
 
+fcsframecount = 0;
 wdsframecount = 0;
 beaconframecount = 0;
 proberequestframecount = 0;
@@ -2410,74 +2424,74 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	{
 	switch (auswahl)
 		{
-		case 'o':
+		case HCXT_HCCAPX_OUT:
 		hccapxbestoutname = optarg;
 		verboseflag = true;
 		break;
 
-		case 'O':
+		case HCXT_HCCAPX_OUT_RAW:
 		hccapxrawoutname = optarg;
 		wantrawhandshakeflag = true;
 		verboseflag = true;
 		break;
 
-		case 'x':
+		case HCXT_HCCAP_OUT:
 		hccapbestoutname = optarg;
 		verboseflag = true;
 		break;
 
-		case 'X':
+		case HCXT_HCCAP_OUT_RAW:
 		hccaprawoutname = optarg;
 		wantrawhandshakeflag = true;
 		verboseflag = true;
 		break;
 
-		case 'j':
+		case HCXT_JOHN_OUT:
 		johnbestoutname = optarg;
 		verboseflag = true;
 		break;
 
-		case 'J':
+		case HCXT_JOHN_OUT_RAW:
 		johnrawoutname = optarg;
 		wantrawhandshakeflag = true;
 		verboseflag = true;
 		break;
 
-		case 'E':
+		case HCXT_ESSID_OUT:
 		essidoutname = optarg;
 		verboseflag = true;
 		break;
 
-		case 'I':
+		case HCXT_IDENTITY_OUT:
 		identityoutname = optarg;
 		verboseflag = true;
 		break;
 
-		case 'P':
+		case HCXT_PMK_OUT:
 		pmkoutname = optarg;
 		verboseflag = true;
 		break;
 
-		case 'T':
+		case HCXT_TRAFFIC_OUT:
 		trafficoutname = optarg;
 		verboseflag = true;
 		break;
 
-		case 'A':
+		case HCXT_NONCE_OUT:
 		nonceoutname = optarg;
 		verboseflag = true;
 		break;
 
-		case 'S':
+		case HCXT_EAPOL_OUT:
 		eapoloutname = optarg;
 		break;
 
-		case 'H':
+		case HCXT_HEXDUMP_OUT:
 		hexmodeflag = true;
 		hexmodeoutname = optarg;
 		break;
 
-		case 'V':
+		case HCXT_VERBOSE_OUT:
 		verboseflag = true;
 		break;
 
