@@ -39,9 +39,6 @@
 #define MAX_TV_DIFF 10000
 #define MAX_RC_DIFF 8
 
-#define MAX_RAW_TV_DIFF 60
-#define MAX_RAW_RC_DIFF 64
-
 #define HCXT_REPLAYCOUNTGAP	1
 #define HCXT_TIMEGAP		2
 
@@ -54,10 +51,6 @@ bool fcsflag;
 
 uint32_t maxtvdiff;
 uint32_t maxrcdiff;
-
-uint32_t maxrawtvdiff;
-uint32_t maxrawrcdiff;
-
 
 unsigned long long int apstaessidcount;
 apstaessidl_t *apstaessidliste;
@@ -142,9 +135,6 @@ hexmodeflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
-
-maxrawtvdiff = MAX_RAW_TV_DIFF;
-maxrawrcdiff = MAX_RAW_RC_DIFF;
 
 setbuf(stdout, NULL);
 srand(time(NULL));
@@ -849,70 +839,19 @@ return;
 void addrawhandshake(eapoll_t *zeigerea, noncel_t *zeigerno)
 {
 hcxl_t *zeiger, *tmp;
-unsigned long long int c, d;
+unsigned long long int d;
 uint32_t timegap;
 uint64_t rcgap;
 apstaessidl_t *zeigeressid;
 
-zeiger = rawhandshakeliste;
-for(c = 0; c < rawhandshakecount; c++)
+if(zeigerea->replaycount > zeigerno->replaycount)
 	{
-	if((memcmp(zeiger->mac_ap, zeigerea->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigerea->mac_sta, 6) == 0))
-		{
-		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
-			{
-			zeiger->tv_diff = 0;
-			zeiger->rc_diff = 0;
-			zeiger->tv_sec = zeigerea->tv_sec;
-			zeiger->tv_usec = zeigerea->tv_usec;
-			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
-			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
-			zeiger->keyinfo_ap = zeigerno->keyinfo;
-			zeiger->keyinfo_sta = zeigerea->keyinfo;
-			zeiger->replaycount_ap = zeigerno->replaycount;
-			zeiger->replaycount_sta = zeigerea->replaycount;
-			memcpy(zeiger->nonce, zeigerno->nonce, 32);
-			zeiger->authlen = zeigerea->authlen;
-			memset(zeiger->eapol, 0, 256);
-			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-			return;
-			}
-		if(zeigerea->replaycount > zeigerno->replaycount)
-			{
-			rcgap = zeigerea->replaycount - zeigerno->replaycount;
-			}
-		else
-			{
-			rcgap = zeigerno->replaycount - zeigerea->replaycount;
-			}
-		if(zeigerea->tv_sec > zeigerno->tv_sec)
-			{
-			timegap = zeigerea->tv_sec - zeigerno->tv_sec;
-			}
-		else
-			{
-			timegap = zeigerno->tv_sec - zeigerea->tv_sec;
-			}
-		if(zeigerea->replaycount > zeigerno->replaycount)
-			{
-			rcgap = zeigerea->replaycount - zeigerno->replaycount;
-			}
-		else
-			{
-			rcgap = zeigerno->replaycount - zeigerea->replaycount;
-			}
-		if(timegap > maxrawtvdiff)
-			{
-			return;
-			}
-		if(rcgap > maxrawrcdiff)
-			{
-			return;
-			}
-		}
-	zeiger++;
+	rcgap = zeigerea->replaycount - zeigerno->replaycount;
 	}
-
+else
+	{
+	rcgap = zeigerno->replaycount - zeigerea->replaycount;
+	}
 if(zeigerea->tv_sec > zeigerno->tv_sec)
 	{
 	timegap = zeigerea->tv_sec - zeigerno->tv_sec;
@@ -929,7 +868,16 @@ else
 	{
 	rcgap = zeigerno->replaycount - zeigerea->replaycount;
 	}
+if(timegap > maxtvdiff)
+	{
+	return;
+	}
+if(rcgap > maxrcdiff)
+	{
+	return;
+	}
 
+zeiger = rawhandshakeliste +rawhandshakecount;
 memset(zeiger, 0, sizeof(hcxl_t));
 zeiger->tv_diff = timegap;
 zeiger->rc_diff = rcgap;
@@ -982,6 +930,23 @@ uint32_t timegap;
 uint64_t rcgap;
 apstaessidl_t *zeigeressid;
 
+if(zeigerea->tv_sec > zeigerno->tv_sec)
+	{
+	timegap = zeigerea->tv_sec - zeigerno->tv_sec;
+	}
+else
+	{
+	timegap = zeigerno->tv_sec - zeigerea->tv_sec;
+	}
+if(zeigerea->replaycount > zeigerno->replaycount)
+	{
+	rcgap = zeigerea->replaycount - zeigerno->replaycount;
+	}
+else
+	{
+	rcgap = zeigerno->replaycount - zeigerea->replaycount;
+	}
+
 zeiger = handshakeliste;
 for(c = 0; c < handshakecount; c++)
 	{
@@ -1004,22 +969,6 @@ for(c = 0; c < handshakecount; c++)
 			memset(zeiger->eapol, 0, 256);
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
-			}
-		if(zeigerea->tv_sec > zeigerno->tv_sec)
-			{
-			timegap = zeigerea->tv_sec - zeigerno->tv_sec;
-			}
-		else
-			{
-			timegap = zeigerno->tv_sec - zeigerea->tv_sec;
-			}
-		if(zeigerea->replaycount > zeigerno->replaycount)
-			{
-			rcgap = zeigerea->replaycount - zeigerno->replaycount;
-			}
-		else
-			{
-			rcgap = zeigerno->replaycount - zeigerea->replaycount;
 			}
 		if(timegap > zeiger->tv_diff)
 			{
@@ -1049,23 +998,6 @@ for(c = 0; c < handshakecount; c++)
 		return;
 		}
 	zeiger++;
-	}
-
-if(zeigerea->tv_sec > zeigerno->tv_sec)
-	{
-	timegap = zeigerea->tv_sec - zeigerno->tv_sec;
-	}
-else
-	{
-	timegap = zeigerno->tv_sec - zeigerea->tv_sec;
-	}
-if(zeigerea->replaycount > zeigerno->replaycount)
-	{
-	rcgap = zeigerea->replaycount - zeigerno->replaycount;
-	}
-else
-	{
-	rcgap = zeigerno->replaycount - zeigerea->replaycount;
 	}
 
 memset(zeiger, 0, sizeof(hcxl_t));
