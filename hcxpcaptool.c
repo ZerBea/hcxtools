@@ -36,7 +36,7 @@
 #define BIG_ENDIAN_HOST
 #endif
 
-#define MAX_TV_DIFF 10000
+#define MAX_TV_DIFF 600
 #define MAX_RC_DIFF 8
 
 #define HCXT_REPLAYCOUNTGAP	1
@@ -344,7 +344,8 @@ return "unknow nendian";
 void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, unsigned long long int skippedpacketcount, int pcapreaderrors, bool tscleanflag)
 {
 int p;
-printf("summary:                                        \n--------\n"
+printf( "                                               \n"
+	"summary:                                        \n--------\n"
 	"file name..............: %s\n"
 	"file type..............: %s %d.%d\n"
 	"network type...........: %s (%d)\n"
@@ -698,21 +699,22 @@ void outputlists4(char *pcapinname)
 unsigned long long int c;
 hcxl_t *zeiger;
 FILE *fhoutlist = NULL;
+unsigned long long int writtencount;
 
 if((handshakeliste != NULL) && (hccapxbestoutname != NULL))
 	{
 	if((fhoutlist = fopen(hccapxbestoutname, "a+")) != NULL)
 		{
+		writtencount = 0;
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
-			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
-				{
-				writehccapxrecord(zeiger, fhoutlist);
-				}
+			writehccapxrecord(zeiger, fhoutlist);
+			writtencount++;
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		printf("%llu handshakes written to %s\n", writtencount, hccapxbestoutname);
 		}
 	}
 removeemptyfile(hccapxbestoutname);
@@ -721,16 +723,19 @@ if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 	{
 	if((fhoutlist = fopen(hccapxrawoutname, "a+")) != NULL)
 		{
+		writtencount = 0;
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+			if((zeiger->tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writehccapxrecord(zeiger, fhoutlist);
+				writtencount++;
 				}
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		printf("%llu handshakes written to %s\n", writtencount, hccapxrawoutname);
 		}
 	}
 removeemptyfile(hccapxrawoutname);
@@ -739,16 +744,16 @@ if((handshakeliste != NULL) && (hccapbestoutname != NULL))
 	{
 	if((fhoutlist = fopen(hccapbestoutname, "a+")) != NULL)
 		{
+		writtencount = 0;
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
-			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
-				{
-				writehccaprecord(zeiger, fhoutlist);
-				}
+			writehccaprecord(zeiger, fhoutlist);
+			writtencount++;
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		printf("%llu handshakes written to %s\n", writtencount, hccapbestoutname);
 		}
 	}
 removeemptyfile(hccapbestoutname);
@@ -757,16 +762,19 @@ if((rawhandshakeliste != NULL) && (hccaprawoutname != NULL))
 	{
 	if((fhoutlist = fopen(hccaprawoutname, "a+")) != NULL)
 		{
+		writtencount = 0;
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+			if((zeiger->tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writehccaprecord(zeiger, fhoutlist);
+				writtencount++;
 				}
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		printf("%llu handshakes written to %s\n", writtencount, hccaprawoutname);
 		}
 	}
 removeemptyfile(hccaprawoutname);
@@ -775,15 +783,15 @@ if((handshakeliste != NULL) && (johnbestoutname != NULL))
 	{
 	if((fhoutlist = fopen(johnbestoutname, "a+")) != NULL)
 		{
+		writtencount = 0;
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
-			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
-				{
-				writejohnrecord(zeiger, fhoutlist, pcapinname);
-				}
+			writejohnrecord(zeiger, fhoutlist, pcapinname);
+			writtencount++;
 			zeiger++;
 			}
+		printf("%llu handshakes written to %s\n", writtencount, johnbestoutname);
 		fclose(fhoutlist);
 		}
 	}
@@ -793,16 +801,19 @@ if((rawhandshakeliste != NULL) && (johnrawoutname != NULL))
 	{
 	if((fhoutlist = fopen(johnrawoutname, "a+")) != NULL)
 		{
+		writtencount = 0;
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if((zeiger-> tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+			if((zeiger->tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writejohnrecord(zeiger, fhoutlist, pcapinname);
+				writtencount++;
 				}
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		printf("%llu handshakes written to %s\n", writtencount, johnrawoutname);
 		}
 	}
 removeemptyfile(hccaprawoutname);
@@ -868,7 +879,7 @@ else
 	{
 	rcgap = zeigerno->replaycount - zeigerea->replaycount;
 	}
-if(timegap > 600)
+if(timegap > maxtvdiff)
 	{
 	return;
 	}
@@ -930,6 +941,14 @@ uint32_t timegap;
 uint64_t rcgap;
 apstaessidl_t *zeigeressid;
 
+if(zeigerea->replaycount > zeigerno->replaycount)
+	{
+	rcgap = zeigerea->replaycount - zeigerno->replaycount;
+	}
+else
+	{
+	rcgap = zeigerno->replaycount - zeigerea->replaycount;
+	}
 if(zeigerea->tv_sec > zeigerno->tv_sec)
 	{
 	timegap = zeigerea->tv_sec - zeigerno->tv_sec;
@@ -945,6 +964,14 @@ if(zeigerea->replaycount > zeigerno->replaycount)
 else
 	{
 	rcgap = zeigerno->replaycount - zeigerea->replaycount;
+	}
+if(timegap > maxtvdiff)
+	{
+	return;
+	}
+if(rcgap > maxrcdiff)
+	{
+	return;
 	}
 
 zeiger = handshakeliste;
@@ -1032,7 +1059,6 @@ for(d = 0; d < apstaessidcount; d++)
 		}
 	zeigeressid++;
 	}
-
 handshakecount++;
 tmp = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
 if(tmp == NULL)
@@ -1056,21 +1082,15 @@ zeigerea = eapolliste;
 
 for(ea = 0; ea < eapolcount; ea++)
 	{
-	if((zeigerea->keyinfo) >= 4)
+	zeigerno = nonceliste;
+	for(no = 0; no < noncecount; no++)
 		{
-		zeigerno = nonceliste;
-		for(no = 0; no < noncecount; no++)
+		if((memcmp(zeigerea->mac_ap, zeigerno->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigerno->mac_sta, 6) == 0))
 			{
-			if((zeigerno->keyinfo) <= 3)
-				{
-				if((memcmp(zeigerea->mac_ap, zeigerno->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigerno->mac_sta, 6) == 0))
-					{
-					addhandshake(zeigerea, zeigerno);
-					addrawhandshake(zeigerea, zeigerno);
-					}
-				}
-			zeigerno++;
+			addhandshake(zeigerea, zeigerno);
+			addrawhandshake(zeigerea, zeigerno);
 			}
+		zeigerno++;
 		}
 	zeigerea++;
 	}
@@ -1089,7 +1109,7 @@ if(authlen > 256)
 zeiger = eapolliste;
 for(c = 0; c < eapolcount; c++)
 	{
-	if((memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(authpacket, zeiger->eapol, 256) == 0))
+	if((authlen == zeiger->authlen) && (memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(authpacket, zeiger->eapol, authlen) == 0))
 		{
 		if(zeiger->tv_sec == 0)
 			{
@@ -1170,7 +1190,7 @@ unsigned long long int c;
 zeiger = apstaessidliste;
 for(c = 0; c < apstaessidcount; c++)
 	{
-	if((memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(essid, zeiger->essid, 32) == 0) && (essidlen == zeiger->essidlen))
+	if((essidlen == zeiger->essidlen) && (memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(essid, zeiger->essid, zeiger->essidlen) == 0))
 		{
 		if(zeiger->tv_sec == 0)
 			{
