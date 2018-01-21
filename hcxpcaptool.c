@@ -881,6 +881,7 @@ else
 	{
 	timegap = lltimeno -lltimeea;
 	}
+
 if(timegap > (maxtvdiff *10000))
 	{
 	return;
@@ -963,6 +964,7 @@ else
 	{
 	timegap = lltimeno -lltimeea;
 	}
+
 if(timegap > (maxtvdiff *10000))
 	{
 	return;
@@ -1233,10 +1235,11 @@ apstaessidliste = tmp;
 return;
 }
 /*===========================================================================*/
-uint8_t getessid(uint8_t *tagdata, uint8_t taglen, uint8_t *essidstr)
+uint16_t getessid(uint8_t *tagdata, uint16_t taglen, uint8_t *essidstr)
 {
 ietag_t *tagl;
 tagl = (ietag_t*)tagdata;
+
 while(0 < taglen)
 	{
 	if(tagl->id == TAG_SSID)
