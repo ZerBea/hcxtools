@@ -1774,7 +1774,7 @@ section_header_block_t pcapngshb;
 interface_description_block_t pcapngidb;
 packet_block_t pcapngpb;
 enhanced_packet_block_t pcapngepb;
-uint8_t packet[MAXPACPSNAPLEN];
+uint8_t packet[MAXPACPSNAPLEN] = {0};
 
 printf("start reading from %s\n", pcapinname);
 while(1)
@@ -2010,7 +2010,7 @@ unsigned int res;
 
 pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
-uint8_t packet[MAXPACPSNAPLEN];
+uint8_t packet[MAXPACPSNAPLEN] = {0};
 
 printf("start reading from %s\n", pcapinname);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
