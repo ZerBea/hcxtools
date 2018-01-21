@@ -11,6 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #ifdef __APPLE__
 #define strdupa strdup
@@ -865,9 +866,25 @@ void addrawhandshake(eapoll_t *zeigerea, noncel_t *zeigerno)
 {
 hcxl_t *zeiger, *tmp;
 unsigned long long int d;
-uint32_t timegap;
+uint64_t lltimeea, lltimeno;
+uint64_t timegap;
 uint64_t rcgap;
 apstaessidl_t *zeigeressid;
+
+lltimeea = zeigerea->tv_sec *1000000LL +zeigerea->tv_usec;
+lltimeno = zeigerno->tv_sec *1000000LL +zeigerno->tv_usec;
+if(lltimeea > lltimeno)
+	{
+	timegap = lltimeea -lltimeno;
+	}
+else
+	{
+	timegap = lltimeno -lltimeea;
+	}
+if(timegap > (maxtvdiff *10000))
+	{
+	return;
+	}
 
 if(zeigerea->replaycount > zeigerno->replaycount)
 	{
@@ -876,26 +893,6 @@ if(zeigerea->replaycount > zeigerno->replaycount)
 else
 	{
 	rcgap = zeigerno->replaycount - zeigerea->replaycount;
-	}
-if(zeigerea->tv_sec > zeigerno->tv_sec)
-	{
-	timegap = zeigerea->tv_sec - zeigerno->tv_sec;
-	}
-else
-	{
-	timegap = zeigerno->tv_sec - zeigerea->tv_sec;
-	}
-if(zeigerea->replaycount > zeigerno->replaycount)
-	{
-	rcgap = zeigerea->replaycount - zeigerno->replaycount;
-	}
-else
-	{
-	rcgap = zeigerno->replaycount - zeigerea->replaycount;
-	}
-if(timegap > maxtvdiff)
-	{
-	return;
 	}
 if(rcgap > maxrcdiff)
 	{
@@ -951,9 +948,25 @@ void addhandshake(eapoll_t *zeigerea, noncel_t *zeigerno)
 {
 hcxl_t *zeiger, *tmp;
 unsigned long long int c, d;
+uint64_t lltimeea, lltimeno;
 uint32_t timegap;
 uint64_t rcgap;
 apstaessidl_t *zeigeressid;
+
+lltimeea = zeigerea->tv_sec *1000000LL +zeigerea->tv_usec;
+lltimeno = zeigerno->tv_sec *1000000LL +zeigerno->tv_usec;
+if(lltimeea > lltimeno)
+	{
+	timegap = lltimeea -lltimeno;
+	}
+else
+	{
+	timegap = lltimeno -lltimeea;
+	}
+if(timegap > (maxtvdiff *10000))
+	{
+	return;
+	}
 
 if(zeigerea->replaycount > zeigerno->replaycount)
 	{
@@ -962,26 +975,6 @@ if(zeigerea->replaycount > zeigerno->replaycount)
 else
 	{
 	rcgap = zeigerno->replaycount - zeigerea->replaycount;
-	}
-if(zeigerea->tv_sec > zeigerno->tv_sec)
-	{
-	timegap = zeigerea->tv_sec - zeigerno->tv_sec;
-	}
-else
-	{
-	timegap = zeigerno->tv_sec - zeigerea->tv_sec;
-	}
-if(zeigerea->replaycount > zeigerno->replaycount)
-	{
-	rcgap = zeigerea->replaycount - zeigerno->replaycount;
-	}
-else
-	{
-	rcgap = zeigerno->replaycount - zeigerea->replaycount;
-	}
-if(timegap > maxtvdiff)
-	{
-	return;
 	}
 if(rcgap > maxrcdiff)
 	{
@@ -1011,6 +1004,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
+
 		if(timegap > zeiger->tv_diff)
 			{
 			return;
@@ -1690,10 +1684,14 @@ fcs_t *fcs;
 prism_t *prism;
 ppi_t *ppi;
 uint32_t crc;
+struct timeval tvtmp;
 
 if((tv_sec == 0) && (tv_usec == 0)) 
 	{
 	tscleanflag = true;
+	gettimeofday(&tvtmp, NULL);
+	tv_sec = tvtmp.tv_sec;
+	tv_usec = tvtmp.tv_usec;
 	}
 
 packet_ptr = packet;

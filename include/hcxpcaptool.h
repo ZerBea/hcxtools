@@ -134,7 +134,7 @@ struct hcxtoollist_s
 {
  uint32_t	tv_sec;
  uint32_t	tv_usec;
- uint32_t	tv_diff;
+ uint64_t	tv_diff;
  uint8_t	mac_ap[6];
  uint8_t	mac_sta[6];
  uint8_t	keyinfo_ap;
