@@ -1605,10 +1605,6 @@ void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint
 {
 mac_t *macf;
 
-if(caplen < (uint32_t)MAC_SIZE_NORM)
-	{
-	return;
-	}
 macf = (mac_t*)packet;
 if((macf->from_ds == 1) && (macf->to_ds == 1))
 	{
