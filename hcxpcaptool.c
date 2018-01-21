@@ -1686,6 +1686,11 @@ ppi_t *ppi;
 uint32_t crc;
 struct timeval tvtmp;
 
+packet_ptr = packet;
+if(caplen < MAC_SIZE_NORM)
+	{
+	return;	
+	}
 if((tv_sec == 0) && (tv_usec == 0)) 
 	{
 	tscleanflag = true;
@@ -1694,7 +1699,6 @@ if((tv_sec == 0) && (tv_usec == 0))
 	tv_usec = tvtmp.tv_usec;
 	}
 
-packet_ptr = packet;
 if(linktype == DLT_IEEE802_11_RADIO)
 	{
 	if(caplen < (uint32_t)RTH_SIZE)
@@ -1758,6 +1762,7 @@ if(crc == fcs->fcs)
 	fcsflag = true;
 	fcsframecount++;
 	}
+
 process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 
 return;
