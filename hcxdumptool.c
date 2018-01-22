@@ -1658,9 +1658,6 @@ void processscanlist(char *list)
 {
 char *ptr;
 
-printf("%s\n", list);
-
-
 cpa = 0;
 ptr = strtok(list, ",");
 while(ptr != NULL)
