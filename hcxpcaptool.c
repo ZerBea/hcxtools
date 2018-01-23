@@ -1472,6 +1472,10 @@ else if(keyinfo == 3)
 
 else if(keyinfo == 2)
 	{
+	if(memcmp(wpak->nonce, nullnonce, 32) == 0)
+		{
+		return;
+		}
 	if(authlen <= caplen -4)
 		{
 		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), authlen +4, packet);
