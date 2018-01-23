@@ -781,7 +781,7 @@ if((rawhandshakeliste != NULL) && (hccaprawoutname != NULL))
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if((zeiger->tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+			if((zeiger->tv_diff <= maxtvdiff *10000) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writehccaprecord(zeiger, fhoutlist);
 				writtencount++;
@@ -820,7 +820,7 @@ if((rawhandshakeliste != NULL) && (johnrawoutname != NULL))
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if((zeiger->tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+			if((zeiger->tv_diff <= maxtvdiff *10000) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writejohnrecord(zeiger, fhoutlist, pcapinname);
 				writtencount++;
