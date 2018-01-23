@@ -742,7 +742,7 @@ if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if((zeiger->tv_diff <= maxtvdiff) && (zeiger->rc_diff <= maxrcdiff))
+			if((zeiger->tv_diff <= maxtvdiff *10000) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writehccapxrecord(zeiger, fhoutlist);
 				writtencount++;
@@ -933,7 +933,6 @@ for(d = 0; d < apstaessidcount; d++)
 		}
 	zeigeressid++;
 	}
-
 rawhandshakecount++;
 tmp = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
 if(tmp == NULL)
