@@ -26,6 +26,13 @@
 /* globale Variablen */
 
 static hcx_t *hcxdata = NULL;
+static const uint8_t nullnonce[] =
+{
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+#define	NULLNONCE_SIZE (sizeof(nullnonce))
+
 /*===========================================================================*/
 static size_t chop(char *buffer,  size_t len)
 {
@@ -211,6 +218,19 @@ while(c < hcxrecords)
 		c++;
 		continue;
 		}
+	if(memcmp(&nullnonce, zeigerhcx->nonce_ap, 32) == 0)
+		{
+		rwerr++;
+		c++;
+		continue;
+		}
+	if(memcmp(&nullnonce, zeigerhcx->nonce_sta, 32) == 0)
+		{
+		rwerr++;
+		c++;
+		continue;
+		}
+	
 	if((fhhcx = fopen(repairedname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening file %s", repairedname);
