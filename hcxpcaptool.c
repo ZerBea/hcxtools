@@ -968,7 +968,6 @@ if(timegap > (maxtvdiff *10000))
 	{
 	return;
 	}
-
 if(zeigerea->replaycount > zeigerno->replaycount)
 	{
 	rcgap = zeigerea->replaycount - zeigerno->replaycount;
@@ -1143,7 +1142,6 @@ zeiger->keyinfo = ki;
 zeiger->authlen = authlen;
 memset(zeiger->eapol, 0, 256);
 memcpy(zeiger->eapol, authpacket, authlen);
-
 eapolcount++;
 tmp = realloc(eapolliste, (eapolcount +1) *EAPOLLIST_SIZE);
 if(tmp == NULL)
@@ -1450,7 +1448,6 @@ if(caplen < (uint32_t)WPAKEY_SIZE)
 	{
 	return;
 	}
-
 eap = (eapauth_t*)packet;
 wpak = (wpakey_t*)(packet +EAPAUTH_SIZE);
 
@@ -1460,12 +1457,17 @@ wpak->replaycount = byte_swap_64(wpak->replaycount);
 #endif
 
 authlen = ntohs(eap->len);
+
 if(keyinfo == 1)
 	{
 	addnonce(tv_sec, tv_usec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), wpak->nonce);
 	}
 else if(keyinfo == 3)
 	{
+	if(authlen <= caplen -4)
+		{
+		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 3, byte_swap_64(wpak->replaycount), authlen +4, packet);
+		}
 	addnonce(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
 	}
 
@@ -1562,7 +1564,7 @@ uint8_t *packet_ptr;
 
 macf = (mac_t*)packet;
 packet_ptr = packet;
-if(macf->subtype == IEEE80211_STYPE_DATA) 
+if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_DATA_CFPOLL))
 	{
 	if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)LLC_SIZE)
 		{
@@ -1583,7 +1585,7 @@ if(macf->subtype == IEEE80211_STYPE_DATA)
 		processipv6packet();
 		}
 	}
-else if(macf->subtype == IEEE80211_STYPE_QOS_DATA) 
+else if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFPOLL))
 	{
 	if(caplen < (uint32_t)MAC_SIZE_QOS +(uint32_t)LLC_SIZE)
 		{
