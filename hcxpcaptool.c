@@ -901,27 +901,26 @@ if(rcgap > maxrcdiff)
 	}
 
 zeiger = rawhandshakeliste +rawhandshakecount;
-memset(zeiger, 0, sizeof(hcxl_t));
-zeiger->tv_diff = timegap;
-zeiger->rc_diff = rcgap;
-zeiger->tv_sec = zeigerea->tv_sec;
-zeiger->tv_usec = zeigerea->tv_usec;
-memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
-memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
-zeiger->keyinfo_ap = zeigerno->keyinfo;
-zeiger->keyinfo_sta = zeigerea->keyinfo;
-zeiger->replaycount_ap = zeigerno->replaycount;
-zeiger->replaycount_sta = zeigerea->replaycount;
-memcpy(zeiger->nonce, zeigerno->nonce, 32);
-zeiger->authlen = zeigerea->authlen;
-memset(zeiger->eapol, 0, 256);
-memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-
 zeigeressid = apstaessidliste;
 for(d = 0; d < apstaessidcount; d++)
 	{
-	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+	if(memcmp(zeigerea->mac_ap, zeigeressid->mac_ap, 6) == 0)
 		{
+		memset(zeiger, 0, sizeof(hcxl_t));
+		zeiger->tv_diff = timegap;
+		zeiger->rc_diff = rcgap;
+		zeiger->tv_sec = zeigerea->tv_sec;
+		zeiger->tv_usec = zeigerea->tv_usec;
+		memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+		memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+		zeiger->keyinfo_ap = zeigerno->keyinfo;
+		zeiger->keyinfo_sta = zeigerea->keyinfo;
+		zeiger->replaycount_ap = zeigerno->replaycount;
+		zeiger->replaycount_sta = zeigerea->replaycount;
+		memcpy(zeiger->nonce, zeigerno->nonce, 32);
+		zeiger->authlen = zeigerea->authlen;
+		memset(zeiger->eapol, 0, 256);
+		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 		rawhandshakecount++;
@@ -932,21 +931,7 @@ for(d = 0; d < apstaessidcount; d++)
 			exit(EXIT_FAILURE);
 			}
 		rawhandshakeliste = tmp;
-		return;
-		}
-	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
-		{
-		zeiger->essidlen = zeigeressid->essidlen;
-		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-		rawhandshakecount++;
-		tmp = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
-		if(tmp == NULL)
-			{
-			printf("failed to allocate memory\n");
-			exit(EXIT_FAILURE);
-			}
-		rawhandshakeliste = tmp;
-		return;
+		zeiger = rawhandshakeliste +rawhandshakecount;
 		}
 	zeigeressid++;
 	}
@@ -1061,6 +1046,13 @@ memset(zeiger->eapol, 0, 256);
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 
 zeigeressid = apstaessidliste;
+for(c = 0; c < apstaessidcount; c++)
+	{
+	if(zeigeressid->tv_sec >= zeiger->tv_sec)
+		break;
+	zeigeressid++;
+	}
+
 for(d = 0; d < apstaessidcount; d++)
 	{
 	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
