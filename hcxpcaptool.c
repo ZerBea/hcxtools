@@ -742,7 +742,7 @@ if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if((zeiger->tv_diff <= maxtvdiff *10000) && (zeiger->rc_diff <= maxrcdiff))
+			if((zeiger->tv_diff <= maxtvdiff *1000000) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writehccapxrecord(zeiger, fhoutlist);
 				writtencount++;
@@ -781,7 +781,7 @@ if((rawhandshakeliste != NULL) && (hccaprawoutname != NULL))
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if((zeiger->tv_diff <= maxtvdiff *10000) && (zeiger->rc_diff <= maxrcdiff))
+			if((zeiger->tv_diff <= maxtvdiff *1000000) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writehccaprecord(zeiger, fhoutlist);
 				writtencount++;
@@ -820,7 +820,7 @@ if((rawhandshakeliste != NULL) && (johnrawoutname != NULL))
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if((zeiger->tv_diff <= maxtvdiff *10000) && (zeiger->rc_diff <= maxrcdiff))
+			if((zeiger->tv_diff <= maxtvdiff *1000000) && (zeiger->rc_diff <= maxrcdiff))
 				{
 				writejohnrecord(zeiger, fhoutlist, pcapinname);
 				writtencount++;
@@ -882,7 +882,7 @@ else
 	timegap = lltimeno -lltimeea;
 	}
 
-if(timegap > (maxtvdiff *10000))
+if(timegap > (maxtvdiff *1000000))
 	{
 	return;
 	}
@@ -951,7 +951,6 @@ unsigned long long int c, d;
 uint64_t lltimeea, lltimeno;
 uint32_t timegap;
 uint64_t rcgap;
-apstaessidl_t *zeigeressid;
 
 lltimeea = zeigerea->tv_sec *1000000LL +zeigerea->tv_usec;
 lltimeno = zeigerno->tv_sec *1000000LL +zeigerno->tv_usec;
@@ -963,11 +962,11 @@ else
 	{
 	timegap = lltimeno -lltimeea;
 	}
-
-if(timegap > (maxtvdiff *10000))
+if(timegap > (maxtvdiff *10000000))
 	{
 	return;
 	}
+
 if(zeigerea->replaycount > zeigerno->replaycount)
 	{
 	rcgap = zeigerea->replaycount - zeigerno->replaycount;
@@ -1035,6 +1034,7 @@ for(c = 0; c < handshakecount; c++)
 	zeiger++;
 	}
 
+apstaessidl_t *zeigeressid;
 memset(zeiger, 0, sizeof(hcxl_t));
 zeiger->tv_diff = timegap;
 zeiger->rc_diff = rcgap;
