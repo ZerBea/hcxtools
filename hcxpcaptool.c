@@ -103,6 +103,7 @@ unsigned long long int eapolframecount;
 unsigned long long int eapframecount;
 unsigned long long int ipv4framecount;
 unsigned long long int ipv6framecount;
+unsigned long long int essidchangedframecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -454,6 +455,10 @@ for(p = 0; p < 256; p++)
 		{
 		printf("found..................: %s\n", geteaptypestring(p));
 		}
+	}
+if(essidchangedframecount != 0)
+	{
+	printf("warning ESSID changed..: %lld\n", essidchangedframecount);
 	}
 if(rawhandshakecount != 0)
 	{
@@ -865,11 +870,11 @@ return;
 void addrawhandshake(eapoll_t *zeigerea, noncel_t *zeigerno)
 {
 hcxl_t *zeiger, *tmp;
+apstaessidl_t *zeigeressid;
 unsigned long long int d;
 uint64_t lltimeea, lltimeno;
 uint64_t timegap;
 uint64_t rcgap;
-apstaessidl_t *zeigeressid;
 
 lltimeea = zeigerea->tv_sec *1000000LL +zeigerea->tv_usec;
 lltimeno = zeigerno->tv_sec *1000000LL +zeigerno->tv_usec;
@@ -918,35 +923,45 @@ memset(zeiger->eapol, 0, 256);
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 
 zeigeressid = apstaessidliste;
-for(d = 0; d < apstaessidcount; d++)
+for(d = 0; d < apstaessidcount -1; d++)
 	{
 	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 		{
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-		break;
+		handshakecount++;
+		tmp = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
+		if(tmp == NULL)
+			{
+			printf("failed to allocate memory\n");
+			exit(EXIT_FAILURE);
+			}
+		handshakeliste = tmp;
+		return;
 		}
 	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
 		{
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+		rawhandshakecount++;
+		tmp = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
+		if(tmp == NULL)
+			{
+			printf("failed to allocate memory\n");
+			exit(EXIT_FAILURE);
+			}
+		rawhandshakeliste = tmp;
+		return;
 		}
 	zeigeressid++;
 	}
-rawhandshakecount++;
-tmp = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
-if(tmp == NULL)
-	{
-	printf("failed to allocate memory\n");
-	exit(EXIT_FAILURE);
-	}
-rawhandshakeliste = tmp;
 return;
 }
 /*===========================================================================*/
 void addhandshake(eapoll_t *zeigerea, noncel_t *zeigerno)
 {
 hcxl_t *zeiger, *tmp;
+apstaessidl_t *zeigeressid;
 unsigned long long int c, d;
 uint64_t lltimeea, lltimeno;
 uint32_t timegap;
@@ -1034,7 +1049,6 @@ for(c = 0; c < handshakecount; c++)
 	zeiger++;
 	}
 
-apstaessidl_t *zeigeressid;
 memset(zeiger, 0, sizeof(hcxl_t));
 zeiger->tv_diff = timegap;
 zeiger->rc_diff = rcgap;
@@ -1052,29 +1066,38 @@ memset(zeiger->eapol, 0, 256);
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 
 zeigeressid = apstaessidliste;
-for(d = 0; d < apstaessidcount; d++)
+for(d = 0; d < apstaessidcount -1; d++)
 	{
 	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 		{
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-		break;
+		handshakecount++;
+		tmp = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
+		if(tmp == NULL)
+			{
+			printf("failed to allocate memory\n");
+			exit(EXIT_FAILURE);
+			}
+		handshakeliste = tmp;
+		return;
 		}
 	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
 		{
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+		handshakecount++;
+		tmp = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
+		if(tmp == NULL)
+			{
+			printf("failed to allocate memory\n");
+			exit(EXIT_FAILURE);
+			}
+		handshakeliste = tmp;
+		return;
 		}
 	zeigeressid++;
 	}
-handshakecount++;
-tmp = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
-if(tmp == NULL)
-	{
-	printf("failed to allocate memory\n");
-	exit(EXIT_FAILURE);
-	}
-handshakeliste = tmp;
 return;
 }
 /*===========================================================================*/
@@ -1086,6 +1109,8 @@ noncel_t *zeigerno;
 
 qsort(nonceliste, noncecount, NONCELIST_SIZE, sort_noncelist_by_timestamp);
 qsort(eapolliste, eapolcount, EAPOLLIST_SIZE, sort_eapollist_by_timestamp);
+qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_timestamp);
+
 zeigerea = eapolliste;
 
 for(ea = 0; ea < eapolcount; ea++)
@@ -1122,11 +1147,6 @@ for(c = 0; c < eapolcount; c++)
 	{
 	if((authlen == zeiger->authlen) && (memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(authpacket, zeiger->eapol, authlen) == 0))
 		{
-		if(zeiger->tv_sec == 0)
-			{
-			zeiger->tv_sec = tv_sec;
-			zeiger->tv_usec = tv_usec;
-			}
 		return;
 		}
 	zeiger++;
@@ -1164,11 +1184,6 @@ for(c = 0; c < noncecount; c++)
 	if((memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(nonce, zeiger->nonce, 32) == 0))
 		{
 		zeiger->keyinfo |= ki;
-		if(zeiger->tv_sec == 0)
-			{
-			zeiger->tv_sec = tv_sec;
-			zeiger->tv_usec = tv_usec;
-			}
 		return;
 		}
 	zeiger++;
@@ -1200,14 +1215,14 @@ unsigned long long int c;
 zeiger = apstaessidliste;
 for(c = 0; c < apstaessidcount; c++)
 	{
-	if((essidlen == zeiger->essidlen) && (memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(essid, zeiger->essid, zeiger->essidlen) == 0))
+	if((memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0))
 		{
-		if(zeiger->tv_sec == 0)
+		if((essidlen == zeiger->essidlen) && (memcmp(essid, zeiger->essid, zeiger->essidlen) == 0))
 			{
-			zeiger->tv_sec = tv_sec;
-			zeiger->tv_usec = tv_usec;
+			return;
 			}
-		return;
+		zeiger->essidchanged = true;
+		essidchangedframecount++;
 		}
 	zeiger++;
 	}
@@ -1217,10 +1232,10 @@ zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
+zeiger->essidchanged = false;
 memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essid, 32);
 zeiger->essidlen = essidlen;
-
 apstaessidcount++;
 tmp = realloc(apstaessidliste, (apstaessidcount +1) *APSTAESSIDLIST_SIZE);
 if(tmp == NULL)
@@ -2161,7 +2176,7 @@ eapolframecount = 0;
 eapframecount = 0;
 ipv4framecount = 0;
 ipv6framecount = 0;
-
+essidchangedframecount = 0;
 
 char tmpoutname[PATH_MAX+1];
 

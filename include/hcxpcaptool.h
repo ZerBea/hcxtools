@@ -5,6 +5,7 @@ struct apstaessidlist_s
  uint32_t	tv_usec;
  uint8_t	mac_ap[6];
  uint8_t	mac_sta[6];
+ bool		essidchanged;
  uint8_t	essidlen;
  uint8_t	essid[32];
 } __attribute__((__packed__));
