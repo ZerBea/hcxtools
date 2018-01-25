@@ -79,9 +79,11 @@ unsigned long long int eapolcount;
 eapoll_t *eapolliste;
 
 unsigned long long int handshakecount;
+unsigned long long int handshakeaplesscount;
 hcxl_t *handshakeliste;
 
 unsigned long long int rawhandshakecount;
+unsigned long long int rawhandshakeaplesscount;
 hcxl_t *rawhandshakeliste;
 
 unsigned long long int fcsframecount;
@@ -370,9 +372,9 @@ printf( "                                               \n"
 	"network type...........: %s (%d)\n"
 	"endianess..............: %s\n"
 	"read errors............: %s\n"
-	"packets inside.........: %lld\n"
-	"skippedpackets.........: %lld\n"
-	"packets with FCS.......: %lld\n"
+	"packets inside.........: %llu\n"
+	"skippedpackets.........: %llu\n"
+	"packets with FCS.......: %llu\n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, fcsframecount);
 
 if(tscleanflag == true)
@@ -382,67 +384,67 @@ if(tscleanflag == true)
 
 if(wdsframecount != 0)
 	{
-	printf("WDS packets............: %lld\n", wdsframecount);
+	printf("WDS packets............: %llu\n", wdsframecount);
 	}
 if(beaconframecount != 0)
 	{
-	printf("beacons................: %lld\n", beaconframecount);
+	printf("beacons................: %llu\n", beaconframecount);
 	}
 if(proberequestframecount != 0)
 	{
-	printf("probe requests.........: %lld\n", proberequestframecount);
+	printf("probe requests.........: %llu\n", proberequestframecount);
 	}
 if(proberesponseframecount != 0)
 	{
-	printf("probe responses........: %lld\n", proberesponseframecount);
+	printf("probe responses........: %llu\n", proberesponseframecount);
 	}
 if(associationrequestframecount != 0)
 	{
-	printf("association requests...: %lld\n", associationrequestframecount);
+	printf("association requests...: %llu\n", associationrequestframecount);
 	}
 if(associationresponseframecount != 0)
 	{
-	printf("association responses..: %lld\n", associationresponseframecount);
+	printf("association responses..: %llu\n", associationresponseframecount);
 	}
 if(reassociationrequestframecount != 0)
 	{
-	printf("reassociation requests.: %lld\n", reassociationrequestframecount);
+	printf("reassociation requests.: %llu\n", reassociationrequestframecount);
 	}
 if(reassociationresponseframecount != 0)
 	{
-	printf("reassociation responses: %lld\n", reassociationresponseframecount);
+	printf("reassociation responses: %llu\n", reassociationresponseframecount);
 	}
 if(authenticationframecount != 0)
 	{
-	printf("authentications........: %lld\n", authenticationframecount);
+	printf("authentications........: %llu\n", authenticationframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
-	printf("deauthentications......: %lld\n", deauthenticationframecount);
+	printf("deauthentications......: %llu\n", deauthenticationframecount);
 	}
 if(disassociationframecount != 0)
 	{
-	printf("disassociations........: %lld\n", disassociationframecount);
+	printf("disassociations........: %llu\n", disassociationframecount);
 	}
 if(actionframecount != 0)
 	{
-	printf("action packets.........: %lld\n", actionframecount);
+	printf("action packets.........: %llu\n", actionframecount);
 	}
 if(atimframecount != 0)
 	{
-	printf("ATIM packets...........: %lld\n", atimframecount);
+	printf("ATIM packets...........: %llu\n", atimframecount);
 	}
 if(eapolframecount != 0)
 	{
-	printf("EAPOL packets..........: %lld\n", eapolframecount);
+	printf("EAPOL packets..........: %llu\n", eapolframecount);
 	}
 if(eapframecount != 0)
 	{
-	printf("EAP packets............: %lld\n", eapframecount);
+	printf("EAP packets............: %llu\n", eapframecount);
 	}
 if(ipv4framecount != 0)
 	{
-	printf("IPv4 packets...........: %lld\n", ipv4framecount);
+	printf("IPv4 packets...........: %llu\n", ipv4framecount);
 	}
 if(ipv6framecount != 0)
 	{
@@ -457,11 +459,11 @@ for(p = 0; p < 256; p++)
 	}
 if(rawhandshakecount != 0)
 	{
-	printf("raw handshakes.........: %lld\n", rawhandshakecount);
+	printf("raw handshakes.........: %llu (ap-less: %llu)\n", rawhandshakecount, rawhandshakeaplesscount);
 	}
 if(handshakecount != 0)
 	{
-	printf("best handshakes........: %lld\n", handshakecount);
+	printf("best handshakes........: %llu  (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
 	}
 
 printf("\n");
@@ -923,6 +925,10 @@ for(d = 0; d < apstaessidcount; d++)
 		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
+			{
+			rawhandshakeaplesscount++;
+			}
 		rawhandshakecount++;
 		tmp = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
 		if(tmp == NULL)
@@ -1028,37 +1034,33 @@ for(c = 0; c < handshakecount; c++)
 		}
 	zeiger++;
 	}
-
-memset(zeiger, 0, sizeof(hcxl_t));
-zeiger->tv_diff = timegap;
-zeiger->rc_diff = rcgap;
-zeiger->tv_sec = zeigerea->tv_sec;
-zeiger->tv_usec = zeigerea->tv_usec;
-memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
-memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
-zeiger->keyinfo_ap = zeigerno->keyinfo;
-zeiger->keyinfo_sta = zeigerea->keyinfo;
-zeiger->replaycount_ap = zeigerno->replaycount;
-zeiger->replaycount_sta = zeigerea->replaycount;
-memcpy(zeiger->nonce, zeigerno->nonce, 32);
-zeiger->authlen = zeigerea->authlen;
-memset(zeiger->eapol, 0, 256);
-memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-
 zeigeressid = apstaessidliste;
-for(c = 0; c < apstaessidcount; c++)
-	{
-	if(zeigeressid->tv_sec >= zeiger->tv_sec)
-		break;
-	zeigeressid++;
-	}
-
 for(d = 0; d < apstaessidcount; d++)
 	{
-	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+	if((memcmp(zeigerea->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigeressid->mac_sta, 6) == 0))
 		{
+		memset(zeiger, 0, sizeof(hcxl_t));
+		zeiger->tv_diff = timegap;
+		zeiger->rc_diff = rcgap;
+		zeiger->tv_sec = zeigerea->tv_sec;
+		zeiger->tv_usec = zeigerea->tv_usec;
+		memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+		memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+		zeiger->keyinfo_ap = zeigerno->keyinfo;
+		zeiger->keyinfo_sta = zeigerea->keyinfo;
+		zeiger->replaycount_ap = zeigerno->replaycount;
+		zeiger->replaycount_sta = zeigerea->replaycount;
+		memcpy(zeiger->nonce, zeigerno->nonce, 32);
+		zeiger->authlen = zeigerea->authlen;
+		memset(zeiger->eapol, 0, 256);
+		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+		memset(zeiger->essid, 0, 32);
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
+			{
+			handshakeaplesscount++;
+			}
 		handshakecount++;
 		tmp = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
 		if(tmp == NULL)
@@ -1069,10 +1071,36 @@ for(d = 0; d < apstaessidcount; d++)
 		handshakeliste = tmp;
 		return;
 		}
-	if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
+	zeigeressid++;
+	}
+
+zeigeressid = apstaessidliste;
+for(d = 0; d < apstaessidcount; d++)
+	{
+	if((memcmp(zeigerea->mac_ap, zeigeressid->mac_ap, 6) == 0))
 		{
+		memset(zeiger, 0, sizeof(hcxl_t));
+		zeiger->tv_diff = timegap;
+		zeiger->rc_diff = rcgap;
+		zeiger->tv_sec = zeigerea->tv_sec;
+		zeiger->tv_usec = zeigerea->tv_usec;
+		memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+		memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+		zeiger->keyinfo_ap = zeigerno->keyinfo;
+		zeiger->keyinfo_sta = zeigerea->keyinfo;
+		zeiger->replaycount_ap = zeigerno->replaycount;
+		zeiger->replaycount_sta = zeigerea->replaycount;
+		memcpy(zeiger->nonce, zeigerno->nonce, 32);
+		zeiger->authlen = zeigerea->authlen;
+		memset(zeiger->eapol, 0, 256);
+		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+		memset(zeiger->essid, 0, 32);
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
+			{
+			handshakeaplesscount++;
+			}
 		handshakecount++;
 		tmp = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
 		if(tmp == NULL)
@@ -2150,7 +2178,9 @@ authenticationframecount = 0;
 deauthenticationframecount = 0;
 disassociationframecount = 0;
 handshakecount = 0;
+handshakeaplesscount = 0;
 rawhandshakecount = 0;
+rawhandshakeaplesscount = 0;
 actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
