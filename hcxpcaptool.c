@@ -921,7 +921,6 @@ for(d = 0; d < apstaessidcount; d++)
 		zeiger->replaycount_sta = zeigerea->replaycount;
 		memcpy(zeiger->nonce, zeigerno->nonce, 32);
 		zeiger->authlen = zeigerea->authlen;
-		memset(zeiger->eapol, 0, 256);
 		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -1052,9 +1051,7 @@ for(d = 0; d < apstaessidcount; d++)
 		zeiger->replaycount_sta = zeigerea->replaycount;
 		memcpy(zeiger->nonce, zeigerno->nonce, 32);
 		zeiger->authlen = zeigerea->authlen;
-		memset(zeiger->eapol, 0, 256);
 		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-		memset(zeiger->essid, 0, 32);
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
@@ -1092,9 +1089,7 @@ for(d = 0; d < apstaessidcount; d++)
 		zeiger->replaycount_sta = zeigerea->replaycount;
 		memcpy(zeiger->nonce, zeigerno->nonce, 32);
 		zeiger->authlen = zeigerea->authlen;
-		memset(zeiger->eapol, 0, 256);
 		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-		memset(zeiger->essid, 0, 32);
 		zeiger->essidlen = zeigeressid->essidlen;
 		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
