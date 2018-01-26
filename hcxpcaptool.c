@@ -463,7 +463,7 @@ if(rawhandshakecount != 0)
 	}
 if(handshakecount != 0)
 	{
-	printf("best handshakes........: %llu  (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
+	printf("best handshakes........: %llu (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
 	}
 
 printf("\n");
