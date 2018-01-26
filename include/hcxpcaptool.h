@@ -151,15 +151,10 @@ struct hcxtoollist_s
 typedef struct hcxtoollist_s hcxl_t;
 #define	HCXLIST_SIZE (sizeof(hcxl_t))
 /*===========================================================================*/
-/*
-static int sort_hcxlist_by_timestamp(const void *a, const void *b)
+static int sort_hcxlist_by_mac_ap(const void *a, const void *b)
 {
 const hcxl_t *ia = (const hcxl_t *)a;
 const hcxl_t *ib = (const hcxl_t *)b;
-if(ia->tv_sec > ib->tv_sec)
-	return 1;
-else if(ia->tv_sec < ib->tv_sec)
-	return -1;
 if(memcmp(ia->mac_ap, ib->mac_ap, 6) > 0)
 	return 1;
 else if(memcmp(ia->mac_ap, ib->mac_ap, 6) < 0)
@@ -168,11 +163,18 @@ if(memcmp(ia->mac_sta, ib->mac_sta, 6) > 0)
 	return 1;
 else if(memcmp(ia->mac_sta, ib->mac_sta, 6) < 0)
 	return -1;
+if(memcmp(ia->essid, ib->essid, 32) > 0)
+	return 1;
+else if(memcmp(ia->essid, ib->essid, 32) < 0)
+	return -1;
 if(memcmp(ia->nonce, ib->nonce, 32) > 0)
 	return 1;
 else if(memcmp(ia->nonce, ib->nonce, 32) < 0)
 	return -1;
+if(memcmp(ia->eapol, ib->eapol, 256) > 0)
+	return 1;
+else if(memcmp(ia->eapol, ib->eapol, 256) < 0)
+	return -1;
 return 0;
 }
-*/
 /*===========================================================================*/

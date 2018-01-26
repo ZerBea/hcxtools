@@ -718,6 +718,11 @@ hcxl_t *zeiger, *zeigerold;
 FILE *fhoutlist = NULL;
 unsigned long long int writtencount;
 
+if(rawhandshakeliste != NULL)
+	{
+	qsort(rawhandshakeliste, rawhandshakecount, HCXLIST_SIZE, sort_hcxlist_by_mac_ap);
+	}
+
 if((handshakeliste != NULL) && (hccapxbestoutname != NULL))
 	{
 	if((fhoutlist = fopen(hccapxbestoutname, "a+")) != NULL)
