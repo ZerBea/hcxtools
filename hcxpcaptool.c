@@ -714,7 +714,7 @@ return;
 void outputlists4(char *pcapinname)
 {
 unsigned long long int c;
-hcxl_t *zeiger;
+hcxl_t *zeiger, *zeigerold;
 FILE *fhoutlist = NULL;
 unsigned long long int writtencount;
 
@@ -742,17 +742,21 @@ if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 		{
 		writtencount = 0;
 		zeiger = rawhandshakeliste;
-		for(c = 0; c < rawhandshakecount; c++)
+		zeigerold = rawhandshakeliste;
+		writehccapxrecord(zeiger, fhoutlist);
+		writtencount++;
+		for(c = 1; c < rawhandshakecount; c++)
 			{
-			if((zeiger->tv_diff <= maxtvdiff *1000000) && (zeiger->rc_diff <= maxrcdiff))
+			if(memcmp(zeigerold, zeiger, HCCAPX_SIZE) != 0)
 				{
 				writehccapxrecord(zeiger, fhoutlist);
 				writtencount++;
 				}
+			zeigerold = zeiger;
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s\n", writtencount, hccapxrawoutname);
+		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, hccapxrawoutname, rawhandshakecount -writtencount);
 		}
 	}
 removeemptyfile(hccapxrawoutname);
@@ -781,17 +785,21 @@ if((rawhandshakeliste != NULL) && (hccaprawoutname != NULL))
 		{
 		writtencount = 0;
 		zeiger = rawhandshakeliste;
-		for(c = 0; c < rawhandshakecount; c++)
+		zeigerold = rawhandshakeliste;
+		writehccapxrecord(zeiger, fhoutlist);
+		writtencount++;
+		for(c = 1; c < rawhandshakecount; c++)
 			{
-			if((zeiger->tv_diff <= maxtvdiff *1000000) && (zeiger->rc_diff <= maxrcdiff))
+			if(memcmp(zeigerold, zeiger, HCCAPX_SIZE) != 0)
 				{
-				writehccaprecord(zeiger, fhoutlist);
+				writehccapxrecord(zeiger, fhoutlist);
 				writtencount++;
 				}
+			zeigerold = zeiger;
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s\n", writtencount, hccaprawoutname);
+		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, hccaprawoutname, rawhandshakecount -writtencount);
 		}
 	}
 removeemptyfile(hccaprawoutname);
@@ -820,17 +828,21 @@ if((rawhandshakeliste != NULL) && (johnrawoutname != NULL))
 		{
 		writtencount = 0;
 		zeiger = rawhandshakeliste;
-		for(c = 0; c < rawhandshakecount; c++)
+		zeigerold = rawhandshakeliste;
+		writehccapxrecord(zeiger, fhoutlist);
+		writtencount++;
+		for(c = 1; c < rawhandshakecount; c++)
 			{
-			if((zeiger->tv_diff <= maxtvdiff *1000000) && (zeiger->rc_diff <= maxrcdiff))
+			if(memcmp(zeigerold, zeiger, HCCAPX_SIZE) != 0)
 				{
-				writejohnrecord(zeiger, fhoutlist, pcapinname);
+				writehccapxrecord(zeiger, fhoutlist);
 				writtencount++;
 				}
+			zeigerold = zeiger;
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s\n", writtencount, johnrawoutname);
+		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, johnrawoutname, rawhandshakecount -writtencount);
 		}
 	}
 removeemptyfile(hccaprawoutname);
@@ -1157,6 +1169,8 @@ for(c = 0; c < eapolcount; c++)
 	{
 	if((authlen == zeiger->authlen) && (memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(authpacket, zeiger->eapol, authlen) == 0))
 		{
+		zeiger->tv_sec = tv_sec;
+		zeiger->tv_usec = tv_usec;
 		return;
 		}
 	zeiger++;
@@ -1194,6 +1208,8 @@ for(c = 0; c < noncecount; c++)
 	if((memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(nonce, zeiger->nonce, 32) == 0))
 		{
 		zeiger->keyinfo |= ki;
+		zeiger->tv_sec = tv_sec;
+		zeiger->tv_usec = tv_usec;
 		return;
 		}
 	zeiger++;
