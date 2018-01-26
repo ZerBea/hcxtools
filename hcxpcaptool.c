@@ -2230,7 +2230,7 @@ if(pcapr_fd == -1)
 	}
 
 magicnumber = getmagicnumber(pcapr_fd);
-if(magicnumber == 0)
+if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (magicnumber != PCAPNGBLOCKTYPE))
 	{
 	printf("failed to get magicnumber from %s\n", basename(pcapinname));
 	close(pcapr_fd);
