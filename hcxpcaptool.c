@@ -37,7 +37,7 @@
 #define BIG_ENDIAN_HOST
 #endif
 
-#define MAX_TV_DIFF 6000000000L
+#define MAX_TV_DIFF 60000000llu
 
 #define MAX_RC_DIFF 8
 
@@ -2489,7 +2489,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"1000 M4\n"
 	"\n"
 	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools!\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff, maxrcdiff, eigenname);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff/1000000, maxrcdiff, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -2539,7 +2539,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			{
 			maxtvdiff = 1;
 			}
-		maxtvdiff *= 10000000;
+		maxtvdiff *= 1000000;
 		break;
 
 		case HCXT_REPLAYCOUNTGAP:
