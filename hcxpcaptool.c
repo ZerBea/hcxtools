@@ -37,7 +37,8 @@
 #define BIG_ENDIAN_HOST
 #endif
 
-#define MAX_TV_DIFF 600
+#define MAX_TV_DIFF 6000000000L
+
 #define MAX_RC_DIFF 8
 
 #define HCXT_REPLAYCOUNTGAP	1
@@ -51,8 +52,6 @@
 #define HCXT_JOHN_OUT_RAW	'J'
 #define HCXT_ESSID_OUT		'E'
 #define HCXT_TRAFFIC_OUT	'T'
-#define HCXT_EAPOL_OUT		'S'
-#define HCXT_NONCE_OUT		'A'
 #define HCXT_IDENTITY_OUT	'I'
 #define HCXT_PMK_OUT		'P'
 #define HCXT_HEXDUMP_OUT	'H'
@@ -64,16 +63,12 @@
 bool hexmodeflag;
 bool verboseflag;
 bool fcsflag;
-bool wantrawhandshakeflag;
 
-uint32_t maxtvdiff;
-uint32_t maxrcdiff;
+unsigned long long int maxtvdiff;
+unsigned long long int maxrcdiff;
 
 unsigned long long int apstaessidcount;
 apstaessidl_t *apstaessidliste;
-
-unsigned long long int noncecount;
-noncel_t *nonceliste;
 
 unsigned long long int eapolcount;
 eapoll_t *eapolliste;
@@ -115,8 +110,6 @@ char *johnbestoutname;
 char *johnrawoutname;
 char *essidoutname;
 char *trafficoutname;
-char *nonceoutname;
-char *eapoloutname;
 char *pmkoutname;
 char *identityoutname;
 
@@ -146,13 +139,10 @@ johnbestoutname = NULL;
 johnrawoutname = NULL;
 essidoutname = NULL;
 trafficoutname = NULL;
-nonceoutname = NULL;
-eapoloutname = NULL;
 pmkoutname = NULL;
 identityoutname = NULL;
 verboseflag = false;
 hexmodeflag = false;
-wantrawhandshakeflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
@@ -524,57 +514,52 @@ fprintf(fhhexmode, "\n");
 return;
 }
 /*===========================================================================*/
-void outputlists()
+void outputessidlists()
 {
 unsigned long long int c;
 FILE *fhoutlist = NULL;
 apstaessidl_t *zeiger, *zeigerold;
-uint8_t essidstring[34];
 
-if((apstaessidliste != NULL) && (essidoutname != NULL)) 
+if(essidoutname != NULL)
 	{
 	if((fhoutlist = fopen(essidoutname, "a+")) != NULL)
 		{
 		zeiger = apstaessidliste;
+		zeigerold = zeiger;
 		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_essid);
-		memset(&essidstring, 0, 34);
-		memcpy(&essidstring,  zeiger->essid, 32);
-		fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
-		zeiger++;
-		for(c = 1; c < apstaessidcount; c++)
+		for(c = 0; c < apstaessidcount; c++)
 			{
-			if(memcmp(&essidstring, zeiger->essid, 32) != 0)
+			if(c == 0)
 				{
-				memset(&essidstring, 0, 34);
-				memcpy(&essidstring,  zeiger->essid, 32);
-				fwriteessidstr(zeiger->essidlen, essidstring, fhoutlist); 
+				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
 				}
+			else if(memcmp(zeigerold->essid, zeiger->essid, 32) != 0)
+				{
+				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
+				}
+			zeigerold = zeiger;
 			zeiger++;
 			}
-		fclose(fhoutlist);
 		}
+	fclose(fhoutlist);
 	}
 removeemptyfile(essidoutname);
 
-if((apstaessidliste != NULL) && (pmkoutname != NULL)) 
+if(pmkoutname != NULL)
 	{
 	if((fhoutlist = fopen(pmkoutname, "a+")) != NULL)
 		{
 		zeiger = apstaessidliste;
+		zeigerold = zeiger;
 		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_essid);
-		memset(&essidstring, 0, 34);
-		memcpy(&essidstring,  zeiger->essid, 32);
-		if(zeiger->essidlen == 32)
+		for(c = 0; c < apstaessidcount; c++)
 			{
-			fwritehexbuff(32, zeiger->essid, fhoutlist);
-			}
-		zeiger++;
-		for(c = 1; c < apstaessidcount; c++)
-			{
-			if(memcmp(&essidstring, zeiger->essid, 32) != 0)
+			if(c == 0)
 				{
-				memset(&essidstring, 0, 34);
-				memcpy(&essidstring,  zeiger->essid, 32);
+				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
+				}
+			else if(memcmp(zeigerold->essid, zeiger->essid, 32) != 0)
+				{
 				if(zeiger->essidlen == 32)
 					{
 					fwritehexbuff(32, zeiger->essid, fhoutlist);
@@ -582,148 +567,58 @@ if((apstaessidliste != NULL) && (pmkoutname != NULL))
 				}
 			zeiger++;
 			}
-		fclose(fhoutlist);
 		}
+	fclose(fhoutlist);
 	}
 removeemptyfile(pmkoutname);
 
-if((apstaessidliste != NULL) && (trafficoutname != NULL))
+if(trafficoutname != NULL)
 	{
 	if((fhoutlist = fopen(trafficoutname, "a+")) != NULL)
 		{
 		zeiger = apstaessidliste;
 		zeigerold = apstaessidliste;
-		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_timestamp);
-		memset(&essidstring, 0, 34);
-		memcpy(&essidstring,  zeiger->essid, 32);
-		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
-		fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
-		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
-		fwriteessidstr(zeiger->essidlen, essidstring, fhoutlist); 
-		zeiger++;
-		for(c = 1; c < apstaessidcount; c++)
+		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_sta_essid);
+		for(c = 0; c < apstaessidcount; c++)
 			{
-			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(&essidstring, zeiger->essid, 32) == 0))
+			if(c == 0)
 				{
-				zeigerold = zeiger;
-				zeiger++;
-				continue;
+				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+				fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
+				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
 				}
-			memset(&essidstring, 0, 34);
-			memcpy(&essidstring,  zeiger->essid, 32);
-			fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
-			fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
-			fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
-			fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
+			else if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) != 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) != 0) && (memcmp(zeigerold, zeiger->essid, 32) != 0))
+				{
+				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
+				fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
+				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
+				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
+				}
 			zeigerold = zeiger;
 			zeiger++;
 			}
-		fclose(fhoutlist);
 		}
+	fclose(fhoutlist);
 	}
 removeemptyfile(trafficoutname);
 return;
 }
 /*===========================================================================*/
-void outputlists2()
+void outputwpalists(char *pcapinname)
 {
-unsigned long long int c;
-FILE *fhoutlist = NULL;
-noncel_t *zeiger, *zeigerold;
-
-if((nonceliste != NULL) && (nonceoutname != NULL))
-	{
-	if((fhoutlist = fopen(nonceoutname, "a+")) != NULL)
-		{
-		zeiger = nonceliste;
-		zeigerold = nonceliste;
-		qsort(nonceliste, noncecount, NONCELIST_SIZE, sort_noncelist_by_timestamp);
-		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
-		fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
-		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
-		fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
-		fwritehexbuff(32, zeiger->nonce, fhoutlist);
-		zeiger++;
-		for(c = 1; c < noncecount; c++)
-			{
-			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(zeigerold->nonce, zeiger->nonce, 32) == 0))
-				{
-				zeigerold = zeiger;
-				zeiger++;
-				continue;
-				}
-			fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
-			fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
-			fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
-			fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
-			fwritehexbuff(32, zeiger->nonce, fhoutlist);
-			zeigerold = zeiger;
-			zeiger++;
-			}
-		fclose(fhoutlist);
-		}
-	}
-removeemptyfile(nonceoutname);
-return;
-}
-/*===========================================================================*/
-void outputlists3()
-{
-unsigned long long int c;
-FILE *fhoutlist = NULL;
-eapoll_t *zeiger, *zeigerold;
-
-if((eapolliste != NULL) && (eapoloutname != NULL))
-	{
-	if((fhoutlist = fopen(eapoloutname, "a+")) != NULL)
-		{
-		zeiger = eapolliste;
-		zeigerold = eapolliste;
-		qsort(eapolliste, eapolcount, EAPOLLIST_SIZE, sort_eapollist_by_timestamp);
-		fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
-		fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
-		fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
-		fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
-		fprintf(fhoutlist, "%02x:", zeiger->authlen -4);
-		fwritehexbuff(zeiger->authlen, zeiger->eapol, fhoutlist);
-		zeiger++;
-		for(c = 1; c < eapolcount; c++)
-			{
-			if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(zeigerold->eapol, zeiger->eapol, 256) == 0))
-				{
-				zeigerold = zeiger;
-				zeiger++;
-				continue;
-				}
-			fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
-			fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
-			fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
-			fprintf(fhoutlist, "%x:%016llx:", (int)zeiger->keyinfo, (unsigned long long int)zeiger->replaycount);
-			fprintf(fhoutlist, "%02x:", zeiger->authlen -4);
-			fwritehexbuff(zeiger->authlen, zeiger->eapol, fhoutlist);
-			zeigerold = zeiger;
-			zeiger++;
-			}
-		fclose(fhoutlist);
-		}
-	}
-removeemptyfile(eapoloutname);
-return;
-}
-/*===========================================================================*/
-void outputlists4(char *pcapinname)
-{
-unsigned long long int c;
-hcxl_t *zeiger, *zeigerold;
+unsigned long long int c, d;
+hcxl_t *zeiger;
+apstaessidl_t *zeigeressid, *zeigeressidold;
 FILE *fhoutlist = NULL;
 unsigned long long int writtencount;
 
-if(rawhandshakeliste != NULL)
+if(handshakeliste == NULL)
 	{
-	qsort(rawhandshakeliste, rawhandshakecount, HCXLIST_SIZE, sort_hcxlist_by_mac_ap);
+	return;
 	}
-
-if((handshakeliste != NULL) && (hccapxbestoutname != NULL))
+qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+if(hccapxbestoutname != NULL)
 	{
 	if((fhoutlist = fopen(hccapxbestoutname, "a+")) != NULL)
 		{
@@ -731,33 +626,70 @@ if((handshakeliste != NULL) && (hccapxbestoutname != NULL))
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
-			writehccapxrecord(zeiger, fhoutlist);
-			writtencount++;
+			zeigeressid = apstaessidliste;
+			zeigeressidold = zeigeressid;
+			for(d = 0; d < apstaessidcount; d++)
+				{
+				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					{
+					if( d == 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writehccapxrecord(zeiger, fhoutlist);
+						writtencount++;
+						}
+					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writehccapxrecord(zeiger, fhoutlist);
+						writtencount++;
+						}
+					}
+				zeigeressidold = zeigeressid;
+				zeigeressid++;
+				}
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s\n", writtencount, hccapxbestoutname);
+		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, hccapxbestoutname, handshakecount -writtencount);
 		}
 	}
 removeemptyfile(hccapxbestoutname);
 
-if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
+if(hccapxrawoutname != NULL)
 	{
 	if((fhoutlist = fopen(hccapxrawoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
 		zeiger = rawhandshakeliste;
-		zeigerold = rawhandshakeliste;
-		writehccapxrecord(zeiger, fhoutlist);
-		writtencount++;
-		for(c = 1; c < rawhandshakecount; c++)
+		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if(memcmp(zeigerold, zeiger, HCCAPX_SIZE) != 0)
+			zeigeressid = apstaessidliste;
+			zeigeressidold = zeigeressid;
+			for(d = 0; d < apstaessidcount; d++)
 				{
-				writehccapxrecord(zeiger, fhoutlist);
-				writtencount++;
+				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					{
+					if( d == 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writehccapxrecord(zeiger, fhoutlist);
+						writtencount++;
+						}
+					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writehccapxrecord(zeiger, fhoutlist);
+						writtencount++;
+						}
+					}
+				zeigeressidold = zeigeressid;
+				zeigeressid++;
 				}
-			zeigerold = zeiger;
 			zeiger++;
 			}
 		fclose(fhoutlist);
@@ -766,7 +698,7 @@ if((rawhandshakeliste != NULL) && (hccapxrawoutname != NULL))
 	}
 removeemptyfile(hccapxrawoutname);
 
-if((handshakeliste != NULL) && (hccapbestoutname != NULL))
+if(hccapbestoutname != NULL)
 	{
 	if((fhoutlist = fopen(hccapbestoutname, "a+")) != NULL)
 		{
@@ -774,33 +706,70 @@ if((handshakeliste != NULL) && (hccapbestoutname != NULL))
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
-			writehccaprecord(zeiger, fhoutlist);
-			writtencount++;
+			zeigeressid = apstaessidliste;
+			zeigeressidold = zeigeressid;
+			for(d = 0; d < apstaessidcount; d++)
+				{
+				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					{
+					if( d == 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writehccaprecord(zeiger, fhoutlist);
+						writtencount++;
+						}
+					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writehccaprecord(zeiger, fhoutlist);
+						writtencount++;
+						}
+					}
+				zeigeressidold = zeigeressid;
+				zeigeressid++;
+				}
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s\n", writtencount, hccapbestoutname);
+		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, hccapbestoutname, handshakecount -writtencount);
 		}
 	}
 removeemptyfile(hccapbestoutname);
 
-if((rawhandshakeliste != NULL) && (hccaprawoutname != NULL))
+if(hccaprawoutname != NULL)
 	{
 	if((fhoutlist = fopen(hccaprawoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
 		zeiger = rawhandshakeliste;
-		zeigerold = rawhandshakeliste;
-		writehccapxrecord(zeiger, fhoutlist);
-		writtencount++;
-		for(c = 1; c < rawhandshakecount; c++)
+		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if(memcmp(zeigerold, zeiger, HCCAPX_SIZE) != 0)
+			zeigeressid = apstaessidliste;
+			zeigeressidold = zeigeressid;
+			for(d = 0; d < apstaessidcount; d++)
 				{
-				writehccapxrecord(zeiger, fhoutlist);
-				writtencount++;
+				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					{
+					if( d == 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writehccaprecord(zeiger, fhoutlist);
+						writtencount++;
+						}
+					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writehccaprecord(zeiger, fhoutlist);
+						writtencount++;
+						}
+					}
+				zeigeressidold = zeigeressid;
+				zeigeressid++;
 				}
-			zeigerold = zeiger;
 			zeiger++;
 			}
 		fclose(fhoutlist);
@@ -809,7 +778,7 @@ if((rawhandshakeliste != NULL) && (hccaprawoutname != NULL))
 	}
 removeemptyfile(hccaprawoutname);
 
-if((handshakeliste != NULL) && (johnbestoutname != NULL))
+if(johnbestoutname != NULL)
 	{
 	if((fhoutlist = fopen(johnbestoutname, "a+")) != NULL)
 		{
@@ -817,42 +786,77 @@ if((handshakeliste != NULL) && (johnbestoutname != NULL))
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
-			writejohnrecord(zeiger, fhoutlist, pcapinname);
-			writtencount++;
+			zeigeressid = apstaessidliste;
+			zeigeressidold = zeigeressid;
+			for(d = 0; d < apstaessidcount; d++)
+				{
+				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					{
+					if( d == 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writejohnrecord(zeiger, fhoutlist, pcapinname);
+						writtencount++;
+						}
+					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writejohnrecord(zeiger, fhoutlist, pcapinname);
+						writtencount++;
+						}
+					}
+				zeigeressidold = zeigeressid;
+				zeigeressid++;
+				}
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
+		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, johnbestoutname, handshakecount -writtencount);
 		}
 	}
 removeemptyfile(johnbestoutname);
 
-if((rawhandshakeliste != NULL) && (johnrawoutname != NULL))
+if(johnrawoutname != NULL)
 	{
 	if((fhoutlist = fopen(johnrawoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
 		zeiger = rawhandshakeliste;
-		zeigerold = rawhandshakeliste;
-		writehccapxrecord(zeiger, fhoutlist);
-		writtencount++;
-		for(c = 1; c < rawhandshakecount; c++)
+		for(c = 0; c < rawhandshakecount; c++)
 			{
-			if(memcmp(zeigerold, zeiger, HCCAPX_SIZE) != 0)
+			zeigeressid = apstaessidliste;
+			zeigeressidold = zeigeressid;
+			for(d = 0; d < apstaessidcount; d++)
 				{
-				writehccapxrecord(zeiger, fhoutlist);
-				writtencount++;
+				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					{
+					if( d == 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writejohnrecord(zeiger, fhoutlist, pcapinname);
+						writtencount++;
+						}
+					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						writejohnrecord(zeiger, fhoutlist, pcapinname);
+						writtencount++;
+						}
+					}
+				zeigeressidold = zeigeressid;
+				zeigeressid++;
 				}
-			zeigerold = zeiger;
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, johnrawoutname, rawhandshakecount -writtencount);
+		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, johnrawoutname, handshakecount -writtencount);
 		}
 	}
 removeemptyfile(hccaprawoutname);
-
-
 return;
 }
 /*===========================================================================*/
@@ -881,119 +885,184 @@ if(identityoutname != NULL)
 return;
 }
 /*===========================================================================*/
-void addrawhandshake(eapoll_t *zeigerea, noncel_t *zeigerno)
+void addrawhandshake(uint64_t tv_ea, eapoll_t *zeigerea, uint64_t tv_eo, eapoll_t *zeigereo, uint64_t timegap, uint64_t rcgap)
 {
-hcxl_t *zeiger, *tmp;
-apstaessidl_t *zeigeressid;
-unsigned long long int d;
-uint64_t lltimeea, lltimeno;
-uint64_t timegap;
-uint64_t rcgap;
+hcxl_t *zeiger;
+unsigned long long int c;
+wpakey_t *wpae, *wpaea, *wpaeo;
+bool checkok = false;
 
-lltimeea = zeigerea->tv_sec *1000000LL +zeigerea->tv_usec;
-lltimeno = zeigerno->tv_sec *1000000LL +zeigerno->tv_usec;
-if(lltimeea > lltimeno)
+wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
+wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
+
+if((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo))
 	{
-	timegap = lltimeea -lltimeno;
+	checkok = true;
 	}
-else
+if((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 2) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo))
 	{
-	timegap = lltimeno -lltimeea;
+	checkok = true;
+	}
+if(((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea > tv_eo))
+	{
+	checkok = true;
+	}
+if(((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea < tv_eo))
+	{
+	checkok = true;
 	}
 
-if(timegap > (maxtvdiff *1000000))
-	{
+if(checkok == false)
 	return;
-	}
 
-if(zeigerea->replaycount > zeigerno->replaycount)
-	{
-	rcgap = zeigerea->replaycount - zeigerno->replaycount;
-	}
-else
-	{
-	rcgap = zeigerno->replaycount - zeigerea->replaycount;
-	}
-if(rcgap > maxrcdiff)
-	{
-	return;
-	}
 
-zeiger = rawhandshakeliste +rawhandshakecount;
-zeigeressid = apstaessidliste;
-for(d = 0; d < apstaessidcount; d++)
+if(rawhandshakeliste == NULL)
 	{
-	if(memcmp(zeigerea->mac_ap, zeigeressid->mac_ap, 6) == 0)
+	rawhandshakeliste = malloc(HCXLIST_SIZE);
+	if(rawhandshakeliste == NULL)
 		{
-		memset(zeiger, 0, sizeof(hcxl_t));
-		zeiger->tv_diff = timegap;
-		zeiger->rc_diff = rcgap;
-		zeiger->tv_sec = zeigerea->tv_sec;
-		zeiger->tv_usec = zeigerea->tv_usec;
-		memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
-		memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
-		zeiger->keyinfo_ap = zeigerno->keyinfo;
-		zeiger->keyinfo_sta = zeigerea->keyinfo;
-		zeiger->replaycount_ap = zeigerno->replaycount;
-		zeiger->replaycount_sta = zeigerea->replaycount;
-		memcpy(zeiger->nonce, zeigerno->nonce, 32);
-		zeiger->authlen = zeigerea->authlen;
-		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-		zeiger->essidlen = zeigeressid->essidlen;
-		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
-			{
-			rawhandshakeaplesscount++;
-			}
-		rawhandshakecount++;
-		tmp = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
-		if(tmp == NULL)
-			{
-			printf("failed to allocate memory\n");
-			exit(EXIT_FAILURE);
-			}
-		rawhandshakeliste = tmp;
-		zeiger = rawhandshakeliste +rawhandshakecount;
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
 		}
-	zeigeressid++;
+	memset(rawhandshakeliste, 0, sizeof(hcxl_t));
+	rawhandshakeliste->tv_ea = tv_ea;
+	rawhandshakeliste->tv_eo = tv_eo;
+	rawhandshakeliste->tv_diff = timegap;
+	rawhandshakeliste->replaycount_ap = zeigereo->replaycount;
+	rawhandshakeliste->replaycount_sta = zeigerea->replaycount;
+	rawhandshakeliste->rc_diff = rcgap;
+	memcpy(rawhandshakeliste->mac_ap, zeigerea->mac_ap, 6);
+	memcpy(rawhandshakeliste->mac_sta, zeigerea->mac_sta, 6);
+	rawhandshakeliste->keyinfo_ap = zeigereo->keyinfo;
+	rawhandshakeliste->keyinfo_sta = zeigerea->keyinfo;
+	memcpy(rawhandshakeliste->nonce, wpaeo->nonce, 32);
+	rawhandshakeliste->authlen = zeigerea->authlen;
+	memcpy(rawhandshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
+	if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+		{
+		rawhandshakeaplesscount++;
+		}
+	rawhandshakecount++;
+	return;
 	}
+
+zeiger = rawhandshakeliste;
+for(c = 0; c < rawhandshakecount; c++)
+	{
+	if((memcmp(zeiger->mac_ap, zeigerea->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigerea->mac_sta, 6) == 0))
+		{
+		wpae = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
+		if((memcmp(wpae->keymic, wpaea->keymic, 16) == 0) && (memcmp(zeiger->nonce, wpaeo->nonce, 32) == 0) && (memcmp(wpae->nonce, wpaea->nonce, 32) == 0))
+			{
+			if(timegap < zeiger->tv_diff)
+				{
+				zeiger->tv_ea = tv_ea;
+				zeiger->tv_eo = tv_eo;
+				zeiger->tv_diff = timegap;
+				zeiger->replaycount_ap = zeigereo->replaycount;
+				zeiger->replaycount_sta = zeigerea->replaycount;
+				zeiger->rc_diff = rcgap;
+				memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+				memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+				zeiger->keyinfo_ap = zeigereo->keyinfo;
+				zeiger->keyinfo_sta = zeigerea->keyinfo;
+				memcpy(zeiger->nonce, wpaeo->nonce, 32);
+				zeiger->authlen = zeigerea->authlen;
+				memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+				}
+			return;
+			}
+		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+			{
+			if((zeiger->replaycount_ap != MYREPLAYCOUNT) && (zeiger->replaycount_sta != MYREPLAYCOUNT) && (memcmp(zeiger->nonce, &mynonce, 32) == 0))
+				{
+				rawhandshakeaplesscount++;
+				}
+			zeiger->tv_ea = tv_ea;
+			zeiger->tv_eo = tv_ea;
+			zeiger->tv_diff = 0;
+			zeiger->replaycount_ap = zeigereo->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
+			zeiger->rc_diff = 0;
+			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+			zeiger->keyinfo_ap = zeigereo->keyinfo;
+			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			memcpy(zeiger->nonce, wpaeo->nonce, 32);
+			zeiger->authlen = zeigerea->authlen;
+			memset(zeiger->eapol, 0, 256);
+			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+			return;
+			}
+		}
+	zeiger++;
+	}
+
+zeiger = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+rawhandshakeliste = zeiger;
+zeiger = rawhandshakeliste +rawhandshakecount;
+memset(zeiger, 0, sizeof(hcxl_t));
+zeiger->tv_ea = tv_ea;
+zeiger->tv_eo = tv_eo;
+zeiger->tv_diff = timegap;
+zeiger->replaycount_ap = zeigereo->replaycount;
+zeiger->replaycount_sta = zeigerea->replaycount;
+zeiger->rc_diff = rcgap;
+memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+zeiger->keyinfo_ap = zeigereo->keyinfo;
+zeiger->keyinfo_sta = zeigerea->keyinfo;
+memcpy(zeiger->nonce, wpaeo->nonce, 32);
+zeiger->authlen = zeigerea->authlen;
+memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+	{
+	rawhandshakeaplesscount++;
+	}
+rawhandshakecount++;
 return;
 }
 /*===========================================================================*/
-void addhandshake(eapoll_t *zeigerea, noncel_t *zeigerno)
+void addhandshake(uint64_t tv_ea, eapoll_t *zeigerea, uint64_t tv_eo, eapoll_t *zeigereo, uint64_t timegap, uint64_t rcgap)
 {
-hcxl_t *zeiger, *tmp;
-apstaessidl_t *zeigeressid;
-unsigned long long int c, d;
-uint64_t lltimeea, lltimeno;
-uint32_t timegap;
-uint64_t rcgap;
+hcxl_t *zeiger;
+unsigned long long int c;
+wpakey_t *wpae, *wpaea, *wpaeo;
 
-lltimeea = zeigerea->tv_sec *1000000LL +zeigerea->tv_usec;
-lltimeno = zeigerno->tv_sec *1000000LL +zeigerno->tv_usec;
-if(lltimeea > lltimeno)
+wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
+wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
+if(handshakeliste == NULL)
 	{
-	timegap = lltimeea -lltimeno;
-	}
-else
-	{
-	timegap = lltimeno -lltimeea;
-	}
-if(timegap > (maxtvdiff *10000000))
-	{
-	return;
-	}
-
-if(zeigerea->replaycount > zeigerno->replaycount)
-	{
-	rcgap = zeigerea->replaycount - zeigerno->replaycount;
-	}
-else
-	{
-	rcgap = zeigerno->replaycount - zeigerea->replaycount;
-	}
-if(rcgap > maxrcdiff)
-	{
+	handshakeliste = malloc(HCXLIST_SIZE);
+	if(handshakeliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memset(handshakeliste, 0, sizeof(hcxl_t));
+	handshakeliste->tv_ea = tv_ea;
+	handshakeliste->tv_eo = tv_eo;
+	handshakeliste->tv_diff = timegap;
+	handshakeliste->replaycount_ap = zeigereo->replaycount;
+	handshakeliste->replaycount_sta = zeigerea->replaycount;
+	handshakeliste->rc_diff = rcgap;
+	memcpy(handshakeliste->mac_ap, zeigerea->mac_ap, 6);
+	memcpy(handshakeliste->mac_sta, zeigerea->mac_sta, 6);
+	handshakeliste->keyinfo_ap = zeigereo->keyinfo;
+	handshakeliste->keyinfo_sta = zeigerea->keyinfo;
+	memcpy(handshakeliste->nonce, wpaeo->nonce, 32);
+	handshakeliste->authlen = zeigerea->authlen;
+	memcpy(handshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
+	if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+		{
+		handshakeaplesscount++;
+		}
+	handshakecount++;
 	return;
 	}
 
@@ -1002,185 +1071,298 @@ for(c = 0; c < handshakecount; c++)
 	{
 	if((memcmp(zeiger->mac_ap, zeigerea->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigerea->mac_sta, 6) == 0))
 		{
-		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
+		wpae = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
+		if((memcmp(wpae->keymic, wpaea->keymic, 16) == 0) && (memcmp(zeiger->nonce, wpaeo->nonce, 32) == 0) && (memcmp(wpae->nonce, wpaea->nonce, 32) == 0))
 			{
+			if(timegap < zeiger->tv_diff)
+				{
+				zeiger->tv_ea = tv_ea;
+				zeiger->tv_eo = tv_eo;
+				zeiger->tv_diff = timegap;
+				zeiger->replaycount_ap = zeigereo->replaycount;
+				zeiger->replaycount_sta = zeigerea->replaycount;
+				zeiger->rc_diff = rcgap;
+				memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+				memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+				zeiger->keyinfo_ap = zeigereo->keyinfo;
+				zeiger->keyinfo_sta = zeigerea->keyinfo;
+				memcpy(zeiger->nonce, wpaeo->nonce, 32);
+				zeiger->authlen = zeigerea->authlen;
+				memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+				}
+			return;
+			}
+		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+			{
+			if((zeiger->replaycount_ap != MYREPLAYCOUNT) && (zeiger->replaycount_sta != MYREPLAYCOUNT) && (memcmp(zeiger->nonce, &mynonce, 32) == 0))
+				{
+				handshakeaplesscount++;
+				}
+			zeiger->tv_ea = tv_ea;
+			zeiger->tv_eo = tv_ea;
 			zeiger->tv_diff = 0;
+			zeiger->replaycount_ap = zeigereo->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
 			zeiger->rc_diff = 0;
-			zeiger->tv_sec = zeigerea->tv_sec;
-			zeiger->tv_usec = zeigerea->tv_usec;
 			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
 			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
-			zeiger->keyinfo_ap = zeigerno->keyinfo;
+			zeiger->keyinfo_ap = zeigereo->keyinfo;
 			zeiger->keyinfo_sta = zeigerea->keyinfo;
-			zeiger->replaycount_ap = zeigerno->replaycount;
-			zeiger->replaycount_sta = zeigerea->replaycount;
-			memcpy(zeiger->nonce, zeigerno->nonce, 32);
+			memcpy(zeiger->nonce, wpaeo->nonce, 32);
 			zeiger->authlen = zeigerea->authlen;
 			memset(zeiger->eapol, 0, 256);
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-
-		if(timegap > zeiger->tv_diff)
+		else if((zeiger->rc_diff > 1) || ((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff <= timegap)))
 			{
+			zeiger->tv_ea = tv_ea;
+			zeiger->tv_eo = tv_eo;
+			zeiger->tv_diff = timegap;
+			zeiger->replaycount_ap = zeigereo->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
+			zeiger->rc_diff = rcgap;
+			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+			zeiger->keyinfo_ap = zeigereo->keyinfo;
+			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			memcpy(zeiger->nonce, wpaeo->nonce, 32);
+			zeiger->authlen = zeigerea->authlen;
+			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		if(rcgap > zeiger->rc_diff)
+		else if((zeiger->rc_diff > 1) || ((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 2) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff <= timegap)))
 			{
-			if((rcgap != 1) && (zeigerno->keyinfo != 2)) 
-				{
-				return;
-				}
+			zeiger->tv_ea = tv_ea;
+			zeiger->tv_eo = tv_eo;
+			zeiger->tv_diff = timegap;
+			zeiger->replaycount_ap = zeigereo->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
+			zeiger->rc_diff = rcgap;
+			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+			zeiger->keyinfo_ap = zeigereo->keyinfo;
+			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			memcpy(zeiger->nonce, wpaeo->nonce, 32);
+			zeiger->authlen = zeigerea->authlen;
+			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+			return;
 			}
-		zeiger->tv_diff = timegap;
-		zeiger->rc_diff = rcgap;
-		zeiger->tv_sec = zeigerea->tv_sec;
-		zeiger->tv_usec = zeigerea->tv_usec;
-		memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
-		memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
-		zeiger->keyinfo_ap = zeigerno->keyinfo;
-		zeiger->keyinfo_sta = zeigerea->keyinfo;
-		zeiger->replaycount_ap = zeigerno->replaycount;
-		zeiger->replaycount_sta = zeigerea->replaycount;
-		memcpy(zeiger->nonce, zeigerno->nonce, 32);
-		zeiger->authlen = zeigerea->authlen;
-		memset(zeiger->eapol, 0, 256);
-		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+		else if((zeiger->rc_diff > 1) || (((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea > tv_eo) && (zeiger->tv_diff <= timegap)))
+			{
+			zeiger->tv_ea = tv_ea;
+			zeiger->tv_eo = tv_eo;
+			zeiger->tv_diff = timegap;
+			zeiger->replaycount_ap = zeigereo->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
+			zeiger->rc_diff = rcgap;
+			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+			zeiger->keyinfo_ap = zeigereo->keyinfo;
+			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			memcpy(zeiger->nonce, wpaeo->nonce, 32);
+			zeiger->authlen = zeigerea->authlen;
+			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+			return;
+			}
+		else if((zeiger->rc_diff > 1) || (((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea < tv_eo) && (zeiger->tv_diff <= timegap)))
+			{
+			zeiger->tv_ea = tv_ea;
+			zeiger->tv_eo = tv_eo;
+			zeiger->tv_diff = timegap;
+			zeiger->replaycount_ap = zeigereo->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
+			zeiger->rc_diff = rcgap;
+			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+			zeiger->keyinfo_ap = zeigereo->keyinfo;
+			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			memcpy(zeiger->nonce, wpaeo->nonce, 32);
+			zeiger->authlen = zeigerea->authlen;
+			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+			return;
+			}
+		else if((zeiger->rc_diff > 1) && (zeiger->tv_diff <= timegap))
+			{
+			zeiger->tv_ea = tv_ea;
+			zeiger->tv_eo = tv_eo;
+			zeiger->tv_diff = timegap;
+			zeiger->replaycount_ap = zeigereo->replaycount;
+			zeiger->replaycount_sta = zeigerea->replaycount;
+			zeiger->rc_diff = rcgap;
+			memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+			zeiger->keyinfo_ap = zeigereo->keyinfo;
+			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			memcpy(zeiger->nonce, wpaeo->nonce, 32);
+			zeiger->authlen = zeigerea->authlen;
+			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+			return;
+			}
 		return;
 		}
 	zeiger++;
 	}
-zeigeressid = apstaessidliste;
-for(d = 0; d < apstaessidcount; d++)
-	{
-	if((memcmp(zeigerea->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigeressid->mac_sta, 6) == 0))
-		{
-		memset(zeiger, 0, sizeof(hcxl_t));
-		zeiger->tv_diff = timegap;
-		zeiger->rc_diff = rcgap;
-		zeiger->tv_sec = zeigerea->tv_sec;
-		zeiger->tv_usec = zeigerea->tv_usec;
-		memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
-		memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
-		zeiger->keyinfo_ap = zeigerno->keyinfo;
-		zeiger->keyinfo_sta = zeigerea->keyinfo;
-		zeiger->replaycount_ap = zeigerno->replaycount;
-		zeiger->replaycount_sta = zeigerea->replaycount;
-		memcpy(zeiger->nonce, zeigerno->nonce, 32);
-		zeiger->authlen = zeigerea->authlen;
-		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-		zeiger->essidlen = zeigeressid->essidlen;
-		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
-			{
-			handshakeaplesscount++;
-			}
-		handshakecount++;
-		tmp = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
-		if(tmp == NULL)
-			{
-			printf("failed to allocate memory\n");
-			exit(EXIT_FAILURE);
-			}
-		handshakeliste = tmp;
-		return;
-		}
-	zeigeressid++;
-	}
 
-zeigeressid = apstaessidliste;
-for(d = 0; d < apstaessidcount; d++)
+zeiger = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
+if(zeiger == NULL)
 	{
-	if((memcmp(zeigerea->mac_ap, zeigeressid->mac_ap, 6) == 0))
-		{
-		memset(zeiger, 0, sizeof(hcxl_t));
-		zeiger->tv_diff = timegap;
-		zeiger->rc_diff = rcgap;
-		zeiger->tv_sec = zeigerea->tv_sec;
-		zeiger->tv_usec = zeigerea->tv_usec;
-		memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
-		memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
-		zeiger->keyinfo_ap = zeigerno->keyinfo;
-		zeiger->keyinfo_sta = zeigerea->keyinfo;
-		zeiger->replaycount_ap = zeigerno->replaycount;
-		zeiger->replaycount_sta = zeigerea->replaycount;
-		memcpy(zeiger->nonce, zeigerno->nonce, 32);
-		zeiger->authlen = zeigerea->authlen;
-		memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-		zeiger->essidlen = zeigeressid->essidlen;
-		memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigerno->replaycount == MYREPLAYCOUNT) && (memcmp(zeigerno->nonce, &mynonce, 32) == 0))
-			{
-			handshakeaplesscount++;
-			}
-		handshakecount++;
-		tmp = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
-		if(tmp == NULL)
-			{
-			printf("failed to allocate memory\n");
-			exit(EXIT_FAILURE);
-			}
-		handshakeliste = tmp;
-		return;
-		}
-	zeigeressid++;
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
 	}
+handshakeliste = zeiger;
+zeiger = handshakeliste +handshakecount;
+memset(zeiger, 0, sizeof(hcxl_t));
+zeiger->tv_ea = tv_ea;
+zeiger->tv_eo = tv_eo;
+zeiger->tv_diff = timegap;
+zeiger->replaycount_ap = zeigereo->replaycount;
+zeiger->replaycount_sta = zeigerea->replaycount;
+zeiger->rc_diff = rcgap;
+memcpy(zeiger->mac_ap, zeigerea->mac_ap, 6);
+memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
+zeiger->keyinfo_ap = zeigereo->keyinfo;
+zeiger->keyinfo_sta = zeigerea->keyinfo;
+memcpy(zeiger->nonce, wpaeo->nonce, 32);
+zeiger->authlen = zeigerea->authlen;
+memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
+if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+	{
+	handshakeaplesscount++;
+	}
+handshakecount++;
 return;
 }
 /*===========================================================================*/
-void detectwpahandshakes()
+void findhandshake()
 {
-unsigned long long int ea, no;
-eapoll_t *zeigerea;
-noncel_t *zeigerno;
-
-qsort(nonceliste, noncecount, NONCELIST_SIZE, sort_noncelist_by_timestamp);
-qsort(eapolliste, eapolcount, EAPOLLIST_SIZE, sort_eapollist_by_timestamp);
-qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_timestamp);
+eapoll_t *zeigerea, *zeigereo;
+unsigned long long int c, d;
+uint64_t lltimeea, lltimeeo;
+uint64_t timegap;
+uint64_t rcgap;
 
 zeigerea = eapolliste;
-
-for(ea = 0; ea < eapolcount; ea++)
+for(c = 0; c < eapolcount; c++)
 	{
-	zeigerno = nonceliste;
-	for(no = 0; no < noncecount; no++)
+	if(zeigerea->keyinfo >= 4)
 		{
-		if((memcmp(zeigerea->mac_ap, zeigerno->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigerno->mac_sta, 6) == 0))
+		lltimeea = zeigerea->tv_sec *1000000LL +zeigerea->tv_usec;
+		for(d = 1; d <= c; d++)
 			{
-			addhandshake(zeigerea, zeigerno);
-			if(wantrawhandshakeflag == true)
+			zeigereo = zeigerea -d;
+			lltimeeo = zeigereo->tv_sec *1000000LL +zeigereo->tv_usec;
+			if(lltimeea > lltimeeo)
 				{
-				addrawhandshake(zeigerea, zeigerno);
+				timegap = lltimeea -lltimeeo;
+				}
+			else
+				{
+				timegap = lltimeeo -lltimeea;
+				}
+			if(timegap > (maxtvdiff))
+				{
+				break;
+				}
+			if(zeigereo->keyinfo <= 3)
+				{
+				if(zeigerea->replaycount > zeigereo->replaycount)
+					{
+					rcgap = zeigerea->replaycount - zeigereo->replaycount;
+					}
+				else
+					{
+					rcgap = zeigereo->replaycount - zeigerea->replaycount;
+					}
+				if(rcgap <= maxrcdiff)
+					{
+					if((memcmp(zeigerea->mac_ap, zeigereo->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigereo->mac_sta, 6) == 0))
+						{
+						addhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
+						addrawhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
+						}
+					}
 				}
 			}
-		zeigerno++;
+		for(d = 1; d < eapolcount -c; d++)
+			{
+			zeigereo = zeigerea +d;
+			lltimeeo = zeigereo->tv_sec *1000000LL +zeigereo->tv_usec;
+			if(lltimeea > lltimeeo)
+				{
+				timegap = lltimeea -lltimeeo;
+				}
+			else
+				{
+				timegap = lltimeeo -lltimeea;
+				}
+			if(timegap > (maxtvdiff))
+				{
+				break;
+				}
+			if(zeigereo->keyinfo <= 3)
+				{
+				if(zeigerea->replaycount > zeigereo->replaycount)
+					{
+					rcgap = zeigerea->replaycount - zeigereo->replaycount;
+					}
+				else
+					{
+					rcgap = zeigereo->replaycount - zeigerea->replaycount;
+					}
+				if(rcgap <= maxrcdiff)
+					{
+					if((memcmp(zeigerea->mac_ap, zeigereo->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigereo->mac_sta, 6) == 0))
+						{
+						addhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
+						addrawhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
+						}
+					}
+				}
+			}
 		}
 	zeigerea++;
 	}
+
 return;
 }
 /*===========================================================================*/
 void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint32_t authlen, uint8_t *authpacket)
 {
-eapoll_t *zeiger, *tmp;
-unsigned long long int c;
+eapoll_t *zeiger;
 
 if(authlen > 256)
 	{
 	return;
 	}
-zeiger = eapolliste;
-for(c = 0; c < eapolcount; c++)
+if(eapolliste == NULL)
 	{
-	if((authlen == zeiger->authlen) && (memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(authpacket, zeiger->eapol, authlen) == 0))
+	eapolliste = malloc(EAPOLLIST_SIZE);
+	if(eapolliste == NULL)
 		{
-		zeiger->tv_sec = tv_sec;
-		zeiger->tv_usec = tv_usec;
-		return;
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
 		}
-	zeiger++;
+	memset(eapolliste, 0, sizeof(eapoll_t));
+	eapolliste->tv_sec = tv_sec;
+	eapolliste->tv_usec = tv_usec;
+	memcpy(eapolliste->mac_ap, mac_ap, 6);
+	memcpy(eapolliste->mac_sta, mac_sta, 6);
+	eapolliste->replaycount = rc;
+	eapolliste->keyinfo = ki;
+	eapolliste->authlen = authlen;
+	memcpy(eapolliste->eapol, authpacket, authlen);
+	eapolcount++;
+	return;
 	}
-
+zeiger = realloc(eapolliste, (eapolcount +1) *EAPOLLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+eapolliste = zeiger;
+zeiger = eapolliste +eapolcount;
 memset(zeiger, 0, sizeof(eapoll_t));
 zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
@@ -1189,60 +1371,35 @@ memcpy(zeiger->mac_sta, mac_sta, 6);
 zeiger->replaycount = rc;
 zeiger->keyinfo = ki;
 zeiger->authlen = authlen;
-memset(zeiger->eapol, 0, 256);
 memcpy(zeiger->eapol, authpacket, authlen);
 eapolcount++;
-tmp = realloc(eapolliste, (eapolcount +1) *EAPOLLIST_SIZE);
-if(tmp == NULL)
-	{
-	printf("failed to allocate memory\n");
-	exit(EXIT_FAILURE);
-	}
-eapolliste = tmp;
-return;
-}
-/*===========================================================================*/
-void addnonce(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint8_t *nonce)
-{
-noncel_t *zeiger, *tmp;
-unsigned long long int c;
-
-zeiger = nonceliste;
-for(c = 0; c < noncecount; c++)
-	{
-	if((memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(nonce, zeiger->nonce, 32) == 0))
-		{
-		zeiger->keyinfo |= ki;
-		zeiger->tv_sec = tv_sec;
-		zeiger->tv_usec = tv_usec;
-		return;
-		}
-	zeiger++;
-	}
-memset(zeiger, 0, sizeof(noncel_t));
-zeiger->tv_sec = tv_sec;
-zeiger->tv_usec = tv_usec;
-memcpy(zeiger->mac_ap, mac_ap, 6);
-memcpy(zeiger->mac_sta, mac_sta, 6);
-zeiger->replaycount = rc;
-zeiger->keyinfo = ki;
-memcpy(zeiger->nonce, nonce, 32);
-noncecount++;
-tmp = realloc(nonceliste, (noncecount +1) *NONCELIST_SIZE);
-if(tmp == NULL)
-	{
-	printf("failed to allocate memory\n");
-	exit(EXIT_FAILURE);
-	}
-nonceliste = tmp;
 return;
 }
 /*===========================================================================*/
 void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
 {
-apstaessidl_t *zeiger, *tmp;
+apstaessidl_t *zeiger;
 unsigned long long int c;
 
+if(apstaessidliste == NULL)
+	{
+	apstaessidliste = malloc(APSTAESSIDLIST_SIZE);
+	if(apstaessidliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memset(apstaessidliste, 0, sizeof(apstaessidl_t));
+	apstaessidliste->tv_sec = tv_sec;
+	apstaessidliste->tv_usec = tv_usec;
+	memcpy(apstaessidliste->mac_ap, mac_ap, 6);
+	memcpy(apstaessidliste->mac_sta, mac_sta, 6);
+	memset(apstaessidliste->essid, 0, 32);
+	memcpy(apstaessidliste->essid, essid, 32);
+	apstaessidliste->essidlen = essidlen;
+	apstaessidcount++;
+	return;
+	}
 zeiger = apstaessidliste;
 for(c = 0; c < apstaessidcount; c++)
 	{
@@ -1252,7 +1409,14 @@ for(c = 0; c < apstaessidcount; c++)
 		}
 	zeiger++;
 	}
-
+zeiger = realloc(apstaessidliste, (apstaessidcount +1) *APSTAESSIDLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+apstaessidliste = zeiger;
+zeiger = apstaessidliste +apstaessidcount;
 memset(zeiger, 0, sizeof(apstaessidl_t));
 zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
@@ -1262,13 +1426,6 @@ memset(zeiger->essid, 0, 32);
 memcpy(zeiger->essid, essid, 32);
 zeiger->essidlen = essidlen;
 apstaessidcount++;
-tmp = realloc(apstaessidliste, (apstaessidcount +1) *APSTAESSIDLIST_SIZE);
-if(tmp == NULL)
-	{
-	printf("failed to allocate memory\n");
-	exit(EXIT_FAILURE);
-	}
-apstaessidliste = tmp;
 return;
 }
 /*===========================================================================*/
@@ -1497,41 +1654,29 @@ wpak->replaycount = byte_swap_64(wpak->replaycount);
 #endif
 
 authlen = ntohs(eap->len);
-
+if(authlen > caplen -4)
+	{
+	return;
+	}
+if(memcmp(wpak->nonce, nullnonce, 32) == 0)
+	{
+	return;
+	}
 if(keyinfo == 1)
 	{
-	addnonce(tv_sec, tv_usec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), wpak->nonce);
+	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), authlen +4, packet);
 	}
 else if(keyinfo == 3)
 	{
-	if(authlen <= caplen -4)
-		{
-		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 3, byte_swap_64(wpak->replaycount), authlen +4, packet);
-		}
-	addnonce(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), wpak->nonce);
+	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), authlen +4, packet);
 	}
-
 else if(keyinfo == 2)
 	{
-	if(memcmp(wpak->nonce, nullnonce, 32) == 0)
-		{
-		return;
-		}
-	if(authlen <= caplen -4)
-		{
-		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), authlen +4, packet);
-		}
+	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), authlen +4, packet);
 	}
 else if(keyinfo == 4)
 	{
-	if(memcmp(wpak->nonce, nullnonce, 32) == 0)
-		{
-		return;
-		}
-	if(authlen <= caplen -4)
-		{
-		addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), authlen +4, packet);
-		}
+	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), authlen +4, packet);
 	}
 else
 	{
@@ -1821,9 +1966,10 @@ section_header_block_t pcapngshb;
 interface_description_block_t pcapngidb;
 packet_block_t pcapngpb;
 enhanced_packet_block_t pcapngepb;
-uint8_t packet[MAXPACPSNAPLEN] = {0};
+uint8_t packet[MAXPACPSNAPLEN];
 
 printf("start reading from %s\n", pcapinname);
+memset(&packet, 0, MAXPACPSNAPLEN);
 while(1)
 	{
 	res = read(fd, &pcapngbh, BH_SIZE);
@@ -2057,9 +2203,10 @@ unsigned int res;
 
 pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
-uint8_t packet[MAXPACPSNAPLEN] = {0};
+uint8_t packet[MAXPACPSNAPLEN];
 
 printf("start reading from %s\n", pcapinname);
+memset(&packet, 0, MAXPACPSNAPLEN);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
 	{
@@ -2166,7 +2313,6 @@ char *pcapart;
 
 fcsflag = false;
 apstaessidliste = NULL;
-nonceliste = NULL;
 eapolliste = NULL;
 handshakeliste = NULL;
 char *pcapstr = "pcap";
@@ -2180,7 +2326,8 @@ endianess = 0;
 pcapreaderrors = 0;
 rawpacketcount = 0;
 skippedpacketcount = 0;
-
+apstaessidcount = 0;
+eapolcount = 0;
 fcsframecount = 0;
 wdsframecount = 0;
 beaconframecount = 0;
@@ -2242,37 +2389,6 @@ if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (ma
 	}
 lseek(pcapr_fd, 0L, SEEK_SET);
 
-apstaessidliste = malloc(APSTAESSIDLIST_SIZE);
-if(apstaessidliste == NULL)
-	{
-	printf("failed to allocate memory\n");
-	exit(EXIT_FAILURE);
-	}
-apstaessidcount = 0;
-
-nonceliste = malloc(NONCELIST_SIZE);
-if(nonceliste == NULL)
-	{
-	printf("failed to allocate memory\n");
-	if(needrmflag == true)
-		{
-		remove(tmpoutname);
-		}
-	exit(EXIT_FAILURE);
-	}
-noncecount = 0;
-
-eapolliste = malloc(EAPOLLIST_SIZE);
-if(eapolliste == NULL)
-	{
-	printf("failed to allocate memory\n");
-	if(needrmflag == true)
-		{
-		remove(tmpoutname);
-		}
-	exit(EXIT_FAILURE);
-	}
-eapolcount = 0;
 
 pcapart = pcapstr;
 if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
@@ -2293,43 +2409,21 @@ if(needrmflag == true)
 	remove(tmpoutname);
 	}
 
-if((apstaessidcount > 0) && (noncecount > 0) && (eapolcount > 0))
+if((apstaessidliste != NULL) && (eapolliste != NULL))
 	{
-	handshakeliste = malloc(HCXLIST_SIZE);
-	if(handshakeliste == NULL)
-		{
-		printf("failed to allocate memory\n");
-		exit(EXIT_FAILURE);
-		}
-	rawhandshakeliste = malloc(HCXLIST_SIZE);
-	if(rawhandshakeliste == NULL)
-		{
-		printf("failed to allocate memory\n");
-		exit(EXIT_FAILURE);
-		}
-	detectwpahandshakes();
+	findhandshake();
 	}
 
 printcapstatus(pcapart, pcapinname, versionmajor, versionminor, dltlinktype, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 
-if(apstaessidcount > 0) 
+if(apstaessidliste != NULL) 
 	{
-	outputlists();
+	outputessidlists();
 	}
 
-if(noncecount > 0) 
+if(handshakeliste != NULL) 
 	{
-	outputlists2();
-	}
-
-if(eapolcount > 0) 
-	{
-	outputlists3();
-	}
-
-if(handshakecount > 0) 
-	{
-	outputlists4(pcapinname);
+	outputwpalists(pcapinname);
 	}
 
 if(handshakeliste != NULL)
@@ -2340,11 +2434,6 @@ if(handshakeliste != NULL)
 if(eapolliste != NULL)
 	{
 	free(eapolliste);
-	}
-
-if(nonceliste != NULL)
-	{
-	free(nonceliste);
 	}
 
 if(apstaessidliste != NULL)
@@ -2384,17 +2473,13 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
-	"-A <file> : output nonce information list\n"
-	"          : european date : timestamp : mac_sta : mac_ap : message : replaycount : nonce\n"
-	"-S <file> : output EAPOL information list\n"
-	"          : european date : timestamp : mac_sta : mac_ap : message : replaycount : eapol_len : eapol\n"
 	"-H <file> : output dump raw packets in hex\n"
 	"-V        : verbose (but slow) status output\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
-	"--time-error-corrections  : maximum allowed time gap (default: %ds)\n"
-	"--nonce-error-corrections : maximum allowed nonce gap (default: %d)\n"
+	"--time-error-corrections  : maximum allowed time gap (default: %llus)\n"
+	"--nonce-error-corrections : maximum allowed nonce gap (default: %llu)\n"
 	"                          : should be the same value as in hashcat\n"
 	"\n"
 	"bitmask for message:\n"
@@ -2422,7 +2507,7 @@ int auswahl;
 int index;
 char *eigenpfadname, *eigenname;
 
-static const char *short_options = "o:O:x:X:j:J:E:I:P:T:A:S:H:Vhv";
+static const char *short_options = "o:O:x:X:j:J:E:I:P:T:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	0, HCXT_REPLAYCOUNTGAP},
@@ -2449,11 +2534,16 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	switch (auswahl)
 		{
 		case HCXT_TIMEGAP:
-		maxtvdiff = atoi(optarg);
+		maxtvdiff = strtoull(optarg, NULL, 10);
+		if(maxtvdiff == 0)
+			{
+			maxtvdiff = 1;
+			}
+		maxtvdiff *= 10000000;
 		break;
 
 		case HCXT_REPLAYCOUNTGAP:
-		maxrcdiff = atoi(optarg);
+		maxrcdiff = strtoull(optarg, NULL, 10);
 		break;
 
 		case '?':
@@ -2478,7 +2568,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_HCCAPX_OUT_RAW:
 		hccapxrawoutname = optarg;
-		wantrawhandshakeflag = true;
 		verboseflag = true;
 		break;
 
@@ -2489,7 +2578,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_HCCAP_OUT_RAW:
 		hccaprawoutname = optarg;
-		wantrawhandshakeflag = true;
 		verboseflag = true;
 		break;
 
@@ -2500,7 +2588,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_JOHN_OUT_RAW:
 		johnrawoutname = optarg;
-		wantrawhandshakeflag = true;
 		verboseflag = true;
 		break;
 
@@ -2522,15 +2609,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_TRAFFIC_OUT:
 		trafficoutname = optarg;
 		verboseflag = true;
-		break;
-
-		case HCXT_NONCE_OUT:
-		nonceoutname = optarg;
-		verboseflag = true;
-		break;
-
-		case HCXT_EAPOL_OUT:
-		eapoloutname = optarg;
 		break;
 
 		case HCXT_HEXDUMP_OUT:

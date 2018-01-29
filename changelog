@@ -1,3 +1,10 @@
+29.01.2018
+==========
+hcxpcaptool
+improved detection of handshakes
+removed options -A -S ( will improve them and add them later again)
+
+
 17.01.2018
 ==========
 hcxpcaptool

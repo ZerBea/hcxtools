@@ -28,14 +28,6 @@ else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 4))
 		hccapx.message_pair |= 0x80;
 		}
 	}
-else if((zeiger->keyinfo_ap == 3) && (zeiger->keyinfo_sta == 4))
-	{
-	hccapx.message_pair = MESSAGE_PAIR_M32E2;
-	if(zeiger->replaycount_ap != zeiger->replaycount_sta)
-		{
-		hccapx.message_pair |= 0x80;
-		}
-	}
 else if((zeiger->keyinfo_ap == 1) && (zeiger->keyinfo_sta == 8))
 	{
 	hccapx.message_pair = MESSAGE_PAIR_M14E4;
@@ -44,7 +36,7 @@ else if((zeiger->keyinfo_ap == 1) && (zeiger->keyinfo_sta == 8))
 		hccapx.message_pair |= 0x80;
 		}
 	}
-else if((zeiger->keyinfo_ap >= 1) && (zeiger->keyinfo_sta == 8))
+else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 8))
 	{
 	hccapx.message_pair = MESSAGE_PAIR_M34E4;
 	if(zeiger->replaycount_ap != zeiger->replaycount_sta)
