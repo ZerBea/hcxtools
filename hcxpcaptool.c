@@ -556,7 +556,10 @@ if(pmkoutname != NULL)
 			{
 			if(c == 0)
 				{
-				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
+				if(zeiger->essidlen == 32)
+					{
+					fwritehexbuff(32, zeiger->essid, fhoutlist);
+					}
 				}
 			else if(memcmp(zeigerold->essid, zeiger->essid, 32) != 0)
 				{
