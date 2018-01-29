@@ -635,14 +635,14 @@ if(hccapxbestoutname != NULL)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if( d == 0)
+					if(d == 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 						writehccapxrecord(zeiger, fhoutlist);
 						writtencount++;
 						}
-					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+					else if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) != 0) || (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0))
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -656,7 +656,7 @@ if(hccapxbestoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, hccapxbestoutname, handshakecount -writtencount);
+		printf("%llu handshake(s) written to %s\n", writtencount, hccapxbestoutname);
 		}
 	}
 removeemptyfile(hccapxbestoutname);
@@ -682,7 +682,7 @@ if(hccapxrawoutname != NULL)
 						writehccapxrecord(zeiger, fhoutlist);
 						writtencount++;
 						}
-					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+					else if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) != 0) || (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0))
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -696,7 +696,7 @@ if(hccapxrawoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, hccapxrawoutname, rawhandshakecount -writtencount);
+		printf("%llu handshake(s) written to %s\n", writtencount, hccapxrawoutname);
 		}
 	}
 removeemptyfile(hccapxrawoutname);
@@ -722,7 +722,7 @@ if(hccapbestoutname != NULL)
 						writehccaprecord(zeiger, fhoutlist);
 						writtencount++;
 						}
-					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+					else if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) != 0) || (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0))
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -736,7 +736,7 @@ if(hccapbestoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, hccapbestoutname, handshakecount -writtencount);
+		printf("%llu handshake(s) written to %s\n", writtencount, hccapbestoutname);
 		}
 	}
 removeemptyfile(hccapbestoutname);
@@ -762,7 +762,7 @@ if(hccaprawoutname != NULL)
 						writehccaprecord(zeiger, fhoutlist);
 						writtencount++;
 						}
-					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+					else if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) != 0) || (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0))
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -776,7 +776,7 @@ if(hccaprawoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, hccaprawoutname, rawhandshakecount -writtencount);
+		printf("%llu handshake(s) written to %s\n", writtencount, hccaprawoutname);
 		}
 	}
 removeemptyfile(hccaprawoutname);
@@ -802,7 +802,7 @@ if(johnbestoutname != NULL)
 						writejohnrecord(zeiger, fhoutlist, pcapinname);
 						writtencount++;
 						}
-					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+					else if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) != 0) || (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0))
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -816,7 +816,7 @@ if(johnbestoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, johnbestoutname, handshakecount -writtencount);
+		printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
 		}
 	}
 removeemptyfile(johnbestoutname);
@@ -842,7 +842,7 @@ if(johnrawoutname != NULL)
 						writejohnrecord(zeiger, fhoutlist, pcapinname);
 						writtencount++;
 						}
-					else if(memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0)
+					else if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) != 0) || (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) != 0))
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -856,7 +856,7 @@ if(johnrawoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		printf("%llu handshake(s) written to %s (%llu dupe(s) removed)\n", writtencount, johnrawoutname, handshakecount -writtencount);
+		printf("%llu handshake(s) written to %s\n", writtencount, johnrawoutname);
 		}
 	}
 removeemptyfile(hccaprawoutname);
@@ -957,7 +957,7 @@ for(c = 0; c < rawhandshakecount; c++)
 		wpae = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 		if((memcmp(wpae->keymic, wpaea->keymic, 16) == 0) && (memcmp(zeiger->nonce, wpaeo->nonce, 32) == 0) && (memcmp(wpae->nonce, wpaea->nonce, 32) == 0))
 			{
-			if(timegap < zeiger->tv_diff)
+			if(zeiger->tv_diff >= timegap)
 				{
 				zeiger->tv_ea = tv_ea;
 				zeiger->tv_eo = tv_eo;
@@ -1077,7 +1077,7 @@ for(c = 0; c < handshakecount; c++)
 		wpae = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 		if((memcmp(wpae->keymic, wpaea->keymic, 16) == 0) && (memcmp(zeiger->nonce, wpaeo->nonce, 32) == 0) && (memcmp(wpae->nonce, wpaea->nonce, 32) == 0))
 			{
-			if(timegap < zeiger->tv_diff)
+			if(zeiger->tv_diff >= timegap)
 				{
 				zeiger->tv_ea = tv_ea;
 				zeiger->tv_eo = tv_eo;
@@ -1117,7 +1117,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff > 1) || ((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff <= timegap)))
+		else if((zeiger->rc_diff > 1) || ((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1134,7 +1134,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff > 1) || ((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 2) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff <= timegap)))
+		else if((zeiger->rc_diff > 1) || ((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 2) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1151,7 +1151,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff > 1) || (((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea > tv_eo) && (zeiger->tv_diff <= timegap)))
+		else if((zeiger->rc_diff > 1) || (((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1168,7 +1168,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff > 1) || (((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea < tv_eo) && (zeiger->tv_diff <= timegap)))
+		else if((zeiger->rc_diff > 1) || (((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea < tv_eo) && (zeiger->tv_diff >= timegap)))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1185,7 +1185,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff > 1) && (zeiger->tv_diff <= timegap))
+		else if((zeiger->rc_diff > 1) && (zeiger->tv_diff >= timegap))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
