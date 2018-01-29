@@ -551,8 +551,8 @@ if((apstaessidliste != NULL) && (essidoutname != NULL))
 				}
 			zeiger++;
 			}
+		fclose(fhoutlist);
 		}
-	fclose(fhoutlist);
 	}
 removeemptyfile(essidoutname);
 
@@ -582,8 +582,8 @@ if((apstaessidliste != NULL) && (pmkoutname != NULL))
 				}
 			zeiger++;
 			}
+		fclose(fhoutlist);
 		}
-	fclose(fhoutlist);
 	}
 removeemptyfile(pmkoutname);
 
@@ -618,8 +618,8 @@ if((apstaessidliste != NULL) && (trafficoutname != NULL))
 			zeigerold = zeiger;
 			zeiger++;
 			}
+		fclose(fhoutlist);
 		}
-	fclose(fhoutlist);
 	}
 removeemptyfile(trafficoutname);
 return;
@@ -660,8 +660,8 @@ if((nonceliste != NULL) && (nonceoutname != NULL))
 			zeigerold = zeiger;
 			zeiger++;
 			}
+		fclose(fhoutlist);
 		}
-	fclose(fhoutlist);
 	}
 removeemptyfile(nonceoutname);
 return;
@@ -704,8 +704,8 @@ if((eapolliste != NULL) && (eapoloutname != NULL))
 			zeigerold = zeiger;
 			zeiger++;
 			}
+		fclose(fhoutlist);
 		}
-	fclose(fhoutlist);
 	}
 removeemptyfile(eapoloutname);
 return;
@@ -821,8 +821,8 @@ if((handshakeliste != NULL) && (johnbestoutname != NULL))
 			writtencount++;
 			zeiger++;
 			}
-		printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
 		fclose(fhoutlist);
+		printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
 		}
 	}
 removeemptyfile(johnbestoutname);
