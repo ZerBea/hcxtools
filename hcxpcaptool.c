@@ -37,7 +37,7 @@
 #define BIG_ENDIAN_HOST
 #endif
 
-#define MAX_TV_DIFF 60000000llu
+#define MAX_TV_DIFF 600000000llu
 
 #define MAX_RC_DIFF 8
 
