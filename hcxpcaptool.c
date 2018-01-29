@@ -2535,7 +2535,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		{
 		case HCXT_TIMEGAP:
 		maxtvdiff = strtoull(optarg, NULL, 10);
-		if(maxtvdiff == 0)
+		if(maxtvdiff < 1)
 			{
 			maxtvdiff = 1;
 			}
@@ -2544,6 +2544,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_REPLAYCOUNTGAP:
 		maxrcdiff = strtoull(optarg, NULL, 10);
+		if(maxrcdiff < 1)
+			{
+			maxrcdiff = 1;
+			}
 		break;
 
 		case '?':
