@@ -614,9 +614,10 @@ void outputwpalists(char *pcapinname)
 {
 unsigned long long int c, d;
 hcxl_t *zeiger;
-apstaessidl_t *zeigeressid, *zeigeressidold;
+apstaessidl_t *zeigeressid;
 FILE *fhoutlist = NULL;
 unsigned long long int writtencount;
+uint64_t lltimeessid, timegap;
 
 if(handshakeliste == NULL)
 	{
@@ -631,28 +632,35 @@ if(hccapxbestoutname != NULL)
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
+			zeiger->tv_diff = zeiger->tv_ea;
 			zeigeressid = apstaessidliste;
-			zeigeressidold = zeigeressid;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if(d != 0)
+					lltimeessid = zeigeressid->tv_sec *1000000LL +zeigeressid->tv_usec;
+					if(lltimeessid > zeiger->tv_ea)
 						{
-						if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) == 0))
-							{
-							zeigeressidold = zeigeressid;
-							zeigeressid++;
-							continue;
-							}
+						timegap = lltimeessid -zeiger->tv_ea;
 						}
-					zeiger->essidlen = zeigeressid->essidlen;
-					memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-					writehccapxrecord(zeiger, fhoutlist);
-					writtencount++;
+					else
+						{
+						timegap = zeiger->tv_ea -lltimeessid;
+						}
+					if(timegap <= zeiger->tv_diff)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memset(zeiger->essid, 0, 32);
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						zeiger->tv_diff = timegap;
+						}
 					}
-				zeigeressidold = zeigeressid;
 				zeigeressid++;
+				}
+			if(zeiger->tv_diff != zeiger->tv_ea)
+				{
+				writehccapxrecord(zeiger, fhoutlist);
+				writtencount++;
 				}
 			zeiger++;
 			}
@@ -670,28 +678,35 @@ if(hccapxrawoutname != NULL)
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
+			zeiger->tv_diff = zeiger->tv_ea;
 			zeigeressid = apstaessidliste;
-			zeigeressidold = zeigeressid;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if(d != 0)
+					lltimeessid = zeigeressid->tv_sec *1000000LL +zeigeressid->tv_usec;
+					if(lltimeessid > zeiger->tv_ea)
 						{
-						if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) == 0))
-							{
-							zeigeressidold = zeigeressid;
-							zeigeressid++;
-							continue;
-							}
+						timegap = lltimeessid -zeiger->tv_ea;
 						}
-					zeiger->essidlen = zeigeressid->essidlen;
-					memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-					writehccapxrecord(zeiger, fhoutlist);
-					writtencount++;
+					else
+						{
+						timegap = zeiger->tv_ea -lltimeessid;
+						}
+					if(timegap <= zeiger->tv_diff)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memset(zeiger->essid, 0, 32);
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						zeiger->tv_diff = timegap;
+						}
 					}
-				zeigeressidold = zeigeressid;
 				zeigeressid++;
+				}
+			if(zeiger->tv_diff != zeiger->tv_ea)
+				{
+				writehccapxrecord(zeiger, fhoutlist);
+				writtencount++;
 				}
 			zeiger++;
 			}
@@ -709,29 +724,35 @@ if(hccapbestoutname != NULL)
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
+			zeiger->tv_diff = zeiger->tv_ea;
 			zeigeressid = apstaessidliste;
-			zeigeressidold = zeigeressid;
 			for(d = 0; d < apstaessidcount; d++)
 				{
-				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) || (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
-					if(d != 0)
+					lltimeessid = zeigeressid->tv_sec *1000000LL +zeigeressid->tv_usec;
+					if(lltimeessid > zeiger->tv_ea)
 						{
-						if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) == 0))
-							{
-							
-							zeigeressidold = zeigeressid;
-							zeigeressid++;
-							continue;
-							}
+						timegap = lltimeessid -zeiger->tv_ea;
 						}
-					zeiger->essidlen = zeigeressid->essidlen;
-					memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-					writehccaprecord(zeiger, fhoutlist);
-					writtencount++;
+					else
+						{
+						timegap = zeiger->tv_ea -lltimeessid;
+						}
+					if(timegap <= zeiger->tv_diff)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memset(zeiger->essid, 0, 32);
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						zeiger->tv_diff = timegap;
+						}
 					}
-				zeigeressidold = zeigeressid;
 				zeigeressid++;
+				}
+			if(zeiger->tv_diff != zeiger->tv_ea)
+				{
+				writehccaprecord(zeiger, fhoutlist);
+				writtencount++;
 				}
 			zeiger++;
 			}
@@ -749,28 +770,35 @@ if(hccaprawoutname != NULL)
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
+			zeiger->tv_diff = zeiger->tv_ea;
 			zeigeressid = apstaessidliste;
-			zeigeressidold = zeigeressid;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if(d != 0)
+					lltimeessid = zeigeressid->tv_sec *1000000LL +zeigeressid->tv_usec;
+					if(lltimeessid > zeiger->tv_ea)
 						{
-						if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) == 0))
-							{
-							zeigeressidold = zeigeressid;
-							zeigeressid++;
-							continue;
-							}
+						timegap = lltimeessid -zeiger->tv_ea;
 						}
-					zeiger->essidlen = zeigeressid->essidlen;
-					memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-					writehccaprecord(zeiger, fhoutlist);
-					writtencount++;
+					else
+						{
+						timegap = zeiger->tv_ea -lltimeessid;
+						}
+					if(timegap <= zeiger->tv_diff)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memset(zeiger->essid, 0, 32);
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						zeiger->tv_diff = timegap;
+						}
 					}
-				zeigeressidold = zeigeressid;
 				zeigeressid++;
+				}
+			if(zeiger->tv_diff != zeiger->tv_ea)
+				{
+				writehccaprecord(zeiger, fhoutlist);
+				writtencount++;
 				}
 			zeiger++;
 			}
@@ -788,28 +816,35 @@ if(johnbestoutname != NULL)
 		zeiger = handshakeliste;
 		for(c = 0; c < handshakecount; c++)
 			{
+			zeiger->tv_diff = zeiger->tv_ea;
 			zeigeressid = apstaessidliste;
-			zeigeressidold = zeigeressid;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if(d != 0)
+					lltimeessid = zeigeressid->tv_sec *1000000LL +zeigeressid->tv_usec;
+					if(lltimeessid > zeiger->tv_ea)
 						{
-						if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) == 0))
-							{
-							zeigeressidold = zeigeressid;
-							zeigeressid++;
-							continue;
-							}
+						timegap = lltimeessid -zeiger->tv_ea;
 						}
-					zeiger->essidlen = zeigeressid->essidlen;
-					memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-					writejohnrecord(zeiger, fhoutlist, pcapinname);
-					writtencount++;
+					else
+						{
+						timegap = zeiger->tv_ea -lltimeessid;
+						}
+					if(timegap <= zeiger->tv_diff)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memset(zeiger->essid, 0, 32);
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						zeiger->tv_diff = timegap;
+						}
 					}
-				zeigeressidold = zeigeressid;
 				zeigeressid++;
+				}
+			if(zeiger->tv_diff != zeiger->tv_ea)
+				{
+				writejohnrecord(zeiger, fhoutlist, pcapinname);
+				writtencount++;
 				}
 			zeiger++;
 			}
@@ -827,28 +862,35 @@ if(johnrawoutname != NULL)
 		zeiger = rawhandshakeliste;
 		for(c = 0; c < rawhandshakecount; c++)
 			{
+			zeiger->tv_diff = zeiger->tv_ea;
 			zeigeressid = apstaessidliste;
-			zeigeressidold = zeigeressid;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if(d != 0)
+					lltimeessid = zeigeressid->tv_sec *1000000LL +zeigeressid->tv_usec;
+					if(lltimeessid > zeiger->tv_ea)
 						{
-						if((memcmp(zeigeressidold->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeigeressidold->essid, zeigeressid->essid, 32) == 0))
-							{
-							zeigeressidold = zeigeressid;
-							zeigeressid++;
-							continue;
-							}
+						timegap = lltimeessid -zeiger->tv_ea;
 						}
-					zeiger->essidlen = zeigeressid->essidlen;
-					memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-					writejohnrecord(zeiger, fhoutlist, pcapinname);
-					writtencount++;
+					else
+						{
+						timegap = zeiger->tv_ea -lltimeessid;
+						}
+					if(timegap <= zeiger->tv_diff)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memset(zeiger->essid, 0, 32);
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						zeiger->tv_diff = timegap;
+						}
 					}
-				zeigeressidold = zeigeressid;
 				zeigeressid++;
+				}
+			if(zeiger->tv_diff != zeiger->tv_ea)
+				{
+				writejohnrecord(zeiger, fhoutlist, pcapinname);
+				writtencount++;
 				}
 			zeiger++;
 			}
