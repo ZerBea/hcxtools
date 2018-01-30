@@ -63,6 +63,7 @@
 bool hexmodeflag;
 bool verboseflag;
 bool fcsflag;
+bool wantrawflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -143,6 +144,7 @@ pmkoutname = NULL;
 identityoutname = NULL;
 verboseflag = false;
 hexmodeflag = false;
+wantrawflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
@@ -1282,7 +1284,10 @@ for(c = 0; c < eapolcount; c++)
 					if((memcmp(zeigerea->mac_ap, zeigereo->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigereo->mac_sta, 6) == 0))
 						{
 						addhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
-						addrawhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
+						if(wantrawflag == true)
+							{
+							addrawhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
+							}
 						}
 					}
 				}
@@ -1318,7 +1323,10 @@ for(c = 0; c < eapolcount; c++)
 					if((memcmp(zeigerea->mac_ap, zeigereo->mac_ap, 6) == 0) && (memcmp(zeigerea->mac_sta, zeigereo->mac_sta, 6) == 0))
 						{
 						addhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
-						addrawhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
+						if(wantrawflag == true)
+							{
+							addrawhandshake(lltimeea, zeigerea, lltimeeo, zeigereo, timegap, rcgap);
+							}
 						}
 					}
 				}
@@ -2576,6 +2584,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_HCCAPX_OUT_RAW:
 		hccapxrawoutname = optarg;
 		verboseflag = true;
+		wantrawflag = true;
 		break;
 
 		case HCXT_HCCAP_OUT:
@@ -2586,6 +2595,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_HCCAP_OUT_RAW:
 		hccaprawoutname = optarg;
 		verboseflag = true;
+		wantrawflag = true;
 		break;
 
 		case HCXT_JOHN_OUT:
@@ -2596,6 +2606,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_JOHN_OUT_RAW:
 		johnrawoutname = optarg;
 		verboseflag = true;
+		wantrawflag = true;
 		break;
 
 		case HCXT_ESSID_OUT:
