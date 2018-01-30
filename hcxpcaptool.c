@@ -1156,7 +1156,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff > 1) || ((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
+		else if((zeiger->rc_diff >= 1) || ((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1173,7 +1173,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff > 1) || ((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 2) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
+		else if((zeiger->rc_diff >= 1) || ((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 2) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1190,7 +1190,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff > 1) || (((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
+		else if((zeiger->rc_diff >= 1) || (((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1207,7 +1207,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff > 1) || (((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea < tv_eo) && (zeiger->tv_diff >= timegap)))
+		else if((zeiger->rc_diff >= 1) || (((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea < tv_eo) && (zeiger->tv_diff >= timegap)))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
