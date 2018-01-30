@@ -67,29 +67,6 @@ static int myouista;
 static int mynicsta;
 static int mysequencenr = 0;
 
-
-static const int myvendorap[] =
-{
-0x00006c, 0x000101, 0x00054f, 0x000578, 0x000b18, 0x000bf4, 0x000c53, 0x000d58,
-0x000da7, 0x000dc2, 0x000df2, 0x000e17, 0x000e22, 0x000e2a, 0x000eef, 0x000f09,
-0x0016b4, 0x001761, 0x001825, 0x002067, 0x00221c, 0x0022f1, 0x00234a, 0x00238c,
-0x0023f7, 0x002419, 0x0024fb, 0x00259d, 0x0025df, 0x00269f, 0x005047, 0x005079,
-0x0050c7, 0x0084ed, 0x0086a0, 0x00a054, 0x00a085, 0x00bb3a, 0x00cb00, 0x0418b6,
-0x0c8112, 0x100000, 0x10ae60, 0x10b713, 0x1100aa, 0x111111, 0x140708, 0x146e0a,
-0x18421d, 0x1cf4ca, 0x205b2a, 0x20d160, 0x24336c, 0x24bf74, 0x28ef01, 0x3cb87a,
-0x487604, 0x48f317, 0x50e14a, 0x544e45, 0x580943, 0x586ed6, 0x5c6b4f, 0x609620,
-0x68e166, 0x706f81, 0x78f944, 0x7ce4aa, 0x8c8401, 0x8ce748, 0x906f18, 0x980ee4,
-0x9c93e4, 0xa468bc, 0xa4a6a9, 0xacde48, 0xb025aa, 0xb0ece1, 0xb0febd, 0xb4e1eb,
-0xc02250, 0xc8aacc, 0xd85dfb, 0xdc7014, 0xe00db9, 0xe0cb1d, 0xe80410, 0xf04f7c
-};
-#define MYVENDORAP_SIZE sizeof(myvendorap)
-
-static const int myvendorsta[] =
-{
-0xf0a225, 0xfcc233
-};
-#define MYVENDORSTA_SIZE sizeof(myvendorsta)
-
 static const uint8_t hdradiotap[] =
 {
 0x00, 0x00, // <-- radiotap version
@@ -101,8 +78,6 @@ static const uint8_t hdradiotap[] =
 };
 #define HDRRT_SIZE sizeof(hdradiotap)
 
-static uint8_t mac_null[6];
-static uint8_t mac_broadcast[6];
 static uint8_t mac_myap[6];
 static uint8_t mac_mysta[6];
 
@@ -736,7 +711,7 @@ if(retw <= 0)
 return;
 }
 /*===========================================================================*/
-static void send_deauthentication(uint8_t deauthart, uint8_t reason, uint8_t *mac_to, uint8_t *mac_fm, uint8_t *mac_bssid)
+static void send_deauthentication(uint8_t deauthart, uint8_t reason, const uint8_t *mac_to, uint8_t *mac_fm, uint8_t *mac_bssid)
 {
 static int retw;
 static mac_t *macf;
@@ -1509,8 +1484,6 @@ if(opensockets() == false)
 	return false;
 	}
 
-memset(&mac_null, 0, 6);
-memset(&mac_broadcast, 0xff, 6);
 myouiap = myvendorap[rand() % ((MYVENDORAP_SIZE / sizeof(int)))];
 mynicap = rand() & 0xffffff;
 mac_myap[5] = mynicap & 0xff;
