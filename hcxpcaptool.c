@@ -2521,9 +2521,9 @@ char *eigenpfadname, *eigenname;
 static const char *short_options = "o:O:x:X:j:J:E:I:P:T:H:Vhv";
 static const struct option long_options[] =
 {
-	{"nonce-error-corrections",	required_argument,	0, HCXT_REPLAYCOUNTGAP},
-	{"time-error-corrections",	required_argument,	0, HCXT_TIMEGAP},
-	{0, 0, 0, 0}
+	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
+	{"time-error-corrections",	required_argument,	NULL,	HCXT_TIMEGAP},
+	{NULL,				0,			NULL,	0}
 };
 
 eigenpfadname = strdupa(argv[0]);
