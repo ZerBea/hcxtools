@@ -945,11 +945,11 @@ if((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 2) && (zeigerea->replaycoun
 	{
 	checkok = true;
 	}
-if(((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea > tv_eo))
+if(((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea > tv_eo))
 	{
 	checkok = true;
 	}
-if(((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea < tv_eo))
+if(((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea < tv_eo))
 	{
 	checkok = true;
 	}
@@ -1078,6 +1078,7 @@ wpakey_t *wpae, *wpaea, *wpaeo;
 
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
+
 if(handshakeliste == NULL)
 	{
 	handshakeliste = malloc(HCXLIST_SIZE);
@@ -1156,7 +1157,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff >= 1) || ((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
+		else if((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1173,7 +1174,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff >= 1) || ((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 2) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
+		else if((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 2) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1190,7 +1191,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff >= 1) || (((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap)))
+		else if(((zeigerea->keyinfo == 8) && (zeigereo->keyinfo == 1)) && (zeigerea->replaycount == zeigereo->replaycount +1) && (tv_ea > tv_eo) && (zeiger->tv_diff >= timegap))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
@@ -1207,7 +1208,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 			return;
 			}
-		else if((zeiger->rc_diff >= 1) || (((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea < tv_eo) && (zeiger->tv_diff >= timegap)))
+		else if(((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replaycount == zeigereo->replaycount -1) && (tv_ea < tv_eo) && (zeiger->tv_diff >= timegap))
 			{
 			zeiger->tv_ea = tv_ea;
 			zeiger->tv_eo = tv_eo;
