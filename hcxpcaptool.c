@@ -728,7 +728,7 @@ if(hccapbestoutname != NULL)
 			zeigeressid = apstaessidliste;
 			for(d = 0; d < apstaessidcount; d++)
 				{
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) || (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
 					lltimeessid = zeigeressid->tv_sec *1000000LL +zeigeressid->tv_usec;
 					if(lltimeessid > zeiger->tv_ea)
