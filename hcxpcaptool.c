@@ -1443,22 +1443,6 @@ void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t 
 {
 apstaessidl_t *zeiger;
 unsigned long long int c;
-int d;
-
-for(d = 0; d < essidlen; d++)
-	{
-	if((essid[d] < 0x20) || (essid[d] == 0x7f))
-		{
-		return;
-		}
-	if((d < essidlen -1) && (essid[d] == 0xc2))
-		{
-		if((essid[d +1] >= 0x80) && (essid[d +1] <= 0x9f))
-			{
-			return;
-			}
-		}
-	}
 
 if(apstaessidliste == NULL)
 	{
