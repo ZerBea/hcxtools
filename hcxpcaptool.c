@@ -1808,6 +1808,7 @@ return;
 void processipv4packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 ipv4_t *ipv4;
+uint32_t ipv4len;
 //uint8_t *packet_ptr;
 
 if(caplen < (uint32_t)IPV4_SIZE_MIN)
@@ -1816,6 +1817,11 @@ if(caplen < (uint32_t)IPV4_SIZE_MIN)
 	}
 ipv4 = (ipv4_t*)packet;
 if((ipv4->ver_hlen  & 0xf0) != 0x40)
+	{
+	return;
+	}
+ipv4len = (ipv4->ver_hlen && 0x0f) *4;
+if(caplen < (uint32_t)ipv4len)
 	{
 	return;
 	}
@@ -1844,7 +1850,7 @@ if(caplen < (uint32_t)IPV6_SIZE)
 	{
 	return;
 	}
-ipv6 = (ipv6_t*) packet;
+ipv6 = (ipv6_t*)packet;
 if((ntohl(ipv6->ver_class) & 0xf0000000) != 0x60000000)
 	{
 	return;
