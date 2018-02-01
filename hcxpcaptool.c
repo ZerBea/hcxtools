@@ -1831,6 +1831,11 @@ if(caplen < (uint32_t)IPV4_SIZE_MIN)
 	return;
 	}
 ipv4 = (ipv4_t*)packet;
+if((ipv4->ver_hlen  & 0xf0) != 0x40)
+	{
+	return;
+	}
+
 if(ipv4->nextprotocol == NEXTHDR_TCP)
 	{
 	processtcppacket();
@@ -1856,7 +1861,11 @@ if(caplen < (uint32_t)IPV6_SIZE)
 	return;
 	}
 ipv6 = (ipv6_t*) packet;
-printf("%x\n", ipv6->nextprotocol);
+if((ntohl(ipv6->ver_class) & 0xf0000000) != 0x60000000)
+	{
+	return;
+	}
+
 if(ipv6->nextprotocol == NEXTHDR_TCP)
 	{
 	processtcppacket();
