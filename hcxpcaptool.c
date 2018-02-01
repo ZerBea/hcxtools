@@ -101,6 +101,8 @@ unsigned long long int eapolframecount;
 unsigned long long int eapframecount;
 unsigned long long int ipv4framecount;
 unsigned long long int ipv6framecount;
+unsigned long long int tcpframecount;
+unsigned long long int udpframecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -442,6 +444,15 @@ if(ipv6framecount != 0)
 	{
 	printf("IPv6 packets...........: %lld\n", ipv6framecount);
 	}
+if(tcpframecount != 0)
+	{
+	printf("TCP packets............: %lld\n", tcpframecount);
+	}
+if(udpframecount != 0)
+	{
+	printf("UDP packets............: %lld\n", udpframecount);
+	}
+
 for(p = 0; p < 256; p++)
 	{
 	if(exeaptype[p] != 0)
@@ -1795,16 +1806,69 @@ else if(eap->type == 0)
 return;
 }
 /*===========================================================================*/
-void processipv4packet()
+void processudppacket()
 {
 
+udpframecount++;
+return;
+}
+/*===========================================================================*/
+void processtcppacket()
+{
+
+
+tcpframecount++;
+return;
+}
+/*===========================================================================*/
+void processipv4packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+{
+ipv4_t *ipv4;
+//uint8_t *packet_ptr;
+
+if(caplen < (uint32_t)IPV4_SIZE_MIN)
+	{
+	return;
+	}
+ipv4 = (ipv4_t*)packet;
+if(ipv4->nextprotocol == NEXTHDR_TCP)
+	{
+	processtcppacket();
+	}
+else if(ipv4->nextprotocol == NEXTHDR_UDP)
+	{
+	processudppacket();
+	}
+
+/* satisfy gcc warning */
+tv_sec += 1;
+tv_usec += 1;
 ipv4framecount++;
 return;
 }
 /*===========================================================================*/
-void processipv6packet()
+void processipv6packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
+ipv6_t *ipv6;
 
+if(caplen < (uint32_t)IPV6_SIZE)
+	{
+	return;
+	}
+ipv6 = (ipv6_t*) packet;
+printf("%x\n", ipv6->nextprotocol);
+if(ipv6->nextprotocol == NEXTHDR_TCP)
+	{
+	processtcppacket();
+	}
+else if(ipv6->nextprotocol == NEXTHDR_UDP)
+	{
+	processudppacket();
+	}
+
+/* satisfy gcc warning */
+tv_sec += 1;
+tv_usec += 1;
 ipv6framecount++;
 return;
 }
@@ -1831,11 +1895,13 @@ if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
 		{
-		processipv4packet();
+		packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
+		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP))
 		{
-		processipv6packet();
+		packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
+		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
 		}
 	}
 else if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACK) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFPOLL) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACKPOLL))
@@ -1852,11 +1918,11 @@ else if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE802
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
 		{
-		processipv4packet();
+		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP))
 		{
-		processipv6packet();
+		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
 		}
 	}
 return;
@@ -1933,6 +1999,28 @@ else if (macf->type == IEEE80211_FTYPE_DATA)
 return;
 }
 /*===========================================================================*/
+void processethernetpacket(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+{
+eth2_t *eth2;
+uint8_t *packet_ptr;
+
+eth2 = (eth2_t*)packet;
+packet_ptr = packet;
+if(ntohs(eth2->ether_type) == LLC_TYPE_IPV4)
+	{
+	packet_ptr += ETH2_SIZE;
+	caplen -= ETH2_SIZE;
+	processipv4packet(tv_sec, tv_usec, caplen, packet_ptr);
+	}
+if(ntohs(eth2->ether_type) == LLC_TYPE_IPV6)
+	{
+	packet_ptr += ETH2_SIZE;
+	caplen -= ETH2_SIZE;
+	processipv6packet(tv_sec, tv_usec, caplen, packet_ptr);
+	}
+return;
+}
+/*===========================================================================*/
 void processpacket(uint32_t tv_sec, uint32_t tv_usec, int linktype, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
@@ -1956,7 +2044,18 @@ if((tv_sec == 0) && (tv_usec == 0))
 	tv_usec = tvtmp.tv_usec;
 	}
 
-if(linktype == DLT_IEEE802_11_RADIO)
+if(linktype == DLT_EN10MB)
+	{
+	if(caplen < (uint32_t)ETH2_SIZE)
+		{
+		printf("failed to read radiotap header\n");
+		return;
+		}
+	processethernetpacket(tv_sec, tv_usec, caplen, packet);
+	return;
+	}
+
+else if(linktype == DLT_IEEE802_11_RADIO)
 	{
 	if(caplen < (uint32_t)RTH_SIZE)
 		{
@@ -2418,6 +2517,8 @@ eapolframecount = 0;
 eapframecount = 0;
 ipv4framecount = 0;
 ipv6framecount = 0;
+tcpframecount = 0;
+udpframecount = 0;
 
 char tmpoutname[PATH_MAX+1];
 

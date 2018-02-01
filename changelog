@@ -1,3 +1,10 @@
+01.02.2018
+==========
+hcxpcaptool
+added detection of TCP and UDP network protocol
+neccessary for IP based authentications
+
+
 31.01.2018
 ==========
 hcxtools moved to v 4.1.0

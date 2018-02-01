@@ -113,7 +113,15 @@ struct radiotap_header
 } __attribute__((__packed__));
 typedef struct radiotap_header rth_t;
 #define	RTH_SIZE (sizeof(rth_t))
-
+/*===========================================================================*/
+struct ethernet2_header
+{
+ uint8_t	addr1[6];
+ uint8_t	addr2[6];
+ uint16_t	ether_type;
+} __attribute__((packed));
+typedef struct ethernet2_header eth2_t;
+#define	ETH2_SIZE (sizeof(eth2_t))
 /*===========================================================================*/
 #define WLAN_DEVNAMELEN_MAX 16
 struct prism_item
@@ -392,6 +400,8 @@ struct ipv4_frame
  uint16_t	flags_offset;
  uint8_t	ttl;
  uint8_t	nextprotocol;
+#define NEXTHDR_TCP	6	/* TCP header. */
+#define NEXTHDR_UDP	17	/* UDP header. */
 #define NEXTHDR_GRE	47	/* GRE header. */
 #define NEXTHDR_ESP	50	/* Encapsulating security payload. */
 #define NEXTHDR_AUTH	51	/* Authentication header. */
