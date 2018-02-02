@@ -980,7 +980,7 @@ if(rawhandshakeliste == NULL)
 		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
-	memset(rawhandshakeliste, 0, sizeof(hcxl_t));
+	memset(rawhandshakeliste, 0, HCXLIST_SIZE);
 	rawhandshakeliste->tv_ea = tv_ea;
 	rawhandshakeliste->tv_eo = tv_eo;
 	rawhandshakeliste->tv_diff = timegap;
@@ -1062,7 +1062,7 @@ if(zeiger == NULL)
 	}
 rawhandshakeliste = zeiger;
 zeiger = rawhandshakeliste +rawhandshakecount;
-memset(zeiger, 0, sizeof(hcxl_t));
+memset(zeiger, 0, HCXLIST_SIZE);
 zeiger->tv_ea = tv_ea;
 zeiger->tv_eo = tv_eo;
 zeiger->tv_diff = timegap;
@@ -1101,7 +1101,7 @@ if(handshakeliste == NULL)
 		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
-	memset(handshakeliste, 0, sizeof(hcxl_t));
+	memset(handshakeliste, 0, HCXLIST_SIZE);
 	handshakeliste->tv_ea = tv_ea;
 	handshakeliste->tv_eo = tv_eo;
 	handshakeliste->tv_diff = timegap;
@@ -1269,7 +1269,7 @@ if(zeiger == NULL)
 	}
 handshakeliste = zeiger;
 zeiger = handshakeliste +handshakecount;
-memset(zeiger, 0, sizeof(hcxl_t));
+memset(zeiger, 0, HCXLIST_SIZE);
 zeiger->tv_ea = tv_ea;
 zeiger->tv_eo = tv_eo;
 zeiger->tv_diff = timegap;
@@ -1406,7 +1406,7 @@ if(eapolliste == NULL)
 		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
-	memset(eapolliste, 0, sizeof(eapoll_t));
+	memset(eapolliste, 0, EAPOLLIST_SIZE);
 	eapolliste->tv_sec = tv_sec;
 	eapolliste->tv_usec = tv_usec;
 	memcpy(eapolliste->mac_ap, mac_ap, 6);
@@ -1426,7 +1426,7 @@ if(zeiger == NULL)
 	}
 eapolliste = zeiger;
 zeiger = eapolliste +eapolcount;
-memset(zeiger, 0, sizeof(eapoll_t));
+memset(zeiger, 0, EAPOLLIST_SIZE);
 zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
@@ -1452,7 +1452,7 @@ if(apstaessidliste == NULL)
 		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
-	memset(apstaessidliste, 0, sizeof(apstaessidl_t));
+	memset(apstaessidliste, 0, APSTAESSIDLIST_SIZE);
 	apstaessidliste->tv_sec = tv_sec;
 	apstaessidliste->tv_usec = tv_usec;
 	memcpy(apstaessidliste->mac_ap, mac_ap, 6);
@@ -1480,7 +1480,7 @@ if(zeiger == NULL)
 	}
 apstaessidliste = zeiger;
 zeiger = apstaessidliste +apstaessidcount;
-memset(zeiger, 0, sizeof(apstaessidl_t));
+memset(zeiger, 0, APSTAESSIDLIST_SIZE);
 zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
