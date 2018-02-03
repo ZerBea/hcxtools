@@ -209,12 +209,17 @@ if((fh_black = fopen(blacklistname, "r")) == NULL)
 	printf("opening blacklist failed %s\n", blacklistname);
 	return;
 	}
+
 c = 0;
 while((len = fgetline(fh_black, 14, linein)) != -1)
 	{
 	if(len != 12)
 		continue;
-	hex2bin(linein, &mac_black_ap[c][0], 6);
+	if(hex2bin(linein, &mac_black_ap[c][0], 6) == false)
+		{
+		printf("reading blacklist entry failed %s\n", blacklistname);
+		break;
+		}
 	c++;
 	if(c >= BLACKLISTESIZEMAX)
 		{
