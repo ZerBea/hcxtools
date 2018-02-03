@@ -24,7 +24,7 @@
 #include "include/version.h"
 #include "include/hcxpcaptool.h"
 #include "include/ieee80211.c"
-#include "include/common.c"
+#include "include/strings.c"
 #include "include/byteops.c"
 #include "include/fileops.c"
 #include "include/hashops.c"
@@ -468,9 +468,7 @@ if(handshakecount != 0)
 	{
 	printf("best handshakes........: %llu (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
 	}
-
 printf("\n");
-
 return;
 }
 /*===========================================================================*/
