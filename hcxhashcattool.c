@@ -481,6 +481,22 @@ fclose(fhpmk);
 return;
 }
 /*===========================================================================*/
+void makepmklist(char *potname, char *pmkname)
+{
+pmkliste = NULL;
+pmkcount = 0;
+processpmkfile(pmkname);
+processpotfile(potname);
+if(pmkliste != NULL)
+	{
+	calculatepmk();
+	writenewpmkfile(pmkname);
+	printf("total PMKs calculated.: %llu\n", pmkcount);
+	free(pmkliste);
+	}
+return;
+}
+/*===========================================================================*/
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
@@ -551,20 +567,14 @@ while ((auswahl = getopt(argc, argv, "p:P:hv")) != -1)
 		}
 	}
 
-pmkliste = NULL;
-pmkcount = 0;
 if((potname != NULL) && (pmkname != NULL))
 	{
-	processpmkfile(pmkname);
-	processpotfile(potname);
-	if(pmkliste != NULL)
-		{
-		calculatepmk();
-		writenewpmkfile(pmkname);
-		printf("total PMKs calculated.: %llu\n", pmkcount);
-		free(pmkliste);
-		}
+	makepmklist(potname, pmkname);
 	}
+
+
+
+
 return EXIT_SUCCESS;
 }
 /*===========================================================================*/
