@@ -11,27 +11,6 @@ for(p = 0; p < len; p++)
 	}
 return true;
 }
-
-/*===========================================================================*/
-size_t ishexstring(const char *str, size_t len)
-{
-char *hexid = "$HEX[";
-
-len = strlen(str);
-if((len < 8) || (len % 2 != 0))
-	{
-	return 0;
-	}
-if(memcmp(str, hexid, 5) != 0)
-	{
-	return 0;
-	}
-if(str[len -1] != ']')
-	{
-	return 0;
-	}
-return len/2;
-}
 /*===========================================================================*/
 bool ishexvalue(const char *str, size_t len)
 {
@@ -90,5 +69,18 @@ for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	bytes[pos/2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
 	};
 return true;
+}
+/*===========================================================================*/
+size_t ishexify(const char *str)
+{
+char *hexid = "$HEX[";
+size_t len;
+
+len = strlen(str);
+if((memcmp(str, hexid, 5) == 0) && (str[len -1] == ']') && (len % 2 == 0))
+	{
+	return (len -6)/2;
+	}
+return 0;
 }
 /*===========================================================================*/
