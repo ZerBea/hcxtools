@@ -36,6 +36,7 @@ ifeq ($(HOSTOS), Linux)
 	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
 endif
 	$(CC) $(CFLAGS) -o hcxpcaptool hcxpcaptool.c -lz
+	$(CC) $(CFLAGS) -o hcxhashcattool hcxhashcattool.c -lcrypto -lpthread
 	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap -lcrypto
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
 	$(CC) $(CFLAGS) -o wlanwkp2hcx wlanwkp2hcx.c
@@ -65,6 +66,7 @@ ifeq ($(HOSTOS), Linux)
 	install $(INSTFLAGS) wlanrcascan $(INSTALLDIR)/wlanrcascan
 endif
 	install $(INSTFLAGS) hcxpcaptool $(INSTALLDIR)/hcxpcaptool
+	install $(INSTFLAGS) hcxhashcattool $(INSTALLDIR)/hcxhashcattool
 	install $(INSTFLAGS) wlancap2hcx $(INSTALLDIR)/wlancap2hcx
 	install $(INSTFLAGS) wlanhc2hcx $(INSTALLDIR)/wlanhc2hcx
 	install $(INSTFLAGS) wlanwkp2hcx $(INSTALLDIR)/wlanwkp2hcx
@@ -92,6 +94,7 @@ ifeq ($(HOSTOS), Linux)
 	rm -f wlanrcascan
 endif
 	rm -f hcxpcaptool
+	rm -f hcxhashcattool
 	rm -f wlancap2hcx
 	rm -f wlanhc2hcx
 	rm -f wlanwkp2hcx
@@ -123,6 +126,7 @@ ifeq ($(HOSTOS), Linux)
 	rm -f wlanrcascan
 endif
 	rm -f hcxpcaptool
+	rm -f hcxhashcattool
 	rm -f wlancap2hcx
 	rm -f wlanhc2hcx
 	rm -f wlanwkp2hcx
@@ -154,6 +158,7 @@ ifeq ($(HOSTOS), Linux)
 	rm -f $(INSTALLDIR)/wlanrcascan
 endif
 	rm -f $(INSTALLDIR)/hcxpcaptool
+	rm -f $(INSTALLDIR)/hcxhashcattool
 	rm -f $(INSTALLDIR)/wlancap2hcx
 	rm -f $(INSTALLDIR)/wlanhc2hcx
 	rm -f $(INSTALLDIR)/wlanwkp2hcx

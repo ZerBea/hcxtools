@@ -1,3 +1,18 @@
+03.02.2018
+==========
+added hcxphashcattool (calculate PMKs from hashcat -m 2500 potfile)
+$ hcxhashcattool -h
+hcxhashcattool 4.1.0 (C) 2018 ZeroBeat
+usage:
+hcxhashcattool <options>
+
+options:
+-p <file> : input hashcat -m 2500 potfile
+-P <file> : output PMK file (PMK:ESSID:PSK)
+-h        : show this help
+-v        : show version
+
+
 01.02.2018
 ==========
 hcxpcaptool

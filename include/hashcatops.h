@@ -42,3 +42,16 @@ struct hccap_s
 typedef struct hccap_s hccap_t;
 #define	HCCAP_SIZE (sizeof(hccap_t))
 /*===========================================================================*/
+struct pmklist_s
+{
+ uint8_t pmk[32];
+ bool essidflag;
+ uint8_t essidlen;
+ uint8_t essid[32];
+ bool pskflag;
+ uint8_t psklen;
+ uint8_t psk[64];
+} __attribute__((__packed__));
+typedef struct pmklist_s pmklist_t;
+#define	PMKLIST_SIZE (sizeof(pmklist_t))
+/*===========================================================================*/

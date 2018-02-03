@@ -38,6 +38,7 @@ Detailed description
 | wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                         |
 | pioff          | Turns Raspberry Pi off via GPIO switch                                                                 |
 | hcxpcaptool    | Shows info of pcap / pcapng file                                                                       |
+| hcxhashcattool | Calculate PMKs from hashcat -m 2500 potfile                                                            |
 | wlancap2hcx    | Converts cap to hccapx and other formats (recommended for use with wlandump-ng)                        |
 | wlanhcx2cap    | Converts hccapx to cap                                                                                 |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                               |
@@ -89,6 +90,8 @@ Requirements
 * zlib and zlib-dev installed (for gzip compressed cap/pcap/pcapng files)
 
 * libcurl and curl-dev installed (used by whoismac and wlancap2wpasec)
+
+* libpthread and pthread-dev installed (used by hcxhashcattool)
 
 * Raspberry Pi: additionally libwiringpi and wiringpi dev installed (Raspberry Pi GPIO support)
 
