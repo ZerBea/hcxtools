@@ -562,8 +562,8 @@ if(essidoutname != NULL)
 			}
 		}
 	fclose(fhoutlist);
+	removeemptyfile(essidoutname);
 	}
-removeemptyfile(essidoutname);
 
 if(pmkoutname != NULL)
 	{
@@ -592,8 +592,8 @@ if(pmkoutname != NULL)
 			}
 		}
 	fclose(fhoutlist);
+	removeemptyfile(pmkoutname);
 	}
-removeemptyfile(pmkoutname);
 
 if(trafficoutname != NULL)
 	{
@@ -623,8 +623,8 @@ if(trafficoutname != NULL)
 			}
 		}
 	fclose(fhoutlist);
+	removeemptyfile(trafficoutname);
 	}
-removeemptyfile(trafficoutname);
 return;
 }
 /*===========================================================================*/
@@ -682,6 +682,7 @@ if(hccapxbestoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		removeemptyfile(hccapxbestoutname);
 		if(essidchangecount > 1)
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
@@ -689,7 +690,6 @@ if(hccapxbestoutname != NULL)
 		printf("%llu handshake(s) written to %s\n", writtencount, hccapxbestoutname);
 		}
 	}
-removeemptyfile(hccapxbestoutname);
 
 if(hccapxrawoutname != NULL)
 	{
@@ -728,6 +728,7 @@ if(hccapxrawoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		removeemptyfile(hccapxrawoutname);
 		if(essidchangecount > 1)
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
@@ -735,7 +736,6 @@ if(hccapxrawoutname != NULL)
 		printf("%llu handshake(s) written to %s\n", writtencount, hccapxrawoutname);
 		}
 	}
-removeemptyfile(hccapxrawoutname);
 
 if(hccapbestoutname != NULL)
 	{
@@ -774,6 +774,7 @@ if(hccapbestoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		removeemptyfile(hccapbestoutname);
 		if(essidchangecount > 1)
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
@@ -781,7 +782,6 @@ if(hccapbestoutname != NULL)
 		printf("%llu handshake(s) written to %s\n", writtencount, hccapbestoutname);
 		}
 	}
-removeemptyfile(hccapbestoutname);
 
 if(hccaprawoutname != NULL)
 	{
@@ -820,6 +820,7 @@ if(hccaprawoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		removeemptyfile(hccaprawoutname);
 		if(essidchangecount > 1)
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
@@ -827,7 +828,6 @@ if(hccaprawoutname != NULL)
 		printf("%llu handshake(s) written to %s\n", writtencount, hccaprawoutname);
 		}
 	}
-removeemptyfile(hccaprawoutname);
 
 if(johnbestoutname != NULL)
 	{
@@ -866,6 +866,7 @@ if(johnbestoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		removeemptyfile(johnbestoutname);
 		if(essidchangecount > 1)
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
@@ -873,7 +874,6 @@ if(johnbestoutname != NULL)
 		printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
 		}
 	}
-removeemptyfile(johnbestoutname);
 
 if(johnrawoutname != NULL)
 	{
@@ -912,6 +912,7 @@ if(johnrawoutname != NULL)
 			zeiger++;
 			}
 		fclose(fhoutlist);
+		removeemptyfile(hccaprawoutname);
 		if(essidchangecount > 1)
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
@@ -919,7 +920,6 @@ if(johnrawoutname != NULL)
 		printf("%llu handshake(s) written to %s\n", writtencount, johnrawoutname);
 		}
 	}
-removeemptyfile(hccaprawoutname);
 return;
 }
 /*===========================================================================*/
@@ -959,6 +959,7 @@ if(netntlm1outname != NULL)
 			zeigerrq++;
 			}
 		fclose(fhoutlist);
+		removeemptyfile(netntlm1outname);
 		printf("%llu netNTLMv1 written to %s\n", writtencount, netntlm1outname);
 		}
 	}
@@ -1041,7 +1042,7 @@ if(leapliste == NULL)
 zeiger = leapliste;
 for(c = 0; c < leapcount; c++)
 	{
-	if((zeiger->code == code) && (zeiger->data_len == count) && (memcmp(zeiger->data, data, count) == 0) && (zeiger->username_len == usernamelen) && (memcmp(zeiger->username, username, usernamelen) == 0))
+	if((zeiger->code == code) && (zeiger->id == id) && (zeiger->data_len == count) && (memcmp(zeiger->data, data, count) == 0) && (zeiger->username_len == usernamelen) && (memcmp(zeiger->username, username, usernamelen) == 0))
 		{
 		return;
 		}
@@ -2639,6 +2640,8 @@ fcsflag = false;
 apstaessidliste = NULL;
 eapolliste = NULL;
 handshakeliste = NULL;
+leapliste = NULL;
+
 char *pcapstr = "pcap";
 char *pcapngstr = "pcapng";
 
