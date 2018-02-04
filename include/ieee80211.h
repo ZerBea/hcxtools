@@ -320,17 +320,17 @@ typedef struct wpakey_frame wpakey_t;
 /*===========================================================================*/
 struct exteap_frame
 {
- uint8_t		code;
+ uint8_t			code;
 #define	EAP_CODE_REQ		1
 #define	EAP_CODE_RESP		2
 #define	EAP_CODE_SUCCESS	3
 #define	EAP_CODE_FAILURE	4
 #define	EAP_CODE_INITIATE	5
 #define	EAP_CODE_FINISH		6
- uint8_t		id;
-#define	EAP_TYPE_ID	1
- uint16_t		extlen;
- uint8_t		exttype;
+ uint8_t			id;
+#define	EAP_TYPE_ID		1
+ uint16_t			extlen;
+ uint8_t			exttype;
 #define EAP_TYPE_EAP		0
 #define EAP_TYPE_ID		1
 #define EAP_TYPE_NOTIFY		2
@@ -390,6 +390,37 @@ struct exteap_frame
 } __attribute__((__packed__));
 typedef struct exteap_frame exteap_t;
 #define	EXTEAP_SIZE offsetof(exteap_t, data)
+
+/*===========================================================================*/
+struct eapleap_req_frame
+{
+ uint8_t	code;
+ uint8_t	id;
+ uint16_t	len;
+ uint8_t	type;
+ uint8_t	version;
+ uint8_t	reserved;
+ uint8_t	count;
+ uint8_t	challenge[8];
+ uint8_t	name[1];
+} __attribute__((__packed__));
+typedef struct eapleap_req_frame eapleapreq_t;
+#define	EAPLEAPREQ_SIZE (sizeof(eapleapreq_t))
+/*===========================================================================*/
+struct eapleap_resp_frame
+{
+ uint8_t	code;
+ uint8_t	id;
+ uint16_t	len;
+ uint8_t	type;
+ uint8_t	version;
+ uint8_t	reserved;
+ uint8_t	count;
+ uint8_t	response[24];
+ uint8_t	name[1];
+} __attribute__((__packed__));
+typedef struct eapleap_resp_frame eapleapresp_t;
+#define	EAPLEAPRESP_SIZE (sizeof(eapleapresp_t))
 /*===========================================================================*/
 struct ipv4_frame
 {

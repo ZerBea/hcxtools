@@ -53,6 +53,7 @@
 #define HCXT_ESSID_OUT		'E'
 #define HCXT_TRAFFIC_OUT	'T'
 #define HCXT_IDENTITY_OUT	'I'
+#define HCXT_USERNAME_OUT	'U'
 #define HCXT_PMK_OUT		'P'
 #define HCXT_HEXDUMP_OUT	'H'
 #define HCXT_VERBOSE_OUT	'V'
@@ -115,6 +116,7 @@ char *essidoutname;
 char *trafficoutname;
 char *pmkoutname;
 char *identityoutname;
+char *useroutname;
 
 FILE *fhhexmode;
 
@@ -144,6 +146,7 @@ essidoutname = NULL;
 trafficoutname = NULL;
 pmkoutname = NULL;
 identityoutname = NULL;
+useroutname = NULL;
 verboseflag = false;
 hexmodeflag = false;
 wantrawflag = false;
@@ -911,6 +914,26 @@ if(johnrawoutname != NULL)
 		}
 	}
 removeemptyfile(hccaprawoutname);
+return;
+}
+/*===========================================================================*/
+void outlistusername(uint32_t ulen, uint8_t *packet)
+{
+FILE *fhoutlist = NULL;
+
+if(packet[0] == 0)
+	{
+	return;
+	}
+
+if(useroutname != NULL)
+	{
+	if((fhoutlist = fopen(useroutname, "a+")) != NULL)
+		{
+		fwriteessidstr(ulen, packet, fhoutlist);
+		fclose(fhoutlist);
+		}
+	}
 return;
 }
 /*===========================================================================*/
@@ -1747,6 +1770,39 @@ eapolframecount++;
 return;
 }
 /*===========================================================================*/
+void processeapleapauthentication(uint32_t eaplen, uint8_t *packet)
+{
+eapleapreq_t *leapreq;
+eapleapresp_t *leapresp;
+uint16_t leaplen;
+
+
+if(eaplen < 4)
+	{
+	return;
+	}
+leapreq = (eapleapreq_t*)packet;
+leapresp = (eapleapresp_t*)packet;
+leaplen = ntohs(leapreq->len);
+if(eaplen < leaplen)
+	{
+	return;
+	}
+if(leapreq->version != 1)
+	{
+	return;
+	}
+if(leapreq->code == EAP_CODE_REQ)
+	{
+	outlistusername(leaplen -16, packet +16);
+	}
+if(leapresp->code == EAP_CODE_RESP)
+	{
+	outlistusername(leaplen -32, packet +32);
+	}
+return;
+}
+/*===========================================================================*/
 void processexeapauthentication(uint32_t eaplen, uint8_t *packet)
 {
 exteap_t *exeap; 
@@ -1760,6 +1816,11 @@ exeap = (exteap_t*)(packet +EAPAUTH_SIZE);
 if(exeap->exttype == EAP_TYPE_ID)
 	{
 	outlistidentity(eaplen, packet +EAPAUTH_SIZE);
+	}
+
+else if(exeap->exttype == EAP_TYPE_LEAP)
+	{
+	processeapleapauthentication(eaplen, packet +EAPAUTH_SIZE);
 	}
 
 exeaptype[exeap->exttype] = 1;
@@ -2636,6 +2697,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-I <file> : output identity list\n"
 	"          : needs to be sorted unique\n"
+	"-U <file> : output username list\n"
+	"          : needs to be sorted unique\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
@@ -2673,7 +2736,7 @@ int auswahl;
 int index;
 char *eigenpfadname, *eigenname;
 
-static const char *short_options = "o:O:x:X:j:J:E:I:P:T:H:Vhv";
+static const char *short_options = "o:O:x:X:j:J:E:I:U:P:T:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
@@ -2771,6 +2834,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_IDENTITY_OUT:
 		identityoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_USERNAME_OUT:
+		useroutname = optarg;
 		verboseflag = true;
 		break;
 

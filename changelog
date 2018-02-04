@@ -1,3 +1,13 @@
+04.02.2018
+==========
+hcxpcaptool
+continued implementation of EAP (RADIUS) 
+added new option -U
+-U <file> : output username list
+          : needs to be sorted unique
+right now, only LEAP usernames
+
+
 03.02.2018
 ==========
 added hcxphashcattool (calculate PMKs from hashcat -m 2500 potfile)
