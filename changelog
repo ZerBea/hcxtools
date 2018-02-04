@@ -1,10 +1,11 @@
 04.02.2018
 ==========
 hcxpcaptool
-continued implementation of EAP (RADIUS): netNTLMv1 
+continued implementation of EAP (RADIUS): netNTLMv1, MD5 challenge
 added new options
 -U <file> : output username list (unsorted)
---netntlm-out=<file>              : output netNTLMv1 file
+--netntlm-out=<file>              : output netNTLMv1 file	(hashcat -m 5500, john netntlm)
+--md5-out=<file>                  : output MD5 challenge file	(hashcat -m 4800, john chap)
 
 
 03.02.2018

@@ -406,6 +406,18 @@ struct eapleap_frame
 typedef struct eapleap_frame eapleap_t;
 #define	EAPLEAP_SIZE (sizeof(eapleap_t))
 /*===========================================================================*/
+struct md5_frame
+{
+ uint8_t	code;
+ uint8_t	id;
+ uint16_t	len;
+ uint8_t	type;
+ uint8_t	data_len;
+ uint8_t	data[1];
+} __attribute__((__packed__));
+typedef struct md5_frame md5_t;
+#define	MD5_SIZE (sizeof(md5_t))
+/*===========================================================================*/
 struct ipv4_frame
 {
  uint8_t	ver_hlen;

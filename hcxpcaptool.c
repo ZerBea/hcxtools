@@ -44,6 +44,7 @@
 #define HCXT_REPLAYCOUNTGAP	1
 #define HCXT_TIMEGAP		2
 #define HCXT_NETNTLM_OUT	3
+#define HCXT_MD5_OUT		4
 
 #define HCXT_HCCAPX_OUT		'o'
 #define HCXT_HCCAPX_OUT_RAW	'O'
@@ -85,7 +86,10 @@ unsigned long long int rawhandshakeaplesscount;
 hcxl_t *rawhandshakeliste;
 
 unsigned long long int leapcount;
-leap_t *leapliste;
+leapl_t *leapliste;
+
+unsigned long long int md5count;
+md5l_t *md5liste;
 
 unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
@@ -122,6 +126,7 @@ char *pmkoutname;
 char *identityoutname;
 char *useroutname;
 char *netntlm1outname;
+char *md5outname;
 
 FILE *fhhexmode;
 
@@ -153,6 +158,8 @@ pmkoutname = NULL;
 identityoutname = NULL;
 useroutname = NULL;
 netntlm1outname = NULL;
+md5outname = NULL;
+
 verboseflag = false;
 hexmodeflag = false;
 wantrawflag = false;
@@ -926,7 +933,7 @@ return;
 void outputleaplist()
 {
 unsigned long long int c, d, writtencount;
-leap_t *zeigerrq, *zeigerrs;
+leapl_t *zeigerrq, *zeigerrs;
 FILE *fhoutlist = NULL;
 
 if(netntlm1outname != NULL)
@@ -961,6 +968,48 @@ if(netntlm1outname != NULL)
 		fclose(fhoutlist);
 		removeemptyfile(netntlm1outname);
 		printf("%llu netNTLMv1 written to %s\n", writtencount, netntlm1outname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+void outputmd5list()
+{
+unsigned long long int c, d, writtencount;
+md5l_t *zeigerrq, *zeigerrs;
+FILE *fhoutlist = NULL;
+
+if(md5outname != NULL)
+	{
+	if((fhoutlist = fopen(md5outname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeigerrq = md5liste;
+		for(c = 0; c < md5count; c++)
+			{
+			if(zeigerrq->code == EAP_CODE_REQ)
+				{
+				zeigerrs = md5liste;
+				for(d = 0; d < md5count; d++)
+					{
+					if(zeigerrs->code == EAP_CODE_RESP)
+						{
+						if(zeigerrq->id == zeigerrs->id)
+							{
+							fwritehexbuffnoret(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fwritehexbuffnoret(zeigerrq->data_len, zeigerrq->data, fhoutlist);
+							fprintf(fhoutlist, "%02x\n", zeigerrs->id);
+							writtencount++;
+							}
+						}
+					zeigerrs++;
+					}
+				}
+			zeigerrq++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(md5outname);
+		printf("%llu MD5 challenge written to %s\n", writtencount, md5outname);
 		}
 	}
 return;
@@ -1011,9 +1060,59 @@ if(identityoutname != NULL)
 return;
 }
 /*===========================================================================*/
+void addeapmd5(uint8_t code, uint8_t id, uint8_t len, uint8_t *data)
+{
+md5l_t *zeiger;
+unsigned long long int c;
+
+if(md5liste == NULL)
+	{
+	md5liste = malloc(MD5LIST_SIZE);
+	if(md5liste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memset(md5liste, 0, MD5LIST_SIZE);
+	md5liste->code = code;
+	md5liste->id = id;
+	md5liste->data_len = len;
+	memcpy(md5liste->data, data, len);
+	md5count++;
+	return;
+	}
+
+
+zeiger = md5liste;
+for(c = 0; c < md5count; c++)
+	{
+	if((zeiger->code == code) && (zeiger->id == id) && (zeiger->data_len == len) && (memcmp(zeiger->data, data, len) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
+
+zeiger = realloc(md5liste, (md5count +1) *MD5LIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+md5liste = zeiger;
+zeiger = md5liste +md5count;
+memset(zeiger, 0, MD5LIST_SIZE);
+zeiger->code = code;
+zeiger->id = id;
+zeiger->data_len = len;
+memcpy(zeiger->data, data, len);
+md5count++;
+return;
+}
+/*===========================================================================*/
 void addeapleap(uint8_t code, uint8_t id, uint8_t count, uint8_t *data, uint16_t usernamelen, uint8_t *username)
 {
-leap_t *zeiger;
+leapl_t *zeiger;
 unsigned long long int c;
 
 if(usernamelen > 255)
@@ -1876,6 +1975,25 @@ eapolframecount++;
 return;
 }
 /*===========================================================================*/
+void processeapmd5authentication(uint32_t eaplen, uint8_t *packet)
+{
+md5_t *md5;
+
+if(eaplen < 22)
+	{
+	return;
+	}
+md5 = (md5_t*)packet;
+if(eaplen -6 < md5->data_len)
+	{
+	return;
+	}
+
+addeapmd5(md5->code, md5->id, md5->data_len, md5->data);
+
+return;
+}
+/*===========================================================================*/
 void processeapleapauthentication(uint32_t eaplen, uint8_t *packet)
 {
 eapleap_t *leap;
@@ -1921,6 +2039,11 @@ if(exeap->exttype == EAP_TYPE_ID)
 else if(exeap->exttype == EAP_TYPE_LEAP)
 	{
 	processeapleapauthentication(eaplen, packet +EAPAUTH_SIZE);
+	}
+
+else if(exeap->exttype == EAP_TYPE_MD5)
+	{
+	processeapmd5authentication(eaplen, packet +EAPAUTH_SIZE);
 	}
 
 exeaptype[exeap->exttype] = 1;
@@ -2641,6 +2764,7 @@ apstaessidliste = NULL;
 eapolliste = NULL;
 handshakeliste = NULL;
 leapliste = NULL;
+md5liste = NULL;
 
 char *pcapstr = "pcap";
 char *pcapngstr = "pcapng";
@@ -2751,6 +2875,11 @@ if(apstaessidliste != NULL)
 	outputessidlists();
 	}
 
+if(md5liste != NULL)
+	{
+	outputmd5list();
+	}
+
 if(leapliste != NULL)
 	{
 	outputleaplist();
@@ -2759,6 +2888,11 @@ if(leapliste != NULL)
 if(handshakeliste != NULL)
 	{
 	outputwpalists(pcapinname);
+	}
+
+if(md5liste != NULL)
+	{
+	free(md5liste);
 	}
 
 if(leapliste != NULL)
@@ -2822,6 +2956,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--nonce-error-corrections=<digit> : maximum allowed nonce gap (default: %llu)\n"
 	"                                  : should be the same value as in hashcat\n"
 	"--netntlm-out=<file>              : output netNTLMv1 file\n"
+	"--md5-out=<file>                  : output MD5 challenge file\n"
 	"\n"
 	"bitmask for message:\n"
 	"0001 M1\n"
@@ -2854,6 +2989,7 @@ static const struct option long_options[] =
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
 	{"time-error-corrections",	required_argument,	NULL,	HCXT_TIMEGAP},
 	{"netntlm-out",			required_argument,	NULL,	HCXT_NETNTLM_OUT},
+	{"md5-out",			required_argument,	NULL,	HCXT_MD5_OUT},
 	{NULL,				0,			NULL,	0}
 };
 
@@ -2894,6 +3030,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_NETNTLM_OUT:
 		netntlm1outname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_MD5_OUT:
+		md5outname = optarg;
 		verboseflag = true;
 		break;
 
