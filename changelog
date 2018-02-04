@@ -1,11 +1,10 @@
 04.02.2018
 ==========
 hcxpcaptool
-continued implementation of EAP (RADIUS) 
-added new option -U
--U <file> : output username list
-          : needs to be sorted unique
-right now, only LEAP usernames
+continued implementation of EAP (RADIUS): netNTLMv1 
+added new options
+-U <file> : output username list (unsorted)
+--netntlm-out=<file>              : output netNTLMv1 file
 
 
 03.02.2018

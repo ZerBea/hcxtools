@@ -93,8 +93,11 @@ typedef struct hcxtoollist_s hcxl_t;
 /*===========================================================================*/
 struct leaplist_s
 {
- uint8_t	challenge[0xff];
- uint8_t	response[0xff];
+ uint8_t	code;
+ uint8_t	id;
+ uint8_t	data_len;
+ uint8_t	data[0xff];
+ uint16_t	username_len;
  uint8_t	username[0xff];
 } __attribute__((__packed__));
 typedef struct leaplist_s leap_t;

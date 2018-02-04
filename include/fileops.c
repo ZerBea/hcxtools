@@ -61,6 +61,27 @@ fprintf(fhd, ":");
 return;
 }
 /*===========================================================================*/
+void fwriteessidstrnoret(uint8_t len, unsigned char *essidstr, FILE *fhd)
+{
+int p;
+
+if(isasciistring(len, essidstr) != false)
+	{
+	fwrite(essidstr, len, 1, fhd);
+	fprintf(fhd, ":");
+	}
+else
+	{
+	fprintf(fhd, "$HEX[");
+	for(p = 0; p < len; p++)
+		{
+		fprintf(fhd, "%02x", essidstr[p]);
+		}
+	fprintf(fhd, "]:");
+	}
+return;
+}
+/*===========================================================================*/
 void fwriteessidstr(uint8_t len, unsigned char *essidstr, FILE *fhd)
 {
 int p;
@@ -79,6 +100,18 @@ else
 		}
 	fprintf(fhd, "]\n");
 	}
+return;
+}
+/*===========================================================================*/
+void fwritehexbuffnoret(uint8_t bufflen, uint8_t *buff, FILE *fhd)
+{
+int p;
+
+for(p = 0; p < bufflen; p++)
+	{
+	fprintf(fhd, "%02x", buff[p]);
+	}
+fprintf(fhd, ":");
 return;
 }
 /*===========================================================================*/

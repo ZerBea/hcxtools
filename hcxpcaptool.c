@@ -84,6 +84,9 @@ unsigned long long int rawhandshakecount;
 unsigned long long int rawhandshakeaplesscount;
 hcxl_t *rawhandshakeliste;
 
+unsigned long long int leapcount;
+leap_t *leapliste;
+
 unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
@@ -920,6 +923,48 @@ removeemptyfile(hccaprawoutname);
 return;
 }
 /*===========================================================================*/
+void outputleaplist()
+{
+unsigned long long int c, d, writtencount;
+leap_t *zeigerrq, *zeigerrs;
+FILE *fhoutlist = NULL;
+
+if(netntlm1outname != NULL)
+	{
+	if((fhoutlist = fopen(netntlm1outname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeigerrq = leapliste;
+		for(c = 0; c < leapcount; c++)
+			{
+			if(zeigerrq->code == EAP_CODE_REQ)
+				{
+				zeigerrs = leapliste;
+				for(d = 0; d < leapcount; d++)
+					{
+					if(zeigerrs->code == EAP_CODE_RESP)
+						{
+						if(zeigerrq->id == zeigerrs->id)
+							{
+							fwriteessidstrnoret(zeigerrq->username_len, zeigerrq->username, fhoutlist);
+							fprintf(fhoutlist, ":::");
+							fwritehexbuffnoret(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fwritehexbuff(zeigerrq->data_len, zeigerrq->data, fhoutlist);
+							writtencount++;
+							}
+						}
+					zeigerrs++;
+					}
+				}
+			zeigerrq++;
+			}
+		fclose(fhoutlist);
+		printf("%llu netNTLMv1 written to %s\n", writtencount, netntlm1outname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 void outlistusername(uint32_t ulen, uint8_t *packet)
 {
 FILE *fhoutlist = NULL;
@@ -965,12 +1010,60 @@ if(identityoutname != NULL)
 return;
 }
 /*===========================================================================*/
-void addeapleap()
+void addeapleap(uint8_t code, uint8_t id, uint8_t count, uint8_t *data, uint16_t usernamelen, uint8_t *username)
 {
+leap_t *zeiger;
+unsigned long long int c;
 
+if(usernamelen > 255)
+	{
+	usernamelen = 255;
+	}
+if(leapliste == NULL)
+	{
+	leapliste = malloc(LEAPLIST_SIZE);
+	if(leapliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memset(leapliste, 0, LEAPLIST_SIZE);
+	leapliste->code = code;
+	leapliste->id = id;
+	leapliste->data_len = count;
+	memcpy(leapliste->data, data, count);
+	leapliste->username_len = usernamelen;
+	memcpy(leapliste->username, username, usernamelen);
+	leapcount++;
+	return;
+	}
 
+zeiger = leapliste;
+for(c = 0; c < leapcount; c++)
+	{
+	if((zeiger->code == code) && (zeiger->data_len == count) && (memcmp(zeiger->data, data, count) == 0) && (zeiger->username_len == usernamelen) && (memcmp(zeiger->username, username, usernamelen) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
 
-
+zeiger = realloc(leapliste, (leapcount +1) *LEAPLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+leapliste = zeiger;
+zeiger = leapliste +leapcount;
+memset(zeiger, 0, LEAPLIST_SIZE);
+zeiger->code = code;
+zeiger->id = id;
+zeiger->data_len = count;
+memcpy(zeiger->data, data, count);
+zeiger->username_len = usernamelen;
+memcpy(zeiger->username, username, usernamelen);
+leapcount++;
 return;
 }
 /*===========================================================================*/
@@ -1787,7 +1880,6 @@ void processeapleapauthentication(uint32_t eaplen, uint8_t *packet)
 eapleap_t *leap;
 uint16_t leaplen;
 
-
 if(eaplen < 4)
 	{
 	return;
@@ -1802,12 +1894,9 @@ if(leap->version != 1)
 	{
 	return;
 	}
-if(leap->code == EAP_CODE_REQ)
+if((leap->code == EAP_CODE_REQ) || (leap->code == EAP_CODE_RESP))
 	{
-	outlistusername(leaplen -8 -leap->count, packet +8 +leap->count);
-	}
-if(leap->code == EAP_CODE_RESP)
-	{
+	addeapleap(leap->code, leap->id, leap->count, leap->data, leaplen -8 -leap->count, packet +8 +leap->count);
 	outlistusername(leaplen -8 -leap->count, packet +8 +leap->count);
 	}
 return;
@@ -2579,6 +2668,7 @@ handshakecount = 0;
 handshakeaplesscount = 0;
 rawhandshakecount = 0;
 rawhandshakeaplesscount = 0;
+leapcount = 0;
 actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
@@ -2658,9 +2748,19 @@ if(apstaessidliste != NULL)
 	outputessidlists();
 	}
 
-if(handshakeliste != NULL) 
+if(leapliste != NULL)
+	{
+	outputleaplist();
+	}
+
+if(handshakeliste != NULL)
 	{
 	outputwpalists(pcapinname);
+	}
+
+if(leapliste != NULL)
+	{
+	free(leapliste);
 	}
 
 if(handshakeliste != NULL)
@@ -2715,10 +2815,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
-	"--time-error-corrections  : maximum allowed time gap (default: %llus)\n"
-	"--nonce-error-corrections : maximum allowed nonce gap (default: %llu)\n"
-	"                          : should be the same value as in hashcat\n"
-	"--netntlm-out             : output netNTLMv1 file\n"
+	"--time-error-corrections=<digit>  : maximum allowed time gap (default: %llus)\n"
+	"--nonce-error-corrections=<digit> : maximum allowed nonce gap (default: %llu)\n"
+	"                                  : should be the same value as in hashcat\n"
+	"--netntlm-out=<file>              : output netNTLMv1 file\n"
 	"\n"
 	"bitmask for message:\n"
 	"0001 M1\n"
