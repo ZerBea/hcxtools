@@ -43,6 +43,7 @@
 
 #define HCXT_REPLAYCOUNTGAP	1
 #define HCXT_TIMEGAP		2
+#define HCXT_NETNTLM_OUT	3
 
 #define HCXT_HCCAPX_OUT		'o'
 #define HCXT_HCCAPX_OUT_RAW	'O'
@@ -117,6 +118,7 @@ char *trafficoutname;
 char *pmkoutname;
 char *identityoutname;
 char *useroutname;
+char *netntlm1outname;
 
 FILE *fhhexmode;
 
@@ -147,6 +149,7 @@ trafficoutname = NULL;
 pmkoutname = NULL;
 identityoutname = NULL;
 useroutname = NULL;
+netntlm1outname = NULL;
 verboseflag = false;
 hexmodeflag = false;
 wantrawflag = false;
@@ -962,6 +965,15 @@ if(identityoutname != NULL)
 return;
 }
 /*===========================================================================*/
+void addeapleap()
+{
+
+
+
+
+return;
+}
+/*===========================================================================*/
 void addrawhandshake(uint64_t tv_ea, eapoll_t *zeigerea, uint64_t tv_eo, eapoll_t *zeigereo, uint64_t timegap, uint64_t rcgap)
 {
 hcxl_t *zeiger;
@@ -1772,8 +1784,7 @@ return;
 /*===========================================================================*/
 void processeapleapauthentication(uint32_t eaplen, uint8_t *packet)
 {
-eapleapreq_t *leapreq;
-eapleapresp_t *leapresp;
+eapleap_t *leap;
 uint16_t leaplen;
 
 
@@ -1781,24 +1792,23 @@ if(eaplen < 4)
 	{
 	return;
 	}
-leapreq = (eapleapreq_t*)packet;
-leapresp = (eapleapresp_t*)packet;
-leaplen = ntohs(leapreq->len);
+leap = (eapleap_t*)packet;
+leaplen = ntohs(leap->len);
 if(eaplen < leaplen)
 	{
 	return;
 	}
-if(leapreq->version != 1)
+if(leap->version != 1)
 	{
 	return;
 	}
-if(leapreq->code == EAP_CODE_REQ)
+if(leap->code == EAP_CODE_REQ)
 	{
-	outlistusername(leaplen -16, packet +16);
+	outlistusername(leaplen -8 -leap->count, packet +8 +leap->count);
 	}
-if(leapresp->code == EAP_CODE_RESP)
+if(leap->code == EAP_CODE_RESP)
 	{
-	outlistusername(leaplen -32, packet +32);
+	outlistusername(leaplen -8 -leap->count, packet +8 +leap->count);
 	}
 return;
 }
@@ -2708,6 +2718,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--time-error-corrections  : maximum allowed time gap (default: %llus)\n"
 	"--nonce-error-corrections : maximum allowed nonce gap (default: %llu)\n"
 	"                          : should be the same value as in hashcat\n"
+	"--netntlm-out             : output netNTLMv1 file\n"
 	"\n"
 	"bitmask for message:\n"
 	"0001 M1\n"
@@ -2739,6 +2750,7 @@ static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
 	{"time-error-corrections",	required_argument,	NULL,	HCXT_TIMEGAP},
+	{"netntlm-out",			required_argument,	NULL,	HCXT_NETNTLM_OUT},
 	{NULL,				0,			NULL,	0}
 };
 
@@ -2777,6 +2789,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			}
 		break;
 
+		case HCXT_NETNTLM_OUT:
+		netntlm1outname = optarg;
+		verboseflag = true;
+		break;
+
 		case '?':
 		printf("invalid argument specified\n");
 		exit(EXIT_FAILURE);
@@ -2787,7 +2804,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 optind = 1;
 optopt = 0;
 index = 0;
-
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
 	switch (auswahl)

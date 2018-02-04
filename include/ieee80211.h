@@ -392,7 +392,7 @@ typedef struct exteap_frame exteap_t;
 #define	EXTEAP_SIZE offsetof(exteap_t, data)
 
 /*===========================================================================*/
-struct eapleap_req_frame
+struct eapleap_frame
 {
  uint8_t	code;
  uint8_t	id;
@@ -401,26 +401,10 @@ struct eapleap_req_frame
  uint8_t	version;
  uint8_t	reserved;
  uint8_t	count;
- uint8_t	challenge[8];
- uint8_t	name[1];
+ uint8_t	data[1];
 } __attribute__((__packed__));
-typedef struct eapleap_req_frame eapleapreq_t;
-#define	EAPLEAPREQ_SIZE (sizeof(eapleapreq_t))
-/*===========================================================================*/
-struct eapleap_resp_frame
-{
- uint8_t	code;
- uint8_t	id;
- uint16_t	len;
- uint8_t	type;
- uint8_t	version;
- uint8_t	reserved;
- uint8_t	count;
- uint8_t	response[24];
- uint8_t	name[1];
-} __attribute__((__packed__));
-typedef struct eapleap_resp_frame eapleapresp_t;
-#define	EAPLEAPRESP_SIZE (sizeof(eapleapresp_t))
+typedef struct eapleap_frame eapleap_t;
+#define	EAPLEAP_SIZE (sizeof(eapleap_t))
 /*===========================================================================*/
 struct ipv4_frame
 {

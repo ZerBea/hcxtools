@@ -91,3 +91,13 @@ struct hcxtoollist_s
 typedef struct hcxtoollist_s hcxl_t;
 #define	HCXLIST_SIZE (sizeof(hcxl_t))
 /*===========================================================================*/
+struct leaplist_s
+{
+ uint8_t	challenge[0xff];
+ uint8_t	response[0xff];
+ uint8_t	username[0xff];
+} __attribute__((__packed__));
+typedef struct leaplist_s leap_t;
+#define	LEAPLIST_SIZE (sizeof(leap_t))
+/*===========================================================================*/
+
