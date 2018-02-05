@@ -465,16 +465,38 @@ typedef struct ipv6_frame ipv6_t;
 /*===========================================================================*/
 struct gre_frame
 {
- uint16_t   flags;
- uint16_t   type;
- uint16_t   length;
- uint16_t   callid;
+ uint16_t	flags;
+ uint16_t	type;
+ uint16_t	len;
+ uint16_t	callid;
 } __attribute__ ((packed));
 typedef struct gre_frame gre_t;
 #define GRE_SIZE (sizeof(gre_t))
 #define GREPROTO_PPP 0x880b
-#define GRE_FLAG_SYNSET 0x0010
-#define GRE_FLAG_ACKSET 0x8000
+#define GRE_FLAG_SNSET 0x1000
+#define GRE_FLAG_ACKSET 0x0080
+#define GRE_MASK_VERSION 0x0003
+/*===========================================================================*/
+struct ptp_frame
+{
+ uint16_t	type;
+} __attribute__ ((packed));
+typedef struct ptp_frame ptp_t;
+#define PTP_SIZE (sizeof(ptp_t))
+#define PROTO_CHAP 0xc223
+/*===========================================================================*/
+struct chap_frame
+{
+ uint8_t	code;
+#define	CHAP_CODE_REQ	1
+#define	CHAP_CODE_RESP	2
+
+ uint8_t	id;
+ uint16_t	len;
+ uint8_t	data[1];
+} __attribute__ ((packed));
+typedef struct chap_frame chap_t;
+#define CHAP_SIZE (sizeof(chap_t))
 /*===========================================================================*/
 struct fcs_frame
 {

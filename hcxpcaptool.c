@@ -114,6 +114,7 @@ unsigned long long int ipv6framecount;
 unsigned long long int tcpframecount;
 unsigned long long int udpframecount;
 unsigned long long int greframecount;
+unsigned long long int chapframecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -472,7 +473,6 @@ if(udpframecount != 0)
 	{
 	printf("UDP packets............: %lld\n", udpframecount);
 	}
-
 if(greframecount != 0)
 	{
 	printf("GRE packets............: %lld\n", greframecount);
@@ -485,6 +485,11 @@ for(p = 0; p < 256; p++)
 		printf("found..................: %s\n", geteaptypestring(p));
 		}
 	}
+if(chapframecount != 0)
+	{
+	printf("found..................: PPP-CHAP authentication\n");
+	}
+
 if(rawhandshakecount != 0)
 	{
 	printf("raw handshakes.........: %llu (ap-less: %llu)\n", rawhandshakecount, rawhandshakeaplesscount);
@@ -2134,6 +2139,13 @@ else if(eap->type == 0)
 return;
 }
 /*===========================================================================*/
+void processtcppacket()
+{
+
+tcpframecount++;
+return;
+}
+/*===========================================================================*/
 void processudppacket()
 {
 
@@ -2141,24 +2153,47 @@ udpframecount++;
 return;
 }
 /*===========================================================================*/
-void processtcppacket()
+void processchappacket(uint32_t caplen, uint8_t *packet)
 {
+chap_t *chap;
+uint16_t chaplen;
+uint8_t authlen;
 
+if(caplen < (uint32_t)CHAP_SIZE)
+	{
+	return;
+	}
+chap = (chap_t*)packet;
+chaplen = ntohs(chap->len);
+authlen = chap->data[0];
+if(caplen < chaplen)
+	{
+	return;
+	}
+if(chap->code == CHAP_CODE_RESP)
+	{
+	if((chaplen -authlen -CHAP_SIZE) < caplen)
+		{
+		outlistusername(chaplen -authlen -CHAP_SIZE, packet +authlen +CHAP_SIZE);
+		}
+	}
 
-tcpframecount++;
+chapframecount++;
 return;
 }
 /*===========================================================================*/
 void processgrepacket(uint32_t caplen, uint8_t *packet)
 {
 gre_t *gre;
+ptp_t *ptp;
+uint8_t *packet_ptr;
 
-gre = (gre_t*)packet;
 if(caplen < (uint32_t)GRE_SIZE)
 	{
 	return;
 	}
-if((ntohs(gre->flags) & 0x3) != 0x1) /* only GRE v1 supported */
+gre = (gre_t*)packet;
+if((ntohs(gre->flags) & GRE_MASK_VERSION) != 0x1) /* only GRE v1 supported */
 	{
 	return;
 	}
@@ -2166,7 +2201,22 @@ if(ntohs(gre->type) != GREPROTO_PPP)
 	{
 	return;
 	}
+packet_ptr = packet +GRE_SIZE;
+if((ntohs(gre->flags) & GRE_FLAG_SNSET) == GRE_FLAG_SNSET)
+	{
+	packet_ptr += 4;
+	}
+if((ntohs(gre->flags) & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
+	{
+	packet_ptr += 4;
+	}
 
+ptp = (ptp_t*)(packet_ptr);
+
+if(ntohs(ptp->type) == PROTO_CHAP)
+	{
+	processchappacket(caplen, packet_ptr +PTP_SIZE);
+	}
 
 greframecount++;
 return;
@@ -2905,6 +2955,7 @@ ipv6framecount = 0;
 tcpframecount = 0;
 udpframecount = 0;
 greframecount = 0;
+chapframecount = 0;
 
 char tmpoutname[PATH_MAX+1];
 
