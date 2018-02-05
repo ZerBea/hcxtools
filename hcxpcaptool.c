@@ -2149,8 +2149,23 @@ tcpframecount++;
 return;
 }
 /*===========================================================================*/
-void processgrepacket()
+void processgrepacket(uint32_t caplen, uint8_t *packet)
 {
+gre_t *gre;
+
+gre = (gre_t*)packet;
+if(caplen < (uint32_t)GRE_SIZE)
+	{
+	return;
+	}
+if((ntohs(gre->flags) & 0x3) != 0x1) /* only GRE v1 supported */
+	{
+	return;
+	}
+if(ntohs(gre->type) != GREPROTO_PPP)
+	{
+	return;
+	}
 
 
 greframecount++;
@@ -2161,18 +2176,18 @@ void processipv4packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8
 {
 ipv4_t *ipv4;
 uint32_t ipv4len;
-//uint8_t *packet_ptr;
+uint8_t *packet_ptr;
 
 if(caplen < (uint32_t)IPV4_SIZE_MIN)
 	{
 	return;
 	}
 ipv4 = (ipv4_t*)packet;
-if((ipv4->ver_hlen  & 0xf0) != 0x40)
+if((ipv4->ver_hlen & 0xf0) != 0x40)
 	{
 	return;
 	}
-ipv4len = (ipv4->ver_hlen && 0x0f) *4;
+ipv4len = (ipv4->ver_hlen & 0x0f) *4;
 if(caplen < (uint32_t)ipv4len)
 	{
 	return;
@@ -2188,7 +2203,8 @@ else if(ipv4->nextprotocol == NEXTHDR_UDP)
 	}
 else if(ipv4->nextprotocol == NEXTHDR_GRE)
 	{
-	processgrepacket();
+	packet_ptr = packet +ipv4len;
+	processgrepacket(caplen, packet_ptr);
 	}
 
 
@@ -2203,6 +2219,7 @@ return;
 void processipv6packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 ipv6_t *ipv6;
+uint8_t *packet_ptr;
 
 if(caplen < (uint32_t)IPV6_SIZE)
 	{
@@ -2224,7 +2241,8 @@ else if(ipv6->nextprotocol == NEXTHDR_UDP)
 	}
 else if(ipv6->nextprotocol == NEXTHDR_GRE)
 	{
-	processgrepacket();
+	packet_ptr = packet +ipv6->len;
+	processgrepacket(caplen, packet_ptr);
 	}
 
 
