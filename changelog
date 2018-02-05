@@ -1,3 +1,12 @@
+05.02.2018
+==========
+hcxpcaptool
+improved help menu
+ignore empty usernames
+added new option
+--md5-john-out=<file>             : output MD5 challenge file (john chap)
+
+
 04.02.2018
 ==========
 hcxpcaptool

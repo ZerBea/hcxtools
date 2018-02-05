@@ -45,6 +45,7 @@
 #define HCXT_TIMEGAP		2
 #define HCXT_NETNTLM_OUT	3
 #define HCXT_MD5_OUT		4
+#define HCXT_MD5_JOHN_OUT	5
 
 #define HCXT_HCCAPX_OUT		'o'
 #define HCXT_HCCAPX_OUT_RAW	'O'
@@ -127,6 +128,7 @@ char *identityoutname;
 char *useroutname;
 char *netntlm1outname;
 char *md5outname;
+char *md5johnoutname;
 
 FILE *fhhexmode;
 
@@ -159,6 +161,7 @@ identityoutname = NULL;
 useroutname = NULL;
 netntlm1outname = NULL;
 md5outname = NULL;
+md5johnoutname = NULL;
 
 verboseflag = false;
 hexmodeflag = false;
@@ -951,11 +954,21 @@ if(netntlm1outname != NULL)
 					{
 					if(zeigerrs->code == EAP_CODE_RESP)
 						{
-						if(zeigerrq->id == zeigerrs->id)
+						if((zeigerrq->id == zeigerrs->id) && (zeigerrq->username_len != 0))
 							{
 							fwriteessidstrnoret(zeigerrq->username_len, zeigerrq->username, fhoutlist);
 							fprintf(fhoutlist, ":::");
-							fwritehexbuffnoret(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fwritehexbuffraw(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fprintf(fhoutlist, ":");
+							fwritehexbuff(zeigerrq->data_len, zeigerrq->data, fhoutlist);
+							writtencount++;
+							}
+						else if((zeigerrq->id == zeigerrs->id) && (zeigerrs->username_len != 0))
+							{
+							fwriteessidstrnoret(zeigerrs->username_len, zeigerrs->username, fhoutlist);
+							fprintf(fhoutlist, ":::");
+							fwritehexbuffraw(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fprintf(fhoutlist, ":");
 							fwritehexbuff(zeigerrq->data_len, zeigerrq->data, fhoutlist);
 							writtencount++;
 							}
@@ -996,9 +1009,10 @@ if(md5outname != NULL)
 						{
 						if(zeigerrq->id == zeigerrs->id)
 							{
-							fwritehexbuffnoret(zeigerrs->data_len, zeigerrs->data, fhoutlist);
-							fwritehexbuffnoret(zeigerrq->data_len, zeigerrq->data, fhoutlist);
-							fprintf(fhoutlist, "%02x\n", zeigerrs->id);
+							fwritehexbuffraw(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fprintf(fhoutlist, ":");
+							fwritehexbuffraw(zeigerrq->data_len, zeigerrq->data, fhoutlist);
+							fprintf(fhoutlist, ":%02x\n", zeigerrs->id);
 							writtencount++;
 							}
 						}
@@ -1010,6 +1024,42 @@ if(md5outname != NULL)
 		fclose(fhoutlist);
 		removeemptyfile(md5outname);
 		printf("%llu MD5 challenge written to %s\n", writtencount, md5outname);
+		}
+	}
+
+if(md5johnoutname != NULL)
+	{
+	if((fhoutlist = fopen(md5johnoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeigerrq = md5liste;
+		for(c = 0; c < md5count; c++)
+			{
+			if(zeigerrq->code == EAP_CODE_REQ)
+				{
+				zeigerrs = md5liste;
+				for(d = 0; d < md5count; d++)
+					{
+					if(zeigerrs->code == EAP_CODE_RESP)
+						{
+						if(zeigerrq->id == zeigerrs->id)
+							{
+							fprintf(fhoutlist, "$chap$%x*", zeigerrs->id);
+							fwritehexbuffraw(zeigerrq->data_len, zeigerrq->data, fhoutlist);
+							fprintf(fhoutlist, "*");
+							fwritehexbuffraw(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fprintf(fhoutlist, "\n");
+							writtencount++;
+							}
+						}
+					zeigerrs++;
+					}
+				}
+			zeigerrq++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(md5outname);
+		printf("%llu MD5 challenge written to %s\n", writtencount, md5johnoutname);
 		}
 	}
 return;
@@ -2016,7 +2066,10 @@ if(leap->version != 1)
 if((leap->code == EAP_CODE_REQ) || (leap->code == EAP_CODE_RESP))
 	{
 	addeapleap(leap->code, leap->id, leap->count, leap->data, leaplen -8 -leap->count, packet +8 +leap->count);
-	outlistusername(leaplen -8 -leap->count, packet +8 +leap->count);
+	if(leaplen -8 -leap->count != 0)
+		{
+		outlistusername(leaplen -8 -leap->count, packet +8 +leap->count);
+		}
 	}
 return;
 }
@@ -2033,7 +2086,10 @@ exeap = (exteap_t*)(packet +EAPAUTH_SIZE);
 
 if(exeap->exttype == EAP_TYPE_ID)
 	{
-	outlistidentity(eaplen, packet +EAPAUTH_SIZE);
+	if(eaplen != 0)
+		{
+		outlistidentity(eaplen, packet +EAPAUTH_SIZE);
+		}
 	}
 
 else if(exeap->exttype == EAP_TYPE_LEAP)
@@ -2935,12 +2991,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options> *.*\n"
 	"\n"
 	"options:\n"
-	"-o <file> : output hccapx file\n"
-	"-O <file> : output raw hccapx file\n"
-	"-x <file> : output hccap file\n"
-	"-X <file> : output raw hccap file\n"
-	"-j <file> : output john WPAPSK-PMK file\n"
-	"-J <file> : output raw john WPAPSK-PMK file\n"
+	"-o <file> : output hccapx file (hashcat -m 2500/2501)\n"
+	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
+	"-x <file> : output hccap file (hashcat -m 2500)\n"
+	"-X <file> : output raw hccap file (hashcat -m 2500)\n"
+	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
+	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-I <file> : output unsorted identity list\n"
 	"-U <file> : output unsorted username list\n"
@@ -2955,8 +3011,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--time-error-corrections=<digit>  : maximum allowed time gap (default: %llus)\n"
 	"--nonce-error-corrections=<digit> : maximum allowed nonce gap (default: %llu)\n"
 	"                                  : should be the same value as in hashcat\n"
-	"--netntlm-out=<file>              : output netNTLMv1 file\n"
-	"--md5-out=<file>                  : output MD5 challenge file\n"
+	"--netntlm-out=<file>              : output netNTLMv1 file (hashcat -m 5500 / john netntlm)\n"
+	"--md5-out=<file>                  : output MD5 challenge file (hashcat -m 4800)\n"
+	"--md5-john-out=<file>             : output MD5 challenge file (john chap)\n"
 	"\n"
 	"bitmask for message:\n"
 	"0001 M1\n"
@@ -2990,6 +3047,7 @@ static const struct option long_options[] =
 	{"time-error-corrections",	required_argument,	NULL,	HCXT_TIMEGAP},
 	{"netntlm-out",			required_argument,	NULL,	HCXT_NETNTLM_OUT},
 	{"md5-out",			required_argument,	NULL,	HCXT_MD5_OUT},
+	{"md5-john-out",		required_argument,	NULL,	HCXT_MD5_JOHN_OUT},
 	{NULL,				0,			NULL,	0}
 };
 
@@ -3035,6 +3093,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_MD5_OUT:
 		md5outname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_MD5_JOHN_OUT:
+		md5johnoutname = optarg;
 		verboseflag = true;
 		break;
 

@@ -103,7 +103,7 @@ else
 return;
 }
 /*===========================================================================*/
-void fwritehexbuffnoret(uint8_t bufflen, uint8_t *buff, FILE *fhd)
+void fwritehexbuffraw(uint8_t bufflen, uint8_t *buff, FILE *fhd)
 {
 int p;
 
@@ -111,7 +111,6 @@ for(p = 0; p < bufflen; p++)
 	{
 	fprintf(fhd, "%02x", buff[p]);
 	}
-fprintf(fhd, ":");
 return;
 }
 /*===========================================================================*/
