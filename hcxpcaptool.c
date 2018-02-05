@@ -113,6 +113,7 @@ unsigned long long int ipv4framecount;
 unsigned long long int ipv6framecount;
 unsigned long long int tcpframecount;
 unsigned long long int udpframecount;
+unsigned long long int greframecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -470,6 +471,11 @@ if(tcpframecount != 0)
 if(udpframecount != 0)
 	{
 	printf("UDP packets............: %lld\n", udpframecount);
+	}
+
+if(greframecount != 0)
+	{
+	printf("GRE packets............: %lld\n", greframecount);
 	}
 
 for(p = 0; p < 256; p++)
@@ -2143,6 +2149,14 @@ tcpframecount++;
 return;
 }
 /*===========================================================================*/
+void processgrepacket()
+{
+
+
+greframecount++;
+return;
+}
+/*===========================================================================*/
 void processipv4packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 ipv4_t *ipv4;
@@ -2172,6 +2186,12 @@ else if(ipv4->nextprotocol == NEXTHDR_UDP)
 	{
 	processudppacket();
 	}
+else if(ipv4->nextprotocol == NEXTHDR_GRE)
+	{
+	processgrepacket();
+	}
+
+
 
 /* satisfy gcc warning */
 tv_sec += 1;
@@ -2202,6 +2222,12 @@ else if(ipv6->nextprotocol == NEXTHDR_UDP)
 	{
 	processudppacket();
 	}
+else if(ipv6->nextprotocol == NEXTHDR_GRE)
+	{
+	processgrepacket();
+	}
+
+
 
 /* satisfy gcc warning */
 tv_sec += 1;
@@ -2860,6 +2886,7 @@ ipv4framecount = 0;
 ipv6framecount = 0;
 tcpframecount = 0;
 udpframecount = 0;
+greframecount = 0;
 
 char tmpoutname[PATH_MAX+1];
 
