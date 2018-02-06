@@ -388,7 +388,7 @@ printf( "                                               \n"
 	"endianess..............: %s\n"
 	"read errors............: %s\n"
 	"packets inside.........: %llu\n"
-	"skippedpackets.........: %llu\n"
+	"skipped packets........: %llu\n"
 	"packets with FCS.......: %llu\n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, fcsframecount);
 
@@ -2228,6 +2228,8 @@ ipv4_t *ipv4;
 uint32_t ipv4len;
 uint8_t *packet_ptr;
 
+
+
 if(caplen < (uint32_t)IPV4_SIZE_MIN)
 	{
 	return;
@@ -2237,6 +2239,7 @@ if((ipv4->ver_hlen & 0xf0) != 0x40)
 	{
 	return;
 	}
+
 ipv4len = (ipv4->ver_hlen & 0x0f) *4;
 if(caplen < (uint32_t)ipv4len)
 	{
@@ -2310,8 +2313,8 @@ mac_t *macf;
 llc_t *llc;
 uint8_t *packet_ptr;
 macf = (mac_t*)packet;
-packet_ptr = packet;
 
+packet_ptr = packet;
 if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_DATA_CFACK) || (macf->subtype == IEEE80211_STYPE_DATA_CFPOLL) || (macf->subtype == IEEE80211_STYPE_DATA_CFACKPOLL))
 	{
 	if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)LLC_SIZE)
@@ -2319,9 +2322,9 @@ if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_
 		return;
 		}
 	llc = (llc_t*)(packet+MAC_SIZE_NORM);
+	packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
 	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
 		{
-		packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
 		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
@@ -2342,18 +2345,18 @@ else if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE802
 		return;
 		}
 	llc = (llc_t*)(packet +MAC_SIZE_QOS);
+	packet_ptr += MAC_SIZE_QOS +LLC_SIZE;
 	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
 		{
-		packet_ptr += MAC_SIZE_QOS +LLC_SIZE;
 		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
 		{
-		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
+		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP))
 		{
-		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
+		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, packet_ptr);
 		}
 	}
 return;
