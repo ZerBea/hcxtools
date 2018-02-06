@@ -2138,8 +2138,22 @@ else if(eap->type == 0)
 return;
 }
 /*===========================================================================*/
-void processudppacket()
+void processudppacket(uint32_t caplen, uint8_t *packet)
 {
+udp_t *udp;
+uint16_t udplen; 
+
+if(caplen < (uint32_t)UDP_SIZE)
+	{
+	return;
+	}
+udp = (udp_t*)packet;
+udplen = ntohs(udp->len);
+if(caplen < udplen)
+	{
+	return;
+	}
+
 
 udpframecount++;
 return;
@@ -2225,7 +2239,6 @@ if((ntohs(gre->flags) & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
 	}
 
 ptp = (ptp_t*)(packet_ptr);
-
 if(ntohs(ptp->type) == PROTO_CHAP)
 	{
 	processchappacket(caplen, packet_ptr +PTP_SIZE);
@@ -2264,7 +2277,7 @@ if(ipv4->nextprotocol == NEXTHDR_TCP)
 	}
 else if(ipv4->nextprotocol == NEXTHDR_UDP)
 	{
-	processudppacket();
+	processudppacket(caplen, packet_ptr);
 	}
 else if(ipv4->nextprotocol == NEXTHDR_GRE)
 	{
@@ -2302,7 +2315,7 @@ if(ipv6->nextprotocol == NEXTHDR_TCP)
 	}
 else if(ipv6->nextprotocol == NEXTHDR_UDP)
 	{
-	processudppacket();
+	processudppacket(caplen, packet_ptr);
 	}
 else if(ipv6->nextprotocol == NEXTHDR_GRE)
 	{

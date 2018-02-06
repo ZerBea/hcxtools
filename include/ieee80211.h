@@ -479,6 +479,16 @@ struct tcp_frame
 typedef struct tcp_frame tcp_t;
 #define	TCP_SIZE_MIN (sizeof(tcp_t))
 /*===========================================================================*/
+struct udp_frame
+{
+ uint16_t	sourceport;
+ uint16_t	destinationport;
+ uint16_t	len;
+ uint16_t	checksum;
+} __attribute__ ((packed));
+typedef struct udp_frame udp_t;
+#define	UDP_SIZE (sizeof(udp_t))
+/*===========================================================================*/
 struct gre_frame
 {
  uint16_t	flags;
