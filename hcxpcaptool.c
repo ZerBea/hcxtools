@@ -2340,12 +2340,10 @@ if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
 		{
-		packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
 		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP))
 		{
-		packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
 		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
 		}
 	}
