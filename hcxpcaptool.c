@@ -2118,7 +2118,6 @@ eapframecount++;
 return;
 }
 /*===========================================================================*/
-
 void process80211networkauthentication(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
 eapauth_t *eap;
@@ -2139,17 +2138,31 @@ else if(eap->type == 0)
 return;
 }
 /*===========================================================================*/
-void processtcppacket()
-{
-
-tcpframecount++;
-return;
-}
-/*===========================================================================*/
 void processudppacket()
 {
 
 udpframecount++;
+return;
+}
+/*===========================================================================*/
+void processtcppacket(uint32_t caplen, uint8_t *packet)
+{
+tcp_t *tcp;
+uint16_t tcplen; 
+
+if(caplen < (uint32_t)TCP_SIZE_MIN)
+	{
+	return;
+	}
+tcp = (tcp_t*)packet;
+tcplen = byte_swap_8(tcp->len) *4;
+if(caplen < tcplen)
+	{
+	return;
+	}
+
+
+tcpframecount++;
 return;
 }
 /*===========================================================================*/
@@ -2228,8 +2241,6 @@ ipv4_t *ipv4;
 uint32_t ipv4len;
 uint8_t *packet_ptr;
 
-
-
 if(caplen < (uint32_t)IPV4_SIZE_MIN)
 	{
 	return;
@@ -2246,9 +2257,10 @@ if(caplen < (uint32_t)ipv4len)
 	return;
 	}
 
+packet_ptr = packet +ipv4len;
 if(ipv4->nextprotocol == NEXTHDR_TCP)
 	{
-	processtcppacket();
+	processtcppacket(caplen, packet_ptr);
 	}
 else if(ipv4->nextprotocol == NEXTHDR_UDP)
 	{
@@ -2256,7 +2268,6 @@ else if(ipv4->nextprotocol == NEXTHDR_UDP)
 	}
 else if(ipv4->nextprotocol == NEXTHDR_GRE)
 	{
-	packet_ptr = packet +ipv4len;
 	processgrepacket(caplen, packet_ptr);
 	}
 
@@ -2284,9 +2295,10 @@ if((ntohl(ipv6->ver_class) & 0xf0000000) != 0x60000000)
 	return;
 	}
 
+packet_ptr = packet +ipv6->len;
 if(ipv6->nextprotocol == NEXTHDR_TCP)
 	{
-	processtcppacket();
+	processtcppacket(caplen, packet_ptr);
 	}
 else if(ipv6->nextprotocol == NEXTHDR_UDP)
 	{
@@ -2294,7 +2306,6 @@ else if(ipv6->nextprotocol == NEXTHDR_UDP)
 	}
 else if(ipv6->nextprotocol == NEXTHDR_GRE)
 	{
-	packet_ptr = packet +ipv6->len;
 	processgrepacket(caplen, packet_ptr);
 	}
 

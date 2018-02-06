@@ -463,6 +463,22 @@ struct ipv6_frame
 typedef struct ipv6_frame ipv6_t;
 #define	IPV6_SIZE (sizeof(ipv6_t))
 /*===========================================================================*/
+struct tcp_frame
+{
+ uint16_t	sourceport;
+ uint16_t	destinationport;
+ uint32_t	sequencenumber;
+ uint32_t	acknumber;
+ uint8_t	len /* x 4 */;
+ uint8_t	flags;
+ uint16_t	window;
+ uint16_t	checksum;
+ uint16_t	urgent;
+ uint8_t	options[1];
+} __attribute__ ((packed));
+typedef struct tcp_frame tcp_t;
+#define	TCP_SIZE_MIN (sizeof(tcp_t))
+/*===========================================================================*/
 struct gre_frame
 {
  uint16_t	flags;
