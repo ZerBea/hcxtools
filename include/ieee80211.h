@@ -529,10 +529,10 @@ struct tacacsp_frame
 #define TACACSP_VERSION 0xc0
  uint8_t   type;
 #define TACACS_AUTHENTICATION 1
- uint8_t   sequencenumber;
+ uint8_t   sequencenr;
  uint8_t   flags;
  uint32_t  sessionid;
- uint32_t  datalen;
+ uint32_t  len;
  uint8_t   data[1];
 } __attribute__ ((packed));
 typedef struct tacacsp_frame tacacsp_t;

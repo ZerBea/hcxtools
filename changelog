@@ -1,3 +1,10 @@
+07.02.2018
+==========
+hcxpcaptool
+added full implementation of TACACS+
+--tacacsplus-out=<file>           : output TACACS+ authentication file (hashcat -m 16100, john tacacs-plus)
+
+
 05.02.2018
 ==========
 hcxpcaptool

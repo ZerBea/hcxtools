@@ -46,6 +46,7 @@
 #define HCXT_NETNTLM_OUT	3
 #define HCXT_MD5_OUT		4
 #define HCXT_MD5_JOHN_OUT	5
+#define HCXT_TACACSP_OUT	6
 
 #define HCXT_HCCAPX_OUT		'o'
 #define HCXT_HCCAPX_OUT_RAW	'O'
@@ -135,6 +136,7 @@ char *useroutname;
 char *netntlm1outname;
 char *md5outname;
 char *md5johnoutname;
+char *tacacspoutname;
 
 FILE *fhhexmode;
 
@@ -168,6 +170,7 @@ useroutname = NULL;
 netntlm1outname = NULL;
 md5outname = NULL;
 md5johnoutname = NULL;
+tacacspoutname = NULL;
 
 verboseflag = false;
 hexmodeflag = false;
@@ -978,18 +981,18 @@ if(netntlm1outname != NULL)
 							{
 							fwriteessidstrnoret(zeigerrq->username_len, zeigerrq->username, fhoutlist);
 							fprintf(fhoutlist, ":::");
-							fwritehexbuffraw(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fwritehexbuffraw(zeigerrs->len, zeigerrs->data, fhoutlist);
 							fprintf(fhoutlist, ":");
-							fwritehexbuff(zeigerrq->data_len, zeigerrq->data, fhoutlist);
+							fwritehexbuff(zeigerrq->len, zeigerrq->data, fhoutlist);
 							writtencount++;
 							}
 						else if((zeigerrq->id == zeigerrs->id) && (zeigerrs->username_len != 0))
 							{
 							fwriteessidstrnoret(zeigerrs->username_len, zeigerrs->username, fhoutlist);
 							fprintf(fhoutlist, ":::");
-							fwritehexbuffraw(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fwritehexbuffraw(zeigerrs->len, zeigerrs->data, fhoutlist);
 							fprintf(fhoutlist, ":");
-							fwritehexbuff(zeigerrq->data_len, zeigerrq->data, fhoutlist);
+							fwritehexbuff(zeigerrq->len, zeigerrq->data, fhoutlist);
 							writtencount++;
 							}
 						}
@@ -1029,9 +1032,9 @@ if(md5outname != NULL)
 						{
 						if(zeigerrq->id == zeigerrs->id)
 							{
-							fwritehexbuffraw(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fwritehexbuffraw(zeigerrs->len, zeigerrs->data, fhoutlist);
 							fprintf(fhoutlist, ":");
-							fwritehexbuffraw(zeigerrq->data_len, zeigerrq->data, fhoutlist);
+							fwritehexbuffraw(zeigerrq->len, zeigerrq->data, fhoutlist);
 							fprintf(fhoutlist, ":%02x\n", zeigerrs->id);
 							writtencount++;
 							}
@@ -1065,9 +1068,9 @@ if(md5johnoutname != NULL)
 						if(zeigerrq->id == zeigerrs->id)
 							{
 							fprintf(fhoutlist, "$chap$%x*", zeigerrs->id);
-							fwritehexbuffraw(zeigerrq->data_len, zeigerrq->data, fhoutlist);
+							fwritehexbuffraw(zeigerrq->len, zeigerrq->data, fhoutlist);
 							fprintf(fhoutlist, "*");
-							fwritehexbuffraw(zeigerrs->data_len, zeigerrs->data, fhoutlist);
+							fwritehexbuffraw(zeigerrs->len, zeigerrs->data, fhoutlist);
 							fprintf(fhoutlist, "\n");
 							writtencount++;
 							}
@@ -1080,6 +1083,38 @@ if(md5johnoutname != NULL)
 		fclose(fhoutlist);
 		removeemptyfile(md5outname);
 		printf("%llu MD5 challenge written to %s\n", writtencount, md5johnoutname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+void outputtacacsplist()
+{
+unsigned long long int c, writtencount;
+uint32_t d;
+tacacspl_t *zeiger;
+FILE *fhoutlist = NULL;
+
+zeiger = tacacspliste;
+if(tacacspoutname != NULL)
+	{
+	if((fhoutlist = fopen(tacacspoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		for(c = 0; c < tacacspcount; c++)
+			{
+			fprintf(fhoutlist, "$tacacs-plus$0$%08x$", ntohl(zeiger->sessionid));
+			for(d = 0; d < zeiger->len; d++)
+				{
+				fprintf(fhoutlist, "%02x", zeiger->data[d]);
+				}
+			fprintf(fhoutlist, "$%02x%02x\n", zeiger->version, zeiger->sequencenr);
+			writtencount++;
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(tacacspoutname);
+		printf("%llu TACACS+ autnetication written to %s\n", writtencount, tacacspoutname);
 		}
 	}
 return;
@@ -1130,33 +1165,56 @@ if(identityoutname != NULL)
 return;
 }
 /*===========================================================================*/
-/*
-void addtacacsp(uint8_t code, uint8_t id, uint8_t len, uint8_t *data)
+void addtacacsp(uint8_t version, uint8_t sequencenr, uint32_t sessionid, uint32_t len, uint8_t *data)
 {
 tacacspl_t *zeiger;
 unsigned long long int c;
 
 if(tacacspliste == NULL)
 	{
-	tacacspliste = malloc(MD5LIST_SIZE);
+	tacacspliste = malloc(TACACSPLIST_SIZE);
 	if(tacacspliste == NULL)
 		{
 		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
-	memset(tacacspliste, 0, MD5LIST_SIZE);
-	tacacspliste->code = code;
-	tacacspliste->id = id;
-	tacacspliste->data_len = len;
+	memset(tacacspliste, 0, TACACSPLIST_SIZE);
+	tacacspliste->version = version;
+	tacacspliste->sequencenr = sequencenr;
+	tacacspliste->sessionid = sessionid;
+	tacacspliste->len = len;
 	memcpy(tacacspliste->data, data, len);
 	tacacspcount++;
 	return;
 	}
 
+zeiger = tacacspliste;
+for(c = 0; c < tacacspcount; c++)
+	{
+	if((zeiger->version == version) && (zeiger->sequencenr == sequencenr) && (zeiger->sessionid == sessionid) && (zeiger->len == len) && (memcmp(zeiger->data, data, len) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
 
+zeiger = realloc(tacacspliste, (tacacspcount +1) *TACACSPLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+tacacspliste = zeiger;
+zeiger = tacacspliste +tacacspcount;
+memset(zeiger, 0, TACACSPLIST_SIZE);
+zeiger->version = version;
+zeiger->sequencenr = sequencenr;
+zeiger->sessionid = sessionid;
+zeiger->len = len;
+memcpy(zeiger->data, data, len);
+tacacspcount++;
 return;
 }
-*/
 /*===========================================================================*/
 void addeapmd5(uint8_t code, uint8_t id, uint8_t len, uint8_t *data)
 {
@@ -1174,17 +1232,16 @@ if(md5liste == NULL)
 	memset(md5liste, 0, MD5LIST_SIZE);
 	md5liste->code = code;
 	md5liste->id = id;
-	md5liste->data_len = len;
+	md5liste->len = len;
 	memcpy(md5liste->data, data, len);
 	md5count++;
 	return;
 	}
 
-
 zeiger = md5liste;
 for(c = 0; c < md5count; c++)
 	{
-	if((zeiger->code == code) && (zeiger->id == id) && (zeiger->data_len == len) && (memcmp(zeiger->data, data, len) == 0))
+	if((zeiger->code == code) && (zeiger->id == id) && (zeiger->len == len) && (memcmp(zeiger->data, data, len) == 0))
 		{
 		return;
 		}
@@ -1202,7 +1259,7 @@ zeiger = md5liste +md5count;
 memset(zeiger, 0, MD5LIST_SIZE);
 zeiger->code = code;
 zeiger->id = id;
-zeiger->data_len = len;
+zeiger->len = len;
 memcpy(zeiger->data, data, len);
 md5count++;
 return;
@@ -1228,7 +1285,7 @@ if(leapliste == NULL)
 	memset(leapliste, 0, LEAPLIST_SIZE);
 	leapliste->code = code;
 	leapliste->id = id;
-	leapliste->data_len = count;
+	leapliste->len = count;
 	memcpy(leapliste->data, data, count);
 	leapliste->username_len = usernamelen;
 	memcpy(leapliste->username, username, usernamelen);
@@ -1239,7 +1296,7 @@ if(leapliste == NULL)
 zeiger = leapliste;
 for(c = 0; c < leapcount; c++)
 	{
-	if((zeiger->code == code) && (zeiger->id == id) && (zeiger->data_len == count) && (memcmp(zeiger->data, data, count) == 0) && (zeiger->username_len == usernamelen) && (memcmp(zeiger->username, username, usernamelen) == 0))
+	if((zeiger->code == code) && (zeiger->id == id) && (zeiger->len == count) && (memcmp(zeiger->data, data, count) == 0) && (zeiger->username_len == usernamelen) && (memcmp(zeiger->username, username, usernamelen) == 0))
 		{
 		return;
 		}
@@ -1257,7 +1314,7 @@ zeiger = leapliste +leapcount;
 memset(zeiger, 0, LEAPLIST_SIZE);
 zeiger->code = code;
 zeiger->id = id;
-zeiger->data_len = count;
+zeiger->len = count;
 memcpy(zeiger->data, data, count);
 zeiger->username_len = usernamelen;
 memcpy(zeiger->username, username, usernamelen);
@@ -2196,18 +2253,29 @@ udpframecount++;
 return;
 }
 /*===========================================================================*/
-void processtacacsppacket(uint32_t caplen)
+void processtacacsppacket(uint32_t caplen, uint8_t *packet)
 {
-//tacacsp_t *tacacsp;
+tacacsp_t *tacacsp;
+uint8_t *packet_ptr;
+
+uint32_t authlen;
 
 if(caplen < (uint32_t)TACACSP_SIZE)
 	{
 	return;
 	}
-//tacacsp = (tacacsp_t*)packet;
-
-//addtacacsp(tacacsp->
-
+tacacsp = (tacacsp_t*)packet;
+if(tacacsp->type != TACACS_AUTHENTICATION)
+	{
+	return;
+	}
+authlen = ntohl(tacacsp->len);
+if((authlen > caplen) || (authlen > 0xff))
+	{
+	return;
+	}
+packet_ptr = packet +TACACSP_SIZE;
+addtacacsp(tacacsp->version, tacacsp->sequencenr, ntohl(tacacsp->sessionid), authlen, packet_ptr);
 tacacspframecount++;
 return;
 }
@@ -2239,7 +2307,7 @@ tacacsp = (tacacsp_t*)packet_ptr;
 
 if(tacacsp->version == TACACSP_VERSION)
 	{
-	processtacacsppacket(caplen);
+	processtacacsppacket(caplen, packet_ptr);
 	}
 tcpframecount++;
 return;
@@ -3119,9 +3187,9 @@ if(apstaessidliste != NULL)
 	outputessidlists();
 	}
 
-if(md5liste != NULL)
+if(handshakeliste != NULL)
 	{
-	outputmd5list();
+	outputwpalists(pcapinname);
 	}
 
 if(leapliste != NULL)
@@ -3129,9 +3197,19 @@ if(leapliste != NULL)
 	outputleaplist();
 	}
 
-if(handshakeliste != NULL)
+if(md5liste != NULL)
 	{
-	outputwpalists(pcapinname);
+	outputmd5list();
+	}
+
+if(tacacspliste != NULL)
+	{
+	outputtacacsplist();
+	}
+
+if(leapliste != NULL)
+	{
+	free(leapliste);
 	}
 
 if(md5liste != NULL)
@@ -3139,9 +3217,9 @@ if(md5liste != NULL)
 	free(md5liste);
 	}
 
-if(leapliste != NULL)
+if(tacacspliste != NULL)
 	{
-	free(leapliste);
+	free(tacacspliste);
 	}
 
 if(handshakeliste != NULL)
@@ -3199,9 +3277,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--time-error-corrections=<digit>  : maximum allowed time gap (default: %llus)\n"
 	"--nonce-error-corrections=<digit> : maximum allowed nonce gap (default: %llu)\n"
 	"                                  : should be the same value as in hashcat\n"
-	"--netntlm-out=<file>              : output netNTLMv1 file (hashcat -m 5500 / john netntlm)\n"
+	"--netntlm-out=<file>              : output netNTLMv1 file (hashcat -m 5500, john netntlm)\n"
 	"--md5-out=<file>                  : output MD5 challenge file (hashcat -m 4800)\n"
 	"--md5-john-out=<file>             : output MD5 challenge file (john chap)\n"
+	"--tacacsplus-out=<file>           : output TACACS+ authentication file (hashcat -m 16100, john tacacs-plus)\n"
 	"\n"
 	"bitmask for message:\n"
 	"0001 M1\n"
@@ -3236,6 +3315,7 @@ static const struct option long_options[] =
 	{"netntlm-out",			required_argument,	NULL,	HCXT_NETNTLM_OUT},
 	{"md5-out",			required_argument,	NULL,	HCXT_MD5_OUT},
 	{"md5-john-out",		required_argument,	NULL,	HCXT_MD5_JOHN_OUT},
+	{"tacacsplus-out",		required_argument,	NULL,	HCXT_TACACSP_OUT},
 	{NULL,				0,			NULL,	0}
 };
 
@@ -3286,6 +3366,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_MD5_JOHN_OUT:
 		md5johnoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_TACACSP_OUT:
+		tacacspoutname = optarg;
 		verboseflag = true;
 		break;
 
@@ -3384,6 +3469,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 		}
 	}
+
 
 if(hexmodeflag == true) 
 	{

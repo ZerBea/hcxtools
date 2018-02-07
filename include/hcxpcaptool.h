@@ -95,7 +95,7 @@ struct leaplist_s
 {
  uint8_t	code;
  uint8_t	id;
- uint8_t	data_len;
+ uint8_t	len;
  uint8_t	data[0xff];
  uint16_t	username_len;
  uint8_t	username[0xff];
@@ -107,7 +107,7 @@ struct md5list_s
 {
  uint8_t	code;
  uint8_t	id;
- uint8_t	data_len;
+ uint8_t	len;
  uint8_t	data[0xff];
 } __attribute__((__packed__));
 typedef struct md5list_s md5l_t;
@@ -118,6 +118,7 @@ struct tacacsplist_s
  uint8_t	version;
  uint8_t	sequencenr;
  uint32_t	sessionid;
+ uint32_t	len;
  uint8_t	data[0xff];
 } __attribute__((__packed__));
 typedef struct tacacsplist_s tacacspl_t;
