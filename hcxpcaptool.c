@@ -115,6 +115,8 @@ unsigned long long int eapolframecount;
 unsigned long long int eapframecount;
 unsigned long long int ipv4framecount;
 unsigned long long int ipv6framecount;
+unsigned long long int icmp4framecount;
+unsigned long long int icmp6framecount;
 unsigned long long int tcpframecount;
 unsigned long long int udpframecount;
 unsigned long long int greframecount;
@@ -471,6 +473,14 @@ if(ipv4framecount != 0)
 if(ipv6framecount != 0)
 	{
 	printf("IPv6 packets...........: %lld\n", ipv6framecount);
+	}
+if(icmp4framecount != 0)
+	{
+	printf("ICMPv4 packets.........: %lld\n", icmp4framecount);
+	}
+if(icmp6framecount != 0)
+	{
+	printf("ICMPv6 packets.........: %lld\n", icmp6framecount);
 	}
 if(tcpframecount != 0)
 	{
@@ -2342,6 +2352,20 @@ chapframecount++;
 return;
 }
 /*===========================================================================*/
+void processicmp6packet()
+{
+
+icmp6framecount++;
+return;
+}
+/*===========================================================================*/
+void processicmp4packet()
+{
+
+icmp4framecount++;
+return;
+}
+/*===========================================================================*/
 void processgrepacket(uint32_t caplen, uint8_t *packet)
 {
 gre_t *gre;
@@ -2404,7 +2428,11 @@ if(caplen < (uint32_t)ipv4len)
 	}
 
 packet_ptr = packet +ipv4len;
-if(ipv4->nextprotocol == NEXTHDR_TCP)
+if(ipv4->nextprotocol == NEXTHDR_ICMP4)
+	{
+	processicmp4packet();
+	}
+else if(ipv4->nextprotocol == NEXTHDR_TCP)
 	{
 	processtcppacket(caplen, packet_ptr);
 	}
@@ -2442,7 +2470,11 @@ if((ntohl(ipv6->ver_class) & 0xf0000000) != 0x60000000)
 	}
 
 packet_ptr = packet +ipv6->len;
-if(ipv6->nextprotocol == NEXTHDR_TCP)
+if(ipv6->nextprotocol == NEXTHDR_ICMP6)
+	{
+	processicmp6packet();
+	}
+else if(ipv6->nextprotocol == NEXTHDR_TCP)
 	{
 	processtcppacket(caplen, packet_ptr);
 	}
@@ -3111,6 +3143,8 @@ eapolframecount = 0;
 eapframecount = 0;
 ipv4framecount = 0;
 ipv6framecount = 0;
+icmp4framecount = 0;
+icmp6framecount = 0;
 tcpframecount = 0;
 udpframecount = 0;
 greframecount = 0;

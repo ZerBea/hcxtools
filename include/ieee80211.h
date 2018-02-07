@@ -427,6 +427,7 @@ struct ipv4_frame
  uint8_t	ttl;
  uint8_t	nextprotocol;
 #define NEXTHDR_HOP		0	/* Hop-by-hop option header. */
+#define NEXTHDR_ICMP4		1	/* ICMP4 header */
 #define NEXTHDR_TCP		6	/* TCP segment. */
 #define NEXTHDR_UDP		17	/* UDP message. */
 #define NEXTHDR_IPV6		41	/* IPv6 in IPv6 */
@@ -435,7 +436,7 @@ struct ipv4_frame
 #define NEXTHDR_GRE		47	/* GRE header. */
 #define NEXTHDR_ESP		50	/* Encapsulating security payload. */
 #define NEXTHDR_AUTH		51	/* Authentication header. */
-#define NEXTHDR_ICMP		58	/* ICMP for IPv6. */
+#define NEXTHDR_ICMP6		58	/* ICMP6 for IPv6. */
 #define NEXTHDR_NONE		59	/* No next header */
 #define NEXTHDR_DEST		60	/* Destination options header. */
 #define NEXTHDR_SCTP		132	/* SCTP message. */
