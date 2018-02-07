@@ -113,4 +113,14 @@ struct md5list_s
 typedef struct md5list_s md5l_t;
 #define	MD5LIST_SIZE (sizeof(md5l_t))
 /*===========================================================================*/
+struct tacacsplist_s
+{
+ uint8_t	version;
+ uint8_t	sequencenr;
+ uint32_t	sessionid;
+ uint8_t	data[0xff];
+} __attribute__((__packed__));
+typedef struct tacacsplist_s tacacspl_t;
+#define	TACACSPLIST_SIZE (sizeof(tacacspl_t))
+/*===========================================================================*/
 

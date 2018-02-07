@@ -386,11 +386,10 @@ struct exteap_frame
 #define EAP_TYPE_TEAP		55
 #define	EAP_TYPE_EXPAND		254
 #define EAP_TYPE_EXPERIMENTAL	255
- uint8_t		data[1];
+ uint8_t			data[1];
 } __attribute__((__packed__));
 typedef struct exteap_frame exteap_t;
 #define	EXTEAP_SIZE offsetof(exteap_t, data)
-
 /*===========================================================================*/
 struct eapleap_frame
 {
@@ -404,7 +403,7 @@ struct eapleap_frame
  uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct eapleap_frame eapleap_t;
-#define	EAPLEAP_SIZE (sizeof(eapleap_t))
+#define	EAPLEAP_SIZE offsetof(eapleap_t, data)
 /*===========================================================================*/
 struct md5_frame
 {
@@ -416,7 +415,7 @@ struct md5_frame
  uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct md5_frame md5_t;
-#define	MD5_SIZE (sizeof(md5_t))
+#define	MD5_SIZE offsetof(md5_t, data)
 /*===========================================================================*/
 struct ipv4_frame
 {
@@ -477,7 +476,7 @@ struct tcp_frame
  uint8_t	options[1];
 } __attribute__ ((packed));
 typedef struct tcp_frame tcp_t;
-#define	TCP_SIZE_MIN (sizeof(tcp_t))
+#define	TCP_SIZE_MIN offsetof(tcp_t, options)
 /*===========================================================================*/
 struct udp_frame
 {
@@ -523,6 +522,21 @@ struct chap_frame
 } __attribute__ ((packed));
 typedef struct chap_frame chap_t;
 #define CHAP_SIZE (sizeof(chap_t))
+/*===========================================================================*/
+struct tacacsp_frame
+{
+ uint8_t   version;
+#define TACACSP_VERSION 0xc0
+ uint8_t   type;
+#define TACACS_AUTHENTICATION 1
+ uint8_t   sequencenumber;
+ uint8_t   flags;
+ uint32_t  sessionid;
+ uint32_t  datalen;
+ uint8_t   data[1];
+} __attribute__ ((packed));
+typedef struct tacacsp_frame tacacsp_t;
+#define	TACACSP_SIZE offsetof(tacacsp_t, data)
 /*===========================================================================*/
 struct fcs_frame
 {

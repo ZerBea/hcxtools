@@ -92,6 +92,9 @@ leapl_t *leapliste;
 unsigned long long int md5count;
 md5l_t *md5liste;
 
+unsigned long long int tacacspcount;
+tacacspl_t *tacacspliste;
+
 unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
@@ -115,6 +118,7 @@ unsigned long long int tcpframecount;
 unsigned long long int udpframecount;
 unsigned long long int greframecount;
 unsigned long long int chapframecount;
+unsigned long long int tacacspframecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -488,6 +492,11 @@ for(p = 0; p < 256; p++)
 if(chapframecount != 0)
 	{
 	printf("found..................: PPP-CHAP authentication\n");
+	}
+
+if(tacacspframecount != 0)
+	{
+	printf("found..................: TACACS+ authentication\n");
 	}
 
 if(rawhandshakecount != 0)
@@ -1120,6 +1129,34 @@ if(identityoutname != NULL)
 	}
 return;
 }
+/*===========================================================================*/
+/*
+void addtacacsp(uint8_t code, uint8_t id, uint8_t len, uint8_t *data)
+{
+tacacspl_t *zeiger;
+unsigned long long int c;
+
+if(tacacspliste == NULL)
+	{
+	tacacspliste = malloc(MD5LIST_SIZE);
+	if(tacacspliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memset(tacacspliste, 0, MD5LIST_SIZE);
+	tacacspliste->code = code;
+	tacacspliste->id = id;
+	tacacspliste->data_len = len;
+	memcpy(tacacspliste->data, data, len);
+	tacacspcount++;
+	return;
+	}
+
+
+return;
+}
+*/
 /*===========================================================================*/
 void addeapmd5(uint8_t code, uint8_t id, uint8_t len, uint8_t *data)
 {
@@ -2159,10 +2196,28 @@ udpframecount++;
 return;
 }
 /*===========================================================================*/
+void processtacacsppacket(uint32_t caplen)
+{
+//tacacsp_t *tacacsp;
+
+if(caplen < (uint32_t)TACACSP_SIZE)
+	{
+	return;
+	}
+//tacacsp = (tacacsp_t*)packet;
+
+//addtacacsp(tacacsp->
+
+tacacspframecount++;
+return;
+}
+/*===========================================================================*/
 void processtcppacket(uint32_t caplen, uint8_t *packet)
 {
 tcp_t *tcp;
+tacacsp_t *tacacsp;
 uint16_t tcplen; 
+uint8_t *packet_ptr;
 
 if(caplen < (uint32_t)TCP_SIZE_MIN)
 	{
@@ -2175,7 +2230,17 @@ if(caplen < tcplen)
 	return;
 	}
 
+if(caplen < (uint32_t)TCP_SIZE_MIN + (uint32_t)TACACSP_SIZE)
+	{
+	return;
+	}
+packet_ptr = packet +tcplen;
+tacacsp = (tacacsp_t*)packet_ptr;
 
+if(tacacsp->version == TACACSP_VERSION)
+	{
+	processtacacsppacket(caplen);
+	}
 tcpframecount++;
 return;
 }
@@ -2940,6 +3005,7 @@ eapolliste = NULL;
 handshakeliste = NULL;
 leapliste = NULL;
 md5liste = NULL;
+tacacspliste = NULL;
 
 char *pcapstr = "pcap";
 char *pcapngstr = "pcapng";
@@ -2981,6 +3047,7 @@ tcpframecount = 0;
 udpframecount = 0;
 greframecount = 0;
 chapframecount = 0;
+tacacspframecount = 0;
 
 char tmpoutname[PATH_MAX+1];
 
