@@ -2642,6 +2642,23 @@ if(ntohs(eth2->ether_type) == LLC_TYPE_IPV6)
 return;
 }
 /*===========================================================================*/
+void processloopbackpacket(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+{
+loba_t *loba;
+uint8_t *packet_ptr;
+
+loba = (loba_t*)packet;
+packet_ptr = packet;
+if(ntohl(loba->family == LOBA_FAM_IP))
+	{
+	packet_ptr += LOBA_SIZE;
+	caplen -= LOBA_SIZE;
+	processipv4packet(tv_sec, tv_usec, caplen, packet_ptr);
+	processipv6packet(tv_sec, tv_usec, caplen, packet_ptr);
+	}
+return;
+}
+/*===========================================================================*/
 void processpacket(uint32_t tv_sec, uint32_t tv_usec, int linktype, uint32_t caplen, uint8_t *packet)
 {
 uint8_t *packet_ptr;
@@ -2665,7 +2682,17 @@ if((tv_sec == 0) && (tv_usec == 0))
 	tv_usec = tvtmp.tv_usec;
 	}
 
-if(linktype == DLT_EN10MB)
+if(linktype == DLT_NULL)
+	{
+	if(caplen < (uint32_t)LOBA_SIZE)
+		{
+		printf("failed to read loopback header\n");
+		return;
+		}
+	processloopbackpacket(tv_sec, tv_usec, caplen, packet);
+	return;
+	}
+else if(linktype == DLT_EN10MB)
 	{
 	if(caplen < (uint32_t)ETH2_SIZE)
 		{
