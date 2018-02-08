@@ -2649,7 +2649,7 @@ uint8_t *packet_ptr;
 
 loba = (loba_t*)packet;
 packet_ptr = packet;
-if(ntohl(loba->family == LOBA_FAM_IP))
+if(ntohl(loba->family == AF_INET))
 	{
 	packet_ptr += LOBA_SIZE;
 	caplen -= LOBA_SIZE;

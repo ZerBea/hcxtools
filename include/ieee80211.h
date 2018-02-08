@@ -166,7 +166,6 @@ typedef struct ppi_header ppi_t;
 struct loopback_header
 {
  uint32_t		family;
-#define LOBA_FAM_IP	2
 } __attribute__((packed));
 typedef struct loopback_header loba_t;
 #define	LOBA_SIZE (sizeof(loba_t))
