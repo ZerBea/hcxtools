@@ -1,3 +1,10 @@
+09.02.2018
+==========
+hcxpcaptool
+added full implementation of PPP-CHAP authentication
+new dependency: libopenssl
+
+
 07.02.2018
 ==========
 hcxpcaptool

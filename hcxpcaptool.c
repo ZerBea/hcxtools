@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <openssl/sha.h>
 #ifdef __APPLE__
 #define strdupa strdup
 #define PATH_MAX 255
@@ -89,6 +90,9 @@ hcxl_t *rawhandshakeliste;
 
 unsigned long long int leapcount;
 leapl_t *leapliste;
+
+unsigned long long int leap2count;
+leapl_t *leap2liste;
 
 unsigned long long int md5count;
 md5l_t *md5liste;
@@ -1019,6 +1023,67 @@ if(netntlm1outname != NULL)
 return;
 }
 /*===========================================================================*/
+void outputpppchaplist()
+{
+unsigned long long int c, d, writtencount;
+leapl_t *zeigerrq, *zeigerrs;
+FILE *fhoutlist = NULL;
+char *un_ptr = NULL;
+SHA_CTX ctxsha1;
+unsigned char digestsha1[SHA_DIGEST_LENGTH];
+
+if(netntlm1outname != NULL)
+	{
+	if((fhoutlist = fopen(netntlm1outname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeigerrq = leap2liste;
+		for(c = 0; c < leap2count; c++)
+			{
+			if(zeigerrq->code == EAP_CODE_REQ)
+				{
+				zeigerrs = leap2liste;
+				for(d = 0; d < leap2count; d++)
+					{
+					if(zeigerrs->code == EAP_CODE_RESP)
+						{
+						if((zeigerrq->id == zeigerrs->id) && (zeigerrs->username_len != 0))
+							{
+							fwriteessidstrnoret(zeigerrs->username_len, zeigerrs->username, fhoutlist);
+							fprintf(fhoutlist, ":::");
+							fwritehexbuffraw(24, &zeigerrs->data[zeigerrs->len -25], fhoutlist);
+							fprintf(fhoutlist, ":");
+							SHA1_Init(&ctxsha1);
+							SHA1_Update(&ctxsha1, zeigerrs->data, 16);
+							SHA1_Update(&ctxsha1, zeigerrq->data, 16);
+							un_ptr = strchr((const char*)zeigerrs->username, '\\');
+							if(un_ptr == NULL)
+								{
+								SHA1_Update(&ctxsha1, zeigerrs->username, zeigerrs->username_len);
+								}
+							else
+								{
+								un_ptr++;
+								SHA1_Update(&ctxsha1, un_ptr, strlen(un_ptr));
+								}
+							SHA1_Final(digestsha1, &ctxsha1);
+							fwritehexbuff(8, digestsha1, fhoutlist);
+							writtencount++;
+							}
+						}
+					zeigerrs++;
+					}
+				}
+			zeigerrq++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(netntlm1outname);
+		printf("%llu PPP-CHAP written to %s\n", writtencount, netntlm1outname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 void outputmd5list()
 {
 unsigned long long int c, d, writtencount;
@@ -1272,6 +1337,62 @@ zeiger->id = id;
 zeiger->len = len;
 memcpy(zeiger->data, data, len);
 md5count++;
+return;
+}
+/*===========================================================================*/
+void addpppchapleap(uint8_t code, uint8_t id, uint8_t count, uint8_t *data, uint16_t usernamelen, uint8_t *username)
+{
+leapl_t *zeiger;
+unsigned long long int c;
+
+if(usernamelen > 255)
+	{
+	usernamelen = 255;
+	}
+if(leap2liste == NULL)
+	{
+	leap2liste = malloc(LEAPLIST_SIZE);
+	if(leap2liste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memset(leap2liste, 0, LEAPLIST_SIZE);
+	leap2liste->code = code;
+	leap2liste->id = id;
+	leap2liste->len = count;
+	memcpy(leap2liste->data, data, count);
+	leap2liste->username_len = usernamelen;
+	memcpy(leap2liste->username, username, usernamelen);
+	leap2count++;
+	return;
+	}
+
+zeiger = leap2liste;
+for(c = 0; c < leap2count; c++)
+	{
+	if((zeiger->code == code) && (zeiger->id == id) && (zeiger->len == count) && (memcmp(zeiger->data, data, count) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
+zeiger = realloc(leap2liste, (leap2count +1) *LEAPLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+leap2liste = zeiger;
+zeiger = leap2liste +leap2count;
+memset(zeiger, 0, LEAPLIST_SIZE);
+zeiger->code = code;
+zeiger->id = id;
+zeiger->len = count;
+memcpy(zeiger->data, data, count);
+zeiger->username_len = usernamelen;
+memcpy(zeiger->username, username, usernamelen);
+leap2count++;
 return;
 }
 /*===========================================================================*/
@@ -2323,7 +2444,7 @@ tcpframecount++;
 return;
 }
 /*===========================================================================*/
-void processchappacket(uint32_t caplen, uint8_t *packet)
+void processpppchappacket(uint32_t caplen, uint8_t *packet)
 {
 chap_t *chap;
 uint16_t chaplen;
@@ -2340,11 +2461,15 @@ if(caplen < chaplen)
 	{
 	return;
 	}
-if(chap->code == CHAP_CODE_RESP)
+if((chap->code == CHAP_CODE_REQ) || (chap->code == CHAP_CODE_RESP))
 	{
 	if((chaplen -authlen -CHAP_SIZE) < caplen)
 		{
-		outlistusername(chaplen -authlen -CHAP_SIZE, packet +authlen +CHAP_SIZE);
+		addpppchapleap(chap->code, chap->id, authlen, chap->data +1, chaplen -authlen -CHAP_SIZE, packet +authlen +CHAP_SIZE);
+		if(chaplen -authlen -CHAP_SIZE != 0)
+			{
+			outlistusername(chaplen -authlen -CHAP_SIZE, packet +authlen +CHAP_SIZE);
+			}
 		}
 	}
 
@@ -2398,7 +2523,7 @@ if((ntohs(gre->flags) & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
 ptp = (ptp_t*)(packet_ptr);
 if(ntohs(ptp->type) == PROTO_CHAP)
 	{
-	processchappacket(caplen, packet_ptr +PTP_SIZE);
+	processpppchappacket(caplen, packet_ptr +PTP_SIZE);
 	}
 
 greframecount++;
@@ -3131,6 +3256,7 @@ apstaessidliste = NULL;
 eapolliste = NULL;
 handshakeliste = NULL;
 leapliste = NULL;
+leap2liste = NULL;
 md5liste = NULL;
 tacacspliste = NULL;
 
@@ -3258,6 +3384,11 @@ if(leapliste != NULL)
 	outputleaplist();
 	}
 
+if(leap2liste != NULL)
+	{
+	outputpppchaplist();
+	}
+
 if(md5liste != NULL)
 	{
 	outputmd5list();
@@ -3271,6 +3402,11 @@ if(tacacspliste != NULL)
 if(leapliste != NULL)
 	{
 	free(leapliste);
+	}
+
+if(leap2liste != NULL)
+	{
+	free(leap2liste);
 	}
 
 if(md5liste != NULL)
