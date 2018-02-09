@@ -102,7 +102,6 @@
 #define WPA_KEY_INFO_ERROR WBIT(10)
 #define WPA_KEY_INFO_REQUEST WBIT(11)
 #define WPA_KEY_INFO_ENCR_KEY_DATA WBIT(12) /* IEEE 802.11i/RSN only */
-
 /*===========================================================================*/
 struct radiotap_header
 {
@@ -122,6 +121,13 @@ struct ethernet2_header
 } __attribute__((packed));
 typedef struct ethernet2_header eth2_t;
 #define	ETH2_SIZE (sizeof(eth2_t))
+/*===========================================================================*/
+struct loopback_header
+{
+ uint32_t		family;
+} __attribute__((packed));
+typedef struct loopback_header loba_t;
+#define	LOBA_SIZE (sizeof(loba_t))
 /*===========================================================================*/
 #define WLAN_DEVNAMELEN_MAX 16
 struct prism_item
@@ -161,14 +167,13 @@ struct ppi_header
 } __attribute__((packed));
 typedef struct ppi_header ppi_t;
 #define	PPI_SIZE (sizeof(ppi_t))
-
 /*===========================================================================*/
-struct loopback_header
+struct fcs_frame
 {
- uint32_t		family;
-} __attribute__((packed));
-typedef struct loopback_header loba_t;
-#define	LOBA_SIZE (sizeof(loba_t))
+ uint32_t	fcs;
+};
+typedef struct fcs_frame fcs_t;
+#define	FCS_SIZE (sizeof(fcs_t))
 /*===========================================================================*/
 struct qos_frame
 {
@@ -548,12 +553,21 @@ struct tacacsp_frame
 typedef struct tacacsp_frame tacacsp_t;
 #define	TACACSP_SIZE offsetof(tacacsp_t, data)
 /*===========================================================================*/
-struct fcs_frame
+#define RADIUS_AUTHENTICATOR_LENGTH 16
+#define RADIUS_PASSWORD_BLOCK_SIZE 16
+#define RADIUS_HEADER_LENGTH 20
+#define RADIUS_MAX_SIZE 1000
+#define RADIUS_MAX_ATTRIBUTE_SIZE 253
+struct radius_frame_t
 {
- uint32_t	fcs;
-};
-typedef struct fcs_frame fcs_t;
-#define	FCS_SIZE (sizeof(fcs_t))
+ uint8_t	code;
+ uint8_t	id;
+ uint16_t	length;
+ uint8_t	authenticator[RADIUS_AUTHENTICATOR_LENGTH];
+ uint8_t	attrs[RADIUS_MAX_SIZE -RADIUS_HEADER_LENGTH];
+} __attribute__ ((packed));
+typedef struct radius_frame radius_t;
+#define	RADIUS_SIZE offsetof(radius_t, data)
 /*===========================================================================*/
 /* global var */
 static const uint8_t nullnonce[] =
