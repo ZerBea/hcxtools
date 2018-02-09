@@ -2,6 +2,7 @@
 ==========
 hcxpcaptool
 added full implementation of PPP-CHAP authentication
+added detection of RADIUS (UDP destination 1812)
 new dependency: libopenssl
 
 

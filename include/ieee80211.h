@@ -491,6 +491,7 @@ struct udp_frame
 {
  uint16_t	sourceport;
  uint16_t	destinationport;
+#define UDP_RADIUS_DESTINATIONPORT 1812
  uint16_t	len;
  uint16_t	checksum;
 } __attribute__ ((packed));

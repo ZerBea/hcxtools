@@ -126,6 +126,7 @@ unsigned long long int udpframecount;
 unsigned long long int greframecount;
 unsigned long long int chapframecount;
 unsigned long long int tacacspframecount;
+unsigned long long int radiusframecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -510,10 +511,13 @@ if(chapframecount != 0)
 	{
 	printf("found..................: PPP-CHAP authentication\n");
 	}
-
 if(tacacspframecount != 0)
 	{
 	printf("found..................: TACACS+ authentication\n");
+	}
+if(radiusframecount != 0)
+	{
+	printf("found..................: RADIUS authentication\n");
 	}
 
 if(rawhandshakecount != 0)
@@ -2363,6 +2367,13 @@ else if(eap->type == 0)
 return;
 }
 /*===========================================================================*/
+void processradiuspacket()
+{
+
+radiusframecount++;
+return;
+}
+/*===========================================================================*/
 void processudppacket(uint32_t caplen, uint8_t *packet)
 {
 udp_t *udp;
@@ -2378,7 +2389,10 @@ if(caplen < udplen)
 	{
 	return;
 	}
-
+if((ntohs(udp->destinationport) == UDP_RADIUS_DESTINATIONPORT) || (ntohs(udp->sourceport) == UDP_RADIUS_DESTINATIONPORT))
+	{
+	processradiuspacket();
+	}
 
 udpframecount++;
 return;
@@ -3303,6 +3317,7 @@ udpframecount = 0;
 greframecount = 0;
 chapframecount = 0;
 tacacspframecount = 0;
+radiusframecount = 0;
 
 char tmpoutname[PATH_MAX+1];
 
