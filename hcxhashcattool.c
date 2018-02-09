@@ -16,6 +16,7 @@
 #else
 #include <stdio_ext.h>
 #endif
+#include <pthread.h>
 #include <openssl/evp.h>
 
 #include "include/version.h"
