@@ -127,6 +127,8 @@ unsigned long long int greframecount;
 unsigned long long int chapframecount;
 unsigned long long int tacacspframecount;
 unsigned long long int radiusframecount;
+unsigned long long int dhcpframecount;
+unsigned long long int dhcp6framecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -479,6 +481,14 @@ if(ipv6framecount != 0)
 	{
 	printf("IPv6 packets...........: %lld\n", ipv6framecount);
 	}
+if(tcpframecount != 0)
+	{
+	printf("TCP packets............: %lld\n", tcpframecount);
+	}
+if(udpframecount != 0)
+	{
+	printf("UDP packets............: %lld\n", udpframecount);
+	}
 if(icmp4framecount != 0)
 	{
 	printf("ICMPv4 packets.........: %lld\n", icmp4framecount);
@@ -487,13 +497,13 @@ if(icmp6framecount != 0)
 	{
 	printf("ICMPv6 packets.........: %lld\n", icmp6framecount);
 	}
-if(tcpframecount != 0)
+if(dhcpframecount != 0)
 	{
-	printf("TCP packets............: %lld\n", tcpframecount);
+	printf("DHCP packets...........: %lld\n", dhcpframecount);
 	}
-if(udpframecount != 0)
+if(dhcp6framecount != 0)
 	{
-	printf("UDP packets............: %lld\n", udpframecount);
+	printf("DHCPv6 packets.........: %lld\n", dhcp6framecount);
 	}
 if(greframecount != 0)
 	{
@@ -2374,6 +2384,20 @@ radiusframecount++;
 return;
 }
 /*===========================================================================*/
+void processdhcp6packet()
+{
+
+dhcp6framecount++;
+return;
+}
+/*===========================================================================*/
+void processdhcppacket()
+{
+
+dhcpframecount++;
+return;
+}
+/*===========================================================================*/
 void processudppacket(uint32_t caplen, uint8_t *packet)
 {
 udp_t *udp;
@@ -2394,6 +2418,14 @@ if((ntohs(udp->destinationport) == UDP_RADIUS_DESTINATIONPORT) || (ntohs(udp->so
 	processradiuspacket();
 	}
 
+else if(((ntohs(udp->destinationport) == UDP_DHCP_SERVERPORT) && (ntohs(udp->sourceport) == UDP_DHCP_CLIENTPORT)) || ((ntohs(udp->destinationport) == UDP_DHCP_CLIENTPORT) && (ntohs(udp->sourceport) == UDP_DHCP_SERVERPORT)))
+	{
+	processdhcppacket();
+	}
+else if(((ntohs(udp->destinationport) == UDP_DHCP6_SERVERPORT) && (ntohs(udp->sourceport) == UDP_DHCP6_CLIENTPORT)) || ((ntohs(udp->destinationport) == UDP_DHCP6_CLIENTPORT) && (ntohs(udp->sourceport) == UDP_DHCP6_SERVERPORT)))
+	{
+	processdhcp6packet();
+	}
 udpframecount++;
 return;
 }
@@ -2565,7 +2597,6 @@ if(caplen < (uint32_t)ipv4len)
 	{
 	return;
 	}
-
 packet_ptr = packet +ipv4len;
 if(ipv4->nextprotocol == NEXTHDR_ICMP4)
 	{
@@ -2573,15 +2604,15 @@ if(ipv4->nextprotocol == NEXTHDR_ICMP4)
 	}
 else if(ipv4->nextprotocol == NEXTHDR_TCP)
 	{
-	processtcppacket(caplen, packet_ptr);
+	processtcppacket(ntohs(ipv4->len), packet_ptr);
 	}
 else if(ipv4->nextprotocol == NEXTHDR_UDP)
 	{
-	processudppacket(caplen, packet_ptr);
+	processudppacket(ntohs(ipv4->len), packet_ptr);
 	}
 else if(ipv4->nextprotocol == NEXTHDR_GRE)
 	{
-	processgrepacket(caplen, packet_ptr);
+	processgrepacket(ntohs(ipv4->len), packet_ptr);
 	}
 
 
@@ -2607,23 +2638,22 @@ if((ntohl(ipv6->ver_class) & 0xf0000000) != 0x60000000)
 	{
 	return;
 	}
-
-packet_ptr = packet +ipv6->len;
+packet_ptr = packet +IPV6_SIZE;
 if(ipv6->nextprotocol == NEXTHDR_ICMP6)
 	{
 	processicmp6packet();
 	}
 else if(ipv6->nextprotocol == NEXTHDR_TCP)
 	{
-	processtcppacket(caplen, packet_ptr);
+	processtcppacket(ntohs(ipv6->len), packet_ptr);
 	}
 else if(ipv6->nextprotocol == NEXTHDR_UDP)
 	{
-	processudppacket(caplen, packet_ptr);
+	processudppacket(ntohs(ipv6->len), packet_ptr);
 	}
 else if(ipv6->nextprotocol == NEXTHDR_GRE)
 	{
-	processgrepacket(caplen, packet_ptr);
+	processgrepacket(ntohs(ipv6->len), packet_ptr);
 	}
 
 
@@ -3318,6 +3348,8 @@ greframecount = 0;
 chapframecount = 0;
 tacacspframecount = 0;
 radiusframecount = 0;
+dhcpframecount = 0;
+dhcp6framecount = 0;
 
 char tmpoutname[PATH_MAX+1];
 

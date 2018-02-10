@@ -496,6 +496,10 @@ struct udp_frame
 {
  uint16_t	sourceport;
  uint16_t	destinationport;
+#define UDP_DHCP_SERVERPORT 67
+#define UDP_DHCP_CLIENTPORT 68
+#define UDP_DHCP6_SERVERPORT 547
+#define UDP_DHCP6_CLIENTPORT 546
 #define UDP_RADIUS_DESTINATIONPORT 1812
  uint16_t	len;
  uint16_t	checksum;
