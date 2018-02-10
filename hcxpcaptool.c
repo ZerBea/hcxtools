@@ -2142,7 +2142,6 @@ if(essidlen == 0)
 	{
 	return;
 	}
-
 addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 associationrequestframecount++;
 return;
@@ -2175,7 +2174,6 @@ if(essidlen == 0)
 	return;
 	}
 addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
-
 reassociationrequestframecount++;
 return;
 }
@@ -2288,9 +2286,7 @@ if(eaplen -6 < md5->data_len)
 	{
 	return;
 	}
-
 addeapmd5(md5->code, md5->id, md5->data_len, md5->data);
-
 return;
 }
 /*===========================================================================*/
@@ -2333,7 +2329,6 @@ if(eaplen < (uint32_t)EXTEAP_SIZE)
 	return;
 	}
 exeap = (exteap_t*)(packet +EAPAUTH_SIZE);
-
 if(exeap->exttype == EAP_TYPE_ID)
 	{
 	if(eaplen != 0)
@@ -2341,7 +2336,6 @@ if(exeap->exttype == EAP_TYPE_ID)
 		outlistidentity(eaplen, packet +EAPAUTH_SIZE);
 		}
 	}
-
 else if(exeap->exttype == EAP_TYPE_LEAP)
 	{
 	processeapleapauthentication(eaplen, packet +EAPAUTH_SIZE);
@@ -2417,7 +2411,6 @@ if((ntohs(udp->destinationport) == UDP_RADIUS_DESTINATIONPORT) || (ntohs(udp->so
 	{
 	processradiuspacket();
 	}
-
 else if(((ntohs(udp->destinationport) == UDP_DHCP_SERVERPORT) && (ntohs(udp->sourceport) == UDP_DHCP_CLIENTPORT)) || ((ntohs(udp->destinationport) == UDP_DHCP_CLIENTPORT) && (ntohs(udp->sourceport) == UDP_DHCP_SERVERPORT)))
 	{
 	processdhcppacket();
@@ -2474,7 +2467,6 @@ if(caplen < tcplen)
 	{
 	return;
 	}
-
 if(caplen < (uint32_t)TCP_SIZE_MIN + (uint32_t)TACACSP_SIZE)
 	{
 	return;
@@ -2518,7 +2510,6 @@ if((chap->code == CHAP_CODE_REQ) || (chap->code == CHAP_CODE_RESP))
 			}
 		}
 	}
-
 chapframecount++;
 return;
 }
@@ -2571,7 +2562,6 @@ if(ntohs(ptp->type) == PROTO_CHAP)
 	{
 	processpppchappacket(caplen, packet_ptr +PTP_SIZE);
 	}
-
 greframecount++;
 return;
 }
@@ -2591,7 +2581,6 @@ if((ipv4->ver_hlen & 0xf0) != 0x40)
 	{
 	return;
 	}
-
 ipv4len = (ipv4->ver_hlen & 0x0f) *4;
 if(caplen < (uint32_t)ipv4len)
 	{
@@ -2604,15 +2593,15 @@ if(ipv4->nextprotocol == NEXTHDR_ICMP4)
 	}
 else if(ipv4->nextprotocol == NEXTHDR_TCP)
 	{
-	processtcppacket(ntohs(ipv4->len), packet_ptr);
+	processtcppacket(ntohs(ipv4->len) -ipv4len, packet_ptr);
 	}
 else if(ipv4->nextprotocol == NEXTHDR_UDP)
 	{
-	processudppacket(ntohs(ipv4->len), packet_ptr);
+	processudppacket(ntohs(ipv4->len) -ipv4len, packet_ptr);
 	}
 else if(ipv4->nextprotocol == NEXTHDR_GRE)
 	{
-	processgrepacket(ntohs(ipv4->len), packet_ptr);
+	processgrepacket(ntohs(ipv4->len) -ipv4len, packet_ptr);
 	}
 
 
