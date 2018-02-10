@@ -116,6 +116,7 @@ unsigned long long int deauthenticationframecount;
 unsigned long long int actionframecount;
 unsigned long long int atimframecount;
 unsigned long long int eapolframecount;
+unsigned long long int eapolmkaframecount;
 unsigned long long int eapframecount;
 unsigned long long int ipv4framecount;
 unsigned long long int ipv6framecount;
@@ -509,13 +510,16 @@ if(greframecount != 0)
 	{
 	printf("GRE packets............: %lld\n", greframecount);
 	}
-
 for(p = 0; p < 256; p++)
 	{
 	if(exeaptype[p] != 0)
 		{
 		printf("found..................: %s\n", geteaptypestring(p));
 		}
+	}
+if(eapolmkaframecount != 0)
+	{
+	printf("found..................: MKA authentication (Macsec Key Agreement protocol)\n");
 	}
 if(chapframecount != 0)
 	{
@@ -2273,6 +2277,14 @@ eapolframecount++;
 return;
 }
 /*===========================================================================*/
+void processeapolmkaauthentication()
+{
+
+
+eapolmkaframecount++;
+return;
+}
+/*===========================================================================*/
 void processeapmd5authentication(uint32_t eaplen, uint8_t *packet)
 {
 md5_t *md5;
@@ -2355,6 +2367,7 @@ void process80211networkauthentication(uint32_t tv_sec, uint32_t tv_usec, uint32
 {
 eapauth_t *eap;
 
+
 if(caplen < (uint32_t)EAPAUTH_SIZE)
 	{
 	return;
@@ -2367,6 +2380,11 @@ if(eap->type == 3)
 else if(eap->type == 0)
 	{
 	 processexeapauthentication(ntohs(eap->len), packet);
+	}
+
+else if(eap->type == 5)
+	{
+	 processeapolmkaauthentication();
 	}
 return;
 }
@@ -2797,6 +2815,15 @@ if(ntohs(eth2->ether_type) == LLC_TYPE_IPV6)
 	caplen -= ETH2_SIZE;
 	processipv6packet(tv_sec, tv_usec, caplen, packet_ptr);
 	}
+
+if(ntohs(eth2->ether_type) == LLC_TYPE_AUTH)
+	{
+	packet_ptr += ETH2_SIZE;
+	caplen -= ETH2_SIZE;
+	process80211networkauthentication(tv_sec, tv_usec, caplen, eth2->addr1, eth2->addr2, packet_ptr);
+	}
+// void process80211networkauthentication(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
+
 return;
 }
 /*===========================================================================*/
@@ -3326,6 +3353,7 @@ leapcount = 0;
 actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
+eapolmkaframecount = 0;
 eapframecount = 0;
 ipv4framecount = 0;
 ipv6framecount = 0;
