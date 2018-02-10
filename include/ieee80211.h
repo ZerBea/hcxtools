@@ -527,7 +527,8 @@ struct ptp_frame
 } __attribute__ ((packed));
 typedef struct ptp_frame ptp_t;
 #define PTP_SIZE (sizeof(ptp_t))
-#define PROTO_CHAP 0xc223
+#define PROTO_PAP	0xc023
+#define PROTO_CHAP	0xc223
 /*===========================================================================*/
 struct chap_frame
 {

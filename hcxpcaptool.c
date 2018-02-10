@@ -126,6 +126,7 @@ unsigned long long int tcpframecount;
 unsigned long long int udpframecount;
 unsigned long long int greframecount;
 unsigned long long int chapframecount;
+unsigned long long int papframecount;
 unsigned long long int tacacspframecount;
 unsigned long long int radiusframecount;
 unsigned long long int dhcpframecount;
@@ -519,19 +520,23 @@ for(p = 0; p < 256; p++)
 	}
 if(eapolmkaframecount != 0)
 	{
-	printf("found..................: MKA authentication (Macsec Key Agreement protocol)\n");
+	printf("found..................: MKA Authentication (Macsec Key Agreement protocol)\n");
 	}
 if(chapframecount != 0)
 	{
-	printf("found..................: PPP-CHAP authentication\n");
+	printf("found..................: PPP-CHAP Authentication\n");
+	}
+if(papframecount != 0)
+	{
+	printf("found..................: PPP-PAP Authentication\n");
 	}
 if(tacacspframecount != 0)
 	{
-	printf("found..................: TACACS+ authentication\n");
+	printf("found..................: TACACS+ Authentication\n");
 	}
 if(radiusframecount != 0)
 	{
-	printf("found..................: RADIUS authentication\n");
+	printf("found..................: RADIUS Authentication\n");
 	}
 
 if(rawhandshakecount != 0)
@@ -2532,6 +2537,15 @@ chapframecount++;
 return;
 }
 /*===========================================================================*/
+void processppppappacket()
+{
+
+
+papframecount++;
+return;
+}
+/*===========================================================================*/
+
 void processicmp6packet()
 {
 
@@ -2574,11 +2588,14 @@ if((ntohs(gre->flags) & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET)
 	{
 	packet_ptr += 4;
 	}
-
 ptp = (ptp_t*)(packet_ptr);
 if(ntohs(ptp->type) == PROTO_CHAP)
 	{
 	processpppchappacket(caplen, packet_ptr +PTP_SIZE);
+	}
+else if(ntohs(ptp->type) == PROTO_PAP)
+	{
+	processppppappacket();
 	}
 greframecount++;
 return;
@@ -3363,6 +3380,7 @@ tcpframecount = 0;
 udpframecount = 0;
 greframecount = 0;
 chapframecount = 0;
+papframecount = 0;
 tacacspframecount = 0;
 radiusframecount = 0;
 dhcpframecount = 0;
