@@ -1481,11 +1481,12 @@ void addrawhandshake(uint64_t tv_ea, eapoll_t *zeigerea, uint64_t tv_eo, eapoll_
 hcxl_t *zeiger;
 unsigned long long int c;
 wpakey_t *wpae, *wpaea, *wpaeo;
+uint32_t anonce, anonceold;
+
 bool checkok = false;
 
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
-
 if((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo))
 	{
 	checkok = true;
@@ -1505,7 +1506,6 @@ if(((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 2)) && (zeigerea->replayco
 
 if(checkok == false)
 	return;
-
 
 if(rawhandshakeliste == NULL)
 	{
@@ -1531,6 +1531,7 @@ if(rawhandshakeliste == NULL)
 	memcpy(rawhandshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
 	if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
 		{
+		rawhandshakeliste->endianess = 0x20;
 		rawhandshakeaplesscount++;
 		}
 	rawhandshakecount++;
@@ -1543,6 +1544,18 @@ for(c = 0; c < rawhandshakecount; c++)
 	if((memcmp(zeiger->mac_ap, zeigerea->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigerea->mac_sta, 6) == 0))
 		{
 		wpae = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
+		anonce = wpaeo->nonce[31] | (wpaeo->nonce[30] << 8) | (wpaeo->nonce[29] << 16) | (wpaeo->nonce[28] << 24);
+		anonceold = zeiger->nonce[31] | (zeiger->nonce[30] << 8) | (zeiger->nonce[29] << 16) | (zeiger->nonce[28] << 24);
+		if(((anonce > anonceold) && (anonce < anonceold + 0xff)) || ((anonce < anonceold) && (anonce > anonceold - 0xff)))
+			{
+			zeiger->endianess = 0x20;
+			}
+		anonce = wpaeo->nonce[28] | (wpaeo->nonce[29] << 8) | (wpaeo->nonce[30] << 16) | (wpaeo->nonce[31] << 24);
+		anonceold = zeiger->nonce[28] | (zeiger->nonce[29] << 8) | (zeiger->nonce[30] << 16) | (zeiger->nonce[31] << 24);
+		if(((anonce > anonceold) && (anonce < anonceold + 0xff)) || ((anonce < anonceold) && (anonce > anonceold - 0xff)))
+			{
+			zeiger->endianess = 0x40;
+			}
 		if((memcmp(wpae->keymic, wpaea->keymic, 16) == 0) && (memcmp(zeiger->nonce, wpaeo->nonce, 32) == 0) && (memcmp(wpae->nonce, wpaea->nonce, 32) == 0))
 			{
 			if(zeiger->tv_diff >= timegap)
@@ -1613,6 +1626,7 @@ zeiger->authlen = zeigerea->authlen;
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
 	{
+	zeiger->endianess = 0x20;
 	rawhandshakeaplesscount++;
 	}
 rawhandshakecount++;
@@ -1624,10 +1638,10 @@ void addhandshake(uint64_t tv_ea, eapoll_t *zeigerea, uint64_t tv_eo, eapoll_t *
 hcxl_t *zeiger;
 unsigned long long int c;
 wpakey_t *wpae, *wpaea, *wpaeo;
+uint32_t anonce, anonceold;
 
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
-
 if(handshakeliste == NULL)
 	{
 	handshakeliste = malloc(HCXLIST_SIZE);
@@ -1652,6 +1666,7 @@ if(handshakeliste == NULL)
 	memcpy(handshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
 	if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
 		{
+		handshakeliste->endianess = 0x20;
 		handshakeaplesscount++;
 		}
 	handshakecount++;
@@ -1664,6 +1679,18 @@ for(c = 0; c < handshakecount; c++)
 	if((memcmp(zeiger->mac_ap, zeigerea->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigerea->mac_sta, 6) == 0))
 		{
 		wpae = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
+		anonce = wpaeo->nonce[31] | (wpaeo->nonce[30] << 8) | (wpaeo->nonce[29] << 16) | (wpaeo->nonce[28] << 24);
+		anonceold = zeiger->nonce[31] | (zeiger->nonce[30] << 8) | (zeiger->nonce[29] << 16) | (zeiger->nonce[28] << 24);
+		if(((anonce > anonceold) && (anonce < anonceold + 0xff)) || ((anonce < anonceold) && (anonce > anonceold - 0xff)))
+			{
+			zeiger->endianess = 0x20;
+			}
+		anonce = wpaeo->nonce[28] | (wpaeo->nonce[29] << 8) | (wpaeo->nonce[30] << 16) | (wpaeo->nonce[31] << 24);
+		anonceold = zeiger->nonce[28] | (zeiger->nonce[29] << 8) | (zeiger->nonce[30] << 16) | (zeiger->nonce[31] << 24);
+		if(((anonce > anonceold) && (anonce < anonceold + 0xff)) || ((anonce < anonceold) && (anonce > anonceold - 0xff)))
+			{
+			zeiger->endianess = 0x40;
+			}
 		if((memcmp(wpae->keymic, wpaea->keymic, 16) == 0) && (memcmp(zeiger->nonce, wpaeo->nonce, 32) == 0) && (memcmp(wpae->nonce, wpaea->nonce, 32) == 0))
 			{
 			if(zeiger->tv_diff >= timegap)
@@ -1700,6 +1727,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
 			zeiger->keyinfo_ap = zeigereo->keyinfo;
 			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			zeiger->endianess = 0x20;
 			memcpy(zeiger->nonce, wpaeo->nonce, 32);
 			zeiger->authlen = zeigerea->authlen;
 			memset(zeiger->eapol, 0, 256);
@@ -1820,6 +1848,7 @@ zeiger->authlen = zeigerea->authlen;
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
 	{
+	zeiger->endianess = 0x20;
 	handshakeaplesscount++;
 	}
 handshakecount++;

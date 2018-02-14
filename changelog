@@ -1,3 +1,18 @@
+15.02.2018
+==========
+hcxpcaptool
+added detection of router endianess:
+bitmask for message_pair file:
+0: MP info
+1: MP info
+2: MP inf
+3: x (unused)
+4: x (unused
+5: LE router detected (set to 1)
+6: BE router detected (set to 1)
+7: not replaycount checked (not replaycount checked set to1)
+
+
 09.02.2018
 ==========
 hcxpcaptool

@@ -82,6 +82,7 @@ struct hcxtoollist_s
  uint64_t	rc_diff;
  uint64_t	replaycount_ap;
  uint64_t	replaycount_sta;
+ uint8_t	endianess;
  uint8_t	nonce[32];
  uint8_t	authlen;
  uint8_t	eapol[256];
