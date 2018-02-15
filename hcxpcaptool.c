@@ -1531,7 +1531,7 @@ if(rawhandshakeliste == NULL)
 	memcpy(rawhandshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
 	if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
 		{
-		rawhandshakeliste->endianess = 0x20;
+		rawhandshakeliste->endianess = 0x10;
 		rawhandshakeaplesscount++;
 		}
 	rawhandshakecount++;
@@ -1592,6 +1592,7 @@ for(c = 0; c < rawhandshakecount; c++)
 			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
 			zeiger->keyinfo_ap = zeigereo->keyinfo;
 			zeiger->keyinfo_sta = zeigerea->keyinfo;
+			zeiger->endianess = 0x10;
 			memcpy(zeiger->nonce, wpaeo->nonce, 32);
 			zeiger->authlen = zeigerea->authlen;
 			memset(zeiger->eapol, 0, 256);
@@ -1626,7 +1627,7 @@ zeiger->authlen = zeigerea->authlen;
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
 	{
-	zeiger->endianess = 0x20;
+	zeiger->endianess = 0x10;
 	rawhandshakeaplesscount++;
 	}
 rawhandshakecount++;
@@ -1666,7 +1667,7 @@ if(handshakeliste == NULL)
 	memcpy(handshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
 	if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
 		{
-		handshakeliste->endianess = 0x20;
+		handshakeliste->endianess = 0x10;
 		handshakeaplesscount++;
 		}
 	handshakecount++;
@@ -1727,7 +1728,7 @@ for(c = 0; c < handshakecount; c++)
 			memcpy(zeiger->mac_sta, zeigerea->mac_sta, 6);
 			zeiger->keyinfo_ap = zeigereo->keyinfo;
 			zeiger->keyinfo_sta = zeigerea->keyinfo;
-			zeiger->endianess = 0x20;
+			zeiger->endianess = 0x10;
 			memcpy(zeiger->nonce, wpaeo->nonce, 32);
 			zeiger->authlen = zeigerea->authlen;
 			memset(zeiger->eapol, 0, 256);
@@ -1848,7 +1849,7 @@ zeiger->authlen = zeigerea->authlen;
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
 if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
 	{
-	zeiger->endianess = 0x20;
+	zeiger->endianess = 0x10;
 	handshakeaplesscount++;
 	}
 handshakecount++;
