@@ -10,8 +10,9 @@ bitmask for message_pair file:
 4: ap-less attack (set to 1) - no nonce-error-corrections neccessary
 5: LE router detected (set to 1) - nonce-error-corrections only for LE neccessary
 6: BE router detected (set to 1) - nonce-error-corrections only for BE neccessary
-7: not replaycount checked (set to 1) - replaycount not checked
-that will improve speed for hashcat
+7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely neccessary
+
+using bit 4 to 7, hcxtools are able to interact with hascat - that will increase speed for hashcat.
 
 
 09.02.2018
