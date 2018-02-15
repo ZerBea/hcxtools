@@ -204,7 +204,8 @@ long int mp2c = 0;
 long int mp3c = 0;
 long int mp4c = 0;
 long int mp5c = 0;
-
+long int mple = 0;
+long int mpbe = 0;
 long int mp80c = 0;
 long int mp81c = 0;
 long int mp82c = 0;
@@ -363,48 +364,55 @@ while(c < hcxrecords)
 	if(eapver == 2)
 		xverc2++;
 
-	if((zeigerhcx->message_pair & 0x7f) == 0)
+	if((zeigerhcx->message_pair & 0x03) == 0)
 		{
 		mp0c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
-		mp80c++;
+			mp80c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x7f) == 1)
+	if((zeigerhcx->message_pair & 0x03) == 1)
 		{
 		mp1c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
-		mp81c++;
+			mp81c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x7f) == 2)
+	if((zeigerhcx->message_pair & 0x03) == 2)
 		{
 		mp2c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
-		mp82c++;
+			mp82c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x7f) == 3)
+	if((zeigerhcx->message_pair & 0x03) == 3)
 		{
 		mp3c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
-		mp83c++;
+			mp83c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x7f) == 4)
+	if((zeigerhcx->message_pair & 0x03) == 4)
 		{
 		mp4c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
-		mp84c++;
+			mp84c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x7f) == 5)
+	if((zeigerhcx->message_pair & 0x03) == 5)
 		{
 		mp5c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
-		mp85c++;
+			mp85c++;
 		}
-
+	if((zeigerhcx->message_pair & 0x20) == 0x20)
+		{
+		mple++;
+		}
+	if((zeigerhcx->message_pair & 0x40) == 0x40)
+		{
+		mpbe++;
+		}
 	if((zeigerhcx->essid_len == 0) && (zeigerhcx->essid[0] == 0))
 		noessidcount++;
 
@@ -416,6 +424,8 @@ if(outmode == 0)
 	{
 	fprintf(stdout, "total hashes read from file.......: %ld\n"
 			"\x1B[32mhandshakes from clients...........: %ld\x1B[0m\n"
+			"little endinan router detected....: %ld\n"
+			"big endinan router detected.......: %ld\n"
 			"zeroed ESSID......................: %ld\n"
 			"802.1x Version 2001...............: %ld\n"
 			"802.1x Version 2004...............: %ld\n"
@@ -429,7 +439,7 @@ if(outmode == 0)
 			"message pair M32E3................: %ld (%ld not replaycount checked)\n"
 			"message pair M34E3................: %ld (%ld not replaycount checked)\n"
 			"message pair M34E4................: %ld (%ld not replaycount checked)"
-			"\n", totalrecords, wldcount, noessidcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, groupkeycount, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			"\n", totalrecords, wldcount, mple, mpbe, noessidcount, xverc1, xverc2, wpakv1c, wpakv2c, wpakv3c, groupkeycount, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 
 	if(noncecorr == true)
 		fprintf(stdout, "\x1B[32mnonce-error-corrections is working on that file\x1B[0m\n");
