@@ -1546,13 +1546,13 @@ for(c = 0; c < rawhandshakecount; c++)
 		wpae = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 		anonce = wpaeo->nonce[31] | (wpaeo->nonce[30] << 8) | (wpaeo->nonce[29] << 16) | (wpaeo->nonce[28] << 24);
 		anonceold = zeiger->nonce[31] | (zeiger->nonce[30] << 8) | (zeiger->nonce[29] << 16) | (zeiger->nonce[28] << 24);
-		if(((anonce > anonceold) && (anonce < anonceold + 0xff)) || ((anonce < anonceold) && (anonce > anonceold - 0xff)))
+		if(((anonce > anonceold) && (anonce < anonceold + 0xfff)) || ((anonce < anonceold) && (anonce > anonceold - 0xfff)))
 			{
 			zeiger->endianess = 0x20;
 			}
 		anonce = wpaeo->nonce[28] | (wpaeo->nonce[29] << 8) | (wpaeo->nonce[30] << 16) | (wpaeo->nonce[31] << 24);
 		anonceold = zeiger->nonce[28] | (zeiger->nonce[29] << 8) | (zeiger->nonce[30] << 16) | (zeiger->nonce[31] << 24);
-		if(((anonce > anonceold) && (anonce < anonceold + 0xff)) || ((anonce < anonceold) && (anonce > anonceold - 0xff)))
+		if(((anonce > anonceold) && (anonce < anonceold + 0xfff)) || ((anonce < anonceold) && (anonce > anonceold - 0xfff)))
 			{
 			zeiger->endianess = 0x40;
 			}
@@ -1681,13 +1681,13 @@ for(c = 0; c < handshakecount; c++)
 		wpae = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 		anonce = wpaeo->nonce[31] | (wpaeo->nonce[30] << 8) | (wpaeo->nonce[29] << 16) | (wpaeo->nonce[28] << 24);
 		anonceold = zeiger->nonce[31] | (zeiger->nonce[30] << 8) | (zeiger->nonce[29] << 16) | (zeiger->nonce[28] << 24);
-		if(((anonce > anonceold) && (anonce < anonceold + 0xff)) || ((anonce < anonceold) && (anonce > anonceold - 0xff)))
+		if(((anonce > anonceold) && (anonce < anonceold + 0xfff)) || ((anonce < anonceold) && (anonce > anonceold - 0xfff)))
 			{
 			zeiger->endianess = 0x20;
 			}
 		anonce = wpaeo->nonce[28] | (wpaeo->nonce[29] << 8) | (wpaeo->nonce[30] << 16) | (wpaeo->nonce[31] << 24);
 		anonceold = zeiger->nonce[28] | (zeiger->nonce[29] << 8) | (zeiger->nonce[30] << 16) | (zeiger->nonce[31] << 24);
-		if(((anonce > anonceold) && (anonce < anonceold + 0xff)) || ((anonce < anonceold) && (anonce > anonceold - 0xff)))
+		if(((anonce > anonceold) && (anonce < anonceold + 0xfff)) || ((anonce < anonceold) && (anonce > anonceold - 0xfff)))
 			{
 			zeiger->endianess = 0x40;
 			}
