@@ -975,6 +975,18 @@ if(removeflag == true)
 return;
 }
 /*===========================================================================*/
+void reverse(uint8_t len, uint8_t *bufferin, uint8_t *bufferout)
+{
+int pi;
+int po = 0;
+for(pi = len -1; pi >= 0; pi--)
+	{
+	bufferout[po] = bufferin[pi];
+	po++;
+	}
+return;
+}
+/*===========================================================================*/
 static int sort_by_essid(const void *a, const void *b)
 {
 const hcx_t *ia = (const hcx_t *)a;
@@ -987,9 +999,9 @@ static void processessid(long int hcxrecords)
 {
 hcx_t *zeigerhcx;
 hcx_t *zeigerhcx1;
-
 long int c;
 
+uint8_t essidrev[32];
 
 qsort(hcxdata, hcxrecords, HCX_SIZE, sort_by_essid);
 c = 0;
@@ -1012,6 +1024,12 @@ while(c < hcxrecords)
 	removesweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
 	getxdigitsweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
 	getdigitsweepessidstr(zeigerhcx->essid_len, zeigerhcx->essid);
+	memset(&essidrev, 0, 32);
+	reverse(zeigerhcx->essid_len, zeigerhcx->essid, essidrev);
+	sweepessidstr(zeigerhcx->essid_len, essidrev);
+	removesweepessidstr(zeigerhcx->essid_len, essidrev);
+	getxdigitsweepessidstr(zeigerhcx->essid_len, essidrev);
+	getdigitsweepessidstr(zeigerhcx->essid_len, essidrev);
 	c++;
 	}
 
