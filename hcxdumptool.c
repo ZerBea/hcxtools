@@ -970,7 +970,9 @@ while(1)
 		errorcount++;
 		continue;
 		}
-	gettimeofday(&packetsave->tv, NULL);
+	gettimeofday(&tv, NULL);
+	packetsave->ts_sec = tv.tv_sec;
+	packetsave->ts_usec = tv.tv_usec;
 	packetsave->incl_len = pklen;
 	packetsave->orig_len = pklen;
 	packetcount++;

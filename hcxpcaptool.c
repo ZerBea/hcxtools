@@ -3301,8 +3301,8 @@ while(1)
 	#endif
 	if(endianess == 1)
 		{
-		pcaprhdr.tv.tv_sec	= byte_swap_32(pcaprhdr.tv.tv_sec);
-		pcaprhdr.tv.tv_usec	= byte_swap_32(pcaprhdr.tv.tv_usec);
+		pcaprhdr.ts_sec		= byte_swap_32(pcaprhdr.ts_sec);
+		pcaprhdr.ts_usec	= byte_swap_32(pcaprhdr.ts_usec);
 		pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
 		pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
 		}
@@ -3330,11 +3330,11 @@ while(1)
 		{
 		if(hexmodeflag == true)
 			{
-			packethexdump(pcaprhdr.tv.tv_sec, pcaprhdr.tv.tv_usec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
+			packethexdump(pcaprhdr.ts_sec, pcaprhdr.ts_usec, rawpacketcount, pcapfhdr.network, pcapfhdr.snaplen, pcaprhdr.incl_len, pcaprhdr.orig_len, packet);
 			}
 		if(verboseflag == true)
 			{
-			processpacket(pcaprhdr.tv.tv_sec, pcaprhdr.tv.tv_usec, pcapfhdr.network, pcaprhdr.incl_len, packet);
+			processpacket(pcaprhdr.ts_sec, pcaprhdr.ts_usec, pcapfhdr.network, pcaprhdr.incl_len, packet);
 			}
 		if((rawpacketcount %100000) == 0)
 			{
