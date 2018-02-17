@@ -112,7 +112,6 @@ unsigned long long int reassociationresponseframecount;
 unsigned long long int authenticationframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int disassociationframecount;
-unsigned long long int deauthenticationframecount;
 unsigned long long int actionframecount;
 unsigned long long int atimframecount;
 unsigned long long int eapolframecount;
@@ -920,7 +919,7 @@ if(johnbestoutname != NULL)
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						writejohnrecord(zeiger, fhoutlist, pcapinname);
+						writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
 						writtencount++;
 						essidchangecount++;
 						memset(&essidold, 0,32);
@@ -966,7 +965,7 @@ if(johnrawoutname != NULL)
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						writejohnrecord(zeiger, fhoutlist, pcapinname);
+						writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
 						writtencount++;
 						essidchangecount++;
 						memset(&essidold, 0,32);

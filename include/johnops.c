@@ -28,12 +28,13 @@ sprintf(ssid, "%02x%02x%02x%02x%02x%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-static void writejohnrecord(hcxl_t *zeiger, FILE *fhjohn, char *basename)
+static void writejohnrecord(unsigned long long int noncefuzz, hcxl_t *zeiger, FILE *fhjohn, char *basename)
 {
 hccap_t hccap;
 wpakey_t *wpak, *wpak2;
 uint8_t message_pair;
-unsigned int i;
+unsigned int i, n;
+unsigned int anonce;
 unsigned char *hcpos;
 char sta_mac[18];
 char ap_mac[18];
@@ -105,20 +106,153 @@ mac2ascii(ap_mac_long, zeiger->mac_ap);
 mac2asciilong(ap_mac, zeiger->mac_ap);
 mac2asciilong(sta_mac, zeiger->mac_sta);
 
-fprintf(fhjohn, "%s:$WPAPSK$%s#", hccap.essid, hccap.essid);
-for (i = 36; i + 3 < HCCAP_SIZE; i += 3)
+if((zeiger->endianess & 0x10) == 0x10)
 	{
-	hccap2base(fhjohn, &hcpos[i], 1);
+	fprintf(fhjohn, "%s:$WPAPSK$%s#", hccap.essid, hccap.essid);
+	for (i = 36; i + 3 < HCCAP_SIZE; i += 3)
+		{
+		hccap2base(fhjohn, &hcpos[i], 1);
+		}
+	hccap2base(fhjohn, &hcpos[i], 0);
+	fprintf(fhjohn, ":%s:%s:%s::WPA", sta_mac, ap_mac, ap_mac_long);
+	if (hccap.keyver > 1)
+		{
+		fprintf(fhjohn, "%d", hccap.keyver);
+		}
+	if((message_pair &0x80) > 1)
+		{
+		fprintf(fhjohn, ":verfified:%s\n", basename);
+		}
+	else
+		{
+		fprintf(fhjohn, ":not verfified:%s\n", basename);
+		}
 	}
-hccap2base(fhjohn, &hcpos[i], 0);
-fprintf(fhjohn, ":%s:%s:%s::WPA", sta_mac, ap_mac, ap_mac_long);
-if (hccap.keyver > 1)
-	fprintf(fhjohn, "%d", hccap.keyver);
-
-if((message_pair &0x80) > 1)
-	fprintf(fhjohn, ":verfified:%s\n", basename);
+else if((zeiger->endianess & 0x20) == 0x20)
+	{
+	anonce = zeiger->nonce[31] | (zeiger->nonce[30] << 8) | (zeiger->nonce[29] << 16) | (zeiger->nonce[28] << 24);
+	anonce -= noncefuzz/2;
+	for (n = 0; n < noncefuzz; n++)
+		{
+		hccap.nonce2[28] = (anonce >> 24) & 0xff;
+		hccap.nonce2[29] = (anonce >> 16) & 0xff;
+		hccap.nonce2[30] = (anonce >> 8) & 0xff;
+		hccap.nonce2[31] = anonce & 0xff;
+		fprintf(fhjohn, "%s:$WPAPSK$%s#", hccap.essid, hccap.essid);
+		for (i = 36; i + 3 < HCCAP_SIZE; i += 3)
+			{
+			hccap2base(fhjohn, &hcpos[i], 1);
+			}
+		hccap2base(fhjohn, &hcpos[i], 0);
+		fprintf(fhjohn, ":%s:%s:%s::WPA", sta_mac, ap_mac, ap_mac_long);
+		if(hccap.keyver > 1)
+			{
+			fprintf(fhjohn, "%d", hccap.keyver);
+			}
+		if((message_pair &0x80) > 1)
+			{
+			fprintf(fhjohn, ":verfified:%s\n", basename);
+			}
+		else
+			{
+			fprintf(fhjohn, ":not verfified:%s\n", basename);
+			}
+		anonce++;
+		}
+	}
+else if((zeiger->endianess & 0x40) == 0x40)
+	{
+	anonce = zeiger->nonce[28] | (zeiger->nonce[29] << 8) | (zeiger->nonce[30] << 16) | (zeiger->nonce[31] << 24);
+	anonce -= noncefuzz/2;
+	for (n = 0; n < noncefuzz; n++)
+		{
+		hccap.nonce2[31] = (anonce >> 24) & 0xff;
+		hccap.nonce2[30] = (anonce >> 16) & 0xff;
+		hccap.nonce2[29] = (anonce >> 8) & 0xff;
+		hccap.nonce2[28] = anonce & 0xff;
+		fprintf(fhjohn, "%s:$WPAPSK$%s#", hccap.essid, hccap.essid);
+		for (i = 36; i + 3 < HCCAP_SIZE; i += 3)
+			{
+			hccap2base(fhjohn, &hcpos[i], 1);
+			}
+		hccap2base(fhjohn, &hcpos[i], 0);
+		fprintf(fhjohn, ":%s:%s:%s::WPA", sta_mac, ap_mac, ap_mac_long);
+		if(hccap.keyver > 1)
+			{
+			fprintf(fhjohn, "%d", hccap.keyver);
+			}
+		if((message_pair &0x80) > 1)
+			{
+			fprintf(fhjohn, ":verfified:%s\n", basename);
+			}
+		else
+			{
+			fprintf(fhjohn, ":not verfified:%s\n", basename);
+			}
+		anonce++;
+		}
+	}
 else
-	fprintf(fhjohn, ":not verfified:%s\n", basename);
+	{
+	anonce = zeiger->nonce[31] | (zeiger->nonce[30] << 8) | (zeiger->nonce[29] << 16) | (zeiger->nonce[28] << 24);
+	anonce -= noncefuzz/2;
+	for (n = 0; n < noncefuzz; n++)
+		{
+		hccap.nonce2[28] = (anonce >> 24) & 0xff;
+		hccap.nonce2[29] = (anonce >> 16) & 0xff;
+		hccap.nonce2[30] = (anonce >> 8) & 0xff;
+		hccap.nonce2[31] = anonce & 0xff;
+		fprintf(fhjohn, "%s:$WPAPSK$%s#", hccap.essid, hccap.essid);
+		for (i = 36; i + 3 < HCCAP_SIZE; i += 3)
+			{
+			hccap2base(fhjohn, &hcpos[i], 1);
+			}
+		hccap2base(fhjohn, &hcpos[i], 0);
+		fprintf(fhjohn, ":%s:%s:%s::WPA", sta_mac, ap_mac, ap_mac_long);
+		if(hccap.keyver > 1)
+			{
+			fprintf(fhjohn, "%d", hccap.keyver);
+			}
+		if((message_pair &0x80) > 1)
+			{
+			fprintf(fhjohn, ":verfified:%s\n", basename);
+			}
+		else
+			{
+			fprintf(fhjohn, ":not verfified:%s\n", basename);
+			}
+		anonce++;
+		}
+	anonce = zeiger->nonce[28] | (zeiger->nonce[29] << 8) | (zeiger->nonce[30] << 16) | (zeiger->nonce[31] << 24);
+	anonce -= noncefuzz/2;
+	for (n = 0; n < noncefuzz; n++)
+		{
+		hccap.nonce2[31] = (anonce >> 24) & 0xff;
+		hccap.nonce2[30] = (anonce >> 16) & 0xff;
+		hccap.nonce2[29] = (anonce >> 8) & 0xff;
+		hccap.nonce2[28] = anonce & 0xff;
+		fprintf(fhjohn, "%s:$WPAPSK$%s#", hccap.essid, hccap.essid);
+		for (i = 36; i + 3 < HCCAP_SIZE; i += 3)
+			{
+			hccap2base(fhjohn, &hcpos[i], 1);
+			}
+		hccap2base(fhjohn, &hcpos[i], 0);
+		fprintf(fhjohn, ":%s:%s:%s::WPA", sta_mac, ap_mac, ap_mac_long);
+		if(hccap.keyver > 1)
+			{
+			fprintf(fhjohn, "%d", hccap.keyver);
+			}
+		if((message_pair &0x80) > 1)
+			{
+			fprintf(fhjohn, ":verfified:%s\n", basename);
+			}
+		else
+			{
+			fprintf(fhjohn, ":not verfified:%s\n", basename);
+			}
+		anonce++;
+		}
+	}
 return;
 }
 /*===========================================================================*/

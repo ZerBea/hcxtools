@@ -1,3 +1,17 @@
+17.02.2018
+==========
+hcxpcaptool
+added nonce fuzzing logic for john accroding to bitmask:
+0: MP info
+1: MP info
+2: MP inf
+3: x (unused)
+4: ap-less attack (set to 1) - no nonce-error-corrections neccessary
+5: LE router detected (set to 1) - nonce-error-corrections only for LE neccessary
+6: BE router detected (set to 1) - nonce-error-corrections only for BE neccessary
+7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely neccessary
+
+
 15.02.2018
 ==========
 hcxpcaptool
