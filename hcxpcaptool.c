@@ -365,8 +365,6 @@ switch(networktype)
 	case DLT_WATTSTOPPER_DLM: return "DLT_WATTSTOPPER_DLM";
 	case DLT_ISO_14443: return "DLT_ISO_14443";
 	case DLT_RDS: return "DLT_RDS";
-	case DLT_USB_DARWIN: return "DLT_USB_DARWIN";
-	case DLT_SDLC: return "DLT_SDLC";
 	default: return "unknown network type";
 	}
 return "unknown network type";
