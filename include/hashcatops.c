@@ -67,10 +67,12 @@ fwrite (&hccapx, sizeof(hccapx_t), 1, fho);
 return;
 }
 /*===========================================================================*/
-void writehccaprecord(hcxl_t *zeiger, FILE *fho)
+void writehccaprecord(unsigned long long int noncefuzz, hcxl_t *zeiger, FILE *fho)
 {
 hccap_t hccap;
 wpakey_t *wpak, *wpak2;
+unsigned int n;
+unsigned int anonce;
 
 memset (&hccap, 0, sizeof(hccap_t));
 wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
@@ -89,7 +91,64 @@ hccap.keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
  #ifdef BIG_ENDIAN_HOST
 hccap.eapolsize	= byte_swap_16(hccap.eapolsize);
 #endif
-fwrite (&hccap, sizeof(hccap_t), 1, fho);
+
+if((zeiger->endianess & 0x10) == 0x10)
+	{
+	fwrite (&hccap, sizeof(hccap_t), 1, fho);
+	}
+else if((zeiger->endianess & 0x20) == 0x20)
+	{
+	anonce = zeiger->nonce[31] | (zeiger->nonce[30] << 8) | (zeiger->nonce[29] << 16) | (zeiger->nonce[28] << 24);
+	anonce -= noncefuzz/2;
+	for (n = 0; n < noncefuzz; n++)
+		{
+		hccap.nonce2[28] = (anonce >> 24) & 0xff;
+		hccap.nonce2[29] = (anonce >> 16) & 0xff;
+		hccap.nonce2[30] = (anonce >> 8) & 0xff;
+		hccap.nonce2[31] = anonce & 0xff;
+		fwrite (&hccap, sizeof(hccap_t), 1, fho);
+		anonce++;
+		}
+	}
+else if((zeiger->endianess & 0x40) == 0x40)
+	{
+	anonce = zeiger->nonce[28] | (zeiger->nonce[29] << 8) | (zeiger->nonce[30] << 16) | (zeiger->nonce[31] << 24);
+	anonce -= noncefuzz/2;
+	for (n = 0; n < noncefuzz; n++)
+		{
+		hccap.nonce2[31] = (anonce >> 24) & 0xff;
+		hccap.nonce2[30] = (anonce >> 16) & 0xff;
+		hccap.nonce2[29] = (anonce >> 8) & 0xff;
+		hccap.nonce2[28] = anonce & 0xff;
+		fwrite (&hccap, sizeof(hccap_t), 1, fho);
+		anonce++;
+		}
+	}
+else
+	{
+	anonce = zeiger->nonce[31] | (zeiger->nonce[30] << 8) | (zeiger->nonce[29] << 16) | (zeiger->nonce[28] << 24);
+	anonce -= noncefuzz/2;
+	for (n = 0; n < noncefuzz; n++)
+		{
+		hccap.nonce2[28] = (anonce >> 24) & 0xff;
+		hccap.nonce2[29] = (anonce >> 16) & 0xff;
+		hccap.nonce2[30] = (anonce >> 8) & 0xff;
+		hccap.nonce2[31] = anonce & 0xff;
+		fwrite (&hccap, sizeof(hccap_t), 1, fho);
+		anonce++;
+		}
+	anonce = zeiger->nonce[28] | (zeiger->nonce[29] << 8) | (zeiger->nonce[30] << 16) | (zeiger->nonce[31] << 24);
+	anonce -= noncefuzz/2;
+	for (n = 0; n < noncefuzz; n++)
+		{
+		hccap.nonce2[31] = (anonce >> 24) & 0xff;
+		hccap.nonce2[30] = (anonce >> 16) & 0xff;
+		hccap.nonce2[29] = (anonce >> 8) & 0xff;
+		hccap.nonce2[28] = anonce & 0xff;
+		fwrite (&hccap, sizeof(hccap_t), 1, fho);
+		anonce++;
+		}
+	}
 return;
 }
 /*===========================================================================*/

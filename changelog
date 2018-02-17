@@ -1,7 +1,7 @@
 17.02.2018
 ==========
 hcxpcaptool
-added nonce fuzzing logic for john accroding to bitmask:
+added nonce fuzzing logic for john and old hashcat (hccap) according to bitmask:
 0: MP info
 1: MP info
 2: MP inf

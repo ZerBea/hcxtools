@@ -827,7 +827,7 @@ if(hccapbestoutname != NULL)
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						writehccaprecord(zeiger, fhoutlist);
+						writehccaprecord(maxrcdiff, zeiger, fhoutlist);
 						writtencount++;
 						essidchangecount++;
 						memset(&essidold, 0,32);
@@ -873,7 +873,7 @@ if(hccaprawoutname != NULL)
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						writehccaprecord(zeiger, fhoutlist);
+						writehccaprecord(maxrcdiff, zeiger, fhoutlist);
 						writtencount++;
 						essidchangecount++;
 						memset(&essidold, 0,32);
