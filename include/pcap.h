@@ -249,8 +249,7 @@ typedef struct pcap_hdr_s pcap_hdr_t;
 /*===========================================================================*/
 struct pcaprec_hdr_s
 {
- uint32_t ts_sec;	/* timestamp seconds */
- uint32_t ts_usec;	/* timestamp microseconds */
+ struct timeval tv;
  uint32_t incl_len;	/* number of octets of packet saved in file */
  uint32_t orig_len;	/* actual length of packet */
  uint8_t data[1];
