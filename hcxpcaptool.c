@@ -2054,7 +2054,7 @@ apstaessidcount++;
 return;
 }
 /*===========================================================================*/
-uint16_t getessid(uint8_t *tagdata, uint16_t taglen, uint8_t *essidstr)
+uint16_t getessid(uint8_t *tagdata, int taglen, uint8_t *essidstr)
 {
 ietag_t *tagl;
 tagl = (ietag_t*)tagdata;
@@ -2866,8 +2866,6 @@ if(ntohs(eth2->ether_type) == LLC_TYPE_AUTH)
 	caplen -= ETH2_SIZE;
 	process80211networkauthentication(tv_sec, tv_usec, caplen, eth2->addr1, eth2->addr2, packet_ptr);
 	}
-// void process80211networkauthentication(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
-
 return;
 }
 /*===========================================================================*/
