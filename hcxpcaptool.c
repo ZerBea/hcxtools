@@ -2716,15 +2716,15 @@ if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_
 		}
 	llc = (llc_t*)(packet+MAC_SIZE_NORM);
 	packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
-	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
+	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
-	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
+	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
 		}
-	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP))
+	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
 		}
@@ -2737,15 +2737,15 @@ else if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE802
 		}
 	llc = (llc_t*)(packet +MAC_SIZE_QOS);
 	packet_ptr += MAC_SIZE_QOS +LLC_SIZE;
-	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP))
+	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
-	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP))
+	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, packet_ptr);
 		}
-	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP))
+	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, packet_ptr);
 		}
