@@ -107,7 +107,9 @@
 #define DLT_IBM_SN			146
 #define DLT_USER0			147
 #define DLT_USER1			148
+#ifndef __APPLE__
 #define DLT_USER2			149
+#endif
 #define DLT_USER3			150
 #define DLT_USER4			151
 #define DLT_USER5			152
