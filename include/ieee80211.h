@@ -294,11 +294,25 @@ typedef struct llc_frame llc_t;
 /*===========================================================================*/
 struct authentication_frame
 {
- uint16_t authentication_algho;
- uint16_t authentication_seq;
+ uint16_t	authentication_algho;
+ uint16_t	authentication_seq;
 } __attribute__((__packed__));
 typedef struct authentication_frame authf_t;
 #define	AUTHENTICATIONFRAME_SIZE (sizeof(authf_t))
+/*===========================================================================*/
+struct action_frame
+{
+ uint8_t	categoriecode;
+ #define	CAT_BLOCK_ACK		3
+#define	CAT_RADIO_MEASUREMENT		5
+ uint8_t	actioncode;
+#define	ACT_ADD_BLOCK_ACK_REQ		0
+#define	ACT_ADD_BLOCK_ACK_RESP		0
+#define	ACT_DELETE_BLOCK_REQ		2
+#define	ACT_RADIO_MEASUREMENT_REQ	0
+};
+typedef struct action_frame actf_t;
+#define	ACTIONFRAME_SIZE (sizeof(actf_t))
 /*===========================================================================*/
 struct eapauthentication_frame
 {
@@ -313,10 +327,6 @@ typedef struct eapauthentication_frame eapauth_t;
 struct wpakey_frame
 {
  uint8_t	keydescriptor;
-#define WPA_M1  0b00000001
-#define WPA_M2  0b00000010
-#define WPA_M3  0b00000100
-#define WPA_M4  0b00001000
  uint16_t	keyinfo;
  uint16_t	keylen;
  uint64_t	replaycount;

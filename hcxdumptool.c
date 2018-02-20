@@ -33,6 +33,11 @@
 #include "include/pcap.c"
 #include "include/strings.c"
 
+#define WPA_M1  0b00000001
+#define WPA_M2  0b00000010
+#define WPA_M3  0b00000100
+#define WPA_M4  0b00001000
+
 /*===========================================================================*/
 /* global var */
 
