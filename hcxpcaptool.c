@@ -2265,7 +2265,7 @@ if(authlen > caplen -4)
 	{
 	return;
 	}
-if(memcmp(wpak->nonce, nullnonce, 32) == 0)
+if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 	{
 	return;
 	}

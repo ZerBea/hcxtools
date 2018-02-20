@@ -207,6 +207,18 @@ long int rw = 0;
 long int rwerr = 0;
 FILE *fhhcx;
 
+uint8_t fakeanonce[] =
+{
+0x07, 0xbc, 0x92, 0xea, 0x2f, 0x5a, 0x1e, 0xe2, 0x54, 0xf6, 0xb1, 0xb7, 0xe0, 0xaa, 0xd3, 0x53,
+0xf4, 0x5b, 0x0a, 0xac, 0xf9, 0xc9, 0x90, 0x2f, 0x90, 0xd8, 0x78, 0x80, 0xb7, 0x03, 0x0a, 0x20
+};
+
+uint8_t fakesnonce[] =
+{
+0x95, 0x30, 0xd1, 0xc7, 0xc3, 0x55, 0xb9, 0xab, 0xe6, 0x83, 0xd6, 0xf3, 0x7e, 0xcb, 0x78, 0x02,
+0x75, 0x1f, 0x53, 0xcc, 0xb5, 0x81, 0xd1, 0x52, 0x3b, 0xb4, 0xba, 0xad, 0x23, 0xab, 0x01, 0x07
+};
+
 c = 0;
 while(c < hcxrecords)
 	{
@@ -230,7 +242,30 @@ while(c < hcxrecords)
 		c++;
 		continue;
 		}
-	
+	if((memcmp(&fakesnonce, zeigerhcx->nonce_sta, 32) == 0) && (memcmp(&fakeanonce, zeigerhcx->nonce_ap, 32) == 0) && (getreplaycount(zeigerhcx->eapol) == 17))
+		{
+		rwerr++;
+		c++;
+		continue;
+		}
+	if((memcmp(&fakeanonce, zeigerhcx->nonce_sta, 32) == 0) && (memcmp(&fakesnonce, zeigerhcx->nonce_ap, 32) == 0) && (getreplaycount(zeigerhcx->eapol) == 17))
+		{
+		rwerr++;
+		c++;
+		continue;
+		}
+	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0) && (getreplaycount(zeigerhcx->eapol) != MYREPLAYCOUNT))
+		{
+		rwerr++;
+		c++;
+		continue;
+		}
+	if((memcmp(&mynonce, zeigerhcx->nonce_sta, 32) == 0) && (getreplaycount(zeigerhcx->eapol) != MYREPLAYCOUNT))
+		{
+		rwerr++;
+		c++;
+		continue;
+		}
 	if((fhhcx = fopen(repairedname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening file %s", repairedname);
