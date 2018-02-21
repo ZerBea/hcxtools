@@ -2957,7 +2957,7 @@ else if(linktype == DLT_PPI)
 		}
 	ppi = (ppi_t*)packet;
 	#ifdef BIG_ENDIAN_HOST
-	ppi->pph_len	byte_swap_16(ppi->pph_len);
+	ppi->pph_len	= byte_swap_16(ppi->pph_len);
 	#endif
 	packet_ptr += ppi->pph_len;
 	caplen -= ppi->pph_len;
@@ -3084,9 +3084,9 @@ while(1)
 			}
 		#ifdef BIG_ENDIAN_HOST
 		pcapngpb.interface_id	= byte_swap_16(pcapngpb.interface_id);
-		pcapngpbdrops_count.	= byte_swap_16(pcapngpb.drops_count);
-		pcapngpbtimestamp_high.	= byte_swap_32(pcapngpb.timestamp_high);
-		pcapngpbtimestamp_low.	= byte_swap_32(pcapngpb.timestamp_low);
+		pcapngpb.drops_count	= byte_swap_16(pcapngpb.drops_count);
+		pcapngpb.timestamp_high	= byte_swap_32(pcapngpb.timestamp_high);
+		pcapngpb.timestamp_low	= byte_swap_32(pcapngpb.timestamp_low);
 		pcapngpb.caplen		= byte_swap_32(pcapngpb.caplen);
 		pcapngpb.len		= byte_swap_32(pcapngpb.len);
 		#endif
