@@ -18,7 +18,7 @@ by using common wordlists. Convert the cap to hccapx and check if wlan-key
 or plainmasterkey was transmitted unencrypted.
 
 
-Brief description
+Brief description  
 --------------
 
 Multiple stand-alone binaries - designed to run on Raspberry Pi's.
