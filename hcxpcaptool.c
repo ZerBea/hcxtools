@@ -682,6 +682,7 @@ return;
 void outputwpalists(char *pcapinname)
 {
 unsigned long long int c, d;
+int damagedcount = 10;
 hcxl_t *zeiger;
 apstaessidl_t *zeigeressid;
 FILE *fhoutlist = NULL;
@@ -708,6 +709,7 @@ if(hccapxbestoutname != NULL)
 			zeigeressid = apstaessidliste;
 			essidchangecount = 0;
 			memset(&essidold, 0,32);
+			damagedcount = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
@@ -728,6 +730,11 @@ if(hccapxbestoutname != NULL)
 					{
 					break;
 					}
+				if(damagedcount > 10)
+					{
+					break;
+					}
+				damagedcount++;
 				zeigeressid++;
 				}
 			zeiger++;
@@ -754,6 +761,7 @@ if(hccapxrawoutname != NULL)
 			zeigeressid = apstaessidliste;
 			essidchangecount = 0;
 			memset(&essidold, 0,32);
+			damagedcount = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
@@ -774,6 +782,11 @@ if(hccapxrawoutname != NULL)
 					{
 					break;
 					}
+				if(damagedcount > 10)
+					{
+					break;
+					}
+				damagedcount++;
 				zeigeressid++;
 				}
 			zeiger++;
@@ -800,6 +813,7 @@ if(hccapbestoutname != NULL)
 			zeigeressid = apstaessidliste;
 			essidchangecount = 0;
 			memset(&essidold, 0,32);
+			damagedcount = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
@@ -820,6 +834,11 @@ if(hccapbestoutname != NULL)
 					{
 					break;
 					}
+				if(damagedcount > 10)
+					{
+					break;
+					}
+				damagedcount++;
 				zeigeressid++;
 				}
 			zeiger++;
@@ -846,6 +865,7 @@ if(hccaprawoutname != NULL)
 			zeigeressid = apstaessidliste;
 			essidchangecount = 0;
 			memset(&essidold, 0,32);
+			damagedcount = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
@@ -866,6 +886,11 @@ if(hccaprawoutname != NULL)
 					{
 					break;
 					}
+				if(damagedcount > 10)
+					{
+					break;
+					}
+				damagedcount++;
 				zeigeressid++;
 				}
 			zeiger++;
@@ -892,6 +917,7 @@ if(johnbestoutname != NULL)
 			zeigeressid = apstaessidliste;
 			memset(&essidold, 0,32);
 			essidchangecount = 0;
+			damagedcount = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
@@ -912,6 +938,11 @@ if(johnbestoutname != NULL)
 					{
 					break;
 					}
+				if(damagedcount > 10)
+					{
+					break;
+					}
+				damagedcount++;
 				zeigeressid++;
 				}
 			zeiger++;
@@ -938,6 +969,7 @@ if(johnrawoutname != NULL)
 			zeigeressid = apstaessidliste;
 			memset(&essidold, 0,32);
 			essidchangecount = 0;
+			damagedcount = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
@@ -958,6 +990,11 @@ if(johnrawoutname != NULL)
 					{
 					break;
 					}
+				if(damagedcount > 10)
+					{
+					break;
+					}
+				damagedcount++;
 				zeigeressid++;
 				}
 			zeiger++;
