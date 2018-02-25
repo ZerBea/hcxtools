@@ -1,3 +1,11 @@
+25.02.2018
+==========
+split repository!
+moved hcxdumptool to https://github.com/ZerBea/hcxdumptool
+move pioff to https://github.com/ZerBea/hcxdumptool/hcxpioff
+from now on, hcxtools will be the mostly "portable part"
+
+
 17.02.2018
 ==========
 hcxpcaptool

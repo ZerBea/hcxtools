@@ -34,9 +34,7 @@ Detailed description
 | Tool           | Description                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------ |
 | wlandump-ng    | Small, fast and powerfull deauthentication/authentication/response tool                                |
-| hcxdumptool    | raw socket version of wlandump-ng                                                                      |
 | wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                         |
-| pioff          | Turns Raspberry Pi off via GPIO switch                                                                 |
 | hcxpcaptool    | Shows info of pcap / pcapng file                                                                       |
 | hcxhashcattool | Calculate PMKs from hashcat -m 2500 potfile                                                            |
 | wlancap2hcx    | Converts cap to hccapx and other formats (recommended for use with wlandump-ng)                        |
@@ -125,9 +123,6 @@ Useful scripts
 
 | Script       | Description                                              |
 | ------------ | -------------------------------------------------------- |
-| bash_profile | Autostart for Raspberry Pi (copy to /root/.bash_profile) |
-| pireadcard   | Back up a Pi SD card                                     |
-| piwritecard  | Restore a Pi SD card                                     |
 | makemonnb    | Example script to activate monitor mode                  |
 | killmonnb    | Example script to deactivate monitor mode                |
 
@@ -153,19 +148,6 @@ Raspberry Pi turned off and can be disconnected from power supply
 
 Do not use wlandump-ng and pioff together!
 
-
-Hardware mod (pioff)
---------------
-
-LED flashes every 30 seconds 2 times if pioff successfully started
-
-Press push button at least > 5 seconds until LED turns on (pioff will shut down Raspberry Pi safely)
-
-Green ACT LED flashes 10 times
-
-Raspberry Pi turned off and can be disconnected from power supply
-
-Do not use wlandump-ng or pioff together!
 
 
 Berkeley Packet Filter BPF (example)

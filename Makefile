@@ -32,7 +32,6 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	$(CC) $(CFLAGS) -o wlandump-ng wlandump-ng.c -lpcap -lrt $(LFLAGS)
-	$(CC) $(CFLAGS) -o hcxdumptool hcxdumptool.c -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
 endif
 	$(CC) $(CFLAGS) -o hcxpcaptool hcxpcaptool.c -lz -lcrypto
@@ -62,7 +61,6 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	install $(INSTFLAGS) wlandump-ng $(INSTALLDIR)/wlandump-ng
-	install $(INSTFLAGS) hcxdumptool $(INSTALLDIR)/hcxdumptool
 	install $(INSTFLAGS) wlanrcascan $(INSTALLDIR)/wlanrcascan
 endif
 	install $(INSTFLAGS) hcxpcaptool $(INSTALLDIR)/hcxpcaptool
@@ -90,7 +88,6 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	rm -f wlandump-ng
-	rm -f hcxdumptool
 	rm -f wlanrcascan
 endif
 	rm -f hcxpcaptool
@@ -122,7 +119,6 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	rm -f wlandump-ng
-	rm -f hcxdumptool
 	rm -f wlanrcascan
 endif
 	rm -f hcxpcaptool
@@ -154,7 +150,6 @@ ifeq ($(GPIOSUPPORT), on)
 endif
 ifeq ($(HOSTOS), Linux)
 	rm -f $(INSTALLDIR)/wlandump-ng
-	rm -f $(INSTALLDIR)/hcxdumptool
 	rm -f $(INSTALLDIR)/wlanrcascan
 endif
 	rm -f $(INSTALLDIR)/hcxpcaptool
