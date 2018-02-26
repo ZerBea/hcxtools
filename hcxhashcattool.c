@@ -11,7 +11,6 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #ifdef __APPLE__
-#define strdupa strdup
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
@@ -533,13 +532,8 @@ int main(int argc, char *argv[])
 {
 int auswahl;
 
-char *eigenname = NULL;
-char *eigenpfadname = NULL;
 char *potname = NULL;
 char *pmkname = NULL;
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 while ((auswahl = getopt(argc, argv, "p:P:hv")) != -1)
@@ -555,15 +549,15 @@ while ((auswahl = getopt(argc, argv, "p:P:hv")) != -1)
 		break;
 
 		case 'h':
-		usage(eigenname);
+		usage(basename(argv[0]));
 		break;
 
 		case 'v':
-		version(eigenname);
+		version(basename(argv[0]));
 		break;
 
 		case '?':
-		usageerror(eigenname);
+		usageerror(basename(argv[0]));
 		break;
 		}
 	}

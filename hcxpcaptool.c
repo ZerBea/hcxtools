@@ -15,7 +15,6 @@
 #include <sys/types.h>
 #include <openssl/sha.h>
 #ifdef __APPLE__
-#define strdupa strdup
 #define PATH_MAX 255
 #include <libgen.h>
 #else
@@ -3598,7 +3597,6 @@ int main(int argc, char *argv[])
 {
 int auswahl;
 int index;
-char *eigenpfadname, *eigenname;
 
 static const char *short_options = "o:O:x:X:j:J:E:I:U:P:T:H:Vhv";
 static const struct option long_options[] =
@@ -3611,9 +3609,6 @@ static const struct option long_options[] =
 	{"tacacsplus-out",		required_argument,	NULL,	HCXT_TACACSP_OUT},
 	{NULL,				0,			NULL,	0}
 };
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
 
 if(globalinit() == false)
 	{
@@ -3749,11 +3744,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case 'h':
-		usage(eigenname);
+		usage(basename(argv[0]));
 		break;
 
 		case 'v':
-		version(eigenname);
+		version(basename(argv[0]));
 		break;
 
 		case '?':
