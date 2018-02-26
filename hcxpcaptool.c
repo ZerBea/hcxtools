@@ -712,7 +712,7 @@ if(hccapxbestoutname != NULL)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if((zeigeressid->status != 1) && (memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0))
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
@@ -1989,7 +1989,6 @@ void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t status, uint8_t *m
 {
 apstaessidl_t *zeiger;
 unsigned long long int c;
-
 if(apstaessidliste == NULL)
 	{
 	apstaessidliste = malloc(APSTAESSIDLIST_SIZE);
@@ -2092,11 +2091,9 @@ if(essidlen == 0)
 	{
 	return;
 	}
-if(memcmp(macf->addr1, macf->addr3, 6) == 0)
-	{
-	addapstaessid(tv_sec, tv_usec, 0, macf->addr1, macf->addr2, essidlen, essidstr);
-	beaconframecount++;
-	}
+
+addapstaessid(tv_sec, tv_usec, 0, macf->addr1, macf->addr2, essidlen, essidstr);
+beaconframecount++;
 return;
 }
 /*===========================================================================*/
@@ -2119,11 +2116,8 @@ if(essidlen == 0)
 	{
 	return;
 	}
-if(memcmp(macf->addr1, macf->addr3, 6) == 0)
-	{
-	addapstaessid(tv_sec, tv_usec, 1, macf->addr2, macf->addr1, essidlen, essidstr);
-	proberequestframecount++;
-	}
+addapstaessid(tv_sec, tv_usec, 1, macf->addr2, macf->addr1, essidlen, essidstr);
+proberequestframecount++;
 return;
 }
 /*===========================================================================*/
@@ -2146,11 +2140,8 @@ if(essidlen == 0)
 	{
 	return;
 	}
-if(memcmp(macf->addr2, macf->addr3, 6) == 0)
-	{
-	addapstaessid(tv_sec, tv_usec, 0, macf->addr1, macf->addr2, essidlen, essidstr);
-	proberesponseframecount++;
-	}
+addapstaessid(tv_sec, tv_usec, 0, macf->addr1, macf->addr2, essidlen, essidstr);
+proberesponseframecount++;
 return;
 }
 /*===========================================================================*/
@@ -2173,11 +2164,8 @@ if(essidlen == 0)
 	{
 	return;
 	}
-if(memcmp(macf->addr1, macf->addr3, 6) == 0)
-	{
-	addapstaessid(tv_sec, tv_usec, 0, macf->addr2, macf->addr1, essidlen, essidstr);
-	associationrequestframecount++;
-	}
+addapstaessid(tv_sec, tv_usec, 0, macf->addr2, macf->addr1, essidlen, essidstr);
+associationrequestframecount++;
 return;
 }
 /*===========================================================================*/
