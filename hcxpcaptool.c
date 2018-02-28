@@ -711,7 +711,7 @@ if(hccapxbestoutname != NULL)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+					if((zeigeressid->status != 1) && (memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0))
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
