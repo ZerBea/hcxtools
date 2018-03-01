@@ -711,7 +711,7 @@ if(hccapxbestoutname != NULL)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if((zeigeressid->status != 1) && (memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0))
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
@@ -757,7 +757,7 @@ if(hccapxrawoutname != NULL)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if((zeigeressid->status != 1) && (memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0))
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
@@ -803,7 +803,7 @@ if(hccapbestoutname != NULL)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if((zeigeressid->status != 1) && (memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0))
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
@@ -849,7 +849,7 @@ if(hccaprawoutname != NULL)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if((zeigeressid->status != 1) && (memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0))
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
@@ -895,7 +895,7 @@ if(johnbestoutname != NULL)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if((zeigeressid->status != 1) && (memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0))
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
@@ -941,7 +941,7 @@ if(johnrawoutname != NULL)
 				{
 				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 					{
-					if((zeigeressid->status != 1) && (memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0))
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
