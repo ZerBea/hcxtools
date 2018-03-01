@@ -2013,6 +2013,7 @@ for(c = 0; c < apstaessidcount; c++)
 	{
 	if((essidlen == zeiger->essidlen) && (memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(essid, zeiger->essid, zeiger->essidlen) == 0))
 		{
+		zeiger->status |= status;
 		return;
 		}
 	zeiger++;
@@ -2091,7 +2092,7 @@ if(essidlen == 0)
 	return;
 	}
 
-addapstaessid(tv_sec, tv_usec, 0, macf->addr1, macf->addr2, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, 1, macf->addr1, macf->addr2, essidlen, essidstr);
 beaconframecount++;
 return;
 }
@@ -2115,7 +2116,7 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(tv_sec, tv_usec, 1, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, 0x18, macf->addr2, macf->addr1, essidlen, essidstr);
 proberequestframecount++;
 return;
 }
@@ -2139,7 +2140,7 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(tv_sec, tv_usec, 0, macf->addr1, macf->addr2, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, 2, macf->addr1, macf->addr2, essidlen, essidstr);
 proberesponseframecount++;
 return;
 }
@@ -2163,7 +2164,7 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(tv_sec, tv_usec, 0, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, 4, macf->addr2, macf->addr1, essidlen, essidstr);
 associationrequestframecount++;
 return;
 }
@@ -2194,11 +2195,8 @@ if(essidlen == 0)
 	{
 	return;
 	}
-if(memcmp(macf->addr1, macf->addr3, 6) == 0)
-	{
-	addapstaessid(tv_sec, tv_usec, 0, macf->addr2, macf->addr1, essidlen, essidstr);
-	reassociationrequestframecount++;
-	}
+addapstaessid(tv_sec, tv_usec, 8, macf->addr2, macf->addr1, essidlen, essidstr);
+reassociationrequestframecount++;
 return;
 }
 /*===========================================================================*/
