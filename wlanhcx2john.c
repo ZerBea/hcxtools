@@ -89,9 +89,9 @@ if (hc->keyver > 1)
 	fprintf(fhjohn, "%d", hc->keyver);
 
 if((message_pair &0x80) > 1)
-	fprintf(fhjohn, ":verfified:%s\n", basename);
+	fprintf(fhjohn, ":verified:%s\n", basename);
 else
-	fprintf(fhjohn, ":not verfified:%s\n", basename);
+	fprintf(fhjohn, ":not verified:%s\n", basename);
 return;
 }
 /*===========================================================================*/
