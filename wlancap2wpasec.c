@@ -66,20 +66,17 @@ static const char buf[] = "Expect:";
 printf("uploading %s to %s\n", sendcapname, wpasecurl);
 curl_global_init(CURL_GLOBAL_ALL);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
-curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "webfile", CURLFORM_COPYCONTENTS, sendcapname, CURLFORM_END);
-curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "submit", CURLFORM_COPYCONTENTS, "Submit capture", CURLFORM_END);
 curl = curl_easy_init();
 headerlist = curl_slist_append(headerlist, buf);
 if(curl)
 	{
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 	res = curl_easy_perform(curl);
 	if(res == CURLE_OK)
 		{
-		printf("\x1B[32mupload done\x1B[0m\n\n");
+		printf("\n\x1B[32mupload done\x1B[0m\n\n");
 		if(removeflag == true)
 			{
 			ret = remove(sendcapname);
@@ -89,7 +86,7 @@ if(curl)
 		}
 	else
 		{
-		fprintf(stderr, "\x1B[31mupload to %s failed: %s\x1B[0m\n\n", wpasecurl, curl_easy_strerror(res));
+		fprintf(stderr, "\n\x1B[31mupload to %s failed: %s\x1B[0m\n\n", wpasecurl, curl_easy_strerror(res));
 		uploadflag = false;
 		}
 
