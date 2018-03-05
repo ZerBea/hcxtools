@@ -44,9 +44,7 @@ if((fhoui = fopen(ouiname, "w")) == NULL)
 hnd = curl_easy_init ();
 curl_easy_setopt(hnd, CURLOPT_URL, "http://standards-oui.ieee.org/oui.txt");
 curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
-curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.35.0");
-curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
-curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
+curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
 curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhoui) ;
 
 ret = curl_easy_perform(hnd);
