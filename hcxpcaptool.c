@@ -20,6 +20,9 @@
 #else
 #include <stdio_ext.h>
 #endif
+#ifdef __linux__
+#include <linux/limits.h>
+#endif
 
 #include "include/version.h"
 #include "include/hcxpcaptool.h"
