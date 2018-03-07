@@ -1206,7 +1206,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-e            : output file by essid's\n"
 	"-E <essid>    : output file by part of essid name\n"
 	"-X <essid>    : output file by essid name (exactly)\n"
-	"-x <digit>    : output by essid len (1 <= 32)\n"
+	"-x <digit>    : output by essid len (0 <= 32)\n"
 	"-A <mac_ap>   : output file by single mac_ap\n"
 	"-S <mac_sta>  : output file by single mac_sta\n"
 	"-O <oui>      : output file by single vendor (oui)\n"
@@ -1332,7 +1332,7 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:
 
 		case 'x':
 		wantessidlen = strtoul(optarg, NULL, 10);
-		if((wantessidlen < 1) || (wantessidlen > 32))
+		if((wantessidlen < 0) || (wantessidlen > 32))
 			{
 			fprintf(stderr, "essid > 32\n");
 			exit(EXIT_FAILURE);
