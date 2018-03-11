@@ -2838,21 +2838,15 @@ eth2 = (eth2_t*)packet;
 packet_ptr = packet;
 if(ntohs(eth2->ether_type) == LLC_TYPE_IPV4)
 	{
-	packet_ptr += ETH2_SIZE;
-	caplen -= ETH2_SIZE;
 	processipv4packet(tv_sec, tv_usec, caplen, packet_ptr);
 	}
 if(ntohs(eth2->ether_type) == LLC_TYPE_IPV6)
 	{
-	packet_ptr += ETH2_SIZE;
-	caplen -= ETH2_SIZE;
 	processipv6packet(tv_sec, tv_usec, caplen, packet_ptr);
 	}
 
 if(ntohs(eth2->ether_type) == LLC_TYPE_AUTH)
 	{
-	packet_ptr += ETH2_SIZE;
-	caplen -= ETH2_SIZE;
 	process80211networkauthentication(tv_sec, tv_usec, caplen, eth2->addr1, eth2->addr2, packet_ptr);
 	}
 return;
@@ -2912,9 +2906,11 @@ else if(linktype == DLT_EN10MB)
 	{
 	if(caplen < (uint32_t)ETH2_SIZE)
 		{
-		printf("failed to read radiotap header\n");
+		printf("failed to read ethernet header\n");
 		return;
 		}
+	packet_ptr += ETH2_SIZE;
+	caplen -= ETH2_SIZE;
 	processethernetpacket(tv_sec, tv_usec, caplen, packet);
 	return;
 	}
@@ -2931,6 +2927,11 @@ else if(linktype == DLT_IEEE802_11_RADIO)
 	rth->it_len	= byte_swap_16(rth->it_len);
 	rth->it_present	= byte_swap_32(rth->it_present);
 	#endif
+	if(rth->it_len > caplen)
+		{
+		printf("failed to read radiotap header\n");
+		return;
+		}
 	packet_ptr += rth->it_len;
 	caplen -= rth->it_len;
 	}
@@ -2950,6 +2951,11 @@ else if(linktype == DLT_PRISM_HEADER)
 	prism->msgcode	= byte_swap_32(prism->msgcode);
 	prism->msglen	= byte_swap_32(prism->msglen);
 	#endif
+	if(prism->msglen > caplen)
+		{
+		printf("failed to read prism header\n");
+		return;
+		}
 	packet_ptr += prism->msglen;
 	caplen -= prism->msglen;
 	}
@@ -2964,6 +2970,11 @@ else if(linktype == DLT_PPI)
 	#ifdef BIG_ENDIAN_HOST
 	ppi->pph_len	= byte_swap_16(ppi->pph_len);
 	#endif
+	if(ppi->pph_len > caplen)
+		{
+		printf("failed to read ppi header\n");
+		return;
+		}
 	packet_ptr += ppi->pph_len;
 	caplen -= ppi->pph_len;
 	}
@@ -2972,6 +2983,11 @@ else
 	return;
 	}
 
+if(caplen < 4)
+	{
+	printf("failed to read packet\n");
+	return;
+	}
 fcs = (fcs_t*)(packet_ptr +caplen -4);
 #ifdef BIG_ENDIAN_HOST
 fcs->fcs	= byte_swap_32(fcs->fcs);
