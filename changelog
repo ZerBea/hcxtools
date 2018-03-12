@@ -1,3 +1,23 @@
+12.03.2018
+==========
+moved to v 4.1.5
+added new options wlancap2wpasec
+$ wlancap2wpasec -h
+wlancap2wpasec 4.1.5 (C) 2018 ZeroBeat
+usage: wlancap2wpasec <options> [input.cap] [input.cap] ...
+       wlancap2wpasec <options> *.cap
+       wlancap2wpasec <options> *.*
+
+options:
+-k <key>     : wpa-sec user key
+-u <url>     : set user defined URL
+               default = https://wpa-sec.stanev.org
+-t <seconds> : set connection timeout
+               default = 30 seconds
+-R           : remove cap if upload was successfull
+-h           : this help
+
+
 25.02.2018
 ==========
 split repository!

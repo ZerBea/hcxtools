@@ -9,7 +9,6 @@
 #include <sys/stat.h>
 
 #ifdef __APPLE__
-#define strdupa strdup
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
@@ -110,10 +109,13 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-k <key>     : wpa-sec user key\n"
-	"-t <seconds> : set connection timeout (default 30 seconds)\n"
+	"-u <url>     : set user defined URL\n"
+	"               default = %s\n"
+	"-t <seconds> : set connection timeout\n"
+	"               default = 30 seconds\n"
 	"-R           : remove cap if upload was successfull\n"
 	"-h           : this help\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, wpasecurl);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/
@@ -124,16 +126,11 @@ int auswahl;
 int index;
 char keyheader[4+32+1] = {0};
 long int timeout = 30;
-char *eigenname;
-char *eigenpfadname;
-
 uploadcountok = 0;
 uploadcountfailed = 0;
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "k:t:Rhv")) != -1)
+while ((auswahl = getopt(argc, argv, "k:u:t:Rhv")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -144,6 +141,10 @@ while ((auswahl = getopt(argc, argv, "k:t:Rhv")) != -1)
 		} else {
 			fprintf(stderr, "wrong user key value\n");
 		}
+		break;
+
+		case 'u':
+		wpasecurl = optarg;
 		break;
 
 		case 't':
@@ -160,7 +161,7 @@ while ((auswahl = getopt(argc, argv, "k:t:Rhv")) != -1)
 		break;
 
 		default:
-		usage(eigenname);
+		usage(basename(argv[0]));
 		}
 	}
 
