@@ -51,7 +51,7 @@ curl_global_cleanup();
 return res;
 }
 /*===========================================================================*/
-static bool sendcap2wpasec(char *sendcapname, long int timeout)
+static bool sendcap2wpasec(char *sendcapname, long int timeout, char *keyheader)
 {
 CURL *curl;
 CURLcode res;
@@ -73,6 +73,9 @@ if(curl)
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+	if (keyheader) {
+		curl_easy_setopt(curl, CURLOPT_COOKIE, keyheader);
+	}
 	res = curl_easy_perform(curl);
 	if(res == CURLE_OK)
 		{
@@ -106,6 +109,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
+	"-k <key>     : wpa-sec user key\n"
 	"-t <seconds> : set connection timeout (default 30 seconds)\n"
 	"-R           : remove cap if upload was successfull\n"
 	"-h           : this help\n"
@@ -118,6 +122,7 @@ int main(int argc, char *argv[])
 struct stat statinfo;
 int auswahl;
 int index;
+char keyheader[4+32+1] = {0};
 long int timeout = 30;
 char *eigenname;
 char *eigenpfadname;
@@ -128,10 +133,19 @@ eigenpfadname = strdupa(argv[0]);
 eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "t:Rhv")) != -1)
+while ((auswahl = getopt(argc, argv, "k:t:Rhv")) != -1)
 	{
 	switch (auswahl)
 		{
+		case 'k':
+		if ((strlen(optarg) == 32) && (optarg[strspn(optarg, "0123456789abcdefABCDEF")] == 0)) {
+			snprintf(keyheader, sizeof(keyheader), "key=%s32", optarg);
+			printf("\x1B[32muser key set\x1B[0m\n");
+		} else {
+			fprintf(stderr, "wrong user key value\n");
+		}
+		break;
+
 		case 't':
 		timeout = strtol(optarg, NULL, 10);
 		if(timeout < 1)
@@ -157,9 +171,9 @@ for(index = optind; index < argc; index++)
 	{
 	if(stat(argv[index], &statinfo) == 0)
 		{
-		if(sendcap2wpasec(argv[index], timeout) == false)
+		if(sendcap2wpasec(argv[index], timeout, keyheader) == false)
 			{
-			if(sendcap2wpasec(argv[index], 60) == true)
+			if(sendcap2wpasec(argv[index], 60, keyheader) == true)
 				{
 				uploadcountok++;
 				}
