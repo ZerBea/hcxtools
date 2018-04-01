@@ -572,6 +572,10 @@ mac_out = mac_in & 0xffffff;
 snprintf(pskstring, 64,  "%08llu", mac_out);
 writepsk(pskstring);
 
+mac_out = mac_in & 0xffffff;
+snprintf(pskstring, 64,  "%010llu", mac_out);
+writepsk(pskstring);
+
 mac_out = (mac_in & 0xfffffffffff0) >> 4;
 snprintf(pskstring, 64,  "%011llx", mac_out);
 writepsk(pskstring);
