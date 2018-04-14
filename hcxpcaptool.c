@@ -132,6 +132,7 @@ unsigned long long int tacacspframecount;
 unsigned long long int radiusframecount;
 unsigned long long int dhcpframecount;
 unsigned long long int dhcp6framecount;
+unsigned long long int wepframecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -457,6 +458,10 @@ if(eapolframecount != 0)
 if(eapframecount != 0)
 	{
 	printf("EAP packets............: %llu\n", eapframecount);
+	}
+if(wepframecount != 0)
+	{
+	printf("WEP packets............: %llu\n", wepframecount);
 	}
 if(ipv4framecount != 0)
 	{
@@ -2705,13 +2710,21 @@ ipv6framecount++;
 return;
 }
 /*===========================================================================*/
+void processweppacket()
+{
+
+wepframecount++;
+return;
+}
+/*===========================================================================*/
 void process80211datapacket(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 mac_t *macf;
 llc_t *llc;
+mpdu_t *mpdu;
+
 uint8_t *packet_ptr;
 macf = (mac_t*)packet;
-
 packet_ptr = packet;
 if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_DATA_CFACK) || (macf->subtype == IEEE80211_STYPE_DATA_CFPOLL) || (macf->subtype == IEEE80211_STYPE_DATA_CFACKPOLL))
 	{
@@ -2733,6 +2746,14 @@ if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_
 		{
 		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
 		}
+	else if(macf->protected == 1)
+		{
+		mpdu = (mpdu_t*)(packet +MAC_SIZE_NORM);
+		if(((mpdu->keyid >> 5) &1) == 0)
+			{
+			processweppacket();
+			}
+		}
 	}
 else if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACK) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFPOLL) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACKPOLL))
 	{
@@ -2753,6 +2774,14 @@ else if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE802
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, packet_ptr);
+		}
+	else if(macf->protected == 1)
+		{
+		mpdu = (mpdu_t*)(packet +MAC_SIZE_QOS);
+		if(((mpdu->keyid >> 5) &1) == 0)
+			{
+			processweppacket();
+			}
 		}
 	}
 return;
@@ -3415,6 +3444,7 @@ tacacspframecount = 0;
 radiusframecount = 0;
 dhcpframecount = 0;
 dhcp6framecount = 0;
+wepframecount = 0;
 
 char tmpoutname[PATH_MAX+1];
 

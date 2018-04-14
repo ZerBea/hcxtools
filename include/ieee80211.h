@@ -428,6 +428,15 @@ struct eapleap_frame
 typedef struct eapleap_frame eapleap_t;
 #define	EAPLEAP_SIZE offsetof(eapleap_t, data)
 /*===========================================================================*/
+struct mpdu_frame
+{
+ uint8_t pn[3];
+ uint8_t keyid;
+ uint8_t exitiv[4];
+};
+typedef struct mpdu_frame mpdu_t;
+#define	MPDU_SIZE (sizeof(mpdu_t))
+/*===========================================================================*/
 struct md5_frame
 {
  uint8_t	code;
