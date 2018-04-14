@@ -16,9 +16,6 @@
 #include <unistd.h>
 #include <utime.h>
 #include <curl/curl.h>
-#ifdef __APPLE__
-#define strdupa strdup
-#endif
 
 #include "include/version.h"
 #include "common.h"
@@ -191,14 +188,9 @@ unsigned long long int oui = 0;
 uid_t uid;
 struct passwd *pwd;
 struct stat statinfo;
-char *eigenpfadname, *eigenname;
 char *vendorname = NULL;
 const char confdirname[] = ".hcxtools";
 const char ouiname[] = ".hcxtools/oui.txt";
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
-
 
 while ((auswahl = getopt(argc, argv, "m:v:dh")) != -1)
 	{
@@ -233,7 +225,7 @@ while ((auswahl = getopt(argc, argv, "m:v:dh")) != -1)
 		break;
 
 		default:
-		usage(eigenname);
+		usage(basename(argv[0]));
 		}
 	}
 

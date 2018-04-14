@@ -11,7 +11,6 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #ifdef __APPLE__
-#define strdupa strdup
 #include <libgen.h>
 #include <sys/types.h> /* This in turn sources machine/endian.h */
 #else
@@ -1254,8 +1253,6 @@ unsigned long long int mac_sta = 0;
 unsigned long long int oui = 0;
 uint8_t message_pair = 0;
 
-char *eigenname;
-char *eigenpfadname;
 char *hcxinname = NULL;
 char *essidname = NULL;
 char *essidxname = NULL;
@@ -1276,9 +1273,6 @@ char *wdres;
 char *repairedname = NULL;
 char *rmdupesname = NULL;
 char workingdir[PATH_MAX +1];
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 wdres = getcwd(workingdir, PATH_MAX);
@@ -1477,7 +1471,7 @@ while ((auswahl = getopt(argc, argv, "i:A:S:O:V:E:X:x:p:l:L:w:W:r:R:N:n:g:G:0:1:
 		break;
 
 		default:
-		usage(eigenname);
+		usage(basename(argv[0]));
 		}
 	}
 

@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #ifdef __APPLE__
-#define strdupa strdup
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
@@ -187,16 +186,11 @@ char *cowinname = NULL;
 char *pwoutname = NULL;
 char *pmkpwoutname = NULL;
 char *pmkoutname = NULL;
-char *eigenname;
-char *eigenpfadname;
 
 FILE *fhcowin = NULL;
 FILE *fhpwout = NULL;
 FILE *fhpmkpwout = NULL;
 FILE *fhpmkout = NULL;
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 while ((auswahl = getopt(argc, argv, "i:w:W:p:shv")) != -1)
@@ -244,7 +238,7 @@ while ((auswahl = getopt(argc, argv, "i:w:W:p:shv")) != -1)
 		break;
 
 		default:
-		usage(eigenname);
+		usage(basename(argv[0]));
 		}
 	}
 

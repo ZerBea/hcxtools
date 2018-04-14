@@ -381,13 +381,8 @@ int main(int argc, char *argv[])
 {
 pcap_if_t *alldevs, *d;
 int auswahl;
-char *eigenpfadname, *eigenname;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
-
 
 setbuf(stdout, NULL);
 srand(time(NULL));
@@ -409,13 +404,13 @@ while ((auswahl = getopt(argc, argv, "i:l:hv")) != -1)
 		break;
 
 		case 'h':
-		usage(eigenname);
+		usage(basename(argv[0]));
 
 		case 'v':
-		version(eigenname);
+		version(basename(argv[0]));
 
 		default:
-		usageerror(eigenname);
+		usageerror(basename(argv[0]));
 		}
 	}
 

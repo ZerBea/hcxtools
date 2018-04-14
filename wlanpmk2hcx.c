@@ -12,7 +12,6 @@
 #include <signal.h>
 #include <sys/stat.h>
 #ifdef __APPLE__
-#define strdupa strdup
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
@@ -205,17 +204,12 @@ int auswahl;
 int p;
 int essidlen = 0;
 int pmklen = 0;
-char *eigenname;
-char *eigenpfadname;
 char *pmkname = NULL;
 char *essidname = NULL;
 
 FILE *fhcombi = NULL;
 FILE *fhhash = NULL;
 FILE *fhjohn = NULL;
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 while ((auswahl = getopt(argc, argv, "i:o:j:e:p:h")) != -1)
@@ -275,7 +269,7 @@ while ((auswahl = getopt(argc, argv, "i:o:j:e:p:h")) != -1)
  		break;
 
 		default:
-		usage(eigenname);
+		usage(basename(argv[0]));
 		}
 	}
 

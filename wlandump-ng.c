@@ -1978,14 +1978,10 @@ int main(int argc, char *argv[])
 pcap_if_t *alldevs, *d;
 int auswahl;
 uint8_t channel = 1;
-char *eigenpfadname, *eigenname;
 char *pcapoutname = NULL;
 char *externalbpfname = NULL;
 
 char pcaperrorstring[PCAP_ERRBUF_SIZE];
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
 
 maxerrorcount = 0;
 internalpcaperrors = 0;
@@ -2096,13 +2092,13 @@ while ((auswahl = getopt(argc, argv, "i:o:c:C:t:T:F:E:RDdUBLlPshv")) != -1)
 		break;
 
 		case 'h':
-		usage(eigenname);
+		usage(basename(argv[0]));
 
 		case 'v':
-		version(eigenname);
+		version(basename(argv[0]));
 
 		default:
-		usageerror(eigenname);
+		usageerror(basename(argv[0]));
 		}
 	}
 

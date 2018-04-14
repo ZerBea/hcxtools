@@ -15,7 +15,6 @@
 #include <sys/types.h>
 
 #ifdef __APPLE__
-#define strdupa strdup
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
@@ -3090,8 +3089,6 @@ long int hcxorgrecords = 0;
 
 bool rmdupesflag = false;
 
-char *eigenname;
-char *eigenpfadname;
 char *pcapoutname = NULL;
 char *pcapextoutname = NULL;
 char *pcapipv46outname = NULL;
@@ -3101,12 +3098,9 @@ char *essidunicodeoutname = NULL;
 char *pmkoutname = NULL;
 char *externalbpfname = NULL;
 
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
-
 if (argc == 1)
 	{
-	usage(eigenname);
+	usage(basename(argv[0]));
 	}
 
 setbuf(stdout, NULL);
@@ -3221,7 +3215,7 @@ while ((auswahl = getopt(argc, argv, "o:O:j:J:m:M:n:N:t:p:P:l:L:e:E:f:w:W:u:S:F:
 		break;
 
 		default:
-		usage(eigenname);
+		usage(basename(argv[0]));
 		}
 	}
 

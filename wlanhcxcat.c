@@ -12,7 +12,6 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #ifdef __APPLE__
-#define strdupa strdup
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
@@ -684,8 +683,6 @@ struct stat statpot;
 struct tm* tm_info;
 struct timeval tv;
 
-char *eigenname;
-char *eigenpfadname;
 char *hcxinname = NULL;
 char *essidname = NULL;
 char *passwordname = NULL;
@@ -694,9 +691,6 @@ char *potname = NULL;
 char *wordlistinname = NULL;
 
 char zeitstring[26];
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
 
 setbuf(stdout, NULL);
 while ((auswahl = getopt(argc, argv, "i:e:p:P:w:o:hv")) != -1)
@@ -758,7 +752,7 @@ while ((auswahl = getopt(argc, argv, "i:e:p:P:w:o:hv")) != -1)
 		break;
 
 		default:
-		usage(eigenname);
+		usage(basename(argv[0]));
 		}
 	}
 

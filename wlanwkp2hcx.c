@@ -11,7 +11,6 @@
 #include <pcap.h>
 #include <sys/stat.h>
 #ifdef __APPLE__
-#define strdupa strdup
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
@@ -257,12 +256,6 @@ int main(int argc, char *argv[])
 int index;
 int auswahl;
 
-char *eigenname;
-char *eigenpfadname;
-
-eigenpfadname = strdupa(argv[0]);
-eigenname = basename(eigenpfadname);
-
 setbuf(stdout, NULL);
 while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 	{
@@ -277,7 +270,7 @@ while ((auswahl = getopt(argc, argv, "o:e:hv")) != -1)
 		break;
 
 		default:
-		usage(eigenname);
+		usage(basename(argv[0]));
 		}
 	}
 
