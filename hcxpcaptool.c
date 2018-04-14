@@ -3026,6 +3026,7 @@ if(crc == fcs->fcs)
 	{
 	fcsflag = true;
 	fcsframecount++;
+	caplen -= 4;
 	}
 
 process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
