@@ -253,10 +253,12 @@ memset(&pmktmp, 0, PMKLIST_SIZE);
 
 if(potlinelen < 69)
 	{
+	printf("%s\n", potline);
 	return;
 	}
 if((potline[32] != ':') || (potline[45]  != ':') || (potline[58]  != ':'))
 	{
+	printf("%s\n", potline);
 	return;
 	}
 
@@ -264,6 +266,7 @@ essid_ptr = potline +59;
 psk_ptr = strchr(essid_ptr, ':');
 if(psk_ptr == NULL)
 	{
+	printf("%s\n", potline);
 	return;
 	}
 psk_ptr[0] = 0;
@@ -274,6 +277,7 @@ if((essidlen > 0) && (essidlen <= 32))
 	{
 	if(hex2bin(essid_ptr +5, pmktmp.essid, essidlen) == false)
 		{
+		printf("%s\n", potline);
 		return;
 		}
 	pmktmp.essidflag = true;
@@ -283,6 +287,7 @@ else
 	essidlen = strlen(essid_ptr);
 	if((essidlen < 1) || (essidlen > 32))
 		{
+		printf("%s\n", potline);
 		return;
 		}
 	memcpy(&pmktmp.essid, essid_ptr, essidlen);
@@ -295,6 +300,7 @@ if((psklen > 0) && (psklen <= 63))
 	{
 	if(hex2bin(psk_ptr +5, pmktmp.psk, psklen) == false)
 		{
+		printf("%s\n", potline);
 		return;
 		}
 	pmktmp.pskflag = true;
@@ -304,6 +310,7 @@ else
 	psklen = strlen(psk_ptr);
 	if((psklen < 1) || (psklen > 64))
 		{
+		printf("%s\n", potline);
 		return;
 		}
 	memcpy(&pmktmp.psk, psk_ptr, psklen);
