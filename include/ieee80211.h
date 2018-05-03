@@ -332,7 +332,7 @@ struct wpakey_frame
  uint64_t	replaycount;
  uint8_t	nonce[32];
  uint8_t	keyiv[16];
- uint64_t	keyrsc;
+ uint8_t	keyrsc[8];
  uint8_t	keyid[8];
  uint8_t	keymic[16];
  uint16_t	wpadatalen;
@@ -594,6 +594,12 @@ typedef struct radius_frame radius_t;
 #define	RADIUS_SIZE offsetof(radius_t, data)
 /*===========================================================================*/
 /* global var */
+static const uint8_t nulliv[] =
+{
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+#define	NULLIV_SIZE (sizeof(nulliv))
+
 static const uint8_t nullnonce[] =
 {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

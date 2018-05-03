@@ -1475,6 +1475,16 @@ bool checkok = false;
 
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
+
+if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
+	return;
+
+if(memcmp(wpaea->keyrsc, &nulliv, 8) != 0)
+	return;
+
+if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
+	return;
+
 if((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo))
 	{
 	checkok = true;
@@ -1631,6 +1641,16 @@ uint32_t anonce, anonceold;
 
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
+
+if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
+	return;
+
+if(memcmp(wpaea->keyrsc, &nulliv, 8) != 0)
+	return;
+
+if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
+	return;
+
 if(handshakeliste == NULL)
 	{
 	handshakeliste = malloc(HCXLIST_SIZE);
