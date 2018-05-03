@@ -1479,7 +1479,7 @@ wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
 if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
 	return;
 
-if(memcmp(wpaea->keyrsc, &nulliv, 8) != 0)
+if(wpaea->keyrsc != 0)
 	return;
 
 if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
@@ -1645,7 +1645,7 @@ wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
 if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
 	return;
 
-if(memcmp(wpaea->keyrsc, &nulliv, 8) != 0)
+if(wpaea->keyrsc != 0)
 	return;
 
 if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
