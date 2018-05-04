@@ -32,6 +32,12 @@ static const uint8_t nullnonce[] =
 };
 #define	NULLNONCE_SIZE (sizeof(nullnonce))
 
+static const uint8_t nulliv[] =
+{
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+#define	NULLIV_SIZE (sizeof(nulliv))
+
 /*===========================================================================*/
 static size_t chop(char *buffer,  size_t len)
 {
@@ -200,6 +206,7 @@ return true;
 static int writerepaired(long int hcxrecords, char *repairedname)
 {
 hcx_t *zeigerhcx;
+eap_t *eap;
 uint8_t keynr = 0;
 long int c;
 long int rw = 0;
@@ -265,6 +272,30 @@ while(c < hcxrecords)
 		c++;
 		continue;
 		}
+
+	if((geteapkey(zeigerhcx->eapol) == 2) || (geteapkey(zeigerhcx->eapol) == 4))
+		{
+		eap = (eap_t*)zeigerhcx->eapol;
+		if(memcmp(eap->keyiv, &nulliv, 16) != 0)
+			{
+			rwerr++;
+			c++;
+			continue;
+			}
+		if(eap->keyrsc != 0)
+			{
+			rwerr++;
+			c++;
+			continue;
+			}
+		if(memcmp(eap->keyid, &nulliv, 8) != 0)
+			{
+			rwerr++;
+			c++;
+			continue;
+			}
+		}
+
 	if((fhhcx = fopen(repairedname, "ab")) == NULL)
 		{
 		fprintf(stderr, "error opening file %s", repairedname);
