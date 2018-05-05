@@ -1561,23 +1561,6 @@ bool checkok = false;
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
 
-if(ntohs(wpaea->wpadatalen) > (zeigerea->authlen))
-	{
-	return;
-	}
-if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
-	{
-	return;
-	}
-if(wpaea->keyrsc != 0)
-	{
-	return;
-	}
-if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
-	{
-	return;
-	}
-
 if((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo))
 	{
 	checkok = true;
@@ -1734,23 +1717,6 @@ uint32_t anonce, anonceold;
 
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
-
-if(ntohs(wpaea->wpadatalen) > (zeigerea->authlen))
-	{
-	return;
-	}
-if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
-	{
-	return;
-	}
-if(wpaea->keyrsc != 0)
-	{
-	return;
-	}
-if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
-	{
-	return;
-	}
 
 if(handshakeliste == NULL)
 	{
@@ -2067,6 +2033,14 @@ return;
 void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint32_t authlen, uint8_t *authpacket)
 {
 eapoll_t *zeiger;
+wpakey_t *eaptest;
+
+eaptest = (wpakey_t*)(authpacket +EAPAUTH_SIZE);
+
+if(ntohs(eaptest->wpadatalen) > authlen)
+	{
+	return;
+	}
 
 if((ki == 1) || (ki == 2))
 	{
@@ -2076,10 +2050,27 @@ if((ki == 1) || (ki == 2))
 		}
 	}
 if((ki == 4) || (ki == 8))
+	{
 	if(authlen > 0xff)
 		{
 		return;
 		}
+	}
+if(memcmp(eaptest->keyid, &nulliv, 8) != 0)
+	{
+	return;
+	}
+if((ki == 1) || (ki == 4))
+	{
+	if(memcmp(eaptest->keyiv, &nulliv, 16) != 0)
+		{
+		return;
+		}
+	if(eaptest->keyrsc != 0)
+		{
+		return;
+		}
+	}
 
 if(eapolliste == NULL)
 	{
