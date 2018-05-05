@@ -1561,12 +1561,14 @@ bool checkok = false;
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
 
+if(ntohs(wpaea->wpadatalen) > (zeigerea->authlen))
+	return;
+if(ntohs(wpaeo->wpadatalen) > (zeigereo->authlen))
+	return;
 if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
 	return;
-
 if(wpaea->keyrsc != 0)
 	return;
-
 if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
 	return;
 
@@ -1727,12 +1729,14 @@ uint32_t anonce, anonceold;
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
 
+if(ntohs(wpaea->wpadatalen) > (zeigerea->authlen))
+	return;
+if(ntohs(wpaeo->wpadatalen) > (zeigereo->authlen))
+	return;
 if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
 	return;
-
 if(wpaea->keyrsc != 0)
 	return;
-
 if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
 	return;
 
