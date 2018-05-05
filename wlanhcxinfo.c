@@ -423,8 +423,8 @@ if(outmode == 0)
 	{
 	fprintf(stdout, "total hashes read from file.......: %ld\n"
 			"\x1B[32mhandshakes from clients...........: %ld\x1B[0m\n"
-			"little endinan router detected....: %ld\n"
-			"big endinan router detected.......: %ld\n"
+			"little endian router detected....: %ld\n"
+			"big endian router detected.......: %ld\n"
 			"zeroed ESSID......................: %ld\n"
 			"802.1x Version 2001...............: %ld\n"
 			"802.1x Version 2004...............: %ld\n"
