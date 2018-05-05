@@ -1,3 +1,14 @@
+05.05.2018
+==========
+hcxpcaptool:
+improved detection of broken ESSIDs
+improved detection of broken EAPOL frames
+
+wlanhcx2ssid (option -F):
+improved detection of broken ESSIDs
+omproved detection of broken EAPOL frames
+
+
 12.03.2018
 ==========
 moved to v 4.1.5
