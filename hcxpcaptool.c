@@ -1562,15 +1562,25 @@ wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
 
 if(ntohs(wpaea->wpadatalen) > (zeigerea->authlen))
+	{
 	return;
+	}
 if(ntohs(wpaeo->wpadatalen) > (zeigereo->authlen))
+	{
 	return;
+	}
 if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
+	{
 	return;
+	}
 if(wpaea->keyrsc != 0)
+	{
 	return;
+	}
 if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
+	{
 	return;
+	}
 
 if((zeigerea->keyinfo == 4) && (zeigereo->keyinfo == 1) && (zeigerea->replaycount == zeigereo->replaycount) && (tv_ea > tv_eo))
 	{
@@ -1730,15 +1740,25 @@ wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
 
 if(ntohs(wpaea->wpadatalen) > (zeigerea->authlen))
+	{
 	return;
+	}
 if(ntohs(wpaeo->wpadatalen) > (zeigereo->authlen))
+	{
 	return;
+	}
 if(memcmp(wpaea->keyiv, &nulliv, 16) != 0)
+	{
 	return;
+	}
 if(wpaea->keyrsc != 0)
+	{
 	return;
+	}
 if(memcmp(wpaea->keyid, &nulliv, 8) != 0)
+	{
 	return;
+	}
 
 if(handshakeliste == NULL)
 	{
@@ -2056,10 +2076,19 @@ void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_
 {
 eapoll_t *zeiger;
 
-if(authlen > 256)
+if((ki == 1) || (ki == 2))
 	{
-	return;
+	if(authlen > 0xff)
+		{
+		authlen = 0xff;
+		}
 	}
+if((ki == 4) || (ki == 8))
+	if(authlen > 0xff)
+		{
+		return;
+		}
+
 if(eapolliste == NULL)
 	{
 	eapolliste = malloc(EAPOLLIST_SIZE);
@@ -2388,6 +2417,7 @@ if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 	{
 	return;
 	}
+
 if(keyinfo == 1)
 	{
 	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), authlen +4, packet);
