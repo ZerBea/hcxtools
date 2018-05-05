@@ -10,6 +10,7 @@
 #include <time.h>
 #include <pwd.h>
 #include <sys/stat.h>
+#include <arpa/inet.h>
 #ifdef __APPLE__
 #include <libgen.h>
 #include <sys/types.h> /* This in turn sources machine/endian.h */
@@ -272,10 +273,15 @@ while(c < hcxrecords)
 		c++;
 		continue;
 		}
-
+	eap = (eap_t*)zeigerhcx->eapol;
+	if(ntohs(eap->wpadatalen) > zeigerhcx->eapol_len)
+		{
+		rwerr++;
+		c++;
+		continue;
+		}
 	if((geteapkey(zeigerhcx->eapol) == 2) || (geteapkey(zeigerhcx->eapol) == 4))
 		{
-		eap = (eap_t*)zeigerhcx->eapol;
 		if(memcmp(eap->keyiv, &nulliv, 16) != 0)
 			{
 			rwerr++;
