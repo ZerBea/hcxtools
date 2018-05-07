@@ -2055,10 +2055,6 @@ if((ki == 4) || (ki == 8))
 		return;
 		}
 	}
-if(memcmp(eaptest->keyid, &nulliv, 8) != 0)
-	{
-	return;
-	}
 
 if(eapolliste == NULL)
 	{
