@@ -276,7 +276,6 @@ while(c < hcxrecords)
 	eap = (eap_t*)zeigerhcx->eapol;
 	if(ntohs(eap->wpadatalen) > (ntohs(eap->len) -95))
 		{
-		printf("%d %d\n", ntohs(eap->len), ntohs(eap->wpadatalen));
 		rwerr++;
 		c++;
 		continue;
