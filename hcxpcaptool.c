@@ -2036,8 +2036,7 @@ eapoll_t *zeiger;
 wpakey_t *eaptest;
 
 eaptest = (wpakey_t*)(authpacket +EAPAUTH_SIZE);
-
-if(ntohs(eaptest->wpadatalen) > authlen)
+if(ntohs(eaptest->wpadatalen) != (authlen -99))
 	{
 	return;
 	}
