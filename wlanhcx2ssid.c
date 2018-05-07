@@ -280,26 +280,11 @@ while(c < hcxrecords)
 		c++;
 		continue;
 		}
-	if((geteapkey(zeigerhcx->eapol) == 2) || (geteapkey(zeigerhcx->eapol) == 4))
+	if(memcmp(eap->keyid, &nulliv, 8) != 0)
 		{
-		if(memcmp(eap->keyiv, &nulliv, 16) != 0)
-			{
-			rwerr++;
-			c++;
-			continue;
-			}
-		if(eap->keyrsc != 0)
-			{
-			rwerr++;
-			c++;
-			continue;
-			}
-		if(memcmp(eap->keyid, &nulliv, 8) != 0)
-			{
-			rwerr++;
-			c++;
-			continue;
-			}
+		rwerr++;
+		c++;
+		continue;
 		}
 
 	if((fhhcx = fopen(repairedname, "ab")) == NULL)

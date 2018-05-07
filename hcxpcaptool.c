@@ -2060,17 +2060,6 @@ if(memcmp(eaptest->keyid, &nulliv, 8) != 0)
 	{
 	return;
 	}
-if((ki == 1) || (ki == 4))
-	{
-	if(memcmp(eaptest->keyiv, &nulliv, 16) != 0)
-		{
-		return;
-		}
-	if(eaptest->keyrsc != 0)
-		{
-		return;
-		}
-	}
 
 if(eapolliste == NULL)
 	{
