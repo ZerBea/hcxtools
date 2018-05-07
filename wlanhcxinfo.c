@@ -384,21 +384,21 @@ while(c < hcxrecords)
 			mp82c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x03) == 3)
+	if((zeigerhcx->message_pair & 0x07) == 3)
 		{
 		mp3c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 			mp83c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x03) == 4)
+	if((zeigerhcx->message_pair & 0x07) == 4)
 		{
 		mp4c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 			mp84c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x03) == 5)
+	if((zeigerhcx->message_pair & 0x07) == 5)
 		{
 		mp5c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)

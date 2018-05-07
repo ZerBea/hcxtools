@@ -656,7 +656,7 @@ return false;
 /*===========================================================================*/
 static void showinfo(hcx_t *hcxrecord)
 {
-char outstr[256] = {0};
+char outstr[1204] = {0};
 FILE *fhshowinfo2;
 
 if(showinfo1 == true)

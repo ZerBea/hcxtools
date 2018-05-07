@@ -31,7 +31,7 @@ static void hashhcx(long int hcxrecords, FILE* fhhash)
 hcx_t *zeigerhcx;
 long int c;
 
-char outstr[256];
+char outstr[1024];
 
 c = 0;
 while(c < hcxrecords)

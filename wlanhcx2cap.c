@@ -184,7 +184,7 @@ memcpy(&mypacket[0x04], zeigersend->mac_sta.addr, 6);
 memcpy(&mypacket[0x0a], zeigersend->mac_ap.addr, 6);
 memcpy(&mypacket[0x10], zeigersend->mac_ap.addr, 6);
 pp += 0x1a;
-memcpy(&mypacket[pp], anonce, 32);
+memcpy(&mypacket[pp], &anonce, 25);
 mypacket[pp + 0x08] = zeigersend->eapol[0x00];
 mypacket[pp + 0x0c] = zeigersend->eapol[0x04];
 mypacket[pp + 0x0e] = zeigersend->eapol[0x06] | 0x80;
@@ -228,7 +228,7 @@ memcpy(&mypacket[0x04], zeigersend->mac_ap.addr, 6);
 memcpy(&mypacket[0x0a], zeigersend->mac_sta.addr, 6);
 memcpy(&mypacket[0x10], zeigersend->mac_ap.addr, 6);
 pp += 0x1a;
-memcpy(&mypacket[pp], snonce, 32);
+memcpy(&mypacket[pp], &snonce, 8);
 memcpy(&mypacket[0x22], zeigersend->eapol, zeigersend->eapol_len);
 memcpy(&mypacket[0x73], zeigersend->keymic, 16);
 pkhdump.caplen = zeigersend->eapol_len + 0x26;
@@ -269,8 +269,8 @@ hcx_t *zeiger;
 pcap_dumper_t *pcapdump;
 pcap_t *pcapdh;
 
-char macstr_ap[PATH_MAX +1];
-char macstr_sta[PATH_MAX +1];
+char macstr_ap[24];
+char macstr_sta[24];
 char pcapoutstr[PATH_MAX +2];
 
 zeiger = hccapxdata;

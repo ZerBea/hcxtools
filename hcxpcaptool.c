@@ -545,7 +545,7 @@ int c;
 uint32_t d;
 time_t pkttime;
 struct tm *pkttm;
-char tmbuf[64], pcktimestr[64];
+char tmbuf[64], pcktimestr[512];
 
 pkttime = tv_sec;
 pkttm = localtime(&pkttime);

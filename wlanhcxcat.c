@@ -51,7 +51,7 @@ uint8_t pkedata_prf[2 + 98 + 2];
 uint8_t ptk[128];
 uint8_t mic[16];
 
-char outstr[256];
+char outstr[1024];
 
 
 if(hex2bin(pmkname, pmkin, 32) != true)
@@ -146,7 +146,7 @@ uint8_t mic[16];
 
 unsigned char essid[32];
 
-char outstr[256];
+char outstr[1024];
 
 
 if(hex2bin(pmkname, pmkin, 32) != true)
@@ -245,7 +245,7 @@ uint8_t pkedata_prf[2 + 98 + 2];
 uint8_t ptk[128];
 uint8_t mic[16];
 
-char outstr[256];
+char outstr[1024];
 
 c = 0;
 while(c < hcxrecords)
@@ -357,7 +357,7 @@ uint8_t mic[16];
 
 unsigned char essid[32] = { 0 };
 
-char outstr[256];
+char outstr[1024];
 
 memcpy(&essid, essidname, essidlen);
 

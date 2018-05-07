@@ -1189,7 +1189,7 @@ struct iwreq wrq = {};
 
 int sock = 0;
 int result = 0;
-strncpy(wrq.ifr_name, interfacename , IFNAMSIZ);
+strncpy(wrq.ifr_name, interfacename , IFNAMSIZ -1);
 if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
         fprintf(stderr, "socket open for ioctl() on '%s' failed with '%d'\n", interfacename, sock);

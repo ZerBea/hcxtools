@@ -178,7 +178,7 @@ block[2] = hashrec.keymic[2];
 block[3] = hashrec.keymic[3];
 md5_64 (block, hash);
 
-memset(out, 0, 256);
+memset(out, 0, 1024);
 memset(&pwstr, 0, 256);
 memset(&essidstr, 0, 256);
 
