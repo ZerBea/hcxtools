@@ -33,12 +33,6 @@ static const uint8_t nullnonce[] =
 };
 #define	NULLNONCE_SIZE (sizeof(nullnonce))
 
-static const uint8_t nulliv[] =
-{
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-};
-#define	NULLIV_SIZE (sizeof(nulliv))
-
 /*===========================================================================*/
 static size_t chop(char *buffer,  size_t len)
 {
@@ -275,12 +269,6 @@ while(c < hcxrecords)
 		}
 	eap = (eap_t*)zeigerhcx->eapol;
 	if(ntohs(eap->wpadatalen) > (ntohs(eap->len) -95))
-		{
-		rwerr++;
-		c++;
-		continue;
-		}
-	if(memcmp(eap->keyid, &nulliv, 8) != 0)
 		{
 		rwerr++;
 		c++;
