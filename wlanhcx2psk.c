@@ -140,6 +140,8 @@ for(weakft = 0; weakft < 10000000; weakft++)
 	writepsk(pskstring);
 	snprintf(pskstring, 64, "014%07d", weakft);
 	writepsk(pskstring);
+	snprintf(pskstring, 64, "420%07d", weakft);
+	writepsk(pskstring);
 	}
 return;
 }
