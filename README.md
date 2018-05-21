@@ -97,7 +97,7 @@ Requirements
 
 * Raspberry Pi (Recommended: A+ = very low power consumption or B+), but notebooks and desktops should work, too.
 
-To install requirements on Kali use the following 'apt-get install libpcap-dev libcurl4-openssl-dev libssl-dev'
+To install requirements on Kali use the following 'apt-get install libpcap-dev libcurl4-openssl-dev libssl-dev zlib1g-dev'
 
 
 Tested adapters
