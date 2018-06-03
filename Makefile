@@ -6,7 +6,7 @@ GPIOSUPPORT=off
 DOACTIVE=on
 DOSTATUS=on
 
-CC	= gcc
+CC	?= gcc
 CFLAGS = -std=gnu99 -O3 -Wall -Wextra
 INSTFLAGS = -m 0755
 
