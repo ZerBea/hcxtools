@@ -2739,6 +2739,7 @@ if(caplen < (uint32_t)IPV4_SIZE_MIN)
 	return;
 	}
 ipv4 = (ipv4_t*)packet;
+
 if((ipv4->ver_hlen & 0xf0) != 0x40)
 	{
 	return;
@@ -2749,6 +2750,7 @@ if(caplen < (uint32_t)ipv4len)
 	return;
 	}
 packet_ptr = packet +ipv4len;
+
 if(ipv4->nextprotocol == NEXTHDR_ICMP4)
 	{
 	processicmp4packet();
@@ -2971,6 +2973,8 @@ uint8_t *packet_ptr;
 
 eth2 = (eth2_t*)packet;
 packet_ptr = packet;
+packet_ptr += ETH2_SIZE;
+caplen -= ETH2_SIZE;
 if(ntohs(eth2->ether_type) == LLC_TYPE_IPV4)
 	{
 	processipv4packet(tv_sec, tv_usec, caplen, packet_ptr);
@@ -2994,10 +2998,10 @@ uint8_t *packet_ptr;
 
 loba = (loba_t*)packet;
 packet_ptr = packet;
+packet_ptr += LOBA_SIZE;
+caplen -= LOBA_SIZE;
 if(ntohl(loba->family == AF_INET))
 	{
-	packet_ptr += LOBA_SIZE;
-	caplen -= LOBA_SIZE;
 	processipv4packet(tv_sec, tv_usec, caplen, packet_ptr);
 	processipv6packet(tv_sec, tv_usec, caplen, packet_ptr);
 	}
@@ -3044,8 +3048,6 @@ else if(linktype == DLT_EN10MB)
 		printf("failed to read ethernet header\n");
 		return;
 		}
-	packet_ptr += ETH2_SIZE;
-	caplen -= ETH2_SIZE;
 	processethernetpacket(tv_sec, tv_usec, caplen, packet);
 	return;
 	}
