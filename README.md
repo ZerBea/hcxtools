@@ -133,10 +133,31 @@ Notice
 Most output files will be appended to existing files (with the exception of .cap files).
 
 
-Hardware mod (wlandump-ng)
+Bitmask message pair field (hcxpcaptool)
 --------------
 
-LED flashes 5 times if wlandump-ng successfully started
+0: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
+
+1: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
+
+2: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
+
+3: x (unused)\n"
+
+4: ap-less attack (set to 1) - no nonce-error-corrections neccessary
+
+5: LE router detected (set to 1) - nonce-error-corrections only for LE neccessary
+
+6: BE router detected (set to 1) - nonce-error-corrections only for BE neccessary
+
+7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely neccessary
+
+
+
+Hardware mod (hcxdumptool and wlandump-ng)
+--------------
+
+LED flashes 5 times if hcxdumptool/wlandump-ng successfully started
 
 LED flashes every 5 seconds if everything is fine
 
@@ -146,11 +167,11 @@ Green ACT LED flashes 10 times
 
 Raspberry Pi turned off and can be disconnected from power supply
 
-Do not use wlandump-ng and pioff together!
+Do not use hcxdumptool/wlandump-ng and pioff together!
 
 
 
-Berkeley Packet Filter BPF (example)
+Berkeley Packet Filter BPF (only for wlandump-ng and wlancap2hcx (example)
 --------------
 
 wlan host = filter all hosts using this mac
@@ -177,18 +198,18 @@ or allow only this entries
 Warning
 --------------
 
-You must use wlandump-ng only on networks you have permission to do this, because
+You must use hcxdumptool/wlandump-ng only on networks you have permission to do this, because
 
-* wlandump-ng is able to prevent complete wlan traffic
+* hcxdumptool/wlandump-ng is able to prevent complete wlan traffic
 
-* wlandump-ng is able to capture handshakes from not connected clients (only one single M2 from the client is required)
+* hcxdumptool/wlandump-ng is able to capture handshakes from not connected clients (only one single M2 from the client is required)
 
-* wlandump-ng is are able to capture handshakes from 5GHz clients on 2.4GHz (only one single M2 from the client is required)
+* hcxdumptool/wlandump-ng is are able to capture handshakes from 5GHz clients on 2.4GHz (only one single M2 from the client is required)
 
-* wlandump-ng is able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
+* hcxdumptool/wlandump-ng is able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
 
-* wlandump-ng is able to capture passwords from the wlan traffic
+* hcxdumptool/wlandump-ng is able to capture passwords from the wlan traffic
 
-* wlandump-ng is able to capture plainmasterkeys from the wlan traffic
+* hcxdumptool/wlandump-ng is able to capture plainmasterkeys from the wlan traffic
 
-* wlandump-ng is able to capture usernames and identities from the wlan traffic
+* hcxdumptool/wlandump-ng is able to capture usernames and identities from the wlan traffic
