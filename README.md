@@ -142,7 +142,7 @@ Bitmask message pair field (hcxpcaptool)
 
 2: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
 
-3: x (unused)"
+3: x unused
 
 4: ap-less attack (set to 1) - no nonce-error-corrections neccessary
 
@@ -171,7 +171,7 @@ Do not use hcxdumptool/wlandump-ng and pioff together!
 
 
 
-Berkeley Packet Filter BPF example (only for wlandump-ng and wlancap2hcx
+Berkeley Packet Filter BPF example (only for wlandump-ng and wlancap2hcx)
 --------------
 
 wlan host = filter all hosts using this mac
