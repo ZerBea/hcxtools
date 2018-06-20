@@ -1092,7 +1092,7 @@ if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 	pcap_dump_flush(pcapout);
 	pcap_dump_close(pcapout);
 	pcap_close(pcapin);
-	printf("\nterminated...\e[?25h\n");
+	printf("\nterminated (internal errors: %d)...\e[?25h\n", internalpcaperrors);
 	exit (EXIT_SUCCESS);
 	}
 return;
@@ -1167,7 +1167,7 @@ if(signo == TT_SIGUSR1)
 			}
 		else
 			{
-			printf("\nterminated...\e[?25h\n");
+			printf("\nterminated...\e[?25h\n", internalpcaperrors);
 			exit (EXIT_SUCCESS);
 			}
 		}
