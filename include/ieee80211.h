@@ -1,10 +1,11 @@
 #define MYREPLAYCOUNT 63232
 
-#define	MAC_SIZE_ACK	(10)
-#define	MAC_SIZE_RTS	(16)
-#define	MAC_SIZE_NORM	(24)
-#define	MAC_SIZE_QOS	(26)
-#define	MAC_SIZE_LONG	(30)
+#define	MAC_SIZE_ACK		(10)
+#define	MAC_SIZE_RTS		(16)
+#define	MAC_SIZE_NORM		(24)
+#define	MAC_SIZE_QOS		(26)
+#define	MAC_SIZE_LONG		(30)
+#define	MAC_SIZE_QOS_LONG	(32)
 
 #define FCS_LEN 4
 

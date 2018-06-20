@@ -2185,21 +2185,21 @@ wdsframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211beacon(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211beacon(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)CAPABILITIESAP_SIZE +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
 	return;
 	}
 macf = (mac_t*)packet;
-packet_ptr = packet +MAC_SIZE_NORM +CAPABILITIESAP_SIZE;
+packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
 memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -CAPABILITIESAP_SIZE, essidstr);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE, essidstr);
 if(essidlen == 0)
 	{
 	return;
@@ -2210,21 +2210,21 @@ beaconframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211probe_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211probe_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (uint32_t)MAC_SIZE_NORM +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +2)
 	{
 	return;
 	}
 macf = (mac_t*)packet;
-packet_ptr = packet +MAC_SIZE_NORM;
+packet_ptr = packet +MAC_SIZE_NORM +wdsoffset;
 memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM +2, essidstr);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset +2, essidstr);
 if(essidlen == 0)
 	{
 	return;
@@ -2234,21 +2234,21 @@ proberequestframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211probe_resp(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211probe_resp(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)CAPABILITIESAP_SIZE +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
 	return;
 	}
 macf = (mac_t*)packet;
-packet_ptr = packet +MAC_SIZE_NORM +CAPABILITIESAP_SIZE;
+packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
 memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -CAPABILITIESAP_SIZE, essidstr);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE, essidstr);
 if(essidlen == 0)
 	{
 	return;
@@ -2258,21 +2258,21 @@ proberesponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211assoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211assoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)CAPABILITIESSTA_SIZE +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESSTA_SIZE +2)
 	{
 	return;
 	}
 macf = (mac_t*)packet;
-packet_ptr = packet +MAC_SIZE_NORM +CAPABILITIESSTA_SIZE;
+packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESSTA_SIZE;
 memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -CAPABILITIESSTA_SIZE, essidstr);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESSTA_SIZE, essidstr);
 if(essidlen == 0)
 	{
 	return;
@@ -2289,21 +2289,21 @@ associationresponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211reassoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211reassoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
 uint8_t essidstr[32];
 
-if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)CAPABILITIESRESTA_SIZE +2)
+if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESRESTA_SIZE +2)
 	{
 	return;
 	}
 macf = (mac_t*)packet;
-packet_ptr = packet +MAC_SIZE_NORM +CAPABILITIESRESTA_SIZE;
+packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESRESTA_SIZE;
 memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -CAPABILITIESRESTA_SIZE, essidstr);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESRESTA_SIZE, essidstr);
 if(essidlen == 0)
 	{
 	return;
@@ -2825,7 +2825,7 @@ wepframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211datapacket(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+void process80211datapacket(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 mac_t *macf;
 llc_t *llc;
@@ -2836,27 +2836,27 @@ macf = (mac_t*)packet;
 packet_ptr = packet;
 if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_DATA_CFACK) || (macf->subtype == IEEE80211_STYPE_DATA_CFPOLL) || (macf->subtype == IEEE80211_STYPE_DATA_CFACKPOLL))
 	{
-	if(caplen < (uint32_t)MAC_SIZE_NORM +(uint32_t)LLC_SIZE)
+	if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)LLC_SIZE)
 		{
 		return;
 		}
-	llc = (llc_t*)(packet+MAC_SIZE_NORM);
-	packet_ptr += MAC_SIZE_NORM +LLC_SIZE;
+	llc = (llc_t*)(packet +MAC_SIZE_NORM +wdsoffset);
+	packet_ptr += MAC_SIZE_NORM +wdsoffset +LLC_SIZE;
 	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
-		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
+		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -wdsoffset -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
-		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
+		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -wdsoffset -LLC_SIZE, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
-		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -LLC_SIZE, packet_ptr);
+		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -wdsoffset -LLC_SIZE, packet_ptr);
 		}
 	else if(macf->protected == 1)
 		{
-		mpdu = (mpdu_t*)(packet +MAC_SIZE_NORM);
+		mpdu = (mpdu_t*)(packet +MAC_SIZE_NORM +wdsoffset);
 		if(((mpdu->keyid >> 5) &1) == 0)
 			{
 			processweppacket();
@@ -2865,27 +2865,27 @@ if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_
 	}
 else if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACK) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFPOLL) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACKPOLL))
 	{
-	if(caplen < (uint32_t)MAC_SIZE_QOS +(uint32_t)LLC_SIZE)
+	if(caplen < (uint32_t)MAC_SIZE_QOS +wdsoffset +(uint32_t)LLC_SIZE)
 		{
 		return;
 		}
-	llc = (llc_t*)(packet +MAC_SIZE_QOS);
-	packet_ptr += MAC_SIZE_QOS +LLC_SIZE;
+	llc = (llc_t*)(packet +MAC_SIZE_QOS +wdsoffset);
+	packet_ptr += MAC_SIZE_QOS +wdsoffset +LLC_SIZE;
 	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
-		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
+		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -wdsoffset -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
-		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, packet_ptr);
+		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -wdsoffset -LLC_SIZE, packet_ptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
-		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -LLC_SIZE, packet_ptr);
+		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -wdsoffset -LLC_SIZE, packet_ptr);
 		}
 	else if(macf->protected == 1)
 		{
-		mpdu = (mpdu_t*)(packet +MAC_SIZE_QOS);
+		mpdu = (mpdu_t*)(packet +MAC_SIZE_QOS +wdsoffset);
 		if(((mpdu->keyid >> 5) &1) == 0)
 			{
 			processweppacket();
@@ -2897,31 +2897,33 @@ return;
 /*===========================================================================*/
 void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
+uint32_t wdsoffset = 0;
 mac_t *macf;
 
 macf = (mac_t*)packet;
 if((macf->from_ds == 1) && (macf->to_ds == 1))
 	{
 	process80211wds();
+	wdsoffset = 6;
 	}
 
-else if(macf->type == IEEE80211_FTYPE_MGMT)
+if(macf->type == IEEE80211_FTYPE_MGMT)
 	{
 	if(macf->subtype == IEEE80211_STYPE_BEACON)
 		{
-		process80211beacon(tv_sec, tv_usec, caplen, packet);
+		process80211beacon(tv_sec, tv_usec, caplen, wdsoffset, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_PROBE_REQ)
 		{
-		process80211probe_req(tv_sec, tv_usec, caplen, packet);
+		process80211probe_req(tv_sec, tv_usec, caplen, wdsoffset, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_PROBE_RESP)
 		{
-		process80211probe_resp(tv_sec, tv_usec, caplen, packet);
+		process80211probe_resp(tv_sec, tv_usec, caplen, wdsoffset, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_ASSOC_REQ)
 		{
-		process80211assoc_req(tv_sec, tv_usec, caplen, packet);
+		process80211assoc_req(tv_sec, tv_usec, caplen, wdsoffset, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_ASSOC_RESP)
 		{
@@ -2929,11 +2931,11 @@ else if(macf->type == IEEE80211_FTYPE_MGMT)
 		}
 	else if (macf->subtype == IEEE80211_STYPE_REASSOC_REQ)
 		{
-		process80211reassoc_req(tv_sec, tv_usec, caplen, packet);
+		process80211reassoc_req(tv_sec, tv_usec, caplen, wdsoffset, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_REASSOC_RESP)
 		{
-		process80211reassoc_resp(tv_sec, tv_usec, caplen, packet);
+		process80211reassoc_resp(tv_sec, tv_usec, caplen, wdsoffset, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_AUTH)
 		{
@@ -2960,7 +2962,7 @@ else if(macf->type == IEEE80211_FTYPE_MGMT)
 
 else if (macf->type == IEEE80211_FTYPE_DATA)
 	{
-	process80211datapacket(tv_sec, tv_usec, caplen, packet);
+	process80211datapacket(tv_sec, tv_usec, caplen, wdsoffset, packet);
 	}
 
 return;
