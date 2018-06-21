@@ -106,7 +106,7 @@ mac2ascii(ap_mac_long, zeiger->mac_ap);
 mac2asciilong(ap_mac, zeiger->mac_ap);
 mac2asciilong(sta_mac, zeiger->mac_sta);
 
-if((zeiger->endianess & 0x10) == 0x10)
+if(((zeiger->endianess & 0x10) == 0x10) || ((message_pair &0x10) == 0x10) || ((message_pair &0x80) == 0x00))
 	{
 	fprintf(fhjohn, "%s:$WPAPSK$%s#", hccap.essid, hccap.essid);
 	for (i = 36; i + 3 < HCCAP_SIZE; i += 3)
@@ -119,7 +119,7 @@ if((zeiger->endianess & 0x10) == 0x10)
 		{
 		fprintf(fhjohn, "%d", hccap.keyver);
 		}
-	if((message_pair &0x80) > 1)
+	if((message_pair &0x07) > 1)
 		{
 		fprintf(fhjohn, ":verfified:%s\n", basename);
 		}
@@ -149,7 +149,7 @@ else if((zeiger->endianess & 0x20) == 0x20)
 			{
 			fprintf(fhjohn, "%d", hccap.keyver);
 			}
-		if((message_pair &0x80) > 1)
+		if((message_pair &0x07) > 1)
 			{
 			fprintf(fhjohn, ":verfified:%s\n", basename);
 			}
@@ -181,7 +181,7 @@ else if((zeiger->endianess & 0x40) == 0x40)
 			{
 			fprintf(fhjohn, "%d", hccap.keyver);
 			}
-		if((message_pair &0x80) > 1)
+		if((message_pair &0x07) > 1)
 			{
 			fprintf(fhjohn, ":verfified:%s\n", basename);
 			}
@@ -213,7 +213,7 @@ else
 			{
 			fprintf(fhjohn, "%d", hccap.keyver);
 			}
-		if((message_pair &0x80) > 1)
+		if((message_pair &0x07) > 1)
 			{
 			fprintf(fhjohn, ":verfified:%s\n", basename);
 			}
@@ -242,7 +242,7 @@ else
 			{
 			fprintf(fhjohn, "%d", hccap.keyver);
 			}
-		if((message_pair &0x80) > 1)
+		if((message_pair &0x07) > 1)
 			{
 			fprintf(fhjohn, ":verfified:%s\n", basename);
 			}
