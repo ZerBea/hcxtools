@@ -1167,7 +1167,7 @@ if(signo == TT_SIGUSR1)
 			}
 		else
 			{
-			printf("\nterminated...\e[?25h\n", internalpcaperrors);
+			printf("\nterminated (internal errors: %d)...\e[?25h\n", internalpcaperrors);
 			exit (EXIT_SUCCESS);
 			}
 		}
