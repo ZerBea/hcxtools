@@ -521,6 +521,7 @@ struct udp_frame
 #define UDP_DHCP6_SERVERPORT 547
 #define UDP_DHCP6_CLIENTPORT 546
 #define UDP_RADIUS_DESTINATIONPORT 1812
+#define UDP_TZSP_DESTINATIONPORT 37008
  uint16_t	len;
  uint16_t	checksum;
 } __attribute__ ((packed));

@@ -131,8 +131,10 @@ unsigned long long int papframecount;
 unsigned long long int tacacspframecount;
 unsigned long long int radiusframecount;
 unsigned long long int dhcpframecount;
+unsigned long long int tzspframecount;
 unsigned long long int dhcp6framecount;
 unsigned long long int wepframecount;
+unsigned long long int tzspframecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -498,6 +500,10 @@ if(dhcp6framecount != 0)
 if(greframecount != 0)
 	{
 	printf("GRE packets............: %lld\n", greframecount);
+	}
+if(tzspframecount != 0)
+	{
+	printf("TZSP packets...........: %lld\n", tzspframecount);
 	}
 for(p = 0; p < 256; p++)
 	{
@@ -2542,6 +2548,13 @@ dhcpframecount++;
 return;
 }
 /*===========================================================================*/
+void processtzsppacket()
+{
+
+tzspframecount++;
+return;
+}
+/*===========================================================================*/
 void processudppacket(uint32_t caplen, uint8_t *packet)
 {
 udp_t *udp;
@@ -2568,6 +2581,10 @@ else if(((ntohs(udp->destinationport) == UDP_DHCP_SERVERPORT) && (ntohs(udp->sou
 else if(((ntohs(udp->destinationport) == UDP_DHCP6_SERVERPORT) && (ntohs(udp->sourceport) == UDP_DHCP6_CLIENTPORT)) || ((ntohs(udp->destinationport) == UDP_DHCP6_CLIENTPORT) && (ntohs(udp->sourceport) == UDP_DHCP6_SERVERPORT)))
 	{
 	processdhcp6packet();
+	}
+else if(ntohs(udp->destinationport) == UDP_TZSP_DESTINATIONPORT)
+	{
+	processtzsppacket();
 	}
 udpframecount++;
 return;
