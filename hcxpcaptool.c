@@ -65,6 +65,10 @@
 #define HCXT_HEXDUMP_OUT	'H'
 #define HCXT_VERBOSE_OUT	'V'
 
+
+void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet);
+
+
 /*===========================================================================*/
 /* global var */
 
@@ -135,6 +139,15 @@ unsigned long long int tzspframecount;
 unsigned long long int dhcp6framecount;
 unsigned long long int wepframecount;
 unsigned long long int tzspframecount;
+unsigned long long int tzspethernetframecount;
+unsigned long long int tzsptokenringframecount;
+unsigned long long int tzspslipframecount;
+unsigned long long int tzsppppframecount;
+unsigned long long int tzspfddiframecount;
+unsigned long long int tzsprawframecount;
+unsigned long long int tzsp80211framecount;
+unsigned long long int tzsp80211prismframecount;
+unsigned long long int tzsp80211avsframecount;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -386,160 +399,196 @@ void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int ver
 int p;
 printf( "                                               \n"
 	"summary:                                        \n--------\n"
-	"file name..............: %s\n"
-	"file type..............: %s %d.%d\n"
-	"network type...........: %s (%d)\n"
-	"endianess..............: %s\n"
-	"read errors............: %s\n"
-	"packets inside.........: %llu\n"
-	"skipped packets........: %llu\n"
-	"packets with FCS.......: %llu\n"
+	"file name....................: %s\n"
+	"file type....................: %s %d.%d\n"
+	"network type.................: %s (%d)\n"
+	"endianess....................: %s\n"
+	"read errors..................: %s\n"
+	"packets inside...............: %llu\n"
+	"skipped packets..............: %llu\n"
+	"packets with FCS.............: %llu\n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, fcsframecount);
 
 if(tscleanflag == true)
 	{
-	printf("warning................: zero value timestamps detected\n");
+	printf("warning......................: zero value timestamps detected\n");
 	}
 
 if(wdsframecount != 0)
 	{
-	printf("WDS packets............: %llu\n", wdsframecount);
+	printf("WDS packets..................: %llu\n", wdsframecount);
 	}
 if(beaconframecount != 0)
 	{
-	printf("beacons................: %llu\n", beaconframecount);
+	printf("beacons......................: %llu\n", beaconframecount);
 	}
 if(proberequestframecount != 0)
 	{
-	printf("probe requests.........: %llu\n", proberequestframecount);
+	printf("probe requests...............: %llu\n", proberequestframecount);
 	}
 if(proberesponseframecount != 0)
 	{
-	printf("probe responses........: %llu\n", proberesponseframecount);
+	printf("probe responses..............: %llu\n", proberesponseframecount);
 	}
 if(associationrequestframecount != 0)
 	{
-	printf("association requests...: %llu\n", associationrequestframecount);
+	printf("association requests.........: %llu\n", associationrequestframecount);
 	}
 if(associationresponseframecount != 0)
 	{
-	printf("association responses..: %llu\n", associationresponseframecount);
+	printf("association responses........: %llu\n", associationresponseframecount);
 	}
 if(reassociationrequestframecount != 0)
 	{
-	printf("reassociation requests.: %llu\n", reassociationrequestframecount);
+	printf("reassociation requests.......: %llu\n", reassociationrequestframecount);
 	}
 if(reassociationresponseframecount != 0)
 	{
-	printf("reassociation responses: %llu\n", reassociationresponseframecount);
+	printf("reassociation responses......: %llu\n", reassociationresponseframecount);
 	}
 if(authenticationframecount != 0)
 	{
-	printf("authentications........: %llu\n", authenticationframecount);
+	printf("authentications..............: %llu\n", authenticationframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
-	printf("deauthentications......: %llu\n", deauthenticationframecount);
+	printf("deauthentications............: %llu\n", deauthenticationframecount);
 	}
 if(disassociationframecount != 0)
 	{
-	printf("disassociations........: %llu\n", disassociationframecount);
+	printf("disassociations..............: %llu\n", disassociationframecount);
 	}
 if(actionframecount != 0)
 	{
-	printf("action packets.........: %llu\n", actionframecount);
+	printf("action packets...............: %llu\n", actionframecount);
 	}
 if(atimframecount != 0)
 	{
-	printf("ATIM packets...........: %llu\n", atimframecount);
+	printf("ATIM packets.................: %llu\n", atimframecount);
 	}
 if(eapolframecount != 0)
 	{
-	printf("EAPOL packets..........: %llu\n", eapolframecount);
+	printf("EAPOL packets................: %llu\n", eapolframecount);
 	}
 if(eapframecount != 0)
 	{
-	printf("EAP packets............: %llu\n", eapframecount);
+	printf("EAP packets..................: %llu\n", eapframecount);
 	}
 if(wepframecount != 0)
 	{
-	printf("WEP packets............: %llu\n", wepframecount);
+	printf("WEP packets..................: %llu\n", wepframecount);
 	}
 if(ipv4framecount != 0)
 	{
-	printf("IPv4 packets...........: %llu\n", ipv4framecount);
+	printf("IPv4 packets.................: %llu\n", ipv4framecount);
 	}
 if(ipv6framecount != 0)
 	{
-	printf("IPv6 packets...........: %lld\n", ipv6framecount);
+	printf("IPv6 packets.................: %lld\n", ipv6framecount);
 	}
 if(tcpframecount != 0)
 	{
-	printf("TCP packets............: %lld\n", tcpframecount);
+	printf("TCP packets..................: %lld\n", tcpframecount);
 	}
 if(udpframecount != 0)
 	{
-	printf("UDP packets............: %lld\n", udpframecount);
+	printf("UDP packets..................: %lld\n", udpframecount);
 	}
 if(icmp4framecount != 0)
 	{
-	printf("ICMPv4 packets.........: %lld\n", icmp4framecount);
+	printf("ICMPv4 packets...............: %lld\n", icmp4framecount);
 	}
 if(icmp6framecount != 0)
 	{
-	printf("ICMPv6 packets.........: %lld\n", icmp6framecount);
+	printf("ICMPv6 packets...............: %lld\n", icmp6framecount);
 	}
 if(dhcpframecount != 0)
 	{
-	printf("DHCP packets...........: %lld\n", dhcpframecount);
+	printf("DHCP packets.................: %lld\n", dhcpframecount);
 	}
 if(dhcp6framecount != 0)
 	{
-	printf("DHCPv6 packets.........: %lld\n", dhcp6framecount);
+	printf("DHCPv6 packets...............: %lld\n", dhcp6framecount);
 	}
 if(greframecount != 0)
 	{
-	printf("GRE packets............: %lld\n", greframecount);
+	printf("GRE packets..................: %lld\n", greframecount);
 	}
 if(tzspframecount != 0)
 	{
-	printf("TZSP packets...........: %lld\n", tzspframecount);
+	printf("TZSP packets.................: %lld\n", tzspframecount);
+	}
+if(tzspethernetframecount != 0)
+	{
+	printf("TZSP (ETHERNET) packets......: %lld\n", tzspethernetframecount);
+	}
+if(tzsptokenringframecount != 0)
+	{
+	printf("TZSP (TOKEN RING) packets....: %lld\n", tzsptokenringframecount);
+	}
+if(tzspslipframecount != 0)
+	{
+	printf("TZSP (SLIP) packets..........: %lld\n", tzspslipframecount);
+	}
+if(tzsppppframecount != 0)
+	{
+	printf("TZSP (PPP) packets...........: %lld\n", tzsppppframecount);
+	}
+if(tzspfddiframecount != 0)
+	{
+	printf("TZSP (FDDI) packets..........: %lld\n", tzspfddiframecount);
+	}
+if(tzsprawframecount != 0)
+	{
+	printf("TZSP (RAW) packets...........: %lld\n", tzsprawframecount);
+	}
+if(tzsp80211framecount != 0)
+	{
+	printf("TZSP (802.11) packets........: %lld\n", tzsp80211framecount);
+	}
+if(tzsp80211prismframecount != 0)
+	{
+	printf("TZSP (802.11 PRSIM) packets..: %lld\n", tzsp80211prismframecount);
+	}
+if(tzsp80211avsframecount != 0)
+	{
+	printf("TZSP (802.11 AVS) packets....: %lld\n", tzsp80211avsframecount);
 	}
 for(p = 0; p < 256; p++)
 	{
 	if(exeaptype[p] != 0)
 		{
-		printf("found..................: %s\n", geteaptypestring(p));
+		printf("found........................: %s\n", geteaptypestring(p));
 		}
 	}
 if(eapolmkaframecount != 0)
 	{
-	printf("found..................: MKA Authentication (Macsec Key Agreement protocol)\n");
+	printf("found........................: MKA Authentication (Macsec Key Agreement protocol)\n");
 	}
 if(chapframecount != 0)
 	{
-	printf("found..................: PPP-CHAP Authentication\n");
+	printf("found........................: PPP-CHAP Authentication\n");
 	}
 if(papframecount != 0)
 	{
-	printf("found..................: PPP-PAP Authentication\n");
+	printf("found........................: PPP-PAP Authentication\n");
 	}
 if(tacacspframecount != 0)
 	{
-	printf("found..................: TACACS+ Authentication\n");
+	printf("found........................: TACACS+ Authentication\n");
 	}
 if(radiusframecount != 0)
 	{
-	printf("found..................: RADIUS Authentication\n");
+	printf("found........................: RADIUS Authentication\n");
 	}
 
 if(rawhandshakecount != 0)
 	{
-	printf("raw handshakes.........: %llu (ap-less: %llu)\n", rawhandshakecount, rawhandshakeaplesscount);
+	printf("raw handshakes...............: %llu (ap-less: %llu)\n", rawhandshakecount, rawhandshakeaplesscount);
 	}
 if(handshakecount != 0)
 	{
-	printf("best handshakes........: %llu (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
+	printf("best handshakes..............: %llu (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
 	}
 printf("\n");
 return;
@@ -2548,17 +2597,102 @@ dhcpframecount++;
 return;
 }
 /*===========================================================================*/
-void processtzsppacket()
+uint16_t dotzsptagwalk(uint32_t caplen, uint8_t *packet)
 {
+tzsptag_t *tzsptag;
+tzsptag = (tzsptag_t*)packet;
+uint16_t tagorglen = 0;
 
-tzspframecount++;
+while(0 < caplen)
+	{
+	if(tzsptag->tag == TZSP_TAG_END)
+		{
+		return ntohs(tagorglen);
+		}
+	if(tzsptag->tag == TZSP_TAG_ORGLEN)
+		{
+		tagorglen = ((uint16_t)tzsptag->data[1] << 8) | tzsptag->data[0];
+		}
+	tzsptag = (tzsptag_t*)((uint8_t*)tzsptag +tzsptag->len +TZSPTAG_SIZE);
+	caplen -= tzsptag->len;
+	}
+
+
+return 0;
+}
+/*===========================================================================*/
+void processtzsppacket(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
+{
+tzsp_t *tzsp;
+
+tzsp = (tzsp_t*)packet;
+uint16_t tzspdata = 0;
+
+if(caplen < (uint32_t)TZSP_SIZE)
+	{
+	return;
+	}
+if(tzsp->version != 1)
+	{
+	return;
+	}
+if(ntohs(tzsp->enc_protocol) == TZSP_ENCAP_ETHERNET)
+	{
+	tzspethernetframecount++;
+	}
+else if(ntohs(tzsp->enc_protocol) == TZSP_ENCAP_TOKEN_RING)
+	{
+	tzsptokenringframecount++;
+	}
+else if(ntohs(tzsp->enc_protocol) == TZSP_ENCAP_SLIP)
+	{
+	tzspslipframecount++;
+	}
+else if(ntohs(tzsp->enc_protocol) == TZSP_ENCAP_PPP)
+	{
+	tzsppppframecount++;
+	}
+else if(ntohs(tzsp->enc_protocol) == TZSP_ENCAP_FDDI)
+	{
+	tzspfddiframecount++;
+	}
+else if(ntohs(tzsp->enc_protocol) == TZSP_ENCAP_RAW)
+	{
+	tzsprawframecount++;
+	}
+else if(ntohs(tzsp->enc_protocol) == TZSP_ENCAP_IEEE_802_11)
+	{
+	tzspdata = dotzsptagwalk(caplen -TZSP_SIZE, tzsp->data);
+	if(tzspdata != 0)
+		{
+		if(tzspdata +TZSP_SIZE > caplen)
+			{
+			return;
+			}
+		process80211packet(tv_sec, tv_usec, tzspdata, packet +caplen -tzspdata);
+		tzsp80211framecount++;
+		}
+	}
+else if(ntohs(tzsp->enc_protocol) == TZSP_ENCAP_IEEE_802_11_PRISM)
+	{
+	tzsp80211prismframecount++;
+	}
+else if(ntohs(tzsp->enc_protocol) == TZSP_ENCAP_IEEE_802_11_AVS)
+	{
+	tzsp80211avsframecount++;
+	}
+else
+	{
+	tzspframecount++;
+	}
 return;
 }
 /*===========================================================================*/
-void processudppacket(uint32_t caplen, uint8_t *packet)
+void processudppacket(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet)
 {
 udp_t *udp;
 uint16_t udplen; 
+uint8_t *packet_ptr;
 
 if(caplen < (uint32_t)UDP_SIZE)
 	{
@@ -2566,6 +2700,9 @@ if(caplen < (uint32_t)UDP_SIZE)
 	}
 udp = (udp_t*)packet;
 udplen = ntohs(udp->len);
+
+packet_ptr = packet +UDP_SIZE;
+
 if(caplen < udplen)
 	{
 	return;
@@ -2584,7 +2721,7 @@ else if(((ntohs(udp->destinationport) == UDP_DHCP6_SERVERPORT) && (ntohs(udp->so
 	}
 else if(ntohs(udp->destinationport) == UDP_TZSP_DESTINATIONPORT)
 	{
-	processtzsppacket();
+	processtzsppacket(tv_sec, tv_usec, udplen -UDP_SIZE, packet_ptr);
 	}
 udpframecount++;
 return;
@@ -2778,7 +2915,7 @@ else if(ipv4->nextprotocol == NEXTHDR_TCP)
 	}
 else if(ipv4->nextprotocol == NEXTHDR_UDP)
 	{
-	processudppacket(ntohs(ipv4->len) -ipv4len, packet_ptr);
+	processudppacket(tv_sec, tv_usec, ntohs(ipv4->len) -ipv4len, packet_ptr);
 	}
 else if(ipv4->nextprotocol == NEXTHDR_GRE)
 	{
@@ -2819,7 +2956,7 @@ else if(ipv6->nextprotocol == NEXTHDR_TCP)
 	}
 else if(ipv6->nextprotocol == NEXTHDR_UDP)
 	{
-	processudppacket(ntohs(ipv6->len), packet_ptr);
+	processudppacket(tv_sec, tv_usec, ntohs(ipv6->len), packet_ptr);
 	}
 else if(ipv6->nextprotocol == NEXTHDR_GRE)
 	{
@@ -3572,6 +3709,16 @@ tacacspframecount = 0;
 radiusframecount = 0;
 dhcpframecount = 0;
 dhcp6framecount = 0;
+tzspframecount = 0;
+tzspethernetframecount = 0;
+tzsptokenringframecount = 0;
+tzspslipframecount = 0;
+tzsppppframecount = 0;
+tzspfddiframecount = 0;
+tzsprawframecount = 0;
+tzsp80211framecount = 0;
+tzsp80211prismframecount = 0;
+tzsp80211avsframecount = 0;
 wepframecount = 0;
 
 char tmpoutname[PATH_MAX+1];

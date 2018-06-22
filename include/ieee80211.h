@@ -527,6 +527,38 @@ struct udp_frame
 } __attribute__ ((packed));
 typedef struct udp_frame udp_t;
 #define	UDP_SIZE (sizeof(udp_t))
+
+/*===========================================================================*/
+struct tzsp_frame
+{
+ uint8_t	version;
+ uint8_t	type;
+ uint16_t	enc_protocol;
+#define TZSP_ENCAP_ETHERNET		1
+#define TZSP_ENCAP_TOKEN_RING		2
+#define TZSP_ENCAP_SLIP			3
+#define TZSP_ENCAP_PPP			4
+#define TZSP_ENCAP_FDDI			5
+#define TZSP_ENCAP_RAW			7
+#define TZSP_ENCAP_IEEE_802_11		18
+#define TZSP_ENCAP_IEEE_802_11_PRISM	119
+#define TZSP_ENCAP_IEEE_802_11_AVS	127
+ uint8_t	data[1];
+} __attribute__ ((packed));
+typedef struct tzsp_frame tzsp_t;
+#define	TZSP_SIZE offsetof(tzsp_t, data)
+/*===========================================================================*/
+struct tzsp_tag
+{
+ uint8_t	tag;
+#define TZSP_TAG_END 1
+#define TZSP_TAG_ORGLEN 41
+
+ uint8_t	len;
+ uint8_t	data[1];
+} __attribute__ ((packed));
+typedef struct tzsp_tag tzsptag_t;
+#define	TZSPTAG_SIZE offsetof(tzsptag_t, data)
 /*===========================================================================*/
 struct gre_frame
 {
