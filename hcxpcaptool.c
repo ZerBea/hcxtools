@@ -3191,6 +3191,7 @@ if(linktype == DLT_NULL)
 	{
 	if(caplen < (uint32_t)LOBA_SIZE)
 		{
+		pcapreaderrors = 1;
 		printf("failed to read loopback header\n");
 		return;
 		}
@@ -3201,6 +3202,7 @@ else if(linktype == DLT_EN10MB)
 	{
 	if(caplen < (uint32_t)ETH2_SIZE)
 		{
+		pcapreaderrors = 1;
 		printf("failed to read ethernet header\n");
 		return;
 		}
@@ -3212,6 +3214,7 @@ else if(linktype == DLT_IEEE802_11_RADIO)
 	{
 	if(caplen < (uint32_t)RTH_SIZE)
 		{
+		pcapreaderrors = 1;
 		printf("failed to read radiotap header\n");
 		return;
 		}
@@ -3222,6 +3225,7 @@ else if(linktype == DLT_IEEE802_11_RADIO)
 	#endif
 	if(rth->it_len > caplen)
 		{
+		pcapreaderrors = 1;
 		printf("failed to read radiotap header\n");
 		return;
 		}
@@ -3236,18 +3240,26 @@ else if(linktype == DLT_PRISM_HEADER)
 	{
 	if(caplen < (uint32_t)PRISM_SIZE)
 		{
+		pcapreaderrors = 1;
 		printf("failed to read prism header\n");
 		return;
 		}
 	prism = (prism_t*)packet;
 	#ifdef BIG_ENDIAN_HOST
-	prism->msgcode	= byte_swap_32(prism->msgcode);
-	prism->msglen	= byte_swap_32(prism->msglen);
+	prism->msgcode		= byte_swap_32(prism->msgcode);
+	prism->msglen		= byte_swap_32(prism->msglen);
+	prism->frmlen.data	= byte_swap_32(prism->frmlen.data);
+
 	#endif
 	if(prism->msglen > caplen)
 		{
-		printf("failed to read prism header\n");
-		return;
+		if(prism->frmlen.data > caplen)
+			{
+			pcapreaderrors = 1;
+			printf("failed to read prism header\n");
+			return;
+			}
+		prism->msglen = caplen -prism->frmlen.data;
 		}
 	packet_ptr += prism->msglen;
 	caplen -= prism->msglen;
@@ -3256,6 +3268,7 @@ else if(linktype == DLT_PPI)
 	{
 	if(caplen < (uint32_t)PPI_SIZE)
 		{
+		pcapreaderrors = 1;
 		printf("failed to read ppi header\n");
 		return;
 		}
@@ -3265,6 +3278,7 @@ else if(linktype == DLT_PPI)
 	#endif
 	if(ppi->pph_len > caplen)
 		{
+		pcapreaderrors = 1;
 		printf("failed to read ppi header\n");
 		return;
 		}
@@ -3278,6 +3292,7 @@ else
 
 if(caplen < 4)
 	{
+	pcapreaderrors = 1;
 	printf("failed to read packet\n");
 	return;
 	}
