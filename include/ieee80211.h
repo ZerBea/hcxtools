@@ -158,6 +158,27 @@ struct prism_header
 typedef struct prism_item prism_item_t;
 typedef struct prism_header prism_t;
 #define	PRISM_SIZE (sizeof(prism_t))
+
+/*===========================================================================*/
+struct avs_header
+{
+  uint32_t version;
+  uint32_t len;
+  uint64_t mactime;
+  uint64_t hosttime;
+  uint32_t phytype;
+  uint32_t channel;
+  uint32_t datarate;
+  uint32_t antenna;
+  uint32_t priority;
+  uint32_t ssi_type;
+  int32_t ssi_signal;
+  int32_t ssi_noise;
+  uint32_t preamble;
+  uint32_t encoding;
+} __attribute__((packed));
+typedef struct avs_header avs_t;
+#define	AVS_SIZE (sizeof(avs_t))
 /*===========================================================================*/
 struct ppi_header
 {

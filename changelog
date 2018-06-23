@@ -1,3 +1,9 @@
+23.06.2018
+==========
+hcxpcaptool:
+added full support for AVS header (DLT_IEEE802_11_RADIO_AVS)
+
+
 22.06.2018
 ==========
 hcxpcaptool:

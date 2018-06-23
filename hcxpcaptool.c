@@ -3170,6 +3170,7 @@ uint8_t *packet_ptr;
 rth_t *rth;
 fcs_t *fcs;
 prism_t *prism;
+avs_t *avs;
 ppi_t *ppi;
 uint32_t crc;
 struct timeval tvtmp;
@@ -3232,10 +3233,12 @@ else if(linktype == DLT_IEEE802_11_RADIO)
 	packet_ptr += rth->it_len;
 	caplen -= rth->it_len;
 	}
+
 else if(linktype == DLT_IEEE802_11)
 	{
 	/* nothing to do */
 	}
+
 else if(linktype == DLT_PRISM_HEADER)
 	{
 	if(caplen < (uint32_t)PRISM_SIZE)
@@ -3249,7 +3252,6 @@ else if(linktype == DLT_PRISM_HEADER)
 	prism->msgcode		= byte_swap_32(prism->msgcode);
 	prism->msglen		= byte_swap_32(prism->msglen);
 	prism->frmlen.data	= byte_swap_32(prism->frmlen.data);
-
 	#endif
 	if(prism->msglen > caplen)
 		{
@@ -3264,6 +3266,29 @@ else if(linktype == DLT_PRISM_HEADER)
 	packet_ptr += prism->msglen;
 	caplen -= prism->msglen;
 	}
+
+else if(linktype == DLT_IEEE802_11_RADIO_AVS)
+	{
+	if(caplen < (uint32_t)AVS_SIZE)
+		{
+		pcapreaderrors = 1;
+		printf("failed to read avs header\n");
+		return;
+		}
+	avs = (avs_t*)packet;
+	#ifdef BIG_ENDIAN_HOST
+	avs->len		= byte_swap_32(avs->len);
+	#endif
+	if(avs->len > caplen)
+		{
+		pcapreaderrors = 1;
+		printf("failed to read avs header\n");
+		return;
+		}
+	packet_ptr += avs->len;
+	caplen -= avs->len;
+	}
+
 else if(linktype == DLT_PPI)
 	{
 	if(caplen < (uint32_t)PPI_SIZE)
