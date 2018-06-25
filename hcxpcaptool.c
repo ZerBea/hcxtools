@@ -3685,6 +3685,14 @@ dltlinktype  = pcapfhdr.network;
 return;
 }
 /*===========================================================================*/
+void processmsnetmon()
+{
+versionmajor = 0;
+versionminor = 0;
+dltlinktype  = 0;
+return;
+}
+/*===========================================================================*/
 void processcapfile(char *pcapinname)
 {
 int pcapr_fd;
@@ -3703,6 +3711,7 @@ tacacspliste = NULL;
 
 char *pcapstr = "pcap";
 char *pcapngstr = "pcapng";
+char *msnetmonstr = "msnetmon";
 
 versionmajor = 0;
 versionminor = 0;
@@ -3787,7 +3796,7 @@ if(pcapr_fd == -1)
 	}
 
 magicnumber = getmagicnumber(pcapr_fd);
-if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (magicnumber != PCAPNGBLOCKTYPE))
+if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (magicnumber != PCAPNGBLOCKTYPE) && (magicnumber != MSNETMON))
 	{
 	printf("failed to get magicnumber from %s\n", basename(pcapinname));
 	close(pcapr_fd);
@@ -3799,9 +3808,15 @@ if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (ma
 	}
 lseek(pcapr_fd, 0L, SEEK_SET);
 
-
 pcapart = pcapstr;
-if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
+if(magicnumber == MSNETMON)
+	{
+	processmsnetmon();
+	pcapart = msnetmonstr;
+	}
+
+
+else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	{
 	processpcap(pcapr_fd, pcapinname);
 	pcapart = pcapstr;
