@@ -190,6 +190,33 @@ struct ppi_header
 typedef struct ppi_header ppi_t;
 #define	PPI_SIZE (sizeof(ppi_t))
 /*===========================================================================*/
+struct msnetmon_header
+{
+ uint8_t	version_minor;
+ uint8_t	version_major;
+ uint16_t	network;
+ uint16_t	ts_year;
+ uint16_t	ts_month;
+ uint16_t	ts_weekday;
+ uint16_t	ts_day;
+ uint16_t	ts_hour;
+ uint16_t	ts_min;
+ uint16_t	ts_sec;
+ uint16_t	ts_msec;
+ uint32_t	frametableoffset;
+ uint32_t	frametablelength;
+ uint32_t	userdataoffset;
+ uint32_t	userdatalength;
+ uint32_t	commentdataoffset;
+ uint32_t	commentdatalength;
+ uint32_t	statisticsoffset;
+ uint32_t	statisticslength;
+ uint32_t	networkinfooffset;
+ uint32_t	networkinfolength;
+} __attribute__((packed));
+typedef struct msnetmon_header msntm_t;
+#define MSNETMON_SIZE (sizeof(msntm_t))
+/*===========================================================================*/
 struct fcs_frame
 {
  uint32_t	fcs;

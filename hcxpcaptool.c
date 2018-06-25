@@ -3685,10 +3685,49 @@ dltlinktype  = pcapfhdr.network;
 return;
 }
 /*===========================================================================*/
-void processmsnetmon()
+void processmsnetmon1(int fd, char *pcapinname)
 {
-versionmajor = 0;
-versionminor = 0;
+unsigned int res;
+
+msntm_t msnthdr;
+uint8_t packet[MAXPACPSNAPLEN];
+
+printf("start reading from %s\n", pcapinname);
+memset(&packet, 0, MAXPACPSNAPLEN);
+lseek(fd, 4L, SEEK_SET);
+res = read(fd, &msnthdr, MSNETMON_SIZE);
+if(res != MSNETMON_SIZE)
+	{
+	printf("failed to read Microsoft NetworkMonitor header\n");
+	return;
+	}
+
+
+versionmajor = msnthdr.version_major;
+versionminor = msnthdr.version_minor;
+dltlinktype  = 0;
+return;
+}
+/*===========================================================================*/
+void processmsnetmon2(int fd, char *pcapinname)
+{
+unsigned int res;
+
+msntm_t msnthdr;
+uint8_t packet[MAXPACPSNAPLEN];
+
+printf("start reading from %s\n", pcapinname);
+memset(&packet, 0, MAXPACPSNAPLEN);
+lseek(fd, 4L, SEEK_SET);
+res = read(fd, &msnthdr, MSNETMON_SIZE);
+if(res != MSNETMON_SIZE)
+	{
+	printf("failed to read Microsoft NetworkMonitor header\n");
+	return;
+	}
+
+versionmajor = msnthdr.version_major;
+versionminor = msnthdr.version_minor;
 dltlinktype  = 0;
 return;
 }
@@ -3711,7 +3750,8 @@ tacacspliste = NULL;
 
 char *pcapstr = "pcap";
 char *pcapngstr = "pcapng";
-char *msnetmonstr = "msnetmon";
+char *msnetmon1str = "Microsoft NetworkMonitor 1";
+char *msnetmon2str = "Microsoft NetworkMonitor 2";
 
 versionmajor = 0;
 versionminor = 0;
@@ -3796,7 +3836,7 @@ if(pcapr_fd == -1)
 	}
 
 magicnumber = getmagicnumber(pcapr_fd);
-if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (magicnumber != PCAPNGBLOCKTYPE) && (magicnumber != MSNETMON))
+if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (magicnumber != PCAPNGBLOCKTYPE) && (magicnumber != MSNETMON1) && (magicnumber != MSNETMON2))
 	{
 	printf("failed to get magicnumber from %s\n", basename(pcapinname));
 	close(pcapr_fd);
@@ -3809,12 +3849,17 @@ if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (ma
 lseek(pcapr_fd, 0L, SEEK_SET);
 
 pcapart = pcapstr;
-if(magicnumber == MSNETMON)
+if(magicnumber == MSNETMON1)
 	{
-	processmsnetmon();
-	pcapart = msnetmonstr;
+	processmsnetmon1(pcapr_fd, pcapinname);
+	pcapart = msnetmon1str;
 	}
 
+if(magicnumber == MSNETMON2)
+	{
+	processmsnetmon1(pcapr_fd, pcapinname);
+	pcapart = msnetmon2str;
+	}
 
 else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	{
