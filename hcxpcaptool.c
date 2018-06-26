@@ -3702,10 +3702,13 @@ if(res != MSNETMON_SIZE)
 	return;
 	}
 
+#ifdef BIG_ENDIAN_HOST
+msnthdr.network = byte_swap_16(msnthdr.network);
+#endif
 
 versionmajor = msnthdr.version_major;
 versionminor = msnthdr.version_minor;
-dltlinktype  = 0;
+dltlinktype  = msnthdr.network;
 return;
 }
 /*===========================================================================*/
@@ -3726,9 +3729,13 @@ if(res != MSNETMON_SIZE)
 	return;
 	}
 
+#ifdef BIG_ENDIAN_HOST
+msnthdr.network = byte_swap_16(msnthdr.network);
+#endif
+
 versionmajor = msnthdr.version_major;
 versionminor = msnthdr.version_minor;
-dltlinktype  = 0;
+dltlinktype  = msnthdr.network;
 return;
 }
 /*===========================================================================*/
