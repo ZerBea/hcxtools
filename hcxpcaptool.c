@@ -2437,6 +2437,7 @@ if(authlen > caplen -4)
 	}
 if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 	{
+	eapolframecount++;
 	return;
 	}
 
