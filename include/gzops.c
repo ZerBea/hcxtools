@@ -30,7 +30,7 @@ z_stream strm;
 unsigned char in[CHUNK];
 unsigned char out[CHUNK];
 
-memset(&strm, 0, sizeof strm);
+memset(&strm, 0, sizeof (strm));
 strm.zalloc = Z_NULL;
 strm.zfree = Z_NULL;
 strm.opaque = Z_NULL;
