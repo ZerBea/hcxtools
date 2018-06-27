@@ -3090,7 +3090,7 @@ if(macf->type == IEEE80211_FTYPE_MGMT)
 		}
 	else if (macf->subtype == IEEE80211_STYPE_REASSOC_RESP)
 		{
-		process80211reassoc_resp(tv_sec, tv_usec, caplen, wdsoffset, packet);
+		process80211reassoc_resp();
 		}
 	else if (macf->subtype == IEEE80211_STYPE_AUTH)
 		{

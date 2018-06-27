@@ -26,17 +26,18 @@ bool decompressgz(char *gzname, char *tmpoutname)
 {
 FILE *fhin = NULL;
 FILE *fhout = NULL;
-z_stream strm = {0};
+z_stream strm;
 unsigned char in[CHUNK];
 unsigned char out[CHUNK];
 
+memset(&strm, 0, sizeof strm);
 strm.zalloc = Z_NULL;
 strm.zfree = Z_NULL;
 strm.opaque = Z_NULL;
 strm.next_in = in;
 strm.avail_in = 0;
-inflateInit2(& strm, windowBits | ENABLE_ZLIB_GZIP);
 
+inflateInit2(& strm, windowBits | ENABLE_ZLIB_GZIP);
 printf("decompressing %s to %s\n", basename(gzname), tmpoutname);
 fhin = fopen (gzname, "rb");
 if(fhin == NULL)
