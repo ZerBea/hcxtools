@@ -344,6 +344,10 @@ typedef struct llc_frame llc_t;
 struct authentication_frame
 {
  uint16_t	authentication_algho;
+#define OPEN_SYSTEM 0
+#define SHARED_KEY 1
+#define FBT 2
+#define SAE 3
  uint16_t	authentication_seq;
 } __attribute__((__packed__));
 typedef struct authentication_frame authf_t;

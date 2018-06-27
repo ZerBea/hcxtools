@@ -116,6 +116,10 @@ unsigned long long int associationresponseframecount;
 unsigned long long int reassociationrequestframecount;
 unsigned long long int reassociationresponseframecount;
 unsigned long long int authenticationframecount;
+unsigned long long int authenticationosframecount;
+unsigned long long int authenticationskframecount;
+unsigned long long int authenticationfbtframecount;
+unsigned long long int authenticationsaeframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
@@ -449,6 +453,22 @@ if(reassociationresponseframecount != 0)
 if(authenticationframecount != 0)
 	{
 	printf("authentications..............: %llu\n", authenticationframecount);
+	}
+if(authenticationosframecount != 0)
+	{
+	printf("authentications (OPEN SYSTEM): %llu\n", authenticationosframecount);
+	}
+if(authenticationskframecount != 0)
+	{
+	printf("authentications (SHARED KEY).: %llu\n", authenticationskframecount);
+	}
+if(authenticationfbtframecount != 0)
+	{
+	printf("authentications (FBT)........: %llu\n", authenticationfbtframecount);
+	}
+if(authenticationsaeframecount != 0)
+	{
+	printf("authentications (SAE)........: %llu\n", authenticationsaeframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
@@ -2375,11 +2395,40 @@ reassociationresponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211authentication()
+void process80211authentication(uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 
+authf_t *auth;
+uint8_t *packet_ptr;
 
-authenticationframecount++;
+if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SIZE)
+	{
+	return;
+	}
+packet_ptr = packet +MAC_SIZE_NORM +wdsoffset;
+auth = (authf_t*)packet_ptr;
+
+if(auth->authentication_algho == OPEN_SYSTEM)
+	{
+	authenticationosframecount++;
+	}
+else if(auth->authentication_algho == SHARED_KEY)
+	{
+	authenticationskframecount++;
+	}
+else if(auth->authentication_algho == FBT)
+	{
+	authenticationfbtframecount++;
+	}
+else if(auth->authentication_algho == SAE)
+	{
+	authenticationsaeframecount++;
+	}
+
+else
+	{
+	authenticationframecount++;
+	}
 return;
 }
 /*===========================================================================*/
@@ -2923,11 +2972,6 @@ else if(ipv4->nextprotocol == NEXTHDR_GRE)
 	processgrepacket(ntohs(ipv4->len) -ipv4len, packet_ptr);
 	}
 
-
-
-/* satisfy gcc warning */
-tv_sec += 1;
-tv_usec += 1;
 ipv4framecount++;
 return;
 }
@@ -2964,11 +3008,6 @@ else if(ipv6->nextprotocol == NEXTHDR_GRE)
 	processgrepacket(ntohs(ipv6->len), packet_ptr);
 	}
 
-
-
-/* satisfy gcc warning */
-tv_sec += 1;
-tv_usec += 1;
 ipv6framecount++;
 return;
 }
@@ -3094,7 +3133,7 @@ if(macf->type == IEEE80211_FTYPE_MGMT)
 		}
 	else if (macf->subtype == IEEE80211_STYPE_AUTH)
 		{
-		process80211authentication();
+		process80211authentication(caplen, wdsoffset, packet);
 		}
 	else if (macf->subtype == IEEE80211_STYPE_DEAUTH)
 		{
@@ -3781,6 +3820,10 @@ associationresponseframecount = 0;
 reassociationrequestframecount = 0;
 reassociationresponseframecount = 0;
 authenticationframecount = 0;
+authenticationosframecount = 0;
+authenticationskframecount = 0;
+authenticationfbtframecount = 0;
+authenticationsaeframecount = 0;
 deauthenticationframecount = 0;
 disassociationframecount = 0;
 handshakecount = 0;
