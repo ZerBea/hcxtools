@@ -349,6 +349,9 @@ struct authentication_frame
 #define FBT 2
 #define SAE 3
 #define FILS 4
+#define FILSPFS 5
+#define FILSPK 6
+
  uint16_t	authentication_seq;
 } __attribute__((__packed__));
 typedef struct authentication_frame authf_t;
