@@ -120,6 +120,7 @@ unsigned long long int authenticationosframecount;
 unsigned long long int authenticationskframecount;
 unsigned long long int authenticationfbtframecount;
 unsigned long long int authenticationsaeframecount;
+unsigned long long int authenticationfilsframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
@@ -469,6 +470,10 @@ if(authenticationfbtframecount != 0)
 if(authenticationsaeframecount != 0)
 	{
 	printf("authentications (SAE)........: %llu\n", authenticationsaeframecount);
+	}
+if(authenticationfilsframecount != 0)
+	{
+	printf("authentications (FILS).......: %llu\n", authenticationfilsframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
@@ -2424,7 +2429,10 @@ else if(auth->authentication_algho == SAE)
 	{
 	authenticationsaeframecount++;
 	}
-
+else if(auth->authentication_algho == FILS)
+	{
+	authenticationfilsframecount++;
+	}
 else
 	{
 	authenticationframecount++;
@@ -3824,6 +3832,7 @@ authenticationosframecount = 0;
 authenticationskframecount = 0;
 authenticationfbtframecount = 0;
 authenticationsaeframecount = 0;
+authenticationfilsframecount = 0;
 deauthenticationframecount = 0;
 disassociationframecount = 0;
 handshakecount = 0;

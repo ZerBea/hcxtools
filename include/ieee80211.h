@@ -348,6 +348,7 @@ struct authentication_frame
 #define SHARED_KEY 1
 #define FBT 2
 #define SAE 3
+#define FILS 4
  uint16_t	authentication_seq;
 } __attribute__((__packed__));
 typedef struct authentication_frame authf_t;
