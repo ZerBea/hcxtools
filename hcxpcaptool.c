@@ -264,17 +264,17 @@ switch(exapt)
 	case EAP_TYPE_MOBAC: return "EAP-MOBAC Authentication";
 	case EAP_TYPE_FAST: return "FAST Authentication";
 	case EAP_TYPE_ZLXEAP: return "ZoneLabs EAP (ZLXEAP)";
-	case EAP_TYPE_LINK: return "EAP-Link Authetication";
-	case EAP_TYPE_PAX: return "EAP-PAX Authetication";
-	case EAP_TYPE_PSK: return "EAP-PSK Authetication";
-	case EAP_TYPE_SAKE: return "EAP-SAKE Authetication";
-	case EAP_TYPE_IKEV2: return "EAP-IKEv2 Authetication";
-	case EAP_TYPE_AKA1: return "EAP-AKA Authetication";
-	case EAP_TYPE_GPSK: return "EAP-GPSK Authetication";
-	case EAP_TYPE_PWD: return "EAP-pwd Authetication";
-	case EAP_TYPE_EKE1: return "EAP-EKE Version 1 Authetication";
-	case EAP_TYPE_PTEAP: return "EAP Method Type for PT-EAP Authetication";
-	case EAP_TYPE_TEAP: return "TEAP Authetication";
+	case EAP_TYPE_LINK: return "EAP-Link Authentication";
+	case EAP_TYPE_PAX: return "EAP-PAX Authentication";
+	case EAP_TYPE_PSK: return "EAP-PSK Authentication";
+	case EAP_TYPE_SAKE: return "EAP-SAKE Authentication";
+	case EAP_TYPE_IKEV2: return "EAP-IKEv2 Authentication";
+	case EAP_TYPE_AKA1: return "EAP-AKA Authentication";
+	case EAP_TYPE_GPSK: return "EAP-GPSK Authentication";
+	case EAP_TYPE_PWD: return "EAP-pwd Authentication";
+	case EAP_TYPE_EKE1: return "EAP-EKE Version 1 Authentication";
+	case EAP_TYPE_PTEAP: return "EAP Method Type for PT-EAP Authentication";
+	case EAP_TYPE_TEAP: return "TEAP Authentication";
 	case EAP_TYPE_EXPERIMENTAL: return "Experimental Authentication";
 	default: return "unknown authentication type";
 	}
