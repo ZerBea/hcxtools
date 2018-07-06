@@ -679,9 +679,21 @@ struct radius_frame_t
  uint16_t	length;
  uint8_t	authenticator[RADIUS_AUTHENTICATOR_LENGTH];
  uint8_t	attrs[RADIUS_MAX_SIZE -RADIUS_HEADER_LENGTH];
+ uint8_t	data[1];
 } __attribute__ ((packed));
-typedef struct radius_frame radius_t;
+typedef struct radius_frame_t radius_t;
 #define	RADIUS_SIZE offsetof(radius_t, data)
+/*===========================================================================*/
+struct broadcom_frame_t
+{
+ uint8_t	tagnr;
+ uint8_t	taglen;
+ uint8_t	oui[3];
+ uint8_t	data[1];
+} __attribute__ ((packed));
+typedef struct broadcom_frame_t broadcom_t;
+#define	BROADCOM_SIZE offsetof(broadcom_t, data)
+#define BROADCOM_AUTH_SIZE 0x0b
 /*===========================================================================*/
 /* global var */
 static const uint8_t nulliv[] =
