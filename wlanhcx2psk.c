@@ -538,6 +538,8 @@ unsigned long long int mac_out;
 
 snprintf(pskstring, 64,  "%012llx", mac_in);
 writepsk(pskstring);
+snprintf(pskstring, 64,  "a%012llx", mac_in);
+writepsk(pskstring);
 snprintf(pskstring, 64,  "%08llu", mac_in);
 writepsk(pskstring);
 
