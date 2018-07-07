@@ -123,6 +123,7 @@ unsigned long long int authenticationsaeframecount;
 unsigned long long int authenticationfilsframecount;
 unsigned long long int authenticationfilspfsframecount;
 unsigned long long int authenticationfilspkframecount;
+unsigned long long int authenticationbroadcomframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
@@ -483,7 +484,11 @@ if(authenticationfilspfsframecount != 0)
 	}
 if(authenticationfilspkframecount != 0)
 	{
-	printf("authentications (FILS PK)...: %llu\n", authenticationfilspkframecount);
+	printf("authentications (FILS PK)....: %llu\n", authenticationfilspkframecount);
+	}
+if(authenticationbroadcomframecount != 0)
+	{
+	printf("authentications (BROADCOM)...: %llu\n", authenticationbroadcomframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
@@ -2414,6 +2419,7 @@ void process80211authentication(uint32_t caplen, uint32_t wdsoffset, uint8_t *pa
 {
 
 authf_t *auth;
+vendor_t *vendorauth;
 uint8_t *packet_ptr;
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SIZE)
@@ -2454,6 +2460,22 @@ else if(auth->authentication_algho == FILSPK)
 else
 	{
 	authenticationframecount++;
+	}
+
+if(caplen != (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SIZE +(uint32_t)VENDORTAG_AUTH_SIZE)
+	{
+	return;
+	}
+packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +AUTHENTICATIONFRAME_SIZE;
+vendorauth = (vendor_t*)packet_ptr;
+
+if(vendorauth->tagnr != 0xdd)
+	{
+	return;
+	}
+if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x10) && (vendorauth->oui[2] == 0x18))
+	{
+	authenticationbroadcomframecount++;
 	}
 return;
 }
@@ -3853,6 +3875,7 @@ authenticationsaeframecount = 0;
 authenticationfilsframecount = 0;
 authenticationfilspfsframecount = 0;
 authenticationfilspkframecount = 0;
+authenticationbroadcomframecount = 0;
 deauthenticationframecount = 0;
 disassociationframecount = 0;
 handshakecount = 0;

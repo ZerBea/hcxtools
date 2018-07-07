@@ -351,11 +351,22 @@ struct authentication_frame
 #define FILS 4
 #define FILSPFS 5
 #define FILSPK 6
-
  uint16_t	authentication_seq;
+ uint16_t	statuscode;
 } __attribute__((__packed__));
 typedef struct authentication_frame authf_t;
 #define	AUTHENTICATIONFRAME_SIZE (sizeof(authf_t))
+/*===========================================================================*/
+struct vendor_tag
+{
+ uint8_t	tagnr;
+ uint8_t	taglen;
+ uint8_t	oui[3];
+ uint8_t	data[1];
+} __attribute__ ((packed));
+typedef struct vendor_tag vendor_t;
+#define	VENDORTAG_SIZE offsetof(vendor_t, data)
+#define VENDORTAG_AUTH_SIZE 0x0b
 /*===========================================================================*/
 struct action_frame
 {
@@ -683,17 +694,6 @@ struct radius_frame_t
 } __attribute__ ((packed));
 typedef struct radius_frame_t radius_t;
 #define	RADIUS_SIZE offsetof(radius_t, data)
-/*===========================================================================*/
-struct broadcom_frame_t
-{
- uint8_t	tagnr;
- uint8_t	taglen;
- uint8_t	oui[3];
- uint8_t	data[1];
-} __attribute__ ((packed));
-typedef struct broadcom_frame_t broadcom_t;
-#define	BROADCOM_SIZE offsetof(broadcom_t, data)
-#define BROADCOM_AUTH_SIZE 0x0b
 /*===========================================================================*/
 /* global var */
 static const uint8_t nulliv[] =
