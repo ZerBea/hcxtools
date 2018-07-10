@@ -125,6 +125,7 @@ unsigned long long int authenticationfilspfsframecount;
 unsigned long long int authenticationfilspkframecount;
 unsigned long long int authenticationbroadcomframecount;
 unsigned long long int authenticationsonosframecount;
+unsigned long long int authenticationappleframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
@@ -494,6 +495,10 @@ if(authenticationbroadcomframecount != 0)
 if(authenticationsonosframecount != 0)
 	{
 	printf("authentications (SONOS)......: %llu\n", authenticationsonosframecount);
+	}
+if(authenticationappleframecount != 0)
+	{
+	printf("authentications (APPLE)......: %llu\n", authenticationappleframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
@@ -2486,6 +2491,10 @@ if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x0e) && (vendorauth->
 	{
 	authenticationsonosframecount++;
 	}
+if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x17) && (vendorauth->oui[2] == 0xf2))
+	{
+	authenticationappleframecount++;
+	}
 return;
 }
 /*===========================================================================*/
@@ -3886,6 +3895,7 @@ authenticationfilspfsframecount = 0;
 authenticationfilspkframecount = 0;
 authenticationbroadcomframecount = 0;
 authenticationsonosframecount = 0;
+authenticationappleframecount = 0;
 deauthenticationframecount = 0;
 disassociationframecount = 0;
 handshakecount = 0;
