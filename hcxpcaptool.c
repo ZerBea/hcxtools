@@ -124,6 +124,7 @@ unsigned long long int authenticationfilsframecount;
 unsigned long long int authenticationfilspfsframecount;
 unsigned long long int authenticationfilspkframecount;
 unsigned long long int authenticationbroadcomframecount;
+unsigned long long int authenticationsonosframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
@@ -489,6 +490,10 @@ if(authenticationfilspkframecount != 0)
 if(authenticationbroadcomframecount != 0)
 	{
 	printf("authentications (BROADCOM)...: %llu\n", authenticationbroadcomframecount);
+	}
+if(authenticationsonosframecount != 0)
+	{
+	printf("authentications (SONOS)......: %llu\n", authenticationsonosframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
@@ -2462,7 +2467,7 @@ else
 	authenticationframecount++;
 	}
 
-if(caplen != (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SIZE +(uint32_t)VENDORTAG_AUTH_SIZE)
+if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SIZE +(uint32_t)VENDORTAG_SIZE)
 	{
 	return;
 	}
@@ -2476,6 +2481,10 @@ if(vendorauth->tagnr != 0xdd)
 if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x10) && (vendorauth->oui[2] == 0x18))
 	{
 	authenticationbroadcomframecount++;
+	}
+if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x0e) && (vendorauth->oui[2] == 0x58))
+	{
+	authenticationsonosframecount++;
 	}
 return;
 }
@@ -3876,6 +3885,7 @@ authenticationfilsframecount = 0;
 authenticationfilspfsframecount = 0;
 authenticationfilspkframecount = 0;
 authenticationbroadcomframecount = 0;
+authenticationsonosframecount = 0;
 deauthenticationframecount = 0;
 disassociationframecount = 0;
 handshakecount = 0;

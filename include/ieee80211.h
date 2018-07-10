@@ -366,7 +366,6 @@ struct vendor_tag
 } __attribute__ ((packed));
 typedef struct vendor_tag vendor_t;
 #define	VENDORTAG_SIZE offsetof(vendor_t, data)
-#define VENDORTAG_AUTH_SIZE 0x0b
 /*===========================================================================*/
 struct action_frame
 {
