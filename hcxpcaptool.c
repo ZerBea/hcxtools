@@ -2436,10 +2436,17 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SI
 	{
 	return;
 	}
+
+mac_t *macf;
+macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset;
 auth = (authf_t*)packet_ptr;
 
-if(auth->authentication_algho == OPEN_SYSTEM)
+if(macf->protected == 1)
+	{
+	authenticationskframecount++;
+	}
+else if(auth->authentication_algho == OPEN_SYSTEM)
 	{
 	authenticationosframecount++;
 	}
