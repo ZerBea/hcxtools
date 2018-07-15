@@ -837,14 +837,39 @@ for(y = 1900; y <= thisyear; y++)
 return;
 }
 /*===========================================================================*/
+static void keywritepreappend10(char *basestring)
+{
+snprintf(pskstring, 64, "%s0123456789", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "0123456789%s", basestring);
+writepsk(pskstring);
+return;
+}
+/*===========================================================================*/
+static void keywritepreappend9(char *basestring)
+{
+snprintf(pskstring, 64, "%s0123456789", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "0123456789%s", basestring);
+writepsk(pskstring);
+return;
+}
+/*===========================================================================*/
 static void keywritepreappend5(char *basestring)
 {
+int y;
+
 snprintf(pskstring, 64, "%s12345", basestring);
 writepsk(pskstring);
 snprintf(pskstring, 64, "12345%s", basestring);
 writepsk(pskstring);
 snprintf(pskstring, 64, "%s@1234", basestring);
 writepsk(pskstring);
+for(y = 1900; y <= thisyear; y++)
+	{
+	snprintf(pskstring, 64, "%s-%04d", basestring, y);
+	writepsk(pskstring);
+	}
 return;
 }
 /*===========================================================================*/
@@ -882,6 +907,14 @@ for(l1 = 3; l1 <= essidlenin; l1++)
 		{
 		memset(&essidstr, 0, 34);
 		memcpy(&essidstr, &essidstrin[l2], l1);
+		if(l1 < 53)
+			{
+			keywritepreappend10(essidstr);
+			}
+		if(l1 < 54)
+			{
+			keywritepreappend9(essidstr);
+			}
 		if((l1 > 2) && (l1 < 59))
 			{
 			keywritepreappend5(essidstr);
