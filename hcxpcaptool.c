@@ -430,7 +430,7 @@ if(wdsframecount != 0)
 	}
 if(beaconframecount != 0)
 	{
-	printf("beacons......................: %llu\n", beaconframecount);
+	printf("beacons (with ESSID inside)..: %llu\n", beaconframecount);
 	}
 if(proberequestframecount != 0)
 	{
