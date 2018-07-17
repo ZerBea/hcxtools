@@ -131,6 +131,9 @@ unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
 unsigned long long int atimframecount;
 unsigned long long int eapolframecount;
+unsigned long long int eapolstartframecount;
+unsigned long long int eapollogoffframecount;
+unsigned long long int eapolasfframecount;
 unsigned long long int eapolmkaframecount;
 unsigned long long int eapframecount;
 unsigned long long int ipv4framecount;
@@ -523,6 +526,18 @@ if(eapolframecount != 0)
 if(eapframecount != 0)
 	{
 	printf("EAP packets..................: %llu\n", eapframecount);
+	}
+if(eapolstartframecount != 0)
+	{
+	printf("EAP START packets............: %llu\n", eapolstartframecount);
+	}
+if(eapollogoffframecount != 0)
+	{
+	printf("EAP LOGOFF packets...........: %llu\n", eapollogoffframecount);
+	}
+if(eapolasfframecount != 0)
+	{
+	printf("EAP ASF ALERT packets........: %llu\n", eapolasfframecount);
 	}
 if(wepframecount != 0)
 	{
@@ -2587,6 +2602,30 @@ eapolframecount++;
 return;
 }
 /*===========================================================================*/
+void processeapolstartauthentication()
+{
+
+
+eapolstartframecount++;
+return;
+}
+/*===========================================================================*/
+void processeapollogoffauthentication()
+{
+
+
+eapollogoffframecount++;
+return;
+}
+/*===========================================================================*/
+void processeapolasfauthentication()
+{
+
+
+eapolasfframecount++;
+return;
+}
+/*===========================================================================*/
 void processeapolmkaauthentication()
 {
 
@@ -2683,18 +2722,29 @@ if(caplen < (uint32_t)EAPAUTH_SIZE)
 	return;
 	}
 eap = (eapauth_t*)packet;
-if(eap->type == 3)
+if(eap->type == EAPOL_KEY)
 	{
 	process80211eapolauthentication(tv_sec, tv_usec, caplen, macaddr1, macaddr2, packet);
 	}
-else if(eap->type == 0)
+else if(eap->type == EAP_PACKET)
 	{
-	 processexeapauthentication(ntohs(eap->len), packet);
+	processexeapauthentication(ntohs(eap->len), packet);
 	}
-
-else if(eap->type == 5)
+else if(eap->type == EAPOL_START)
 	{
-	 processeapolmkaauthentication();
+	processeapolstartauthentication();
+	}
+else if(eap->type == EAPOL_LOGOFF)
+	{
+	processeapollogoffauthentication();
+	}
+else if(eap->type == EAPOL_ASF)
+	{
+	processeapolasfauthentication();
+	}
+else if(eap->type == EAPOL_MKA)
+	{
+	processeapolmkaauthentication();
 	}
 return;
 }
@@ -3913,6 +3963,9 @@ leapcount = 0;
 actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
+eapolstartframecount = 0;
+eapollogoffframecount = 0;
+eapolasfframecount = 0;
 eapolmkaframecount = 0;
 eapframecount = 0;
 ipv4framecount = 0;

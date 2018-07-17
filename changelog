@@ -1,3 +1,15 @@
+17.07.2018
+==========
+hcxpcaptool:
+added detection of all EAP types:
+EAP_PACKET
+EAPOL_START
+EAPOL_LOGOFF
+EAPOL_KEY
+EAPOL_ASF
+EAPOL_MKA
+
+
 15.07.2018
 ==========
 wlanhcx2psk:

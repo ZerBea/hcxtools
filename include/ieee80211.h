@@ -385,6 +385,12 @@ struct eapauthentication_frame
 {
  uint8_t	version;
  uint8_t	type;
+#define EAP_PACKET 0
+#define EAPOL_START 1
+#define EAPOL_LOGOFF 2
+#define EAPOL_KEY 3
+#define EAPOL_ASF 3
+#define EAPOL_MKA 5
  uint16_t	len;
  uint8_t	data[1];
 } __attribute__((__packed__));
