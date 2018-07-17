@@ -2456,6 +2456,9 @@ mac_t *macf;
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset;
 auth = (authf_t*)packet_ptr;
+#ifdef BIG_ENDIAN_HOST
+auth->authentication_algho = byte_swap_16(auth->authentication_algho);
+#endif
 
 if(macf->protected == 1)
 	{
@@ -2554,6 +2557,7 @@ eapauth_t *eap;
 wpakey_t *wpak;
 uint16_t keyinfo;
 uint16_t authlen;
+uint64_t rc;
 
 if(caplen < (uint32_t)WPAKEY_SIZE)
 	{
@@ -2563,8 +2567,9 @@ eap = (eapauth_t*)packet;
 wpak = (wpakey_t*)(packet +EAPAUTH_SIZE);
 
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
+rc = byte_swap_64(wpak->replaycount);
 #ifdef BIG_ENDIAN_HOST
-wpak->replaycount = byte_swap_64(wpak->replaycount);
+rc = byte_swap_64(wpak->replaycount);
 #endif
 
 authlen = ntohs(eap->len);
@@ -2580,19 +2585,19 @@ if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 
 if(keyinfo == 1)
 	{
-	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 1, byte_swap_64(wpak->replaycount), authlen +4, packet);
+	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 1, rc, authlen +4, packet);
 	}
 else if(keyinfo == 3)
 	{
-	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 2, byte_swap_64(wpak->replaycount), authlen +4, packet);
+	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 2, rc, authlen +4, packet);
 	}
 else if(keyinfo == 2)
 	{
-	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, byte_swap_64(wpak->replaycount), authlen +4, packet);
+	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, rc, authlen +4, packet);
 	}
 else if(keyinfo == 4)
 	{
-	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, byte_swap_64(wpak->replaycount), authlen +4, packet);
+	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, rc, authlen +4, packet);
 	}
 else
 	{
