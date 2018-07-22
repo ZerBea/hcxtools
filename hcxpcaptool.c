@@ -190,12 +190,18 @@ uint16_t versionmajor;
 uint16_t versionminor;
 uint16_t dltlinktype;
 
+char pcapnghwinfo[256];
+char pcapngosinfo[256];
+char pcapngapplinfo[256];
+
 int exeaptype[256];
 /*===========================================================================*/
 /* global init */
 
 bool globalinit()
 {
+char *unknown = "unknown";
+
 hexmodeoutname = NULL;
 hccapxbestoutname = NULL;
 hccapxrawoutname = NULL;
@@ -222,6 +228,11 @@ maxrcdiff = MAX_RC_DIFF;
 
 setbuf(stdout, NULL);
 srand(time(NULL));
+
+strcpy(pcapnghwinfo, unknown);
+strcpy(pcapngosinfo, unknown);
+strcpy(pcapngapplinfo, unknown);
+
 return true;
 }
 /*===========================================================================*/
@@ -414,13 +425,16 @@ printf( "                                               \n"
 	"summary:                                        \n--------\n"
 	"file name....................: %s\n"
 	"file type....................: %s %d.%d\n"
+	"file hardware information....: %s\n"
+	"file os information..........: %s\n"
+	"file application information.: %s\n"
 	"network type.................: %s (%d)\n"
 	"endianess....................: %s\n"
 	"read errors..................: %s\n"
 	"packets inside...............: %llu\n"
 	"skipped packets..............: %llu\n"
 	"packets with FCS.............: %llu\n"
-	, basename(pcapinname), pcaptype, version_major, version_minor, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, fcsframecount);
+	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, fcsframecount);
 
 if(tscleanflag == true)
 	{
@@ -3506,9 +3520,74 @@ process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 return;
 }
 /*===========================================================================*/
+void pcapngoptionwalk(int fd, uint32_t tl)
+{
+uint16_t res;
+uint16_t padding;
+uint16_t olpad;
+option_header_t opthdr;
+
+
+
+while(1)
+	{
+	res = read(fd, &opthdr, OH_SIZE);
+	if(res != OH_SIZE)
+		{
+		return;
+		}
+	if(opthdr.option_code == 0)
+		{
+		return;
+		}
+	padding = 0;
+	if((opthdr.option_length % 4))
+		{
+		padding = 4 -(opthdr.option_length % 4);
+		}
+
+	olpad = opthdr.option_length +padding;
+
+	if((olpad > tl) || (olpad >= 0xff))
+		{
+		return;
+		}
+
+	if(opthdr.option_code == 2)
+		{
+		memset(&pcapnghwinfo, 0, 256);
+		res = read(fd, &pcapnghwinfo, olpad);
+		if(res != olpad)
+			{
+			return;
+			}
+		}
+	if(opthdr.option_code == 3)
+		{
+		memset(&pcapngosinfo, 0, 256);
+		res = read(fd, &pcapngosinfo, olpad);
+		if(res != olpad)
+			{
+			return;
+			}
+		}
+	if(opthdr.option_code == 4)
+		{
+		memset(&pcapngapplinfo, 0, 256);
+		res = read(fd, &pcapngapplinfo, olpad);
+		if(res != olpad)
+			{
+			return;
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
 void processpcapng(int fd, char *pcapinname)
 {
 unsigned int res;
+int aktseek;
 
 block_header_t pcapngbh;
 section_header_block_t pcapngshb;
@@ -3557,7 +3636,12 @@ while(1)
 			pcapngshb.minor_version		= byte_swap_16(pcapngshb.minor_version);
 			pcapngshb.section_length	= byte_swap_64(pcapngshb.section_length);
 			}
-		lseek(fd, pcapngbh.total_length -BH_SIZE -SHB_SIZE, SEEK_CUR);
+		aktseek = lseek(fd, 0, SEEK_CUR);
+		if(pcapngbh.total_length > (SHB_SIZE +BH_SIZE +4))
+			{
+			pcapngoptionwalk(fd, pcapngbh.total_length);
+			}
+		lseek(fd, aktseek +pcapngbh.total_length -BH_SIZE -SHB_SIZE, SEEK_SET);
 		continue;
 		}
 	#ifdef BIG_ENDIAN_HOST

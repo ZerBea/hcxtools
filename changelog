@@ -1,6 +1,12 @@
 17.07.2018
 ==========
 hcxpcaptool:
+show detailed file stats on pcapng files - go in sync with (upcomming) hcxdumptool 4.2.0
+
+
+17.07.2018
+==========
+hcxpcaptool:
 added detection of all EAP types:
 EAP_PACKET
 EAPOL_START
