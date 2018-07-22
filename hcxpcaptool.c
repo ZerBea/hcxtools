@@ -3552,7 +3552,7 @@ while(1)
 		{
 		return;
 		}
-
+	tl -= olpad;
 	if(opthdr.option_code == 2)
 		{
 		memset(&pcapnghwinfo, 0, 256);
