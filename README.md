@@ -13,7 +13,7 @@ Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000, 16100
 Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm, tacacs-plus
 
 After capturing, upload the "uncleaned" cap here
-(http://wpa-sec.stanev.org/?submit) to see if your ap or the client is vulnerable
+(https://wpa-sec.stanev.org/?submit) to see if your ap or the client is vulnerable
 by using common wordlists. Convert the cap to hccapx and check if wlan-key
 or plainmasterkey was transmitted unencrypted.
 
@@ -52,7 +52,7 @@ Detailed description
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                                   |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                          |
 | wlanhcx2psk    | Calculates candidates for hashcat based on the hccapx file                                                     |
-| wlancap2wpasec | Upload multiple caps to http://wpa-sec.stanev.org                                                              |
+| wlancap2wpasec | Upload multiple caps to https://wpa-sec.stanev.org                                                              |
 | whoismac       | Show vendor information and/or download oui reference list                                                     |
 
 
@@ -136,11 +136,11 @@ Most output files will be appended to existing files (with the exception of .cap
 Bitmask message pair field (hcxpcaptool)
 --------------
 
-0: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
+0: MP info (https://hashcat.net/wiki/doku.php?id=hccapx#message_pair_table)
 
-1: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
+1: MP info (https://hashcat.net/wiki/doku.php?id=hccapx#message_pair_table)
 
-2: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
+2: MP info (https://hashcat.net/wiki/doku.php?id=hccapx#message_pair_table)
 
 3: x unused
 
