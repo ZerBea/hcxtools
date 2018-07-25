@@ -154,7 +154,7 @@ LED flashes 5 times if hcxdumptool successfully started
 
 LED flashes every 5 seconds if everything is fine
 
-Press push button at least > 5 seconds until LED turns on (LED turns on if wlandump-ng terminates)
+Press push button at least > 5 seconds until LED turns on (LED turns on if hcxdumptool terminates)
 
 Green ACT LED flashes 10 times
 
