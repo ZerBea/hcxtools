@@ -52,7 +52,7 @@ Detailed description
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                                   |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                          |
 | wlanhcx2psk    | Calculates candidates for hashcat based on the hccapx file                                                     |
-| wlancap2wpasec | Upload multiple caps to https://wpa-sec.stanev.org                                                              |
+| wlancap2wpasec | Upload multiple caps to https://wpa-sec.stanev.org                                                             |
 | whoismac       | Show vendor information and/or download oui reference list                                                     |
 
 
