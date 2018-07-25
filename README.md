@@ -8,14 +8,14 @@ hashcat and John the Ripper and recommended by hashcat. This branch is pretty
 closely synced to hashcat git branch (that means: latest hcxtools matching
 on latest hashcat beta) and John the Ripper git branch ( "bleeding-jumbo").
 
-Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000, 16100
+Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000, 16100, 16800, 16801
  
 Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm, tacacs-plus
 
 After capturing, upload the "uncleaned" cap here
 (https://wpa-sec.stanev.org/?submit) to see if your ap or the client is vulnerable
-by using common wordlists. Convert the cap to hccapx and check if wlan-key
-or plainmasterkey was transmitted unencrypted.
+by using common wordlists. Convert the cap to hccapx or to WPA*-PMKID-PBKDF2 hashline (16800)
+and check if wlan-key or plainmasterkey was transmitted unencrypted.
 
 
 Brief description
@@ -25,6 +25,8 @@ Multiple stand-alone binaries - designed to run on Raspberry Pi's.
 
 All of these utils are designed to execute only one specific function.
 
+hcxdumptool is moved to: https://github.com/ZerBea/hcxdumptool
+
 Read this post: hcxtools - solution for capturing wlan traffic and conversion to hashcat formats (https://hashcat.net/forum/thread-6661.html)
 
 
@@ -33,11 +35,9 @@ Detailed description
 
 | Tool           | Description                                                                                                    |
 | -------------- | -------------------------------------------------------------------------------------------------------------- |
-| wlandump-ng    | Small, fast and powerfull deauthentication/authentication/response tool (depreciated - please use hcxdumptool) |
 | wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                                 |
 | hcxpcaptool    | Shows info of pcap / pcapng file                                                                               |
 | hcxhashcattool | Calculate PMKs from hashcat -m 2500 potfile                                                                    |
-| wlancap2hcx    | Converts cap to hccapx and other formats (depreciated - please use hcxpcaptool)                                |
 | wlanhcx2cap    | Converts hccapx to cap                                                                                         |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                                       |
 | wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                           |
@@ -79,8 +79,6 @@ Requirements
 
 * Linux (recommended Arch, but other distros should work, too). Don't use Kernel 4.4 (rt2x00 driver regression)
 
-* libpcap and pcap-dev installed
-
 * libopenssl and openssl-dev installed
 
 * librt and librt-dev installed (should be installed by default)
@@ -100,7 +98,7 @@ Requirements
 To install requirements on Kali use the following 'apt-get install libpcap-dev libcurl4-openssl-dev libssl-dev zlib1g-dev'
 
 
-Tested adapters
+Tested adapters (hcxdumptool)
 --------------
 
 USB ID 148f:7601 Ralink Technology, Corp. MT7601U Wireless Adapter
@@ -154,10 +152,10 @@ Bitmask message pair field (hcxpcaptool)
 
 
 
-Hardware mod (hcxdumptool and wlandump-ng)
+Hardware mod (hcxdumptool)
 --------------
 
-LED flashes 5 times if hcxdumptool/wlandump-ng successfully started
+LED flashes 5 times if hcxdumptool successfully started
 
 LED flashes every 5 seconds if everything is fine
 
@@ -167,49 +165,25 @@ Green ACT LED flashes 10 times
 
 Raspberry Pi turned off and can be disconnected from power supply
 
-Do not use hcxdumptool/wlandump-ng and pioff together!
+Do not use hcxdumptool and pioff together!
 
-
-
-Berkeley Packet Filter BPF example (only for wlandump-ng and wlancap2hcx)
---------------
-
-wlan host = filter all hosts using this mac
-
-wlan dst = filter all destinations using this mac
-
-wlan src = filter all sources using this mac
-
-wlan ta = filter all transmitter addresses using this mac
-
-wlan ta = filter all receiver addresses using this mac
-
-write all filter entries into one single line !(filterenty1 || filterenty2  || filterenty2)
-
-use ! (not) to filter entries out
-
-!(wlan host 00:00:00:00:00:00 || wlan dst 00:00:00:00:00:00 || wlan src 00:00:00:00:00:00 || wlan ta 00:00:00:00:00:00 || wlan ra 00:00:00:00:00:00)
-
-or allow only this entries
-
-(wlan host 00:00:00:00:00:00 || wlan dst 00:00:00:00:00:00 || wlan src 00:00:00:00:00:00 || wlan ta 00:00:00:00:00:00 || wlan ra 00:00:00:00:00:00)
 
 
 Warning
 --------------
 
-You must use hcxdumptool/wlandump-ng only on networks you have permission to do this, because
+You must use hcxtools only on networks you have permission to do this, because
 
-* hcxdumptool/wlandump-ng is able to prevent complete wlan traffic
+* hcxtools are able to prevent complete wlan traffic
 
-* hcxdumptool/wlandump-ng is able to capture handshakes from not connected clients (only one single M2 from the client is required)
+* hcxtools are able to capture handshakes from not connected clients (only one single M2 from the client is required)
 
-* hcxdumptool/wlandump-ng is are able to capture handshakes from 5GHz clients on 2.4GHz (only one single M2 from the client is required)
+* hcxtools are  are able to capture handshakes from 5GHz clients on 2.4GHz (only one single M2 from the client is required)
 
-* hcxdumptool/wlandump-ng is able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
+* hcxtools are  able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
 
-* hcxdumptool/wlandump-ng is able to capture passwords from the wlan traffic
+* hcxtools are  able to capture passwords from the wlan traffic
 
-* hcxdumptool/wlandump-ng is able to capture plainmasterkeys from the wlan traffic
+* hcxtools are  able to capture plainmasterkeys from the wlan traffic
 
-* hcxdumptool/wlandump-ng is able to capture usernames and identities from the wlan traffic
+* hcxtools are  able to capture usernames and identities from the wlan traffic

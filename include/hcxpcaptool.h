@@ -70,6 +70,16 @@ struct eapollist_s
 } __attribute__((__packed__));
 typedef struct eapollist_s eapoll_t;
 #define	EAPOLLIST_SIZE (sizeof(eapoll_t))
+
+/*===========================================================================*/
+struct pmkidlist_s
+{
+ uint8_t	mac_ap[6];
+ uint8_t	mac_sta[6];
+ uint8_t	pmkid[16];
+} __attribute__((__packed__));
+typedef struct pmkidlist_s pmkidl_t;
+#define	PMKIDLIST_SIZE (sizeof(pmkidl_t))
 /*===========================================================================*/
 struct hcxtoollist_s
 {

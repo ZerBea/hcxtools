@@ -1,3 +1,17 @@
+25.07.2018
+==========
+hcxtools moved to 4.2.0 rc1
+hcxpcaptool:
+added hashmodes -m 16800 and -m 16801
+and new options:
+-z <file> : output PMKID file (hashcat hashmode -m 16800 - WPA*-PMKID-PBKDF2)
+-Z <file> : output PMKID file (hashcat hashmode -m 16801 - WPA*-PMKID-PMK)
+use hcxpcaptool as dumper/attacker, convert with hcxpcaptool, retrieve PSK using hashcat
+
+removed wlandump-ng (old scool, deprecated)
+removed wlancap2hcx (old scool, deprecated)
+
+
 17.07.2018
 ==========
 hcxpcaptool:

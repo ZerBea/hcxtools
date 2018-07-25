@@ -55,6 +55,8 @@
 #define HCXT_HCCAPX_OUT_RAW	'O'
 #define HCXT_HCCAP_OUT		'x'
 #define HCXT_HCCAP_OUT_RAW	'X'
+#define HCXT_HC_OUT_PMKID_A	'z'
+#define HCXT_HC_OUT_PMKID_B	'Z'
 #define HCXT_JOHN_OUT		'j'
 #define HCXT_JOHN_OUT_RAW	'J'
 #define HCXT_ESSID_OUT		'E'
@@ -85,6 +87,9 @@ apstaessidl_t *apstaessidliste;
 
 unsigned long long int eapolcount;
 eapoll_t *eapolliste;
+
+unsigned long long int pmkidcount;
+pmkidl_t *pmkidliste;
 
 unsigned long long int handshakecount;
 unsigned long long int handshakeaplesscount;
@@ -165,6 +170,8 @@ unsigned long long int tzsp80211avsframecount;
 char *hexmodeoutname;
 char *hccapxbestoutname;
 char *hccapxrawoutname;
+char *hcpmkidaoutname;
+char *hcpmkidboutname;
 char *hccapbestoutname;
 char *hccaprawoutname;
 char *johnbestoutname;
@@ -205,6 +212,8 @@ char *unknown = "unknown";
 hexmodeoutname = NULL;
 hccapxbestoutname = NULL;
 hccapxrawoutname = NULL;
+hcpmkidaoutname = NULL;
+hcpmkidboutname = NULL;
 hccapbestoutname = NULL;
 hccaprawoutname = NULL;
 johnbestoutname = NULL;
@@ -536,6 +545,10 @@ if(atimframecount != 0)
 if(eapolframecount != 0)
 	{
 	printf("EAPOL packets................: %llu\n", eapolframecount);
+	}
+if(pmkidcount != 0)
+	{
+	printf("EAPOL PMKIDs.................: %llu\n", pmkidcount);
 	}
 if(eapframecount != 0)
 	{
@@ -1197,6 +1210,223 @@ if(johnrawoutname != NULL)
 		printf("%llu handshake(s) written to %s\n", writtencount, johnrawoutname);
 		}
 	}
+return;
+}
+/*===========================================================================*/
+void outputpmkidlists()
+{
+unsigned long long int c, d, p, writtencount, essidchangecount;
+pmkidl_t *zeiger;
+uint8_t essidok;
+apstaessidl_t *zeigeressid;
+FILE *fhoutlist = NULL;
+
+uint8_t essidold[32];
+
+essidchangecount = 0;
+if(hcpmkidaoutname != NULL)
+	{
+	if((fhoutlist = fopen(hcpmkidaoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeiger = pmkidliste;
+		for(c = 0; c < pmkidcount; c++)
+			{
+			zeigeressid = apstaessidliste;
+			essidchangecount = 0;
+			memset(&essidold, 0,32);
+			essidok = 0;
+			for(d = 0; d < apstaessidcount; d++)
+				{
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (zeigeressid->status != 2))
+					{
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+						{
+						for(p = 0; p < 16; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+							}
+						fprintf(fhoutlist, "*");
+						for(p = 0; p < 6; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+							}
+						fprintf(fhoutlist, "*");
+						for(p = 0; p < 6; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+							}
+						fprintf(fhoutlist, "*");
+						for(p = 0; p < zeigeressid->essidlen; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeigeressid->essid[p]);
+							}
+						fprintf(fhoutlist, "\n");
+						writtencount++;
+						essidchangecount++;
+						memset(&essidold, 0,32);
+						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+						essidok = 1;
+						}
+					}
+				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+					{
+					break;
+					}
+				zeigeressid++;
+				}
+			if(essidok == 0)
+				{
+				zeigeressid = apstaessidliste;
+				for(d = 0; d < apstaessidcount; d++)
+					{
+					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+						{
+						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+							{
+							for(p = 0; p < 16; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+								}
+							fprintf(fhoutlist, "*");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+								}
+							fprintf(fhoutlist, "*");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+								}
+							fprintf(fhoutlist, "*");
+							for(p = 0; p < zeigeressid->essidlen; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeigeressid->essid[p]);
+								}
+							fprintf(fhoutlist, "\n");
+							writtencount++;
+							essidchangecount++;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							}
+						}
+					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+						{
+						break;
+						}
+					zeigeressid++;
+					}
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(hcpmkidaoutname);
+		if(essidchangecount > 1)
+			{
+			printf("%llu ESSID changes detected\n", essidchangecount);
+			}
+		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidaoutname);
+		}
+	}
+
+
+essidchangecount = 0;
+if(hcpmkidboutname != NULL)
+	{
+	if((fhoutlist = fopen(hcpmkidboutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeiger = pmkidliste;
+		for(c = 0; c < pmkidcount; c++)
+			{
+			zeigeressid = apstaessidliste;
+			essidchangecount = 0;
+			memset(&essidold, 0,32);
+			essidok = 0;
+			for(d = 0; d < apstaessidcount; d++)
+				{
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (zeigeressid->status != 2))
+					{
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+						{
+						for(p = 0; p < 16; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+							}
+						fprintf(fhoutlist, ":");
+						for(p = 0; p < 6; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+							}
+						fprintf(fhoutlist, ":");
+						for(p = 0; p < 6; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+							}
+						fprintf(fhoutlist, "\n");
+						writtencount++;
+						essidchangecount++;
+						memset(&essidold, 0,32);
+						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+						essidok = 1;
+						}
+					}
+				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+					{
+					break;
+					}
+				zeigeressid++;
+				}
+			if(essidok == 0)
+				{
+				zeigeressid = apstaessidliste;
+				for(d = 0; d < apstaessidcount; d++)
+					{
+					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+						{
+						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+							{
+							for(p = 0; p < 16; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+								}
+							fprintf(fhoutlist, "\n");
+							writtencount++;
+							essidchangecount++;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							}
+						}
+					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+						{
+						break;
+						}
+					zeigeressid++;
+					}
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(hcpmkidboutname);
+		if(essidchangecount > 1)
+			{
+			printf("%llu ESSID changes detected\n", essidchangecount);
+			}
+		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidboutname);
+		}
+	}
+
+
 return;
 }
 /*===========================================================================*/
@@ -2164,6 +2394,91 @@ for(c = 0; c < eapolcount; c++)
 return;
 }
 /*===========================================================================*/
+void addpmkid(uint8_t *mac_sta, uint8_t *mac_ap, uint8_t *authpacket)
+{
+unsigned long long int c;
+wpakey_t *wpak;
+pmkid_t *pmkid;
+pmkidl_t *zeiger;
+
+wpak = (wpakey_t*)authpacket;
+if(ntohs(wpak->wpadatalen) != 22)
+	{
+	return;
+	}
+pmkid = (pmkid_t*)(authpacket + WPAKEY_SIZE);
+if((pmkid->id != 0xdd) && (pmkid->id != 0x14))
+	{
+	return;
+	}
+if((pmkid->oui[0] != 0x00) && (pmkid->oui[1] != 0x0f) && (pmkid->oui[2] != 0xac))
+	{
+	return;
+	}
+if(pmkid->type != 0x04)
+	{
+	return;
+	}
+if(memcmp(mac_ap, &mac_null, 6) == 0)
+	{
+	return;
+	}
+if(memcmp(mac_sta, &mac_null, 6) == 0)
+	{
+	return;
+	}
+if(memcmp(mac_ap, &mac_broadcast, 6) == 0)
+	{
+	return;
+	}
+if(memcmp(mac_sta, &mac_broadcast, 6) == 0)
+	{
+	return;
+	}
+if(memcmp(pmkid->pmkid, &nullnonce, 16) == 0)
+	{
+	return;
+	}
+
+if(pmkidliste == NULL)
+	{
+	pmkidliste = malloc(PMKIDLIST_SIZE);
+	if(pmkidliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memcpy(pmkidliste->mac_ap, mac_ap, 6);
+	memcpy(pmkidliste->mac_sta, mac_sta, 6);
+	memcpy(pmkidliste->pmkid, pmkid->pmkid, 16);
+	pmkidcount++;
+	return;
+	}
+
+zeiger = pmkidliste;
+for(c = 0; c < pmkidcount; c++)
+	{
+	if((memcmp(zeiger->mac_ap, mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, mac_sta, 6) == 0) && (memcmp(zeiger->pmkid, pmkid->pmkid, 16) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
+zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+pmkidliste = zeiger;
+zeiger = pmkidliste +pmkidcount;
+memcpy(zeiger->mac_ap, mac_ap, 6);
+memcpy(zeiger->mac_sta, mac_sta, 6);
+memcpy(zeiger->pmkid, pmkid->pmkid, 16);
+pmkidcount++;
+return;
+}
+/*===========================================================================*/
 void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint32_t authlen, uint8_t *authpacket)
 {
 eapoll_t *zeiger;
@@ -2600,6 +2915,10 @@ if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 if(keyinfo == 1)
 	{
 	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 1, rc, authlen +4, packet);
+	if(authlen == 0x75)
+		{
+		addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
+		}
 	}
 else if(keyinfo == 3)
 	{
@@ -4001,6 +4320,7 @@ char *pcapart;
 fcsflag = false;
 apstaessidliste = NULL;
 eapolliste = NULL;
+pmkidliste = NULL;
 handshakeliste = NULL;
 leapliste = NULL;
 leap2liste = NULL;
@@ -4052,6 +4372,7 @@ leapcount = 0;
 actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
+pmkidcount = 0;
 eapolstartframecount = 0;
 eapollogoffframecount = 0;
 eapolasfframecount = 0;
@@ -4156,6 +4477,7 @@ if((apstaessidliste != NULL) && (eapolliste != NULL))
 	findhandshake();
 	}
 
+
 printcapstatus(pcapart, pcapinname, versionmajor, versionminor, dltlinktype, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 
 if(apstaessidliste != NULL) 
@@ -4166,6 +4488,11 @@ if(apstaessidliste != NULL)
 if(handshakeliste != NULL)
 	{
 	outputwpalists(pcapinname);
+	}
+
+if((apstaessidliste != NULL) && (pmkidliste != NULL))
+	{
+	outputpmkidlists();
 	}
 
 if(leapliste != NULL)
@@ -4218,6 +4545,11 @@ if(eapolliste != NULL)
 	free(eapolliste);
 	}
 
+if(pmkidliste != NULL)
+	{
+	free(pmkidliste);
+	}
+
 if(apstaessidliste != NULL)
 	{
 	free(apstaessidliste);
@@ -4247,6 +4579,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
 	"-x <file> : output hccap file (hashcat -m 2500)\n"
 	"-X <file> : output raw hccap file (hashcat -m 2500)\n"
+	"-z <file> : output PMKID file (hashcat hashmode -m 16800)\n"
+	"-Z <file> : output PMKID file (hashcat hashmode -m 16801)\n"
 	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
@@ -4296,7 +4630,7 @@ int main(int argc, char *argv[])
 int auswahl;
 int index;
 
-static const char *short_options = "o:O:x:X:j:J:E:I:U:P:T:H:Vhv";
+static const char *short_options = "o:O:x:X:Z:z:j:J:E:I:U:P:T:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
@@ -4383,6 +4717,16 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		hccapxrawoutname = optarg;
 		verboseflag = true;
 		wantrawflag = true;
+		break;
+
+		case HCXT_HC_OUT_PMKID_A:
+		hcpmkidaoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_HC_OUT_PMKID_B:
+		hcpmkidboutname = optarg;
+		verboseflag = true;
 		break;
 
 		case HCXT_HCCAP_OUT:

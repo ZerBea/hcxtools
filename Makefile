@@ -31,12 +31,10 @@ ifeq ($(GPIOSUPPORT), on)
 	$(CC) $(CFLAGS) -o pioff pioff.c $(LFLAGS)
 endif
 ifeq ($(HOSTOS), Linux)
-	$(CC) $(CFLAGS) -o wlandump-ng wlandump-ng.c -lpcap -lrt $(LFLAGS)
 	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
 endif
 	$(CC) $(CFLAGS) -o hcxpcaptool hcxpcaptool.c -lz -lcrypto
 	$(CC) $(CFLAGS) -o hcxhashcattool hcxhashcattool.c -lcrypto -lpthread
-	$(CC) $(CFLAGS) -o wlancap2hcx wlancap2hcx.c -lpcap -lcrypto
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
 	$(CC) $(CFLAGS) -o wlanwkp2hcx wlanwkp2hcx.c
 	$(CC) $(CFLAGS) -o wlanhcxinfo wlanhcxinfo.c
@@ -60,12 +58,10 @@ ifeq ($(GPIOSUPPORT), on)
 	install $(INSTFLAGS) pioff $(INSTALLDIR)/pioff
 endif
 ifeq ($(HOSTOS), Linux)
-	install $(INSTFLAGS) wlandump-ng $(INSTALLDIR)/wlandump-ng
 	install $(INSTFLAGS) wlanrcascan $(INSTALLDIR)/wlanrcascan
 endif
 	install $(INSTFLAGS) hcxpcaptool $(INSTALLDIR)/hcxpcaptool
 	install $(INSTFLAGS) hcxhashcattool $(INSTALLDIR)/hcxhashcattool
-	install $(INSTFLAGS) wlancap2hcx $(INSTALLDIR)/wlancap2hcx
 	install $(INSTFLAGS) wlanhc2hcx $(INSTALLDIR)/wlanhc2hcx
 	install $(INSTFLAGS) wlanwkp2hcx $(INSTALLDIR)/wlanwkp2hcx
 	install $(INSTFLAGS) wlanhcxinfo $(INSTALLDIR)/wlanhcxinfo
@@ -87,12 +83,10 @@ ifeq ($(GPIOSUPPORT), on)
 	rm -f pioff
 endif
 ifeq ($(HOSTOS), Linux)
-	rm -f wlandump-ng
 	rm -f wlanrcascan
 endif
 	rm -f hcxpcaptool
 	rm -f hcxhashcattool
-	rm -f wlancap2hcx
 	rm -f wlanhc2hcx
 	rm -f wlanwkp2hcx
 	rm -f wlanhcxinfo
@@ -118,12 +112,10 @@ ifeq ($(GPIOSUPPORT), on)
 	rm -f pioff
 endif
 ifeq ($(HOSTOS), Linux)
-	rm -f wlandump-ng
 	rm -f wlanrcascan
 endif
 	rm -f hcxpcaptool
 	rm -f hcxhashcattool
-	rm -f wlancap2hcx
 	rm -f wlanhc2hcx
 	rm -f wlanwkp2hcx
 	rm -f wlanhcxinfo
@@ -149,12 +141,10 @@ ifeq ($(GPIOSUPPORT), on)
 	rm -f $(INSTALLDIR)/pioff
 endif
 ifeq ($(HOSTOS), Linux)
-	rm -f $(INSTALLDIR)/wlandump-ng
 	rm -f $(INSTALLDIR)/wlanrcascan
 endif
 	rm -f $(INSTALLDIR)/hcxpcaptool
 	rm -f $(INSTALLDIR)/hcxhashcattool
-	rm -f $(INSTALLDIR)/wlancap2hcx
 	rm -f $(INSTALLDIR)/wlanhc2hcx
 	rm -f $(INSTALLDIR)/wlanwkp2hcx
 	rm -f $(INSTALLDIR)/wlanhcx2cap

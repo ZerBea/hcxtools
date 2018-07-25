@@ -414,6 +414,17 @@ struct wpakey_frame
 typedef struct wpakey_frame wpakey_t;
 #define	WPAKEY_SIZE offsetof(wpakey_t, data)
 /*===========================================================================*/
+struct pmkid_frame
+{
+ uint8_t	id;
+ uint8_t	len;
+ uint8_t	oui[3];
+ uint8_t	type;
+ uint8_t	pmkid[16];
+} __attribute__((__packed__));
+typedef struct pmkid_frame pmkid_t;
+#define	PMKID_SIZE (sizeof(pmkid_t))
+/*===========================================================================*/
 struct exteap_frame
 {
  uint8_t			code;
