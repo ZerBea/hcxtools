@@ -14,7 +14,7 @@ Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netn
 
 After capturing, upload the "uncleaned" cap here
 (https://wpa-sec.stanev.org/?submit) to see if your ap or the client is vulnerable
-by using common wordlists. Convert the cap to hccapx and/or to WPA*-PMKID-PBKDF2 hashline (16800)
+by using common wordlists. Convert the cap to hccapx and/or to WPA-PMKID-PBKDF2 hashline (16800)
 and check if wlan-key or plainmasterkey was transmitted unencrypted.
 
 
