@@ -14,18 +14,18 @@ Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netn
 
 After capturing, upload the "uncleaned" cap here
 (https://wpa-sec.stanev.org/?submit) to see if your ap or the client is vulnerable
-by using common wordlists. Convert the cap to hccapx or to WPA*-PMKID-PBKDF2 hashline (16800)
+by using common wordlists. Convert the cap to hccapx and/or to WPA*-PMKID-PBKDF2 hashline (16800)
 and check if wlan-key or plainmasterkey was transmitted unencrypted.
 
 
 Brief description
 --------------
 
-Multiple stand-alone binaries - designed to run on Raspberry Pi's.
+Multiple stand-alone binaries - designed to run on Raspberry Pi's and LINUX machines.
 
 All of these utils are designed to execute only one specific function.
 
-hcxdumptool is moved to: https://github.com/ZerBea/hcxdumptool
+hcxdumptool moved to: https://github.com/ZerBea/hcxdumptool
 
 Read this post: hcxtools - solution for capturing wlan traffic and conversion to hashcat formats (https://hashcat.net/forum/thread-6661.html)
 
@@ -36,7 +36,7 @@ Detailed description
 | Tool           | Description                                                                                                    |
 | -------------- | -------------------------------------------------------------------------------------------------------------- |
 | wlanrcascan    | Small, fast and simple passive WLAN channel assignment scanner (status output)                                 |
-| hcxpcaptool    | Shows info of pcap / pcapng file                                                                               |
+| hcxpcaptool    | Shows info of pcap / pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper   |
 | hcxhashcattool | Calculate PMKs from hashcat -m 2500 potfile                                                                    |
 | wlanhcx2cap    | Converts hccapx to cap                                                                                         |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                                       |
@@ -66,13 +66,6 @@ make
 make install (as super user)
 ```
 
-or (with GPIO support - hardware mods required)
-
-```
-make GPIOSUPPORT=on
-make GPIOSUPPORT=on install (as super user)
-```
-
 
 Requirements
 --------------
@@ -95,7 +88,7 @@ Requirements
 
 * Raspberry Pi (Recommended: A+ = very low power consumption or B+), but notebooks and desktops should work, too.
 
-To install requirements on Kali use the following 'apt-get install libpcap-dev libcurl4-openssl-dev libssl-dev zlib1g-dev'
+To install requirements on Kali use the following 'apt-get install libcurl4-openssl-dev libssl-dev zlib1g-dev'
 
 
 Tested adapters (hcxdumptool)
@@ -123,6 +116,8 @@ Useful scripts
 | ------------ | -------------------------------------------------------- |
 | makemonnb    | Example script to activate monitor mode                  |
 | killmonnb    | Example script to deactivate monitor mode                |
+| piwritecard  | Example script to restore SD-Card                        |
+| piwreadcard  | Example script to backup SD-Card                         |
 
 
 Notice
@@ -168,8 +163,7 @@ Raspberry Pi turned off and can be disconnected from power supply
 Do not use hcxdumptool and pioff together!
 
 
-
-Warning
+Warning (hcxtools and hcxdumptool)
 --------------
 
 You must use hcxtools only on networks you have permission to do this, because
@@ -178,12 +172,12 @@ You must use hcxtools only on networks you have permission to do this, because
 
 * hcxtools are able to capture handshakes from not connected clients (only one single M2 from the client is required)
 
-* hcxtools are  are able to capture handshakes from 5GHz clients on 2.4GHz (only one single M2 from the client is required)
+* hcxtools are able to capture handshakes from 5GHz clients on 2.4GHz (only one single M2 from the client is required)
 
-* hcxtools are  able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
+* hcxtools are able to capture extended EAPOL (RADIUS, GSM-SIM, WPS)
 
-* hcxtools are  able to capture passwords from the wlan traffic
+* hcxtools are able to capture passwords from the wlan traffic
 
-* hcxtools are  able to capture plainmasterkeys from the wlan traffic
+* hcxtools are able to capture plainmasterkeys from the wlan traffic
 
-* hcxtools are  able to capture usernames and identities from the wlan traffic
+* hcxtools are able to capture usernames and identities from the wlan traffic
