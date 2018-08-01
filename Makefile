@@ -1,12 +1,8 @@
 INSTALLDIR	= /usr/local/bin
 
 HOSTOS := $(shell uname -s)
-OPENCLSUPPORT=off
-GPIOSUPPORT=off
-DOACTIVE=on
-DOSTATUS=on
 
-CC	?= gcc
+CC ?= gcc
 CFLAGS = -std=gnu99 -O3 -Wall -Wextra
 INSTFLAGS = -m 0755
 
@@ -18,21 +14,10 @@ ifeq ($(HOSTOS), Darwin)
 CFLAGS += -L/usr/local/opt/openssl/lib -I/usr/local/opt/openssl/include
 endif
 
-ifeq ($(GPIOSUPPORT), on)
-CFLAGS	+= -DDOGPIOSUPPORT
-LFLAGS	= -lwiringPi
-endif
-
 
 all: build
 
 build:
-ifeq ($(GPIOSUPPORT), on)
-	$(CC) $(CFLAGS) -o pioff pioff.c $(LFLAGS)
-endif
-ifeq ($(HOSTOS), Linux)
-	$(CC) $(CFLAGS) -o wlanrcascan wlanrcascan.c -lpcap
-endif
 	$(CC) $(CFLAGS) -o hcxpcaptool hcxpcaptool.c -lz -lcrypto
 	$(CC) $(CFLAGS) -o hcxhashcattool hcxhashcattool.c -lcrypto -lpthread
 	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c
@@ -54,12 +39,6 @@ endif
 
 
 install: build
-ifeq ($(GPIOSUPPORT), on)
-	install $(INSTFLAGS) pioff $(INSTALLDIR)/pioff
-endif
-ifeq ($(HOSTOS), Linux)
-	install $(INSTFLAGS) wlanrcascan $(INSTALLDIR)/wlanrcascan
-endif
 	install $(INSTFLAGS) hcxpcaptool $(INSTALLDIR)/hcxpcaptool
 	install $(INSTFLAGS) hcxhashcattool $(INSTALLDIR)/hcxhashcattool
 	install $(INSTFLAGS) wlanhc2hcx $(INSTALLDIR)/wlanhc2hcx
@@ -79,12 +58,6 @@ endif
 	install $(INSTFLAGS) wlanhcx2psk $(INSTALLDIR)/wlanhcx2psk
 	install $(INSTFLAGS) wlancap2wpasec $(INSTALLDIR)/wlancap2wpasec
 
-ifeq ($(GPIOSUPPORT), on)
-	rm -f pioff
-endif
-ifeq ($(HOSTOS), Linux)
-	rm -f wlanrcascan
-endif
 	rm -f hcxpcaptool
 	rm -f hcxhashcattool
 	rm -f wlanhc2hcx
@@ -108,12 +81,6 @@ endif
 
 
 clean:
-ifeq ($(GPIOSUPPORT), on)
-	rm -f pioff
-endif
-ifeq ($(HOSTOS), Linux)
-	rm -f wlanrcascan
-endif
 	rm -f hcxpcaptool
 	rm -f hcxhashcattool
 	rm -f wlanhc2hcx
@@ -137,12 +104,6 @@ endif
 
 
 uninstall:
-ifeq ($(GPIOSUPPORT), on)
-	rm -f $(INSTALLDIR)/pioff
-endif
-ifeq ($(HOSTOS), Linux)
-	rm -f $(INSTALLDIR)/wlanrcascan
-endif
 	rm -f $(INSTALLDIR)/hcxpcaptool
 	rm -f $(INSTALLDIR)/hcxhashcattool
 	rm -f $(INSTALLDIR)/wlanhc2hcx

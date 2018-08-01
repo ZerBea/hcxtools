@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <stddef.h>
-#include "berkeleyfilter.h"
 
 #ifdef __APPLE__
 #define __BYTE_ORDER BYTE_ORDER
