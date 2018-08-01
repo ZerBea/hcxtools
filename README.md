@@ -69,7 +69,7 @@ make install (as super user)
 Requirements
 --------------
 
-* Linux (recommended Arch, but other distros should work, too. No support for toher distros!). Don't use Kernel 4.4 (rt2x00 driver regression)
+* Linux (recommended Arch, but other distros should work, too. No support for toher distros!. Don't use Kernel 4.4 (rt2x00 driver regression)
 
 * libopenssl and openssl-dev installed
 
