@@ -21,7 +21,7 @@ or plainmasterkey was transmitted unencrypted.
 Brief description
 --------------
 
-Multiple stand-alone binaries - designed to run on Raspberry Pi's and LINUX machines.
+Multiple stand-alone binaries - designed to run on arch LINUX.
 
 All of these utils are designed to execute only one specific function.
 
