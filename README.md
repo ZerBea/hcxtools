@@ -21,7 +21,7 @@ or plainmasterkey was transmitted unencrypted.
 Brief description
 --------------
 
-Multiple stand-alone binaries - designed to run on arch LINUX.
+Multiple stand-alone binaries - designed to run on  Arch Linux.
 
 All of these utils are designed to execute only one specific function.
 
@@ -69,7 +69,7 @@ make install (as super user)
 Requirements
 --------------
 
-* Linux (recommended Arch, but other distros should work, too. No support for toher distros!. Don't use Kernel 4.4 (rt2x00 driver regression)
+* Linux (recommended Arch Linux, but other distros should work, too (no support for other distributions).
 
 * libopenssl and openssl-dev installed
 
