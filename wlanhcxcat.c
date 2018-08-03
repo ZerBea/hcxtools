@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <limits.h>
 #include <time.h>
-#include <endian.h>
 #include <ctype.h>
 #include <sys/time.h>
 #include <sys/stat.h>
@@ -16,6 +15,7 @@
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
+#include <endian.h>
 #endif
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
