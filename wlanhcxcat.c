@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <time.h>
+#include <endian.h>
 #include <ctype.h>
 #include <sys/time.h>
 #include <sys/stat.h>
