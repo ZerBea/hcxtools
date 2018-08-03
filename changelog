@@ -1,3 +1,13 @@
+03.08.2018
+==========
+hcxtools release 4.2.0
+
+Todo:
+hcxdumptool 4.2.0 will randomize ap-less attacks.
+hcxpcaptool ill convert this handshakes correctly, but will not detect them as ap-less attack
+This feature will be added in hcxtools 4.2.1
+
+
 01.08.2018
 ==========
 moved raspberry pi stuff and dumper stuff to hcxdumptool repository

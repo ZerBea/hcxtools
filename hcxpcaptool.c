@@ -1224,6 +1224,8 @@ FILE *fhoutlist = NULL;
 uint8_t essidold[32];
 
 essidchangecount = 0;
+qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+
 if(hcpmkidaoutname != NULL)
 	{
 	if((fhoutlist = fopen(hcpmkidaoutname, "a+")) != NULL)
