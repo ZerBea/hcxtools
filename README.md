@@ -81,7 +81,7 @@ Requirements
 
 * libpthread and pthread-dev installed (used by hcxhashcattool)
 
-To install requirements on Kali use the following 'apt-get install libcurl4-openssl-dev libssl-dev zlib1g-dev'
+To install requirements on Kali use the following 'apt-get install libcurl4-openssl-dev libssl-dev zlib1g-dev libpcap-dev'
 
 
 Useful scripts
