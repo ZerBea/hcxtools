@@ -1341,94 +1341,29 @@ if(hcpmkidboutname != NULL)
 		zeiger = pmkidliste;
 		for(c = 0; c < pmkidcount; c++)
 			{
-			zeigeressid = apstaessidliste;
-			essidchangecount = 0;
-			memset(&essidold, 0,32);
-			essidok = 0;
-			for(d = 0; d < apstaessidcount; d++)
+			for(p = 0; p < 16; p++)
 				{
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (zeigeressid->status != 2))
-					{
-					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
-						{
-						for(p = 0; p < 16; p++)
-							{
-							fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
-							}
-						fprintf(fhoutlist, ":");
-						for(p = 0; p < 6; p++)
-							{
-							fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
-							}
-						fprintf(fhoutlist, ":");
-						for(p = 0; p < 6; p++)
-							{
-							fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
-							}
-						fprintf(fhoutlist, "\n");
-						writtencount++;
-						essidchangecount++;
-						memset(&essidold, 0,32);
-						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-						essidok = 1;
-						}
-					}
-				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-					{
-					break;
-					}
-				zeigeressid++;
+				fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
 				}
-			if(essidok == 0)
+			fprintf(fhoutlist, "*");
+			for(p = 0; p < 6; p++)
 				{
-				zeigeressid = apstaessidliste;
-				for(d = 0; d < apstaessidcount; d++)
-					{
-					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
-						{
-						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
-							{
-							for(p = 0; p < 16; p++)
-								{
-								fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
-								}
-							fprintf(fhoutlist, ":");
-							for(p = 0; p < 6; p++)
-								{
-								fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
-								}
-							fprintf(fhoutlist, ":");
-							for(p = 0; p < 6; p++)
-								{
-								fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
-								}
-							fprintf(fhoutlist, "\n");
-							writtencount++;
-							essidchangecount++;
-							memset(&essidold, 0,32);
-							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-							}
-						}
-					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-						{
-						break;
-						}
-					zeigeressid++;
-					}
+				fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
 				}
+			fprintf(fhoutlist, "*");
+			for(p = 0; p < 6; p++)
+				{
+				fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+				}
+			fprintf(fhoutlist, "\n");
+			writtencount++;
 			zeiger++;
 			}
 		fclose(fhoutlist);
 		removeemptyfile(hcpmkidboutname);
-		if(essidchangecount > 1)
-			{
-			printf("%llu ESSID changes detected\n", essidchangecount);
-			}
 		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidboutname);
 		}
 	}
-
-
 return;
 }
 /*===========================================================================*/
