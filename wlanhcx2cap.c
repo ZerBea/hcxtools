@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <time.h>
+/* this will be the last pcap dependency we have to remove */
 #include <pcap.h>
 #include <sys/stat.h>
 #ifdef __APPLE__

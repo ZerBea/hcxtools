@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <limits.h>
 #include <time.h>
-#include <pcap.h>
 #include <sys/stat.h>
 #ifdef __APPLE__
 #include <libgen.h>
