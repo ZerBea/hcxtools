@@ -432,7 +432,7 @@ return "unknow nendian";
 void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, unsigned long long int skippedpacketcount, int pcapreaderrors, bool tscleanflag)
 {
 int p;
-printf( "                                               \n"
+printf( "                                                \n"
 	"summary:                                        \n--------\n"
 	"file name....................: %s\n"
 	"file type....................: %s %d.%d\n"
