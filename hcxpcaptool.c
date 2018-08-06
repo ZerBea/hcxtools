@@ -84,6 +84,8 @@ unsigned long long int maxrcdiff;
 
 unsigned long long int apstaessidcount;
 apstaessidl_t *apstaessidliste;
+unsigned long long int apstaessidcountcleaned;
+apstaessidl_t *apstaessidlistecleaned;
 
 unsigned long long int eapolcount;
 eapoll_t *eapolliste;
@@ -2483,10 +2485,50 @@ eapolcount++;
 return;
 }
 /*===========================================================================*/
+void cleanapstaessid()
+{
+unsigned long long int c;
+apstaessidl_t *zeiger1;
+apstaessidl_t *zeiger2;
+
+if(apstaessidcount < 1)
+	{
+	return;
+	}
+qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+
+if((apstaessidlistecleaned = calloc((apstaessidcount), APSTAESSIDLIST_SIZE)) == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+
+zeiger1 = apstaessidliste;
+zeiger2 = apstaessidlistecleaned;
+for(c = 0; c < apstaessidcount; c++)
+	{
+	if((zeiger1->essidlen != zeiger2->essidlen) && (memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) != 0) && (memcmp(zeiger1->mac_sta, zeiger2->mac_sta, 6) != 0) && (memcmp(zeiger1->essid, zeiger2->essid, zeiger1->essidlen) != 0))
+		{
+		memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
+		memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
+		zeiger2->essidlen = zeiger1->essidlen;
+		memset(zeiger2->essid, 0, 32);
+		memcpy(zeiger2->essid, zeiger1->essid, zeiger1->essidlen);
+		zeiger2++;
+		apstaessidcountcleaned++;
+		}
+	zeiger1++;
+	}
+
+free(apstaessidliste);
+apstaessidliste = apstaessidlistecleaned;
+apstaessidcount = apstaessidcountcleaned;
+return;
+}
+/*===========================================================================*/
 void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t status, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
 {
 apstaessidl_t *zeiger;
-unsigned long long int c;
 if(apstaessidliste == NULL)
 	{
 	apstaessidliste = malloc(APSTAESSIDLIST_SIZE);
@@ -2507,16 +2549,7 @@ if(apstaessidliste == NULL)
 	apstaessidcount++;
 	return;
 	}
-zeiger = apstaessidliste;
-for(c = 0; c < apstaessidcount; c++)
-	{
-	if((essidlen == zeiger->essidlen) && (memcmp(mac_ap, zeiger->mac_ap, 6) == 0) && (memcmp(mac_sta, zeiger->mac_sta, 6) == 0) && (memcmp(essid, zeiger->essid, zeiger->essidlen) == 0))
-		{
-		zeiger->status |= status;
-		return;
-		}
-	zeiger++;
-	}
+
 zeiger = realloc(apstaessidliste, (apstaessidcount +1) *APSTAESSIDLIST_SIZE);
 if(zeiger == NULL)
 	{
@@ -4407,6 +4440,11 @@ close(pcapr_fd);
 if(needrmflag == true)
 	{
 	remove(tmpoutname);
+	}
+
+if(apstaessidliste != NULL)
+	{
+	cleanapstaessid();
 	}
 
 if((apstaessidliste != NULL) && (eapolliste != NULL))
