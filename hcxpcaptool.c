@@ -4312,6 +4312,7 @@ pcapreaderrors = 0;
 rawpacketcount = 0;
 skippedpacketcount = 0;
 apstaessidcount = 0;
+apstaessidcountcleaned = 0;
 eapolcount = 0;
 fcsframecount = 0;
 wdsframecount = 0;
