@@ -2509,6 +2509,7 @@ for(c = 0; c < apstaessidcount; c++)
 	{
 	if((zeiger1->essidlen != zeiger2->essidlen) && (memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) != 0) && (memcmp(zeiger1->mac_sta, zeiger2->mac_sta, 6) != 0) && (memcmp(zeiger1->essid, zeiger2->essid, zeiger1->essidlen) != 0))
 		{
+		zeiger2->status |= zeiger1->status;
 		memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
 		memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
 		zeiger2->essidlen = zeiger1->essidlen;
