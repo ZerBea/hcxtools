@@ -1,3 +1,10 @@
+07.08.2018
+==========
+added communication between hcxdumtool and hcxpcaptool via pcapng option fields:
+62108 for REPLAYCOUNT uint64_t
+62109 for ANONCE uint8_t[32]
+
+
 03.08.2018
 ==========
 hcxtools release 4.2.0

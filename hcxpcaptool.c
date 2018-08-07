@@ -199,6 +199,11 @@ uint16_t versionmajor;
 uint16_t versionminor;
 uint16_t dltlinktype;
 
+uint64_t myaktreplaycount;
+uint8_t myaktnonce[32];
+
+
+
 char pcapnghwinfo[256];
 char pcapngosinfo[256];
 char pcapngapplinfo[256];
@@ -1906,7 +1911,7 @@ if(rawhandshakeliste == NULL)
 	memcpy(rawhandshakeliste->nonce, wpaeo->nonce, 32);
 	rawhandshakeliste->authlen = zeigerea->authlen;
 	memcpy(rawhandshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
-	if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+	if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
 		{
 		rawhandshakeliste->endianess = 0x10;
 		rawhandshakeaplesscount++;
@@ -1933,9 +1938,9 @@ for(c = 0; c < rawhandshakecount; c++)
 			{
 			zeiger->endianess = 0x40;
 			}
-		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+		if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
 			{
-			if((zeiger->replaycount_ap != MYREPLAYCOUNT) && (zeiger->replaycount_sta != MYREPLAYCOUNT) && (memcmp(zeiger->nonce, &mynonce, 32) == 0))
+			if((zeiger->replaycount_ap != myaktreplaycount) && (zeiger->replaycount_sta != myaktreplaycount) && (memcmp(zeiger->nonce, &myaktnonce, 32) == 0))
 				{
 				rawhandshakeaplesscount++;
 				}
@@ -2002,7 +2007,7 @@ zeiger->keyinfo_sta = zeigerea->keyinfo;
 memcpy(zeiger->nonce, wpaeo->nonce, 32);
 zeiger->authlen = zeigerea->authlen;
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
 	{
 	zeiger->endianess = 0x10;
 	rawhandshakeaplesscount++;
@@ -2043,7 +2048,7 @@ if(handshakeliste == NULL)
 	memcpy(handshakeliste->nonce, wpaeo->nonce, 32);
 	handshakeliste->authlen = zeigerea->authlen;
 	memcpy(handshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
-	if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+	if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
 		{
 		handshakeliste->endianess = 0x10;
 		handshakeaplesscount++;
@@ -2070,9 +2075,9 @@ for(c = 0; c < handshakecount; c++)
 			{
 			zeiger->endianess = 0x40;
 			}
-		if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+		if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
 			{
-			if((zeiger->replaycount_ap != MYREPLAYCOUNT) && (zeiger->replaycount_sta != MYREPLAYCOUNT) && (memcmp(zeiger->nonce, &mynonce, 32) == 0))
+			if((zeiger->replaycount_ap != myaktreplaycount) && (zeiger->replaycount_sta != myaktreplaycount) && (memcmp(zeiger->nonce, &myaktnonce, 32) == 0))
 				{
 				handshakeaplesscount++;
 				}
@@ -2225,7 +2230,7 @@ zeiger->keyinfo_sta = zeigerea->keyinfo;
 memcpy(zeiger->nonce, wpaeo->nonce, 32);
 zeiger->authlen = zeigerea->authlen;
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-if((zeigerea->replaycount == MYREPLAYCOUNT) && (zeigereo->replaycount == MYREPLAYCOUNT) && (memcmp(wpaeo->nonce, &mynonce, 32) == 0))
+if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
 	{
 	zeiger->endianess = 0x10;
 	handshakeaplesscount++;
@@ -3817,7 +3822,8 @@ uint16_t padding;
 uint16_t olpad;
 option_header_t opthdr;
 
-
+uint8_t filereplaycound[8];
+uint8_t filenonce[32];
 
 while(1)
 	{
@@ -3870,6 +3876,33 @@ while(1)
 			return;
 			}
 		}
+	if(opthdr.option_code == 62108)
+		{
+		res = read(fd, &filereplaycound, olpad);
+		if(res != olpad)
+			{
+			return;
+			}
+		if(olpad != 8)
+			{
+			return;
+			}
+		myaktreplaycount = filereplaycound[0x00] & 0xff;
+		myaktreplaycount += (filereplaycound[0x01] & 0xff) << 8;
+		}
+	if(opthdr.option_code == 62109)
+		{
+		res = read(fd, &filenonce, olpad);
+		if(res != olpad)
+			{
+			return;
+			}
+		if(olpad != 32)
+			{
+			return;
+			}
+		memcpy(&myaktnonce, &filenonce, 32);
+		}
 	}
 return;
 }
@@ -3884,7 +3917,12 @@ section_header_block_t pcapngshb;
 interface_description_block_t pcapngidb;
 packet_block_t pcapngpb;
 enhanced_packet_block_t pcapngepb;
+myaktreplaycount = myaktreplaycount;
+memcpy(&myaktnonce, &mynonce, 32);
+
 uint8_t packet[MAXPACPSNAPLEN];
+
+
 
 printf("start reading from %s\n", pcapinname);
 memset(&packet, 0, MAXPACPSNAPLEN);
