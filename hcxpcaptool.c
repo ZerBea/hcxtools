@@ -3917,7 +3917,8 @@ section_header_block_t pcapngshb;
 interface_description_block_t pcapngidb;
 packet_block_t pcapngpb;
 enhanced_packet_block_t pcapngepb;
-myaktreplaycount = myaktreplaycount;
+
+myaktreplaycount = MYREPLAYCOUNT;
 memcpy(&myaktnonce, &mynonce, 32);
 
 uint8_t packet[MAXPACPSNAPLEN];
