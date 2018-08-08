@@ -4,7 +4,8 @@ INSTALLDIR	= $(DESTDIR)$(PREFIX)/bin
 HOSTOS := $(shell uname -s)
 
 CC		?= gcc
-CFLAGS		= -std=gnu99 -O3 -Wall -Wextra
+CFLAGS		?= -O3 -Wall -Wextra
+CFLAGS		+= -std=gnu99
 INSTFLAGS	= -m 0755
 
 ifeq ($(HOSTOS), Linux)
