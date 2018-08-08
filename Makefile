@@ -4,7 +4,8 @@ INSTALLDIR	= $(DESTDIR)$(PREFIX)/bin
 HOSTOS := $(shell uname -s)
 
 CC		?= gcc
-CFLAGS		= -std=gnu99 -O3 -Wall -Wextra
+CFLAGS		?= -O3 -Wall -Wextra
+CFLAGS		+= -std=gnu99
 INSTFLAGS	= -m 0755
 
 ifeq ($(HOSTOS), Linux)
@@ -19,24 +20,24 @@ endif
 all: build
 
 build:
-	$(CC) $(CFLAGS) -o hcxpcaptool hcxpcaptool.c -lz -lcrypto $(LDFLAGS)
-	$(CC) $(CFLAGS) -o hcxhashcattool hcxhashcattool.c -lcrypto -lpthread  $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhc2hcx wlanhc2hcx.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanwkp2hcx wlanwkp2hcx.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhcxinfo wlanhcxinfo.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhcx2cap wlanhcx2cap.c -lpcap $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhcx2essid wlanhcx2essid.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhcx2ssid wlanhcx2ssid.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhcxmnc wlanhcxmnc.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhashhcx wlanhashhcx.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhcxcat wlanhcxcat.c -lcrypto $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanpmk2hcx wlanpmk2hcx.c -lcrypto $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanjohn2hcx wlanjohn2hcx.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlancow2hcxpmk wlancow2hcxpmk.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o whoismac whoismac.c -lcurl $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhcx2john wlanhcx2john.c $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlanhcx2psk wlanhcx2psk.c -lcrypto $(LDFLAGS)
-	$(CC) $(CFLAGS) -o wlancap2wpasec wlancap2wpasec.c -lcurl $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o hcxpcaptool hcxpcaptool.c -lz -lcrypto $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o hcxhashcattool hcxhashcattool.c -lcrypto -lpthread  $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhc2hcx wlanhc2hcx.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanwkp2hcx wlanwkp2hcx.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhcxinfo wlanhcxinfo.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhcx2cap wlanhcx2cap.c -lpcap $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhcx2essid wlanhcx2essid.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhcx2ssid wlanhcx2ssid.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhcxmnc wlanhcxmnc.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhashhcx wlanhashhcx.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhcxcat wlanhcxcat.c -lcrypto $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanpmk2hcx wlanpmk2hcx.c -lcrypto $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanjohn2hcx wlanjohn2hcx.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlancow2hcxpmk wlancow2hcxpmk.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o whoismac whoismac.c -lcurl $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhcx2john wlanhcx2john.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlanhcx2psk wlanhcx2psk.c -lcrypto $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o wlancap2wpasec wlancap2wpasec.c -lcurl $(LDFLAGS)
 
 
 install: build
