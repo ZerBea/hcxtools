@@ -3923,8 +3923,6 @@ memcpy(&myaktnonce, &mynonce, 32);
 
 uint8_t packet[MAXPACPSNAPLEN];
 
-
-
 printf("start reading from %s\n", pcapinname);
 memset(&packet, 0, MAXPACPSNAPLEN);
 while(1)
@@ -4166,6 +4164,9 @@ unsigned int res;
 pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
 uint8_t packet[MAXPACPSNAPLEN];
+
+myaktreplaycount = MYREPLAYCOUNT;
+memcpy(&myaktnonce, &mynonce, 32);
 
 printf("start reading from %s\n", pcapinname);
 memset(&packet, 0, MAXPACPSNAPLEN);
