@@ -1,0 +1,96 @@
+dist: trusty
+sudo: false
+cache:
+  ccache: true
+
+language: none
+ 
+matrix:
+ include:
+   - os: linux
+     addons:
+       apt:
+         sources:
+           - ubuntu-toolchain-r-test
+         packages:
+           - gcc-5
+           - ccache
+           - make
+           - libcurl4-gnutls-dev
+           - libpcap-dev
+     env:
+       - MATRIX_EVAL="CC=gcc-5"
+   - os: linux
+     addons:
+       apt:
+         sources:
+           - ubuntu-toolchain-r-test
+         packages:
+           - gcc-6
+           - ccache
+           - make
+           - libcurl4-gnutls-dev
+           - libpcap-dev
+     env:
+       - MATRIX_EVAL="CC=gcc-6"
+   - os: linux
+     addons:
+       apt:
+         sources:
+           - ubuntu-toolchain-r-test
+         packages:
+           - gcc-7
+           - ccache
+           - make
+           - libcurl4-gnutls-dev
+           - libpcap-dev
+     env:
+       - MATRIX_EVAL="CC=gcc-7 DO_INSTALL=1"
+   - os: linux
+     addons:
+       apt:
+         sources:
+           - ubuntu-toolchain-r-test
+           - llvm-toolchain-trusty-4.0
+         packages:
+           - clang-4.0
+           - ccache
+           - make
+           - libcurl4-gnutls-dev
+           - libpcap-dev
+     env:
+       - MATRIX_EVAL="CC=clang-4.0"
+   - os: linux
+     addons:
+       apt:
+         sources:
+           - ubuntu-toolchain-r-test
+           - llvm-toolchain-trusty-5.0
+         packages:
+           - clang-5.0
+           - ccache
+           - make
+           - libcurl4-gnutls-dev
+           - libpcap-dev
+     env:
+       - MATRIX_EVAL="CC=clang-5.0"
+   - os: linux
+     addons:
+       apt:
+         sources:
+           - ubuntu-toolchain-r-test
+           - llvm-toolchain-trusty
+         packages:
+           - clang
+           - ccache
+           - make
+           - libcurl4-gnutls-dev
+           - libpcap-dev
+     env:
+       - MATRIX_EVAL="CC=clang"
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+  - export "CC=ccache $CC"
+script:
+  - "make"
