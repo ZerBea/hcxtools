@@ -1,4 +1,7 @@
 /.deps
+=======
+hcxhashcattool
+hcxpcaptool
 pioff
 whoismac
 wlancap2hcx
@@ -11,9 +14,13 @@ wlanhc2hcx
 wlanhcx2cap
 wlanhcx2essid
 wlanhcx2john
+wlanhcx2psk
 wlanhcx2ssid
+wlanhcxcat
 wlanhcxinfo
 wlanhcxmnc
+wlanjohn2hcx
+wlanpmk2hcx
 wlanrcascan
 wlanresponse
-wlanpmk2hcx
+wlanwkp2hcx
