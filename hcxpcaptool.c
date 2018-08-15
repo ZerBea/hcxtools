@@ -214,8 +214,6 @@ int exeaptype[256];
 
 bool globalinit()
 {
-char *unknown = "unknown";
-
 hexmodeoutname = NULL;
 hccapxbestoutname = NULL;
 hccapxrawoutname = NULL;
@@ -244,10 +242,6 @@ maxrcdiff = MAX_RC_DIFF;
 
 setbuf(stdout, NULL);
 srand(time(NULL));
-
-strcpy(pcapnghwinfo, unknown);
-strcpy(pcapngosinfo, unknown);
-strcpy(pcapngapplinfo, unknown);
 
 return true;
 }
@@ -3917,10 +3911,6 @@ section_header_block_t pcapngshb;
 interface_description_block_t pcapngidb;
 packet_block_t pcapngpb;
 enhanced_packet_block_t pcapngepb;
-
-myaktreplaycount = MYREPLAYCOUNT;
-memcpy(&myaktnonce, &mynonce, 32);
-
 uint8_t packet[MAXPACPSNAPLEN];
 
 printf("start reading from %s\n", pcapinname);
@@ -4164,9 +4154,6 @@ unsigned int res;
 pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
 uint8_t packet[MAXPACPSNAPLEN];
-
-myaktreplaycount = MYREPLAYCOUNT;
-memcpy(&myaktnonce, &mynonce, 32);
 
 printf("start reading from %s\n", pcapinname);
 memset(&packet, 0, MAXPACPSNAPLEN);
@@ -4415,7 +4402,14 @@ tzsp80211prismframecount = 0;
 tzsp80211avsframecount = 0;
 wepframecount = 0;
 
+char *unknown = "unknown";
 char tmpoutname[PATH_MAX+1];
+
+myaktreplaycount = MYREPLAYCOUNT;
+memcpy(&myaktnonce, &mynonce, 32);
+strcpy(pcapnghwinfo, unknown);
+strcpy(pcapngosinfo, unknown);
+strcpy(pcapngapplinfo, unknown);
 
 if(testgzipfile(pcapinname) == true)
 	{
