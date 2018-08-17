@@ -351,6 +351,8 @@ struct authentication_frame
 #define FILS 4
 #define FILSPFS 5
 #define FILSPK 6
+#define NETWORKEAP 128
+
  uint16_t	authentication_seq;
  uint16_t	statuscode;
 } __attribute__((__packed__));

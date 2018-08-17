@@ -130,6 +130,7 @@ unsigned long long int authenticationsaeframecount;
 unsigned long long int authenticationfilsframecount;
 unsigned long long int authenticationfilspfsframecount;
 unsigned long long int authenticationfilspkframecount;
+unsigned long long int authenticationnetworkeapframecount;
 unsigned long long int authenticationbroadcomframecount;
 unsigned long long int authenticationsonosframecount;
 unsigned long long int authenticationappleframecount;
@@ -515,6 +516,10 @@ if(authenticationfilspfsframecount != 0)
 if(authenticationfilspkframecount != 0)
 	{
 	printf("authentications (FILS PK)....: %llu\n", authenticationfilspkframecount);
+	}
+if(authenticationnetworkeapframecount != 0)
+	{
+	printf("authentications (NETWORK EAP): %llu\n", authenticationnetworkeapframecount);
 	}
 if(authenticationbroadcomframecount != 0)
 	{
@@ -2796,6 +2801,10 @@ else if(auth->authentication_algho == FILSPK)
 	{
 	authenticationfilspkframecount++;
 	}
+else if(auth->authentication_algho == NETWORKEAP)
+	{
+	authenticationnetworkeapframecount++;
+	}
 else
 	{
 	authenticationunknownframecount++;
@@ -4374,6 +4383,7 @@ authenticationsaeframecount = 0;
 authenticationfilsframecount = 0;
 authenticationfilspfsframecount = 0;
 authenticationfilspkframecount = 0;
+authenticationnetworkeapframecount = 0;
 authenticationbroadcomframecount = 0;
 authenticationsonosframecount = 0;
 authenticationappleframecount = 0;
