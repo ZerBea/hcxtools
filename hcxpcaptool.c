@@ -122,7 +122,7 @@ unsigned long long int associationrequestframecount;
 unsigned long long int associationresponseframecount;
 unsigned long long int reassociationrequestframecount;
 unsigned long long int reassociationresponseframecount;
-unsigned long long int authenticationframecount;
+unsigned long long int authenticationunknownframecount;
 unsigned long long int authenticationosframecount;
 unsigned long long int authenticationskframecount;
 unsigned long long int authenticationfbtframecount;
@@ -133,6 +133,7 @@ unsigned long long int authenticationfilspkframecount;
 unsigned long long int authenticationbroadcomframecount;
 unsigned long long int authenticationsonosframecount;
 unsigned long long int authenticationappleframecount;
+unsigned long long int authenticationwiliboxframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
@@ -483,9 +484,9 @@ if(reassociationresponseframecount != 0)
 	{
 	printf("reassociation responses......: %llu\n", reassociationresponseframecount);
 	}
-if(authenticationframecount != 0)
+if(authenticationunknownframecount != 0)
 	{
-	printf("authentications..............: %llu\n", authenticationframecount);
+	printf("authentications (UNKNOWN)....: %llu\n", authenticationunknownframecount);
 	}
 if(authenticationosframecount != 0)
 	{
@@ -526,6 +527,10 @@ if(authenticationsonosframecount != 0)
 if(authenticationappleframecount != 0)
 	{
 	printf("authentications (APPLE)......: %llu\n", authenticationappleframecount);
+	}
+if(authenticationwiliboxframecount != 0)
+	{
+	printf("authentications (WILIBOX)....: %llu\n", authenticationwiliboxframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
@@ -2793,7 +2798,7 @@ else if(auth->authentication_algho == FILSPK)
 	}
 else
 	{
-	authenticationframecount++;
+	authenticationunknownframecount++;
 	}
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SIZE +(uint32_t)VENDORTAG_SIZE)
@@ -2803,22 +2808,29 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SI
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +AUTHENTICATIONFRAME_SIZE;
 vendorauth = (vendor_t*)packet_ptr;
 
+
 if(vendorauth->tagnr != 0xdd)
 	{
 	return;
 	}
+
 if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x10) && (vendorauth->oui[2] == 0x18))
 	{
 	authenticationbroadcomframecount++;
 	}
-if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x0e) && (vendorauth->oui[2] == 0x58))
+else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x0e) && (vendorauth->oui[2] == 0x58))
 	{
 	authenticationsonosframecount++;
 	}
-if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x17) && (vendorauth->oui[2] == 0xf2))
+else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x17) && (vendorauth->oui[2] == 0xf2))
 	{
 	authenticationappleframecount++;
 	}
+else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x19) && (vendorauth->oui[2] == 0x3b))
+	{
+	authenticationwiliboxframecount++;
+	}
+
 return;
 }
 /*===========================================================================*/
@@ -3852,7 +3864,7 @@ while(1)
 			return;
 			}
 		}
-	if(opthdr.option_code == 3)
+	else if(opthdr.option_code == 3)
 		{
 		memset(&pcapngosinfo, 0, 256);
 		res = read(fd, &pcapngosinfo, olpad);
@@ -3861,7 +3873,7 @@ while(1)
 			return;
 			}
 		}
-	if(opthdr.option_code == 4)
+	else if(opthdr.option_code == 4)
 		{
 		memset(&pcapngapplinfo, 0, 256);
 		res = read(fd, &pcapngapplinfo, olpad);
@@ -3870,7 +3882,7 @@ while(1)
 			return;
 			}
 		}
-	if(opthdr.option_code == 62108)
+	else if(opthdr.option_code == 62108)
 		{
 		res = read(fd, &filereplaycound, olpad);
 		if(res != olpad)
@@ -3884,7 +3896,7 @@ while(1)
 		myaktreplaycount = filereplaycound[0x00] & 0xff;
 		myaktreplaycount += (filereplaycound[0x01] & 0xff) << 8;
 		}
-	if(opthdr.option_code == 62109)
+	else if(opthdr.option_code == 62109)
 		{
 		res = read(fd, &filenonce, olpad);
 		if(res != olpad)
@@ -3896,6 +3908,10 @@ while(1)
 			return;
 			}
 		memcpy(&myaktnonce, &filenonce, 32);
+		}
+	else
+		{
+		lseek(fd, olpad, SEEK_CUR);
 		}
 	}
 return;
@@ -4350,7 +4366,7 @@ associationrequestframecount = 0;
 associationresponseframecount = 0;
 reassociationrequestframecount = 0;
 reassociationresponseframecount = 0;
-authenticationframecount = 0;
+authenticationunknownframecount = 0;
 authenticationosframecount = 0;
 authenticationskframecount = 0;
 authenticationfbtframecount = 0;
@@ -4361,6 +4377,7 @@ authenticationfilspkframecount = 0;
 authenticationbroadcomframecount = 0;
 authenticationsonosframecount = 0;
 authenticationappleframecount = 0;
+authenticationwiliboxframecount = 0;
 deauthenticationframecount = 0;
 disassociationframecount = 0;
 handshakecount = 0;
