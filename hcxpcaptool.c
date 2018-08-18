@@ -4148,7 +4148,9 @@ while(1)
 		}
 	else
 		{
-		lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		printf("unknown blocktype %d after packet %lld\n", pcapngbh.block_type, rawpacketcount);
+		pcapreaderrors = 1;
+		break;
 		}
 	if(pcapngepb.caplen > 0)
 		{
