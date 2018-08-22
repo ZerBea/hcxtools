@@ -1627,21 +1627,27 @@ void outlistidentity(uint32_t idlen, uint8_t *packet)
 {
 FILE *fhoutlist = NULL;
 
-if(idlen <= 5)
+uint32_t idcount = 5;
+
+if(idlen <= idcount)
 	{
 	return;
 	}
 
-if(packet[5] == 0)
-	{
-	return;
-	}
 
+if((packet[idcount] == 0) && (idlen > idcount +1))
+	{
+	idcount++;
+	if((packet[idcount] == 0) && (idlen <= idcount +1))
+		{
+		return;
+		}
+	}
 if(identityoutname != NULL)
 	{
 	if((fhoutlist = fopen(identityoutname, "a+")) != NULL)
 		{
-		fwriteessidstr(idlen -5, (packet +5), fhoutlist);
+		fwriteessidstr(idlen -idcount, (packet +idcount), fhoutlist);
 		fclose(fhoutlist);
 		}
 	}
