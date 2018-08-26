@@ -93,10 +93,12 @@ return len;
 static void get16800info(const char *ouiname, char *hash16800line)
 {
 int len;
-int l;
+int l, l1;
 FILE* fhoui;
 char *vendorptr;
 char *essidptr;
+char *passwdptr;
+
 unsigned long long int mac;
 unsigned long long int oui;
 unsigned long long int vendoroui;
@@ -109,13 +111,23 @@ oui = mac >> 24;
 
 essidptr = hash16800line +59;
 l = strlen(essidptr);
-if(l > 64)
+
+passwdptr = strrchr(hash16800line, ':');
+if(passwdptr != NULL)
+	{
+	l1 = strlen(passwdptr);
+	if(l1 > 1)
+		{
+		l -= l1;
+		}
+	}
+if((l%2 != 0) || (l > 64))
 	{
 	fprintf(stderr, "wrong ESSID length %s\n", essidptr);
 	return;
 	}
 memset(&essidbuffer, 0, 66);
-if(hex2bin(essidptr, essidbuffer, l) == false)
+if(hex2bin(essidptr, essidbuffer, l/2) == false)
 	{
 	fprintf(stderr, "wrong ESSID %s\n", essidptr);
 	return;
@@ -138,7 +150,7 @@ while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
 		if(oui == vendoroui)
 			{
 			vendorptr = strrchr(linein, '\t');
-			if(isasciistring(l %2, essidbuffer) == true)
+			if(isasciistring(l /2, essidbuffer) == true)
 				{
 				fprintf(stdout, "\nESSID.: %s\n"
 						"MAC_AP: %012llx\n"
@@ -300,7 +312,7 @@ while ((auswahl = getopt(argc, argv, "m:v:p:dh")) != -1)
 			fprintf(stderr, "error hashline too short %s\n", optarg);
 			exit(EXIT_FAILURE);
 			}
-		if((((l-3)%2) != 0) || ((hash16800line[32] != '*') && (hash16800line[45] != '*') && (hash16800line[58] != '*')))
+		if((hash16800line[32] != '*') && (hash16800line[45] != '*') && (hash16800line[58] != '*'))
 			{
 			fprintf(stderr, "error hashline wrong format %s\n", optarg);
 			exit(EXIT_FAILURE);
