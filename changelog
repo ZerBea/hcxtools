@@ -1,3 +1,9 @@
+26.08.2018
+==========
+whoismac added new option -p to get information about VENDOR and print ESSID in ASCII
+"-p <hashline> : input PMKID hashline\n"
+
+
 17.08.2018
 ==========
 hcxpcaptool skip unknown option (thanks to magnumripper)

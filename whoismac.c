@@ -18,6 +18,8 @@
 #include <curl/curl.h>
 
 #include "include/version.h"
+#include "include/strings.c"
+
 #include "common.h"
 
 #define LINEBUFFER 256
@@ -88,16 +90,84 @@ if (feof(inputstream)) return -1;
 return len;
 }
 /*===========================================================================*/
+static void get16800info(const char *ouiname, char *hash16800line)
+{
+int len;
+int l;
+FILE* fhoui;
+char *vendorptr;
+char *essidptr;
+unsigned long long int mac;
+unsigned long long int oui;
+unsigned long long int vendoroui;
+
+char linein[LINEBUFFER];
+uint8_t essidbuffer[66];
+
+sscanf(&hash16800line[33], "%12llx", &mac);
+oui = mac >> 24;
+
+essidptr = hash16800line +59;
+l = strlen(essidptr);
+if(l > 64)
+	{
+	fprintf(stderr, "wrong ESSID length %s\n", essidptr);
+	return;
+	}
+memset(&essidbuffer, 0, 66);
+if(hex2bin(essidptr, essidbuffer, l) == false)
+	{
+	fprintf(stderr, "wrong ESSID %s\n", essidptr);
+	return;
+	}
+
+if ((fhoui = fopen(ouiname, "r")) == NULL)
+	{
+	fprintf(stderr, "unable to open database %s\n", ouiname);
+	exit (EXIT_FAILURE);
+	}
+
+while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
+	{
+	if (len < 10)
+		continue;
+
+	if(strstr(linein, "(base 16)") != NULL)
+		{
+		sscanf(linein, "%06llx", &vendoroui);
+		if(oui == vendoroui)
+			{
+			vendorptr = strrchr(linein, '\t');
+			if(isasciistring(l %2, essidbuffer) == true)
+				{
+				fprintf(stdout, "\nESSID.: %s\n"
+						"MAC_AP: %012llx\n"
+						"VENDOR: %s\n\n"
+						,essidbuffer, mac, vendorptr +1);
+				}
+			else
+				{
+				fprintf(stdout, "\nESSID.: $HEX[%s]\n"
+						"MAC_AP: %012llx\n"
+						"VENDOR: %s\n\n"
+						, essidptr,mac, vendorptr +1);
+				}
+			}
+		}
+	}
+
+fclose(fhoui);
+return;
+}
+/*===========================================================================*/
 static void getoui(const char *ouiname, unsigned long long int oui)
 {
 int len;
-
 FILE* fhoui;
 char *vendorptr;
 unsigned long long int vendoroui;
 
 char linein[LINEBUFFER];
-
 
 if ((fhoui = fopen(ouiname, "r")) == NULL)
 	{
@@ -167,13 +237,14 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-d          : download http://standards-oui.ieee.org/oui.txt\n"
-	"            : and save to ~/.hcxtools/oui.txt\n"
-	"            : internet connection required\n"
-	"-m <mac>    : mac (six bytes of mac addr) or \n"
-	"            : oui (fist three bytes of mac addr)\n"
-	"-v <vendor> : vendor name\n"
-	"-h          : this help screen\n"
+	"-d            : download http://standards-oui.ieee.org/oui.txt\n"
+	"              : and save to ~/.hcxtools/oui.txt\n"
+	"              : internet connection required\n"
+	"-m <mac>      : mac (six bytes of mac addr) or \n"
+	"              : oui (fist three bytes of mac addr)\n"
+	"-p <hashline> : input PMKID hashline\n"
+	"-v <vendor>   : vendor name\n"
+	"-h            : this help screen\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -183,16 +254,18 @@ int main(int argc, char *argv[])
 int auswahl;
 int mode = 0;
 int ret;
+int l;
 unsigned long long int oui = 0;
 
 uid_t uid;
 struct passwd *pwd;
 struct stat statinfo;
 char *vendorname = NULL;
+char *hash16800line = NULL;
 const char confdirname[] = ".hcxtools";
 const char ouiname[] = ".hcxtools/oui.txt";
 
-while ((auswahl = getopt(argc, argv, "m:v:dh")) != -1)
+while ((auswahl = getopt(argc, argv, "m:v:p:dh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -217,6 +290,23 @@ while ((auswahl = getopt(argc, argv, "m:v:dh")) != -1)
 			fprintf(stderr, "error wrong oui size %s (need 1122334455aa or 1122aa)\n", optarg);
 			exit(EXIT_FAILURE);
 			}
+		break;
+
+		case 'p':
+		hash16800line = optarg;
+		l = strlen(hash16800line);
+		if(l < 61)
+			{
+			fprintf(stderr, "error hashline too short %s\n", optarg);
+			exit(EXIT_FAILURE);
+			}
+		if((((l-3)%2) != 0) || ((hash16800line[32] != '*') && (hash16800line[45] != '*') && (hash16800line[58] != '*')))
+			{
+			fprintf(stderr, "error hashline wrong format %s\n", optarg);
+			exit(EXIT_FAILURE);
+			}
+
+		mode = 'p';
 		break;
 
 		case 'v':
@@ -264,11 +354,18 @@ if(stat(ouiname, &statinfo) != 0)
 	}
 
 if(mode == 'm')
+	{
 	getoui(ouiname, oui);
+	}
+else if(mode == 'p')
+	{
+	get16800info(ouiname, hash16800line);
+	}
 
-if(mode == 'v')
+else if(mode == 'v')
+	{
 	getvendor(ouiname, vendorname);
-
+	}
 
 return EXIT_SUCCESS;
 }
