@@ -143,7 +143,7 @@ while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
 				fprintf(stdout, "\nESSID.: %s\n"
 						"MAC_AP: %012llx\n"
 						"VENDOR: %s\n\n"
-						,essidbuffer, mac, vendorptr +1);
+						, essidbuffer, mac, vendorptr +1);
 				}
 			else
 				{
