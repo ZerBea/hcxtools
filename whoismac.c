@@ -198,8 +198,8 @@ int len;
 FILE* fhoui;
 char *vendorptr;
 unsigned long long int vendoroui;
-
 char linein[LINEBUFFER];
+char vendorapname[256];
 
 if ((fhoui = fopen(ouiname, "r")) == NULL)
 	{
@@ -207,6 +207,7 @@ if ((fhoui = fopen(ouiname, "r")) == NULL)
 	exit (EXIT_FAILURE);
 	}
 
+strncpy(vendorapname, "unknown", 8);
 while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
 	{
 	if (len < 10)
@@ -218,10 +219,16 @@ while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
 		if(oui == vendoroui)
 			{
 			vendorptr = strrchr(linein, '\t');
-			fprintf(stdout, "%06llx%s\n", vendoroui, vendorptr);
+			if(vendorptr != NULL)
+				{
+				strncpy(vendorapname, vendorptr +1,255);
+				}
 			}
 		}
 	}
+
+fprintf(stdout, "\nVENDOR: %s\n\n", vendorapname);
+
 fclose(fhoui);
 return;
 }
