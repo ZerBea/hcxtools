@@ -99,15 +99,21 @@ char *vendorptr;
 char *essidptr;
 char *passwdptr;
 
-unsigned long long int mac;
-unsigned long long int oui;
+unsigned long long int macap;
+unsigned long long int macsta;
+unsigned long long int ouiap;
+unsigned long long int ouista;
 unsigned long long int vendoroui;
 
 char linein[LINEBUFFER];
 uint8_t essidbuffer[66];
+char vendorapname[256];
+char vendorstaname[256];
 
-sscanf(&hash16800line[33], "%12llx", &mac);
-oui = mac >> 24;
+sscanf(&hash16800line[33], "%12llx", &macap);
+ouiap = macap >> 24;
+sscanf(&hash16800line[46], "%12llx", &macsta);
+ouista = macsta >> 24;
 
 essidptr = hash16800line +59;
 l = strlen(essidptr);
@@ -127,7 +133,7 @@ if((l%2 != 0) || (l > 64))
 	return;
 	}
 memset(&essidbuffer, 0, 66);
-if(hex2bin(essidptr, essidbuffer, l/2) == false)
+if(hex2bin(essidptr, essidbuffer, l /2) == false)
 	{
 	fprintf(stderr, "wrong ESSID %s\n", essidptr);
 	return;
@@ -139,34 +145,48 @@ if ((fhoui = fopen(ouiname, "r")) == NULL)
 	exit (EXIT_FAILURE);
 	}
 
+strncpy(vendorapname, "unknown", 8);
+strncpy(vendorstaname, "unknown", 8);
+
 while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
 	{
 	if (len < 10)
 		continue;
-
 	if(strstr(linein, "(base 16)") != NULL)
 		{
 		sscanf(linein, "%06llx", &vendoroui);
-		if(oui == vendoroui)
+		if(ouiap == vendoroui)
 			{
 			vendorptr = strrchr(linein, '\t');
-			if(isasciistring(l /2, essidbuffer) == true)
+			if(vendorptr != NULL)
 				{
-				fprintf(stdout, "\nESSID.: %s\n"
-						"MAC_AP: %012llx\n"
-						"VENDOR: %s\n\n"
-						, essidbuffer, mac, vendorptr +1);
+				strncpy(vendorapname, vendorptr +1,255);
 				}
-			else
+			}
+		if(ouista == vendoroui)
+			{
+			vendorptr = strrchr(linein, '\t');
+			if(vendorptr != NULL)
 				{
-				fprintf(stdout, "\nESSID.: $HEX[%s]\n"
-						"MAC_AP: %012llx\n"
-						"VENDOR: %s\n\n"
-						, essidptr,mac, vendorptr +1);
+				strncpy(vendorstaname, vendorptr +1,255);
 				}
 			}
 		}
 	}
+if(isasciistring(l /2, essidbuffer) == true)
+	{
+	fprintf(stdout, "\nESSID..: %s\n", essidbuffer);
+	}
+else
+	{
+	fprintf(stdout, "\nESSID..: $HEX[%s]\n", essidbuffer);
+	}
+
+fprintf(stdout, "MAC_AP.: %012llx\n"
+		"VENDOR.: %s\n"
+		"MAC_STA: %012llx\n"
+		"VENDOR.: %s\n\n"
+		, macap, vendorapname, macsta, vendorstaname);
 
 fclose(fhoui);
 return;
