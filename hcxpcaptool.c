@@ -2393,6 +2393,30 @@ if(memcmp(pmkid->pmkid, &nullnonce, 16) == 0)
 	{
 	return;
 	}
+if(memcmp(&pmkid->pmkid[2], &nullnonce, 4) == 0)
+	{
+	return;
+	}
+if(memcmp(&pmkid->pmkid[4], &nullnonce, 4) == 0)
+	{
+	return;
+	}
+if(memcmp(&pmkid->pmkid[6], &nullnonce, 4) == 0)
+	{
+	return;
+	}
+if(memcmp(&pmkid->pmkid[8], &nullnonce, 4) == 0)
+	{
+	return;
+	}
+if(memcmp(&pmkid->pmkid[10], &nullnonce, 4) == 0)
+	{
+	return;
+	}
+if(memcmp(&pmkid->pmkid[12], &nullnonce, 4) == 0)
+	{
+	return;
+	}
 
 if(pmkidliste == NULL)
 	{
@@ -2771,9 +2795,6 @@ mac_t *macf;
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset;
 auth = (authf_t*)packet_ptr;
-#ifdef BIG_ENDIAN_HOST
-auth->authentication_algho = byte_swap_16(auth->authentication_algho);
-#endif
 
 if(macf->protected == 1)
 	{
@@ -2884,6 +2905,7 @@ wpakey_t *wpak;
 uint16_t keyinfo;
 uint16_t authlen;
 uint64_t rc;
+uint16_t kl;
 
 if(caplen < (uint32_t)WPAKEY_SIZE)
 	{
@@ -2903,6 +2925,13 @@ if(authlen > caplen -4)
 	{
 	return;
 	}
+
+kl = ntohs(wpak->keylen);
+if((kl != 16) && (kl != 32))
+	{
+	return;
+	}
+
 if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 	{
 	eapolframecount++;
