@@ -2904,6 +2904,7 @@ eapauth_t *eap;
 wpakey_t *wpak;
 uint16_t keyinfo;
 uint16_t authlen;
+uint16_t gkeyinfo;
 uint64_t rc;
 uint16_t kl;
 
@@ -2913,8 +2914,8 @@ if(caplen < (uint32_t)WPAKEY_SIZE)
 	}
 eap = (eapauth_t*)packet;
 wpak = (wpakey_t*)(packet +EAPAUTH_SIZE);
-
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
+
 rc = byte_swap_64(wpak->replaycount);
 #ifdef BIG_ENDIAN_HOST
 rc = byte_swap_64(wpak->replaycount);
@@ -2943,7 +2944,14 @@ if(keyinfo == 1)
 	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 1, rc, authlen +4, packet);
 	if(authlen == 0x75)
 		{
-		addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
+		if(kl == 16)
+			{
+			gkeyinfo = ntohs(wpak->keyinfo);
+			if(!(gkeyinfo & WPA_KEY_INFO_KEY_TYPE))
+				{
+				addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
+				}
+			}
 		}
 	}
 else if(keyinfo == 3)
