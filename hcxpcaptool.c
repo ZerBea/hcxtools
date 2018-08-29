@@ -2568,6 +2568,14 @@ return;
 /*===========================================================================*/
 void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t status, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
 {
+if(essidlen == 1)
+	{
+	if(essid[0] < 0x20)
+		{
+		return;
+		}
+	}
+
 apstaessidl_t *zeiger;
 if(apstaessidliste == NULL)
 	{
