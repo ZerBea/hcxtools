@@ -2951,10 +2951,7 @@ if(keyinfo == 1)
 	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 1, rc, authlen +4, packet);
 	if(authlen == 0x75)
 		{
-		if(kl == 16)
-			{
-			addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
-			}
+		addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
 		}
 	}
 else if(keyinfo == 3)
