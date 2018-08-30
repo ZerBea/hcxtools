@@ -2912,7 +2912,6 @@ eapauth_t *eap;
 wpakey_t *wpak;
 uint16_t keyinfo;
 uint16_t authlen;
-uint16_t gkeyinfo;
 uint64_t rc;
 uint16_t kl;
 
@@ -2954,11 +2953,7 @@ if(keyinfo == 1)
 		{
 		if(kl == 16)
 			{
-			gkeyinfo = ntohs(wpak->keyinfo);
-			if(!(gkeyinfo & WPA_KEY_INFO_KEY_TYPE))
-				{
-				addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
-				}
+			addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
 			}
 		}
 	}
