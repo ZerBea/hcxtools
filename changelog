@@ -147,7 +147,7 @@ options:
                default = https://wpa-sec.stanev.org
 -t <seconds> : set connection timeout
                default = 30 seconds
--R           : remove cap if upload was successfull
+-R           : remove cap if upload was successful
 -h           : this help
 
 

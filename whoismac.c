@@ -51,7 +51,7 @@ curl_easy_cleanup(hnd);
 fclose(fhoui);
 if(ret != 0)
 	{
-	fprintf(stderr, "download not successfull");
+	fprintf(stderr, "download not successful");
 	exit(EXIT_FAILURE);
 	}
 
