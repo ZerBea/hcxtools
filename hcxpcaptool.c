@@ -2905,6 +2905,7 @@ wpakey_t *wpak;
 uint16_t keyinfo;
 uint16_t authlen;
 uint64_t rc;
+uint16_t kl;
 
 if(caplen < (uint32_t)WPAKEY_SIZE)
 	{
@@ -2921,6 +2922,13 @@ rc = byte_swap_64(wpak->replaycount);
 
 authlen = ntohs(eap->len);
 if(authlen > caplen -4)
+	{
+	return;
+	}
+	
+
+kl = ntohs(wpak->keylen);
+if((kl %16) != 0)
 	{
 	return;
 	}
