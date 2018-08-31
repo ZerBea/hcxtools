@@ -2568,14 +2568,6 @@ return;
 /*===========================================================================*/
 void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t status, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
 {
-if(essidlen == 1)
-	{
-	if(essid[0] < 0x20)
-		{
-		return;
-		}
-	}
-
 apstaessidl_t *zeiger;
 if(apstaessidliste == NULL)
 	{
@@ -2913,7 +2905,6 @@ wpakey_t *wpak;
 uint16_t keyinfo;
 uint16_t authlen;
 uint64_t rc;
-uint16_t kl;
 
 if(caplen < (uint32_t)WPAKEY_SIZE)
 	{
@@ -2930,12 +2921,6 @@ rc = byte_swap_64(wpak->replaycount);
 
 authlen = ntohs(eap->len);
 if(authlen > caplen -4)
-	{
-	return;
-	}
-
-kl = ntohs(wpak->keylen);
-if((kl != 16) && (kl != 32))
 	{
 	return;
 	}
