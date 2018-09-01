@@ -855,6 +855,21 @@ writepsk(pskstring);
 return;
 }
 /*===========================================================================*/
+static void keywritepreappend6(char *basestring)
+{
+snprintf(pskstring, 64, "%s123456", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "123456%s", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "%s@12345", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "%s@home1", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "%s@wifi1", basestring);
+writepsk(pskstring);
+return;
+}
+/*===========================================================================*/
 static void keywritepreappend5(char *basestring)
 {
 int y;
@@ -864,6 +879,10 @@ writepsk(pskstring);
 snprintf(pskstring, 64, "12345%s", basestring);
 writepsk(pskstring);
 snprintf(pskstring, 64, "%s@1234", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "%s@home", basestring);
+writepsk(pskstring);
+snprintf(pskstring, 64, "%s@wifi", basestring);
 writepsk(pskstring);
 for(y = 1900; y <= thisyear; y++)
 	{
@@ -915,6 +934,10 @@ for(l1 = 3; l1 <= essidlenin; l1++)
 			{
 			keywritepreappend9(essidstr);
 			}
+		if((l1 > 1) && (l1 < 58))
+			{
+			keywritepreappend6(essidstr);
+			}
 		if((l1 > 2) && (l1 < 59))
 			{
 			keywritepreappend5(essidstr);
@@ -935,7 +958,6 @@ for(l1 = 3; l1 <= essidlenin; l1++)
 			}
 		if((l1 > 7) && (l1 < 63))
 			writepsk(essidstr);
-
 		}
 	}
 return;
