@@ -1,3 +1,8 @@
+04.09.2018
+==========
+hcxdumptool: try to detect and remove damaged ESSIDs
+
+
 26.08.2018
 ==========
 whoismac added new option -p to get information about VENDOR and print ESSID in ASCII
