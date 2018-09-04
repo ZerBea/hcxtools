@@ -12,6 +12,21 @@ struct apstaessidlist_s
 typedef struct apstaessidlist_s apstaessidl_t;
 #define	APSTAESSIDLIST_SIZE (sizeof(apstaessidl_t))
 /*===========================================================================*/
+static int sort_apstaessidlist_by_ap_sta(const void *a, const void *b)
+{
+const apstaessidl_t *ia = (const apstaessidl_t *)a;
+const apstaessidl_t *ib = (const apstaessidl_t *)b;
+if(memcmp(ia->mac_ap, ib->mac_ap, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_ap, ib->mac_ap, 6) < 0)
+	return -1;
+if(memcmp(ia->mac_sta, ib->mac_sta, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_sta, ib->mac_sta, 6) < 0)
+	return -1;
+return 0;
+}
+/*===========================================================================*/
 static int sort_apstaessidlist_by_ap_essid(const void *a, const void *b)
 {
 const apstaessidl_t *ia = (const apstaessidl_t *)a;
