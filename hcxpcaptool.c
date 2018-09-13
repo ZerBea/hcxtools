@@ -2555,11 +2555,11 @@ for(c = 0; c < apstaessidcount; c++)
 		memset(zeiger2->essid, 0, 32);
 		memcpy(zeiger2->essid, zeiger1->essid, zeiger1->essidlen);
 		apstaessidcountcleaned++;
+
 		}
 	else
 		{
-//		if((zeiger1->essidlen != zeiger2->essidlen) && (memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) != 0) && (memcmp(zeiger1->mac_sta, zeiger2->mac_sta, 6) != 0) && (memcmp(zeiger1->essid, zeiger2->essid, zeiger1->essidlen) != 0))
-		if((memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) != 0) && (memcmp(zeiger1->mac_sta, zeiger2->mac_sta, 6) != 0))
+		if(memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) != 0)
 			{
 			zeiger2++;
 			zeiger2->status |= zeiger1->status;
@@ -2577,6 +2577,14 @@ for(c = 0; c < apstaessidcount; c++)
 free(apstaessidliste);
 apstaessidliste = apstaessidlistecleaned;
 apstaessidcount = apstaessidcountcleaned;
+
+/*
+zeiger2 = apstaessidlistecleaned;
+for(c = 0; c < apstaessidcountcleaned; c++)
+	{
+	zeiger2++;
+	}
+*/
 return;
 }
 /*===========================================================================*/
