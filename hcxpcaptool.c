@@ -134,6 +134,7 @@ unsigned long long int authenticationnetworkeapframecount;
 unsigned long long int authenticationbroadcomframecount;
 unsigned long long int authenticationsonosframecount;
 unsigned long long int authenticationappleframecount;
+unsigned long long int authenticationnetgearframecount;
 unsigned long long int authenticationwiliboxframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int disassociationframecount;
@@ -532,6 +533,10 @@ if(authenticationsonosframecount != 0)
 if(authenticationappleframecount != 0)
 	{
 	printf("authentications (APPLE)......: %llu\n", authenticationappleframecount);
+	}
+if(authenticationnetgearframecount != 0)
+	{
+	printf("authentications (NETGEAR)....: %llu\n", authenticationnetgearframecount);
 	}
 if(authenticationwiliboxframecount != 0)
 	{
@@ -2879,6 +2884,10 @@ if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x10) && (vendorauth->
 else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x0e) && (vendorauth->oui[2] == 0x58))
 	{
 	authenticationsonosframecount++;
+	}
+else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x14) && (vendorauth->oui[2] == 0x6c))
+	{
+	authenticationnetgearframecount++;
 	}
 else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x17) && (vendorauth->oui[2] == 0xf2))
 	{
