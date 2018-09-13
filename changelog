@@ -1,3 +1,8 @@
+06.09.2018
+==========
+added detection of Netgear VENDOR information in authentication
+
+
 04.09.2018
 ==========
 hcxdumptool: try to detect and remove damaged ESSIDs

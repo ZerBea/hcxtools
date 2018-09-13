@@ -135,6 +135,7 @@ unsigned long long int authenticationbroadcomframecount;
 unsigned long long int authenticationsonosframecount;
 unsigned long long int authenticationappleframecount;
 unsigned long long int authenticationwiliboxframecount;
+unsigned long long int authenticationnetgearframecount;
 unsigned long long int deauthenticationframecount;
 unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
@@ -536,6 +537,10 @@ if(authenticationappleframecount != 0)
 if(authenticationwiliboxframecount != 0)
 	{
 	printf("authentications (WILIBOX)....: %llu\n", authenticationwiliboxframecount);
+	}
+if(authenticationwiliboxframecount != 0)
+	{
+	printf("authentications (NETGEAR)....: %llu\n", authenticationnetgearframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
@@ -2888,7 +2893,10 @@ else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x19) && (vendora
 	{
 	authenticationwiliboxframecount++;
 	}
-
+else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x14) && (vendorauth->oui[2] == 0x6c))
+	{
+	authenticationnetgearframecount++;
+	}
 return;
 }
 /*===========================================================================*/
