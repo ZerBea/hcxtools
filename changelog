@@ -1,11 +1,16 @@
+15.09.2018
+==========
+hcxpcaptool: added detection of Cisco Systems, Inc VENDOR information in authentication
+
+
 06.09.2018
 ==========
-added detection of Netgear VENDOR information in authentication
+hcxpcaptool: added detection of Netgear VENDOR information in authentication
 
 
 04.09.2018
 ==========
-hcxdumptool: try to detect and remove damaged ESSIDs
+hcxpcaptool: try to detect and remove damaged ESSIDs
 
 
 26.08.2018
