@@ -269,6 +269,11 @@ static void addapessid(uint64_t macaddr, uint8_t essidlen, uint8_t *essid)
 {
 static apessidl_t *zeiger;
 
+
+if(essidlen > ESSID_LEN_MAX)
+	{
+	return;
+	}
 if(apessidliste == NULL)
 	{
 	apessidliste = malloc(APESSIDLIST_SIZE);
