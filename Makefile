@@ -20,10 +20,10 @@ endif
 TOOLS=
 TOOLS+=hcxpcaptool
 hcxpcaptool_libs=-lz -lcrypto
-TOOLS+=hcxhashcattool
-hcxhashcattool_libs=-lcrypto -lpthread
 TOOLS+=hcxpsktool
 hcxpsktool_libs=-lcrypto
+TOOLS+=hcxhashcattool
+hcxhashcattool_libs=-lcrypto -lpthread
 TOOLS+=wlanhc2hcx
 TOOLS+=wlanwkp2hcx
 TOOLS+=wlanhcxinfo
