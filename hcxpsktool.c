@@ -198,22 +198,16 @@ char pskstring[PSKSTRING_LEN_MAX] = {};
 
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%012llx", macaddr);
 writepsk(fhout, pskstring);
-
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%011llx", macaddr &0xfffffffffff);
 writepsk(fhout, pskstring);
-
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%010llx", macaddr &0xffffffffff);
 writepsk(fhout, pskstring);
-
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%09llx", macaddr &0xfffffffff);
 writepsk(fhout, pskstring);
-
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%08llx", macaddr &0xffffffff);
 writepsk(fhout, pskstring);
-
 writebssidmd5(fhout, macaddr);
 writebssidwps(fhout, macaddr);
-
 return;
 }
 /*===========================================================================*/
@@ -225,7 +219,6 @@ unsigned long long int nic;
 
 oui = macaddr &0xffffff000000L;
 nic = (macaddr &0xffffffL) -8;
-
 for(c = 0; c < 0x10; c++)
 	{
 	writebssid(fhout, oui +nic +c);
@@ -269,7 +262,6 @@ static void addapessid(uint64_t macaddr, uint8_t essidlen, uint8_t *essid)
 {
 static apessidl_t *zeiger;
 
-
 if(essidlen > ESSID_LEN_MAX)
 	{
 	return;
@@ -289,13 +281,11 @@ if(apessidliste == NULL)
 	apessidcount++;
 	return;
 	}
-
 zeiger = apessidliste +apessidcount -1;
 if((zeiger->macaddr == macaddr) && (zeiger->essidlen == essidlen) && (memcmp(zeiger->essid, essid, essidlen) == 0))
 	{
 	return;
 	}
-
 zeiger = realloc(apessidliste, (apessidcount +1) *APESSIDLIST_SIZE);
 if(zeiger == NULL)
 	{
@@ -467,11 +457,11 @@ return;
 /*===========================================================================*/
 static inline void readcommandline(char *macapname, char *essidname)
 {
-int essidlen = 0;
-int essidlenuh = 0;
-char *macaddrstop = NULL;
-unsigned long long int macaddr = 0xffffffffffff;
-uint8_t essid[ESSID_LEN_MAX];
+static int essidlen = 0;
+static int essidlenuh = 0;
+static char *macaddrstop = NULL;
+static unsigned long long int macaddr = 0xffffffffffffL;
+static uint8_t essid[ESSID_LEN_MAX];
 
 if(macapname != NULL)
 	{
@@ -543,13 +533,13 @@ int main(int argc, char *argv[])
 {
 static int auswahl;
 static int index;
-FILE *fhpsk;
+static FILE *fhpsk;
 
-char *hccapxname = NULL;
-char *pmkidname = NULL;
-char *essidname = NULL;
-char *macapname = NULL;
-char *pskname = NULL;
+static char *hccapxname = NULL;
+static char *pmkidname = NULL;
+static char *essidname = NULL;
+static char *macapname = NULL;
+static char *pskname = NULL;
 
 apessidliste = NULL;
 apessidcount = 0;
