@@ -10,7 +10,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include <openssl/md5.h>
+#ifdef __APPLE__
+#include <libgen.h>
+#else
+#include <stdio_ext.h>
+#endif
 #include "include/version.h"
 #include "include/hcxpsktool.h"
 #include "include/hashcatops.h"
@@ -113,6 +118,56 @@ return;
 }
 /*===========================================================================*/
 /*===========================================================================*/
+static void writebssidmd5(FILE *fhout, unsigned long long int macaddr)
+{
+MD5_CTX ctxmd5;
+int k;
+int p;
+char keystring[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+char macstring[PSKSTRING_LEN_MAX] = {};
+unsigned char digestmd5[MD5_DIGEST_LENGTH];
+
+snprintf(macstring, 14, "%012llX", macaddr);
+MD5_Init(&ctxmd5);
+MD5_Update(&ctxmd5, macstring, 12);
+MD5_Final(digestmd5, &ctxmd5);
+
+for (p = 0; p < 10; p++)
+	{
+	fprintf(fhout, "%02x",digestmd5[p]);
+	}
+fprintf(fhout, "\n");
+
+for (p = 0; p < 8; p++)
+	{
+	k = (digestmd5[p] %26);
+	fprintf(fhout, "%c",keystring[k]);
+	}
+fprintf(fhout, "\n");
+
+for (p = 0; p < 10; p++)
+	{
+	k = (digestmd5[p] %26);
+	fprintf(fhout, "%c",keystring[k]);
+	}
+fprintf(fhout, "\n");
+
+for (p = 0; p < 15 ; p +=2)
+	{
+	k = (digestmd5[p] %26);
+	fprintf(fhout, "%c",keystring[k]);
+	}
+fprintf(fhout, "\n");
+
+for (p = 1; p < 16 ; p +=2)
+	{
+	k = (digestmd5[p] %26);
+	fprintf(fhout, "%c",keystring[k]);
+	}
+fprintf(fhout, "\n");
+return;
+}
+/*===========================================================================*/
 static void writebssid(FILE *fhout, unsigned long long int macaddr)
 {
 char pskstring[PSKSTRING_LEN_MAX] = {};
@@ -132,6 +187,8 @@ writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%08llx", macaddr &0xffffffff);
 writepsk(fhout, pskstring);
 
+writebssidmd5(fhout, macaddr);
+
 return;
 }
 /*===========================================================================*/
@@ -148,6 +205,10 @@ for(c = 0; c < 0x10; c++)
 	{
 	writebssid(fhout, oui +nic +c);
 	}
+
+
+
+
 return;
 }
 /*===========================================================================*/
