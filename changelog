@@ -1,3 +1,9 @@
+20.09.2018
+==========
+prepare new tool (experimental): hcxpsktool (supports hccapx and 16800 hashfile)
+hcxpsktool will replace wlanhcx2psk, when all wlanhcx2psk functions are added
+
+
 15.09.2018
 ==========
 hcxpcaptool: added detection of Cisco Systems, Inc VENDOR information in authentication
