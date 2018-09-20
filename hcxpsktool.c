@@ -8,6 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <openssl/md5.h>
@@ -26,6 +27,7 @@
 
 apessidl_t *apessidliste;
 int apessidcount;
+int thisyear;
 /*===========================================================================*/
 /*===========================================================================*/
 static void writepsk(FILE *fhout, const char *pskstring)
@@ -75,7 +77,9 @@ return;
 static void writeessidsweeped(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int l1, l2;
+int year;
 static char sweepstring[PSKSTRING_LEN_MAX] = {};
+static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = {};
 
 for(l1 = 3; l1 <= essidlen; l1++)
 	{
@@ -84,6 +88,13 @@ for(l1 = 3; l1 <= essidlen; l1++)
 		memset(&sweepstring, 0, PSKSTRING_LEN_MAX);
 		memcpy(&sweepstring, &essid[l2], l1);
 		writepsk(fhout, sweepstring);
+		for(year = 1900; year <= thisyear; year++)
+			{
+			snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%04d", sweepstring, year);
+			writepsk(fhout, essidstring);
+			snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%04d%s", year, sweepstring);
+			writepsk(fhout, essidstring);
+			}
 		}
 	}
 return;
@@ -555,6 +566,8 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static FILE *fhpsk;
+static time_t t;
+static struct tm *tm;
 
 static char *hccapxname = NULL;
 static char *pmkidname = NULL;
@@ -641,6 +654,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 		}
 	}
+
+t = time(NULL);
+tm = localtime(&t);
+thisyear = tm->tm_year +1900;
 
 if((macapname != NULL) || (essidname != NULL))
 	{
