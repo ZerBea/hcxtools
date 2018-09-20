@@ -168,6 +168,30 @@ fprintf(fhout, "\n");
 return;
 }
 /*===========================================================================*/
+static unsigned int wpspinchecksum(unsigned int pin)
+{
+static int accum = 0;
+
+while (pin)
+	{
+	accum += 3 * (pin % 10);
+	pin /= 10;
+	accum += pin % 10;
+	pin /= 10;
+	}
+return (10 - accum % 10) % 10;
+}
+/*---------------------------------------------------------------------------*/
+static void writebssidwps(FILE *fhout, unsigned long long int macaddr)
+{
+static int pin;
+
+pin = (macaddr & 0xffffff) % 10000000;
+pin = ((pin * 10) + wpspinchecksum(pin));
+fprintf(fhout, "%08d \n", pin);
+return;
+}
+/*===========================================================================*/
 static void writebssid(FILE *fhout, unsigned long long int macaddr)
 {
 char pskstring[PSKSTRING_LEN_MAX] = {};
@@ -188,6 +212,7 @@ snprintf(pskstring, PSKSTRING_LEN_MAX, "%08llx", macaddr &0xffffffff);
 writepsk(fhout, pskstring);
 
 writebssidmd5(fhout, macaddr);
+writebssidwps(fhout, macaddr);
 
 return;
 }
