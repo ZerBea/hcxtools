@@ -4818,8 +4818,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case '?':
-		printf("invalid argument specified\n");
-		exit(EXIT_FAILURE);
+		usageerror(basename(argv[0]));
 		break;
 		}
 	}
@@ -4917,8 +4916,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case '?':
-		printf("invalid argument specified\n");
-		exit(EXIT_FAILURE);
+		usageerror(basename(argv[0]));
 		break;
 		}
 	}

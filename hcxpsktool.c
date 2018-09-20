@@ -72,6 +72,22 @@ if(lflag == true)
 return;
 }
 /*===========================================================================*/
+void writeessidreversed(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+char pskstring[PSKSTRING_LEN_MAX] = {};
+
+memset(&pskstring, 0, PSKSTRING_LEN_MAX);
+int pi;
+int po = 0;
+for(pi = essidlen -1; pi >= 0; pi--)
+	{
+	pskstring[po] = essid[pi];
+	po++;
+	}
+writepsk(fhout, pskstring);
+return;
+}
+/*===========================================================================*/
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 char pskstring[PSKSTRING_LEN_MAX] = {};
@@ -79,7 +95,7 @@ char pskstring[PSKSTRING_LEN_MAX] = {};
 memset(&pskstring, 0, PSKSTRING_LEN_MAX);
 memcpy(&pskstring, essid, essidlen); 
 writepsk(fhout, pskstring);
-
+writeessidreversed(fhout, essidlen, essid);
 
 
 
@@ -570,8 +586,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case '?':
-		fprintf(stderr, "invalid argument specified\n");
-		exit(EXIT_FAILURE);
+		usageerror(basename(argv[0]));
 		break;
 		}
 	}
@@ -617,8 +632,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case '?':
-		fprintf(stderr, "invalid argument specified\n");
-		exit(EXIT_FAILURE);
+		usageerror(basename(argv[0]));
 		break;
 		}
 	}
@@ -640,7 +654,7 @@ if(hccapxname != NULL)
 
 if(apessidliste == NULL)
 	{
-	fprintf(stderr, "invalid argument specified\n");
+	fprintf(stderr, "no hashes loaded\n");
 	exit(EXIT_FAILURE);
 	}
 
