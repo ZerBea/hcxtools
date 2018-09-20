@@ -72,34 +72,39 @@ if(lflag == true)
 return;
 }
 /*===========================================================================*/
-void writeessidreversed(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+static void writeessidsweeped(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-char pskstring[PSKSTRING_LEN_MAX] = {};
+static int l1, l2;
+static char sweepstring[PSKSTRING_LEN_MAX] = {};
 
-memset(&pskstring, 0, PSKSTRING_LEN_MAX);
-int pi;
-int po = 0;
-for(pi = essidlen -1; pi >= 0; pi--)
+for(l1 = 3; l1 <= essidlen; l1++)
 	{
-	pskstring[po] = essid[pi];
-	po++;
+	for(l2 = 0; l2 <= essidlen -l1; l2++)
+		{
+		memset(&sweepstring, 0, PSKSTRING_LEN_MAX);
+		memcpy(&sweepstring, &essid[l2], l1);
+		writepsk(fhout, sweepstring);
+		}
 	}
-writepsk(fhout, pskstring);
 return;
 }
 /*===========================================================================*/
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-char pskstring[PSKSTRING_LEN_MAX] = {};
+static int pi;
+static int po = 0;
 
-memset(&pskstring, 0, PSKSTRING_LEN_MAX);
-memcpy(&pskstring, essid, essidlen); 
-writepsk(fhout, pskstring);
-writeessidreversed(fhout, essidlen, essid);
+static uint8_t essidreverse[PSKSTRING_LEN_MAX] = {};
 
+writeessidsweeped(fhout, essidlen, essid);
 
-
-
+memset(&essidreverse, 0, PSKSTRING_LEN_MAX);
+for(pi = essidlen -1; pi >= 0; pi--)
+	{
+	essidreverse[po] = essid[pi];
+	po++;
+	}
+writeessidsweeped(fhout, essidlen, essidreverse);
 return;
 }
 /*===========================================================================*/
