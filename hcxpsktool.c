@@ -74,12 +74,86 @@ if(lflag == true)
 return;
 }
 /*===========================================================================*/
+static void writeessidadd(FILE *fhout, char *essid)
+{
+int c;
+static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = {};
+
+for(c = 1900; c <= thisyear; c++)
+	{
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%04d", essid, c);
+	writepsk(fhout, essidstring);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%04d%s", c, essid);
+	writepsk(fhout, essidstring);
+	}
+
+for(c = 0; c < 1000; c++)
+	{
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
+	writepsk(fhout, essidstring);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%d%s", c, essid);
+	writepsk(fhout, essidstring);
+	}
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s123456789", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s12345678", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1234567", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s123456", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s12345", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1234", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@Home", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@WiFi", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@1234", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@123", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s!", essid);
+writepsk(fhout, essidstring);
+return;
+}
+/*===========================================================================*/
+static bool writeessidremoved(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int pi;
+static int po;
+static int essidlentmp;
+static bool removeflag;
+
+static char essidtmp[PSKSTRING_LEN_MAX] = {};
+
+po = 0;
+removeflag = false;
+essidlentmp = essidlen;
+memset(&essidtmp, 0, PSKSTRING_LEN_MAX);
+for(pi = 0; pi < essidlen; pi++)
+	{
+	if(((essid[pi] >= 'A') && (essid[pi] <= 'Z')) || ((essid[pi] >= 'a') && (essid[pi] <= 'z')))
+		{
+		essidtmp[po] = essid[pi];
+		removeflag = true;
+		po++;
+		}
+	else
+		essidlentmp--;
+	}
+if(removeflag == true)
+	{
+	writeessidadd(fhout, essidtmp);
+	}
+return removeflag;
+}
+/*===========================================================================*/
 static void writeessidsweeped(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int l1, l2;
-int year;
-static char sweepstring[PSKSTRING_LEN_MAX] = {};
-static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = {};
+static uint8_t sweepstring[PSKSTRING_LEN_MAX] = {};
 
 for(l1 = 3; l1 <= essidlen; l1++)
 	{
@@ -87,13 +161,9 @@ for(l1 = 3; l1 <= essidlen; l1++)
 		{
 		memset(&sweepstring, 0, PSKSTRING_LEN_MAX);
 		memcpy(&sweepstring, &essid[l2], l1);
-		writepsk(fhout, sweepstring);
-		for(year = 1900; year <= thisyear; year++)
+		if(writeessidremoved(fhout, l1, sweepstring) == false)
 			{
-			snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%04d", sweepstring, year);
-			writepsk(fhout, essidstring);
-			snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%04d%s", year, sweepstring);
-			writepsk(fhout, essidstring);
+			writepsk(fhout, (char*)sweepstring);
 			}
 		}
 	}
@@ -102,20 +172,19 @@ return;
 /*===========================================================================*/
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-static int pi;
-static int po = 0;
-
-static uint8_t essidreverse[PSKSTRING_LEN_MAX] = {};
-
+int pi, po;
 writeessidsweeped(fhout, essidlen, essid);
 
-memset(&essidreverse, 0, PSKSTRING_LEN_MAX);
+static char essidtmp[PSKSTRING_LEN_MAX] = {};
+
+po = 0;
+memset(&essidtmp, 0, PSKSTRING_LEN_MAX);
 for(pi = essidlen -1; pi >= 0; pi--)
 	{
-	essidreverse[po] = essid[pi];
+	essidtmp[po] = essid[pi];
 	po++;
 	}
-writeessidsweeped(fhout, essidlen, essidreverse);
+writepsk(fhout, essidtmp);
 return;
 }
 /*===========================================================================*/
@@ -548,7 +617,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-b <file> : input MAC access point\n"
 	"            format: 112233445566\n"
 	"-o <file> : output PSK file\n"
-	"            or print to stdout\n"
+	"            default: stdout\n"
+	"            output list must be sorted unique!\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
 }
