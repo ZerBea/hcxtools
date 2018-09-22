@@ -242,7 +242,7 @@ for(l1 = 3; l1 <= essidlen; l1++)
 		{
 		memset(&sweepstring, 0, PSKSTRING_LEN_MAX);
 		memcpy(&sweepstring, &essid[l2], l1);
-		if(writeessidremoved(fhout, l1, sweepstring) == false)
+		if(writeessidremoved(fhout, l1, sweepstring) == true)
 			{
 			writepsk(fhout, (char*)sweepstring);
 			}
