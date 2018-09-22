@@ -73,6 +73,85 @@ if(lflag == true)
 	fprintf(fhout,"%s\n", lowerpskstring);
 return;
 }
+
+/*===========================================================================*/
+static void keywriteweakpass(FILE *fhout)
+{
+static size_t w;
+static int y;
+
+static char pskstring[PSKSTRING_LEN_MAX] = {};
+const char *weakword[] =
+{
+"00000000", "0000000000", "01234567", "0123456789", "0123456789012345", "022844444", "0987654321",
+"1029384756", "11111111", "1111111111", "111222333", "11223344", "1122334455", "11235813",
+"1123581321", "12121212", "123123123", "123321123", "12341234", "12344321", "1234512345",
+"123454321", "1234554321", "12345678", "123456789", "1234567890", "12345678910",
+"123456789a", "12345678a", "1234567a", "123456abc", "12345qwert", "1234abcd",
+"1234qwer", "123654789", "12369874", "123698745", "123789456", "123qweasd",
+"123qweasdzxc", "12qwaszx", "1357924680", "147258369", "147852369", "14789632",
+"147896325", "192837465", "1a2b3c4d", "1q2w3e4r", "1q2w3e4r", "1q2w3e4r5t",
+"1q2w3e4r5t6y", "1qaz2wsx", "1qazxsw2", "22222222", "321654987", "4815162342",
+"55555555", "741852963", "76543210", "77777777", "789456123", "87654321",
+"88888888", "963852741", "987654321", "9876543210", "999999999", "a1234567",
+"a123456789", "a1b2c3d4", "a1b2c3d4e5", "a1s2d3f4", "Aa123456", "aaaaaaaa",
+"aaaaaaaaaa", "abc12345", "abcd1234", "abcdefgh", "adgjmptw", "alexander",
+"Alexandra", "Amsterdam", "Anderson", "Angelina", "Apollo13", "asdasdasd",
+"asdf1234", "asdfasdf", "asdfghjk", "asdfghjkl", "Assassin", "Atlantis",
+"Australia", "azertyuiop", "Babygirl", "Barcelona", "Baseball", "Basketball",
+"Benjamin", "BigDaddy", "BlaBlaBla", "BlahBlah", "Blink182", "Blizzard",
+"Brooklyn", "Bullshit", "Butterfly", "California", "CallofDuty", "Carolina",
+"Caroline", "Carpediem", "Catherine", "Champion", "Changeme", "Charlie1",
+"Charlotte", "Cheyenne", "Chocolate", "Christian", "Christina", "Christine",
+"Christopher", "Cocacola", "Colorado", "Computer", "Corvette", "Courtney",
+"Creative", "Danielle", "Darkness", "December", "Dolphins", "DragonBall",
+"drowssap", "Einstein", "Elephant", "Elizabeth", "Evolution", "Facebook",
+"Fernando", "Fireball", "Firebird", "Football", "Football1", "free-tau", "Franklin",
+"FuckYou2", "Gangster", "Garfield", "Giovanni", "Godzilla", "Goldfish",
+"GoodLuck", "GreenDay", "Hallo123", "Hardcore", "Harrison", "HarryPotter",
+"Hello123", "HelloKitty", "Hercules", "IceCream", "idontknow", "iloveyou",
+"Infinity", "Internet", "Inuyasha", "Isabella", "Isabelle", "JamesBond",
+"Jennifer", "Jonathan", "Jordan23", "justdoit", "Juventus", "Kamikaze",
+"Kawasaki", "Kimberly", "KingKong", "Kristina", "LasVegas", "Leonardo",
+"LinkinPark", "Liverpool", "Logitech", "Lollipop", "LoveLove", "Manchester",
+"Marlboro", "Marshall", "Maverick", "Mercedes", "Metallica", "Michael1",
+"Michelle", "Microsoft", "Midnight", "Mitchell", "MoonLight", "MotherFucker",
+"Motorola", "Napoleon", "NewCastle", "Nicholas", "Nightmare", "Nintendo",
+"November", "Pa55w0rd", "Pa55word", "Pakistan", "Panasonic", "Paradise",
+"Passport", "Passw0rd", "Password1", "Password123", "Passwort", "Patricia",
+"Pavilion", "PeterPan", "Pineapple", "Platinum", "Playstation", "PoohBear",
+"Portugal", "Precious", "Predator", "Princess", "P@ssw0rd", "q1w2e3r4",
+"q1w2e3r4t5", "qazwsx123", "qazwsxedc", "qweasdzxc", "qwer1234", "qwerasdf",
+"qwert123", "qwerty12", "qwerty123", "qwertyui", "qwertyuiop", "Rammstein",
+"RealMadrid", "Remember", "Rockstar", "Ronaldo7", "RunEscape", "Rush2112",
+"Samantha", "Savannah", "Scarface", "Scorpion", "Scotland", "Sebastian",
+"Security", "September", "Serenity", "Simpsons", "Skateboard", "Skittles",
+"Skywalker", "Slipknot", "Snickers", "Snowball", "Snowboard", "Something",
+"Southpark", "Spiderman", "Spitfire", "SpongeBob", "Starcraft", "Stargate",
+"StarTrek", "StarWars", "Steelers", "Stephanie", "Strawberry", "Sunflower",
+"Sunshine", "Superman", "Superstar", "Swordfish", "Serminator", "SestTest",
+"TaxiLinQ", "Tinkerbell", "TrustNo1", "Twilight", "Undertaker", "Valentina", "Valentine",
+"Veronica", "Victoria", "Warcraft", "Warhammer", "Welcome1", "Westside",
+"WhatEver", "Williams", "Wolverine", "Wordpass", "zaq12wsx", "zaq1xsw2"
+};
+
+for(w = 0; w < (sizeof(weakword) /sizeof(weakword[0])); w++)
+	writepsk(fhout, weakword[w]);
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	snprintf(pskstring, 64, "abcd%04d", y);
+	writepsk(fhout, pskstring);
+	}
+
+for(y = 0; y < 1000; y++)
+	{
+	snprintf(pskstring, 64, "%03d%03d%03d", y, y, y);
+	writepsk(fhout, pskstring);
+	}
+return;
+}
+/*===========================================================================*/
 /*===========================================================================*/
 static void writeessidadd(FILE *fhout, char *essid)
 {
@@ -360,6 +439,16 @@ for(c = 0; c < apessidcount; c++)
 return;
 }
 /*===========================================================================*/
+static void processadditionals(FILE *fhout, bool weakpassflag)
+{
+if(weakpassflag == true)
+	{
+	keywriteweakpass(fhout);
+	}
+
+return;
+}
+/*===========================================================================*/
 /*===========================================================================*/
 static void addapessid(uint64_t macaddr, uint8_t essidlen, uint8_t *essid)
 {
@@ -621,6 +710,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <file> : output PSK file\n"
 	"            default: stdout\n"
 	"            output list must be sorted unique!\n"
+	"\n"
+	"--weakpass: add weak password candidates to outputlist\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -637,6 +728,7 @@ int main(int argc, char *argv[])
 {
 static int auswahl;
 static int index;
+static bool weakpassflag = false;
 static FILE *fhpsk;
 static time_t t;
 static struct tm *tm;
@@ -653,6 +745,7 @@ apessidcount = 0;
 static const char *short_options = "i:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
+	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
 	{"version",			no_argument,		NULL,	HCXD_VERSION},
 	{"help",			no_argument,		NULL,	HCXD_HELP},
 	{NULL,				0,			NULL,	0}
@@ -666,6 +759,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	{
 	switch (auswahl)
 		{
+
+		case HCXD_WEAKPASS:
+		weakpassflag = true;
+		break;
 
 		case HCXD_HELP:
 		usage(basename(argv[0]));
@@ -749,7 +846,6 @@ if(hccapxname != NULL)
 if(apessidliste == NULL)
 	{
 	fprintf(stderr, "no hashes loaded\n");
-	exit(EXIT_FAILURE);
 	}
 
 if(pskname != NULL)
@@ -761,12 +857,15 @@ if(pskname != NULL)
 		}
 	processbssids(fhpsk);
 	processessids(fhpsk);
+	processadditionals(fhpsk, weakpassflag);
 	}
 else
 	{
 	processbssids(stdout);
 	processessids(stdout);
+	processadditionals(stdout, weakpassflag);
 	}
+
 
 if(pskname != NULL)
 	{
