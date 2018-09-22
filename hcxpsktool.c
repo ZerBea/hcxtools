@@ -137,13 +137,15 @@ for(pi = 0; pi < essidlen; pi++)
 	if(((essid[pi] >= 'A') && (essid[pi] <= 'Z')) || ((essid[pi] >= 'a') && (essid[pi] <= 'z')))
 		{
 		essidtmp[po] = essid[pi];
-		removeflag = true;
 		po++;
 		}
 	else
+		{
 		essidlentmp--;
+		removeflag = true;
+		}
 	}
-if(removeflag == true)
+if(removeflag == false)
 	{
 	writeessidadd(fhout, essidtmp);
 	}
