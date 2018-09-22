@@ -152,6 +152,150 @@ for(y = 0; y < 1000; y++)
 return;
 }
 /*===========================================================================*/
+static void keywriteeudate(FILE *fhout)
+{
+static int d ,m ,y;
+static char pskstring[PSKSTRING_LEN_MAX] = {};
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(d = 1; d <= 28; d++)
+		{
+		for(m = 1; m <= 12; m++)
+			{
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%04d", d, m, y);
+			writepsk(fhout, pskstring);
+			}
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(d = 29; d <= 30; d++)
+		{
+		for(m = 1; m <= 12; m++)
+			{
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%04d", d, m, y);
+			writepsk(fhout, pskstring);
+			}
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "3101%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "3103%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "3105%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "3107%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "3108%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "3110%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "3112%04d", y);
+	writepsk(fhout, pskstring);
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
+		{
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "2902%04d", y);
+		writepsk(fhout, pskstring);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void keywriteusdate(FILE *fhout)
+{
+static int d ,m ,y;
+static char pskstring[PSKSTRING_LEN_MAX] = {};
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(d = 1; d <= 28; d++)
+		{
+		for(m = 1; m <= 12; m++)
+			{
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%04d", m, d, y);
+			writepsk(fhout, pskstring);
+			}
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(d = 29; d <= 30; d++)
+		{
+		for(m = 1; m <= 12; m++)
+			{
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%04d", m, d, y);
+			writepsk(fhout, pskstring);
+			}
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "0131%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "0331%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "0531%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "0731%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "0831%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "1031%04d", y);
+	writepsk(fhout, pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "1231%04d", y);
+	writepsk(fhout, pskstring);
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
+		{
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "0229%04d", y);
+		writepsk(fhout, pskstring);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void keywriteyearyear(FILE *fhout)
+{
+static int y, y2, y3;
+static char pskstring[PSKSTRING_LEN_MAX] = {};
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(y2 = 1900; y2 <= thisyear; y2++)
+		{
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "%04d%04d", y, y2);
+		writepsk(fhout, pskstring);
+		}
+	}
+
+for(y = 1900; y <= thisyear; y++)
+	{
+	for(y2 = 1900; y2 <= thisyear; y2++)
+		{
+		for(y3 = 1900; y3 <= thisyear; y3++)
+			{
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%04d%04d%04d", y, y2, y3);
+			writepsk(fhout, pskstring);
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
 /*===========================================================================*/
 static void writeessidadd(FILE *fhout, char *essid)
 {
@@ -194,6 +338,8 @@ writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@123", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s!", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%s", essid, essid);
 writepsk(fhout, essidstring);
 return;
 }
@@ -439,12 +585,28 @@ for(c = 0; c < apessidcount; c++)
 return;
 }
 /*===========================================================================*/
-static void processadditionals(FILE *fhout, bool weakpassflag)
+static void processadditionals(FILE *fhout, bool weakpassflag, bool eudateflag, bool usdateflag)
 {
 if(weakpassflag == true)
 	{
 	keywriteweakpass(fhout);
 	}
+
+if(eudateflag == true)
+	{
+	keywriteeudate(fhout);
+	}
+
+if(usdateflag == true)
+	{
+	keywriteusdate(fhout);
+	}
+
+if((eudateflag == true) || (usdateflag == true))
+	{
+	keywriteyearyear(fhout);
+	}
+
 
 return;
 }
@@ -711,7 +873,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"            default: stdout\n"
 	"            output list must be sorted unique!\n"
 	"\n"
-	"--weakpass: add weak password candidates to outputlist\n"
+	"--weakpass: include weak password candidates\n"
+	"--eudate  : include complete european dates\n"
+	"--usdate  : include complete american dates\n"
+
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -728,10 +893,13 @@ int main(int argc, char *argv[])
 {
 static int auswahl;
 static int index;
-static bool weakpassflag = false;
 static FILE *fhpsk;
 static time_t t;
 static struct tm *tm;
+
+static bool weakpassflag = false;
+static bool eudateflag = false;
+static bool usdateflag = false;
 
 static char *hccapxname = NULL;
 static char *pmkidname = NULL;
@@ -746,6 +914,8 @@ static const char *short_options = "i:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
+	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
+	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
 	{"version",			no_argument,		NULL,	HCXD_VERSION},
 	{"help",			no_argument,		NULL,	HCXD_HELP},
 	{NULL,				0,			NULL,	0}
@@ -762,6 +932,14 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_WEAKPASS:
 		weakpassflag = true;
+		break;
+
+		case HCXD_EUDATE:
+		eudateflag = true;
+		break;
+
+		case HCXD_USDATE:
+		usdateflag = true;
 		break;
 
 		case HCXD_HELP:
@@ -857,13 +1035,13 @@ if(pskname != NULL)
 		}
 	processbssids(fhpsk);
 	processessids(fhpsk);
-	processadditionals(fhpsk, weakpassflag);
+	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag);
 	}
 else
 	{
 	processbssids(stdout);
 	processessids(stdout);
-	processadditionals(stdout, weakpassflag);
+	processadditionals(stdout, weakpassflag, eudateflag, usdateflag);
 	}
 
 
