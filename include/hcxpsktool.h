@@ -5,8 +5,9 @@
 #define HCXD_WEAKPASS			1
 #define HCXD_EUDATE			2
 #define HCXD_USDATE			3
-#define HCXD_HELP			4
-#define HCXD_VERSION			5
+#define HCXD_WPSKEYS			4
+#define HCXD_HELP			5
+#define HCXD_VERSION			6
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST

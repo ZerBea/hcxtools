@@ -520,6 +520,18 @@ fprintf(fhout, "%08d \n", pin);
 return;
 }
 /*===========================================================================*/
+static void writewpsall(FILE *fhout)
+{
+static int c, cs;
+
+for(c = 0; c < 10000000; c++)
+	{
+	cs = wpspinchecksum(c);
+	fprintf(fhout, "%07d%d\n", c, cs);
+	}
+return;
+}
+/*===========================================================================*/
 static void writebssid(FILE *fhout, unsigned long long int macaddr)
 {
 char pskstring[PSKSTRING_LEN_MAX] = {};
@@ -585,29 +597,28 @@ for(c = 0; c < apessidcount; c++)
 return;
 }
 /*===========================================================================*/
-static void processadditionals(FILE *fhout, bool weakpassflag, bool eudateflag, bool usdateflag)
+static void processadditionals(FILE *fhout, bool weakpassflag, bool eudateflag, bool usdateflag, bool wpsflag)
 {
 if(weakpassflag == true)
 	{
 	keywriteweakpass(fhout);
 	}
-
 if(eudateflag == true)
 	{
 	keywriteeudate(fhout);
 	}
-
 if(usdateflag == true)
 	{
 	keywriteusdate(fhout);
 	}
-
 if((eudateflag == true) || (usdateflag == true))
 	{
 	keywriteyearyear(fhout);
 	}
-
-
+if(wpsflag == true)
+	{
+	writewpsall(fhout);
+	}
 return;
 }
 /*===========================================================================*/
@@ -900,6 +911,7 @@ static struct tm *tm;
 static bool weakpassflag = false;
 static bool eudateflag = false;
 static bool usdateflag = false;
+static bool wpskeysflag = false;
 
 static char *hccapxname = NULL;
 static char *pmkidname = NULL;
@@ -916,6 +928,7 @@ static const struct option long_options[] =
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
+	{"wpskeys",			no_argument,		NULL,	HCXD_WPSKEYS},
 	{"version",			no_argument,		NULL,	HCXD_VERSION},
 	{"help",			no_argument,		NULL,	HCXD_HELP},
 	{NULL,				0,			NULL,	0}
@@ -941,6 +954,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXD_USDATE:
 		usdateflag = true;
 		break;
+
+		case HCXD_WPSKEYS:
+		wpskeysflag = true;
+		break;
+
 
 		case HCXD_HELP:
 		usage(basename(argv[0]));
@@ -1035,13 +1053,13 @@ if(pskname != NULL)
 		}
 	processbssids(fhpsk);
 	processessids(fhpsk);
-	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag);
+	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag, wpskeysflag);
 	}
 else
 	{
 	processbssids(stdout);
 	processessids(stdout);
-	processadditionals(stdout, weakpassflag, eudateflag, usdateflag);
+	processadditionals(stdout, weakpassflag, eudateflag, usdateflag, wpskeysflag);
 	}
 
 
