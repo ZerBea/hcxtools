@@ -2365,6 +2365,12 @@ wpakey_t *wpak;
 pmkid_t *pmkid;
 pmkidl_t *zeiger;
 
+uint8_t pmkidoui[] =
+{
+0x00, 0x0f, 0xac
+};
+#define PMKIDOUI_SIZE sizeof(pmkidoui)
+
 wpak = (wpakey_t*)authpacket;
 if(ntohs(wpak->wpadatalen) != 22)
 	{
@@ -2375,7 +2381,7 @@ if((pmkid->id != 0xdd) && (pmkid->id != 0x14))
 	{
 	return;
 	}
-if((pmkid->oui[0] != 0x00) && (pmkid->oui[1] != 0x0f) && (pmkid->oui[2] != 0xac))
+if(memcmp(&pmkidoui, pmkid->oui, PMKIDOUI_SIZE) != 0)
 	{
 	return;
 	}
@@ -2824,6 +2830,14 @@ authf_t *auth;
 vendor_t *vendorauth;
 uint8_t *packet_ptr;
 
+#define VENDORAUTHOUI_SIZE 3
+uint8_t broadcomauthoui[] = { 0x00, 0x10, 0x18 };
+uint8_t sonosauthoui[] = { 0x00, 0x0e, 0x58 };
+uint8_t netgearauthoui[] = { 0x00, 0x14, 0x6c };
+uint8_t appleauthoui[] = { 0x00, 0x17, 0xf2 };
+uint8_t wiliboxauthoui[] = { 0x00, 0x19, 0x3b };
+uint8_t ciscoauthoui[] = { 0x00, 0x40, 0x96 };
+
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SIZE)
 	{
 	return;
@@ -2887,32 +2901,30 @@ if(vendorauth->tagnr != 0xdd)
 	{
 	return;
 	}
-
-if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x10) && (vendorauth->oui[2] == 0x18))
+if(memcmp(&broadcomauthoui, vendorauth->oui, VENDORAUTHOUI_SIZE) == 0)
 	{
 	authenticationbroadcomframecount++;
 	}
-else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x0e) && (vendorauth->oui[2] == 0x58))
+else if(memcmp(&sonosauthoui, vendorauth->oui, VENDORAUTHOUI_SIZE) == 0)
 	{
 	authenticationsonosframecount++;
 	}
-else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x14) && (vendorauth->oui[2] == 0x6c))
+else if(memcmp(&netgearauthoui, vendorauth->oui, VENDORAUTHOUI_SIZE) == 0)
 	{
 	authenticationnetgearframecount++;
 	}
-else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x17) && (vendorauth->oui[2] == 0xf2))
+else if(memcmp(&appleauthoui, vendorauth->oui, VENDORAUTHOUI_SIZE) == 0)
 	{
 	authenticationappleframecount++;
 	}
-else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x19) && (vendorauth->oui[2] == 0x3b))
+else if(memcmp(&wiliboxauthoui, vendorauth->oui, VENDORAUTHOUI_SIZE) == 0)
 	{
 	authenticationwiliboxframecount++;
 	}
-else if((vendorauth->oui[0] == 0x00) && (vendorauth->oui[1] == 0x40) && (vendorauth->oui[2] == 0x96))
+else if(memcmp(&ciscoauthoui, vendorauth->oui, VENDORAUTHOUI_SIZE) == 0)
 	{
 	authenticationciscoframecount++;
 	}
-
 return;
 }
 /*===========================================================================*/
