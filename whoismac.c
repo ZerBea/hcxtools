@@ -219,9 +219,6 @@ ouista = macsta >> 24;
 
 essidptr = hash2500line +59;
 l = strlen(essidptr);
-
-fprintf(stderr, "wrong ESSID length %s\n", hash2500line);
-
 passwdptr = strrchr(hash2500line, ':');
 if((passwdptr -hash2500line) > 59)
 	{
@@ -239,8 +236,6 @@ if(l > 70)
 	fprintf(stderr, "wrong ESSID length %s %d\n", essidptr, l);
 	return;
 	}
-
-
 
 memset(&essidbuffer, 0, 72);
 memcpy(&essidbuffer, essidptr, l);
