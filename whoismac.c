@@ -220,22 +220,31 @@ ouista = macsta >> 24;
 essidptr = hash2500line +59;
 l = strlen(essidptr);
 
+fprintf(stderr, "wrong ESSID length %s\n", hash2500line);
+
 passwdptr = strrchr(hash2500line, ':');
-if(passwdptr != NULL)
+if((passwdptr -hash2500line) > 59)
 	{
-	l1 = strlen(passwdptr);
-	if(l1 > 1)
+	if(passwdptr != NULL)
 		{
-		l -= l1;
+		l1 = strlen(passwdptr);
+		if(l1 > 1)
+			{
+			l -= l1;
+			}
 		}
 	}
 if(l > 70)
 	{
-	fprintf(stderr, "wrong ESSID length %s\n", essidptr);
+	fprintf(stderr, "wrong ESSID length %s %d\n", essidptr, l);
 	return;
 	}
+
+
+
 memset(&essidbuffer, 0, 72);
 memcpy(&essidbuffer, essidptr, l);
+
 
 if ((fhoui = fopen(ouiname, "r")) == NULL)
 	{
@@ -271,15 +280,7 @@ while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
 			}
 		}
 	}
-if(isasciistring(l /2, essidbuffer) == true)
-	{
-	fprintf(stdout, "\nESSID..: %s\n", essidbuffer);
-	}
-else
-	{
-	fprintf(stdout, "\nESSID..: $HEX[%s]\n", essidbuffer);
-	}
-
+fprintf(stdout, "\nESSID..: %s\n", essidbuffer);
 fprintf(stdout, "MAC_AP.: %012llx\n"
 		"VENDOR.: %s\n"
 		"MAC_STA: %012llx\n"
