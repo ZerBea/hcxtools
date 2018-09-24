@@ -192,6 +192,104 @@ fclose(fhoui);
 return;
 }
 /*===========================================================================*/
+static void get2500info(const char *ouiname, char *hash2500line)
+{
+int len;
+int l, l1;
+FILE* fhoui;
+char *vendorptr;
+char *essidptr;
+char *passwdptr;
+
+unsigned long long int macap;
+unsigned long long int macsta;
+unsigned long long int ouiap;
+unsigned long long int ouista;
+unsigned long long int vendoroui;
+
+char linein[LINEBUFFER];
+uint8_t essidbuffer[72];
+char vendorapname[256];
+char vendorstaname[256];
+
+sscanf(&hash2500line[33], "%12llx", &macap);
+ouiap = macap >> 24;
+sscanf(&hash2500line[46], "%12llx", &macsta);
+ouista = macsta >> 24;
+
+essidptr = hash2500line +59;
+l = strlen(essidptr);
+
+passwdptr = strrchr(hash2500line, ':');
+if(passwdptr != NULL)
+	{
+	l1 = strlen(passwdptr);
+	if(l1 > 1)
+		{
+		l -= l1;
+		}
+	}
+if(l > 70)
+	{
+	fprintf(stderr, "wrong ESSID length %s\n", essidptr);
+	return;
+	}
+memset(&essidbuffer, 0, 72);
+memcpy(&essidbuffer, essidptr, l);
+
+if ((fhoui = fopen(ouiname, "r")) == NULL)
+	{
+	fprintf(stderr, "unable to open database %s\n", ouiname);
+	exit (EXIT_FAILURE);
+	}
+
+strncpy(vendorapname, "unknown", 8);
+strncpy(vendorstaname, "unknown", 8);
+
+while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
+	{
+	if (len < 10)
+		continue;
+	if(strstr(linein, "(base 16)") != NULL)
+		{
+		sscanf(linein, "%06llx", &vendoroui);
+		if(ouiap == vendoroui)
+			{
+			vendorptr = strrchr(linein, '\t');
+			if(vendorptr != NULL)
+				{
+				strncpy(vendorapname, vendorptr +1,255);
+				}
+			}
+		if(ouista == vendoroui)
+			{
+			vendorptr = strrchr(linein, '\t');
+			if(vendorptr != NULL)
+				{
+				strncpy(vendorstaname, vendorptr +1,255);
+				}
+			}
+		}
+	}
+if(isasciistring(l /2, essidbuffer) == true)
+	{
+	fprintf(stdout, "\nESSID..: %s\n", essidbuffer);
+	}
+else
+	{
+	fprintf(stdout, "\nESSID..: $HEX[%s]\n", essidbuffer);
+	}
+
+fprintf(stdout, "MAC_AP.: %012llx\n"
+		"VENDOR.: %s\n"
+		"MAC_STA: %012llx\n"
+		"VENDOR.: %s\n\n"
+		, macap, vendorapname, macsta, vendorstaname);
+
+fclose(fhoui);
+return;
+}
+/*===========================================================================*/
 static void getoui(const char *ouiname, unsigned long long int oui)
 {
 int len;
@@ -282,6 +380,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-m <mac>      : mac (six bytes of mac addr) or \n"
 	"              : oui (fist three bytes of mac addr)\n"
 	"-p <hashline> : input PMKID hashline\n"
+	"-P <hashline> : input EAPOL hashline from potfile\n"
 	"-v <vendor>   : vendor name\n"
 	"-h            : this help screen\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
@@ -301,10 +400,11 @@ struct passwd *pwd;
 struct stat statinfo;
 char *vendorname = NULL;
 char *hash16800line = NULL;
+char *hash2500line = NULL;
 const char confdirname[] = ".hcxtools";
 const char ouiname[] = ".hcxtools/oui.txt";
 
-while ((auswahl = getopt(argc, argv, "m:v:p:dh")) != -1)
+while ((auswahl = getopt(argc, argv, "m:v:p:P:dh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -344,8 +444,23 @@ while ((auswahl = getopt(argc, argv, "m:v:p:dh")) != -1)
 			fprintf(stderr, "error hashline wrong format %s\n", optarg);
 			exit(EXIT_FAILURE);
 			}
-
 		mode = 'p';
+		break;
+
+		case 'P':
+		hash2500line = optarg;
+		l = strlen(hash2500line);
+		if(l < 61)
+			{
+			fprintf(stderr, "error hashline too short %s\n", optarg);
+			exit(EXIT_FAILURE);
+			}
+		if((hash2500line[32] != ':') && (hash2500line[45] != ':') && (hash2500line[58] != ':'))
+			{
+			fprintf(stderr, "error hashline wrong format %s\n", optarg);
+			exit(EXIT_FAILURE);
+			}
+		mode = 'P';
 		break;
 
 		case 'v':
@@ -399,6 +514,10 @@ if(mode == 'm')
 else if(mode == 'p')
 	{
 	get16800info(ouiname, hash16800line);
+	}
+else if(mode == 'P')
+	{
+	get2500info(ouiname, hash2500line);
 	}
 
 else if(mode == 'v')

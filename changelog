@@ -1,3 +1,9 @@
+24.09.2018
+==========
+whoismac new option to get VENDOR information from a hashcat 2500 potfile line
+-P <hashline> : input EAPOL hashline from potfile
+
+
 20.09.2018
 ==========
 prepare new tool (experimental): hcxpsktool (supports hccapx and 16800 hashfile)
