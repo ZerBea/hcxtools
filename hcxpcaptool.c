@@ -67,9 +67,9 @@
 #define HCXT_HEXDUMP_OUT	'H'
 #define HCXT_VERBOSE_OUT	'V'
 
+#define GPSDDATA_MAX 1536
 
 void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *packet);
-
 
 /*===========================================================================*/
 /* global var */
@@ -206,11 +206,10 @@ uint16_t dltlinktype;
 uint64_t myaktreplaycount;
 uint8_t myaktnonce[32];
 
-
-
 char pcapnghwinfo[256];
 char pcapngosinfo[256];
 char pcapngapplinfo[256];
+char pcapngoptioninfo[256];
 
 int exeaptype[256];
 /*===========================================================================*/
@@ -3958,7 +3957,16 @@ while(1)
 		return;
 		}
 	tl -= olpad;
-	if(opthdr.option_code == 2)
+	if(opthdr.option_code == 1)
+		{
+		memset(&pcapngoptioninfo, 0, 256);
+		res = read(fd, &pcapngoptioninfo, olpad);
+		if(res != olpad)
+			{
+			return;
+			}
+		}
+	else if (opthdr.option_code == 2)
 		{
 		memset(&pcapnghwinfo, 0, 256);
 		res = read(fd, &pcapnghwinfo, olpad);
@@ -3985,7 +3993,7 @@ while(1)
 			return;
 			}
 		}
-	else if(opthdr.option_code == 62108)
+	else if(opthdr.option_code == OPTIONCODE_RC)
 		{
 		res = read(fd, &filereplaycound, olpad);
 		if(res != olpad)
@@ -3999,7 +4007,7 @@ while(1)
 		myaktreplaycount = filereplaycound[0x00] & 0xff;
 		myaktreplaycount += (filereplaycound[0x01] & 0xff) << 8;
 		}
-	else if(opthdr.option_code == 62109)
+	else if(opthdr.option_code == OPTIONCODE_ANONCE)
 		{
 		res = read(fd, &filenonce, olpad);
 		if(res != olpad)
@@ -4229,7 +4237,13 @@ while(1)
 				pcapreaderrors = 1;
 				break;
 				}
-			lseek(fd, pcapngbh.total_length -BH_SIZE -EPB_SIZE -pcapngepb.caplen, SEEK_CUR);
+			aktseek = lseek(fd, 0, SEEK_CUR);
+			if(pcapngbh.total_length > (EPB_SIZE +BH_SIZE +4))
+				{
+				pcapngoptionwalk(fd, pcapngbh.total_length);
+				}
+			lseek(fd, aktseek +pcapngbh.total_length -BH_SIZE -EPB_SIZE -pcapngepb.caplen, SEEK_SET);
+
 			rawpacketcount++;
 			}
 		else
