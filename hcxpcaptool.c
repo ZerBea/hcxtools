@@ -113,6 +113,7 @@ md5l_t *md5liste;
 unsigned long long int tacacspcount;
 tacacspl_t *tacacspliste;
 
+unsigned long long int gpsdframecount;
 unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
@@ -172,6 +173,10 @@ unsigned long long int tzsprawframecount;
 unsigned long long int tzsp80211framecount;
 unsigned long long int tzsp80211prismframecount;
 unsigned long long int tzsp80211avsframecount;
+
+static long double lat = 0;
+static long double lon = 0;
+static long double alt = 0;
 
 char *hexmodeoutname;
 char *hccapxbestoutname;
@@ -446,8 +451,9 @@ printf( "                                                \n"
 	"read errors..................: %s\n"
 	"packets inside...............: %llu\n"
 	"skipped packets..............: %llu\n"
+	"packets with GPS data........: %llu\n"
 	"packets with FCS.............: %llu\n"
-	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, fcsframecount);
+	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
 
 if(tscleanflag == true)
 	{
@@ -3926,9 +3932,13 @@ return;
 void pcapngoptionwalk(int fd, uint32_t tl)
 {
 uint16_t res;
-uint16_t padding;
 uint16_t olpad;
 option_header_t opthdr;
+
+char *gpsdptr;
+char *gpsd_lat = "lat:";
+char *gpsd_lon = "lon:";
+char *gpsd_alt = "alt:";
 
 uint8_t filereplaycound[8];
 uint8_t filenonce[32];
@@ -3944,19 +3954,12 @@ while(1)
 		{
 		return;
 		}
-	padding = 0;
-	if((opthdr.option_length % 4))
-		{
-		padding = 4 -(opthdr.option_length % 4);
-		}
-
-	olpad = opthdr.option_length +padding;
-
+	olpad = opthdr.option_length + (4 -(opthdr.option_length %4)) %4;
 	if((olpad > tl) || (olpad >= 0xff))
 		{
 		return;
 		}
-	tl -= olpad;
+	tl -= olpad -2;
 	if(opthdr.option_code == 1)
 		{
 		memset(&pcapngoptioninfo, 0, 256);
@@ -3964,6 +3967,26 @@ while(1)
 		if(res != olpad)
 			{
 			return;
+			}
+		pcapngoptioninfo[res] = 0;
+		lat = 0;
+		lon = 0;
+		alt = 0;
+		if((gpsdptr = strstr(pcapngoptioninfo, gpsd_lat)) != NULL)
+			{
+			sscanf(gpsdptr +4, "%Lf", &lat);
+			}
+		if((gpsdptr = strstr(pcapngoptioninfo, gpsd_lon)) != NULL)
+			{
+			sscanf(gpsdptr +4, "%Lf", &lon);
+			}
+		if((gpsdptr = strstr(pcapngoptioninfo, gpsd_alt)) != NULL)
+			{
+			sscanf(pcapngoptioninfo +4, "%Lf", &alt);
+			}
+		if((lat != 0) && (lon != 0))
+			{
+			gpsdframecount++;
 			}
 		}
 	else if (opthdr.option_code == 2)
@@ -4032,6 +4055,7 @@ void processpcapng(int fd, char *pcapinname)
 {
 unsigned int res;
 int aktseek;
+int blkseek;
 
 block_header_t pcapngbh;
 section_header_block_t pcapngshb;
@@ -4205,6 +4229,7 @@ while(1)
 
 	else if(pcapngbh.block_type == 6)
 		{
+		blkseek = lseek(fd, 0, SEEK_CUR);
 		res = read(fd, &pcapngepb, EPB_SIZE);
 		if(res != EPB_SIZE)
 			{
@@ -4237,12 +4262,12 @@ while(1)
 				pcapreaderrors = 1;
 				break;
 				}
-			aktseek = lseek(fd, 0, SEEK_CUR);
+			aktseek = lseek(fd, (4 -(pcapngepb.caplen %4)) %4, SEEK_CUR);
 			if(pcapngbh.total_length > (EPB_SIZE +BH_SIZE +4))
 				{
 				pcapngoptionwalk(fd, pcapngbh.total_length);
 				}
-			lseek(fd, aktseek +pcapngbh.total_length -BH_SIZE -EPB_SIZE -pcapngepb.caplen, SEEK_SET);
+			lseek(fd, blkseek +pcapngbh.total_length -BH_SIZE, SEEK_SET);
 
 			rawpacketcount++;
 			}
@@ -4476,6 +4501,7 @@ skippedpacketcount = 0;
 apstaessidcount = 0;
 apstaessidcountcleaned = 0;
 eapolcount = 0;
+gpsdframecount = 0;
 fcsframecount = 0;
 wdsframecount = 0;
 beaconframecount = 0;
@@ -4946,7 +4972,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 		}
 	}
-
 
 if(hexmodeflag == true) 
 	{
