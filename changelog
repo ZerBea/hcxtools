@@ -4,6 +4,10 @@ hcxpcaptool: removed option -Z
 Allow hashfile for -m 16800 to be used with -m 16801
 https://github.com/hashcat/hashcat/commit/1b980cf01000c81dfd0ca085593f8c1d66d43188
 
+added new option -g
+-g <file> : output GPS file\n"
+            format = GPX (accepted for example by Viking and GPSBabel)\n"
+
 
 24.09.2018
 ==========

@@ -60,7 +60,7 @@
 #define HCXT_JOHN_OUT_RAW	'J'
 #define HCXT_ESSID_OUT		'E'
 #define HCXT_TRAFFIC_OUT	'T'
-#define HCXT_GPX_OUT		'G'
+#define HCXT_GPX_OUT		'g'
 #define HCXT_IDENTITY_OUT	'I'
 #define HCXT_USERNAME_OUT	'U'
 #define HCXT_PMK_OUT		'P'
@@ -234,6 +234,7 @@ johnbestoutname = NULL;
 johnrawoutname = NULL;
 essidoutname = NULL;
 trafficoutname = NULL;
+gpxoutname = NULL;
 pmkoutname = NULL;
 identityoutname = NULL;
 useroutname = NULL;
@@ -3612,11 +3613,43 @@ void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint
 uint32_t wdsoffset = 0;
 mac_t *macf;
 
+struct timeval gpstime;
+char timestring[64];
+
+gpstime.tv_sec = tv_sec;
+gpstime.tv_usec = tv_usec;
+unsigned long long int macsrc;
+
+strftime(timestring, 62, "    <time>%Y-%m-%dT%H:%M:%SZ</time>", localtime(&gpstime.tv_sec));
+/*
+  <trkpt lat="50.1965646353" lon="6.82632613">
+    <ele>444.26999999999998</ele>
+    <time>2015-04-06T07:09:04Z</time>
+  </trkpt>
+*/
+
 macf = (mac_t*)packet;
 if((macf->from_ds == 1) && (macf->to_ds == 1))
 	{
 	process80211wds();
 	wdsoffset = 6;
+	}
+
+if(gpxflag == true)
+	{
+	if((lat != 0) && (lon != 0))
+		{
+		if(caplen >= (uint32_t)MAC_SIZE_NORM +wdsoffset)
+			{
+			macsrc = macf->addr2[0];
+			macsrc = (macsrc << 8) + macf->addr2[1];
+			macsrc = (macsrc << 8) + macf->addr2[2];
+			macsrc = (macsrc << 8) + macf->addr2[3];
+			macsrc = (macsrc << 8) + macf->addr2[4];
+			macsrc = (macsrc << 8) + macf->addr2[5];
+			fprintf(fhgpx, "  <trkpt lat=\"%Lf\" lon=\"%LF\">\n    <name>%012llx</name>\n    <ele>%Lf</ele>\n%s\n  </trkpt>\n", lat, lon, macsrc, alt, timestring);
+			}
+		}
 	}
 
 if(macf->type == IEEE80211_FTYPE_MGMT)
@@ -3949,7 +3982,7 @@ while(1)
 			}
 		if((gpsdptr = strstr(pcapngoptioninfo, gpsd_alt)) != NULL)
 			{
-			sscanf(pcapngoptioninfo +4, "%Lf", &alt);
+			sscanf(gpsdptr +4, "%Lf", &alt);
 			}
 		if((lat != 0) && (lon != 0))
 			{
@@ -4030,6 +4063,9 @@ interface_description_block_t pcapngidb;
 packet_block_t pcapngpb;
 enhanced_packet_block_t pcapngepb;
 uint8_t packet[MAXPACPSNAPLEN];
+uint64_t timestamp;
+uint32_t timestamp_sec;
+uint32_t timestamp_usec;
 
 if(gpxflag == true)
 	{
@@ -4144,12 +4180,14 @@ while(1)
 			pcapngpb.caplen		= byte_swap_32(pcapngpb.caplen);
 			pcapngpb.len		= byte_swap_32(pcapngpb.len);
 			}
-
 		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
 			{
 			tscleanflag = true;
 			}
-
+		timestamp = pcapngepb.timestamp_high;
+		timestamp = (timestamp << 32) +pcapngepb.timestamp_low;
+		timestamp_sec = timestamp /1000000;
+		timestamp_usec = timestamp %1000000;
 		if(pcapngpb.caplen < MAXPACPSNAPLEN)
 			{
 			res = read(fd, &packet, pcapngpb.caplen);
@@ -4257,13 +4295,21 @@ while(1)
 		}
 	if(pcapngepb.caplen > 0)
 		{
+		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
+			{
+			tscleanflag = true;
+			}
+		timestamp = pcapngepb.timestamp_high;
+		timestamp = (timestamp << 32) +pcapngepb.timestamp_low;
+		timestamp_sec = timestamp /1000000;
+		timestamp_usec = timestamp %1000000;
 		if(hexmodeflag == true)
 			{
-			packethexdump(pcapngepb.timestamp_high, pcapngepb.timestamp_low, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
+			packethexdump(timestamp_sec, timestamp_usec, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
 			}
 		if(verboseflag == true)
 			{
-			processpacket(pcapngepb.timestamp_high, pcapngepb.timestamp_low, pcapngidb.linktype, pcapngepb.caplen, packet);
+			processpacket(timestamp_sec, timestamp_usec, pcapngidb.linktype, pcapngepb.caplen, packet);
 			}
 		if((rawpacketcount %100000) == 0)
 			{
@@ -4540,6 +4586,9 @@ tzsp80211framecount = 0;
 tzsp80211prismframecount = 0;
 tzsp80211avsframecount = 0;
 wepframecount = 0;
+lat = 0;
+lon = 0;
+alt = 0;
 
 char *unknown = "unknown";
 char tmpoutname[PATH_MAX+1];
@@ -4665,6 +4714,18 @@ if(tacacspliste != NULL)
 	outputtacacsplist();
 	}
 
+if(gpxflag == true)
+	{
+	if(gpsdframecount == 1)
+		{
+		printf("%llu track point written to %s\n", gpsdframecount, gpxoutname);
+		}
+	else if(gpsdframecount > 1)
+		{
+		printf("%llu track points written to %s\n", gpsdframecount, gpxoutname);
+		}
+	}
+
 if(leapliste != NULL)
 	{
 	free(leapliste);
@@ -4738,7 +4799,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
-//	"-G <file> : output GPX file\n"
+	"-g <file> : output GPS file\n"
+	"            format = GPX (accepted for example by Viking and GPSBabel)\n"
 	"-H <file> : output dump raw packets in hex\n"
 	"-V        : verbose (but slow) status output\n"
 	"-h        : show this help\n"
@@ -4788,7 +4850,7 @@ char *gpxhead = "<?xml version=\"1.0\"?>\n"
 
 char *gpxtail = "</gpx>\n";
 
-static const char *short_options = "o:O:x:X:z:j:J:E:I:U:P:T:G:H:Vhv";
+static const char *short_options = "o:O:x:X:z:j:J:E:I:U:P:T:g:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
