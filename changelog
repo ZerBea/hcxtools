@@ -1,3 +1,10 @@
+29.09.2018
+==========
+hcxpcaptool: removed option -Z
+Allow hashfile for -m 16800 to be used with -m 16801
+https://github.com/hashcat/hashcat/commit/1b980cf01000c81dfd0ca085593f8c1d66d43188
+
+
 24.09.2018
 ==========
 whoismac new option to get VENDOR information from a hashcat 2500 potfile line

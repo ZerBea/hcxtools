@@ -55,12 +55,12 @@
 #define HCXT_HCCAPX_OUT_RAW	'O'
 #define HCXT_HCCAP_OUT		'x'
 #define HCXT_HCCAP_OUT_RAW	'X'
-#define HCXT_HC_OUT_PMKID_A	'z'
-#define HCXT_HC_OUT_PMKID_B	'Z'
+#define HCXT_HC_OUT_PMKID	'z'
 #define HCXT_JOHN_OUT		'j'
 #define HCXT_JOHN_OUT_RAW	'J'
 #define HCXT_ESSID_OUT		'E'
 #define HCXT_TRAFFIC_OUT	'T'
+#define HCXT_GPX_OUT		'G'
 #define HCXT_IDENTITY_OUT	'I'
 #define HCXT_USERNAME_OUT	'U'
 #define HCXT_PMK_OUT		'P'
@@ -78,6 +78,7 @@ bool hexmodeflag;
 bool verboseflag;
 bool fcsflag;
 bool wantrawflag;
+bool gpxflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -182,13 +183,13 @@ char *hexmodeoutname;
 char *hccapxbestoutname;
 char *hccapxrawoutname;
 char *hcpmkidaoutname;
-char *hcpmkidboutname;
 char *hccapbestoutname;
 char *hccaprawoutname;
 char *johnbestoutname;
 char *johnrawoutname;
 char *essidoutname;
 char *trafficoutname;
+char *gpxoutname;
 char *pmkoutname;
 char *identityoutname;
 char *useroutname;
@@ -198,6 +199,7 @@ char *md5johnoutname;
 char *tacacspoutname;
 
 FILE *fhhexmode;
+FILE *fhgpx;
 
 bool tscleanflag;
 int endianess;
@@ -226,7 +228,6 @@ hexmodeoutname = NULL;
 hccapxbestoutname = NULL;
 hccapxrawoutname = NULL;
 hcpmkidaoutname = NULL;
-hcpmkidboutname = NULL;
 hccapbestoutname = NULL;
 hccaprawoutname = NULL;
 johnbestoutname = NULL;
@@ -244,6 +245,7 @@ tacacspoutname = NULL;
 verboseflag = false;
 hexmodeflag = false;
 wantrawflag = false;
+gpxflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
@@ -1251,7 +1253,6 @@ uint8_t essidold[32];
 
 essidchangecount = 0;
 qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
-
 if((apstaessidliste != NULL) && (hcpmkidaoutname != NULL))
 	{
 	if((fhoutlist = fopen(hcpmkidaoutname, "a+")) != NULL)
@@ -1354,40 +1355,6 @@ if((apstaessidliste != NULL) && (hcpmkidaoutname != NULL))
 			printf("%llu ESSID changes detected\n", essidchangecount);
 			}
 		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidaoutname);
-		}
-	}
-
-
-essidchangecount = 0;
-if(hcpmkidboutname != NULL)
-	{
-	if((fhoutlist = fopen(hcpmkidboutname, "a+")) != NULL)
-		{
-		writtencount = 0;
-		zeiger = pmkidliste;
-		for(c = 0; c < pmkidcount; c++)
-			{
-			for(p = 0; p < 16; p++)
-				{
-				fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
-				}
-			fprintf(fhoutlist, "*");
-			for(p = 0; p < 6; p++)
-				{
-				fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
-				}
-			fprintf(fhoutlist, "*");
-			for(p = 0; p < 6; p++)
-				{
-				fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
-				}
-			fprintf(fhoutlist, "\n");
-			writtencount++;
-			zeiger++;
-			}
-		fclose(fhoutlist);
-		removeemptyfile(hcpmkidboutname);
-		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidboutname);
 		}
 	}
 return;
@@ -4064,7 +4031,10 @@ packet_block_t pcapngpb;
 enhanced_packet_block_t pcapngepb;
 uint8_t packet[MAXPACPSNAPLEN];
 
-printf("start reading from %s\n", pcapinname);
+if(gpxflag == true)
+	{
+	fprintf(fhgpx, "<trk>\n  <name>%s</name>\n  <trkseg>\n", basename(pcapinname));
+	}
 memset(&packet, 0, MAXPACPSNAPLEN);
 while(1)
 	{
@@ -4304,6 +4274,11 @@ while(1)
 versionmajor = pcapngshb.major_version;
 versionminor = pcapngshb.minor_version;
 dltlinktype = pcapngidb.linktype;
+
+if(gpxflag == true)
+	{
+	fprintf(fhgpx, "  </trkseg>\n</trk>\n");
+	}
 return;
 }
 /*===========================================================================*/
@@ -4755,7 +4730,6 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-x <file> : output hccap file (hashcat -m 2500)\n"
 	"-X <file> : output raw hccap file (hashcat -m 2500)\n"
 	"-z <file> : output PMKID file (hashcat hashmode -m 16800)\n"
-	"-Z <file> : output PMKID file (hashcat hashmode -m 16801)\n"
 	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
@@ -4764,6 +4738,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
+//	"-G <file> : output GPX file\n"
 	"-H <file> : output dump raw packets in hex\n"
 	"-V        : verbose (but slow) status output\n"
 	"-h        : show this help\n"
@@ -4805,7 +4780,15 @@ int main(int argc, char *argv[])
 int auswahl;
 int index;
 
-static const char *short_options = "o:O:x:X:Z:z:j:J:E:I:U:P:T:H:Vhv";
+char *gpxhead = "<?xml version=\"1.0\"?>\n"
+		"<gpx version=\"1.0\" creator=\"hcxpcaptool\"\n"
+		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+		"xmlns=\"http://www.topografix.com/GPX/1/0\"\n"
+		"xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd\">\n";
+
+char *gpxtail = "</gpx>\n";
+
+static const char *short_options = "o:O:x:X:z:j:J:E:I:U:P:T:G:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
@@ -4893,13 +4876,8 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		wantrawflag = true;
 		break;
 
-		case HCXT_HC_OUT_PMKID_A:
+		case HCXT_HC_OUT_PMKID:
 		hcpmkidaoutname = optarg;
-		verboseflag = true;
-		break;
-
-		case HCXT_HC_OUT_PMKID_B:
-		hcpmkidboutname = optarg;
 		verboseflag = true;
 		break;
 
@@ -4950,6 +4928,12 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		verboseflag = true;
 		break;
 
+		case HCXT_GPX_OUT:
+		gpxoutname = optarg;
+		gpxflag = true;
+		verboseflag = true;
+		break;
+
 		case HCXT_HEXDUMP_OUT:
 		hexmodeflag = true;
 		hexmodeoutname = optarg;
@@ -4982,9 +4966,26 @@ if(hexmodeflag == true)
 		}
 	}
 
+if(gpxflag == true) 
+	{
+	if((fhgpx = fopen(gpxoutname, "w+")) == NULL)
+		{
+		fprintf(stderr, "error opening file %s: %s\n", gpxoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	fprintf(fhgpx, "%s", gpxhead);
+	fprintf(fhgpx, "<name>%s</name>\n", basename(gpxoutname));
+	}
+
 for(index = optind; index < argc; index++)
 	{
 	processcapfile(argv[index]);
+	}
+
+if(gpxflag == true)
+	{
+	fprintf(fhgpx, "%s", gpxtail);
+	fclose(fhgpx);
 	}
 
 if(hexmodeflag == true)
