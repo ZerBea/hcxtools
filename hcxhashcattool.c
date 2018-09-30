@@ -243,62 +243,100 @@ pmkcount++;
 /*===========================================================================*/
 void addpotline(int potlinelen, char *potline)
 {
-char *essid_ptr;
-char *psk_ptr;
-uint8_t essidlen, psklen;
+char *essidptr;
+char *pskptr;
+uint8_t c, essidlen, psklen;
 
 pmklist_t pmktmp;
 
 memset(&pmktmp, 0, PMKLIST_SIZE);
 
-if(potlinelen < 69)
+if(potlinelen < 59)
 	{
-	printf("%s\n", potline);
+	printf("line lenth exception: %s\n", potline);
 	return;
 	}
-if((potline[32] != ':') || (potline[45]  != ':') || (potline[58]  != ':'))
+if((potline[32] != ':') && (potline[32]  != '*'))
 	{
-	printf("%s\n", potline);
+	printf("sperator doesn't match: %s\n", potline);
 	return;
 	}
 
-essid_ptr = potline +59;
-psk_ptr = strchr(essid_ptr, ':');
-if(psk_ptr == NULL)
+if((potline[45] != ':') && (potline[45]  != '*'))
 	{
-	printf("%s\n", potline);
+	printf("sperator doesn't match: %s\n", potline);
 	return;
 	}
-psk_ptr[0] = 0;
-psk_ptr++;
 
-essidlen = ishexify(essid_ptr);
-if((essidlen > 0) && (essidlen <= 32))
+if((potline[58] != ':') && (potline[58]  != '*'))
 	{
-	if(hex2bin(essid_ptr +5, pmktmp.essid, essidlen) == false)
+	printf("sperator doesn't match: %s\n", potline);
+	return;
+	}
+
+essidptr = potline +59;
+pskptr = strrchr(potline +59, ':');
+if (pskptr == NULL)
+	{
+	printf("sperator doesn't match: %s\n", potline);
+	return;
+	}
+pskptr[0] = 0;
+pskptr++;
+
+if(potline[58] == ':')
+	{
+	essidlen = ishexify(essidptr);
+	if((essidlen > 0) && (essidlen <= 32))
+		{
+		if(hex2bin(essidptr +5, pmktmp.essid, essidlen) == false)
+			{
+			printf("%s\n", potline);
+			return;
+			}
+		pmktmp.essidflag = true;
+		}
+	else
+		{
+		essidlen = strlen(essidptr);
+		if((essidlen < 1) || (essidlen > 32))
+			{
+			printf("%s\n", potline);
+			return;
+			}
+		memcpy(&pmktmp.essid, essidptr, essidlen);
+		pmktmp.essidflag = false;
+		}
+	pmktmp.essidlen = essidlen;
+	}
+else if(potline[58] == '*')
+	{
+	essidlen = strlen(essidptr) /2;
+	if(hex2bin(essidptr, pmktmp.essid, essidlen) == false)
 		{
 		printf("%s\n", potline);
 		return;
 		}
-	pmktmp.essidflag = true;
+	pmktmp.essidlen = essidlen;
+	for(c = 0; c < essidlen; c++)
+		{
+		if((pmktmp.essid[c] < 0x20) || (pmktmp.essid[c] > 0x7e) || (pmktmp.essid[c] == ':'))
+			{
+			pmktmp.essidflag = true;
+			break;
+			}
+		}
 	}
 else
 	{
-	essidlen = strlen(essid_ptr);
-	if((essidlen < 1) || (essidlen > 32))
-		{
-		printf("%s\n", potline);
-		return;
-		}
-	memcpy(&pmktmp.essid, essid_ptr, essidlen);
-	pmktmp.essidflag = false;
+	printf("sperator doesn't match: %s\n", potline);
+	return;
 	}
-pmktmp.essidlen = essidlen;
 
-psklen = ishexify(psk_ptr);
+psklen = ishexify(pskptr);
 if((psklen > 0) && (psklen <= 63))
 	{
-	if(hex2bin(psk_ptr +5, pmktmp.psk, psklen) == false)
+	if(hex2bin(pskptr +5, pmktmp.psk, psklen) == false)
 		{
 		printf("%s\n", potline);
 		return;
@@ -307,13 +345,13 @@ if((psklen > 0) && (psklen <= 63))
 	}
 else
 	{
-	psklen = strlen(psk_ptr);
+	psklen = strlen(pskptr);
 	if((psklen < 1) || (psklen > 64))
 		{
 		printf("%s\n", potline);
 		return;
 		}
-	memcpy(&pmktmp.psk, psk_ptr, psklen);
+	memcpy(&pmktmp.psk, pskptr, psklen);
 	pmktmp.pskflag = false;
 	}
 pmktmp.psklen = psklen;
@@ -519,7 +557,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options>\n"
 	"\n"
 	"options:\n"
-	"-p <file> : input hashcat -m 2500 potfile\n"
+	"-p <file> : input hashcat potfile\n"
+	"            accepted potfiles: 2500 or 16800\n"
 	"-P <file> : output PMK file (PMK:ESSID:PSK)\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
@@ -573,9 +612,6 @@ if((potname != NULL) && (pmkname != NULL))
 	{
 	makepmklist(potname, pmkname);
 	}
-
-
-
 
 return EXIT_SUCCESS;
 }
