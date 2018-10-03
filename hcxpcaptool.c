@@ -3620,7 +3620,7 @@ gpstime.tv_sec = tv_sec;
 gpstime.tv_usec = tv_usec;
 unsigned long long int macsrc;
 
-strftime(timestring, 62, "    <time>%Y-%m-%dT%H:%M:%SZ</time>", localtime(&gpstime.tv_sec));
+strftime(timestring, 62, "    <time>%Y-%m-%dT%H:%M:%SZ</time>", gmtime(&gpstime.tv_sec));
 /*
   <trkpt lat="50.1965646353" lon="6.82632613">
     <ele>444.26999999999998</ele>
