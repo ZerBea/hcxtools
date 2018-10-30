@@ -73,7 +73,85 @@ if(lflag == true)
 	fprintf(fhout,"%s\n", lowerpskstring);
 return;
 }
+/*===========================================================================*/
+static void keywritenetgear(FILE *fhout)
+{
+size_t ca, cn, cs;
 
+char pskstring[PSKSTRING_LEN_MAX] = {};
+
+const char *adjectiv[] = { "ancient", "antique", "aquatic, absurd",
+	"baby", "basic", "big", "bitter", "black", "blue", "bold", "bottled", "brave", "breezy", "bright", "brown",
+	"calm", "carrot", "charming", "cheerful", "chip", "chummy", "classy", "clean", "clear", "clever", "cloudy", "cold", "cool", "crispy", "curly",
+	"daily", "deep", "delightful", "dizzy", "dynamic",
+	"east", "elated", "elegant", "excite", "excited", "exotic",
+	"famous", "fancy", "fearless", "festive", "fluffy", "free", "fresh", "friendly", "funny", "fuzzy",
+	"gentle", "gifted", "gigantic", "good", "graceful", "grand", "great", "green",
+	"happy", "heavy", "helpful", "hot", "hungry", "husky",
+	"icy", "imaginary", "invisible",
+	"jagged", "jolly", "joyful", "joyous",
+	"kind",
+	"large", "light", "little", "lively", "lovely", "lucky", "lumpy",
+	"magical", "manic", "mellow", "melodic", "mighty", "misty", "modern",
+	"narrow", "new", "nice", "nifty", "noisy", "normal",
+	"odd", "old", "orange", "ordinary",
+	"painless", "pastel", "peaceful", "perfect", "phobic", "pink", "polite", "poor", "precious", "pretty", "purple",
+	"quaint", "quick", "quiet",
+	"rapid", "red", "rocky", "rough", "round", "royal", "rustic",
+	"safe", "sandy", "shiny", "short", "silent", "silky", "silly", "slender", "slow", "small", "smart", "smiling", "smooth", "snug", "soft", "sour", "strange", "strong", "sunny", "sweet", "swift",
+	"thirsty", "thoughtful", "tiny",
+	"uneven", "unusual",
+	"vanilla", "vast", "violet"
+	"warm", "watery", "weak", "white", "wide", "wild", "wilde", "windy", "wise", "witty", "wonderful",
+	"yellow", "young",
+	"zany" };
+
+const char *substantiv[] = { "airplane", "apple", "automobile",
+	 "ball", "balloon", "banana", "beach", "bird", "boat", "bolt", "boot", "bottle", "box", "bread", "breeze", "bubble", "bug", "bunny", "bush", "butter",
+	 "canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "chip", "coast", "coconut", "comet", "cream", "curly", "curtain",
+	 "daisy", "deal", "desk", "diamond", "dink", "door",
+	 "earth", "elephant", "emerald",
+	 "finch", "fire", "flamingo", "flower", "flute", "forest",
+	 "gadfly", "gate", "gear", "giant", "giraffe", "glove", "grape", "grasshopper",
+	 "hair", "hat", "hill", "hippo",
+	 "ink", "iris",
+	 "jade", "jet", "jungle",
+	 "kangaroo", "kayak",
+	 "lake", "lemon", "lightning", "lion", "lotus", "lump",
+	 "mango", "mesa", "mint", "monkey", "moon", "motorcycle", "mountain",
+	 "nest",
+	 "oboe", "ocean", "octopus", "onion", "orange", "orchestra", "owl",
+	 "panda", "path", "pear", "penguin", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "potato", "prairie",
+	 "quail",
+	 "rabbit", "raccoon", "raid", "rain", "raven", "river", "road", "robert", "rosebud", "ruby",
+	 "sea", "sheep", "ship", "shoe", "shore", "shrub", "side", "silver", "sitter", "skates", "sky", "snake", "socks", "sparrow", "spider", "squash", "squirrel", "star", "stream", "street", "sun",
+	 "table", "teapot", "terrain", "tiger", "toast", "tomato", "trail", "train", "tree", "truck", "trumpet", "tuba", "tulip", "tullip",
+	 "umbrella", "unicorn", "unit",
+	 "valley", "vase", "violet", "violin",
+	 "water", "whale", "wind", "window",
+	 "zebra", "zoo" };
+
+for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
+	for(cs = 0; cs < (sizeof(substantiv) / sizeof(char *)); cs++)
+		{
+		for (cn = 0; cn < 1000; cn++)
+			{
+			snprintf(pskstring, 64, "%s%s%zu", adjectiv[ca], substantiv[cs], cn);
+			fprintf(fhout,"%s\n", pskstring);
+			if(cn < 10)
+				{
+				snprintf(pskstring, 64, "%s%s%02zu", adjectiv[ca], substantiv[cs], cn);
+				fprintf(fhout,"%s\n", pskstring);
+				}
+			if(cn < 100)
+				{
+				snprintf(pskstring, 64, "%s%s%03zu", adjectiv[ca], substantiv[cs], cn);
+				fprintf(fhout,"%s\n", pskstring);
+				}
+			}
+		}
+return;
+}
 /*===========================================================================*/
 static void keywriteweakpass(FILE *fhout)
 {
@@ -328,6 +406,22 @@ writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s12345", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1234", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s9876543210", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s987654321", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s87654321", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s7654321", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s654321", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s54321", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s4321", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s321", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@Home", essid);
 writepsk(fhout, essidstring);
@@ -597,8 +691,12 @@ for(c = 0; c < apessidcount; c++)
 return;
 }
 /*===========================================================================*/
-static void processadditionals(FILE *fhout, bool weakpassflag, bool eudateflag, bool usdateflag, bool wpsflag)
+static void processadditionals(FILE *fhout, bool weakpassflag, bool eudateflag, bool usdateflag, bool wpsflag, bool netgearflag)
 {
+if(netgearflag == true)
+	{
+	keywritenetgear(fhout);
+	}
 if(weakpassflag == true)
 	{
 	keywriteweakpass(fhout);
@@ -884,10 +982,11 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"            default: stdout\n"
 	"            output list must be sorted unique!\n"
 	"\n"
+	"--netgear : include NETGEAR candidates\n"
 	"--weakpass: include weak password candidates\n"
 	"--eudate  : include complete european dates\n"
 	"--usdate  : include complete american dates\n"
-
+	"--wpskeys : include complete WPS keys\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -908,6 +1007,7 @@ static FILE *fhpsk;
 static time_t t;
 static struct tm *tm;
 
+static bool netgearflag = false;
 static bool weakpassflag = false;
 static bool eudateflag = false;
 static bool usdateflag = false;
@@ -925,6 +1025,7 @@ apessidcount = 0;
 static const char *short_options = "i:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
+	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
@@ -942,6 +1043,9 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	{
 	switch (auswahl)
 		{
+		case HCXD_NETGEAR:
+		netgearflag = true;
+		break;
 
 		case HCXD_WEAKPASS:
 		weakpassflag = true;
@@ -1053,13 +1157,13 @@ if(pskname != NULL)
 		}
 	processbssids(fhpsk);
 	processessids(fhpsk);
-	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag, wpskeysflag);
+	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag);
 	}
 else
 	{
 	processbssids(stdout);
 	processessids(stdout);
-	processadditionals(stdout, weakpassflag, eudateflag, usdateflag, wpskeysflag);
+	processadditionals(stdout, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag);
 	}
 
 

@@ -2,12 +2,13 @@
 #define PMKID_LINE_LEN 255
 #define PSKSTRING_LEN_MAX 64
 
-#define HCXD_WEAKPASS			1
-#define HCXD_EUDATE			2
-#define HCXD_USDATE			3
-#define HCXD_WPSKEYS			4
-#define HCXD_HELP			5
-#define HCXD_VERSION			6
+#define HCXD_NETGEAR			1
+#define HCXD_WEAKPASS			2
+#define HCXD_EUDATE			3
+#define HCXD_USDATE			4
+#define HCXD_WPSKEYS			5
+#define HCXD_HELP			6
+#define HCXD_VERSION			7
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST

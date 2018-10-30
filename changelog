@@ -1,3 +1,11 @@
+30.10.2018
+==========
+hcxtools moved to version 5.0.0
+
+hcxpsktool: added NETGEARxx list
+--netgear : include NETGEAR candidates
+
+
 03.10.2018
 ==========
 hcxpcaptool: use GMT time
