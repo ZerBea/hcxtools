@@ -241,7 +241,7 @@ while(c < hcxrecords)
 
 
 	replaycount = geteapreplaycount(zeigerhcx->eapol);
-	if((replaycount == MYREPLAYCOUNT) && (memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0))
+	if(((replaycount == MYREPLAYCOUNT) && (memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0)) || ((zeigerhcx->message_pair & 0x10) == 0x10))
 		wldcount++;
 
 	if((memcmp(&nonceold, zeigerhcx->nonce_ap, 28) == 0) && (memcmp(&nonceold, zeigerhcx->nonce_ap, 32) != 0))
