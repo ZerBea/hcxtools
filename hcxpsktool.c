@@ -981,12 +981,16 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <file> : output PSK file\n"
 	"            default: stdout\n"
 	"            output list must be sorted unique!\n"
+	"-h        : show this help\n"
+	"-v        : show version\n"
 	"\n"
 	"--netgear : include NETGEAR candidates\n"
 	"--weakpass: include weak password candidates\n"
 	"--eudate  : include complete european dates\n"
 	"--usdate  : include complete american dates\n"
 	"--wpskeys : include complete WPS keys\n"
+	"--help    : show this help\n"
+	"--version : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
 }
