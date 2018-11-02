@@ -671,7 +671,7 @@ while(c < hcxrecords)
 	{
 	zeigerhcx = hcxdata +c;
 	r = getreplaycount(zeigerhcx->eapol);
-	if((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0) && (r == MYREPLAYCOUNT))
+	if(((memcmp(&mynonce, zeigerhcx->nonce_ap, 32) == 0) && (r == MYREPLAYCOUNT)) || ((zeigerhcx->message_pair & 0x10) == 0x10))
 		{
 		if((fhhcx = fopen(wlandumpforcedname, "ab")) == NULL)
 			{
