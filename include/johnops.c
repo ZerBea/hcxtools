@@ -83,7 +83,6 @@ else if((zeiger->keyinfo_ap >= 1) && (zeiger->keyinfo_sta == 8))
 	}
 
 hcpos = (unsigned char*)&hccap;
-
 memset (&hccap, 0, sizeof(hccap_t));
 wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 memcpy(&hccap.essid, zeiger->essid, 32);
@@ -91,13 +90,16 @@ memcpy(&hccap.mac1, zeiger->mac_ap, 6);
 memcpy(&hccap.mac2, zeiger->mac_sta, 6);
 memcpy(&hccap.nonce1, wpak->nonce, 32);
 memcpy(&hccap.nonce2, zeiger->nonce, 32);
-
 hccap.eapol_size = zeiger->authlen;
 memcpy(&hccap.eapol, zeiger->eapol, zeiger->authlen);
 memcpy(&hccap.keymic, wpak->keymic, 16);
 wpak2 = (wpakey_t*)(hccap.eapol +EAPAUTH_SIZE);
 memset(wpak2->keymic, 0, 16);
 hccap.keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+if(hccap.keyver == 0)
+	{
+	hccap.keyver = 3;
+	}
  #ifdef BIG_ENDIAN_HOST
 hccap.eapolsize	= byte_swap_16(hccap.eapolsize);
 #endif
