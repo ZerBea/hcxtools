@@ -4109,6 +4109,7 @@ uint64_t timestamp;
 uint32_t timestamp_sec;
 uint32_t timestamp_usec;
 
+printf("reading from %s\n", basename(pcapinname));
 if(gpxflag == true)
 	{
 	fprintf(fhgpx, "<trk>\n  <name>%s</name>\n  <trkseg>\n", basename(pcapinname));
@@ -4190,7 +4191,7 @@ while(1)
 			}
 		if(pcapngidb.snaplen > MAXPACPSNAPLEN)
 			{
-			printf("detected oversized snaplen (%d) \n", pcapngidb.snaplen);
+			printf("detected oversized snaplen (%d)          \n", pcapngidb.snaplen);
 			pcapreaderrors = 1;
 			}
 		lseek(fd, pcapngbh.total_length -BH_SIZE -IDB_SIZE, SEEK_CUR);
@@ -4235,7 +4236,7 @@ while(1)
 			res = read(fd, &packet, pcapngpb.caplen);
 			if(res != pcapngpb.caplen)
 				{
-				printf("failed to read packet %lld\n", rawpacketcount);
+				printf("failed to read packet %lld          \n", rawpacketcount);
 				pcapreaderrors = 1;
 				break;
 				}
@@ -4253,7 +4254,7 @@ while(1)
 		res = read(fd, &packet, pcapngpb.caplen);
 		if(res != pcapngpb.caplen)
 			{
-			printf("failed to read packet %lld\n", rawpacketcount);
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			pcapreaderrors = 1;
 			break;
 			}
@@ -4308,7 +4309,7 @@ while(1)
 			res = read(fd, &packet, pcapngepb.caplen);
 			if(res != pcapngepb.caplen)
 				{
-				printf("failed to read packet %lld\n", rawpacketcount);
+				printf("failed to read packet %lld          \n", rawpacketcount);
 				pcapreaderrors = 1;
 				break;
 				}
@@ -4353,7 +4354,7 @@ while(1)
 			{
 			processpacket(timestamp_sec, timestamp_usec, pcapngidb.linktype, pcapngepb.caplen, packet);
 			}
-		if((rawpacketcount %100000) == 0)
+		if((rawpacketcount > 100000) && ((rawpacketcount %100000) == 0))
 			{
 			printf("%lld packets processed - be patient!\r", rawpacketcount);
 			}
@@ -4378,7 +4379,7 @@ pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
 uint8_t packet[MAXPACPSNAPLEN];
 
-printf("start reading from %s\n", pcapinname);
+printf("reading from %s\n", basename(pcapinname));
 memset(&packet, 0, MAXPACPSNAPLEN);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
@@ -4441,7 +4442,7 @@ while(1)
 		res = read(fd, &packet, pcaprhdr.incl_len);
 		if(res != pcaprhdr.incl_len)
 			{
-			printf("failed to read packet %lld\n", rawpacketcount);
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			pcapreaderrors = 1;
 			break;
 			}
@@ -4465,7 +4466,7 @@ while(1)
 			{
 			processpacket(pcaprhdr.ts_sec, pcaprhdr.ts_usec, pcapfhdr.network, pcaprhdr.incl_len, packet);
 			}
-		if((rawpacketcount %100000) == 0)
+		if((rawpacketcount > 100000) && ((rawpacketcount %100000) == 0))
 			{
 			printf("%lld packets processed - be patient!\r", rawpacketcount);
 			}
@@ -4703,6 +4704,7 @@ else if(magicnumber == PCAPNGBLOCKTYPE)
 	}
 
 close(pcapr_fd);
+
 if(needrmflag == true)
 	{
 	remove(tmpoutname);
