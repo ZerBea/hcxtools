@@ -4109,7 +4109,7 @@ uint64_t timestamp;
 uint32_t timestamp_sec;
 uint32_t timestamp_usec;
 
-printf("reading from %s\n", basename(pcapinname));
+printf("\nreading from %s\n", basename(pcapinname));
 if(gpxflag == true)
 	{
 	fprintf(fhgpx, "<trk>\n  <name>%s</name>\n  <trkseg>\n", basename(pcapinname));
@@ -4379,7 +4379,7 @@ pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
 uint8_t packet[MAXPACPSNAPLEN];
 
-printf("reading from %s\n", basename(pcapinname));
+printf("\nreading from %s\n", basename(pcapinname));
 memset(&packet, 0, MAXPACPSNAPLEN);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
