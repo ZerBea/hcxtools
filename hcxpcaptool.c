@@ -3992,6 +3992,11 @@ while(1)
 		{
 		return;
 		}
+	if(endianess == 1)
+		{
+		opthdr.option_code = byte_swap_16(opthdr.option_code);
+		opthdr.option_length = byte_swap_16(opthdr.option_length);
+		}
 	if(opthdr.option_code == 0)
 		{
 		return;
@@ -4002,6 +4007,7 @@ while(1)
 		return;
 		}
 	tl -= olpad -2;
+
 	if(opthdr.option_code == 1)
 		{
 		memset(&pcapngoptioninfo, 0, 256);
@@ -4138,7 +4144,7 @@ while(1)
 			break;
 			}
 		#ifdef BIG_ENDIAN_HOST
-		pcapngbh.total_length = byte_swap_32(pcapngbh.total_length);
+		pcapngbh.total_length 		= byte_swap_32(pcapngbh.total_length);
 		pcapngshb.byte_order_magic	= byte_swap_32(pcapngshb.byte_order_magic);
 		pcapngshb.major_version		= byte_swap_16(pcapngshb.major_version);
 		pcapngshb.minor_version		= byte_swap_16(pcapngshb.minor_version);
