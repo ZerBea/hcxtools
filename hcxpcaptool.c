@@ -4079,8 +4079,7 @@ while(1)
 			{
 			return;
 			}
-		myaktreplaycount = 0;
-		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x07] & 0xff);
+		myaktreplaycount = filereplaycound[0x07] & 0xff;
 		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x06] & 0xff);
 		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x05] & 0xff);
 		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x04] & 0xff);
