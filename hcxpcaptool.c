@@ -3992,6 +3992,10 @@ while(1)
 		{
 		return;
 		}
+	#ifdef BIG_ENDIAN_HOST
+	opthdr.option_code = byte_swap_16(opthdr.option_code);
+	opthdr.option_length = byte_swap_16(opthdr.option_length);
+	#endif
 	if(endianess == 1)
 		{
 		opthdr.option_code = byte_swap_16(opthdr.option_code);
@@ -4075,8 +4079,22 @@ while(1)
 			{
 			return;
 			}
-		myaktreplaycount = filereplaycound[0x00] & 0xff;
-		myaktreplaycount += (filereplaycound[0x01] & 0xff) << 8;
+		myaktreplaycount = 0;
+		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x07] & 0xff);
+		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x06] & 0xff);
+		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x05] & 0xff);
+		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x04] & 0xff);
+		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x03] & 0xff);
+		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x02] & 0xff);
+		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x01] & 0xff);
+		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x00] & 0xff);
+		#ifdef BIG_ENDIAN_HOST
+		myaktreplaycount = byte_swap_64(myaktreplaycount);
+		#endif
+		if(endianess == 1)
+			{
+			myaktreplaycount = byte_swap_64(myaktreplaycount);
+			}
 		}
 	else if(opthdr.option_code == OPTIONCODE_ANONCE)
 		{
