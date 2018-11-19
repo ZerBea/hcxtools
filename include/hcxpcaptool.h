@@ -3,7 +3,6 @@ struct apstaessidlist_s
 {
  uint32_t	tv_sec;
  uint32_t	tv_usec;
- uint8_t	status;
  uint8_t	mac_ap[6];
  uint8_t	mac_sta[6];
  uint8_t	essidlen;

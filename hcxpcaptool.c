@@ -898,7 +898,7 @@ if((apstaessidliste != NULL) && (hccapxbestoutname != NULL))
 			essidok = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (zeigeressid->status != 2))
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
@@ -973,7 +973,7 @@ if(hccapxrawoutname != NULL)
 				memset(&essidold, 0,32);
 				for(d = 0; d < apstaessidcount; d++)
 					{
-					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 							{
@@ -1031,9 +1031,9 @@ if((apstaessidliste != NULL) && (hccapbestoutname != NULL))
 			essidok = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
-				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
-					if((memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0) && (zeigeressid->status != 2))
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
@@ -1106,7 +1106,7 @@ if(hccaprawoutname != NULL)
 				memset(&essidold, 0,32);
 				for(d = 0; d < apstaessidcount; d++)
 					{
-					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 							{
@@ -1164,9 +1164,9 @@ if((apstaessidliste != NULL) && (johnbestoutname != NULL))
 			essidok = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
-				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
-					if((memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0) && (zeigeressid->status != 2))
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
@@ -1239,7 +1239,7 @@ if(johnrawoutname != NULL)
 				essidchangecount = 0;
 				for(d = 0; d < apstaessidcount; d++)
 					{
-					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 							{
@@ -1310,7 +1310,7 @@ if((apstaessidliste != NULL) && (hcpmkidaoutname != NULL))
 			essidok = 0;
 			for(d = 0; d < apstaessidcount; d++)
 				{
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (zeigeressid->status != 2))
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
@@ -2579,7 +2579,6 @@ for(c = 0; c < apstaessidcount; c++)
 	{
 	if(c == 0)
 		{
-		zeiger2->status |= zeiger1->status;
 		memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
 		memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
 		zeiger2->essidlen = zeiger1->essidlen;
@@ -2593,7 +2592,6 @@ for(c = 0; c < apstaessidcount; c++)
 		if(memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) != 0)
 			{
 			zeiger2++;
-			zeiger2->status |= zeiger1->status;
 			memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
 			memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
 			zeiger2->essidlen = zeiger1->essidlen;
@@ -2606,7 +2604,6 @@ for(c = 0; c < apstaessidcount; c++)
 			if(memcmp(zeiger1->mac_sta, zeiger2->mac_sta, 6) != 0)
 				{
 				zeiger2++;
-				zeiger2->status |= zeiger1->status;
 				memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
 				memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
 				zeiger2->essidlen = zeiger1->essidlen;
@@ -2625,7 +2622,7 @@ apstaessidcount = apstaessidcountcleaned;
 return;
 }
 /*===========================================================================*/
-void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t status, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
+void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
 {
 apstaessidl_t *zeiger;
 if(apstaessidliste == NULL)
@@ -2639,7 +2636,6 @@ if(apstaessidliste == NULL)
 	memset(apstaessidliste, 0, APSTAESSIDLIST_SIZE);
 	apstaessidliste->tv_sec = tv_sec;
 	apstaessidliste->tv_usec = tv_usec;
-	apstaessidliste->status = status;
 	memcpy(apstaessidliste->mac_ap, mac_ap, 6);
 	memcpy(apstaessidliste->mac_sta, mac_sta, 6);
 	memset(apstaessidliste->essid, 0, 32);
@@ -2660,7 +2656,6 @@ zeiger = apstaessidliste +apstaessidcount;
 memset(zeiger, 0, APSTAESSIDLIST_SIZE);
 zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
-zeiger->status = status;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
 memset(zeiger->essid, 0, 32);
@@ -2723,7 +2718,7 @@ if(essidlen == 0)
 	return;
 	}
 
-addapstaessid(tv_sec, tv_usec, 1, macf->addr1, macf->addr2, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
 beaconframecount++;
 return;
 }
@@ -2747,7 +2742,7 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(tv_sec, tv_usec, 0x18, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 proberequestframecount++;
 return;
 }
@@ -2771,7 +2766,7 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(tv_sec, tv_usec, 2, macf->addr1, macf->addr2, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
 proberesponseframecount++;
 return;
 }
@@ -2795,7 +2790,7 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(tv_sec, tv_usec, 4, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 associationrequestframecount++;
 return;
 }
@@ -2826,7 +2821,7 @@ if(essidlen == 0)
 	{
 	return;
 	}
-addapstaessid(tv_sec, tv_usec, 8, macf->addr2, macf->addr1, essidlen, essidstr);
+addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 reassociationrequestframecount++;
 return;
 }
