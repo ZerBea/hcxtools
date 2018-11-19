@@ -973,7 +973,7 @@ if(hccapxrawoutname != NULL)
 				memset(&essidold, 0,32);
 				for(d = 0; d < apstaessidcount; d++)
 					{
-					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
 						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 							{
@@ -1106,7 +1106,7 @@ if(hccaprawoutname != NULL)
 				memset(&essidold, 0,32);
 				for(d = 0; d < apstaessidcount; d++)
 					{
-					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
 						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 							{
@@ -1239,7 +1239,7 @@ if(johnrawoutname != NULL)
 				essidchangecount = 0;
 				for(d = 0; d < apstaessidcount; d++)
 					{
-					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
 						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 							{
