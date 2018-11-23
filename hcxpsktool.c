@@ -437,7 +437,7 @@ snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s123!", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s12!", essid);
 writepsk(fhout, essidstring);
-snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s11!", essid);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1!", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s!", essid);
 writepsk(fhout, essidstring);
