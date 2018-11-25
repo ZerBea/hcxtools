@@ -2112,7 +2112,7 @@ for(c = 0; c < handshakecount; c++)
 			}
 		if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
 			{
-			if((zeiger->replaycount_ap != myaktreplaycount) && (zeiger->replaycount_sta != myaktreplaycount) && (memcmp(zeiger->nonce, &myaktnonce, 32) == 0))
+			if((zeiger->replaycount_ap != myaktreplaycount) && (zeiger->replaycount_sta != myaktreplaycount) && (memcmp(zeiger->nonce, &myaktnonce, 32) != 0))
 				{
 				handshakeaplesscount++;
 				}
