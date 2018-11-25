@@ -2982,12 +2982,7 @@ if(caplen < (uint32_t)WPAKEY_SIZE)
 eap = (eapauth_t*)packet;
 wpak = (wpakey_t*)(packet +EAPAUTH_SIZE);
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
-
-rc = byte_swap_64(wpak->replaycount);
-#ifdef BIG_ENDIAN_HOST
-rc = byte_swap_64(wpak->replaycount);
-#endif
-
+rc = be64toh(wpak->replaycount);
 authlen = ntohs(eap->len);
 if(authlen > caplen -4)
 	{
@@ -4734,7 +4729,6 @@ if(apstaessidliste != NULL)
 	}
 
 if(eapolliste != NULL)
-//if((apstaessidliste != NULL) && (eapolliste != NULL))
 	{
 	findhandshake();
 	}
