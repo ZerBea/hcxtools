@@ -16,7 +16,6 @@
 #include <openssl/sha.h>
 #ifdef __APPLE__
 #define PATH_MAX 255
-#define _DEFAULT_SOURCE
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
@@ -2092,7 +2091,6 @@ if(handshakeliste == NULL)
 	handshakecount++;
 	return;
 	}
-
 zeiger = handshakeliste;
 for(c = 0; c < handshakecount; c++)
 	{
@@ -2989,6 +2987,7 @@ rc = byte_swap_64(wpak->replaycount);
 #else
 rc = wpak->replaycount;
 #endif
+
 authlen = ntohs(eap->len);
 if(authlen > caplen -4)
 	{
