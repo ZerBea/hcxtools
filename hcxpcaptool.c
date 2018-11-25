@@ -16,6 +16,7 @@
 #include <openssl/sha.h>
 #ifdef __APPLE__
 #define PATH_MAX 255
+#define _DEFAULT_SOURCE
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
@@ -2982,13 +2983,17 @@ if(caplen < (uint32_t)WPAKEY_SIZE)
 eap = (eapauth_t*)packet;
 wpak = (wpakey_t*)(packet +EAPAUTH_SIZE);
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
-rc = be64toh(wpak->replaycount);
+
+#ifndef BIG_ENDIAN_HOST
+rc = byte_swap_64(wpak->replaycount);
+#else
+rc = wpak->replaycount;
+#endif
 authlen = ntohs(eap->len);
 if(authlen > caplen -4)
 	{
 	return;
 	}
-	
 
 kl = ntohs(wpak->keylen);
 if((kl %16) != 0)
