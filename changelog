@@ -1,3 +1,9 @@
+26.11.2018
+==========
+several big endian fixes
+switched to version 5.0.1
+
+
 19.11.2018
 ==========
 hcxpcaptool: improved detection of ESSID changes in merged capfiles
