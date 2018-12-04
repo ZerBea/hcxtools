@@ -118,6 +118,7 @@ unsigned long long int gpsdframecount;
 unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
+unsigned long long int meshidframecount;
 unsigned long long int proberequestframecount;
 unsigned long long int proberesponseframecount;
 unsigned long long int associationrequestframecount;
@@ -470,6 +471,10 @@ if(wdsframecount != 0)
 if(beaconframecount != 0)
 	{
 	printf("beacons (with ESSID inside)..: %llu\n", beaconframecount);
+	}
+if(beaconframecount != 0)
+	{
+	printf("beacons (with MESH-ID inside): %llu\n", meshidframecount);
 	}
 if(proberequestframecount != 0)
 	{
@@ -871,7 +876,7 @@ apstaessidl_t *zeigeressid;
 FILE *fhoutlist = NULL;
 unsigned long long int writtencount, essidchangecount;
 
-uint8_t essidold[32];
+uint8_t essidold[ESSID_LEN_MAX];
 
 if(handshakeliste == NULL)
 	{
@@ -1292,7 +1297,7 @@ uint8_t essidok;
 apstaessidl_t *zeigeressid;
 FILE *fhoutlist = NULL;
 
-uint8_t essidold[32];
+uint8_t essidold[ESSID_LEN_MAX];
 
 essidchangecount = 0;
 qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
@@ -1651,14 +1656,12 @@ return;
 void outlistidentity(uint32_t idlen, uint8_t *packet)
 {
 FILE *fhoutlist = NULL;
-
 uint32_t idcount = 5;
 
 if(idlen <= idcount)
 	{
 	return;
 	}
-
 
 if((packet[idcount] == 0) && (idlen > idcount +1))
 	{
@@ -2664,6 +2667,33 @@ apstaessidcount++;
 return;
 }
 /*===========================================================================*/
+uint16_t getmeshid(uint8_t *tagdata, int taglen, uint8_t *meshidstr)
+{
+ietag_t *tagl;
+tagl = (ietag_t*)tagdata;
+
+while(0 < taglen)
+	{
+	if(tagl->id == TAG_MESH_ID)
+		{
+		printf("%02x\n", tagl->id);
+		if(tagl->len == 0)
+			{
+			return 0;
+			}
+		if(tagl->data[0] == 0)
+			{
+			return 0;
+			}
+		memcpy(meshidstr, tagl->data, tagl->len);
+		return tagl->len;
+		}
+	tagl = (ietag_t*)((uint8_t*)tagl +tagl->len +IETAG_SIZE);
+	taglen -= tagl->len;
+	}
+return 0;
+}
+/*===========================================================================*/
 uint16_t getessid(uint8_t *tagdata, int taglen, uint8_t *essidstr)
 {
 ietag_t *tagl;
@@ -2701,8 +2731,11 @@ void process80211beacon(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint
 {
 uint8_t *packet_ptr;
 mac_t *macf;
+FILE *fhoutlist = NULL;
 int essidlen;
-uint8_t essidstr[32];
+int meshidlen;
+uint8_t essidstr[ESSID_LEN_MAX];
+uint8_t meshidstr[0x256];
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
@@ -2712,13 +2745,26 @@ macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
 memset(&essidstr, 0, 32);
 essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE, essidstr);
-if(essidlen == 0)
+meshidlen = getmeshid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE, meshidstr);
+
+if(essidlen != 0)
 	{
-	return;
+	addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
+	beaconframecount++;
 	}
 
-addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
-beaconframecount++;
+if(meshidlen != 0)
+	{
+	if(identityoutname != NULL)
+		{
+		if((fhoutlist = fopen(identityoutname, "a+")) != NULL)
+			{
+			fwriteessidstr(meshidlen, meshidstr, fhoutlist);
+			fclose(fhoutlist);
+			}
+		}
+	meshidframecount++;
+	}
 return;
 }
 /*===========================================================================*/
@@ -2727,7 +2773,7 @@ void process80211probe_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, u
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
-uint8_t essidstr[32];
+uint8_t essidstr[ESSID_LEN_MAX];
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +2)
 	{
@@ -2751,7 +2797,7 @@ void process80211probe_resp(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, 
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
-uint8_t essidstr[32];
+uint8_t essidstr[ESSID_LEN_MAX];
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
@@ -2775,7 +2821,7 @@ void process80211assoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, u
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
-uint8_t essidstr[32];
+uint8_t essidstr[ESSID_LEN_MAX];
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESSTA_SIZE +2)
 	{
@@ -2806,7 +2852,7 @@ void process80211reassoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen,
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
-uint8_t essidstr[32];
+uint8_t essidstr[ESSID_LEN_MAX];
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESRESTA_SIZE +2)
 	{
@@ -3949,6 +3995,10 @@ if(caplen < 4)
 	return;
 	}
 fcs = (fcs_t*)(packet_ptr +caplen -4);
+if(endianess == 1)
+	{
+	fcs->fcs	= byte_swap_32(fcs->fcs);
+	}
 #ifdef BIG_ENDIAN_HOST
 fcs->fcs	= byte_swap_32(fcs->fcs);
 #endif
@@ -4586,6 +4636,7 @@ gpsdframecount = 0;
 fcsframecount = 0;
 wdsframecount = 0;
 beaconframecount = 0;
+meshidframecount = 0;
 proberequestframecount = 0;
 proberesponseframecount = 0;
 associationrequestframecount = 0;

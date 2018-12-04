@@ -1,3 +1,9 @@
+04.12.2018
+==========
+fixed bug in FCS on BE systems
+detect MESH-IDs
+
+
 26.11.2018
 ==========
 several big endian fixes

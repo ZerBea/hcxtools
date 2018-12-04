@@ -1,3 +1,5 @@
+#define ESSID_LEN_MAX 32
+
 /*===========================================================================*/
 struct apstaessidlist_s
 {
@@ -6,7 +8,7 @@ struct apstaessidlist_s
  uint8_t	mac_ap[6];
  uint8_t	mac_sta[6];
  uint8_t	essidlen;
- uint8_t	essid[32];
+ uint8_t	essid[ESSID_LEN_MAX];
 } __attribute__((__packed__));
 typedef struct apstaessidlist_s apstaessidl_t;
 #define	APSTAESSIDLIST_SIZE (sizeof(apstaessidl_t))
@@ -112,7 +114,7 @@ struct hcxtoollist_s
  uint8_t	authlen;
  uint8_t	eapol[256];
  uint8_t	essidlen;
- uint8_t	essid[32];
+ uint8_t	essid[ESSID_LEN_MAX];
 } __attribute__((__packed__));
 typedef struct hcxtoollist_s hcxl_t;
 #define	HCXLIST_SIZE (sizeof(hcxl_t))
