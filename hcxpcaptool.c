@@ -2676,7 +2676,6 @@ while(0 < taglen)
 	{
 	if(tagl->id == TAG_MESH_ID)
 		{
-		printf("%02x\n", tagl->id);
 		if(tagl->len == 0)
 			{
 			return 0;
