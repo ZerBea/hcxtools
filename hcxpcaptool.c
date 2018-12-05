@@ -473,7 +473,7 @@ if(beaconframecount != 0)
 	{
 	printf("beacons (with ESSID inside)..: %llu\n", beaconframecount);
 	}
-if(beaconframecount != 0)
+if(meshidframecount != 0)
 	{
 	printf("beacons (with MESH-ID inside): %llu\n", meshidframecount);
 	}
