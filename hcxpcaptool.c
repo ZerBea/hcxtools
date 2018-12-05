@@ -145,6 +145,7 @@ unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
 unsigned long long int atimframecount;
 unsigned long long int eapolframecount;
+unsigned long long int rc4descriptorframecount;
 unsigned long long int eapolstartframecount;
 unsigned long long int eapollogoffframecount;
 unsigned long long int eapolasfframecount;
@@ -583,6 +584,10 @@ if(eapolframecount != 0)
 if(pmkidcount != 0)
 	{
 	printf("EAPOL PMKIDs.................: %llu\n", pmkidcount);
+	}
+if(rc4descriptorframecount != 0)
+	{
+	printf("EAPOL RC4 KEYS...............: %llu\n", rc4descriptorframecount);
 	}
 if(eapframecount != 0)
 	{
@@ -3019,12 +3024,24 @@ uint16_t authlen;
 uint64_t rc;
 uint16_t kl;
 
+if(caplen < (uint32_t)RC4DES_SIZE)
+	{
+	return;
+	}
+
+eap = (eapauth_t*)packet;
+wpak = (wpakey_t*)(packet +EAPAUTH_SIZE);
+
+if(wpak->keydescriptor == RC4DESCRIPTOR)
+	{
+	rc4descriptorframecount++;
+	}
+
 if(caplen < (uint32_t)WPAKEY_SIZE)
 	{
 	return;
 	}
-eap = (eapauth_t*)packet;
-wpak = (wpakey_t*)(packet +EAPAUTH_SIZE);
+
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
 
 #ifndef BIG_ENDIAN_HOST
@@ -3032,6 +3049,7 @@ rc = byte_swap_64(wpak->replaycount);
 #else
 rc = wpak->replaycount;
 #endif
+
 
 authlen = ntohs(eap->len);
 if(authlen > caplen -4)
@@ -4667,6 +4685,7 @@ actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
 pmkidcount = 0;
+rc4descriptorframecount = 0;
 eapolstartframecount = 0;
 eapollogoffframecount = 0;
 eapolasfframecount = 0;

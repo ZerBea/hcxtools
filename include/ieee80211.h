@@ -428,6 +428,20 @@ struct pmkid_frame
 typedef struct pmkid_frame pmkid_t;
 #define	PMKID_SIZE (sizeof(pmkid_t))
 /*===========================================================================*/
+struct rc4descriptor_frame
+{
+ uint8_t	keydescriptor;
+#define	RC4DESCRIPTOR	1
+ uint16_t	keylen;
+ uint64_t	replaycount;
+ uint8_t	keyiv[16];
+ uint8_t	keyindex;
+ uint8_t	keysignature[16];
+ uint8_t	key[13];
+} __attribute__((__packed__));
+typedef struct rc4descriptor_frame rc4des_t;
+#define	RC4DES_SIZE (sizeof(rc4des_t))
+/*===========================================================================*/
 struct exteap_frame
 {
  uint8_t			code;

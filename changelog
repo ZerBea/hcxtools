@@ -1,7 +1,12 @@
+05.12.2018
+==========
+hcxpcaptool:  detect EAPOL RC4 KEYs
+
+
 04.12.2018
 ==========
-fixed bug in FCS on BE systems
-detect MESH-IDs
+hcxpcaptool: fixed bug in FCS on BE systems
+hcxpcaptool: detect MESH-IDs
 
 
 26.11.2018
