@@ -587,7 +587,7 @@ if(pmkidcount != 0)
 	}
 if(rc4descriptorframecount != 0)
 	{
-	printf("EAPOL RC4 KEYS...............: %llu\n", rc4descriptorframecount);
+	printf("EAPOL RC4 KEYs...............: %llu\n", rc4descriptorframecount);
 	}
 if(eapframecount != 0)
 	{
