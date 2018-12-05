@@ -3035,6 +3035,8 @@ wpak = (wpakey_t*)(packet +EAPAUTH_SIZE);
 if(wpak->keydescriptor == RC4DESCRIPTOR)
 	{
 	rc4descriptorframecount++;
+	eapolframecount++;
+	return;
 	}
 
 if(caplen < (uint32_t)WPAKEY_SIZE)
