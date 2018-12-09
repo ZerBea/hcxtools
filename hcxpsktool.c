@@ -80,7 +80,7 @@ size_t ca, cn, cs;
 
 char pskstring[PSKSTRING_LEN_MAX] = {};
 
-const char *adjectiv[] = { "ancient", "antique", "aquatic, absurd",
+const char *adjectiv[] = { "ancient", "antique", "aquatic", "absurd",
 	"baby", "basic", "big", "bitter", "black", "blue", "bold", "bottled", "brave", "breezy", "bright", "brown",
 	"calm", "carrot", "charming", "cheerful", "chip", "chummy", "classy", "clean", "clear", "clever", "cloudy", "cold", "cool", "crispy", "curly",
 	"daily", "deep", "delightful", "dizzy", "dynamic",
