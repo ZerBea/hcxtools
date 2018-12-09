@@ -2531,6 +2531,27 @@ fprintf(fheapol, "\n");
 return;
 }
 /*===========================================================================*/
+uint16_t rsnietagwalk(uint8_t *tagdata, int taglen)
+{
+ietag_t *tagl;
+tagl = (ietag_t*)tagdata;
+
+while(0 < taglen)
+	{
+	if(tagl->id == TAG_RSN)
+		{
+		if(tagl->len == 0)
+			{
+			return 0;
+			}
+		return tagl->len;
+		}
+	tagl = (ietag_t*)((uint8_t*)tagl +tagl->len +IETAG_SIZE);
+	taglen -= tagl->len;
+	}
+return 0;
+}
+/*===========================================================================*/
 void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint32_t authlen, uint8_t *authpacket)
 {
 eapoll_t *zeiger;

@@ -318,6 +318,7 @@ struct ie_tag
 #define	TAG_SSID	0
 #define	TAG_RATE	0x01
 #define	TAG_CHAN	0x03
+#define	TAG_RSN		0x30
 #define	TAG_MESH_ID	0x72
 	uint8_t		len;
 	uint8_t		data[1];
