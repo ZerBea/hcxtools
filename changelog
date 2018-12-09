@@ -2,9 +2,11 @@
 ==========
 hcxpcaptool: detect EAPOL GROUP KEYs
 hcxpcaptool: move option -H to --hexdump-out
-hcxpcaptool: added new option --eapol-out
+hcxpcaptool: added new options (--eapol-out, --network-out)
 --eapol-out=<file>                : output EAPOL packets in hex
                                     format = mac_ap:mac_sta:eapol
+--network-out=<file>              : output network information
+                                    format = mac_ap:ESSID
 --hexdump-out=<file>              : output dump raw packets in hex
 
 

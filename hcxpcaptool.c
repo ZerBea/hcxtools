@@ -51,7 +51,8 @@
 #define HCXT_MD5_JOHN_OUT	5
 #define HCXT_TACACSP_OUT	6
 #define HCXT_EAPOL_OUT		7
-#define HCXT_HEXDUMP_OUT	8
+#define HCXT_NETWORK_OUT	8
+#define HCXT_HEXDUMP_OUT	9
 
 #define HCXT_HCCAPX_OUT		'o'
 #define HCXT_HCCAPX_OUT_RAW	'O'
@@ -202,10 +203,12 @@ char *md5outname;
 char *md5johnoutname;
 char *tacacspoutname;
 char *eapoloutname;
+char *networkoutname;
 
 FILE *fhhexmode;
 FILE *fhgpx;
 FILE *fheapol;
+FILE *fhnetwork;
 
 bool tscleanflag;
 int endianess;
@@ -249,6 +252,7 @@ md5outname = NULL;
 md5johnoutname = NULL;
 tacacspoutname = NULL;
 eapoloutname = NULL;
+networkoutname = NULL;
 
 verboseflag = false;
 hexmodeflag = false;
@@ -2665,8 +2669,29 @@ apstaessidcount = apstaessidcountcleaned;
 return;
 }
 /*===========================================================================*/
+void printnetwork(uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
+{
+uint8_t c;
+
+if(memcmp(mac_ap, mac_broadcast,6) == 0)
+	{
+	return;
+	}
+for(c = 0; c < 6; c++)
+	{
+	fprintf(fhnetwork, "%02x",mac_ap[c]);
+	}
+fprintf(fhnetwork, ":");
+fwriteessidstr(essidlen, essid, fhnetwork);
+return;
+}
+/*===========================================================================*/
 void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
 {
+if(networkoutname != NULL)
+	{
+	printnetwork(mac_ap, essidlen, essid);
+	}
 apstaessidl_t *zeiger;
 if(apstaessidliste == NULL)
 	{
@@ -4985,7 +5010,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--md5-john-out=<file>             : output MD5 challenge file (john chap)\n"
 	"--tacacsplus-out=<file>           : output TACACS+ authentication file (hashcat -m 16100, john tacacs-plus)\n"
 	"--eapol-out=<file>                : output EAPOL packets in hex\n"
-	"                                    format = mac_ap:mac_sta:eapol\n"
+	"                                    format = mac_ap:mac_sta:EAPOL\n"
+	"--network-out=<file>              : output network information\n"
+	"                                    format = mac_ap:ESSID\n"
 	"--hexdump-out=<file>              : output dump raw packets in hex\n"
 	"\n"
 	"bitmask for message pair field:\n"
@@ -5034,6 +5061,7 @@ static const struct option long_options[] =
 	{"md5-john-out",		required_argument,	NULL,	HCXT_MD5_JOHN_OUT},
 	{"tacacsplus-out",		required_argument,	NULL,	HCXT_TACACSP_OUT},
 	{"eapol-out",			required_argument,	NULL,	HCXT_EAPOL_OUT},
+	{"network-out",			required_argument,	NULL,	HCXT_NETWORK_OUT},
 	{"hexdump-out",			required_argument,	NULL,	HCXT_HEXDUMP_OUT},
 	{NULL,				0,			NULL,	0}
 };
@@ -5092,6 +5120,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_EAPOL_OUT:
 		eapoloutname = optarg;
+		break;
+
+		case HCXT_NETWORK_OUT:
+		networkoutname = optarg;
 		break;
 
 		case HCXT_HEXDUMP_OUT:
@@ -5199,15 +5231,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		}
 	}
 
-if(hexmodeflag == true) 
-	{
-	if((fhhexmode = fopen(hexmodeoutname, "a+")) == NULL)
-		{
-		fprintf(stderr, "error opening file %s: %s\n", hexmodeoutname, strerror(errno));
-		exit(EXIT_FAILURE);
-		}
-	}
-
 if(gpxflag == true) 
 	{
 	if((fhgpx = fopen(gpxoutname, "w+")) == NULL)
@@ -5219,6 +5242,15 @@ if(gpxflag == true)
 	fprintf(fhgpx, "<name>%s</name>\n", basename(gpxoutname));
 	}
 
+if(hexmodeflag == true) 
+	{
+	if((fhhexmode = fopen(hexmodeoutname, "a+")) == NULL)
+		{
+		fprintf(stderr, "error opening file %s: %s\n", hexmodeoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
 if(eapoloutname != NULL)
 	{
 	if((fheapol = fopen(eapoloutname, "a+")) == NULL)
@@ -5228,28 +5260,43 @@ if(eapoloutname != NULL)
 		}
 	}
 
+if(networkoutname != NULL)
+	{
+	if((fhnetwork = fopen(networkoutname, "a+")) == NULL)
+		{
+		fprintf(stderr, "error opening file %s: %s\n", networkoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
 for(index = optind; index < argc; index++)
 	{
 	processcapfile(argv[index]);
 	}
 
+if(networkoutname != NULL)
+	{
+	fclose(fhnetwork);
+	removeemptyfile(networkoutname);
+	}
+
 if(eapoloutname != NULL)
 	{
 	fclose(fheapol);
+	removeemptyfile(eapoloutname);
 	}
-removeemptyfile(hexmodeoutname);
+
+if(hexmodeflag == true)
+	{
+	fclose(fhhexmode);
+	removeemptyfile(hexmodeoutname);
+	}
 
 if(gpxflag == true)
 	{
 	fprintf(fhgpx, "%s", gpxtail);
 	fclose(fhgpx);
 	}
-
-if(hexmodeflag == true)
-	{
-	fclose(fhhexmode);
-	}
-removeemptyfile(hexmodeoutname);
 
 return EXIT_SUCCESS;
 }
