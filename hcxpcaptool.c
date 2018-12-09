@@ -145,6 +145,7 @@ unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
 unsigned long long int atimframecount;
 unsigned long long int eapolframecount;
+unsigned long long int groupkeyframecount;
 unsigned long long int rc4descriptorframecount;
 unsigned long long int eapolstartframecount;
 unsigned long long int eapollogoffframecount;
@@ -589,6 +590,11 @@ if(rc4descriptorframecount != 0)
 	{
 	printf("EAPOL RC4 KEYs...............: %llu\n", rc4descriptorframecount);
 	}
+if(groupkeyframecount != 0)
+	{
+	printf("EAPOL GROUP KEYs.............: %llu\n", groupkeyframecount);
+	}
+
 if(eapframecount != 0)
 	{
 	printf("EAP packets..................: %llu\n", eapframecount);
@@ -3046,12 +3052,16 @@ if(caplen < (uint32_t)WPAKEY_SIZE)
 
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
 
+if((ntohs(wpak->keyinfo) & WPA_KEY_INFO_KEY_TYPE) == 0)
+	{
+	groupkeyframecount++;
+	}
+
 #ifndef BIG_ENDIAN_HOST
 rc = byte_swap_64(wpak->replaycount);
 #else
 rc = wpak->replaycount;
 #endif
-
 
 authlen = ntohs(eap->len);
 if(authlen > caplen -4)
@@ -4687,6 +4697,7 @@ actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
 pmkidcount = 0;
+groupkeyframecount = 0;
 rc4descriptorframecount = 0;
 eapolstartframecount = 0;
 eapollogoffframecount = 0;
