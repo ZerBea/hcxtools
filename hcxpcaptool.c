@@ -50,6 +50,8 @@
 #define HCXT_MD5_OUT		4
 #define HCXT_MD5_JOHN_OUT	5
 #define HCXT_TACACSP_OUT	6
+#define HCXT_EAPOL_OUT		7
+#define HCXT_HEXDUMP_OUT	8
 
 #define HCXT_HCCAPX_OUT		'o'
 #define HCXT_HCCAPX_OUT_RAW	'O'
@@ -64,7 +66,6 @@
 #define HCXT_IDENTITY_OUT	'I'
 #define HCXT_USERNAME_OUT	'U'
 #define HCXT_PMK_OUT		'P'
-#define HCXT_HEXDUMP_OUT	'H'
 #define HCXT_VERBOSE_OUT	'V'
 
 #define GPSDDATA_MAX 1536
@@ -200,9 +201,11 @@ char *netntlm1outname;
 char *md5outname;
 char *md5johnoutname;
 char *tacacspoutname;
+char *eapoloutname;
 
 FILE *fhhexmode;
 FILE *fhgpx;
+FILE *fheapol;
 
 bool tscleanflag;
 int endianess;
@@ -245,6 +248,7 @@ netntlm1outname = NULL;
 md5outname = NULL;
 md5johnoutname = NULL;
 tacacspoutname = NULL;
+eapoloutname = NULL;
 
 verboseflag = false;
 hexmodeflag = false;
@@ -2501,6 +2505,28 @@ pmkidcount++;
 return;
 }
 /*===========================================================================*/
+void printeapol(uint8_t *mac_sta, uint8_t *mac_ap, uint32_t authlen, uint8_t *authpacket)
+{
+uint32_t c;
+
+for(c = 0; c < 6; c++)
+	{
+	fprintf(fheapol, "%02x",mac_ap[c]);
+	}
+fprintf(fheapol, ":");
+for(c = 0; c < 6; c++)
+	{
+	fprintf(fheapol, "%02x",mac_sta[c]);
+	}
+fprintf(fheapol, ":");
+for(c = 0; c < authlen; c++)
+	{
+	fprintf(fheapol, "%02x",authpacket[c]);
+	}
+fprintf(fheapol, "\n");
+return;
+}
+/*===========================================================================*/
 void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t ki, uint64_t rc, uint32_t authlen, uint8_t *authpacket)
 {
 eapoll_t *zeiger;
@@ -2525,6 +2551,10 @@ if((ki == 4) || (ki == 8))
 		{
 		return;
 		}
+	}
+if(eapoloutname != NULL)
+	{
+	printeapol(mac_sta, mac_ap, authlen, authpacket);
 	}
 
 if(eapolliste == NULL)
@@ -4943,7 +4973,6 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
 	"-g <file> : output GPS file\n"
 	"            format = GPX (accepted for example by Viking and GPSBabel)\n"
-	"-H <file> : output dump raw packets in hex\n"
 	"-V        : verbose (but slow) status output\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
@@ -4955,6 +4984,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--md5-out=<file>                  : output MD5 challenge file (hashcat -m 4800)\n"
 	"--md5-john-out=<file>             : output MD5 challenge file (john chap)\n"
 	"--tacacsplus-out=<file>           : output TACACS+ authentication file (hashcat -m 16100, john tacacs-plus)\n"
+	"--eapol-out=<file>                : output EAPOL packets in hex\n"
+	"                                    format = mac_ap:mac_sta:eapol\n"
+	"--hexdump-out=<file>              : output dump raw packets in hex\n"
 	"\n"
 	"bitmask for message pair field:\n"
 	"0: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)\n"
@@ -5001,6 +5033,8 @@ static const struct option long_options[] =
 	{"md5-out",			required_argument,	NULL,	HCXT_MD5_OUT},
 	{"md5-john-out",		required_argument,	NULL,	HCXT_MD5_JOHN_OUT},
 	{"tacacsplus-out",		required_argument,	NULL,	HCXT_TACACSP_OUT},
+	{"eapol-out",			required_argument,	NULL,	HCXT_EAPOL_OUT},
+	{"hexdump-out",			required_argument,	NULL,	HCXT_HEXDUMP_OUT},
 	{NULL,				0,			NULL,	0}
 };
 
@@ -5054,6 +5088,15 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_TACACSP_OUT:
 		tacacspoutname = optarg;
 		verboseflag = true;
+		break;
+
+		case HCXT_EAPOL_OUT:
+		eapoloutname = optarg;
+		break;
+
+		case HCXT_HEXDUMP_OUT:
+		hexmodeflag = true;
+		hexmodeoutname = optarg;
 		break;
 
 		case '?':
@@ -5138,11 +5181,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		verboseflag = true;
 		break;
 
-		case HCXT_HEXDUMP_OUT:
-		hexmodeflag = true;
-		hexmodeoutname = optarg;
-		break;
-
 		case HCXT_VERBOSE_OUT:
 		verboseflag = true;
 		break;
@@ -5181,10 +5219,25 @@ if(gpxflag == true)
 	fprintf(fhgpx, "<name>%s</name>\n", basename(gpxoutname));
 	}
 
+if(eapoloutname != NULL)
+	{
+	if((fheapol = fopen(eapoloutname, "a+")) == NULL)
+		{
+		fprintf(stderr, "error opening file %s: %s\n", eapoloutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
 for(index = optind; index < argc; index++)
 	{
 	processcapfile(argv[index]);
 	}
+
+if(eapoloutname != NULL)
+	{
+	fclose(fheapol);
+	}
+removeemptyfile(hexmodeoutname);
 
 if(gpxflag == true)
 	{
