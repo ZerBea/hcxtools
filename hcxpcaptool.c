@@ -3164,24 +3164,23 @@ if(keyinfo == 1)
 		{
 		addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
 		}
+	eapolframecount++;
 	}
 else if(keyinfo == 3)
 	{
 	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 2, rc, authlen +4, packet);
+	eapolframecount++;
 	}
 else if(keyinfo == 2)
 	{
 	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, rc, authlen +4, packet);
+	eapolframecount++;
 	}
 else if(keyinfo == 4)
 	{
 	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, rc, authlen +4, packet);
+	eapolframecount++;
 	}
-else
-	{
-	return;
-	}
-eapolframecount++;
 return;
 }
 /*===========================================================================*/
@@ -3298,7 +3297,6 @@ return;
 void process80211networkauthentication(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint8_t *macaddr1, uint8_t *macaddr2, uint8_t *packet)
 {
 eapauth_t *eap;
-
 
 if(caplen < (uint32_t)EAPAUTH_SIZE)
 	{
@@ -3734,6 +3732,7 @@ mpdu_t *mpdu;
 uint8_t *packet_ptr;
 macf = (mac_t*)packet;
 packet_ptr = packet;
+
 if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_DATA_CFACK) || (macf->subtype == IEEE80211_STYPE_DATA_CFPOLL) || (macf->subtype == IEEE80211_STYPE_DATA_CFACKPOLL))
 	{
 	if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)LLC_SIZE)
@@ -3762,8 +3761,10 @@ if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_
 			processweppacket();
 			}
 		}
+	return;
 	}
-else if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACK) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFPOLL) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACKPOLL))
+
+if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACK) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFPOLL) || (macf->subtype == IEEE80211_STYPE_QOS_DATA_CFACKPOLL))
 	{
 	if(caplen < (uint32_t)MAC_SIZE_QOS +wdsoffset +(uint32_t)LLC_SIZE)
 		{
@@ -4367,8 +4368,8 @@ while(1)
 			pcapreaderrors = 1;
 			}
 		lseek(fd, pcapngbh.total_length -BH_SIZE -IDB_SIZE, SEEK_CUR);
+		continue;
 		}
-
 	else if(pcapngbh.block_type == 2)
 		{
 		res = read(fd, &pcapngpb, PB_SIZE);
@@ -4430,26 +4431,24 @@ while(1)
 			pcapreaderrors = 1;
 			break;
 			}
-
 		rawpacketcount++;
 		lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngpb.caplen, SEEK_CUR);
 		}
-
 	else if(pcapngbh.block_type == 3)
 		{
 		lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		continue;
 		}
-
 	else if(pcapngbh.block_type == 4)
 		{
 		lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		continue;
 		}
-
 	else if(pcapngbh.block_type == 5)
 		{
 		lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		continue;
 		}
-
 	else if(pcapngbh.block_type == 6)
 		{
 		blkseek = lseek(fd, 0, SEEK_CUR);
@@ -4490,17 +4489,15 @@ while(1)
 				{
 				pcapngoptionwalk(fd, pcapngbh.total_length);
 				}
-			lseek(fd, blkseek +pcapngbh.total_length -BH_SIZE, SEEK_SET);
-
 			rawpacketcount++;
 			}
 		else
 			{
-			lseek(fd, pcapngbh.total_length -BH_SIZE -EPB_SIZE +pcapngepb.caplen, SEEK_CUR);
 			pcapngepb.caplen = 0;
 			pcapngepb.len = 0;
 			skippedpacketcount++;
 			}
+		lseek(fd, blkseek +pcapngbh.total_length -BH_SIZE, SEEK_SET);
 		}
 	else
 		{
