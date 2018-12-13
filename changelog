@@ -1,3 +1,11 @@
+13.12.2018
+==========
+hcxpcaptool: removed options -x and -X (old hccap format)
+hcxpcaptool: added options --hccap-out and --hccap-raw-out (old hccap format)
+--hccap-out=<file>                : output old hccap file (hashcat -m 2500)
+--hccap-raw-out=<file>            : output raw old hccap file (hashcat -m 2500)
+
+
 09.12.2018
 ==========
 hcxpcaptool: detect EAPOL GROUP KEYs

@@ -53,11 +53,11 @@
 #define HCXT_EAPOL_OUT		7
 #define HCXT_NETWORK_OUT	8
 #define HCXT_HEXDUMP_OUT	9
+#define HCXT_HCCAP_OUT		10
+#define HCXT_HCCAP_OUT_RAW	11
 
 #define HCXT_HCCAPX_OUT		'o'
 #define HCXT_HCCAPX_OUT_RAW	'O'
-#define HCXT_HCCAP_OUT		'x'
-#define HCXT_HCCAP_OUT_RAW	'X'
 #define HCXT_HC_OUT_PMKID	'z'
 #define HCXT_JOHN_OUT		'j'
 #define HCXT_JOHN_OUT_RAW	'J'
@@ -5003,8 +5003,6 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output hccapx file (hashcat -m 2500/2501)\n"
 	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
-	"-x <file> : output hccap file (hashcat -m 2500)\n"
-	"-X <file> : output raw hccap file (hashcat -m 2500)\n"
 	"-z <file> : output PMKID file (hashcat hashmode -m 16800)\n"
 	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
@@ -5032,6 +5030,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--network-out=<file>              : output network information\n"
 	"                                    format = mac_ap:ESSID\n"
 	"--hexdump-out=<file>              : output dump raw packets in hex\n"
+	"--hccap-out=<file>                : output old hccap file (hashcat -m 2500)\n"
+	"--hccap-raw-out=<file>            : output raw old hccap file (hashcat -m 2500)\n"
 	"\n"
 	"bitmask for message pair field:\n"
 	"0: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)\n"
@@ -5069,7 +5069,7 @@ char *gpxhead = "<?xml version=\"1.0\"?>\n"
 
 char *gpxtail = "</gpx>\n";
 
-static const char *short_options = "o:O:x:X:z:j:J:E:I:U:P:T:g:H:Vhv";
+static const char *short_options = "o:O:z:j:J:E:I:U:P:T:g:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
@@ -5081,6 +5081,8 @@ static const struct option long_options[] =
 	{"eapol-out",			required_argument,	NULL,	HCXT_EAPOL_OUT},
 	{"network-out",			required_argument,	NULL,	HCXT_NETWORK_OUT},
 	{"hexdump-out",			required_argument,	NULL,	HCXT_HEXDUMP_OUT},
+	{"hccap-out",			required_argument,	NULL,	HCXT_HCCAP_OUT},
+	{"hccap-raw-out",		required_argument,	NULL,	HCXT_HCCAP_OUT_RAW},
 	{NULL,				0,			NULL,	0}
 };
 
@@ -5149,6 +5151,17 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		hexmodeoutname = optarg;
 		break;
 
+		case HCXT_HCCAP_OUT:
+		hccapbestoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_HCCAP_OUT_RAW:
+		hccaprawoutname = optarg;
+		verboseflag = true;
+		wantrawflag = true;
+		break;
+
 		case '?':
 		usageerror(basename(argv[0]));
 		break;
@@ -5176,17 +5189,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_HC_OUT_PMKID:
 		hcpmkidaoutname = optarg;
 		verboseflag = true;
-		break;
-
-		case HCXT_HCCAP_OUT:
-		hccapbestoutname = optarg;
-		verboseflag = true;
-		break;
-
-		case HCXT_HCCAP_OUT_RAW:
-		hccaprawoutname = optarg;
-		verboseflag = true;
-		wantrawflag = true;
 		break;
 
 		case HCXT_JOHN_OUT:
