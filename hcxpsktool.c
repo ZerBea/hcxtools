@@ -80,9 +80,9 @@ size_t ca, cn, cs;
 
 char pskstring[PSKSTRING_LEN_MAX] = {};
 
-const char *adjectiv[] = { "ancient", "antique", "aquatic", "absurd",
+const char *adjectiv[] = { "absurd", "ancient", "antique", "aquatic",
 	"baby", "basic", "big", "bitter", "black", "blue", "bold", "bottled", "brave", "breezy", "bright", "brown",
-	"calm", "carrot", "charming", "cheerful", "chip", "chummy", "classy", "clean", "clear", "clever", "cloudy", "cold", "cool", "crispy", "curly",
+	"calm", "carrot", "cash", "charming", "cheerful", "chip", "chummy", "classy", "clean", "clear", "clever", "cloudy", "cold", "cool", "crispy", "curly",
 	"daily", "deep", "delightful", "dizzy", "dynamic",
 	"east", "elated", "elegant", "excite", "excited", "exotic",
 	"famous", "fancy", "fearless", "festive", "fluffy", "free", "fresh", "friendly", "funny", "fuzzy",
@@ -94,7 +94,7 @@ const char *adjectiv[] = { "ancient", "antique", "aquatic", "absurd",
 	"large", "light", "little", "lively", "lovely", "lucky", "lumpy",
 	"magical", "manic", "mellow", "melodic", "mighty", "misty", "modern",
 	"narrow", "new", "nice", "nifty", "noisy", "normal",
-	"odd", "old", "orange", "ordinary",
+	"occur", "odd", "old", "orange", "ordinary",
 	"painless", "pastel", "peaceful", "perfect", "phobic", "pink", "polite", "poor", "precious", "pretty", "purple",
 	"quaint", "quick", "quiet",
 	"rapid", "red", "rocky", "rough", "round", "royal", "rustic",
@@ -112,7 +112,7 @@ const char *substantiv[] = { "airplane", "apple", "automobile",
 	 "daisy", "deal", "desk", "diamond", "dink", "door",
 	 "earth", "elephant", "emerald",
 	 "finch", "fire", "flamingo", "flower", "flute", "forest",
-	 "gadfly", "gate", "gear", "giant", "giraffe", "glove", "grape", "grasshopper",
+	 "gadfly", "gate", "gear", "giant", "giraffe", "girl", "glove", "grape", "grasshopper",
 	 "hair", "hat", "hill", "hippo",
 	 "ink", "iris",
 	 "jade", "jet", "jungle",
@@ -128,7 +128,7 @@ const char *substantiv[] = { "airplane", "apple", "automobile",
 	 "table", "teapot", "terrain", "tiger", "toast", "tomato", "trail", "train", "tree", "truck", "trumpet", "tuba", "tulip", "tullip",
 	 "umbrella", "unicorn", "unit",
 	 "valley", "vase", "violet", "violin",
-	 "water", "whale", "wind", "window",
+	 "water", "whale", "west", "wind", "window",
 	 "zebra", "zoo" };
 
 for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
