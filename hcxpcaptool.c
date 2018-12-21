@@ -5162,19 +5162,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		wantrawflag = true;
 		break;
 
-		case '?':
-		usageerror(basename(argv[0]));
-		break;
-		}
-	}
-
-optind = 1;
-optopt = 0;
-index = 0;
-while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
-	{
-	switch (auswahl)
-		{
 		case HCXT_HCCAPX_OUT:
 		hccapxbestoutname = optarg;
 		verboseflag = true;
