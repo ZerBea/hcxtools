@@ -1,6 +1,10 @@
 #include <stdbool.h>
 #include <stddef.h>
+#ifdef __APPLE__
+#include <sys/types.h> /* This in turn sources machine/endian.h */
+#else
 #include <endian.h>
+#endif
 
 #ifdef __APPLE__
 #define __BYTE_ORDER BYTE_ORDER
@@ -859,4 +863,3 @@ int mystrlen(uint8_t *in_buf);
 
 int countdelimiter(uint8_t *in_buf, char delimiter);
 int getdelimiterpos(uint8_t *in_buf, char delimiter);
-
