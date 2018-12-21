@@ -1086,23 +1086,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		version(basename(argv[0]));
 		break;
 
-		case '?':
-		usageerror(basename(argv[0]));
-		break;
-		}
-	}
-
-optind = 1;
-optopt = 0;
-index = 0;
-while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
-	{
-	switch (auswahl)
-		{
-		case 'h':
-		usage(basename(argv[0]));
-		break;
-
 		case 'i':
 		hccapxname = optarg;
 		break;
@@ -1126,6 +1109,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case 'o':
 		pskname = optarg;
+		break;
+
+		case 'h':
+		usage(basename(argv[0]));
 		break;
 
 		case 'v':
