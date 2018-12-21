@@ -68,6 +68,8 @@
 #define HCXT_USERNAME_OUT	'U'
 #define HCXT_PMK_OUT		'P'
 #define HCXT_VERBOSE_OUT	'V'
+#define HCXT_HELP		'h'
+#define HCXT_VERSION		'v'
 
 #define GPSDDATA_MAX 1536
 
@@ -5032,6 +5034,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--hexdump-out=<file>              : output dump raw packets in hex\n"
 	"--hccap-out=<file>                : output old hccap file (hashcat -m 2500)\n"
 	"--hccap-raw-out=<file>            : output raw old hccap file (hashcat -m 2500)\n"
+	"--help                            : show this help\n"
+	"--version                         : show version\n"
 	"\n"
 	"bitmask for message pair field:\n"
 	"0: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)\n"
@@ -5083,6 +5087,8 @@ static const struct option long_options[] =
 	{"hexdump-out",			required_argument,	NULL,	HCXT_HEXDUMP_OUT},
 	{"hccap-out",			required_argument,	NULL,	HCXT_HCCAP_OUT},
 	{"hccap-raw-out",		required_argument,	NULL,	HCXT_HCCAP_OUT_RAW},
+	{"version",			no_argument,		NULL,	HCXT_VERSION},
+	{"help",			no_argument,		NULL,	HCXT_HELP},
 	{NULL,				0,			NULL,	0}
 };
 
@@ -5224,11 +5230,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		verboseflag = true;
 		break;
 
-		case 'h':
+		case HCXT_HELP:
 		usage(basename(argv[0]));
 		break;
 
-		case 'v':
+		case HCXT_VERSION:
 		version(basename(argv[0]));
 		break;
 

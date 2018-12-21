@@ -7,8 +7,8 @@
 #define HCXD_EUDATE			3
 #define HCXD_USDATE			4
 #define HCXD_WPSKEYS			5
-#define HCXD_HELP			6
-#define HCXD_VERSION			7
+#define HCXD_HELP			'h'
+#define HCXD_VERSION			'v'
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST

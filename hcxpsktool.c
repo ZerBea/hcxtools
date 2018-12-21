@@ -1077,7 +1077,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		wpskeysflag = true;
 		break;
 
-
 		case HCXD_HELP:
 		usage(basename(argv[0]));
 		break;
@@ -1109,14 +1108,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case 'o':
 		pskname = optarg;
-		break;
-
-		case 'h':
-		usage(basename(argv[0]));
-		break;
-
-		case 'v':
-		version(basename(argv[0]));
 		break;
 
 		case '?':
