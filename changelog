@@ -1,3 +1,11 @@
+22.01.2019
+==========
+hcxpcaptool: in preparation of hccapx successor, hcxpcaptool now count oversized (>0xff) EAPOLframes
+             EAPOL packets (oversized)....: xx
+read more here:
+https://github.com/hashcat/hashcat/issues/1816
+
+
 13.12.2018
 ==========
 hcxpcaptool: removed options -x and -X (old hccap format)

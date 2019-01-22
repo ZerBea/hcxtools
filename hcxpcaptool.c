@@ -149,6 +149,7 @@ unsigned long long int disassociationframecount;
 unsigned long long int actionframecount;
 unsigned long long int atimframecount;
 unsigned long long int eapolframecount;
+unsigned long long int eapoloversizedframecount;
 unsigned long long int groupkeyframecount;
 unsigned long long int rc4descriptorframecount;
 unsigned long long int eapolstartframecount;
@@ -591,6 +592,10 @@ if(atimframecount != 0)
 if(eapolframecount != 0)
 	{
 	printf("EAPOL packets................: %llu\n", eapolframecount);
+	}
+if(eapoloversizedframecount != 0)
+	{
+	printf("EAPOL packets (oversized)....: %llu\n", eapoloversizedframecount);
 	}
 if(pmkidcount != 0)
 	{
@@ -2564,7 +2569,10 @@ if(ntohs(eaptest->wpadatalen) > (authlen -99))
 	{
 	return;
 	}
-
+if(authlen > 0xff)
+	{
+	eapoloversizedframecount++;
+	}
 if((ki == 1) || (ki == 2))
 	{
 	if(authlen > 0xff)
@@ -4771,6 +4779,7 @@ leapcount = 0;
 actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
+eapoloversizedframecount = 0;
 pmkidcount = 0;
 groupkeyframecount = 0;
 rc4descriptorframecount = 0;
