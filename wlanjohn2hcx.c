@@ -9,7 +9,7 @@
 #include <limits.h>
 #include <time.h>
 #include <sys/stat.h>
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
 #else
 #include <stdio_ext.h>
