@@ -6,7 +6,7 @@
 #include <endian.h>
 #endif
 
-#ifdef __APPLE__
+#if defined (__APPLE__) || defined(__OpenBSD__)
 #define __BYTE_ORDER BYTE_ORDER
 #define __BIG_ENDIAN BIG_ENDIAN
 #define __LITTLE_ENDIAN LITTLE_ENDIAN

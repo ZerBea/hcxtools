@@ -14,9 +14,10 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <openssl/sha.h>
-#ifdef __APPLE__
+#if defined (__APPLE__) || defined(__OpenBSD__)
 #define PATH_MAX 255
 #include <libgen.h>
+#include <sys/socket.h>
 #else
 #include <stdio_ext.h>
 #endif

@@ -11,7 +11,7 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #include <arpa/inet.h>
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
 #include <sys/types.h> /* This in turn sources machine/endian.h */
 #else
