@@ -38,6 +38,7 @@ static unsigned long long int pmkcapwritten;
 /*===========================================================================*/
 static void writecappmkidwpa2(int fd_cap, uint8_t *macap, uint8_t *macsta, uint8_t *pmkid)
 {
+static int c;
 static pcaprec_hdr_t *pcaph;
 static mac_t *mach;
 static const uint8_t pmkiddata[] =
@@ -78,6 +79,10 @@ memcpy(mach->addr1, macsta, 6);
 memcpy(mach->addr2, macap, 6);
 memcpy(mach->addr3, macap, 6);
 
+for(c = 0; c < 32; c++)
+	{
+	packetout[PCAPREC_SIZE +0x33 +c] = rand() %0xff;
+	}
 memcpy(&packetout[PCAPREC_SIZE +0x8b], pmkid, 16);
 
 if(write(fd_cap, packetout, PCAPREC_SIZE +PMKIDDATA_SIZE) < 0)
