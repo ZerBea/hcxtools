@@ -36,9 +36,10 @@ Detailed description
 | Tool           | Description                                                                                                     |
 | -------------- | --------------------------------------------------------------------------------------------------------------- |
 | hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper      |
-| hcxpsktool     | Calculates candidates for hashcat based on commandline input,  hccapx file and/or 16800 hash file (experimental)|
+| hcxpsktool     | Calculates candidates for hashcat based on commandline input,  hccapx file and/or 16800 hash file               |
+| hcxhash2cap    | Converts PMKID file to cap (experimental)                                                                       |
 | hcxhashcattool | Calculate PMKs from hashcat -m 2500 potfile                                                                     |
-| wlanhcx2cap    | Converts hccapx to cap                                                                                          |
+| wlanhcx2cap    | Converts hccapx to cap (deprecated: will be replaced by hcxhash2cap, soon)                                                                                          |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                                        |
 | wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                            |
 | wlanhcx2essid  | Merges hccapx containing the same ESSID                                                                         |
@@ -51,7 +52,7 @@ Detailed description
 | wlanjohn2hcx   | Converts john wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                                       |
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                                    |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                           |
-| wlanhcx2psk    | Calculates candidates for hashcat based on the hccapx file (deprecated: will be replaced by hcxpsktool, soon)   |
+| wlanhcx2psk    | Calculates candidates for hashcat based on the hccapx file (deprecated: will be replaced by hcxpsktool)         |
 | wlancap2wpasec | Upload multiple caps to https://wpa-sec.stanev.org                                                              |
 | whoismac       | Show vendor information and/or download oui reference list                                                      |
 

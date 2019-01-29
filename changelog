@@ -1,3 +1,25 @@
+29.01.2019
+==========
+aded new tool: hcxhash2cap
+$ ./hcxhash2cap -h
+hcxhash2cap 5.1.0 (C) 2018 ZeroBeat
+usage:
+hcxhash2cap <options>
+
+options:
+-c <file> : output cap file
+            if no cap file selected, output wil be written to single cap files
+            format: mac_sta.cap (mac_sta.cap_x)
+
+--pmkid=<file>  : input PMKID hash file
+--help          : show this help
+--version       : show version
+
+
+todo: hccapx -> cap
+hcxhash2cap will replace wlanhcx2cap, soon
+
+
 22.01.2019
 ==========
 hcxpcaptool: in preparation of hccapx successor, hcxpcaptool now count oversized (>0xff) EAPOLframes

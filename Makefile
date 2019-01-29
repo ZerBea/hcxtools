@@ -24,6 +24,7 @@ TOOLS+=hcxpsktool
 hcxpsktool_libs=-lcrypto
 TOOLS+=hcxhashcattool
 hcxhashcattool_libs=-lcrypto -lpthread
+TOOLS+=hcxhash2cap
 TOOLS+=wlanhc2hcx
 TOOLS+=wlanwkp2hcx
 TOOLS+=wlanhcxinfo
