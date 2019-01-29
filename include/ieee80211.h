@@ -290,7 +290,7 @@ struct capabilities_ap_frame
 {
  uint64_t	timestamp;
  uint16_t	beaconintervall;
- uint16_t	capapinfo;
+ uint16_t	capabilities;
 } __attribute__((__packed__));
 typedef struct capabilities_ap_frame capap_t;
 #define	CAPABILITIESAP_SIZE sizeof(capap_t)
@@ -354,7 +354,6 @@ struct authentication_frame
 #define FILSPFS 5
 #define FILSPK 6
 #define NETWORKEAP 128
-
  uint16_t	authentication_seq;
  uint16_t	statuscode;
 } __attribute__((__packed__));
