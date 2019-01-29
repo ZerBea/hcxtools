@@ -229,7 +229,7 @@ while(1)
 		aktread++;
 		continue;
 		}
-	if((essidlen < 2) ||  (essidlen >32))
+	if((essidlen < 2) ||  (essidlen > 64))
 		{
 		fprintf(stderr, "reading ESSID %d failed: %s\n", aktread, linein);
 		aktread++;
