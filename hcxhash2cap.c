@@ -35,6 +35,22 @@ static int mybeaconsequence;
 static int myaponlinetime;
 static uint8_t myapchannel;
 static unsigned long long int pmkcapwritten;
+static unsigned long long int pmkcapskipped;
+
+/*===========================================================================*/
+static void globalinit()
+{
+
+srand(time(NULL));
+gettimeofday(&tv, NULL);
+timestamp = (tv.tv_sec * 1000000) + tv.tv_usec;
+mybeaconsequence = rand() %4096;
+myaponlinetime = rand();
+myapchannel = (rand() %12) +1;
+pmkcapwritten = 0;
+pmkcapskipped = 0;
+
+}
 /*===========================================================================*/
 static void writecappmkidwpa2(int fd_cap, uint8_t *macap, uint8_t *macsta, uint8_t *pmkid)
 {
@@ -214,12 +230,14 @@ while(1)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		aktread++;
+		pmkcapskipped++;
 		continue;
 		}
 	if((linein[32] != '*') && (linein[45] != '*') && (linein[58] != '*'))
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		aktread++;
+		pmkcapskipped++;
 		continue;
 		}
 	essidlen = len -59;
@@ -227,35 +245,41 @@ while(1)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		aktread++;
+		pmkcapskipped++;
 		continue;
 		}
 	if((essidlen < 2) ||  (essidlen > 64))
 		{
 		fprintf(stderr, "reading ESSID %d failed: %s\n", aktread, linein);
 		aktread++;
+		pmkcapskipped++;
 		continue;
 		}
 	if(hex2bin(&linein[0], pmkid, 16) != true)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		pmkcapskipped++;
 		continue;
 		}
 
 	if(hex2bin(&linein[33], macap, 6) != true)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		pmkcapskipped++;
 		continue;
 		}
 
 	if(hex2bin(&linein[46], macsta, 6) != true)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		pmkcapskipped++;
 		continue;
 		}
 
 	if(hex2bin(&linein[59], essid, essidlen/2) != true)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		pmkcapskipped++;
 		continue;
 		}
 	if(fd_cap == 0)
@@ -457,13 +481,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		}
 	}
 
-srand(time(NULL));
-gettimeofday(&tv, NULL);
-timestamp = (tv.tv_sec * 1000000) + tv.tv_usec;
-mybeaconsequence = rand() %4096;
-myaponlinetime = rand();
-myapchannel = (rand() %12) +1;
-pmkcapwritten = 0;
+globalinit();
 
 if(capname != NULL)
 	{
@@ -494,7 +512,7 @@ if(fd_cap != 0)
 
 if(pmkcapwritten > 0)
 	{
-	fprintf(stdout, "PMKIDs written to capfile(s): %llu\n", pmkcapwritten);
+	fprintf(stdout, "PMKIDs written to capfile(s): %llu (%llu skipped)\n", pmkcapwritten, pmkcapskipped);
 	}
 
 return EXIT_SUCCESS;
