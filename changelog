@@ -1,6 +1,6 @@
 31.01.2019
 ==========
-hcxhash2cap: added option to cenvert hccapx to cap
+hcxhash2cap: added new options to cenvert hccapx to cap and hccap to cap
 $ hcxhash2cap -h
 hcxhash2cap 5.1.0 (C) 2019 ZeroBeat
 usage:
@@ -13,6 +13,7 @@ options:
 
 --pmkid=<file>  : input PMKID hash file
 --hccapx=<file> : input hashcat hccapx file
+--hccap=<file>  : input hashcat hccap file
 --help          : show this help
 --version       : show version
 
@@ -20,7 +21,7 @@ options:
 29.01.2019
 ==========
 aded new tool: hcxhash2cap
-$ ./hcxhash2cap -h
+$ hcxhash2cap -h
 hcxhash2cap 5.1.0 (C) 2019 ZeroBeat
 usage:
 hcxhash2cap <options>

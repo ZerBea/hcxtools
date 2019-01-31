@@ -40,6 +40,8 @@ static unsigned long long int pmkcapwritten;
 static unsigned long long int pmkcapskipped;
 static unsigned long long int hccapxcapwritten;
 static unsigned long long int hccapxcapskipped;
+static unsigned long long int hccapcapwritten;
+static unsigned long long int hccapcapskipped;
 
 /*===========================================================================*/
 static void globalinit()
@@ -55,6 +57,8 @@ pmkcapwritten = 0;
 pmkcapskipped = 0;
 hccapxcapwritten = 0;
 hccapxcapskipped = 0;
+hccapcapwritten = 0;
+hccapcapskipped = 0;
 }
 /*===========================================================================*/
 static void writecapm1wpa1(int fd_cap, uint8_t *macsta, uint8_t *macap, uint8_t *anonce, uint64_t rc)
@@ -795,6 +799,159 @@ fclose(fhhcx);
 return;
 }
 /*===========================================================================*/
+static inline void processhccapfile(char *hccapname, int fd_cap)
+{
+static struct stat statinfo;
+static hccap_t *hcptr;
+static int fd_singlecap;
+static FILE *fhhc;
+static uint8_t essidlen;
+static int c;
+static eapauth_t *eapa;
+static wpakey_t *wpak;
+static uint16_t keyinfo;
+static uint8_t keyver;
+static uint64_t rc;
+
+static uint8_t hcdata[HCCAP_SIZE];
+static char singlecapname[PATH_MAX +2];
+
+if(stat(hccapname, &statinfo) != 0)
+	{
+	fprintf(stderr, "can't stat %s\n", hccapname);
+	return;
+	}
+
+if((statinfo.st_size %HCCAP_SIZE) != 0)
+	{
+	fprintf(stderr, "file corrupt\n");
+	return;
+	}
+
+if((fhhc = fopen(hccapname, "rb")) == NULL)
+	{
+	fprintf(stderr, "error opening file %s", hccapname);
+	return;
+	}
+
+hcptr = (hccap_t*)hcdata;
+while(fread(&hcdata, HCCAP_SIZE, 1, fhhc) == 1)
+	{
+	essidlen = 0;
+	for(c = 0; c < ESSID_LEN_MAX; c++)
+		{
+		if(hcptr->essid[c] == 0)
+			{
+			break;
+			}
+		essidlen++;
+		}
+
+	if((essidlen == 0) || (essidlen > ESSID_LEN_MAX))
+		{
+		hccapcapskipped++;
+		continue;
+		}
+
+	eapa = (eapauth_t*)hcptr->eapol;
+	if(eapa->type != EAPOL_KEY)
+		{
+		hccapcapskipped++;
+		continue;
+		}
+	if(hcptr->eapol_size != ntohs(eapa->len) +4)
+		{
+		hccapcapskipped++;
+		continue;
+		}
+
+	wpak = (wpakey_t*)(hcptr->eapol +EAPAUTH_SIZE);
+	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+	if(keyver != hcptr->keyver)
+		{
+		hccapcapskipped++;
+		continue;
+		}
+	if(keyver > 3)
+		{
+		hccapcapskipped++;
+		continue;
+		}
+	keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
+	if(keyinfo == 3)
+		{
+		hccapcapskipped++;
+		continue;
+		}
+	rc = wpak->replaycount;
+	#ifdef BIG_ENDIAN_HOST
+	rc = byte_swap_64(rc);
+	#endif
+	if(keyinfo == 4)
+		{
+		rc--;
+		}
+	if(fd_cap == 0)
+		{
+		snprintf(singlecapname, 18, "%02x%02x%02x%02x%02x%02x.cap", hcptr->mac2[0], hcptr->mac2[1], hcptr->mac2[2], hcptr->mac2[3], hcptr->mac2[4], hcptr->mac2[5]);
+		fd_singlecap = hcxopencapdump(singlecapname);
+		if(fd_singlecap == -1)
+			{
+			fprintf(stderr, "could not create cap file\n");
+			exit(EXIT_FAILURE);
+			}
+		if(keyver == 1)
+			{
+			writecapbeaconwpa1(fd_singlecap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
+			writecapm1wpa1(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm2(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
+			hccapcapwritten++;
+			}
+		else if(keyver == 2)
+			{
+			writecapbeaconwpa2(fd_singlecap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
+			writecapm1wpa2(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm2(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
+			hccapcapwritten++;
+			}
+		else if(keyver == 3)
+			{
+			writecapbeaconwpa2keyver3(fd_singlecap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
+			writecapm1wpa2keyver3(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm2(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
+			hccapcapwritten++;
+			}
+		close(fd_singlecap);
+		}
+	else
+		{
+		if(keyver == 1)
+			{
+			writecapbeaconwpa1(fd_cap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
+			writecapm1wpa1(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm2(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
+			hccapcapwritten++;
+			}
+		else if(keyver == 2)
+			{
+			writecapbeaconwpa2(fd_cap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
+			writecapm1wpa2(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm2(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
+			hccapcapwritten++;
+			}
+		else if(keyver == 3)
+			{
+			writecapbeaconwpa2keyver3(fd_cap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
+			writecapm1wpa2keyver3(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm2(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
+			hccapcapwritten++;
+			}
+		}
+	}
+fclose(fhhc);
+return;
+}
+/*===========================================================================*/
 static void removeemptycap(char *filenametoremove)
 {
 struct stat statinfo;
@@ -836,6 +993,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"--pmkid=<file>  : input PMKID hash file\n"
 	"--hccapx=<file> : input hashcat hccapx file\n"
+	"--hccap=<file>  : input hashcat hccap file\n"
 	"--help          : show this help\n"
 	"--version       : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
@@ -855,8 +1013,9 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static int fd_cap = 0;
-static char *hccapxname = NULL;
 static char *pmkidname = NULL;
+static char *hccapxname = NULL;
+static char *hccapname = NULL;
 static char *capname = NULL;
 
 static const char *short_options = "c:hv";
@@ -864,6 +1023,7 @@ static const struct option long_options[] =
 {
 	{"pmkid",			required_argument,	NULL,	HCXP_PMKID},
 	{"hccapx",			required_argument,	NULL,	HCXP_HCCAPX},
+	{"hccap",			required_argument,	NULL,	HCXP_HCCAP},
 	{"version",			no_argument,		NULL,	HCXP_VERSION},
 	{"help",			no_argument,		NULL,	HCXP_HELP},
 	{NULL,				0,			NULL,	0}
@@ -878,12 +1038,16 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	{
 	switch (auswahl)
 		{
+		case HCXP_PMKID:
+		pmkidname = optarg;
+		break;
+
 		case HCXP_HCCAPX:
 		hccapxname = optarg;
 		break;
 
-		case HCXP_PMKID:
-		pmkidname = optarg;
+		case HCXP_HCCAP:
+		hccapname = optarg;
 		break;
 
 		case HCXP_CAP:
@@ -926,6 +1090,11 @@ if(hccapxname != NULL)
 	processhccapxfile(hccapxname, fd_cap);
 	}
 
+if(hccapname != NULL)
+	{
+	processhccapfile(hccapname, fd_cap);
+	}
+
 if(fd_cap != 0)
 	{
 	close(fd_cap);
@@ -939,6 +1108,10 @@ if(pmkcapwritten > 0)
 if(hccapxcapwritten > 0)
 	{
 	fprintf(stdout, "EAPOLs written to capfile(s): %llu (%llu skipped)\n", hccapxcapwritten, hccapxcapskipped);
+	}
+if(hccapcapwritten > 0)
+	{
+	fprintf(stdout, "EAPOLs written to capfile(s): %llu (%llu skipped)\n", hccapcapwritten, hccapcapskipped);
 	}
 
 return EXIT_SUCCESS;
