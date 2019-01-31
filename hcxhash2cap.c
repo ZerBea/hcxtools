@@ -61,7 +61,7 @@ hccapcapwritten = 0;
 hccapcapskipped = 0;
 }
 /*===========================================================================*/
-static void writecapm1wpa1(int fd_cap, uint8_t *macsta, uint8_t *macap, uint8_t *anonce, uint64_t rc)
+static void writecapm1wpa1(int fd_cap, uint8_t *macsta, uint8_t *macap, uint8_t *anonce, uint8_t keyversion, uint16_t keylen, uint64_t rc)
 {
 static int c;
 static pcaprec_hdr_t *pcaph;
@@ -76,7 +76,7 @@ static const uint8_t m1wpa1data[] =
 0x21, 0x22, 0x23, 0x24, 0x25, 0x26,
 0x00, 0x00, 0x06, 0x00,
 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x88, 0x8e,
-0x02, 0x03, 0x00, 0x5f, 0xfe,
+0x01, 0x03, 0x00, 0x5f, 0xfe,
 0x00, 0x89, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0xed, 0x57, 0x5c, 0x4b, 0xca, 0xa7, 0x7a, 0xf1, 0x9e, 0x32, 0x94, 0x32, 0x63, 0x91, 0xad, 0x7d,
 0x9c, 0xbc, 0x6a, 0xb4, 0xad, 0x04, 0xf1, 0x23, 0x80, 0xb4, 0x44, 0xbe, 0xb5, 0x8d, 0x2a, 0xdd,
@@ -104,10 +104,13 @@ memcpy(mach->addr1, macsta, 6);
 memcpy(mach->addr2, macap, 6);
 memcpy(mach->addr3, macap, 6);
 
+packetout[PCAPREC_SIZE +0x22] = keyversion;
+
 wpak = (wpakey_t*)(packetout +PCAPREC_SIZE +0x26);
 #ifdef BIG_ENDIAN_HOST
 rc = byte_swap_64(rc);
 #endif
+wpak->keylen = keylen;
 wpak->replaycount = rc;
 
 for(c = 0; c < 32; c++)
@@ -122,7 +125,7 @@ if(write(fd_cap, packetout, PCAPREC_SIZE +M1WPA1DATA_SIZE) < 0)
 return;
 }
 /*===========================================================================*/
-static void writecapm1wpa2(int fd_cap, uint8_t *macsta, uint8_t *macap, uint8_t *anonce, uint64_t rc)
+static void writecapm1wpa2(int fd_cap, uint8_t *macsta, uint8_t *macap, uint8_t *anonce, uint8_t keyversion, uint16_t keylen, uint64_t rc)
 {
 static int c;
 static pcaprec_hdr_t *pcaph;
@@ -165,10 +168,13 @@ memcpy(mach->addr1, macsta, 6);
 memcpy(mach->addr2, macap, 6);
 memcpy(mach->addr3, macap, 6);
 
+packetout[PCAPREC_SIZE +0x22] = keyversion;
+
 wpak = (wpakey_t*)(packetout +PCAPREC_SIZE +0x26);
 #ifdef BIG_ENDIAN_HOST
 rc = byte_swap_64(rc);
 #endif
+wpak->keylen = keylen;
 wpak->replaycount = rc;
 
 for(c = 0; c < 32; c++)
@@ -183,7 +189,7 @@ if(write(fd_cap, packetout, PCAPREC_SIZE +M1WPA2DATA_SIZE) < 0)
 return;
 }
 /*===========================================================================*/
-static void writecapm1wpa2keyver3(int fd_cap, uint8_t *macsta, uint8_t *macap, uint8_t *anonce, uint64_t rc)
+static void writecapm1wpa2keyver3(int fd_cap, uint8_t *macsta, uint8_t *macap, uint8_t *anonce, uint8_t keyversion, uint16_t keylen, uint64_t rc)
 {
 static int c;
 static pcaprec_hdr_t *pcaph;
@@ -226,10 +232,13 @@ memcpy(mach->addr1, macsta, 6);
 memcpy(mach->addr2, macap, 6);
 memcpy(mach->addr3, macap, 6);
 
+packetout[PCAPREC_SIZE +0x22] = keyversion;
+
 wpak = (wpakey_t*)(packetout +PCAPREC_SIZE +0x26);
 #ifdef BIG_ENDIAN_HOST
 rc = byte_swap_64(rc);
 #endif
+wpak->keylen = keylen;
 wpak->replaycount = rc;
 
 for(c = 0; c < 32; c++)
@@ -750,21 +759,21 @@ while(fread(&hcxdata, HCCAPX_SIZE, 1, fhhcx) == 1)
 		if(keyver == 1)
 			{
 			writecapbeaconwpa1(fd_singlecap, hcxptr->mac_ap, hcxptr->essid_len, hcxptr->essid);
-			writecapm1wpa1(fd_singlecap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, rc);
+			writecapm1wpa1(fd_singlecap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_singlecap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->eapol_len, hcxptr->eapol, hcxptr->keymic);
 			hccapxcapwritten++;
 			}
 		else if(keyver == 2)
 			{
 			writecapbeaconwpa2(fd_singlecap, hcxptr->mac_ap, hcxptr->essid_len, hcxptr->essid);
-			writecapm1wpa2(fd_singlecap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, rc);
+			writecapm1wpa2(fd_singlecap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_singlecap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->eapol_len, hcxptr->eapol, hcxptr->keymic);
 			hccapxcapwritten++;
 			}
 		else if(keyver == 3)
 			{
 			writecapbeaconwpa2keyver3(fd_singlecap, hcxptr->mac_ap, hcxptr->essid_len, hcxptr->essid);
-			writecapm1wpa2keyver3(fd_singlecap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, rc);
+			writecapm1wpa2keyver3(fd_singlecap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_singlecap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->eapol_len, hcxptr->eapol, hcxptr->keymic);
 			hccapxcapwritten++;
 			}
@@ -775,21 +784,21 @@ while(fread(&hcxdata, HCCAPX_SIZE, 1, fhhcx) == 1)
 		if(keyver == 1)
 			{
 			writecapbeaconwpa1(fd_cap, hcxptr->mac_ap, hcxptr->essid_len, hcxptr->essid);
-			writecapm1wpa1(fd_cap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, rc);
+			writecapm1wpa1(fd_cap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_cap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->eapol_len, hcxptr->eapol, hcxptr->keymic);
 			hccapxcapwritten++;
 			}
 		else if(keyver == 2)
 			{
 			writecapbeaconwpa2(fd_cap, hcxptr->mac_ap, hcxptr->essid_len, hcxptr->essid);
-			writecapm1wpa2(fd_cap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, rc);
+			writecapm1wpa2(fd_cap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_cap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->eapol_len, hcxptr->eapol, hcxptr->keymic);
 			hccapxcapwritten++;
 			}
 		else if(keyver == 3)
 			{
 			writecapbeaconwpa2keyver3(fd_cap, hcxptr->mac_ap, hcxptr->essid_len, hcxptr->essid);
-			writecapm1wpa2keyver3(fd_cap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, rc);
+			writecapm1wpa2keyver3(fd_cap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->nonce_ap, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_cap, hcxptr->mac_sta, hcxptr->mac_ap, hcxptr->eapol_len, hcxptr->eapol, hcxptr->keymic);
 			hccapxcapwritten++;
 			}
@@ -903,21 +912,21 @@ while(fread(&hcdata, HCCAP_SIZE, 1, fhhc) == 1)
 		if(keyver == 1)
 			{
 			writecapbeaconwpa1(fd_singlecap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
-			writecapm1wpa1(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm1wpa1(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
 			hccapcapwritten++;
 			}
 		else if(keyver == 2)
 			{
 			writecapbeaconwpa2(fd_singlecap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
-			writecapm1wpa2(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm1wpa2(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
 			hccapcapwritten++;
 			}
 		else if(keyver == 3)
 			{
 			writecapbeaconwpa2keyver3(fd_singlecap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
-			writecapm1wpa2keyver3(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm1wpa2keyver3(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_singlecap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
 			hccapcapwritten++;
 			}
@@ -928,21 +937,21 @@ while(fread(&hcdata, HCCAP_SIZE, 1, fhhc) == 1)
 		if(keyver == 1)
 			{
 			writecapbeaconwpa1(fd_cap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
-			writecapm1wpa1(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm1wpa1(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
 			hccapcapwritten++;
 			}
 		else if(keyver == 2)
 			{
 			writecapbeaconwpa2(fd_cap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
-			writecapm1wpa2(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm1wpa2(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
 			hccapcapwritten++;
 			}
 		else if(keyver == 3)
 			{
 			writecapbeaconwpa2keyver3(fd_cap, hcptr->mac1, essidlen, (uint8_t*)hcptr->essid);
-			writecapm1wpa2keyver3(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, rc);
+			writecapm1wpa2keyver3(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->nonce2, eapa->version, wpak->keylen, rc);
 			writecapm2(fd_cap, hcptr->mac2, hcptr->mac1, hcptr->eapol_size, hcptr->eapol, hcptr->keymic);
 			hccapcapwritten++;
 			}
