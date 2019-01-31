@@ -411,13 +411,13 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:dh")) != -1)
 		case 'm':
 		if(strlen(optarg) == 6)
 			{
-			oui = strtoul(optarg, NULL, 16);
+			oui = strtoull(optarg, NULL, 16);
 			mode = 'm';
 			}
 
 		else if(strlen(optarg) == 12)
 			{
-			oui = (strtoul(optarg, NULL, 16) >> 24);
+			oui = (strtoull(optarg, NULL, 16) >> 24);
 			mode = 'm';
 			}
 		else
