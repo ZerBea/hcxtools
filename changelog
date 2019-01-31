@@ -1,8 +1,27 @@
+31.01.2019
+==========
+hcxhash2cap: added option to cenvert hccapx to cap
+$ hcxhash2cap -h
+hcxhash2cap 5.1.0 (C) 2019 ZeroBeat
+usage:
+hcxhash2cap <options>
+
+options:
+-c <file> : output cap file
+            if no cap file is selected, output will be written to single cap files
+            format: mac_sta.cap (mac_sta.cap_x)
+
+--pmkid=<file>  : input PMKID hash file
+--hccapx=<file> : input hashcat hccapx file
+--help          : show this help
+--version       : show version
+
+
 29.01.2019
 ==========
 aded new tool: hcxhash2cap
 $ ./hcxhash2cap -h
-hcxhash2cap 5.1.0 (C) 2018 ZeroBeat
+hcxhash2cap 5.1.0 (C) 2019 ZeroBeat
 usage:
 hcxhash2cap <options>
 
