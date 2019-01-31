@@ -37,7 +37,7 @@ Detailed description
 | -------------- | --------------------------------------------------------------------------------------------------------------- |
 | hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper      |
 | hcxpsktool     | Calculates candidates for hashcat based on commandline input,  hccapx file and/or 16800 hash file               |
-| hcxhash2cap    | Converts PMKID file to cap (experimental)                                                                       |
+| hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap) to cap (experimental)                                                                       |
 | hcxhashcattool | Calculate PMKs from hashcat -m 2500 potfile                                                                     |
 | wlanhcx2cap    | Converts hccapx to cap (deprecated: will be replaced by hcxhash2cap, soon)                                                                                          |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                                        |
