@@ -1,6 +1,7 @@
-31.01.2019
+01.02.2019
 ==========
-hcxhash2cap: added new options to cenvert hccapx to cap and hccap to cap
+hcxhash2cap: added new option to canvert john WPAPSK has file to cap
+hcxhash2cap will replace wlanhcx2cap, soon
 $ hcxhash2cap -h
 hcxhash2cap 5.1.0 (C) 2019 ZeroBeat
 usage:
@@ -14,30 +15,19 @@ options:
 --pmkid=<file>  : input PMKID hash file
 --hccapx=<file> : input hashcat hccapx file
 --hccap=<file>  : input hashcat hccap file
+--john=<file>   : input John the Ripper WPAPSK hash file
 --help          : show this help
 --version       : show version
+
+
+31.01.2019
+==========
+hcxhash2cap: added new options to convert hccapx to cap and hccap to cap
 
 
 29.01.2019
 ==========
 aded new tool: hcxhash2cap
-$ hcxhash2cap -h
-hcxhash2cap 5.1.0 (C) 2019 ZeroBeat
-usage:
-hcxhash2cap <options>
-
-options:
--c <file> : output cap file
-            if no cap file selected, output wil be written to single cap files
-            format: mac_sta.cap (mac_sta.cap_x)
-
---pmkid=<file>  : input PMKID hash file
---help          : show this help
---version       : show version
-
-
-todo: hccapx -> cap
-hcxhash2cap will replace wlanhcx2cap, soon
 
 
 22.01.2019
