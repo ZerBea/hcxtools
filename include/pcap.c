@@ -12,10 +12,10 @@
 #include "pcap.h"
 
 /*===========================================================================*/
-static bool pcapwritehdr(int fd, int linklayer)
+bool pcapwritehdr(int fd, int linklayer)
 {
-static pcap_hdr_t pcap_hdr;
-static int written;
+pcap_hdr_t pcap_hdr;
+int written;
 
 memset(&pcap_hdr, 0, PCAPHDR_SIZE);
 pcap_hdr.magic_number = PCAPMAGICNUMBER;

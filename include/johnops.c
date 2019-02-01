@@ -1,6 +1,5 @@
-
 /*===========================================================================*/
-static void hccap2base(FILE *fhjohn, unsigned char *in, unsigned char b)
+void hccap2base(FILE *fhjohn, unsigned char *in, unsigned char b)
 {
 const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -16,19 +15,19 @@ else
 return;
 }
 /*===========================================================================*/
-static void mac2asciilong(char ssid[18], unsigned char *p)
+void mac2asciilong(char ssid[18], unsigned char *p)
 {
 sprintf(ssid, "%02x-%02x-%02x-%02x-%02x-%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-static void mac2ascii(char ssid[13], unsigned char *p)
+void mac2ascii(char ssid[13], unsigned char *p)
 {
 sprintf(ssid, "%02x%02x%02x%02x%02x%02x",p[0],p[1],p[2],p[3],p[4],p[5]);
 return;
 }
 /*===========================================================================*/
-static void writejohnrecord(unsigned long long int noncefuzz, hcxl_t *zeiger, FILE *fhjohn, char *basename)
+void writejohnrecord(unsigned long long int noncefuzz, hcxl_t *zeiger, FILE *fhjohn, char *basename)
 {
 hccap_t hccap;
 wpakey_t *wpak, *wpak2;
