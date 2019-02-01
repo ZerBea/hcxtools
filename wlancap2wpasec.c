@@ -103,8 +103,9 @@ __attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
-	"usage: %s <options> [input.cap] [input.cap] ...\n"
-	"       %s <options> *.cap\n"
+	"usage: %s <options>  [input.pcapng] [input.pcap] [input.cap] [input.pcapng.gz]...\n"
+	"       %s <options> *.pcapng\n"
+	"       %s <options> *.gz\n"
 	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
@@ -115,7 +116,16 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"               default = 30 seconds\n"
 	"-R           : remove cap if upload was successful\n"
 	"-h           : this help\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, wpasecurl);
+	"\n"
+	"Do not merge different cap files to a single cap file.\n"
+	"This will lead to unexpected behaviour on ESSID changes\n"
+	"or different link layer types.\n"
+	"To ‎remove unnecessary packets, run tshark:\n"
+	"tshark -r input.cap -R \"(wlan.fc.type_subtype == 0x00 || wlan.fc.type_subtype == 0x02 || wlan.fc.type_subtype == 0x04 || wlan.fc.type_subtype == 0x05 || wlan.fc.type_subtype == 0x08 || eapol)\" -2 -F pcapng -w output.pcapng\n"
+	"To reduce the size of the cap file, compress it with gzip:\n"
+	"gzip capture.pcapng\n"
+	"\n"
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, wpasecurl);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/
