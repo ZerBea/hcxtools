@@ -1,3 +1,13 @@
+02.02.2019
+==========
+release hcxtools v 5.1.1
+removed....: wlanhcx2psk
+replaced by: hcxpsktool
+
+removed....: wlanhcx2cap
+replaced by: hcxhash2cap
+
+
 01.02.2019
 ==========
 hcxhash2cap: added new option to canvert john WPAPSK has file to cap

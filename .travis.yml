@@ -17,7 +17,6 @@ matrix:
            - ccache
            - make
            - libcurl4-gnutls-dev
-           - libpcap-dev
      env:
        - MATRIX_EVAL="CC=gcc-5"
    - os: linux
@@ -30,7 +29,6 @@ matrix:
            - ccache
            - make
            - libcurl4-gnutls-dev
-           - libpcap-dev
      env:
        - MATRIX_EVAL="CC=gcc-6"
    - os: linux
@@ -43,7 +41,6 @@ matrix:
            - ccache
            - make
            - libcurl4-gnutls-dev
-           - libpcap-dev
      env:
        - MATRIX_EVAL="CC=gcc-7 DO_INSTALL=1"
    - os: linux
@@ -57,7 +54,6 @@ matrix:
            - ccache
            - make
            - libcurl4-gnutls-dev
-           - libpcap-dev
      env:
        - MATRIX_EVAL="CC=clang-4.0"
    - os: linux
@@ -71,7 +67,6 @@ matrix:
            - ccache
            - make
            - libcurl4-gnutls-dev
-           - libpcap-dev
      env:
        - MATRIX_EVAL="CC=clang-5.0"
    - os: linux
@@ -85,7 +80,6 @@ matrix:
            - ccache
            - make
            - libcurl4-gnutls-dev
-           - libpcap-dev
      env:
        - MATRIX_EVAL="CC=clang"
 
