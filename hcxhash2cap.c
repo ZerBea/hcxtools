@@ -1068,12 +1068,12 @@ while(1)
 	eapa = (eapauth_t*)hcptr->eapol;
 	if(eapa->type != EAPOL_KEY)
 		{
-		hccapcapskipped++;
+		johnskipped++;
 		continue;
 		}
 	if(hcptr->eapol_size != ntohs(eapa->len) +4)
 		{
-		hccapcapskipped++;
+		johnskipped++;
 		continue;
 		}
 
@@ -1081,18 +1081,18 @@ while(1)
 	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 	if(keyver != hcptr->keyver)
 		{
-		hccapcapskipped++;
+		johnskipped++;
 		continue;
 		}
 	if(keyver > 3)
 		{
-		hccapcapskipped++;
+		johnskipped++;
 		continue;
 		}
 	keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
 	if(keyinfo == 3)
 		{
-		hccapcapskipped++;
+		johnskipped++;
 		continue;
 		}
 	rc = wpak->replaycount;
