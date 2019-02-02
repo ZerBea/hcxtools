@@ -5057,7 +5057,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"6: BE router detected (set to 1) - nonce-error-corrections only for BE neccessary\n"
 	"7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely neccessary\n"
 	"\n"
-	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools!\n"
+	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff/1000000, maxrcdiff, eigenname);
 exit(EXIT_SUCCESS);
 }
