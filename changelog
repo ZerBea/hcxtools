@@ -6,6 +6,7 @@ replaced by: hcxpsktool
 
 removed....: wlanhcx2cap
 replaced by: hcxhash2cap
+no more libcap dependency!
 
 
 01.02.2019
