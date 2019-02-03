@@ -4829,6 +4829,7 @@ strcpy(pcapnghwinfo, unknown);
 strcpy(pcapngosinfo, unknown);
 strcpy(pcapngapplinfo, unknown);
 
+
 if(testgzipfile(pcapinname) == true)
 	{
 	memset(&tmpoutname, 0, PATH_MAX+1);
@@ -4849,6 +4850,7 @@ if(pcapr_fd == -1)
 		{
 		remove(tmpoutname);
 		}
+	printf("\nwarning: no capture file loaded\n\n");
 	return;
 	}
 
@@ -4906,7 +4908,6 @@ if(eapolliste != NULL)
 	{
 	findhandshake();
 	}
-
 printcapstatus(pcapart, pcapinname, versionmajor, versionminor, dltlinktype, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 
 if(apstaessidliste != NULL) 
