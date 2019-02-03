@@ -3151,11 +3151,14 @@ rc = wpak->replaycount;
 #endif
 
 authlen = ntohs(eap->len);
+if(authlen < 0x5f)
+	{
+	return;
+	}
 if(authlen > caplen -4)
 	{
 	return;
 	}
-
 kl = ntohs(wpak->keylen);
 if((kl %16) != 0)
 	{
