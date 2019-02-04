@@ -501,13 +501,40 @@ for(l1 = 3; l1 <= essidlen; l1++)
 return;
 }
 /*===========================================================================*/
+static void testattwifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1, k2, k3, k4;
+static char *attwifi = "ATT-WIFI-";
+if(essidlen != 13)
+	{
+	return;
+	}
+if(memcmp(essid, attwifi, 9) != 0)
+	{
+	return;
+	}
+if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12])))
+	{
+	return;
+	}
+for(k1 = 0; k1 < 10; k1++)
+	for(k2 = 0; k2 < 10; k2++)
+		for(k3 = 0; k3 < 10; k3++)
+			for(k4 = 0; k4 < 10; k4++)
+				{
+				fprintf(fhout, "%d%c%d%c%d%c%d%c\n", k1, essid[9], k2, essid[10], k3, essid[12], k4, essid[11]);
+				}
+return;
+}
+/*===========================================================================*/
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 int pi, po;
-writeessidsweeped(fhout, essidlen, essid);
-
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
+testattwifi(fhout, essidlen, essid);
+
+writeessidsweeped(fhout, essidlen, essid);
 po = 0;
 memset(&essidtmp, 0, PSKSTRING_LEN_MAX);
 for(pi = essidlen -1; pi >= 0; pi--)
