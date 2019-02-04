@@ -713,6 +713,9 @@ char pskstring[PSKSTRING_LEN_MAX] = {};
 
 snprintf(pskstring, PSKSTRING_LEN_MAX, "0%012llx", macaddr);
 writepsk(fhout, pskstring);
+snprintf(pskstring, PSKSTRING_LEN_MAX, "8747%06llx", macaddr &0xffffff);
+writepsk(fhout, pskstring);
+
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%012llx", macaddr);
 writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%011llx", macaddr &0xfffffffffff);
