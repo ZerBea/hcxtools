@@ -500,6 +500,49 @@ for(l1 = 3; l1 <= essidlen; l1++)
 	}
 return;
 }
+
+//d470da7935412f8523321eb6c12790fd:20107ad1671d:bcf685ac091a:WiFiRSU_5ff84:8845ff84
+//b55548c5d6296cd2eb1348e99f6cefd6:ac81129c7109:00265e0ad06f:WiFiRSU_64:8807c764
+
+/*===========================================================================*/
+static void testwifirsu(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1;
+static char *wifirsu = "WiFiRSU_";
+if(essidlen < 10)
+	{
+	return;
+	}
+if(memcmp(essid, wifirsu, 8) != 0)
+	{
+	return;
+	}
+if(essidlen == 10)
+	{
+	if((!isxdigit(essid[8])) || (!isxdigit(essid[9])))
+		{
+		return;
+		}
+	for(k1 = 0; k1 < 0x10000; k1++)
+		{
+		fprintf(fhout, "88%04x%c%c\n", k1, essid[8], essid[9]);
+		}
+	return;
+	}
+if(essidlen == 13)
+	{
+	if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isxdigit(essid[12])))
+		{
+		return;
+		}
+	for(k1 = 0; k1 < 0x10; k1++)
+		{
+		fprintf(fhout, "88%x%c%c%c%c%c\n", k1, essid[8], essid[9], essid[10], essid[11], essid[12]);
+		}
+	return;
+	}
+return;
+}
 /*===========================================================================*/
 static void testattwifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
@@ -533,6 +576,7 @@ int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 testattwifi(fhout, essidlen, essid);
+testwifirsu(fhout, essidlen, essid);
 
 writeessidsweeped(fhout, essidlen, essid);
 po = 0;
