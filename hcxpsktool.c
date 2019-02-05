@@ -598,6 +598,47 @@ for(k1 = 0; k1 < 10; k1++)
 return;
 }
 /*===========================================================================*/
+static void testroamingman(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1, k2, k3;
+char *ev;
+static char *roamingman =  "Roamingman_";
+
+if(essidlen == 16)
+	{
+	if((!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15])))
+		{
+		return;
+		}
+	if(memcmp(essid, roamingman, 11) != 0)
+		{
+		return;
+		}
+	ev = (char*)(essid +11);
+	k2 = strtol(ev, NULL, 10);
+	for(k3 = k2 -10; k3 < k2 +10; k3++)
+		{
+		for(k1 = 0; k1 < 1000; k1++)
+			{
+			if(k3 < 0)
+				{
+				fprintf(fhout, "hallo %03d%05d\n", k1, k3 +100000);
+				}
+			else if(k3 > 99999)
+				{
+				fprintf(fhout, "hallo %03d%05d\n", k1, k3 -100000);
+				}
+			else
+				{
+				fprintf(fhout, "hallo %03d%05d\n", k1, k3);
+				}
+			}
+		}
+	return;
+	}
+return;
+}
+/*===========================================================================*/
 static void testtechnicolor(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 int k1;
@@ -675,6 +716,7 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 testalcatellinkzone(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
+testroamingman(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
