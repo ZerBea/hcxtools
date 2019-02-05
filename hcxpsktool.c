@@ -25,9 +25,40 @@
 /*===========================================================================*/
 /* global var */
 
-apessidl_t *apessidliste;
-int apessidcount;
-int thisyear;
+static apessidl_t *apessidliste;
+static int apessidcount;
+static int thisyear;
+
+static bool netgearflag;
+static bool weakpassflag;
+static bool eudateflag;
+static bool usdateflag;
+static bool wpskeysflag;
+
+static bool test006064flag;
+
+/*===========================================================================*/
+static void globalinit()
+{
+static time_t t;
+static struct tm *tm;
+
+apessidliste = NULL;
+apessidcount = 0;
+
+netgearflag = false;
+weakpassflag = false;
+eudateflag = false;
+usdateflag = false;
+wpskeysflag = false;
+test006064flag = false;
+
+t = time(NULL);
+tm = localtime(&t);
+thisyear = tm->tm_year +1900;
+
+return;
+}
 /*===========================================================================*/
 /*===========================================================================*/
 static void writepsk(FILE *fhout, const char *pskstring)
@@ -945,6 +976,10 @@ static void test006064(FILE *fhout, unsigned long long int macaddr)
 int k1;
 unsigned long long int oui;
 
+if(test006064flag == true)
+	{
+	return;
+	}
 oui = macaddr &0xffffff000000L;
 oui = oui >> 24;
 
@@ -954,6 +989,7 @@ if(oui == 0x006064)
 		{
 		fprintf(fhout, "abcd%04d\n", k1);
 		}
+	test006064flag = true;
 	}
 return;
 }
@@ -1322,23 +1358,12 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static FILE *fhpsk;
-static time_t t;
-static struct tm *tm;
-
-static bool netgearflag = false;
-static bool weakpassflag = false;
-static bool eudateflag = false;
-static bool usdateflag = false;
-static bool wpskeysflag = false;
 
 static char *hccapxname = NULL;
 static char *pmkidname = NULL;
 static char *essidname = NULL;
 static char *macapname = NULL;
 static char *pskname = NULL;
-
-apessidliste = NULL;
-apessidcount = 0;
 
 static const char *short_options = "i:z:o:e:b:o:hv";
 static const struct option long_options[] =
@@ -1420,9 +1445,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		}
 	}
 
-t = time(NULL);
-tm = localtime(&t);
-thisyear = tm->tm_year +1900;
+globalinit();
 
 if((macapname != NULL) || (essidname != NULL))
 	{
