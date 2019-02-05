@@ -1220,6 +1220,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--wpskeys : include complete WPS keys\n"
 	"--help    : show this help\n"
 	"--version : show version\n"
+	"\n"
+	"If hcxpsktool recovered your password, you should change it immediately!\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
 }
