@@ -598,6 +598,37 @@ for(k1 = 0; k1 < 10; k1++)
 return;
 }
 /*===========================================================================*/
+static void testtechnicolor(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1;
+static char *tc8715d =  "TC8715D";
+static char *tc8717t =  "TC8717T";
+
+if(essidlen == 9)
+	{
+	if((!isxdigit(essid[7])) || (!isxdigit(essid[8])))
+		{
+		return;
+		}
+	if(memcmp(essid, tc8715d, 7) == 0)
+		{
+		for(k1 = 0; k1 < 0x10000; k1++)
+			{
+			fprintf(fhout, "TC8715D%04X%c%c\n", k1, essid[7], essid[8]);
+			}
+		}
+	if(memcmp(essid, tc8717t, 7) == 0)
+		{
+		for(k1 = 0; k1 < 0x10000; k1++)
+			{
+			fprintf(fhout, "TC8717T%04X%c%c\n", k1, essid[7], essid[8]);
+			}
+		}
+	return;
+	}
+return;
+}
+/*===========================================================================*/
 static void testwifirsu(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 int k1;
@@ -645,6 +676,7 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 testalcatellinkzone(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
+testtechnicolor(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 
 writeessidsweeped(fhout, essidlen, essid);
