@@ -501,7 +501,7 @@ for(l1 = 3; l1 <= essidlen; l1++)
 return;
 }
 /*===========================================================================*/
-static void testacatellinkzone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+static void testalcatellinkzone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 int k1;
 static char *ali = "Alcatel LINKZONE ";
@@ -520,6 +520,54 @@ if((!isdigit(essid[17])) || (!isdigit(essid[18])) || (!isdigit(essid[19])) || (!
 for(k1 = 0; k1 < 10000; k1++)
 	{
 	fprintf(fhout, "%04d%c%c%c%c\n", k1, essid[17], essid[18], essid[19], essid[20]);
+	}
+return;
+}
+/*===========================================================================*/
+static void testarristg(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1;
+static char *tg852g =  "TG852G";
+static char *tg862g =  "TG862G";
+static char *tg1672g = "TG1672G";
+
+if(essidlen == 8)
+	{
+	if((!isxdigit(essid[6])) || (!isxdigit(essid[7])))
+		{
+		return;
+		}
+	if(memcmp(essid, tg852g, 6) == 0)
+		{
+		for(k1 = 0; k1 < 0x10000; k1++)
+			{
+			fprintf(fhout, "TG852G%04X%c%c\n", k1, essid[6], essid[7]);
+			}
+		}
+	if(memcmp(essid, tg862g, 6) == 0)
+		{
+		for(k1 = 0; k1 < 0x10000; k1++)
+			{
+			fprintf(fhout, "TG862G%04X%c%c\n", k1, essid[6], essid[7]);
+			}
+		}
+	return;
+	}
+if(essidlen == 9)
+	{
+	if(memcmp(essid, tg1672g, 7) != 0)
+		{
+		return;
+		}
+	if((!isxdigit(essid[7])) || (!isxdigit(essid[8])))
+		{
+		return;
+		}
+	for(k1 = 0; k1 < 0x10000; k1++)
+		{
+		fprintf(fhout, "TG1672G%04X%c%c\n", k1, essid[7], essid[8]);
+		}
+	return;
 	}
 return;
 }
@@ -594,7 +642,8 @@ static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-testacatellinkzone(fhout, essidlen, essid);
+testalcatellinkzone(fhout, essidlen, essid);
+testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 
