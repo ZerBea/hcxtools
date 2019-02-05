@@ -558,8 +558,10 @@ return;
 static void testarristg(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 int k1;
-static char *tg852g =  "TG852G";
-static char *tg862g =  "TG862G";
+static char *dg860A = "DG860A";
+static char *tg852g = "TG852G";
+static char *tg862g = "TG862G";
+static char *dg1670A = "DG1670A";
 static char *tg1672g = "TG1672G";
 
 if(essidlen == 8)
@@ -568,12 +570,21 @@ if(essidlen == 8)
 		{
 		return;
 		}
+	if(memcmp(essid, dg860A, 6) == 0)
+		{
+		for(k1 = 0; k1 < 0x10000; k1++)
+			{
+			fprintf(fhout, "DG860A%04X%c%c\n", k1, essid[6], essid[7]);
+			}
+		return;
+		}
 	if(memcmp(essid, tg852g, 6) == 0)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
 			fprintf(fhout, "TG852G%04X%c%c\n", k1, essid[6], essid[7]);
 			}
+		return;
 		}
 	if(memcmp(essid, tg862g, 6) == 0)
 		{
@@ -581,22 +592,31 @@ if(essidlen == 8)
 			{
 			fprintf(fhout, "TG862G%04X%c%c\n", k1, essid[6], essid[7]);
 			}
+		return;
 		}
 	return;
 	}
 if(essidlen == 9)
 	{
-	if(memcmp(essid, tg1672g, 7) != 0)
-		{
-		return;
-		}
 	if((!isxdigit(essid[7])) || (!isxdigit(essid[8])))
 		{
 		return;
 		}
-	for(k1 = 0; k1 < 0x10000; k1++)
+	if(memcmp(essid, dg1670A, 7) == 0) 
 		{
-		fprintf(fhout, "TG1672G%04X%c%c\n", k1, essid[7], essid[8]);
+		for(k1 = 0; k1 < 0x10000; k1++)
+			{
+			fprintf(fhout, "DG1670A%04X%c%c\n", k1, essid[7], essid[8]);
+			}
+		return;
+		}
+	if(memcmp(essid, tg1672g, 7) == 0) 
+		{
+		for(k1 = 0; k1 < 0x10000; k1++)
+			{
+			fprintf(fhout, "TG1672G%04X%c%c\n", k1, essid[7], essid[8]);
+			}
+		return;
 		}
 	return;
 	}
