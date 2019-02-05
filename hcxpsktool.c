@@ -874,6 +874,24 @@ writebssidwps(fhout, macaddr);
 return;
 }
 /*===========================================================================*/
+static void test000559(FILE *fhout, unsigned long long int macaddr)
+{
+int k1;
+unsigned long long int oui;
+
+oui = macaddr &0xffffff000000L;
+oui = oui >> 24;
+
+if(oui == 0x000559)
+	{
+	for(k1 = 0; k1 < 10000; k1++)
+		{
+		fprintf(fhout, "%012llX-%04d\n", macaddr, k1);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static void preparebssid(FILE *fhout, unsigned long long int macaddr)
 {
 int c;
@@ -887,8 +905,7 @@ for(c = 0; c < 0x10; c++)
 	writebssid(fhout, oui +nic +c);
 	}
 
-
-
+test000559(fhout, macaddr);
 
 return;
 }
