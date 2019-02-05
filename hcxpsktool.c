@@ -623,6 +623,29 @@ if(essidlen == 9)
 return;
 }
 /*===========================================================================*/
+static void testaxtelxtremo(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1;
+static char *axtelxtremo = "AXTEL XTREMO-";
+if(essidlen != 17)
+	{
+	return;
+	}
+if(memcmp(essid, axtelxtremo, 13) != 0)
+	{
+	return;
+	}
+if((!isxdigit(essid[13])) || (!isxdigit(essid[14])) || (!isxdigit(essid[15])) || (!isxdigit(essid[16])))
+	{
+	return;
+	}
+for(k1 = 0; k1 < 10000; k1++)
+	{
+	fprintf(fhout, "%04d%c%c%c%c\n", k1, essid[13], essid[14], essid[15], essid[16]);
+	}
+return;
+}
+/*===========================================================================*/
 static void testattwifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 int k1, k2, k3, k4;
@@ -649,10 +672,40 @@ for(k1 = 0; k1 < 10; k1++)
 return;
 }
 /*===========================================================================*/
+static void testcabovisao(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1;
+static char *cabovisao = "Cabovisao-";
+
+static char essidtmp[PSKSTRING_LEN_MAX] = {};
+
+if(essidlen != 14)
+	{
+	return;
+	}
+if(memcmp(essid, cabovisao, 10) != 0)
+	{
+	return;
+	}
+
+if((!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isxdigit(essid[12])) || (!isxdigit(essid[13])))
+	{
+	return;
+	}
+for(k1 = 0; k1 < 0x100; k1++)
+	{
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "2ce412%02x%c%c%c%c\n", k1, essid[10], essid[11], essid[12], essid[13]);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "e0ca94%02x%c%c%c%c\n", k1, essid[10], essid[11], essid[12], essid[13]);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "e0cec3%02x%c%c%c%c\n", k1, essid[10], essid[11], essid[12], essid[13]);
+	writepsk(fhout, essidtmp);
+	}
+return;
+}
+/*===========================================================================*/
 static void testmtel(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-//M-Tel_F661:485754449F6614E
-
 int k1, k2;
 static char *mtel = "M-Tel_";
 if(essidlen != 10)
@@ -663,7 +716,7 @@ if(memcmp(essid, mtel, 6) != 0)
 	{
 	return;
 	}
-if((!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isdigit(essid[9])))
+if((!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isxdigit(essid[9])))
 	{
 	return;
 	}
@@ -671,6 +724,7 @@ if((!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!
 for(k1 = 0; k1 < 0x100; k1++)
 	for(k2 = 0; k2 < 0x100; k2++)
 		{
+
 		fprintf(fhout, "48575443%02X%c%c%c%c%02X\n", k1, essid[6], essid[7], essid[8], essid[9], k2);
 		}
 return;
@@ -814,6 +868,8 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 testalcatellinkzone(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
+testaxtelxtremo(fhout, essidlen, essid);
+testcabovisao(fhout, essidlen, essid);
 testmtel(fhout, essidlen, essid);
 testmywifi(fhout, essidlen, essid);
 testroamingman(fhout, essidlen, essid);
