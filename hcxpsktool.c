@@ -933,6 +933,8 @@ static void writebssid(FILE *fhout, unsigned long long int macaddr)
 {
 char pskstring[PSKSTRING_LEN_MAX] = {};
 
+snprintf(pskstring, PSKSTRING_LEN_MAX, "2%012llx", macaddr);
+writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "0%012llx", macaddr);
 writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "8747%06llx", macaddr &0xffffff);
