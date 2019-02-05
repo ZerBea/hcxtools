@@ -500,10 +500,55 @@ for(l1 = 3; l1 <= essidlen; l1++)
 	}
 return;
 }
-
-//d470da7935412f8523321eb6c12790fd:20107ad1671d:bcf685ac091a:WiFiRSU_5ff84:8845ff84
-//b55548c5d6296cd2eb1348e99f6cefd6:ac81129c7109:00265e0ad06f:WiFiRSU_64:8807c764
-
+/*===========================================================================*/
+static void testacatellinkzone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1;
+static char *ali = "Alcatel LINKZONE ";
+if(essidlen != 21)
+	{
+	return;
+	}
+if(memcmp(essid, ali, 17) != 0)
+	{
+	return;
+	}
+if((!isdigit(essid[17])) || (!isdigit(essid[18])) || (!isdigit(essid[19])) || (!isdigit(essid[20])))
+	{
+	return;
+	}
+for(k1 = 0; k1 < 10000; k1++)
+	{
+	fprintf(fhout, "%04d%c%c%c%c\n", k1, essid[17], essid[18], essid[19], essid[20]);
+	}
+return;
+}
+/*===========================================================================*/
+static void testattwifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1, k2, k3, k4;
+static char *attwifi = "ATT-WIFI-";
+if(essidlen != 13)
+	{
+	return;
+	}
+if(memcmp(essid, attwifi, 9) != 0)
+	{
+	return;
+	}
+if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12])))
+	{
+	return;
+	}
+for(k1 = 0; k1 < 10; k1++)
+	for(k2 = 0; k2 < 10; k2++)
+		for(k3 = 0; k3 < 10; k3++)
+			for(k4 = 0; k4 < 10; k4++)
+				{
+				fprintf(fhout, "%d%c%d%c%d%c%d%c\n", k1, essid[9], k2, essid[10], k3, essid[12], k4, essid[11]);
+				}
+return;
+}
 /*===========================================================================*/
 static void testwifirsu(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
@@ -544,37 +589,12 @@ if(essidlen == 13)
 return;
 }
 /*===========================================================================*/
-static void testattwifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
-{
-int k1, k2, k3, k4;
-static char *attwifi = "ATT-WIFI-";
-if(essidlen != 13)
-	{
-	return;
-	}
-if(memcmp(essid, attwifi, 9) != 0)
-	{
-	return;
-	}
-if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12])))
-	{
-	return;
-	}
-for(k1 = 0; k1 < 10; k1++)
-	for(k2 = 0; k2 < 10; k2++)
-		for(k3 = 0; k3 < 10; k3++)
-			for(k4 = 0; k4 < 10; k4++)
-				{
-				fprintf(fhout, "%d%c%d%c%d%c%d%c\n", k1, essid[9], k2, essid[10], k3, essid[12], k4, essid[11]);
-				}
-return;
-}
-/*===========================================================================*/
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
+testacatellinkzone(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 
