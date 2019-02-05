@@ -598,6 +598,52 @@ for(k1 = 0; k1 < 10; k1++)
 return;
 }
 /*===========================================================================*/
+static void testmtel(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+//M-Tel_F661:485754449F6614E
+
+int k1, k2;
+static char *mtel = "M-Tel_";
+if(essidlen != 10)
+	{
+	return;
+	}
+if(memcmp(essid, mtel, 6) != 0)
+	{
+	return;
+	}
+if((!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isdigit(essid[9])))
+	{
+	return;
+	}
+
+for(k1 = 0; k1 < 0x100; k1++)
+	for(k2 = 0; k2 < 0x100; k2++)
+		{
+		fprintf(fhout, "48575443%02X%c%c%c%c%02X\n", k1, essid[6], essid[7], essid[8], essid[9], k2);
+		}
+return;
+}
+/*===========================================================================*/
+static void testmywifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int k1;
+static char *mywifi = "MY WIFI ";
+if(essidlen != 12)
+	{
+	return;
+	}
+if(memcmp(essid, mywifi, 8) != 0)
+	{
+	return;
+	}
+for(k1 = 0; k1 < 10000; k1++)
+	{
+	fprintf(fhout, "MYWIFI%04d\n", k1);
+	}
+return;
+}
+/*===========================================================================*/
 static void testroamingman(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 int k1, k2, k3;
@@ -716,8 +762,10 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 testalcatellinkzone(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
-testroamingman(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
+testmtel(fhout, essidlen, essid);
+testmywifi(fhout, essidlen, essid);
+testroamingman(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 
