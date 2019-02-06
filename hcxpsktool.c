@@ -455,6 +455,11 @@ for(c = 0; c < 1000; c++)
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%d%s", c, essid);
 	writepsk(fhout, essidstring);
 	}
+for(c = 0; c < 10; c++)
+	{
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s-%d", essid, c);
+	writepsk(fhout, essidstring);
+	}
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s123456789", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s12345678", essid);
@@ -1131,28 +1136,6 @@ if(oui == 0x000559)
 return;
 }
 /*===========================================================================*/
-static void test006064(FILE *fhout, unsigned long long int macaddr)
-{
-static int k1;
-static unsigned long long int oui;
-
-if(test006064flag == true)
-	{
-	return;
-	}
-oui = macaddr &0xffffff000000L;
-oui = oui >> 24;
-if(oui == 0x006064)
-	{
-	for(k1 = 0; k1 < 10000; k1++)
-		{
-		fprintf(fhout, "abcd%04d\n", k1);
-		}
-	test006064flag = true;
-	}
-return;
-}
-/*===========================================================================*/
 static void preparebssid(FILE *fhout, unsigned long long int macaddr)
 {
 static int c;
@@ -1167,7 +1150,6 @@ for(c = 0; c < 0x10; c++)
 	}
 
 test000559(fhout, macaddr);
-test006064(fhout, macaddr);
 return;
 }
 /*===========================================================================*/
