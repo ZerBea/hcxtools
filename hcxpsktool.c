@@ -1015,8 +1015,12 @@ snprintf(pskstring, PSKSTRING_LEN_MAX, "2%012llx", macaddr);
 writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "m%012llx", macaddr);
 writepsk(fhout, pskstring);
+snprintf(pskstring, PSKSTRING_LEN_MAX, "555A5053%08llx", macaddr &0xffffffff);
+writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "8747%06llx", macaddr &0xffffff);
 writepsk(fhout, pskstring);
+
+
 
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%012llx", macaddr);
 writepsk(fhout, pskstring);
