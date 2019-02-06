@@ -404,7 +404,36 @@ for(y = 1900; y <= thisyear; y++)
 	}
 return;
 }
+
 /*===========================================================================*/
+/*
+static void processbssidsessids(FILE *fhout)
+{
+static int c;
+static apessidl_t *zeiger;
+static apessidl_t *zeiger1;
+
+qsort(apessidliste, apessidcount, APESSIDLIST_SIZE, sort_apessidlist_by_ap);
+zeiger = apessidliste;
+for(c = 0; c < apessidcount; c++)
+	{
+	if(c == 0)
+		{
+		preparebssidessid(fhout, zeiger->macaddr, zeiger->essidlen, zeiger->essid);
+		}
+	else
+		{
+		zeiger1 = zeiger -1;
+		if((zeiger->macaddr != zeiger1->macaddr) || (zeiger->essidlen != zeiger1->essidlen) || (memcmp(zeiger->essid, zeiger1->essid, zeiger->essidlen) != 0))
+			{
+			preparebssidessid(fhout, zeiger->macaddr, zeiger->essidlen, zeiger->essid);
+			}
+		}
+	zeiger++;
+	}
+return;
+}
+*/
 /*===========================================================================*/
 static void writeessidadd(FILE *fhout, char *essid)
 {
@@ -534,7 +563,7 @@ return;
 /*===========================================================================*/
 static void testalcatellinkzone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1;
+static int k1;
 static char *ali = "Alcatel LINKZONE ";
 if(essidlen != 21)
 	{
@@ -557,7 +586,7 @@ return;
 /*===========================================================================*/
 static void testarristg(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1;
+static int k1;
 static char *dg860A = "DG860A";
 static char *tg852g = "TG852G";
 static char *tg862g = "TG862G";
@@ -625,7 +654,7 @@ return;
 /*===========================================================================*/
 static void testaxtelxtremo(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1;
+static int k1;
 static char *axtelxtremo = "AXTEL XTREMO-";
 if(essidlen != 17)
 	{
@@ -648,7 +677,7 @@ return;
 /*===========================================================================*/
 static void testattwifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1, k2, k3, k4;
+static int k1, k2, k3, k4;
 static char *attwifi = "ATT-WIFI-";
 if(essidlen != 13)
 	{
@@ -674,7 +703,7 @@ return;
 /*===========================================================================*/
 static void testcabovisao(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1;
+static int k1;
 static char *cabovisao = "Cabovisao-";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
@@ -704,9 +733,47 @@ for(k1 = 0; k1 < 0x100; k1++)
 return;
 }
 /*===========================================================================*/
+static void testhotbox(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1, k2;
+static char *ev;
+static char *hotbox = "HOTBOX-";
+
+if(essidlen != 11)
+	{
+	return;
+	}
+if(memcmp(essid, hotbox , 7) != 0)
+	{
+	return;
+	}
+if((!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])))
+	{
+	return;
+	}
+	ev = (char*)(essid +7);
+	k2 = strtol(ev, NULL, 16);
+	for(k1 = 0; k1 < 0x100; k1++)
+		{
+		fprintf(fhout, "2ce412%02x%04x\n", k1, k2);
+		fprintf(fhout, "4c17eb%02x%04x\n", k1, k2);
+		fprintf(fhout, "6c2e85%02x%04x\n", k1, k2);
+		fprintf(fhout, "7c034c%02x%04x\n", k1, k2);
+		fprintf(fhout, "7cb733%02x%04x\n", k1, k2);
+		fprintf(fhout, "a0648f%02x%04x\n", k1, k2);
+		fprintf(fhout, "b4eeb4%02x%04x\n", k1, k2);
+		fprintf(fhout, "c0ac54%02x%04x\n", k1, k2);
+		fprintf(fhout, "d86ce9%02x%04x\n", k1, k2);
+		fprintf(fhout, "d8fb5e%02x%04x\n", k1, k2);
+		fprintf(fhout, "e0cec3%02x%04x\n", k1, k2);
+		fprintf(fhout, "fcb4e6%02x%04x\n", k1, k2);
+		}
+return;
+}
+/*===========================================================================*/
 static void testmtel(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1, k2;
+static int k1, k2;
 static char *mtel = "M-Tel_";
 if(essidlen != 10)
 	{
@@ -732,7 +799,7 @@ return;
 /*===========================================================================*/
 static void testmywifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1;
+static int k1;
 static char *mywifi = "MY WIFI ";
 if(essidlen != 12)
 	{
@@ -751,8 +818,8 @@ return;
 /*===========================================================================*/
 static void testroamingman(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1, k2, k3;
-char *ev;
+static int k1, k2, k3;
+static char *ev;
 static char *roamingman =  "Roamingman_";
 
 if(essidlen == 16)
@@ -792,7 +859,7 @@ return;
 /*===========================================================================*/
 static void testtechnicolor(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1;
+static int k1;
 static char *tc8715d =  "TC8715D";
 static char *tc8717t =  "TC8717T";
 
@@ -823,7 +890,7 @@ return;
 /*===========================================================================*/
 static void testwifirsu(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int k1;
+static int k1;
 static char *wifirsu = "WiFiRSU_";
 if(essidlen < 10)
 	{
@@ -862,7 +929,7 @@ return;
 /*===========================================================================*/
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int pi, po;
+static int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 testalcatellinkzone(fhout, essidlen, essid);
@@ -870,6 +937,7 @@ testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
 testaxtelxtremo(fhout, essidlen, essid);
 testcabovisao(fhout, essidlen, essid);
+testhotbox(fhout, essidlen, essid);
 testmtel(fhout, essidlen, essid);
 testmywifi(fhout, essidlen, essid);
 testroamingman(fhout, essidlen, essid);
@@ -921,12 +989,12 @@ return;
 /*===========================================================================*/
 static void writebssidmd5(FILE *fhout, unsigned long long int macaddr)
 {
-MD5_CTX ctxmd5;
-int k;
-int p;
-char keystring[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-char macstring[PSKSTRING_LEN_MAX] = {};
-unsigned char digestmd5[MD5_DIGEST_LENGTH];
+static MD5_CTX ctxmd5;
+static int k;
+static int p;
+static char keystring[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static char macstring[PSKSTRING_LEN_MAX] = {};
+static unsigned char digestmd5[MD5_DIGEST_LENGTH];
 
 snprintf(macstring, 14, "%012llX", macaddr);
 MD5_Init(&ctxmd5);
@@ -1007,7 +1075,7 @@ return;
 /*===========================================================================*/
 static void writebssid(FILE *fhout, unsigned long long int macaddr)
 {
-char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 snprintf(pskstring, PSKSTRING_LEN_MAX, "0%012llx", macaddr);
 writepsk(fhout, pskstring);
@@ -1020,8 +1088,6 @@ writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "8747%06llx", macaddr &0xffffff);
 writepsk(fhout, pskstring);
 
-
-
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%012llx", macaddr);
 writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%011llx", macaddr &0xfffffffffff);
@@ -1032,6 +1098,17 @@ snprintf(pskstring, PSKSTRING_LEN_MAX, "%09llx", macaddr &0xfffffffff);
 writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%08llx", macaddr &0xffffffff);
 writepsk(fhout, pskstring);
+
+snprintf(pskstring, PSKSTRING_LEN_MAX, "%011llx", (macaddr >> 4) &0xfffffffffff);
+writepsk(fhout, pskstring);
+snprintf(pskstring, PSKSTRING_LEN_MAX, "%010llx", (macaddr >> 8) &0xffffffffff);
+writepsk(fhout, pskstring);
+snprintf(pskstring, PSKSTRING_LEN_MAX, "%09llx",(macaddr >> 12) &0xfffffffff);
+writepsk(fhout, pskstring);
+snprintf(pskstring, PSKSTRING_LEN_MAX, "%08llx", (macaddr >> 16) &0xffffffff);
+writepsk(fhout, pskstring);
+
+
 writebssidmd5(fhout, macaddr);
 writebssidwps(fhout, macaddr);
 return;
@@ -1039,8 +1116,8 @@ return;
 /*===========================================================================*/
 static void test000559(FILE *fhout, unsigned long long int macaddr)
 {
-int k1;
-unsigned long long int oui;
+static int k1;
+static unsigned long long int oui;
 
 oui = macaddr &0xffffff000000L;
 oui = oui >> 24;
@@ -1056,8 +1133,8 @@ return;
 /*===========================================================================*/
 static void test006064(FILE *fhout, unsigned long long int macaddr)
 {
-int k1;
-unsigned long long int oui;
+static int k1;
+static unsigned long long int oui;
 
 if(test006064flag == true)
 	{
@@ -1078,9 +1155,9 @@ return;
 /*===========================================================================*/
 static void preparebssid(FILE *fhout, unsigned long long int macaddr)
 {
-int c;
-unsigned long long int oui;
-unsigned long long int nic;
+static int c;
+static unsigned long long int oui;
+static unsigned long long int nic;
 
 oui = macaddr &0xffffff000000L;
 nic = (macaddr &0xffffffL) -8;
@@ -1558,12 +1635,14 @@ if(pskname != NULL)
 		}
 	processbssids(fhpsk);
 	processessids(fhpsk);
+//	processbssidsessids(fhpsk);
 	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag);
 	}
 else
 	{
 	processbssids(stdout);
 	processessids(stdout);
+//	processbssidsessids(stdout);
 	processadditionals(stdout, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag);
 	}
 
