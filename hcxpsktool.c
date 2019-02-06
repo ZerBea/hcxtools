@@ -1009,9 +1009,11 @@ static void writebssid(FILE *fhout, unsigned long long int macaddr)
 {
 char pskstring[PSKSTRING_LEN_MAX] = {};
 
+snprintf(pskstring, PSKSTRING_LEN_MAX, "0%012llx", macaddr);
+writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "2%012llx", macaddr);
 writepsk(fhout, pskstring);
-snprintf(pskstring, PSKSTRING_LEN_MAX, "0%012llx", macaddr);
+snprintf(pskstring, PSKSTRING_LEN_MAX, "m%012llx", macaddr);
 writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "8747%06llx", macaddr &0xffffff);
 writepsk(fhout, pskstring);
@@ -1038,7 +1040,6 @@ unsigned long long int oui;
 
 oui = macaddr &0xffffff000000L;
 oui = oui >> 24;
-
 if(oui == 0x000559)
 	{
 	for(k1 = 0; k1 < 10000; k1++)
@@ -1060,7 +1061,6 @@ if(test006064flag == true)
 	}
 oui = macaddr &0xffffff000000L;
 oui = oui >> 24;
-
 if(oui == 0x006064)
 	{
 	for(k1 = 0; k1 < 10000; k1++)
