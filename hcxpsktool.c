@@ -404,9 +404,30 @@ for(y = 1900; y <= thisyear; y++)
 	}
 return;
 }
-
 /*===========================================================================*/
-/*
+static void preparebssidessid(FILE *fhout, unsigned long long int macaddr, uint8_t essidlen, uint8_t *essid)
+{
+static int k2;
+static int ek;
+static char *ev;
+
+static char essidtmp[PSKSTRING_LEN_MAX] = {};
+if(essidlen >= 4)
+	{
+	if((isxdigit(essid[essidlen -4])) && (isxdigit(essid[essidlen -3])) && (isxdigit(essid[essidlen -2])) && (isxdigit(essid[essidlen -1])))
+		{
+		ev = (char*)(essid +7);
+		ek = strtol(ev, NULL, 16);
+		for(k2 = ek -10;  k2 < ek +10; k2++)
+			{
+			snprintf(essidtmp, PSKSTRING_LEN_MAX, "%08llx%04x\n", (macaddr >> 16), (k2 &0xffff));
+			writepsk(fhout, essidtmp);
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static void processbssidsessids(FILE *fhout)
 {
 static int c;
@@ -433,7 +454,6 @@ for(c = 0; c < apessidcount; c++)
 	}
 return;
 }
-*/
 /*===========================================================================*/
 static void writeessidadd(FILE *fhout, char *essid)
 {
@@ -845,15 +865,15 @@ if(essidlen == 16)
 			{
 			if(k3 < 0)
 				{
-				fprintf(fhout, "hallo %03d%05d\n", k1, k3 +100000);
+				fprintf(fhout, "%03d%05d\n", k1, k3 +100000);
 				}
 			else if(k3 > 99999)
 				{
-				fprintf(fhout, "hallo %03d%05d\n", k1, k3 -100000);
+				fprintf(fhout, "%03d%05d\n", k1, k3 -100000);
 				}
 			else
 				{
-				fprintf(fhout, "hallo %03d%05d\n", k1, k3);
+				fprintf(fhout, "%03d%05d\n", k1, k3);
 				}
 			}
 		}
@@ -1617,14 +1637,14 @@ if(pskname != NULL)
 		}
 	processbssids(fhpsk);
 	processessids(fhpsk);
-//	processbssidsessids(fhpsk);
+	processbssidsessids(fhpsk);
 	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag);
 	}
 else
 	{
 	processbssids(stdout);
 	processessids(stdout);
-//	processbssidsessids(stdout);
+	processbssidsessids(stdout);
 	processadditionals(stdout, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag);
 	}
 
