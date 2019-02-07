@@ -1136,7 +1136,7 @@ static int pin;
 
 pin = (macaddr & 0xffffff) % 10000000;
 pin = ((pin * 10) + wpspinchecksum(pin));
-fprintf(fhout, "%08d \n", pin);
+fprintf(fhout, "%08d\n", pin);
 return;
 }
 /*===========================================================================*/
