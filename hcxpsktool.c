@@ -1686,9 +1686,9 @@ if(apessidliste == NULL)
 
 if(pskname != NULL)
 	{
-	if((fhpsk = fopen(pskname, "w+")) == NULL)
+	if((fhpsk = fopen(pskname, "w")) == NULL)
 		{
-		fprintf(stderr, "1 error opening psk file %s\n", pskname);
+		fprintf(stderr, "error opening psk file %s\n", pskname);
 		exit(EXIT_FAILURE);
 		}
 	processbssids(fhpsk);
