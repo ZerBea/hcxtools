@@ -90,6 +90,53 @@ if (feof(inputstream)) return -1;
 return len;
 }
 /*===========================================================================*/
+static void getessidinfo(char *essidname)
+{
+static int l, p;
+uint8_t essidbuffer[66];
+
+l = strlen(essidname);
+if((l < 2) || (l > 64))
+	{
+	fprintf(stderr, "not a valid ESSID hex string\n");
+	return;
+	}
+if((l %2) != 0)
+	{
+	fprintf(stderr, "not a valid hex string\n");
+	return;
+	}
+for(p = 0; p < l; p++)
+	{
+	if(!isxdigit(essidname[p]))
+		{
+		fprintf(stderr, "not a valid hex string\n");
+		return;
+		}
+	}
+
+memset(&essidbuffer, 0, 66);
+if(hex2bin(essidname, essidbuffer, l /2) == false)
+	{
+	fprintf(stderr, "not a valid ESSID hex string\n");
+	return;
+	}
+fprintf(stdout, "%s\n", essidbuffer);
+return;
+}
+/*===========================================================================*/
+static void gethexessidinfo(char *hexessidname)
+{
+static int l, p;
+l = strlen(hexessidname);
+for(p = 0; p < l; p++)
+	{
+	fprintf(stdout, "%02x", hexessidname[p]);
+	}
+fprintf(stdout, "\n");
+return;
+}
+/*===========================================================================*/
 static void get16800info(const char *ouiname, char *hash16800line)
 {
 int len;
@@ -236,10 +283,8 @@ if(l > 70)
 	fprintf(stderr, "wrong ESSID length %s %d\n", essidptr, l);
 	return;
 	}
-
 memset(&essidbuffer, 0, 72);
 memcpy(&essidbuffer, essidptr, l);
-
 
 if ((fhoui = fopen(ouiname, "r")) == NULL)
 	{
@@ -377,6 +422,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"              : oui (fist three bytes of mac addr)\n"
 	"-p <hashline> : input PMKID hashline\n"
 	"-P <hashline> : input EAPOL hashline from potfile\n"
+	"-e <ESSID>    : input ESSID\n"
+	"-x <xdigit>   : input ESSID in hex\n"
+	"-e <ESSID>    : input ESSID\n"
 	"-v <vendor>   : vendor name\n"
 	"-h            : this help screen\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
@@ -395,12 +443,14 @@ uid_t uid;
 struct passwd *pwd;
 struct stat statinfo;
 char *vendorname = NULL;
+char *hexessidname = NULL;
+char *essidname = NULL;
 char *hash16800line = NULL;
 char *hash2500line = NULL;
 const char confdirname[] = ".hcxtools";
 const char ouiname[] = ".hcxtools/oui.txt";
 
-while ((auswahl = getopt(argc, argv, "m:v:p:P:dh")) != -1)
+while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 	{
 	switch (auswahl)
 		{
@@ -464,11 +514,20 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:dh")) != -1)
 		mode = 'v';
 		break;
 
+		case 'e':
+		hexessidname = optarg;
+		mode = 'e';
+		break;
+
+		case 'x':
+		essidname = optarg;
+		mode = 'x';
+		break;
+
 		default:
 		usage(basename(argv[0]));
 		}
 	}
-
 
 uid = getuid();
 pwd = getpwuid(uid);
@@ -519,6 +578,16 @@ else if(mode == 'P')
 else if(mode == 'v')
 	{
 	getvendor(ouiname, vendorname);
+	}
+
+else if(mode == 'e')
+	{
+	gethexessidinfo(hexessidname);
+	}
+
+else if(mode == 'x')
+	{
+	getessidinfo(essidname);
 	}
 
 return EXIT_SUCCESS;

@@ -1,3 +1,17 @@
+11.02.2019
+==========
+whoismac: added two new options to convert ESSID HEX to ASCII or ESSID ASCII to HEX 
+-e <ESSID>    : input ESSID
+-x <xdigit>   : input ESSID in hex
+
+example:
+$ whoismac -e default
+64656661756c74
+
+now search for this essid, running simple bash commands:
+cat hashfile.16800 | grep 64656661756c74
+
+
 02.02.2019
 ==========
 release hcxtools v 5.1.1
