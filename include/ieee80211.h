@@ -103,6 +103,20 @@
 #define WPA_KEY_INFO_ERROR WBIT(10)
 #define WPA_KEY_INFO_REQUEST WBIT(11)
 #define WPA_KEY_INFO_ENCR_KEY_DATA WBIT(12) /* IEEE 802.11i/RSN only */
+
+#ifdef __BYTE_ORDER__
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define BIG_ENDIAN_HOST 1
+#endif
+#else
+#ifdef __OpenBSD__
+# include <endian.h>
+# if BYTE_ORDER == BIG_ENDIAN
+#   define BIG_ENDIAN_HOST 1
+# endif
+#endif
+#endif
+
 /*===========================================================================*/
 struct radiotap_header
 {
@@ -249,7 +263,7 @@ typedef struct qos_frame qos_t;
  */
 struct mac_frame
 {
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#if BIG_ENDIAN_HOST
  unsigned	subtype : 4;
  unsigned	type : 	2;
  unsigned	version : 2;
