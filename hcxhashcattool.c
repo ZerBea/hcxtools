@@ -608,6 +608,12 @@ while ((auswahl = getopt(argc, argv, "p:P:hv")) != -1)
 		}
 	}
 
+if(argc < 2)
+	{
+	fprintf(stderr, "no option selected\n");
+	return EXIT_SUCCESS;
+	}
+
 if((potname != NULL) && (pmkname != NULL))
 	{
 	makepmklist(potname, pmkname);

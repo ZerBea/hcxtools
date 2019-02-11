@@ -1287,6 +1287,12 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		}
 	}
 
+if(argc < 2)
+	{
+	fprintf(stderr, "no option selected\n");
+	return EXIT_SUCCESS;
+	}
+
 globalinit();
 
 if(capname != NULL)
