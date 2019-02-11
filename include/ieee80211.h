@@ -220,7 +220,7 @@ typedef struct msnetmon_header msntm_t;
 struct fcs_frame
 {
  uint32_t	fcs;
-};
+} __attribute__((packed));
 typedef struct fcs_frame fcs_t;
 #define	FCS_SIZE (sizeof(fcs_t))
 /*===========================================================================*/
