@@ -641,7 +641,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"examples:\n"
 	"hcxwltool -i wordlist --straight | sort | uniq |  | sort | uniq | hashcat -m 2500 hashfile.hccapx\n"
-	"hcxwltool -i wordlist --gigit --length=10 | sort | uniq |  | sort | uniq | hashcat -m 2500 hashfile.hccapx\n"
+	"hcxwltool -i wordlist --digit --length=10 | sort | uniq |  | sort | uniq | hashcat -m 2500 hashfile.hccapx\n"
 	"hcxwltool -i wordlist --digit | sort | uniq | hashcat -m 16800 hashfile.16800\n"
 	"hcxwltool -i wordlist --xdigit | sort | uniq | john --stdin --format=wpapsk-opencl hashfile.16800\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
