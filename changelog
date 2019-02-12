@@ -1,5 +1,10 @@
 12.02.2019
 ==========
+hcxpcaptool: added new option -X
+-X <file> : output client probelist
+          : format: mac_sta:probed ESSID (autohex enabled)
+
+
 added new tool: hcxwltool
 while hcxpsktool is designed to run on hcxpcaptool -o and -z output,
 hcxwltool is designed to run on hcapcaptool -E, -I and -U output

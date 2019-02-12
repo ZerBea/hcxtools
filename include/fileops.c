@@ -44,20 +44,22 @@ else
 return;
 }
 /*===========================================================================*/
-void fwriteaddr1addr2(uint8_t *mac1, uint8_t *mac2, FILE *fhd)
+void fwriteaddr1(uint8_t *macw, FILE *fhd)
 {
 int p;
 
 for(p = 0; p< 6; p++)
 	{
-	fprintf(fhd, "%02x", mac1[p]);
+	fprintf(fhd, "%02x", macw[p]);
 	}
 fprintf(fhd, ":");
-for(p = 0; p< 6; p++)
-	{
-	fprintf(fhd, "%02x", mac2[p]);
-	}
-fprintf(fhd, ":");
+return;
+}
+/*===========================================================================*/
+void fwriteaddr1addr2(uint8_t *mac1, uint8_t *mac2, FILE *fhd)
+{
+fwriteaddr1(mac1, fhd);
+fwriteaddr1(mac2, fhd);
 return;
 }
 /*===========================================================================*/

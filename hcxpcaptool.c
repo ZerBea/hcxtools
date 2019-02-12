@@ -72,6 +72,7 @@
 #define HCXT_JOHN_OUT		'j'
 #define HCXT_JOHN_OUT_RAW	'J'
 #define HCXT_ESSID_OUT		'E'
+#define HCXT_STAESSID_OUT	'X'
 #define HCXT_TRAFFIC_OUT	'T'
 #define HCXT_GPX_OUT		'g'
 #define HCXT_IDENTITY_OUT	'I'
@@ -206,6 +207,7 @@ char *hccaprawoutname;
 char *johnbestoutname;
 char *johnrawoutname;
 char *essidoutname;
+char *staessidoutname;
 char *trafficoutname;
 char *gpxoutname;
 char *pmkoutname;
@@ -255,6 +257,7 @@ hccaprawoutname = NULL;
 johnbestoutname = NULL;
 johnrawoutname = NULL;
 essidoutname = NULL;
+staessidoutname = NULL;
 trafficoutname = NULL;
 gpxoutname = NULL;
 pmkoutname = NULL;
@@ -838,6 +841,36 @@ if(essidoutname != NULL)
 		}
 	fclose(fhoutlist);
 	removeemptyfile(essidoutname);
+	}
+
+if(staessidoutname != NULL)
+	{
+	if((fhoutlist = fopen(staessidoutname, "a+")) != NULL)
+		{
+		zeiger = apstaessidliste;
+		zeigerold = zeiger;
+		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_essid);
+		for(c = 0; c < apstaessidcount; c++)
+			{
+			if(memcmp(zeiger->mac_sta, &mac_broadcast, 6) != 0)
+				{
+				if(c == 0)
+					{
+					fwriteaddr1(zeiger->mac_sta, fhoutlist);
+					fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
+					}
+				else if(memcmp(zeigerold->essid, zeiger->essid, 32) != 0)
+					{
+					fwriteaddr1(zeiger->mac_sta, fhoutlist);
+					fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
+					}
+				}
+			zeigerold = zeiger;
+			zeiger++;
+			}
+		}
+	fclose(fhoutlist);
+	removeemptyfile(staessidoutname);
 	}
 
 if(pmkoutname != NULL)
@@ -5032,6 +5065,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
+	"-X <file> : output client probelist\n"
+	"          : format: mac_sta:probed ESSID (autohex enabled)\n"
 	"-I <file> : output unsorted identity list\n"
 	"-U <file> : output unsorted username list\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
@@ -5096,7 +5131,7 @@ char *gpxhead = "<?xml version=\"1.0\"?>\n"
 
 char *gpxtail = "</gpx>\n";
 
-static const char *short_options = "o:O:z:j:J:E:I:U:P:T:g:H:Vhv";
+static const char *short_options = "o:O:z:j:J:E:X:I:U:P:T:g:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
@@ -5220,6 +5255,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_ESSID_OUT:
 		essidoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_STAESSID_OUT:
+		staessidoutname = optarg;
 		verboseflag = true;
 		break;
 
