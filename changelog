@@ -1,3 +1,37 @@
+12.02.2019
+==========
+added new tool: hcxwltool
+while hcxpsktool is designed to run on hcxpcaptool -o and -z output,
+hcxwltool is designed to run on hcapcaptool -E, -I and -U output
+
+$ hcxwltool -h
+hcxwltool 5.1.1 (C) 2019 ZeroBeat
+usage:
+hcxwltool <options>
+
+options:
+-i        : input worlist
+-o <file> : output wordlist to file
+-h        : show this help
+-v        : show version
+
+--straight       : output format untouched
+--digit          : output format only digits
+--xdigit         : output format only xdigits
+--lower          : output format only lower
+--upper          : output format only upper
+--capital        : output format only capital
+--length=<digit> : password lenght (8...32)
+--help           : show this help
+--version        : show version
+
+examples:
+hcxwltool -i wordlist --straight | sort | uniq |  | sort | uniq | hashcat -m 2500 hashfile.hccapx
+hcxwltool -i wordlist --gigit --length=10 | sort | uniq |  | sort | uniq | hashcat -m 2500 hashfile.hccapx
+hcxwltool -i wordlist --digit | sort | uniq | hashcat -m 16800 hashfile.16800
+hcxwltool -i wordlist --xdigit | sort | uniq | john --stdin --format=wpapsk-opencl hashfile.16800
+
+
 11.02.2019
 ==========
 whoismac: added two new options to convert ESSID HEX to ASCII or ESSID ASCII to HEX 
