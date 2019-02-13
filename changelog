@@ -1,3 +1,11 @@
+13.02.2019
+==========
+hcxpsktool added full support (option -j) for john
+-i <file> : input EAPOL hash file (hashcat)
+-j <file> : input EAPOL hash file (john)
+-z <file> : input PMKID hash file (hashcat and john)
+
+
 12.02.2019
 ==========
 hcxpcaptool: added new option -X

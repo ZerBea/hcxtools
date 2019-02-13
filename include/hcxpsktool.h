@@ -1,5 +1,6 @@
 #define ESSID_LEN_MAX 32
 #define PMKID_LINE_LEN 255
+#define JOHN_LINE_LEN 1024
 #define PSKSTRING_LEN_MAX 64
 
 #define HCXD_NETGEAR			1

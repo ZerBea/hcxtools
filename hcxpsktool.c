@@ -1428,6 +1428,100 @@ fclose(fh_file);
 return;
 }
 /*===========================================================================*/
+static inline int getwpapskfmt(int lenlinein, char *linein)
+{
+static int p;
+static const char *johnformat = "$WPAPSK$";
+
+	for(p = 0; p < lenlinein -8; p++)
+		{
+		if(memcmp(&linein[p], johnformat, 8) == 0)
+			{
+			return p;
+			}
+		}
+return 0;
+}
+/*===========================================================================*/
+static inline void readjohnfile(char *johnname)
+{
+static int len;
+static int aktread = 1;
+static int essidlen;
+static int macp;
+static char *macaddrstop = NULL;
+static unsigned long long int macaddr;
+static FILE *fh_file;
+
+static char linein[JOHN_LINE_LEN];
+
+if((fh_file = fopen(johnname, "r")) == NULL)
+	{
+	fprintf(stderr, "opening hash file failed %s\n", johnname);
+	return;
+	}
+
+while(1)
+	{
+	if((len = fgetline(fh_file, JOHN_LINE_LEN, linein)) == -1)
+		{
+		break;
+		}
+	if(len < 475)
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+	essidlen = getwpapskfmt(len, linein);
+	if(essidlen == 0)
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+	if(essidlen < 2)
+		{
+		aktread++;
+		continue;
+		}
+	essidlen--;
+	if(memcmp(linein, &linein[essidlen +9], essidlen) != 0)
+		{
+		aktread++;
+		continue;
+		}
+
+	macp = (essidlen *2) +10;
+	while((macp < essidlen) || (linein[macp] != ':')) 
+		{
+		macp++;
+		}
+
+	if((linein[macp +18] != ':') || (linein[macp +36] != ':') || (linein[macp +49] != ':'))
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+
+	macaddr = strtoull(linein +macp +37, &macaddrstop, 16);
+	if((macaddrstop -linein) != (macp +49))
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+	printf("%llx %.*s\n", macaddr, essidlen,  linein);
+
+	addapessid(macaddr, essidlen, (uint8_t*)linein);
+
+	aktread++;
+	}
+fclose(fh_file);
+return;
+}
+/*===========================================================================*/
 static inline void readhccapxfile(char *hccapxname)
 {
 static struct stat statinfo;
@@ -1538,8 +1632,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options>\n"
 	"\n"
 	"options:\n"
-	"-i <file> : input EAPOL hash file (hccapx)\n"
-	"-z <file> : input PMKID hash file\n"
+	"-i <file> : input EAPOL hash file (hashcat)\n"
+	"-j <file> : input EAPOL hash file (john)\n"
+	"-z <file> : input PMKID hash file (hashcat and john)\n"
 	"-e <file> : input ESSID\n"
 	"-b <file> : input MAC access point\n"
 	"            format: 112233445566\n"
@@ -1582,12 +1677,13 @@ static int index;
 static FILE *fhpsk;
 
 static char *hccapxname = NULL;
+static char *johnname = NULL;
 static char *pmkidname = NULL;
 static char *essidname = NULL;
 static char *macapname = NULL;
 static char *pskname = NULL;
 
-static const char *short_options = "i:z:o:e:b:o:hv";
+static const char *short_options = "i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
@@ -1640,6 +1736,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		hccapxname = optarg;
 		break;
 
+		case 'j':
+		johnname = optarg;
+		break;
+
 		case 'z':
 		pmkidname = optarg;
 		break;
@@ -1688,6 +1788,11 @@ if(pmkidname != NULL)
 if(hccapxname != NULL)
 	{
 	readhccapxfile(hccapxname);
+	}
+
+if(johnname != NULL)
+	{
+	readjohnfile(johnname);
 	}
 
 if(apessidliste == NULL)
