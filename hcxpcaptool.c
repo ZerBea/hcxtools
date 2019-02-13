@@ -914,15 +914,11 @@ if(trafficoutname != NULL)
 			{
 			if(c == 0)
 				{
-				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
-				fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
 				}
 			else if((memcmp(zeigerold->mac_ap, zeiger->mac_ap, 6) != 0) && (memcmp(zeigerold->mac_sta, zeiger->mac_sta, 6) != 0) && (memcmp(zeigerold, zeiger->essid, 32) != 0))
 				{
-				fwritetimestamphigh(zeiger->tv_sec, fhoutlist);
-				fprintf(fhoutlist, "%08x:", zeiger->tv_sec);
 				fwriteaddr1addr2(zeiger->mac_sta, zeiger->mac_ap, fhoutlist);
 				fwriteessidstr(zeiger->essidlen, zeiger->essid, fhoutlist); 
 				}
