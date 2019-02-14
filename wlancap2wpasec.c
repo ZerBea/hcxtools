@@ -62,8 +62,6 @@ struct curl_httppost *lastptr=NULL;
 struct curl_slist *headerlist=NULL;
 static const char buf[] = "Expect:";
 
-static char bufemail[128];
-
 printf("uploading %s to %s\n", sendcapname, wpasecurl);
 curl_global_init(CURL_GLOBAL_ALL);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
@@ -80,8 +78,7 @@ if(curl)
 		}
 	if(emailheader != NULL)
 		{
-		snprintf(bufemail, 120, "email=%s", emailheader);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, bufemail);
+		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "email", CURLFORM_COPYCONTENTS, emailheader, CURLFORM_END);
 		}
 	res = curl_easy_perform(curl);
 	if(res == CURLE_OK)
