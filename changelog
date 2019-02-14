@@ -3,9 +3,6 @@
 wlancap2wpasec: added new option -e
 -e <email address> : set email address, if requiered
 
-used call to send the email address: CURLOPT_POSTFIELDS:
-"email=testmail@test.com"
-
 
 13.02.2019
 ==========
