@@ -80,7 +80,7 @@ if(curl)
 		}
 	if(emailheader != NULL)
 		{
-		strcpy(bufemail, emailheader);
+		snprintf(bufemail, 120, "email=%s", emailheader);
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, bufemail);
 		}
 	res = curl_easy_perform(curl);
@@ -181,7 +181,7 @@ while ((auswahl = getopt(argc, argv, "k:u:t:e:Rhv")) != -1)
 
 		case 'e':
 		emailaddr = optarg;
-		if(strlen(emailaddr) > 126)
+		if(strlen(emailaddr) > 120)
 			{
 			fprintf(stderr, "email address is too long\n");
 			exit (EXIT_FAILURE);
