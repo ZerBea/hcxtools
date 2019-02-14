@@ -50,7 +50,7 @@ curl_global_cleanup();
 return res;
 }
 /*===========================================================================*/
-static bool sendcap2wpasec(char *sendcapname, long int timeout, char *keyheader)
+static bool sendcap2wpasec(char *sendcapname, long int timeout, char *keyheader, char *emailheader)
 {
 CURL *curl;
 CURLcode res;
@@ -62,6 +62,8 @@ struct curl_httppost *lastptr=NULL;
 struct curl_slist *headerlist=NULL;
 static const char buf[] = "Expect:";
 
+static char bufemail[128];
+
 printf("uploading %s to %s\n", sendcapname, wpasecurl);
 curl_global_init(CURL_GLOBAL_ALL);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
@@ -72,9 +74,15 @@ if(curl)
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-	if (keyheader) {
+	if(keyheader)
+		{
 		curl_easy_setopt(curl, CURLOPT_COOKIE, keyheader);
-	}
+		}
+	if(emailheader != NULL)
+		{
+		strcpy(bufemail, emailheader);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, bufemail);
+		}
 	res = curl_easy_perform(curl);
 	if(res == CURLE_OK)
 		{
@@ -109,13 +117,14 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"       %s <options> *.*\n"
 	"\n"
 	"options:\n"
-	"-k <key>     : wpa-sec user key\n"
-	"-u <url>     : set user defined URL\n"
-	"               default = %s\n"
-	"-t <seconds> : set connection timeout\n"
-	"               default = 30 seconds\n"
-	"-R           : remove cap if upload was successful\n"
-	"-h           : this help\n"
+	"-k <key>           : wpa-sec user key\n"
+	"-u <url>           : set user defined URL\n"
+	"                     default = %s\n"
+	"-t <seconds>       : set connection timeout\n"
+	"                     default = 30 seconds\n"
+	"-e <email address> : set email address, if requiered\n"
+	"-R                 : remove cap if upload was successful\n"
+	"-h                 : this help\n"
 	"\n"
 	"Do not merge different cap files to a single cap file.\n"
 	"This will lead to unexpected behaviour on ESSID changes\n"
@@ -135,22 +144,26 @@ struct stat statinfo;
 int auswahl;
 int index;
 char keyheader[4+32+1] = {0};
+char *emailaddr = NULL;
 long int timeout = 30;
 uploadcountok = 0;
 uploadcountfailed = 0;
 
 setbuf(stdout, NULL);
-while ((auswahl = getopt(argc, argv, "k:u:t:Rhv")) != -1)
+while ((auswahl = getopt(argc, argv, "k:u:t:e:Rhv")) != -1)
 	{
 	switch (auswahl)
 		{
 		case 'k':
-		if ((strlen(optarg) == 32) && (optarg[strspn(optarg, "0123456789abcdefABCDEF")] == 0)) {
+		if((strlen(optarg) == 32) && (optarg[strspn(optarg, "0123456789abcdefABCDEF")] == 0))
+			{
 			snprintf(keyheader, sizeof(keyheader), "key=%s32", optarg);
 			printf("\x1B[32muser key set\x1B[0m\n");
-		} else {
+			}
+		else
+			{
 			fprintf(stderr, "wrong user key value\n");
-		}
+			}
 		break;
 
 		case 'u':
@@ -163,6 +176,15 @@ while ((auswahl = getopt(argc, argv, "k:u:t:Rhv")) != -1)
 			{
 			fprintf(stderr, "wrong connection timeout\nsetting connection timeout to 30 seconds\n");
 			timeout = 30;
+			}
+		break;
+
+		case 'e':
+		emailaddr = optarg;
+		if(strlen(emailaddr) > 126)
+			{
+			fprintf(stderr, "email address is too long\n");
+			exit (EXIT_FAILURE);
 			}
 		break;
 
@@ -182,9 +204,9 @@ for(index = optind; index < argc; index++)
 	{
 	if(stat(argv[index], &statinfo) == 0)
 		{
-		if(sendcap2wpasec(argv[index], timeout, keyheader) == false)
+		if(sendcap2wpasec(argv[index], timeout, keyheader, emailaddr) == false)
 			{
-			if(sendcap2wpasec(argv[index], 60, keyheader) == true)
+			if(sendcap2wpasec(argv[index], 60, keyheader, emailaddr) == true)
 				{
 				uploadcountok++;
 				}
