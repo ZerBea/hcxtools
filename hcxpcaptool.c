@@ -37,19 +37,6 @@
 #include "include/hashcatops.c"
 #include "include/johnops.c"
 
-#ifdef __BYTE_ORDER__
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define BIG_ENDIAN_HOST
-#endif
-#else
-#ifdef __OpenBSD__
-# include <endian.h>
-# if BYTE_ORDER == BIG_ENDIAN
-#   define BIG_ENDIAN_HOST
-# endif
-#endif
-#endif
-
 #define MAX_TV_DIFF 600000000llu
 
 #define MAX_RC_DIFF 8
