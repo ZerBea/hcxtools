@@ -262,7 +262,7 @@ typedef struct qos_frame qos_t;
  */
 struct mac_frame
 {
-#if BIG_ENDIAN_HOST
+#ifdef BIG_ENDIAN_HOST
  unsigned	subtype : 4;
  unsigned	type : 	2;
  unsigned	version : 2;
