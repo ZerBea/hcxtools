@@ -9,7 +9,6 @@ if(ki & WPA_KEY_INFO_ACK)
 		{
 		/* handshake 3 */
 		return 3;
-
 		}
 	else
 		{
@@ -23,7 +22,6 @@ else
 		{
 		/* handshake 4 */
 		return 4;
-
 		}
 	else
 		{

@@ -100,7 +100,7 @@ if(hccap.keyver == 0)
 	hccap.keyver = 3;
 	}
  #ifdef BIG_ENDIAN_HOST
-hccap.eapolsize	= byte_swap_16(hccap.eapolsize);
+hccap.eapol_size	= byte_swap_16(hccap.eapol_size);
 #endif
 
 mac2ascii(ap_mac_long, zeiger->mac_ap);
