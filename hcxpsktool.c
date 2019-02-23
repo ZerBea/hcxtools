@@ -46,13 +46,6 @@ static struct tm *tm;
 apessidliste = NULL;
 apessidcount = 0;
 
-netgearflag = false;
-weakpassflag = false;
-eudateflag = false;
-usdateflag = false;
-wpskeysflag = false;
-test006064flag = false;
-
 t = time(NULL);
 tm = localtime(&t);
 thisyear = tm->tm_year +1900;
@@ -1704,6 +1697,13 @@ static char *pmkidname = NULL;
 static char *essidname = NULL;
 static char *macapname = NULL;
 static char *pskname = NULL;
+
+netgearflag = false;
+weakpassflag = false;
+eudateflag = false;
+usdateflag = false;
+wpskeysflag = false;
+test006064flag = false;
 
 static const char *short_options = "i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
