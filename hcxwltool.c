@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libgen.h>
 #include <sys/types.h>
 #include <stdbool.h>
 
@@ -109,7 +110,7 @@ for(p = 0; p < len; p++)
 	}
 lineout[p] = 0;
 
-if((p != px) && ((lineout[0] >= 'a') && (lineout[0] <= 'z'))) 
+if((p != px) && ((lineout[0] >= 'a') && (lineout[0] <= 'z')))
 	{
 	lineout[0] = toupper(linein[0]);
 	fprintf(fh_out, "%s\n", lineout);
@@ -515,7 +516,7 @@ static int handlehex(int len, char *line)
 {
 static char *token = "$HEX[";
 
-if(len >= 6) 
+if(len >= 6)
 	{
 	if((memcmp(line, token, 5) == 0) && (line[len -1] == ']'))
 		{
