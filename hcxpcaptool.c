@@ -2341,11 +2341,11 @@ for(c = 0; c < eapolcount; c++)
 	{
 	if(zeigerea->keyinfo >= 4)
 		{
-		lltimeea = zeigerea->tv_sec *1000000LL +zeigerea->tv_usec;
+		lltimeea = ((uint64_t)zeigerea->tv_sec *1000000) +zeigerea->tv_usec;
 		for(d = 1; d <= c; d++)
 			{
 			zeigereo = zeigerea -d;
-			lltimeeo = zeigereo->tv_sec *1000000LL +zeigereo->tv_usec;
+			lltimeeo = ((uint64_t)zeigereo->tv_sec *1000000) +zeigereo->tv_usec;
 			if(lltimeea > lltimeeo)
 				{
 				timegap = lltimeea -lltimeeo;
@@ -2384,7 +2384,7 @@ for(c = 0; c < eapolcount; c++)
 		for(d = 1; d < eapolcount -c; d++)
 			{
 			zeigereo = zeigerea +d;
-			lltimeeo = zeigereo->tv_sec *1000000LL +zeigereo->tv_usec;
+			lltimeeo = ((uint64_t)zeigereo->tv_sec *1000000) +zeigereo->tv_usec;
 			if(lltimeea > lltimeeo)
 				{
 				timegap = lltimeea -lltimeeo;

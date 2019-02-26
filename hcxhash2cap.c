@@ -53,7 +53,7 @@ static void globalinit()
 
 srand(time(NULL));
 gettimeofday(&tv, NULL);
-timestamp = (tv.tv_sec * 1000000) + tv.tv_usec;
+timestamp = ((uint64_t)tv.tv_sec * 1000000) + tv.tv_usec;
 mybeaconsequence = rand() %4096;
 myaponlinetime = rand();
 myapchannel = (rand() %12) +1;
