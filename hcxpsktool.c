@@ -35,7 +35,7 @@ static bool eudateflag;
 static bool usdateflag;
 static bool wpskeysflag;
 
-static bool test006064flag;
+static bool ukrtelecomflag;
 
 /*===========================================================================*/
 static void globalinit()
@@ -981,6 +981,34 @@ if(essidlen == 9)
 return;
 }
 /*===========================================================================*/
+static void testukrtelecom(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k;
+static char *ukrtelekom = "UKrtelecom";
+
+static char essidtmp[PSKSTRING_LEN_MAX] = {};
+
+if(ukrtelecomflag == true)
+	{
+	return;
+	}
+if(essidlen < 10)
+	{
+	return;
+	}
+if(memcmp(essid, ukrtelekom, 10) != 0)
+	{
+	return;
+	}
+for(k = 0; k < 10000; k++)
+		{
+		snprintf(essidtmp, PSKSTRING_LEN_MAX, "UKR_%04d", k);
+		writepsk(fhout, essidtmp);
+		}
+ukrtelecomflag = true;
+return;
+}
+/*===========================================================================*/
 static void testwifirsu(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
@@ -1040,6 +1068,7 @@ testmtel(fhout, essidlen, essid);
 testmywifi(fhout, essidlen, essid);
 testroamingman(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
+testukrtelecom(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 
 writeessidsweeped(fhout, essidlen, essid);
@@ -1707,7 +1736,7 @@ weakpassflag = false;
 eudateflag = false;
 usdateflag = false;
 wpskeysflag = false;
-test006064flag = false;
+ukrtelecomflag = false;
 
 static const char *short_options = "i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
