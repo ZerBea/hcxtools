@@ -1,6 +1,6 @@
 07.03.2019
 ==========
-hcxpcaptool added gpx comment field for GPX time from GSP device 
+hcxpcaptool added GPX comment field for GPS time from GPS device 
 
 <?xml version="1.0"?>
 <gpx version="1.0" creator="hcxpcaptool"
