@@ -1,3 +1,24 @@
+07.03.2019
+==========
+hcxpcaptool added gpx comment field for GPX time from GSP device 
+
+<?xml version="1.0"?>
+<gpx version="1.0" creator="hcxpcaptool"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://www.topografix.com/GPX/1/0"
+xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+<name>test3.gpx</name>
+<trk>
+  <name>dntest.pcapng</name>
+  <trkseg>
+  <trkpt lat="49.126353" lon="4.626187">
+    <ele>129.500000</ele>
+    <time>2019-03-06T22:27:45Z</time>
+    <name>1af87c9124a3</name>
+    <cmt>GPS-TIME:2019-03-06T22:28:00Z</cmt>
+  </trkpt>
+
+
 26.02.2019
 ==========
 hcxtools moved to version 5.1.3 due several bug fixes

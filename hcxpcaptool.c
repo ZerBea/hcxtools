@@ -185,6 +185,15 @@ static long double lat = 0;
 static long double lon = 0;
 static long double alt = 0;
 
+static int day = 0;
+static int month = 0;
+static int year = 0;
+static int hour = 0;
+static int minute = 0;
+static int second = 0;
+
+
+
 char *hexmodeoutname;
 char *hccapxbestoutname;
 char *hccapxrawoutname;
@@ -3874,7 +3883,7 @@ if(gpxflag == true)
 			macsrc = (macsrc << 8) + macf->addr2[3];
 			macsrc = (macsrc << 8) + macf->addr2[4];
 			macsrc = (macsrc << 8) + macf->addr2[5];
-			fprintf(fhgpx, "  <trkpt lat=\"%Lf\" lon=\"%LF\">\n    <name>%012llx</name>\n    <ele>%Lf</ele>\n%s\n  </trkpt>\n", lat, lon, macsrc, alt, timestring);
+			fprintf(fhgpx, "  <trkpt lat=\"%Lf\" lon=\"%LF\">\n    <ele>%Lf</ele>\n%s\n    <name>%012llx</name>\n    <cmt>GPS-TIME:%04d-%02d-%02dT%02d:%02d:%02dZ</cmt>\n  </trkpt>\n", lat, lon, alt, timestring, macsrc, year, month, day, hour, minute, second);
 			}
 		}
 	}
@@ -4167,6 +4176,9 @@ uint16_t olpad;
 option_header_t opthdr;
 
 char *gpsdptr;
+
+char *gpsd_date = "date:";
+char *gpsd_time = "time:";
 char *gpsd_lat = "lat:";
 char *gpsd_lon = "lon:";
 char *gpsd_alt = "alt:";
@@ -4213,6 +4225,12 @@ while(1)
 		lat = 0;
 		lon = 0;
 		alt = 0;
+		day = 0;
+		month = 0;
+		year = 0;
+		hour = 0;
+		minute = 0;
+		second = 0;
 		if((gpsdptr = strstr(pcapngoptioninfo, gpsd_lat)) != NULL)
 			{
 			sscanf(gpsdptr +4, "%Lf", &lat);
@@ -4224,6 +4242,14 @@ while(1)
 		if((gpsdptr = strstr(pcapngoptioninfo, gpsd_alt)) != NULL)
 			{
 			sscanf(gpsdptr +4, "%Lf", &alt);
+			}
+		if((gpsdptr = strstr(pcapngoptioninfo, gpsd_date)) != NULL)
+			{
+			sscanf(gpsdptr +5, "%d.%d.%d", &day, &month, &year);
+			}
+		if((gpsdptr = strstr(pcapngoptioninfo, gpsd_time)) != NULL)
+			{
+			sscanf(gpsdptr +5, "%d:%d:%d", &hour, &minute, &second);
 			}
 		if((lat != 0) && (lon != 0))
 			{
