@@ -1,3 +1,8 @@
+09.03.2019
+==========
+hcxtools moved to version 5.1.3 due to change of pcapng comment field
+
+
 07.03.2019
 ==========
 hcxpcaptool added GPX comment field for GPS time from GPS device 
@@ -21,7 +26,7 @@ xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/
 
 26.02.2019
 ==========
-hcxtools moved to version 5.1.3 due several bug fixes
+hcxtools moved to version 5.1.3 due to several bug fixes
 
 
 18.02.2019
