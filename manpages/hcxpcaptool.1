@@ -8,7 +8,7 @@ hcxpcaptool - convert pcapng, pcap, cap files
 
 .SH DESCRIPTION
 .BI hcxpcaptool
-is a tool to convert pcapng, pcap, cap files  it to other hashformats accepted by hashcat and John the Ripper.
+is a tool to convert pcapng, pcap, cap files to other hashformats accepted by hashcat and John the Ripper
 
 .SH AUTHOR
 This manual page was written by Mike (ZeroBeat).
@@ -23,73 +23,20 @@ furnished to do so. License MIT
 .TP
 .B Common options:
 .TP
-.I -o <file>
-output hccapx file (hashcat -m 2500/2501)
+.I -c <file>
+output cap file
 .TP
-.I -O <file>
-output raw hccapx file (hashcat -m 2500/2501)
+.I --pmkid=<file>
+input PMKID hash file
 .TP
-.I -z <file>
-output PMKID file (hashcat hashmode -m 16800)
+.I --hccapx=<file>
+input hashcat hccapx file
 .TP
-.I -j <file>
-output john WPAPSK-PMK file (john wpapsk-opencl)
+.I --hccap=<file>
+input hashcat hccap file
 .TP
-.I -J <file>
-output raw john WPAPSK-PMK file (john wpapsk-opencl)
-.TP
-.I -E <file>
-output wordlist (autohex enabled) to use as input wordlist for cracker
-.TP
-.B Other options:
-.TP
-.I -X <file>
-output client probelist
-.TP
-.I -I <file>
-output unsorted identity list
-.TP
-.I -U <file>
-output unsorted username list
-.TP
-.I -P <file>
-output possible WPA/WPA2 plainmasterkey list
-.TP
-.I -T <file>
-output management traffic information list
-.TP
-.I -g <file>
-output GPS file
-.TP
-.I --nonce-error-corrections=<digit>
-maximum allowed nonce gap (default: 8)
-.TP
-.I --netntlm-out=<file>
-output netNTLMv1 file (hashcat -m 5500, john netntlm)
-.TP
-.I --md5-out=<file>
-output MD5 challenge file (hashcat -m 4800)
-.TP
-.I --md5-john-out=<file>
-output MD5 challenge file (john chap)
-.TP
-.I --tacacsplus-out=<file>
-output TACACS+ authentication file (hashcat -m 16100, john tacacs-plus)
-.TP
-.I --eapol-out=<file>
-output EAPOL packets in hex
-.TP
-.I --network-out=<file>
-output network information
-.TP
-.I --hexdump-out=<file>
-output dump raw packets in hex
-.TP
-.I --hccap-out=<file>
-output old hccap file (hashcat -m 2500)
-.TP
-.I --hccap-raw-out=<file>
-output raw old hccap file (hashcat -m 2500)
+.I --john=<file>
+input John the Ripper WPAPSK hash file
 .TP
 .I -h or --help
 show help screen
