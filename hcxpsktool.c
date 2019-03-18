@@ -592,7 +592,7 @@ static void writeessidsweeped(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int l1, l2;
 static uint8_t sweepstring[PSKSTRING_LEN_MAX] = {};
 
-for(l1 = 3; l1 <= essidlen; l1++)
+for(l1 = 2; l1 <= essidlen; l1++)
 	{
 	for(l2 = 0; l2 <= essidlen -l1; l2++)
 		{
@@ -600,7 +600,7 @@ for(l1 = 3; l1 <= essidlen; l1++)
 		memcpy(&sweepstring, &essid[l2], l1);
 		if(writeessidremoved(fhout, l1, sweepstring) == true)
 			{
-			writepsk(fhout, (char*)sweepstring);
+			writeessidadd(fhout, (char*)sweepstring);
 			}
 		}
 	}
