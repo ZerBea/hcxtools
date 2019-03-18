@@ -106,6 +106,13 @@ return uploadflag;
 }
 /*===========================================================================*/
 __attribute__ ((noreturn))
+void version(char *eigenname)
+{
+printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
+exit(EXIT_SUCCESS);
+}
+/*---------------------------------------------------------------------------*/
+__attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
@@ -123,6 +130,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-e <email address> : set email address, if requiered\n"
 	"-R                 : remove cap if upload was successful\n"
 	"-h                 : this help\n"
+	"-h                 : show version\n"
 	"\n"
 	"Do not merge different cap files to a single cap file.\n"
 	"This will lead to unexpected behaviour on ESSID changes\n"
@@ -188,6 +196,10 @@ while ((auswahl = getopt(argc, argv, "k:u:t:e:Rhv")) != -1)
 
 		case 'R':
 		removeflag = true;
+		break;
+
+		case 'v':
+		version(basename(argv[0]));
 		break;
 
 		default:
