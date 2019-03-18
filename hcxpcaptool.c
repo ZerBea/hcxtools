@@ -64,6 +64,7 @@
 #define HCXT_GPX_OUT		'g'
 #define HCXT_IDENTITY_OUT	'I'
 #define HCXT_USERNAME_OUT	'U'
+#define HCXT_IMSI_OUT		'M'
 #define HCXT_PMK_OUT		'P'
 #define HCXT_VERBOSE_OUT	'V'
 #define HCXT_HELP		'h'
@@ -192,8 +193,6 @@ static int hour = 0;
 static int minute = 0;
 static int second = 0;
 
-
-
 char *hexmodeoutname;
 char *hccapxbestoutname;
 char *hccapxrawoutname;
@@ -209,6 +208,7 @@ char *gpxoutname;
 char *pmkoutname;
 char *identityoutname;
 char *useroutname;
+char *imsioutname;
 char *netntlm1outname;
 char *md5outname;
 char *md5johnoutname;
@@ -259,6 +259,7 @@ gpxoutname = NULL;
 pmkoutname = NULL;
 identityoutname = NULL;
 useroutname = NULL;
+imsioutname = NULL;
 netntlm1outname = NULL;
 md5outname = NULL;
 md5johnoutname = NULL;
@@ -1737,6 +1738,47 @@ if(identityoutname != NULL)
 	if((fhoutlist = fopen(identityoutname, "a+")) != NULL)
 		{
 		fwriteessidstr(idlen -idcount, (packet +idcount), fhoutlist);
+		fclose(fhoutlist);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+void outlistimsi(uint32_t idlen, uint8_t *packet)
+{
+FILE *fhoutlist = NULL;
+uint32_t idcount = 5;
+
+if(idlen <= idcount)
+	{
+	return;
+	}
+
+if((packet[idcount] == 0) && (idlen > idcount +1))
+	{
+	idcount++;
+	if((packet[idcount] == 0) && (idlen <= idcount +1))
+		{
+		return;
+		}
+	}
+if((idlen -idcount) < 17)
+	{
+	return;
+	}
+if(packet[idcount] != '0')
+	{
+	return;
+	}
+if(packet[idcount +16] != '@')
+	{
+	return;
+	}
+if(imsioutname != NULL)
+	{
+	if((fhoutlist = fopen(imsioutname, "a+")) != NULL)
+		{
+		fwriteessidstr(15, (packet +idcount +1), fhoutlist);
 		fclose(fhoutlist);
 		}
 	}
@@ -3325,6 +3367,7 @@ if(exeap->exttype == EAP_TYPE_ID)
 	if(eaplen != 0)
 		{
 		outlistidentity(eaplen, packet +EAPAUTH_SIZE);
+		outlistimsi(eaplen, packet +EAPAUTH_SIZE);
 		}
 	}
 else if(exeap->exttype == EAP_TYPE_LEAP)
@@ -5078,6 +5121,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"          : format: mac_sta:probed ESSID (autohex enabled)\n"
 	"-I <file> : output unsorted identity list\n"
 	"-U <file> : output unsorted username list\n"
+	"-M <file> : output unsorted IMSI number list\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
@@ -5140,7 +5184,7 @@ char *gpxhead = "<?xml version=\"1.0\"?>\n"
 
 char *gpxtail = "</gpx>\n";
 
-static const char *short_options = "o:O:z:j:J:E:X:I:U:P:T:g:H:Vhv";
+static const char *short_options = "o:O:z:j:J:E:X:I:U:M:P:T:g:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
@@ -5279,6 +5323,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_USERNAME_OUT:
 		useroutname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_IMSI_OUT:
+		imsioutname = optarg;
 		verboseflag = true;
 		break;
 

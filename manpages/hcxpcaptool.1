@@ -23,20 +23,81 @@ furnished to do so. License MIT
 .TP
 .B Common options:
 .TP
-.I -c <file>
-output cap file
+.I -o <file>
+output hccapx file (hashcat -m 2500/2501)
 .TP
-.I --pmkid=<file>
-input PMKID hash file
+.I -O <file>
+output raw hccapx file (hashcat -m 2500/2501)
 .TP
-.I --hccapx=<file>
-input hashcat hccapx file
+.I -z <file>
+output PMKID file (hashcat hashmode -m 16800)
 .TP
-.I --hccap=<file>
-input hashcat hccap file
+.I -j <file>
+output john WPAPSK-PMK file (john wpapsk-opencl)
 .TP
-.I --john=<file>
-input John the Ripper WPAPSK hash file
+.I -J <file>
+output raw john WPAPSK-PMK file (john wpapsk-opencl)
+.TP
+.I -E <file>
+output wordlist (autohex enabled) to use as input wordlist for cracker
+.TP
+.I -X <file>
+output client probelist
+.TP
+.I -I <file>
+output unsorted identity list
+.TP
+.I -U <file>
+output unsorted username list
+.TP
+.I -M <file>
+output unsorted IMSI number list
+.TP
+.I -P <file>
+output possible WPA/WPA2 plainmasterkey list
+.TP
+.I -T <file>
+output management traffic information list
+.I -g <file>
+output GPS file
+.TP
+.I -V
+verbose (but slow) status output
+.TP
+.B Other options:
+.TP
+.I --time-error-corrections=<digit>
+maximum allowed time gap (default: 600s)
+.TP
+.I --nonce-error-corrections=<digit>
+maximum allowed nonce gap (default: 8)
+.TP
+.I --netntlm-out=<file>
+output netNTLMv1 file (hashcat -m 5500, john netntlm)
+.TP
+.I --md5-out=<file>
+output MD5 challenge file (hashcat -m 4800)
+.TP
+.I --md5-john-out=<file>
+output MD5 challenge file (john chap)
+.TP
+.I --tacacsplus-out=<file>
+output TACACS+ authentication file (hashcat -m 16100, john tacacs-plus)
+.TP
+.I --eapol-out=<file>
+output EAPOL packets in hex
+.TP
+.I --network-out=<file>
+output network information
+.TP
+.I --hexdump-out=<file>
+output dump raw packets in hex
+.TP
+.I --hccap-out=<file>
+output old hccap file (hashcat -m 2500)
+.TP
+.I --hccap-raw-out=<file>
+output raw old hccap file (hashcat -m 2500)
 .TP
 .I -h or --help
 show help screen
