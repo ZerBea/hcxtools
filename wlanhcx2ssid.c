@@ -850,12 +850,18 @@ if(stat(ouinamesystemwide, &statinfo) == 0)
 	ouiname = ouinamesystemwide;
 	fprintf(stdout, "using systemwide %s\n", ouiname);
 	}
-else if(stat(ouinameuserpath, &statinfo) == 0)
+if(stat(ouinameuserpath, &statinfo) == 0)
 	{
 	ouiname = ouinameuserpath;
 	fprintf(stdout, "using user defined %s\n", ouiname);
 	}
-else
+if(ouiname == NULL)
+	{
+	fprintf(stderr, "failed read oui.txt\n"
+			"run whoismac -d to download oui.txt\n");
+	exit(EXIT_FAILURE);
+	}
+if(stat(ouiname, &statinfo) < 0)
 	{
 	fprintf(stderr, "failed read oui.txt\n"
 			"run whoismac -d to download oui.txt\n");

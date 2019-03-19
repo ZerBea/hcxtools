@@ -566,19 +566,26 @@ if(stat(ouinamesystemwide, &statinfo) == 0)
 	{
 	ouiname = ouinamesystemwide;
 	}
-else if(stat(ouinameuser, &statinfo) == 0)
+if(stat(ouinameuser, &statinfo) == 0)
 	{
 	ouiname = ouinameuser;
 	}
-else
+if(ouiname == NULL)
 	{
-	fprintf(stderr, "can't locate oui.txt\n"
+	fprintf(stderr, "failed read oui.txt\n"
 			"use download option -d to download it\n"
 			"or download file http://standards-oui.ieee.org/oui.txt\n"
 			"and save it to ~.hcxtools/oui.txt\n");
 	exit(EXIT_FAILURE);
 	}
-
+if(stat(ouiname, &statinfo) < 0)
+	{
+	fprintf(stderr, "failed read oui.txt\n"
+			"use download option -d to download it\n"
+			"or download file http://standards-oui.ieee.org/oui.txt\n"
+			"and save it to ~.hcxtools/oui.txt\n");
+	exit(EXIT_FAILURE);
+	}
 if(mode == 'm')
 	{
 	getoui(ouiname, oui);
