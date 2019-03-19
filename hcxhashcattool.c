@@ -253,7 +253,7 @@ memset(&pmktmp, 0, PMKLIST_SIZE);
 
 if(potlinelen < 59)
 	{
-	printf("line lenth exception: %s\n", potline);
+	printf("line length exception: %s\n", potline);
 	return;
 	}
 if((potline[32] != ':') && (potline[32]  != '*'))
