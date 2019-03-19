@@ -1,3 +1,9 @@
+19.03.2019
+==========
+wlanhcx2ssid: use systemwide oui.txt (/usr/share/ieee-data/oui.txt), if exist
+whoismac: use systemwide oui.txt (/usr/share/ieee-data/oui.txt), if exist
+
+
 18.03.2019
 ==========
 wlancap2wpasec: added man 1 page

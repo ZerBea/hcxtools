@@ -25,14 +25,14 @@
 #define LINEBUFFER 256
 
 /*===========================================================================*/
-static bool downloadoui(const char *ouiname)
+static bool downloadoui(char *ouiname)
 {
-CURLcode ret;
-CURL *hnd;
+static CURLcode ret;
+static CURL *hnd;
 
-FILE* fhoui;
+static FILE* fhoui;
 
-printf("start downloading oui from http://standards-oui.ieee.org to: ~/%s\n", ouiname);
+printf("start downloading oui from http://standards-oui.ieee.org to: %s\n", ouiname);
 
 if((fhoui = fopen(ouiname, "w")) == NULL)
 	{
@@ -61,8 +61,9 @@ return true;
 /*===========================================================================*/
 static size_t chop(char *buffer,  size_t len)
 {
-char *ptr = buffer +len -1;
+static char *ptr;
 
+ptr = buffer +len -1;
 while (len) {
 	if (*ptr != '\n') break;
 	*ptr-- = 0;
@@ -93,7 +94,7 @@ return len;
 static void getessidinfo(char *essidname)
 {
 static int l, p;
-uint8_t essidbuffer[66];
+static uint8_t essidbuffer[66];
 
 l = strlen(essidname);
 if((l < 2) || (l > 64))
@@ -137,25 +138,25 @@ fprintf(stdout, "\n");
 return;
 }
 /*===========================================================================*/
-static void get16800info(const char *ouiname, char *hash16800line)
+static void get16800info(char *ouiname, char *hash16800line)
 {
-int len;
-int l, l1;
-FILE* fhoui;
-char *vendorptr;
-char *essidptr;
-char *passwdptr;
+static int len;
+static int l, l1;
+static FILE* fhoui;
+static char *vendorptr;
+static char *essidptr;
+static char *passwdptr;
 
-unsigned long long int macap;
-unsigned long long int macsta;
-unsigned long long int ouiap;
-unsigned long long int ouista;
-unsigned long long int vendoroui;
+static unsigned long long int macap;
+static unsigned long long int macsta;
+static unsigned long long int ouiap;
+static unsigned long long int ouista;
+static unsigned long long int vendoroui;
 
-char linein[LINEBUFFER];
-uint8_t essidbuffer[66];
-char vendorapname[256];
-char vendorstaname[256];
+static char linein[LINEBUFFER];
+static uint8_t essidbuffer[66];
+static char vendorapname[256];
+static char vendorstaname[256];
 
 sscanf(&hash16800line[33], "%12llx", &macap);
 ouiap = macap >> 24;
@@ -239,25 +240,25 @@ fclose(fhoui);
 return;
 }
 /*===========================================================================*/
-static void get2500info(const char *ouiname, char *hash2500line)
+static void get2500info(char *ouiname, char *hash2500line)
 {
-int len;
-int l, l1;
-FILE* fhoui;
-char *vendorptr;
-char *essidptr;
-char *passwdptr;
+static int len;
+static int l, l1;
+static FILE* fhoui;
+static char *vendorptr;
+static char *essidptr;
+static char *passwdptr;
 
-unsigned long long int macap;
-unsigned long long int macsta;
-unsigned long long int ouiap;
-unsigned long long int ouista;
-unsigned long long int vendoroui;
+static unsigned long long int macap;
+static unsigned long long int macsta;
+static unsigned long long int ouiap;
+static unsigned long long int ouista;
+static unsigned long long int vendoroui;
 
-char linein[LINEBUFFER];
-uint8_t essidbuffer[72];
-char vendorapname[256];
-char vendorstaname[256];
+static char linein[LINEBUFFER];
+static uint8_t essidbuffer[72];
+static char vendorapname[256];
+static char vendorstaname[256];
 
 sscanf(&hash2500line[33], "%12llx", &macap);
 ouiap = macap >> 24;
@@ -331,14 +332,14 @@ fclose(fhoui);
 return;
 }
 /*===========================================================================*/
-static void getoui(const char *ouiname, unsigned long long int oui)
+static void getoui(char *ouiname, unsigned long long int oui)
 {
-int len;
-FILE* fhoui;
-char *vendorptr;
-unsigned long long int vendoroui;
-char linein[LINEBUFFER];
-char vendorapname[256];
+static int len;
+static FILE* fhoui;
+static char *vendorptr;
+static unsigned long long int vendoroui;
+static char linein[LINEBUFFER];
+static char vendorapname[256];
 
 if ((fhoui = fopen(ouiname, "r")) == NULL)
 	{
@@ -372,13 +373,13 @@ fclose(fhoui);
 return;
 }
 /*===========================================================================*/
-static void getvendor(const char *ouiname, char *vendorstring)
+static void getvendor(char *ouiname, char *vendorstring)
 {
-int len;
+static int len;
 
-FILE* fhoui;
-char *vendorptr;
-unsigned long long int vendoroui;
+static FILE* fhoui;
+static char *vendorptr;
+static unsigned long long int vendoroui;
 
 char linein[LINEBUFFER];
 
@@ -433,22 +434,24 @@ exit(EXIT_SUCCESS);
 /*===========================================================================*/
 int main(int argc, char *argv[])
 {
-int auswahl;
-int mode = 0;
-int ret;
-int l;
-unsigned long long int oui = 0;
+static int auswahl;
+static int mode = 0;
+static int ret;
+static int l;
+static unsigned long long int oui = 0;
 
-uid_t uid;
-struct passwd *pwd;
-struct stat statinfo;
-char *vendorname = NULL;
-char *hexessidname = NULL;
-char *essidname = NULL;
-char *hash16800line = NULL;
-char *hash2500line = NULL;
-const char confdirname[] = ".hcxtools";
-const char ouiname[] = ".hcxtools/oui.txt";
+static uid_t uid;
+static struct passwd *pwd;
+static struct stat statinfo;
+static char *vendorname = NULL;
+static char *hexessidname = NULL;
+static char *essidname = NULL;
+static char *hash16800line = NULL;
+static char *hash2500line = NULL;
+static char *ouiname = NULL;
+static char *confdirname = ".hcxtools";
+static char *ouinameuser = ".hcxtools/oui.txt";
+static char *ouinamesystemwide = "/usr/share/ieee-data/oui.txt";
 
 while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 	{
@@ -529,36 +532,50 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 		}
 	}
 
+if(argc > 3)
+	{
+	fprintf(stderr, "only one argument allowed\n");
+	exit(EXIT_FAILURE);
+	}
 uid = getuid();
 pwd = getpwuid(uid);
-if (pwd == NULL)
+if(pwd == NULL)
 	{
-	fprintf(stdout, "failed to get home dir\n");
+	fprintf(stderr, "failed to get home dir\n");
 	exit(EXIT_FAILURE);
 	}
 ret = chdir(pwd->pw_dir);
-if( ret == -1)
-	fprintf(stdout, "failed to change dir\n");
-
+if(ret == -1)
+	{
+	fprintf(stderr, "failed to change dir\n");
+	}
 if(stat(confdirname, &statinfo) == -1)
 	{
-	if (mkdir(confdirname,0755) == -1)
+	if(mkdir(confdirname,0755) == -1)
 		{
-		fprintf(stdout, "failed to create conf dir\n");
+		fprintf(stderr, "failed to create conf dir\n");
 		exit(EXIT_FAILURE);
 		}
 	}
-
-
 if(mode == 'd')
-	downloadoui(ouiname);
-
-if(stat(ouiname, &statinfo) != 0)
 	{
-	fprintf(stderr, "can't stat %s\n"
+	downloadoui(ouinameuser);
+	}
+
+if(stat(ouinamesystemwide, &statinfo) == 0)
+	{
+	ouiname = ouinamesystemwide;
+	}
+else if(stat(ouinameuser, &statinfo) == 0)
+	{
+	ouiname = ouinameuser;
+	}
+else
+	{
+	fprintf(stderr, "can't locate oui.txt\n"
 			"use download option -d to download it\n"
 			"or download file http://standards-oui.ieee.org/oui.txt\n"
-			"and save it to ~./hcxtools/oui.txt\n", ouiname);
+			"and save it to ~.hcxtools/oui.txt\n");
 	exit(EXIT_FAILURE);
 	}
 
