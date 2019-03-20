@@ -949,6 +949,12 @@ if(apstaessidlistecleaned != NULL)
 	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
 	}
 
+if(apstaessidliste != NULL)
+	{
+	qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+	}
+
+
 essidchangecount = 0;
 if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 	{
@@ -1033,12 +1039,12 @@ if(hccapxrawoutname != NULL)
 		for(c = 0; c < rawhandshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
-			if(apstaessidlistecleaned != NULL)
+			if(apstaessidliste != NULL)
 				{
-				zeigeressid = apstaessidlistecleaned;
+				zeigeressid = apstaessidliste;
 				essidchangecount = 0;
 				memset(&essidold, 0,32);
-				for(d = 0; d < apstaessidcountcleaned; d++)
+				for(d = 0; d < apstaessidcount; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
@@ -1166,12 +1172,12 @@ if(hccaprawoutname != NULL)
 		for(c = 0; c < rawhandshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
-			if(apstaessidlistecleaned != NULL)
+			if(apstaessidliste != NULL)
 				{
-				zeigeressid = apstaessidlistecleaned;
+				zeigeressid = apstaessidliste;
 				essidchangecount = 0;
 				memset(&essidold, 0,32);
-				for(d = 0; d < apstaessidcountcleaned; d++)
+				for(d = 0; d < apstaessidcount; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
@@ -1299,12 +1305,12 @@ if(johnrawoutname != NULL)
 		for(c = 0; c < rawhandshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
-			if(apstaessidlistecleaned != NULL)
+			if(apstaessidliste != NULL)
 				{
-				zeigeressid = apstaessidlistecleaned;
+				zeigeressid = apstaessidliste;
 				memset(&essidold, 0,32);
 				essidchangecount = 0;
-				for(d = 0; d < apstaessidcountcleaned; d++)
+				for(d = 0; d < apstaessidcount; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
