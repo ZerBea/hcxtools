@@ -2720,6 +2720,7 @@ if(apstaessidcount < 1)
 	{
 	return;
 	}
+
 qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_sta);
 
 if((apstaessidlistecleaned = calloc((apstaessidcount), APSTAESSIDLIST_SIZE)) == NULL)
@@ -4814,6 +4815,7 @@ char *pcapart;
 
 fcsflag = false;
 apstaessidliste = NULL;
+apstaessidlistecleaned = NULL;
 eapolliste = NULL;
 pmkidliste = NULL;
 handshakeliste = NULL;
