@@ -944,13 +944,13 @@ if(handshakeliste == NULL)
 	{
 	return;
 	}
-if(apstaessidliste != NULL)
+if(apstaessidlistecleaned != NULL)
 	{
-	qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
 	}
 
 essidchangecount = 0;
-if((apstaessidliste != NULL) && (hccapxbestoutname != NULL))
+if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 	{
 	if((fhoutlist = fopen(hccapxbestoutname, "a+")) != NULL)
 		{
@@ -959,11 +959,11 @@ if((apstaessidliste != NULL) && (hccapxbestoutname != NULL))
 		for(c = 0; c < handshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
-			zeigeressid = apstaessidliste;
+			zeigeressid = apstaessidlistecleaned;
 			essidchangecount = 0;
 			memset(&essidold, 0,32);
 			essidok = 0;
-			for(d = 0; d < apstaessidcount; d++)
+			for(d = 0; d < apstaessidcountcleaned; d++)
 				{
 				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
@@ -988,8 +988,8 @@ if((apstaessidliste != NULL) && (hccapxbestoutname != NULL))
 				}
 			if(essidok == 0)
 				{
-				zeigeressid = apstaessidliste;
-				for(d = 0; d < apstaessidcount; d++)
+				zeigeressid = apstaessidlistecleaned;
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
@@ -1033,12 +1033,12 @@ if(hccapxrawoutname != NULL)
 		for(c = 0; c < rawhandshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
-			if(apstaessidliste != NULL)
+			if(apstaessidlistecleaned != NULL)
 				{
-				zeigeressid = apstaessidliste;
+				zeigeressid = apstaessidlistecleaned;
 				essidchangecount = 0;
 				memset(&essidold, 0,32);
-				for(d = 0; d < apstaessidcount; d++)
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
@@ -1083,7 +1083,7 @@ if(hccapxrawoutname != NULL)
 		}
 	}
 
-if((apstaessidliste != NULL) && (hccapbestoutname != NULL))
+if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 	{
 	if((fhoutlist = fopen(hccapbestoutname, "a+")) != NULL)
 		{
@@ -1092,11 +1092,11 @@ if((apstaessidliste != NULL) && (hccapbestoutname != NULL))
 		for(c = 0; c < handshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
-			zeigeressid = apstaessidliste;
+			zeigeressid = apstaessidlistecleaned;
 			essidchangecount = 0;
 			memset(&essidold, 0,32);
 			essidok = 0;
-			for(d = 0; d < apstaessidcount; d++)
+			for(d = 0; d < apstaessidcountcleaned; d++)
 				{
 				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
@@ -1121,8 +1121,8 @@ if((apstaessidliste != NULL) && (hccapbestoutname != NULL))
 				}
 			if(essidok == 0)
 				{
-				zeigeressid = apstaessidliste;
-				for(d = 0; d < apstaessidcount; d++)
+				zeigeressid = apstaessidlistecleaned;
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
@@ -1166,12 +1166,12 @@ if(hccaprawoutname != NULL)
 		for(c = 0; c < rawhandshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
-			if(apstaessidliste != NULL)
+			if(apstaessidlistecleaned != NULL)
 				{
-				zeigeressid = apstaessidliste;
+				zeigeressid = apstaessidlistecleaned;
 				essidchangecount = 0;
 				memset(&essidold, 0,32);
-				for(d = 0; d < apstaessidcount; d++)
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
@@ -1216,7 +1216,7 @@ if(hccaprawoutname != NULL)
 		}
 	}
 
-if((apstaessidliste != NULL) && (johnbestoutname != NULL))
+if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 	{
 	if((fhoutlist = fopen(johnbestoutname, "a+")) != NULL)
 		{
@@ -1225,11 +1225,11 @@ if((apstaessidliste != NULL) && (johnbestoutname != NULL))
 		for(c = 0; c < handshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
-			zeigeressid = apstaessidliste;
+			zeigeressid = apstaessidlistecleaned;
 			memset(&essidold, 0,32);
 			essidchangecount = 0;
 			essidok = 0;
-			for(d = 0; d < apstaessidcount; d++)
+			for(d = 0; d < apstaessidcountcleaned; d++)
 				{
 				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
@@ -1254,8 +1254,8 @@ if((apstaessidliste != NULL) && (johnbestoutname != NULL))
 				}
 			if(essidok == 0)
 				{
-				zeigeressid = apstaessidliste;
-				for(d = 0; d < apstaessidcount; d++)
+				zeigeressid = apstaessidlistecleaned;
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
@@ -1299,12 +1299,12 @@ if(johnrawoutname != NULL)
 		for(c = 0; c < rawhandshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
-			if(apstaessidliste != NULL)
+			if(apstaessidlistecleaned != NULL)
 				{
-				zeigeressid = apstaessidliste;
+				zeigeressid = apstaessidlistecleaned;
 				memset(&essidold, 0,32);
 				essidchangecount = 0;
-				for(d = 0; d < apstaessidcount; d++)
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
@@ -1362,8 +1362,8 @@ FILE *fhoutlist = NULL;
 uint8_t essidold[ESSID_LEN_MAX];
 
 essidchangecount = 0;
-qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
-if((apstaessidliste != NULL) && (hcpmkidaoutname != NULL))
+qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+if((apstaessidlistecleaned != NULL) && (hcpmkidaoutname != NULL))
 	{
 	if((fhoutlist = fopen(hcpmkidaoutname, "a+")) != NULL)
 		{
@@ -1371,11 +1371,11 @@ if((apstaessidliste != NULL) && (hcpmkidaoutname != NULL))
 		zeiger = pmkidliste;
 		for(c = 0; c < pmkidcount; c++)
 			{
-			zeigeressid = apstaessidliste;
+			zeigeressid = apstaessidlistecleaned;
 			essidchangecount = 0;
 			memset(&essidold, 0,32);
 			essidok = 0;
-			for(d = 0; d < apstaessidcount; d++)
+			for(d = 0; d < apstaessidcountcleaned; d++)
 				{
 				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
@@ -1416,8 +1416,8 @@ if((apstaessidliste != NULL) && (hcpmkidaoutname != NULL))
 				}
 			if(essidok == 0)
 				{
-				zeigeressid = apstaessidliste;
-				for(d = 0; d < apstaessidcount; d++)
+				zeigeressid = apstaessidlistecleaned;
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
 						{
@@ -2770,10 +2770,6 @@ for(c = 0; c < apstaessidcount; c++)
 		}
 	zeiger1++;
 	}
-
-free(apstaessidliste);
-apstaessidliste = apstaessidlistecleaned;
-apstaessidcount = apstaessidcountcleaned;
 return;
 }
 /*===========================================================================*/
@@ -5086,10 +5082,16 @@ if(pmkidliste != NULL)
 	free(pmkidliste);
 	}
 
+if(apstaessidlistecleaned != NULL)
+	{
+	free(apstaessidlistecleaned);
+	}
+
 if(apstaessidliste != NULL)
 	{
 	free(apstaessidliste);
 	}
+
 return;
 }
 /*===========================================================================*/
