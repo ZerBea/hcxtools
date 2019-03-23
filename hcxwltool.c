@@ -131,7 +131,7 @@ static void printstraigthsweep(FILE *fh_out, int slen, int len, char *linein)
 static int l;
 static char lineout[LINEIN_MAX] = {};
 
-if(len > slen)
+if(len >= slen)
 	{
 	for(l = 0; l <= len -slen; l++)
 		{
@@ -273,7 +273,7 @@ static void printxdigitsweep(FILE *fh_out, int slen, int len, char *linein)
 static int l;
 static char lineout[LINEIN_MAX] = {};
 
-if(len > slen)
+if(len >= slen)
 	{
 	for(l = 0; l <= len -slen; l++)
 		{
@@ -344,7 +344,7 @@ static void printdigitsweep(FILE *fh_out, int slen, int len, char *linein)
 static int l;
 static char lineout[LINEIN_MAX] = {};
 
-if(len > slen)
+if(len >= slen)
 	{
 	for(l = 0; l <= len -slen; l++)
 		{
