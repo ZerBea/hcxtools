@@ -472,11 +472,15 @@ for(c = 0; c < 1000; c++)
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%d%s", c, essid);
 	writepsk(fhout, essidstring);
 	}
+
 for(c = 0; c < 10; c++)
 	{
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%02d", essid, c);
+	writepsk(fhout, essidstring);
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s-%d", essid, c);
 	writepsk(fhout, essidstring);
 	}
+
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1234567890", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s123456789", essid);
