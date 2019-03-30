@@ -538,10 +538,29 @@ struct eapaka_frame
  uint8_t	aka_prefix;
 #define AKA_PERMANENT			'0'
  uint8_t			data[1];
-
 } __attribute__((__packed__));
 typedef struct eapaka_frame eapaka_t;
 #define	EAPAKA_SIZE offsetof(eapaka_t, data)
+/*===========================================================================*/
+struct eapsim_frame
+{
+ uint8_t	code;
+ uint8_t	id;
+ uint16_t	len;
+ uint8_t	type;
+ uint8_t	subtype;
+#define SIM_SIM_START			10
+
+ uint16_t	reserved;
+ uint8_t	attribute;
+ uint8_t	sim_len;
+ uint16_t	sim_actlen;
+ uint8_t	sim_prefix;
+#define SIM_PERMANENT			'1'
+ uint8_t			data[1];
+} __attribute__((__packed__));
+typedef struct eapsim_frame eapsim_t;
+#define	EAPSIM_SIZE offsetof(eapsim_t, data)
 /*===========================================================================*/
 struct eapleap_frame
 {

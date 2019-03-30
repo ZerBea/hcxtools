@@ -1,6 +1,7 @@
 30.03.2019
 ==========
 hcxpcaptool: retrieve IMSI from UMTS Authentication and Key Agreement (EAP-AKA)
+             and EAP-SIM (GSM Subscriber Modules) Authentication
 
 
 19.03.2019

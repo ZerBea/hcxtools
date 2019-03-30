@@ -3346,6 +3346,43 @@ if(imsioutname != NULL)
 return;
 }
 /*===========================================================================*/
+void processeapsimauthentication(uint32_t eaplen, uint8_t *packet)
+{
+eapsim_t *sim;
+FILE *fhoutlist = NULL;
+
+sim = (eapsim_t*)packet;
+if(eaplen < 29)
+	{
+	return;
+	}
+if(sim->code != EAP_CODE_RESP)
+	{
+	return;
+	}
+if(sim->subtype != SIM_SIM_START)
+	{
+	return;
+	}
+if(sim->sim_prefix != SIM_PERMANENT)
+	{
+	return;
+	}
+if(sim->data[15] != '@')
+	{
+	return;
+	}
+if(imsioutname != NULL)
+	{
+	if((fhoutlist = fopen(imsioutname, "a+")) != NULL)
+		{
+		fwriteessidstr(15, sim->data, fhoutlist);
+		fclose(fhoutlist);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 void processeapmd5authentication(uint32_t eaplen, uint8_t *packet)
 {
 md5_t *md5;
@@ -3413,6 +3450,10 @@ if(exeap->exttype == EAP_TYPE_ID)
 else if(exeap->exttype == EAP_TYPE_AKA)
 	{
 	processeapakaauthentication(eaplen, packet +EAPAUTH_SIZE);
+	}
+else if(exeap->exttype == EAP_TYPE_SIM)
+	{
+	processeapsimauthentication(eaplen, packet +EAPAUTH_SIZE);
 	}
 else if(exeap->exttype == EAP_TYPE_LEAP)
 	{
