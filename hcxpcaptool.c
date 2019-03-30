@@ -3309,6 +3309,43 @@ eapolmkaframecount++;
 return;
 }
 /*===========================================================================*/
+void processeapakaauthentication(uint32_t eaplen, uint8_t *packet)
+{
+eapaka_t *aka;
+FILE *fhoutlist = NULL;
+
+aka = (eapaka_t*)packet;
+if(eaplen < 29)
+	{
+	return;
+	}
+if(aka->code != EAP_CODE_RESP)
+	{
+	return;
+	}
+if(aka->subtype != AKA_IDENTITY)
+	{
+	return;
+	}
+if(aka->aka_prefix != AKA_PERMANENT)
+	{
+	return;
+	}
+if(aka->data[15] != '@')
+	{
+	return;
+	}
+if(imsioutname != NULL)
+	{
+	if((fhoutlist = fopen(imsioutname, "a+")) != NULL)
+		{
+		fwriteessidstr(15, aka->data, fhoutlist);
+		fclose(fhoutlist);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 void processeapmd5authentication(uint32_t eaplen, uint8_t *packet)
 {
 md5_t *md5;
@@ -3373,11 +3410,14 @@ if(exeap->exttype == EAP_TYPE_ID)
 		outlistimsi(eaplen, packet +EAPAUTH_SIZE);
 		}
 	}
+else if(exeap->exttype == EAP_TYPE_AKA)
+	{
+	processeapakaauthentication(eaplen, packet +EAPAUTH_SIZE);
+	}
 else if(exeap->exttype == EAP_TYPE_LEAP)
 	{
 	processeapleapauthentication(eaplen, packet +EAPAUTH_SIZE);
 	}
-
 else if(exeap->exttype == EAP_TYPE_MD5)
 	{
 	processeapmd5authentication(eaplen, packet +EAPAUTH_SIZE);

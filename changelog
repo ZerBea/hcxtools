@@ -1,3 +1,8 @@
+30.03.2019
+==========
+hcxpcaptool: retrieve IMSI from UMTS Authentication and Key Agreement (EAP-AKA)
+
+
 19.03.2019
 ==========
 wlanhcx2ssid: use systemwide oui.txt (/usr/share/ieee-data/oui.txt), if exist

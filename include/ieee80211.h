@@ -514,6 +514,35 @@ struct exteap_frame
 typedef struct exteap_frame exteap_t;
 #define	EXTEAP_SIZE offsetof(exteap_t, data)
 /*===========================================================================*/
+struct eapaka_frame
+{
+ uint8_t	code;
+ uint8_t	id;
+ uint16_t	len;
+ uint8_t	type;
+ uint8_t	subtype;
+#define AKA_CHALLENGE			1
+#define AKA_AUTHENTICATION_REJECT	2
+#define AKA_SYNC_FAILURE		4
+#define AKA_IDENTITY			5
+#define AKA_SIM_START			10
+#define AKA_SIM_CHALLENGE		11
+#define AKA_NOTIFICATION		12
+#define AKA_REAUTHENTICATION		13
+#define AKA_CLIENT_ERROR		14
+ uint16_t	reserved;
+ uint8_t	attribute;
+#define AT_IDENTITY			14
+ uint8_t	aka_len;
+ uint16_t	aka_actlen;
+ uint8_t	aka_prefix;
+#define AKA_PERMANENT			'0'
+ uint8_t			data[1];
+
+} __attribute__((__packed__));
+typedef struct eapaka_frame eapaka_t;
+#define	EAPAKA_SIZE offsetof(eapaka_t, data)
+/*===========================================================================*/
 struct eapleap_frame
 {
  uint8_t	code;
