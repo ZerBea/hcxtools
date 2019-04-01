@@ -55,7 +55,8 @@
 
 #define HCXT_HCCAPX_OUT		'o'
 #define HCXT_HCCAPX_OUT_RAW	'O'
-#define HCXT_HC_OUT_PMKID	'z'
+#define HCXT_HC_OUT_PMKID	'k'
+#define HCXT_HC_OUT_PMKID_OLD	'z'
 #define HCXT_JOHN_OUT		'j'
 #define HCXT_JOHN_OUT_RAW	'J'
 #define HCXT_ESSID_OUT		'E'
@@ -196,7 +197,8 @@ static int second = 0;
 char *hexmodeoutname;
 char *hccapxbestoutname;
 char *hccapxrawoutname;
-char *hcpmkidaoutname;
+char *hcpmkidoutname;
+char *hcpmkidoldoutname;
 char *hccapbestoutname;
 char *hccaprawoutname;
 char *johnbestoutname;
@@ -247,7 +249,8 @@ bool globalinit()
 hexmodeoutname = NULL;
 hccapxbestoutname = NULL;
 hccapxrawoutname = NULL;
-hcpmkidaoutname = NULL;
+hcpmkidoutname = NULL;
+hcpmkidoldoutname = NULL;
 hccapbestoutname = NULL;
 hccaprawoutname = NULL;
 johnbestoutname = NULL;
@@ -1367,11 +1370,118 @@ FILE *fhoutlist = NULL;
 
 uint8_t essidold[ESSID_LEN_MAX];
 
-essidchangecount = 0;
 qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
-if((apstaessidlistecleaned != NULL) && (hcpmkidaoutname != NULL))
+
+essidchangecount = 0;
+if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 	{
-	if((fhoutlist = fopen(hcpmkidaoutname, "a+")) != NULL)
+	if((fhoutlist = fopen(hcpmkidoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeiger = pmkidliste;
+		for(c = 0; c < pmkidcount; c++)
+			{
+			zeigeressid = apstaessidlistecleaned;
+			essidchangecount = 0;
+			memset(&essidold, 0,32);
+			essidok = 0;
+			for(d = 0; d < apstaessidcountcleaned; d++)
+				{
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+					{
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+						{
+						for(p = 0; p < 16; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+							}
+						fprintf(fhoutlist, ":");
+						for(p = 0; p < 6; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+							}
+						fprintf(fhoutlist, ":");
+						for(p = 0; p < 6; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+							}
+						fprintf(fhoutlist, ":");
+						for(p = 0; p < zeigeressid->essidlen; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeigeressid->essid[p]);
+							}
+						fprintf(fhoutlist, "\n");
+						writtencount++;
+						essidchangecount++;
+						memset(&essidold, 0,32);
+						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+						essidok = 1;
+						}
+					}
+				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+					{
+					break;
+					}
+				zeigeressid++;
+				}
+			if(essidok == 0)
+				{
+				zeigeressid = apstaessidlistecleaned;
+				for(d = 0; d < apstaessidcountcleaned; d++)
+					{
+					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+						{
+						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+							{
+							for(p = 0; p < 16; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < zeigeressid->essidlen; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeigeressid->essid[p]);
+								}
+							fprintf(fhoutlist, "\n");
+							writtencount++;
+							essidchangecount++;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							}
+						}
+					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+						{
+						break;
+						}
+					zeigeressid++;
+					}
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(hcpmkidoldoutname);
+		if(essidchangecount > 1)
+			{
+			printf("%llu ESSID changes detected\n", essidchangecount);
+			}
+		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidoldoutname);
+		}
+	}
+
+essidchangecount = 0;
+if((apstaessidlistecleaned != NULL) && (hcpmkidoldoutname != NULL))
+	{
+	if((fhoutlist = fopen(hcpmkidoldoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
 		zeiger = pmkidliste;
@@ -1465,12 +1575,12 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidaoutname != NULL))
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		removeemptyfile(hcpmkidaoutname);
+		removeemptyfile(hcpmkidoldoutname);
 		if(essidchangecount > 1)
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
 			}
-		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidaoutname);
+		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidoldoutname);
 		}
 	}
 return;
@@ -5204,7 +5314,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output hccapx file (hashcat -m 2500/2501)\n"
 	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
-	"-z <file> : output PMKID file (hashcat hashmode -m 16800 and john)\n"
+//	"-k <file> : output PMKID file (hashcat hashmode -m 16800 new format)\n"
+	"-z <file> : output PMKID file (hashcat hashmode -m 16800 old format and john)\n"
 	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
@@ -5275,7 +5386,7 @@ char *gpxhead = "<?xml version=\"1.0\"?>\n"
 
 char *gpxtail = "</gpx>\n";
 
-static const char *short_options = "o:O:z:j:J:E:X:I:U:M:P:T:g:H:Vhv";
+static const char *short_options = "o:O::k:z:j:J:E:X:I:U:M:P:T:g:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
@@ -5382,7 +5493,13 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCXT_HC_OUT_PMKID:
-		hcpmkidaoutname = optarg;
+		usageerror(basename(argv[0]));
+//		hcpmkidoutname = optarg;
+//		verboseflag = true;
+		break;
+
+		case HCXT_HC_OUT_PMKID_OLD:
+		hcpmkidoldoutname = optarg;
 		verboseflag = true;
 		break;
 
