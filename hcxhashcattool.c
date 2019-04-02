@@ -95,21 +95,6 @@ for(c = 0; c < pmkcount; c++)
 		fprintf(fhpmk, "%02x",zeiger->essid[p]);
 		}
 	fprintf(fhpmk, ":");
-/*
-	if(zeiger->essidflag == false)
-		{
-		fprintf(fhpmk, "%.*s", zeiger->essidlen, zeiger->essid);
-		}
-	else
-		{
-		fprintf(fhpmk, "$HEX[");
-		for(d = 0; d < zeiger->essidlen; d++)
-			{
-			fprintf(fhpmk, "%02x", zeiger->essid[d]);
-			}
-		fprintf(fhpmk, "]");
-		}
-*/
 	if(zeiger->pskflag == false)
 		{
 		fprintf(fhpmk, "%.*s", zeiger->psklen, zeiger->psk);
@@ -427,29 +412,23 @@ if(psk_ptr == NULL)
 	return;
 	}
 
+essidlen = psk_ptr -essid_ptr;
+if((essidlen %2) != 0)
+	{
+	return;
+	}
+if(essidlen > 64)
+	{
+	return;
+	}
 psk_ptr[0] = 0;
 psk_ptr++;
 
-essidlen = ishexify(essid_ptr);
-if((essidlen > 0) && (essidlen <= 32))
+if(hex2bin(essid_ptr, pmktmp.essid, essidlen) == false)
 	{
-	if(hex2bin(essid_ptr +5, pmktmp.essid, essidlen) == false)
-		{
-		return;
-		}
-	pmktmp.essidflag = true;
+	return;
 	}
-else
-	{
-	essidlen = strlen(essid_ptr);
-	if((essidlen < 1) || (essidlen > 32))
-		{
-		return;
-		}
-	memcpy(&pmktmp.essid, essid_ptr, essidlen);
-	pmktmp.essidflag = false;
-	}
-pmktmp.essidlen = essidlen;
+pmktmp.essidlen = essidlen /2;
 
 psklen = ishexify(psk_ptr);
 if((psklen > 0) && (psklen <= 63))
