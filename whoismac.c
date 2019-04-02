@@ -166,7 +166,7 @@ ouista = macsta >> 24;
 essidptr = hash16800line +59;
 l = strlen(essidptr);
 
-passwdptr = strrchr(hash16800line, ':');
+passwdptr = strrchr(essidptr, ':');
 if(passwdptr != NULL)
 	{
 	l1 = strlen(passwdptr);
@@ -177,7 +177,7 @@ if(passwdptr != NULL)
 	}
 if((l%2 != 0) || (l > 64))
 	{
-	fprintf(stderr, "wrong ESSID length %s\n", essidptr);
+	fprintf(stderr, "xxx wrong ESSID length %s\n", essidptr);
 	return;
 	}
 memset(&essidbuffer, 0, 66);
@@ -488,7 +488,7 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 			fprintf(stderr, "error hashline too short %s\n", optarg);
 			exit(EXIT_FAILURE);
 			}
-		if((hash16800line[32] != '*') && (hash16800line[45] != '*') && (hash16800line[58] != '*'))
+		if(((hash16800line[32] != ':') && (hash16800line[45] != ':') && (hash16800line[58] != ':')) && ((hash16800line[32] != '*') && (hash16800line[45] != '*') && (hash16800line[58] != '*')))
 			{
 			fprintf(stderr, "error hashline wrong format %s\n", optarg);
 			exit(EXIT_FAILURE);

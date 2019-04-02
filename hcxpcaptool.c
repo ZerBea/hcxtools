@@ -5314,7 +5314,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output hccapx file (hashcat -m 2500/2501)\n"
 	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
-//	"-k <file> : output PMKID file (hashcat hashmode -m 16800 new format)\n"
+	"-k <file> : output PMKID file (hashcat hashmode -m 16800 new format)\n"
 	"-z <file> : output PMKID file (hashcat hashmode -m 16800 old format and john)\n"
 	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
@@ -5494,8 +5494,8 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_HC_OUT_PMKID:
 		usageerror(basename(argv[0]));
-//		hcpmkidoutname = optarg;
-//		verboseflag = true;
+		hcpmkidoutname = optarg;
+		verboseflag = true;
 		break;
 
 		case HCXT_HC_OUT_PMKID_OLD:
