@@ -49,7 +49,7 @@ void writenewpmkfile(char *pmkname)
 {
 pmklist_t *zeiger;
 unsigned long long int c;
-int d;
+int d, p;
 FILE *fhpmk;
 
 if((fhpmk = fopen(pmkname, "w")) == NULL)
@@ -64,6 +64,12 @@ for(c = 0; c < pmkcount; c++)
 		fprintf(fhpmk, "%02x", zeiger->pmk[d]);
 		}
 	fprintf(fhpmk, ":");
+	for(p = 0; p < zeiger->essidlen; p++)
+		{
+		fprintf(fhpmk, "%02x",zeiger->essid[p]);
+		}
+	fprintf(fhpmk, ":");
+/*
 	if(zeiger->essidflag == false)
 		{
 		fprintf(fhpmk, "%.*s", zeiger->essidlen, zeiger->essid);
@@ -77,7 +83,7 @@ for(c = 0; c < pmkcount; c++)
 			}
 		fprintf(fhpmk, "]");
 		}
-	fprintf(fhpmk, ":");
+*/
 	if(zeiger->pskflag == false)
 		{
 		fprintf(fhpmk, "%.*s", zeiger->psklen, zeiger->psk);
