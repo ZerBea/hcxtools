@@ -1474,7 +1474,7 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
 			}
-		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidoldoutname);
+		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidoutname);
 		}
 	}
 
