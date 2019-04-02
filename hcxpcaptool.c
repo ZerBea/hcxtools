@@ -5493,7 +5493,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCXT_HC_OUT_PMKID:
-		usageerror(basename(argv[0]));
 		hcpmkidoutname = optarg;
 		verboseflag = true;
 		break;
