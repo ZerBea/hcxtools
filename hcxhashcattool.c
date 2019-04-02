@@ -44,6 +44,31 @@ if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL))
 	}
 return;
 }
+
+/*===========================================================================*/
+static int sort_pmklist_by_essid(const void *a, const void *b)
+{
+const pmklist_t *ia = (const pmklist_t *)a;
+const pmklist_t *ib = (const pmklist_t *)b;
+
+if(ia->essidlen > ib->essidlen)
+	{
+	return 1;
+	}
+else if(ia->essidlen < ib->essidlen)
+	{
+	return -1;
+	}
+if(memcmp(ia->essid, ib->essid, ia->essidlen) > 0)
+	{
+	return 1;
+	}
+else if(memcmp(ia->essid, ib->essid, ia->essidlen) < 0)
+	{
+	return -1;
+	}
+return 0;
+}
 /*===========================================================================*/
 void writenewpmkfile(char *pmkname)
 {
@@ -52,6 +77,7 @@ unsigned long long int c;
 int d, p;
 FILE *fhpmk;
 
+qsort(pmkliste, pmkcount, PMKLIST_SIZE, sort_pmklist_by_essid);
 if((fhpmk = fopen(pmkname, "w")) == NULL)
 	{
 	return;
@@ -563,9 +589,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options>\n"
 	"\n"
 	"options:\n"
-	"-p <file> : input hashcat potfile\n"
+	"-p <file> : input old hashcat potfile\n"
 	"            accepted potfiles: 2500 or 16800\n"
-	"-P <file> : output PMK file (PMK:ESSID:PSK)\n"
+	"-P <file> : output new potfile file (PMK:ESSID:PSK)\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);

@@ -6,6 +6,9 @@ hcxpcaptool: added new option -k to convert dumpfile to new hashcat PMKID format
 -z <file> : output PMKID file (hashcat hashmode -m 16800 old format and john)
 
 use hcxhashcattool to convert old 2500 and old 16800 potfile to new hashcat potfile Format:
+-p <file> : input old hashcat potfile
+            accepted potfiles: 2500 or 16800
+-P <file> : output new potfile file (PMK:ESSID:PSK)
 
 hcxhashcattool -p oldhashcat.2500.pot -P newhashcat.potfile 
 hcxhashcattool -p oldhashcat.16800.pot -P newhashcat.potfile
