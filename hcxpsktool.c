@@ -1458,7 +1458,8 @@ while(1)
 		aktread++;
 		continue;
 		}
-	if((linein[32] != '*') && (linein[45] != '*') && (linein[58] != '*'))
+
+	if(((linein[32] != ':') && (linein[45] != ':') && (linein[58] != ':')) && ((linein[32] != '*') && (linein[45] != '*') && (linein[58] != '*')))
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		aktread++;
