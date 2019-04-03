@@ -39,7 +39,7 @@ Detailed description
 | hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcaptool output (-o, -z- -U) or commandline input |
 | hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E, -I- -U)                               |
 | hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                         |
-| hcxhashcattool | Calculate PMKs from hashcat -m 2500 potfile                                                                       |
+| hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                         |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                                          |
 | wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                              |
 | wlanhcx2essid  | Merges hccapx containing the same ESSID                                                                           |
