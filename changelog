@@ -1,5 +1,10 @@
 02.04.2019
 ==========
+Due to hashcat changes:
+"WPA/WPA2 cracking: In the potfile, replace password with PMK in order
+to detect already cracked networks across all WPA modes"
+https://github.com/hashcat/hashcat/commit/b8d609ba1604f4fed62198ae5000e205dcc87f70
+ 
 hcxpcaptool: added new option -k to convert dumpfile to new hashcat PMKID format
 
 -k <file> : output PMKID file (hashcat hashmode -m 16800 new format)
