@@ -29,6 +29,10 @@ hcxdumptool moved to: https://github.com/ZerBea/hcxdumptool
 
 Read this post: hcxtools - solution for capturing wlan traffic and conversion to hashcat formats (https://hashcat.net/forum/thread-6661.html)
 
+Read this post: New attack on WPA/WPA2 using PMKID (https://hashcat.net/forum/thread-7717.html)
+
+
+
 
 Detailed description
 --------------
@@ -39,6 +43,9 @@ Detailed description
 | hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcaptool output (-o, -z- -U) or commandline input |
 | hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E, -I- -U)                               |
 | hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                         |
+| whoismac       | Show vendor information and/or download oui reference list                                                        |
+| wlancap2wpasec | Upload multiple caps to https://wpa-sec.stanev.org                                                                |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- |
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                         |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                                          |
 | wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                              |
@@ -52,8 +59,6 @@ Detailed description
 | wlanjohn2hcx   | Converts john wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                                         |
 | wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                                      |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                             |
-| wlancap2wpasec | Upload multiple caps to https://wpa-sec.stanev.org                                                                |
-| whoismac       | Show vendor information and/or download oui reference list                                                        |
 
 
 Compile
@@ -97,7 +102,7 @@ Useful scripts
 Notice
 --------------
 
-Most output files will be appended to existing files (with the exception of .cap files).
+Most output files will be appended to existing files (with the exception of pcapng, pcap, cap files).
 
 
 Bitmask message pair field (hcxpcaptool)
