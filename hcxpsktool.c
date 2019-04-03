@@ -92,9 +92,18 @@ for(p = 0; p < l; p++)
 
 fprintf(fhout,"%s\n", pskstring);
 if(uflag == true)
+	{
 	fprintf(fhout,"%s\n", upperpskstring);
+	}
 if(lflag == true)
+	{
 	fprintf(fhout,"%s\n", lowerpskstring);
+	}
+if((lowerpskstring[0] >= 'a') && (lowerpskstring[0] <= 'z'))
+	{
+	lowerpskstring[0] = toupper(lowerpskstring[0]);
+	fprintf(fhout,"%s\n", lowerpskstring);
+	}
 return;
 }
 /*===========================================================================*/
@@ -529,11 +538,15 @@ snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "654321%s", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "54321%s", essid);
 writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@adsl", essid);
+writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@Home", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@WiFi", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@1234", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@dsl", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@123", essid);
 writepsk(fhout, essidstring);
