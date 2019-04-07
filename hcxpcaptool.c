@@ -53,6 +53,7 @@
 #define HCXT_HCCAP_OUT		10
 #define HCXT_HCCAP_OUT_RAW	11
 
+#define HCXT_WPA12_OUT		'w'
 #define HCXT_HCCAPX_OUT		'o'
 #define HCXT_HCCAPX_OUT_RAW	'O'
 #define HCXT_HC_OUT_PMKID	'k'
@@ -195,6 +196,7 @@ static int minute = 0;
 static int second = 0;
 
 char *hexmodeoutname;
+char *wpa12bestoutname;
 char *hccapxbestoutname;
 char *hccapxrawoutname;
 char *hcpmkidoutname;
@@ -247,6 +249,7 @@ int exeaptype[256];
 bool globalinit()
 {
 hexmodeoutname = NULL;
+wpa12bestoutname = NULL;
 hccapxbestoutname = NULL;
 hccapxrawoutname = NULL;
 hcpmkidoutname = NULL;
@@ -932,6 +935,234 @@ if(trafficoutname != NULL)
 return;
 }
 /*===========================================================================*/
+void outputwpacrossoverlists()
+{
+unsigned long long int c, d, p;
+uint8_t essidok;
+hcxl_t *zeiger;
+pmkidl_t *zeigerpmkid;
+apstaessidl_t *zeigeressid;
+FILE *fhoutlist = NULL;
+unsigned long long int writtencount, essidchangecount;
+
+uint8_t essidold[ESSID_LEN_MAX];
+
+if(handshakeliste == NULL)
+	{
+	return;
+	}
+if(apstaessidlistecleaned != NULL)
+	{
+	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+	}
+
+if(apstaessidliste != NULL)
+	{
+	qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+	}
+
+if((apstaessidlistecleaned != NULL) && (wpa12bestoutname != NULL))
+	{
+	essidchangecount = 0;
+	if((fhoutlist = fopen(wpa12bestoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeiger = handshakeliste;
+		for(c = 0; c < handshakecount; c++)
+			{
+			zeiger->tv_diff = zeiger->tv_ea;
+			zeigeressid = apstaessidlistecleaned;
+			essidchangecount = 0;
+			memset(&essidold, 0,32);
+			essidok = 0;
+			for(d = 0; d < apstaessidcountcleaned; d++)
+				{
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+					{
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+						{
+						zeiger->essidlen = zeigeressid->essidlen;
+						memset(zeiger->essid, 0, 32);
+						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+
+
+
+
+
+						writtencount++;
+						essidchangecount++;
+						memset(&essidold, 0,32);
+						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+						essidok = 1;
+						}
+					}
+				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+					{
+					break;
+					}
+				zeigeressid++;
+				}
+			if(essidok == 0)
+				{
+				zeigeressid = apstaessidlistecleaned;
+				for(d = 0; d < apstaessidcountcleaned; d++)
+					{
+					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+						{
+						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+							{
+							zeiger->essidlen = zeigeressid->essidlen;
+							memset(zeiger->essid, 0, 32);
+							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+
+
+
+
+
+							writtencount++;
+							essidchangecount++;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							}
+						}
+					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+						{
+						break;
+						}
+					zeigeressid++;
+					}
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(hccapxbestoutname);
+		if(essidchangecount > 1)
+			{
+			printf("%llu ESSID changes detected\n", essidchangecount);
+			}
+		printf("%llu handshake(s) written to %s\n", writtencount, wpa12bestoutname);
+		}
+	}
+
+if((apstaessidlistecleaned != NULL) && (wpa12bestoutname != NULL))
+	{
+	essidchangecount = 0;
+	if((fhoutlist = fopen(wpa12bestoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeigerpmkid = pmkidliste;
+		for(c = 0; c < pmkidcount; c++)
+			{
+			zeigeressid = apstaessidlistecleaned;
+			essidchangecount = 0;
+			memset(&essidold, 0,32);
+			essidok = 0;
+			for(d = 0; d < apstaessidcountcleaned; d++)
+				{
+				if((memcmp(zeigerpmkid->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeigerpmkid->mac_sta, zeigeressid->mac_sta, 6) == 0))
+					{
+					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+						{
+
+
+						for(p = 0; p < 16; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeigerpmkid->pmkid[p]);
+							}
+						fprintf(fhoutlist, ":");
+						for(p = 0; p < 6; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeigerpmkid->mac_ap[p]);
+							}
+						fprintf(fhoutlist, ":");
+						for(p = 0; p < 6; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeigerpmkid->mac_sta[p]);
+							}
+						fprintf(fhoutlist, ":");
+						for(p = 0; p < zeigeressid->essidlen; p++)
+							{
+							fprintf(fhoutlist, "%02x", zeigeressid->essid[p]);
+							}
+						fprintf(fhoutlist, "\n");
+
+
+
+						writtencount++;
+						essidchangecount++;
+						memset(&essidold, 0,32);
+						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+						essidok = 1;
+						}
+					}
+				if(memcmp(zeigeressid->mac_ap, zeigerpmkid->mac_ap, 6) > 0)
+					{
+					break;
+					}
+				zeigeressid++;
+				}
+			if(essidok == 0)
+				{
+				zeigeressid = apstaessidlistecleaned;
+				for(d = 0; d < apstaessidcountcleaned; d++)
+					{
+					if(memcmp(zeigerpmkid->mac_ap, zeigeressid->mac_ap, 6) == 0)
+						{
+						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+							{
+
+
+							for(p = 0; p < 16; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeigerpmkid->pmkid[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeigerpmkid->mac_ap[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeigerpmkid->mac_sta[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < zeigeressid->essidlen; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeigeressid->essid[p]);
+								}
+							fprintf(fhoutlist, "\n");
+
+
+							writtencount++;
+							essidchangecount++;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							}
+						}
+					if(memcmp(zeigeressid->mac_ap, zeigerpmkid->mac_ap, 6) > 0)
+						{
+						break;
+						}
+					zeigeressid++;
+					}
+				}
+			zeigerpmkid++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(hcpmkidoldoutname);
+		if(essidchangecount > 1)
+			{
+			printf("%llu ESSID changes detected\n", essidchangecount);
+			}
+		printf("%llu PMKID(s) written to %s\n", writtencount, wpa12bestoutname);
+		}
+	}
+
+
+return;
+}
+/*===========================================================================*/
 void outputwpalists(char *pcapinname)
 {
 unsigned long long int c, d;
@@ -957,10 +1188,9 @@ if(apstaessidliste != NULL)
 	qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
 	}
 
-
-essidchangecount = 0;
 if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 	{
+	essidchangecount = 0;
 	if((fhoutlist = fopen(hccapxbestoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
@@ -1035,6 +1265,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 
 if(hccapxrawoutname != NULL)
 	{
+	essidchangecount = 0;
 	if((fhoutlist = fopen(hccapxrawoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
@@ -1094,6 +1325,7 @@ if(hccapxrawoutname != NULL)
 
 if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 	{
+	essidchangecount = 0;
 	if((fhoutlist = fopen(hccapbestoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
@@ -1168,6 +1400,7 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 
 if(hccaprawoutname != NULL)
 	{
+	essidchangecount = 0;
 	if((fhoutlist = fopen(hccaprawoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
@@ -1227,6 +1460,7 @@ if(hccaprawoutname != NULL)
 
 if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 	{
+	essidchangecount = 0;
 	if((fhoutlist = fopen(johnbestoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
@@ -1301,6 +1535,7 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 
 if(johnrawoutname != NULL)
 	{
+	essidchangecount = 0;
 	if((fhoutlist = fopen(johnrawoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
@@ -1370,11 +1605,14 @@ FILE *fhoutlist = NULL;
 
 uint8_t essidold[ESSID_LEN_MAX];
 
-qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+if(apstaessidlistecleaned != NULL)
+	{
+	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+	}
 
-essidchangecount = 0;
 if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 	{
+	essidchangecount = 0;
 	if((fhoutlist = fopen(hcpmkidoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
@@ -1478,9 +1716,9 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 		}
 	}
 
-essidchangecount = 0;
 if((apstaessidlistecleaned != NULL) && (hcpmkidoldoutname != NULL))
 	{
+	essidchangecount = 0;
 	if((fhoutlist = fopen(hcpmkidoldoutname, "a+")) != NULL)
 		{
 		writtencount = 0;
@@ -1580,7 +1818,7 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoldoutname != NULL))
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
 			}
-		printf("%llu PMKID(s) written to %s\n", writtencount, hcpmkidoldoutname);
+		printf("%llu PMKID(s) written in old hashcat format (<= 5.1.0) to %s \n", writtencount, hcpmkidoldoutname);
 		}
 	}
 return;
@@ -5312,6 +5550,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options> *.*\n"
 	"\n"
 	"options:\n"
+//	"-w <file> : output WPA1/2 hash file (hashcat)\n"
 	"-o <file> : output hccapx file (hashcat -m 2500/2501)\n"
 	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
 	"-k <file> : output PMKID file (hashcat hashmode -m 16800 new format)\n"
@@ -5479,6 +5718,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		hccaprawoutname = optarg;
 		verboseflag = true;
 		wantrawflag = true;
+		break;
+
+		case HCXT_WPA12_OUT:
+		wpa12bestoutname = optarg;
+		verboseflag = true;
 		break;
 
 		case HCXT_HCCAPX_OUT:
