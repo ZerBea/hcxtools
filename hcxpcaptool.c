@@ -5550,7 +5550,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options> *.*\n"
 	"\n"
 	"options:\n"
-//	"-w <file> : output WPA1/2 hash file (hashcat)\n"
+//	"-w <file> : output WPA1/2 EAPOL/PMKID hash file (hashcat)\n"
 	"-o <file> : output hccapx file (hashcat -m 2500/2501)\n"
 	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
 	"-k <file> : output PMKID file (hashcat hashmode -m 16800 new format)\n"
@@ -5625,7 +5625,7 @@ char *gpxhead = "<?xml version=\"1.0\"?>\n"
 
 char *gpxtail = "</gpx>\n";
 
-static const char *short_options = "o:O::k:z:j:J:E:X:I:U:M:P:T:g:H:Vhv";
+static const char *short_options = "w:o:O:k:z:j:J:E:X:I:U:M:P:T:g:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
