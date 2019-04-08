@@ -58,6 +58,70 @@ memcpy(&hccapx.keymic, wpak->keymic, 16);
 wpak2 = (wpakey_t*)(hccapx.eapol +EAPAUTH_SIZE);
 memset(wpak2->keymic, 0, 16);
 hccapx.keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+ #ifdef BIG_ENDIAN_HOST
+hccapx.signature	= byte_swap_32(hccapx.signature);
+hccapx.version		= byte_swap_32(hccapx.version);
+hccapx.eapol_len	= byte_swap_16(hccapx.eapol_len);
+#endif
+fwrite (&hccapx, sizeof(hccapx_t), 1, fho);
+return;
+}
+/*===========================================================================*/
+void writehccapxrawrecord(hcxl_t *zeiger, FILE *fho)
+{
+hccapx_t hccapx;
+wpakey_t *wpak, *wpak2;
+
+memset (&hccapx, 0, sizeof(hccapx_t));
+hccapx.signature = HCCAPX_SIGNATURE;
+hccapx.version   = HCCAPX_VERSION;
+hccapx.message_pair = 0x80;
+if((zeiger->keyinfo_ap == 1) && (zeiger->keyinfo_sta == 4))
+	{
+	hccapx.message_pair = MESSAGE_PAIR_M12E2;
+	if(zeiger->replaycount_ap != zeiger->replaycount_sta)
+		{
+		hccapx.message_pair |= 0x80;
+		}
+	}
+else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 4))
+	{
+	hccapx.message_pair = MESSAGE_PAIR_M32E2;
+	if(zeiger->replaycount_ap -1 != zeiger->replaycount_sta)
+		{
+		hccapx.message_pair |= 0x80;
+		}
+	}
+else if((zeiger->keyinfo_ap == 1) && (zeiger->keyinfo_sta == 8))
+	{
+	hccapx.message_pair = MESSAGE_PAIR_M14E4;
+	if(zeiger->replaycount_ap +1 != zeiger->replaycount_sta)
+		{
+		hccapx.message_pair |= 0x80;
+		}
+	}
+else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 8))
+	{
+	hccapx.message_pair = MESSAGE_PAIR_M34E4;
+	if(zeiger->replaycount_ap != zeiger->replaycount_sta)
+		{
+		hccapx.message_pair |= 0x80;
+		}
+	}
+hccapx.message_pair |= zeiger->endianess;
+wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
+hccapx.essid_len = zeiger->essidlen;
+memcpy(&hccapx.essid, zeiger->essid, 32);
+memcpy(&hccapx.mac_ap, zeiger->mac_ap, 6);
+memcpy(&hccapx.nonce_ap, zeiger->nonce, 32);
+memcpy(&hccapx.mac_sta, zeiger->mac_sta, 6);
+memcpy(&hccapx.nonce_sta, wpak->nonce, 32);
+hccapx.eapol_len = zeiger->authlen;
+memcpy(&hccapx.eapol, zeiger->eapol, zeiger->authlen);
+memcpy(&hccapx.keymic, wpak->keymic, 16);
+wpak2 = (wpakey_t*)(hccapx.eapol +EAPAUTH_SIZE);
+memset(wpak2->keymic, 0, 16);
+hccapx.keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if(hccapx.keyver == 0)
 	{
 	hccapx.keyver = 3;

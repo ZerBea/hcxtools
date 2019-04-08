@@ -1263,66 +1263,6 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 		}
 	}
 
-if(hccapxrawoutname != NULL)
-	{
-	essidchangecount = 0;
-	if((fhoutlist = fopen(hccapxrawoutname, "a+")) != NULL)
-		{
-		writtencount = 0;
-		zeiger = rawhandshakeliste;
-		for(c = 0; c < rawhandshakecount; c++)
-			{
-			zeiger->tv_diff = zeiger->tv_ea;
-			if(apstaessidliste != NULL)
-				{
-				zeigeressid = apstaessidliste;
-				essidchangecount = 0;
-				memset(&essidold, 0,32);
-				for(d = 0; d < apstaessidcount; d++)
-					{
-					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
-						{
-						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
-							{
-							zeiger->essidlen = zeigeressid->essidlen;
-							memset(zeiger->essid, 0, 32);
-							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-							writehccapxrecord(zeiger, fhoutlist);
-							writtencount++;
-							essidchangecount++;
-							memset(&essidold, 0,32);
-							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-							}
-						}
-					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-						{
-						break;
-						}
-					zeigeressid++;
-					}
-				}
-			else
-				{
-				if(writtencount == 0)
-					{
-					memset(zeiger->essid, 0, 32);
-					zeiger->essidlen = 0;
-					writehccapxrecord(zeiger, fhoutlist);
-					writtencount++;
-					}
-				}
-			zeiger++;
-			}
-		fclose(fhoutlist);
-		removeemptyfile(hccapxrawoutname);
-		if(essidchangecount > 1)
-			{
-			printf("%llu ESSID changes detected\n", essidchangecount);
-			}
-		printf("%llu handshake(s) written to %s\n", writtencount, hccapxrawoutname);
-		}
-	}
-
 if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 	{
 	essidchangecount = 0;
@@ -1398,66 +1338,6 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 		}
 	}
 
-if(hccaprawoutname != NULL)
-	{
-	essidchangecount = 0;
-	if((fhoutlist = fopen(hccaprawoutname, "a+")) != NULL)
-		{
-		writtencount = 0;
-		zeiger = rawhandshakeliste;
-		for(c = 0; c < rawhandshakecount; c++)
-			{
-			zeiger->tv_diff = zeiger->tv_ea;
-			if(apstaessidliste != NULL)
-				{
-				zeigeressid = apstaessidliste;
-				essidchangecount = 0;
-				memset(&essidold, 0,32);
-				for(d = 0; d < apstaessidcount; d++)
-					{
-					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
-						{
-						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
-							{
-							zeiger->essidlen = zeigeressid->essidlen;
-							memset(zeiger->essid, 0, 32);
-							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-							writehccaprecord(maxrcdiff, zeiger, fhoutlist);
-							writtencount++;
-							essidchangecount++;
-							memset(&essidold, 0,32);
-							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-							}
-						}
-					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-						{
-						break;
-						}
-					zeigeressid++;
-					}
-				}
-			else
-				{
-				if(writtencount == 0)
-					{
-					memset(zeiger->essid, 0, 32);
-					zeiger->essidlen = 0;
-					writehccaprecord(maxrcdiff, zeiger, fhoutlist);
-					writtencount++;
-					}
-				}
-			zeiger++;
-			}
-		fclose(fhoutlist);
-		removeemptyfile(hccaprawoutname);
-		if(essidchangecount > 1)
-			{
-			printf("%llu ESSID changes detected\n", essidchangecount);
-			}
-		printf("%llu handshake(s) written to %s\n", writtencount, hccaprawoutname);
-		}
-	}
-
 if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 	{
 	essidchangecount = 0;
@@ -1530,6 +1410,152 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 			printf("%llu ESSID changes detected\n", essidchangecount);
 			}
 		printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+void outputrawwpalists(char *pcapinname)
+{
+unsigned long long int c, d;
+hcxl_t *zeiger;
+apstaessidl_t *zeigeressid;
+FILE *fhoutlist = NULL;
+unsigned long long int writtencount, essidchangecount;
+
+uint8_t essidold[ESSID_LEN_MAX];
+
+if(rawhandshakeliste == NULL)
+	{
+	return;
+	}
+if(apstaessidlistecleaned != NULL)
+	{
+	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+	}
+
+if(apstaessidliste != NULL)
+	{
+	qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+	}
+
+if(hccapxrawoutname != NULL)
+	{
+	essidchangecount = 0;
+	if((fhoutlist = fopen(hccapxrawoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeiger = rawhandshakeliste;
+		for(c = 0; c < rawhandshakecount; c++)
+			{
+			zeiger->tv_diff = zeiger->tv_ea;
+			if(apstaessidliste != NULL)
+				{
+				zeigeressid = apstaessidliste;
+				essidchangecount = 0;
+				memset(&essidold, 0,32);
+				for(d = 0; d < apstaessidcount; d++)
+					{
+					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+						{
+						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+							{
+							zeiger->essidlen = zeigeressid->essidlen;
+							memset(zeiger->essid, 0, 32);
+							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+							writehccapxrawrecord(zeiger, fhoutlist);
+							writtencount++;
+							essidchangecount++;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							}
+						}
+					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+						{
+						break;
+						}
+					zeigeressid++;
+					}
+				}
+			else
+				{
+				if(writtencount == 0)
+					{
+					memset(zeiger->essid, 0, 32);
+					zeiger->essidlen = 0;
+					writehccapxrawrecord(zeiger, fhoutlist);
+					writtencount++;
+					}
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(hccapxrawoutname);
+		if(essidchangecount > 1)
+			{
+			printf("%llu ESSID changes detected\n", essidchangecount);
+			}
+		printf("%llu handshake(s) written to %s\n", writtencount, hccapxrawoutname);
+		}
+	}
+
+if(hccaprawoutname != NULL)
+	{
+	essidchangecount = 0;
+	if((fhoutlist = fopen(hccaprawoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeiger = rawhandshakeliste;
+		for(c = 0; c < rawhandshakecount; c++)
+			{
+			zeiger->tv_diff = zeiger->tv_ea;
+			if(apstaessidliste != NULL)
+				{
+				zeigeressid = apstaessidliste;
+				essidchangecount = 0;
+				memset(&essidold, 0,32);
+				for(d = 0; d < apstaessidcount; d++)
+					{
+					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+						{
+						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
+							{
+							zeiger->essidlen = zeigeressid->essidlen;
+							memset(zeiger->essid, 0, 32);
+							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+							writehccaprecord(maxrcdiff, zeiger, fhoutlist);
+							writtencount++;
+							essidchangecount++;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							}
+						}
+					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+						{
+						break;
+						}
+					zeigeressid++;
+					}
+				}
+			else
+				{
+				if(writtencount == 0)
+					{
+					memset(zeiger->essid, 0, 32);
+					zeiger->essidlen = 0;
+					writehccaprecord(maxrcdiff, zeiger, fhoutlist);
+					writtencount++;
+					}
+				}
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(hccaprawoutname);
+		if(essidchangecount > 1)
+			{
+			printf("%llu ESSID changes detected\n", essidchangecount);
+			}
+		printf("%llu handshake(s) written to %s\n", writtencount, hccaprawoutname);
 		}
 	}
 
@@ -2516,11 +2542,22 @@ void addhandshake(uint64_t tv_ea, eapoll_t *zeigerea, uint64_t tv_eo, eapoll_t *
 hcxl_t *zeiger;
 unsigned long long int c;
 wpakey_t *wpae, *wpaea, *wpaeo;
+int keyverea, keyvereo;
 uint32_t anonce, anonceold;
 
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
 wpaeo = (wpakey_t*)(zeigereo->eapol +EAPAUTH_SIZE);
 
+keyverea = ntohs(wpaea->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+keyvereo = ntohs(wpaea->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+if(keyverea != keyvereo)
+	{
+	return;
+	}
+if((keyverea < 1) || (keyverea > 3))
+	{
+	return;
+	}
 if(handshakeliste == NULL)
 	{
 	handshakeliste = malloc(HCXLIST_SIZE);
@@ -2828,7 +2865,6 @@ for(c = 0; c < eapolcount; c++)
 		}
 	zeigerea++;
 	}
-
 return;
 }
 /*===========================================================================*/
@@ -5447,6 +5483,11 @@ if(handshakeliste != NULL)
 	outputwpalists(pcapinname);
 	}
 
+if(rawhandshakeliste != NULL)
+	{
+	outputrawwpalists(pcapinname);
+	}
+
 if(pmkidliste != NULL)
 	{
 	outputpmkidlists();
@@ -5800,6 +5841,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_VERBOSE_OUT:
 		verboseflag = true;
+		wantrawflag = true;
 		break;
 
 		case HCXT_HELP:
