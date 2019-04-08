@@ -1463,7 +1463,7 @@ if(hccapxrawoutname != NULL)
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-							writehccapxrawrecord(zeiger, fhoutlist);
+							writehccapxrecord(zeiger, fhoutlist);
 							writtencount++;
 							essidchangecount++;
 							memset(&essidold, 0,32);
@@ -1483,7 +1483,7 @@ if(hccapxrawoutname != NULL)
 					{
 					memset(zeiger->essid, 0, 32);
 					zeiger->essidlen = 0;
-					writehccapxrawrecord(zeiger, fhoutlist);
+					writehccapxrecord(zeiger, fhoutlist);
 					writtencount++;
 					}
 				}
