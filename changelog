@@ -1,3 +1,9 @@
+08.04.2019
+==========
+hcxpcaptool: from now on only PBKDF2 based hashes (EAPOL and PMKID) are converted running options -k -z and -o
+             raw option -O will convert all EAPOL handshakes.
+
+
 02.04.2019
 ==========
 Due to hashcat changes:
