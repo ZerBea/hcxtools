@@ -96,6 +96,7 @@ apstaessidl_t *apstaessidlistecleaned;
 unsigned long long int eapolcount;
 eapoll_t *eapolliste;
 
+unsigned long long int pmkidallcount;
 unsigned long long int pmkidcount;
 pmkidl_t *pmkidliste;
 
@@ -151,6 +152,14 @@ unsigned long long int actionframecount;
 unsigned long long int atimframecount;
 unsigned long long int eapolframecount;
 unsigned long long int eapoloversizedframecount;
+unsigned long long int eapolwpaakmframecount;
+unsigned long long int eapolwpa1framecount;
+unsigned long long int eapolwpa2framecount;
+unsigned long long int eapolwpa2kv3framecount;
+unsigned long long int eapolpmkidwpaakmframecount;
+unsigned long long int eapolpmkidwpa1framecount;
+unsigned long long int eapolpmkidwpa2framecount;
+unsigned long long int eapolpmkidwpa2kv3framecount;
 unsigned long long int groupkeyframecount;
 unsigned long long int rc4descriptorframecount;
 unsigned long long int eapolstartframecount;
@@ -607,15 +616,47 @@ if(atimframecount != 0)
 	}
 if(eapolframecount != 0)
 	{
-	printf("EAPOL packets................: %llu\n", eapolframecount);
+	printf("EAPOL packets (total)........: %llu\n", eapolframecount);
 	}
 if(eapoloversizedframecount != 0)
 	{
 	printf("EAPOL packets (oversized)....: %llu\n", eapoloversizedframecount);
 	}
-if(pmkidcount != 0)
+if(eapolwpaakmframecount != 0)
 	{
-	printf("EAPOL PMKIDs.................: %llu\n", pmkidcount);
+	printf("EAPOL packets (AKM defined)..: %llu\n", eapolwpaakmframecount);
+	}
+if(eapolwpa1framecount != 0)
+	{
+	printf("EAPOL packets (WPA1).........: %llu\n", eapolwpa1framecount);
+	}
+if(eapolwpa2framecount != 0)
+	{
+	printf("EAPOL packets (WPA2).........: %llu\n", eapolwpa2framecount);
+	}
+if(eapolwpa2kv3framecount != 0)
+	{
+	printf("EAPOL packets (WPA2 keyv 3)..: %llu\n", eapolwpa2kv3framecount);
+	}
+if(pmkidallcount != 0)
+	{
+	printf("EAPOL PMKIDs (total).........: %llu\n", pmkidallcount);
+	}
+if(eapolpmkidwpaakmframecount != 0)
+	{
+	printf("EAPOL PMKIDs (AKM defined)...: %llu\n", eapolpmkidwpaakmframecount);
+	}
+if(eapolpmkidwpa1framecount != 0)
+	{
+	printf("EAPOL PMKIDs (WPA1)..........: %llu\n", eapolpmkidwpa1framecount);
+	}
+if(eapolpmkidwpa2framecount != 0)
+	{
+	printf("EAPOL PMKIDs (WPA2)..........: %llu\n", eapolpmkidwpa2framecount);
+	}
+if(eapolpmkidwpa2kv3framecount != 0)
+	{
+	printf("EAPOL PMKIDs (WPA2 keyv 3)...: %llu\n", eapolpmkidwpa2kv3framecount);
 	}
 if(rc4descriptorframecount != 0)
 	{
@@ -625,7 +666,6 @@ if(groupkeyframecount != 0)
 	{
 	printf("EAPOL GROUP KEYs.............: %llu\n", groupkeyframecount);
 	}
-
 if(eapframecount != 0)
 	{
 	printf("EAP packets..................: %llu\n", eapframecount);
@@ -749,7 +789,6 @@ if(radiusframecount != 0)
 	{
 	printf("found........................: RADIUS Authentication\n");
 	}
-
 if(rawhandshakecount != 0)
 	{
 	printf("raw handshakes...............: %llu (ap-less: %llu)\n", rawhandshakecount, rawhandshakeaplesscount);
@@ -757,6 +796,10 @@ if(rawhandshakecount != 0)
 if(handshakecount != 0)
 	{
 	printf("best handshakes..............: %llu (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
+	}
+if(pmkidcount != 0)
+	{
+	printf("best PMKIDs..................: %llu\n", pmkidcount);
 	}
 printf("\n");
 return;
@@ -2542,7 +2585,7 @@ void addhandshake(uint64_t tv_ea, eapoll_t *zeigerea, uint64_t tv_eo, eapoll_t *
 hcxl_t *zeiger;
 unsigned long long int c;
 wpakey_t *wpae, *wpaea, *wpaeo;
-int keyverea, keyvereo;
+uint16_t keyverea, keyvereo;
 uint32_t anonce, anonceold;
 
 wpaea = (wpakey_t*)(zeigerea->eapol +EAPAUTH_SIZE);
@@ -2872,7 +2915,7 @@ void addpmkid(uint8_t *mac_sta, uint8_t *mac_ap, uint8_t *authpacket)
 {
 unsigned long long int c;
 wpakey_t *wpak;
-int keyver;
+uint16_t keyver;
 pmkid_t *pmkid;
 pmkidl_t *zeiger;
 
@@ -3582,6 +3625,8 @@ void process80211eapolauthentication(uint32_t tv_sec, uint32_t tv_usec, uint32_t
 eapauth_t *eap;
 wpakey_t *wpak;
 uint16_t keyinfo;
+uint16_t keyver;
+
 uint16_t authlen;
 uint64_t rc;
 uint16_t kl;
@@ -3637,32 +3682,134 @@ if((kl %16) != 0)
 if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 	{
 	eapolframecount++;
+	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+	if(keyver == 0)
+		{
+		eapolwpaakmframecount++;
+		}
+	if(keyver == 1)
+		{
+		eapolwpa1framecount++;
+		}
+	if(keyver == 2)
+		{
+		eapolwpa2framecount++;
+		}
+	if(keyver == 3)
+		{
+		eapolwpa2kv3framecount++;
+		}
 	return;
 	}
 
 if(keyinfo == 1)
 	{
 	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 1, rc, authlen +4, packet);
+	eapolframecount++;
+	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+	if(keyver == 0)
+		{
+		eapolwpaakmframecount++;
+		}
+	if(keyver == 1)
+		{
+		eapolwpa1framecount++;
+		}
+	if(keyver == 2)
+		{
+		eapolwpa2framecount++;
+		}
+	if(keyver == 3)
+		{
+		eapolwpa2kv3framecount++;
+		}
 	if(authlen == 0x75)
 		{
 		addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
+		pmkidallcount++;
+		if(keyver == 0)
+			{
+			eapolpmkidwpaakmframecount++;
+			}
+		if(keyver == 1)
+			{
+			eapolpmkidwpa1framecount++;
+			}
+		if(keyver == 2)
+			{
+			eapolpmkidwpa2framecount++;
+			}
+		if(keyver == 3)
+			{
+			eapolpmkidwpa2kv3framecount++;
+			}
 		}
-	eapolframecount++;
 	}
 else if(keyinfo == 3)
 	{
 	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 2, rc, authlen +4, packet);
 	eapolframecount++;
+	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+	if(keyver == 0)
+		{
+		eapolwpaakmframecount++;
+		}
+	if(keyver == 1)
+		{
+		eapolwpa1framecount++;
+		}
+	if(keyver == 2)
+		{
+		eapolwpa2framecount++;
+		}
+	if(keyver == 3)
+		{
+		eapolwpa2kv3framecount++;
+		}
 	}
 else if(keyinfo == 2)
 	{
 	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 4, rc, authlen +4, packet);
 	eapolframecount++;
+	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+	if(keyver == 0)
+		{
+		eapolwpaakmframecount++;
+		}
+	if(keyver == 1)
+		{
+		eapolwpa1framecount++;
+		}
+	if(keyver == 2)
+		{
+		eapolwpa2framecount++;
+		}
+	if(keyver == 3)
+		{
+		eapolwpa2kv3framecount++;
+		}
 	}
 else if(keyinfo == 4)
 	{
 	addeapol(tv_sec, tv_usec, macaddr2, macaddr1, 8, rc, authlen +4, packet);
 	eapolframecount++;
+	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+	if(keyver == 0)
+		{
+		eapolwpaakmframecount++;
+		}
+	if(keyver == 1)
+		{
+		eapolwpa1framecount++;
+		}
+	if(keyver == 2)
+		{
+		eapolwpa2framecount++;
+		}
+	if(keyver == 3)
+		{
+		eapolwpa2kv3framecount++;
+		}
 	}
 return;
 }
@@ -5353,7 +5500,16 @@ actionframecount = 0;
 atimframecount = 0;
 eapolframecount = 0;
 eapoloversizedframecount = 0;
+eapolwpaakmframecount = 0;
+eapolwpa1framecount = 0;
+eapolwpa2framecount = 0;
+eapolwpa2kv3framecount = 0;
 pmkidcount = 0;
+pmkidallcount = 0;
+eapolpmkidwpaakmframecount = 0;
+eapolpmkidwpa1framecount = 0;
+eapolpmkidwpa2framecount = 0;
+eapolpmkidwpa2kv3framecount = 0;
 groupkeyframecount = 0;
 rc4descriptorframecount = 0;
 eapolstartframecount = 0;
@@ -5600,19 +5756,21 @@ printf("%s %s (C) %s ZeroBeat\n"
 //	"-w <file> : output WPA1/2 EAPOL/PMKID hash file (hashcat)\n"
 	"-o <file> : output hccapx file (hashcat -m 2500/2501)\n"
 	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
+	"            very slow!\n"
 	"-k <file> : output PMKID file (hashcat hashmode -m 16800 new format)\n"
 	"-z <file> : output PMKID file (hashcat hashmode -m 16800 old format and john)\n"
 	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
+	"            very slow!\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-X <file> : output client probelist\n"
-	"          : format: mac_sta:probed ESSID (autohex enabled)\n"
+	"            format: mac_sta:probed ESSID (autohex enabled)\n"
 	"-I <file> : output unsorted identity list\n"
 	"-U <file> : output unsorted username list\n"
 	"-M <file> : output unsorted IMSI number list\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
-	"          : european date : timestamp : mac_sta : mac_ap : essid\n"
+	"            european date : timestamp : mac_sta : mac_ap : essid\n"
 	"-g <file> : output GPS file\n"
 	"            format = GPX (accepted for example by Viking and GPSBabel)\n"
 	"-V        : verbose (but slow) status output\n"
@@ -5633,6 +5791,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--hexdump-out=<file>              : output dump raw packets in hex\n"
 	"--hccap-out=<file>                : output old hccap file (hashcat -m 2500)\n"
 	"--hccap-raw-out=<file>            : output raw old hccap file (hashcat -m 2500)\n"
+	"                                    very slow!\n"
 	"--help                            : show this help\n"
 	"--version                         : show version\n"
 	"\n"
@@ -5847,7 +6006,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_VERBOSE_OUT:
 		verboseflag = true;
-		wantrawflag = true;
 		break;
 
 		case HCXT_HELP:
