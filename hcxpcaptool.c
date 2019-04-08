@@ -2872,6 +2872,7 @@ void addpmkid(uint8_t *mac_sta, uint8_t *mac_ap, uint8_t *authpacket)
 {
 unsigned long long int c;
 wpakey_t *wpak;
+int keyver;
 pmkid_t *pmkid;
 pmkidl_t *zeiger;
 
@@ -2883,6 +2884,11 @@ uint8_t pmkidoui[] =
 
 wpak = (wpakey_t*)authpacket;
 if(ntohs(wpak->wpadatalen) != 22)
+	{
+	return;
+	}
+keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+if((keyver < 1) || (keyver > 3))
 	{
 	return;
 	}
