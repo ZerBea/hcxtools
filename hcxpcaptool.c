@@ -499,7 +499,8 @@ printf( "                                                \n"
 
 if(tscleanflag == true)
 	{
-	printf("warning......................: zero value timestamps detected\n");
+	printf( "warning......................: zero value timestamps detected\n"
+		"                               this prevents correct EAPOL timeout calculation\n");
 	}
 
 if(wdsframecount != 0)
