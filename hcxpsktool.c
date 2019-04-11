@@ -459,7 +459,7 @@ return;
 /*===========================================================================*/
 static void writeessidadd(FILE *fhout, char *essid)
 {
-int c;
+int c, d;
 static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = {};
 
 for(c = 1900; c <= thisyear; c++)
@@ -488,6 +488,15 @@ for(c = 0; c < 10; c++)
 	writepsk(fhout, essidstring);
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s-%d", essid, c);
 	writepsk(fhout, essidstring);
+	}
+
+for(c = 0; c <= 31; c++)
+	{
+	for(d = 0; d <= 12; d++)
+		{
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%02d%s%02d", c, essid, d);
+		writepsk(fhout, essidstring);
+		}
 	}
 
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1234567890", essid);
