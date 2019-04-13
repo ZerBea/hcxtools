@@ -490,6 +490,24 @@ for(c = 0; c < 10; c++)
 	writepsk(fhout, essidstring);
 	}
 
+for(c = 10; c < 19; c++)
+	{
+	for(d = 0; d <= 12; d++)
+		{
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%02d%02d", essid, c, d);
+		writepsk(fhout, essidstring);
+		}
+	}
+
+for(c = 21; c <= 31; c++)
+	{
+	for(d = 0; d <= 12; d++)
+		{
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%02d%02d", essid, c, d);
+		writepsk(fhout, essidstring);
+		}
+	}
+
 for(c = 0; c <= 31; c++)
 	{
 	for(d = 0; d <= 12; d++)
@@ -498,6 +516,7 @@ for(c = 0; c <= 31; c++)
 		writepsk(fhout, essidstring);
 		}
 	}
+
 
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1234567890", essid);
 writepsk(fhout, essidstring);
