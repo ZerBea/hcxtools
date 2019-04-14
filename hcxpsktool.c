@@ -602,6 +602,13 @@ snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%s", essid, essi
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s", essid);
 writepsk(fhout, essidstring);
+
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "Family%s", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "Familie%s", essid);
+writepsk(fhout, essidstring);
+snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "Familia%s", essid);
+writepsk(fhout, essidstring);
 return;
 }
 /*===========================================================================*/
