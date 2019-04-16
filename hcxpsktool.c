@@ -517,7 +517,6 @@ for(c = 0; c <= 31; c++)
 		}
 	}
 
-
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1234567890", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s123456789", essid);
@@ -638,7 +637,8 @@ for(pi = 0; pi < essidlen; pi++)
 		removeflag = true;
 		}
 	}
-if(removeflag == false)
+writeessidadd(fhout, (char*)essid);
+if(removeflag == true)
 	{
 	writeessidadd(fhout, essidtmp);
 	}
@@ -656,10 +656,7 @@ for(l1 = 2; l1 <= essidlen; l1++)
 		{
 		memset(&sweepstring, 0, PSKSTRING_LEN_MAX);
 		memcpy(&sweepstring, &essid[l2], l1);
-		if(writeessidremoved(fhout, l1, sweepstring) == true)
-			{
-			writeessidadd(fhout, (char*)sweepstring);
-			}
+		writeessidremoved(fhout, l1, sweepstring);
 		}
 	}
 return;
