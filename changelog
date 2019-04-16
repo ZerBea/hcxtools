@@ -1,3 +1,8 @@
+16.04.2019
+==========
+finally removed wlanhcx2psk in favor of hcxpsktool
+
+
 08.04.2019
 ==========
 hcxpcaptool: from now on only PBKDF2 based hashes (EAPOL and PMKID) are converted running options -k -z and -o
