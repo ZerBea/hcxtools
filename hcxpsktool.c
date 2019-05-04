@@ -266,7 +266,6 @@ return;
 static void keywriteeudate(FILE *fhout)
 {
 static int d ,m ,y;
-static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 for(y = 1900; y <= thisyear; y++)
 	{
@@ -274,8 +273,8 @@ for(y = 1900; y <= thisyear; y++)
 		{
 		for(m = 1; m <= 12; m++)
 			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%04d", d, m, y);
-			writepsk(fhout, pskstring);
+			fprintf(fhout, "%02d%02d%04d", d, m, y);
+			fprintf(fhout, "%02d.%02d.%04d", d, m, y);
 			}
 		}
 	}
@@ -286,36 +285,36 @@ for(y = 1900; y <= thisyear; y++)
 		{
 		for(m = 1; m <= 12; m++)
 			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%04d", d, m, y);
-			writepsk(fhout, pskstring);
+			fprintf(fhout, "%02d%02d%04d", d, m, y);
+			fprintf(fhout, "%02d.%02d.%04d", d, m, y);
 			}
 		}
 	}
 
 for(y = 1900; y <= thisyear; y++)
 	{
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "3101%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "3103%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "3105%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "3107%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "3108%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "3110%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "3112%04d", y);
-	writepsk(fhout, pskstring);
+	fprintf(fhout, "3101%04d", y);
+	fprintf(fhout, "3103%04d", y);
+	fprintf(fhout, "3105%04d", y);
+	fprintf(fhout, "3107%04d", y);
+	fprintf(fhout, "3108%04d", y);
+	fprintf(fhout, "3110%04d", y);
+	fprintf(fhout, "3112%04d", y);
+	fprintf(fhout, "31.01.%04d", y);
+	fprintf(fhout, "31.03.%04d", y);
+	fprintf(fhout, "31.05.%04d", y);
+	fprintf(fhout, "31.07.%04d", y);
+	fprintf(fhout, "31.08.%04d", y);
+	fprintf(fhout, "31.10.%04d", y);
+	fprintf(fhout, "31.12.%04d", y);
 	}
 
 for(y = 1900; y <= thisyear; y++)
 	{
 	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
 		{
-		snprintf(pskstring, PSKSTRING_LEN_MAX, "2902%04d", y);
-		writepsk(fhout, pskstring);
+		fprintf(fhout, "2902%04d", y);
+		fprintf(fhout, "29.02.%04d", y);
 		}
 	}
 return;
@@ -324,7 +323,6 @@ return;
 static void keywriteusdate(FILE *fhout)
 {
 static int d ,m ,y;
-static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 for(y = 1900; y <= thisyear; y++)
 	{
@@ -332,8 +330,8 @@ for(y = 1900; y <= thisyear; y++)
 		{
 		for(m = 1; m <= 12; m++)
 			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%04d", m, d, y);
-			writepsk(fhout, pskstring);
+			fprintf(fhout, "%02d%02d%04d", m, d, y);
+			fprintf(fhout, "%02d.%02d.%04d", m, d, y);
 			}
 		}
 	}
@@ -344,36 +342,36 @@ for(y = 1900; y <= thisyear; y++)
 		{
 		for(m = 1; m <= 12; m++)
 			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%04d", m, d, y);
-			writepsk(fhout, pskstring);
+			fprintf(fhout, "%02d%02d%04d", m, d, y);
+			fprintf(fhout, "%02d.%02d.%04d", m, d, y);
 			}
 		}
 	}
 
 for(y = 1900; y <= thisyear; y++)
 	{
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "0131%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "0331%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "0531%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "0731%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "0831%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "1031%04d", y);
-	writepsk(fhout, pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "1231%04d", y);
-	writepsk(fhout, pskstring);
+	fprintf(fhout, "0131%04d", y);
+	fprintf(fhout, "0331%04d", y);
+	fprintf(fhout, "0531%04d", y);
+	fprintf(fhout, "0731%04d", y);
+	fprintf(fhout, "0831%04d", y);
+	fprintf(fhout, "1031%04d", y);
+	fprintf(fhout, "1231%04d", y);
+	fprintf(fhout, "01.31.%04d", y);
+	fprintf(fhout, "03.31.%04d", y);
+	fprintf(fhout, "05.31.%04d", y);
+	fprintf(fhout, "07.31.%04d", y);
+	fprintf(fhout, "08.31.%04d", y);
+	fprintf(fhout, "10.31.%04d", y);
+	fprintf(fhout, "12.31.%04d", y);
 	}
 
 for(y = 1900; y <= thisyear; y++)
 	{
 	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
 		{
-		snprintf(pskstring, PSKSTRING_LEN_MAX, "0229%04d", y);
-		writepsk(fhout, pskstring);
+		fprintf(fhout, "0229%04d", y);
+		fprintf(fhout, "02.29.%04d", y);
 		}
 	}
 return;
@@ -705,9 +703,8 @@ static char *dg860A = "DG860A";
 static char *tg852g = "TG852G";
 static char *tg862g = "TG862G";
 static char *dg1670A = "DG1670A";
+static char *sbg6580 = "SBG6580";
 static char *tg1672g = "TG1672G";
-
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if(essidlen == 8)
 	{
@@ -719,8 +716,7 @@ if(essidlen == 8)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
-			snprintf(essidtmp, PSKSTRING_LEN_MAX, "DG860A%04X%c%c", k1, essid[6], essid[7]);
-			writepsk(fhout, essidtmp);
+			fprintf(fhout, "DG860A%04X%c%c\n", k1, essid[6], essid[7]);
 			}
 		return;
 		}
@@ -728,8 +724,7 @@ if(essidlen == 8)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
-			snprintf(essidtmp, PSKSTRING_LEN_MAX, "TG852G%04X%c%c", k1, essid[6], essid[7]);
-			writepsk(fhout, essidtmp);
+			fprintf(fhout, "TG852G%04X%c%c\n", k1, essid[6], essid[7]);
 			}
 		return;
 		}
@@ -737,8 +732,7 @@ if(essidlen == 8)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
-			snprintf(essidtmp, PSKSTRING_LEN_MAX, "TG862G%04X%c%c", k1, essid[6], essid[7]);
-			writepsk(fhout, essidtmp);
+			fprintf(fhout, "TG862G%04X%c%c\n", k1, essid[6], essid[7]);
 			}
 		return;
 		}
@@ -754,8 +748,15 @@ if(essidlen == 9)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
-			snprintf(essidtmp, PSKSTRING_LEN_MAX, "DG1670A%04X%c%c", k1, essid[7], essid[8]);
-			writepsk(fhout, essidtmp);
+			fprintf(fhout, "DG1670A%04X%c%c\n", k1, essid[7], essid[8]);
+			}
+		return;
+		}
+	if(memcmp(essid, sbg6580, 7) == 0) 
+		{
+		for(k1 = 0; k1 < 0x10000; k1++)
+			{
+			fprintf(fhout, "SBG6580%04X%c%c\n", k1, essid[7], essid[8]);
 			}
 		return;
 		}
@@ -763,8 +764,7 @@ if(essidlen == 9)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
-			snprintf(essidtmp, PSKSTRING_LEN_MAX, "TG1672G%04X%c%c", k1, essid[7], essid[8]);
-			writepsk(fhout, essidtmp);
+			fprintf(fhout, "TG1672G%04X%c%c\n", k1, essid[7], essid[8]);
 			}
 		return;
 		}
@@ -972,8 +972,6 @@ static int k1, k2, k3;
 static char *ev;
 static char *roamingman =  "Roamingman_";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
-
 if(essidlen == 16)
 	{
 	if((!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15])))
@@ -992,18 +990,15 @@ if(essidlen == 16)
 			{
 			if(k3 < 0)
 				{
-				snprintf(essidtmp, PSKSTRING_LEN_MAX, "%03d%05d", k1, k3 +100000);
-				writepsk(fhout, essidtmp);
+				fprintf(fhout, "%03d%05d", k1, k3 +100000);
 				}
 			else if(k3 > 99999)
 				{
-				snprintf(essidtmp, PSKSTRING_LEN_MAX, "%03d%05d", k1, k3 -100000);
-				writepsk(fhout, essidtmp);
+				fprintf(fhout, "%03d%05d", k1, k3 -100000);
 				}
 			else
 				{
-				snprintf(essidtmp, PSKSTRING_LEN_MAX, "%03d%05d", k1, k3);
-				writepsk(fhout, essidtmp);
+				fprintf(fhout, "%03d%05d", k1, k3);
 				}
 			}
 		}
@@ -1018,8 +1013,6 @@ static int k1;
 static char *tc8715d =  "TC8715D";
 static char *tc8717t =  "TC8717T";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
-
 if(essidlen == 9)
 	{
 	if((!isxdigit(essid[7])) || (!isxdigit(essid[8])))
@@ -1030,16 +1023,14 @@ if(essidlen == 9)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
-			snprintf(essidtmp, PSKSTRING_LEN_MAX, "TC8715D%04X%c%c", k1, essid[7], essid[8]);
-			writepsk(fhout, essidtmp);
+			fprintf(fhout, "TC8715D%04X%c%c", k1, essid[7], essid[8]);
 			}
 		}
 	if(memcmp(essid, tc8717t, 7) == 0)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
-			snprintf(essidtmp, PSKSTRING_LEN_MAX, "TC8717T%04X%c%c", k1, essid[7], essid[8]);
-			writepsk(fhout, essidtmp);
+			fprintf(fhout, "TC8717T%04X%c%c", k1, essid[7], essid[8]);
 			}
 		}
 	return;
@@ -1118,6 +1109,63 @@ if(essidlen == 13)
 	}
 return;
 }
+
+
+/*===========================================================================*/
+static void testwlan(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1, k2, k3, k4, k5, k6 ,k7 ,k8, k9;
+static char *wifirsu = "WLAN-";
+
+static char hextable[] = "0123456789ABCDEF";
+
+if(essidlen != 11)
+	{
+	return;
+	}
+if(memcmp(essid, wifirsu, 5) != 0)
+	{
+	return;
+	}
+if((!isxdigit(essid[5])) || (!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isdigit(essid[9])) || (!isdigit(essid[10])))
+	{
+	return;
+	}
+
+k1 = essid[9];
+k2 = 0;
+k3 = essid[10];
+k4 = essid[8];
+k5 = 0;
+k6 = 0;
+k7 = 0;
+k8 = essid[6];
+k9 = essid[7];
+
+for(k2 = 0; k2 < 10; k2++)
+	{
+	for(k5 = 0; k5 <= 0xffff; k5++)
+		{
+		fprintf(fhout, "SP-%c%d%c%c%04X%d\n", k1, k2, k3, k4, k5, k2);
+		fprintf(fhout, "SP%c%d%c%c%04X%d\n", k1, k2, k3, k4, k5, k2);
+		}
+	}
+
+for(k2 = 0; k2 < 10; k2++)
+	{
+	for(k5 = 0; k5 <= 0x0f; k5++)
+		{
+		for(k6 = 0; k6 <= 0x0f; k6++)
+			{
+			for(k7 = 0; k7 < 100; k7++)
+				{
+				fprintf(fhout, "%c%d%c%02d%02d%02d%02d%d%02d%02d\n", k1, k2, k3, k4, hextable[k5], hextable[k6], k7, k2, k8, k9);
+				}
+			}
+		}
+	}
+return;
+}
 /*===========================================================================*/
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
@@ -1136,6 +1184,7 @@ testroamingman(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
 testukrtelecom(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
+testwlan(fhout, essidlen, essid);
 
 writeessidsweeped(fhout, essidlen, essid);
 po = 0;
