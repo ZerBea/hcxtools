@@ -862,6 +862,38 @@ for(k1 = 0; k1 < 0x100; k1++)
 return;
 }
 /*===========================================================================*/
+static void testglocal(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1, k2, k3, k4;
+static char *glocalme = "GlocalMe_";
+
+if(essidlen != 14)
+	{
+	return;
+	}
+if(memcmp(essid, glocalme , 9) != 0)
+	{
+	return;
+	}
+if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])))
+	{
+	return;
+	}
+
+k2 = essid[11];
+k3 = essid[12];
+
+for(k1 = 0; k1 < 100000; k1++)
+	{
+	for(k4 = 0; k4 < 10; k4++)
+		{
+		fprintf(fhout, "%05d%c%c%d\n", k1, k2, k3, k4);
+		}
+	}
+
+return;
+}
+/*===========================================================================*/
 static void testhotbox(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2;
@@ -1180,6 +1212,7 @@ testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
 testaxtelxtremo(fhout, essidlen, essid);
 testcabovisao(fhout, essidlen, essid);
+testglocal(fhout, essidlen, essid);
 testhotbox(fhout, essidlen, essid);
 testmtel(fhout, essidlen, essid);
 testmywifi(fhout, essidlen, essid);
