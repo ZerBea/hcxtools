@@ -1109,8 +1109,6 @@ if(essidlen == 13)
 	}
 return;
 }
-
-
 /*===========================================================================*/
 static void testwlan(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
@@ -1171,6 +1169,11 @@ static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
+
+if((essidlen == 0) || (essidlen > 32))
+	{
+	return;
+	}
 
 testalcatellinkzone(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
@@ -1387,7 +1390,6 @@ for(c = 0; c < 0x10; c++)
 	{
 	writebssid(fhout, oui +nic +c);
 	}
-
 test000559(fhout, macaddr);
 return;
 }
