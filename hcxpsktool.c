@@ -35,6 +35,7 @@ static bool eudateflag;
 static bool usdateflag;
 static bool wpskeysflag;
 
+static bool easyboxflag;
 static bool ukrtelecomflag;
 
 /*===========================================================================*/
@@ -862,6 +863,59 @@ for(k1 = 0; k1 < 0x100; k1++)
 return;
 }
 /*===========================================================================*/
+static void testeasybox(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+int b;
+int s10, s9, s8 , s7;
+int m12, m11, m10 ,m9;
+int f1, f2;
+int key1, key2, key3, key4, key5, key6, key7, key8, key9;
+
+static char *easybox = "EasyBox-";
+
+if(easyboxflag == true)
+	{
+	return;
+	}
+if(essidlen != 14)
+	{
+	return;
+	}
+if(memcmp(essid, easybox, 8) != 0)
+	{
+	return;
+	}
+if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])))
+	{
+	return;
+	}
+for (b = 0; b <= 0xffff; b++)
+	{
+	m12 =  b &0x000f;
+	m11 = (b &0x00f0) >> 4;
+	m10 = (b &0x0f00) >> 8;
+	m9 =  (b &0xf000) >> 12;
+	s10 = b %10;
+	s9 = (b /10) %10;
+	s8 = (b /100) %10;
+	s7 = (b /1000) %10;
+	f1 = (s7 +s8 +m11 +m12) & 0xf;
+	f2 = (m9 +m10 +s9 +s10) & 0xf;
+	key1 = f1 ^s10;
+	key2 = f2 ^m10;
+	key3 = m11 ^s10;
+	key4 = f1 ^s9;
+	key5 = f2 ^m11;
+	key6 = m12 ^s9;
+	key7 = f1 ^s8;
+	key8 = f2 ^m12;
+	key9 = f1 ^f2;
+	fprintf (fhout, "%X%X%X%X%X%X%X%X%X\n", key1, key2, key3, key4, key5, key6, key7, key8, key9);
+	}
+easyboxflag = true;
+return;
+}
+/*===========================================================================*/
 static void testglocal(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2, k3, k4;
@@ -1212,6 +1266,7 @@ testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
 testaxtelxtremo(fhout, essidlen, essid);
 testcabovisao(fhout, essidlen, essid);
+testeasybox(fhout, essidlen, essid);
 testglocal(fhout, essidlen, essid);
 testhotbox(fhout, essidlen, essid);
 testmtel(fhout, essidlen, essid);
@@ -1887,6 +1942,7 @@ weakpassflag = false;
 eudateflag = false;
 usdateflag = false;
 wpskeysflag = false;
+easyboxflag = false;
 ukrtelecomflag = false;
 
 static const char *short_options = "i:j:z:o:e:b:o:hv";
