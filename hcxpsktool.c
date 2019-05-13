@@ -869,7 +869,7 @@ int b;
 int s10, s9, s8 , s7;
 int m12, m11, m10 ,m9;
 int f1, f2;
-int key1, key2, key3, key4, key5, key6, key7, key8, key9;
+int k1, k2, k3, k4, k5, k6, k7, k8, k9;
 
 static char *easybox = "EasyBox-";
 
@@ -901,16 +901,16 @@ for (b = 0; b <= 0xffff; b++)
 	s7 = (b /1000) %10;
 	f1 = (s7 +s8 +m11 +m12) & 0xf;
 	f2 = (m9 +m10 +s9 +s10) & 0xf;
-	key1 = f1 ^s10;
-	key2 = f2 ^m10;
-	key3 = m11 ^s10;
-	key4 = f1 ^s9;
-	key5 = f2 ^m11;
-	key6 = m12 ^s9;
-	key7 = f1 ^s8;
-	key8 = f2 ^m12;
-	key9 = f1 ^f2;
-	fprintf (fhout, "%X%X%X%X%X%X%X%X%X\n", key1, key2, key3, key4, key5, key6, key7, key8, key9);
+	k1 = f1 ^s10;
+	k2 = f2 ^m10;
+	k3 = m11 ^s10;
+	k4 = f1 ^s9;
+	k5 = f2 ^m11;
+	k6 = m12 ^s9;
+	k7 = f1 ^s8;
+	k8 = f2 ^m12;
+	k9 = f1 ^f2;
+	fprintf (fhout, "%X%X%X%X%X%X%X%X%X\n", k1, k2, k3, k4, k5, k6, k7, k8, k9);
 	}
 easyboxflag = true;
 return;
