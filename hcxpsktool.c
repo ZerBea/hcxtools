@@ -463,7 +463,7 @@ static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX]
 
 for(c = 2222; c <= 9999; c += 1111)
 	{
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%04d", essid, c);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
 	writepsk(fhout, essidstring);
 	}
 
@@ -477,23 +477,23 @@ for(c = 0; c <= thisyear; c++)
 	writepsk(fhout, essidstring);
 	}
 
-for(c = 0; c < 1000; c++)
+for(c = 100; c < 1000; c++)
 	{
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s03%d", essid, c);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
 	writepsk(fhout, essidstring);
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%03d!", essid, c);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d!", essid, c);
 	writepsk(fhout, essidstring);
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%03d%s", c, essid);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%d%s", c, essid);
 	writepsk(fhout, essidstring);
 	}
 
-for(c = 0; c < 100; c++)
+for(c = 10; c < 100; c++)
 	{
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%02d!", essid, c);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d!", essid, c);
 	writepsk(fhout, essidstring);
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s02%d", essid, c);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
 	writepsk(fhout, essidstring);
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%02d%s", c, essid);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%d%s", c, essid);
 	writepsk(fhout, essidstring);
 	}
 
@@ -645,6 +645,7 @@ for(pi = 0; pi < essidlen; pi++)
 		removeflag = true;
 		}
 	}
+
 writeessidadd(fhout, (char*)essid);
 if(removeflag == true)
 	{
