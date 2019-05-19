@@ -97,6 +97,7 @@ Useful scripts
 | ------------ | -------------------------------------------------------- |
 | piwritecard  | Example script to restore SD-Card                        |
 | piwreadcard  | Example script to backup SD-Card                         |
+| hcxgrep.py   | Extract records from hccapx/pmkid file based on regexp   |
 
 
 Notice

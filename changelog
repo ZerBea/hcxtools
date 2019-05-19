@@ -1,3 +1,39 @@
+19.05.2019
+==========
+added new useful script: hcxgrep.py
+
+Works like grep, but for hccapx/pmkid hashfiles - those are detected
+automagically. It also can read from stdin and writes on stdout.
+
+It tries to be as close to grep commandline options, this is -h:
+
+usage: hcxgrep.py [-h] [-f FILE] [-v] [-t {essid,mac_ap,mac_sta}]
+                  [PATTERNS] [infile]
+
+Extract records from hccapx/pmkid file based on regexp
+
+positional arguments:
+  PATTERNS              RegExp pattern
+  infile                hccapx/pmkid file to process
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Obtain patterns from FILE, one per line.
+  -v, --invert-match    Invert the sense of matching, to select non-matching
+                        nets
+  -t {essid,mac_ap,mac_sta}, --type {essid,mac_ap,mac_sta}
+                        Field to apply matching, default essid
+
+By default it greps by essid, but you can choose with -t also to grep
+over mac_ap or mac_sta, passed as lowercase hex strings. It also can
+read multiple patterns from external file, like those attached. It's
+composed from routerkeygen and matches essids with _ or - in them. Of
+course this have many false positives and the default PSK can be
+changed, but one can easy get those nets he needs to try custom
+wordlists or etc.
+
+
+
 16.04.2019
 ==========
 finally removed wlanhcx2psk in favor of hcxpsktool
