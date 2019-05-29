@@ -30,6 +30,7 @@ static int apessidcount;
 static int thisyear;
 
 static bool netgearflag;
+static bool tendaflag;
 static bool weakpassflag;
 static bool eudateflag;
 static bool usdateflag;
@@ -110,7 +111,8 @@ return;
 /*===========================================================================*/
 static void keywritenetgear(FILE *fhout)
 {
-size_t ca, cn, cs;
+static size_t ca, cs;
+static int cn;
 
 char pskstring[PSKSTRING_LEN_MAX] = {};
 
@@ -141,49 +143,105 @@ const char *adjectiv[] = { "absurd", "ancient", "antique", "aquatic",
 	"zany" };
 
 const char *substantiv[] = { "airplane", "apple", "automobile",
-	 "ball", "balloon", "banana", "beach", "bead", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "bottle", "box", "brain", "bread", "breeze", "bubble", "bug", "bunny", "bush", "butter",
-	 "canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "chip", "coast", "coconut", "comet", "cream", "curly", "curtain",
-	 "daisy", "deal", "deer", "desk", "diamond", "dink", "door",
-	 "earth", "elephant", "emerald",
-	 "finch", "fire", "fish", "flamingo", "flower", "flute", "forest",
-	 "gadfly", "gate", "gear", "giant", "giraffe", "girl", "glove", "grape", "grasshopper", "guppy",
-	 "hair", "hat", "hill", "hippo",
-	 "ink", "iris",
-	 "jade", "jet", "jetcar", "jungle",
-	 "kangaroo", "kayak",
-	 "lake", "lemon", "light", "lightning", "lion", "lotus", "lump",
-	 "mango", "mesa", "mint", "monkey", "moon", "motorcycle", "mountain",
-	 "ness", "nest",
-	 "oboe", "ocean", "octopus", "onion", "orange", "orchestra", "owl",
-	 "panda", "path", "pear", "pencil", "penguin", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "poodle", "potato", "prairie",
-	 "quail",
-	 "rabbit", "raccoon", "raid", "rain", "raven", "river", "road", "rock", "robert", "rosebud", "ruby",
-	 "sea", "seed", "shark", "sheep", "ship", "shoe", "shore", "shrub", "side", "silver", "sitter", "skates", "skin", "sky", "snake", "socks", "spark", "sparrow", "spider", "squash", "squirrel", "star", "stream", "street", "sun",
-	 "table", "teapot", "terrain", "tiger", "toast", "tomato", "trail", "train", "tree", "truck", "trumpet", "tuba", "tulip", "turkey",
-	 "umbrella", "unicorn", "unit",
-	 "valley", "vase", "violet", "violin",
-	 "water", "whale", "west", "wind", "window",
-	 "zebra", "zoo" };
+	"ball", "balloon", "banana", "beach", "bead", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "bottle", "box", "brain", "bread", "breeze", "bubble", "bug", "bunny", "bush", "butter",
+	"canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "chip", "coast", "coconut", "comet", "cream", "curly", "curtain",
+	"daisy", "deal", "deer", "desk", "diamond", "dink", "door",
+	"earth", "elephant", "emerald",
+	"finch", "fire", "fish", "flamingo", "flower", "flute", "forest",
+	"gadfly", "gate", "gear", "giant", "giraffe", "girl", "glove", "grape", "grasshopper", "guppy",
+	"hair", "hat", "hill", "hippo",
+	"ink", "iris",
+	"jade", "jet", "jetcar", "jungle",
+	"kangaroo", "kayak",
+	"lake", "lemon", "light", "lightning", "lion", "lotus", "lump",
+	"mango", "mesa", "mint", "monkey", "moon", "motorcycle", "mountain",
+	"ness", "nest",
+	"oboe", "ocean", "octopus", "onion", "orange", "orchestra", "owl",
+	"panda", "path", "pear", "pencil", "penguin", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "poodle", "potato", "prairie",
+	"quail",
+	"rabbit", "raccoon", "raid", "rain", "raven", "river", "road", "rock", "robert", "rosebud", "ruby",
+	"sea", "seed", "shark", "sheep", "ship", "shoe", "shore", "shrub", "side", "silver", "sitter", "skates", "skin", "sky", "snake", "socks", "spark", "sparrow", "spider", "squash", "squirrel", "star", "stream", "street", "sun",
+	"table", "teapot", "terrain", "tiger", "toast", "tomato", "trail", "train", "tree", "truck", "trumpet", "tuba", "tulip", "turkey",
+	"umbrella", "unicorn", "unit",
+	"valley", "vase", "violet", "violin",
+	"water", "whale", "west", "wind", "window",
+	"zebra", "zoo" };
 
 for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
+	{
 	for(cs = 0; cs < (sizeof(substantiv) / sizeof(char *)); cs++)
 		{
 		for (cn = 0; cn < 1000; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%zu", adjectiv[ca], substantiv[cs], cn);
+			snprintf(pskstring, 64, "%s%s%d", adjectiv[ca], substantiv[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			if(cn < 10)
 				{
-				snprintf(pskstring, 64, "%s%s%02zu", adjectiv[ca], substantiv[cs], cn);
+				snprintf(pskstring, 64, "%s%s%02d", adjectiv[ca], substantiv[cs], cn);
 				fprintf(fhout,"%s\n", pskstring);
 				}
 			if(cn < 100)
 				{
-				snprintf(pskstring, 64, "%s%s%03zu", adjectiv[ca], substantiv[cs], cn);
+				snprintf(pskstring, 64, "%s%s%03d", adjectiv[ca], substantiv[cs], cn);
 				fprintf(fhout,"%s\n", pskstring);
 				}
 			}
 		}
+	}
+return;
+}
+/*===========================================================================*/
+static void keywritetenda1(FILE *fhout)
+{
+static size_t ca, cs;
+static int cn;
+
+char pskstring[PSKSTRING_LEN_MAX] = {};
+
+const char *word1[] = { "feed",
+	"name" };
+
+const char *word2[] = { "more",
+	"think" };
+
+for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(word2) / sizeof(char *)); cs++)
+		{
+		for (cn = 0; cn < 1000; cn++)
+			{
+			snprintf(pskstring, 64, "%s%s%03d", word1[ca], word2[cs], cn);
+			fprintf(fhout,"%s\n", pskstring);
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void keywritetenda2(FILE *fhout)
+{
+static size_t ca;
+static int cn;
+
+char pskstring[PSKSTRING_LEN_MAX] = {};
+
+const char *word1[] = { "apple",
+	"east",
+	"give",
+	"lable", "light",
+	"north",
+	"pace",
+	"south",
+	"west" };
+
+for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
+	{
+	for (cn = 0; cn < 10000; cn++)
+		{
+		snprintf(pskstring, 64, "%s%04d", word1[ca], cn);
+		fprintf(fhout,"%s\n", pskstring);
+		}
+	}
 return;
 }
 /*===========================================================================*/
@@ -221,7 +279,7 @@ const char *weakword[] =
 "Fernando", "Fireball", "Firebird", "Football", "Football1", "free-tau", "Franklin",
 "FuckYou2", "Gangster", "Garfield", "Giovanni", "Godzilla", "Goldfish",
 "GoodLuck", "GreenDay", "Hallo123", "Hardcore", "Harrison", "HarryPotter",
-"Hello123", "HelloKitty", "Hercules", "IceCream", "idontknow", "iloveyou",
+"Hello123", "HelloKitty", "helloworld123", "Hercules", "IceCream", "idontknow", "iloveyou",
 "Infinity", "Internet", "Inuyasha", "Isabella", "Isabelle", "JamesBond",
 "Jennifer", "Jonathan", "Jordan23", "justdoit", "Juventus", "Kamikaze",
 "Kawasaki", "Kimberly", "KingKong", "Kristina", "LasVegas", "Leonardo",
@@ -1514,11 +1572,16 @@ for(c = 0; c < apessidcount; c++)
 return;
 }
 /*===========================================================================*/
-static void processadditionals(FILE *fhout, bool weakpassflag, bool eudateflag, bool usdateflag, bool wpsflag, bool netgearflag)
+static void processadditionals(FILE *fhout, bool weakpassflag, bool eudateflag, bool usdateflag, bool wpsflag, bool netgearflag, bool tendaflag)
 {
 if(netgearflag == true)
 	{
 	keywritenetgear(fhout);
+	}
+if(tendaflag == true)
+	{
+	keywritetenda1(fhout);
+	keywritetenda2(fhout);
 	}
 if(weakpassflag == true)
 	{
@@ -1903,7 +1966,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
-	"--netgear : include NETGEAR candidates\n"
+	"--netgear : include weak NETGEAR candidates\n"
+	"--tenda   : include weak TENDA candidates\n"
 	"--weakpass: include weak password candidates\n"
 	"--eudate  : include complete european dates\n"
 	"--usdate  : include complete american dates\n"
@@ -1943,6 +2007,7 @@ static char *macapname = NULL;
 static char *pskname = NULL;
 
 netgearflag = false;
+tendaflag = false;
 weakpassflag = false;
 eudateflag = false;
 usdateflag = false;
@@ -1954,6 +2019,7 @@ static const char *short_options = "i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
+	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
@@ -1973,6 +2039,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		{
 		case HCXD_NETGEAR:
 		netgearflag = true;
+		break;
+
+		case HCXD_TENDA:
+		tendaflag = true;
 		break;
 
 		case HCXD_WEAKPASS:
@@ -2077,14 +2147,14 @@ if(pskname != NULL)
 	processbssids(fhpsk);
 	processessids(fhpsk);
 	processbssidsessids(fhpsk);
-	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag);
+	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag, tendaflag);
 	}
 else
 	{
 	processbssids(stdout);
 	processessids(stdout);
 	processbssidsessids(stdout);
-	processadditionals(stdout, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag);
+	processadditionals(stdout, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag, tendaflag);
 	}
 
 
