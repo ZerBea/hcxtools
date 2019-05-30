@@ -332,8 +332,8 @@ for(y = 1900; y <= thisyear; y++)
 		{
 		for(m = 1; m <= 12; m++)
 			{
-			fprintf(fhout, "%02d%02d%04d", d, m, y);
-			fprintf(fhout, "%02d.%02d.%04d", d, m, y);
+			fprintf(fhout, "%02d%02d%04d\n", d, m, y);
+			fprintf(fhout, "%02d.%02d.%04d\n", d, m, y);
 			}
 		}
 	}
@@ -344,36 +344,36 @@ for(y = 1900; y <= thisyear; y++)
 		{
 		for(m = 1; m <= 12; m++)
 			{
-			fprintf(fhout, "%02d%02d%04d", d, m, y);
-			fprintf(fhout, "%02d.%02d.%04d", d, m, y);
+			fprintf(fhout, "%02d%02d%04d\n", d, m, y);
+			fprintf(fhout, "%02d.%02d.%04d\n", d, m, y);
 			}
 		}
 	}
 
 for(y = 1900; y <= thisyear; y++)
 	{
-	fprintf(fhout, "3101%04d", y);
-	fprintf(fhout, "3103%04d", y);
-	fprintf(fhout, "3105%04d", y);
-	fprintf(fhout, "3107%04d", y);
-	fprintf(fhout, "3108%04d", y);
-	fprintf(fhout, "3110%04d", y);
-	fprintf(fhout, "3112%04d", y);
-	fprintf(fhout, "31.01.%04d", y);
-	fprintf(fhout, "31.03.%04d", y);
-	fprintf(fhout, "31.05.%04d", y);
-	fprintf(fhout, "31.07.%04d", y);
-	fprintf(fhout, "31.08.%04d", y);
-	fprintf(fhout, "31.10.%04d", y);
-	fprintf(fhout, "31.12.%04d", y);
+	fprintf(fhout, "3101%04d\n", y);
+	fprintf(fhout, "3103%04d\n", y);
+	fprintf(fhout, "3105%04d\n", y);
+	fprintf(fhout, "3107%04d\n", y);
+	fprintf(fhout, "3108%04d\n", y);
+	fprintf(fhout, "3110%04d\n", y);
+	fprintf(fhout, "3112%04d\n", y);
+	fprintf(fhout, "31.01.%04d\n", y);
+	fprintf(fhout, "31.03.%04d\n", y);
+	fprintf(fhout, "31.05.%04d\n", y);
+	fprintf(fhout, "31.07.%04d\n", y);
+	fprintf(fhout, "31.08.%04d\n", y);
+	fprintf(fhout, "31.10.%04d\n", y);
+	fprintf(fhout, "31.12.%04d\n", y);
 	}
 
 for(y = 1900; y <= thisyear; y++)
 	{
 	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
 		{
-		fprintf(fhout, "2902%04d", y);
-		fprintf(fhout, "29.02.%04d", y);
+		fprintf(fhout, "2902%04d\n", y);
+		fprintf(fhout, "29.02.%04d\n", y);
 		}
 	}
 return;
@@ -389,8 +389,8 @@ for(y = 1900; y <= thisyear; y++)
 		{
 		for(m = 1; m <= 12; m++)
 			{
-			fprintf(fhout, "%02d%02d%04d", m, d, y);
-			fprintf(fhout, "%02d.%02d.%04d", m, d, y);
+			fprintf(fhout, "%02d%02d%04d\n", m, d, y);
+			fprintf(fhout, "%02d.%02d.%04d\n", m, d, y);
 			}
 		}
 	}
@@ -401,36 +401,36 @@ for(y = 1900; y <= thisyear; y++)
 		{
 		for(m = 1; m <= 12; m++)
 			{
-			fprintf(fhout, "%02d%02d%04d", m, d, y);
-			fprintf(fhout, "%02d.%02d.%04d", m, d, y);
+			fprintf(fhout, "%02d%02d%04d\n", m, d, y);
+			fprintf(fhout, "%02d.%02d.%04d\n", m, d, y);
 			}
 		}
 	}
 
 for(y = 1900; y <= thisyear; y++)
 	{
-	fprintf(fhout, "0131%04d", y);
-	fprintf(fhout, "0331%04d", y);
-	fprintf(fhout, "0531%04d", y);
-	fprintf(fhout, "0731%04d", y);
-	fprintf(fhout, "0831%04d", y);
-	fprintf(fhout, "1031%04d", y);
-	fprintf(fhout, "1231%04d", y);
-	fprintf(fhout, "01.31.%04d", y);
-	fprintf(fhout, "03.31.%04d", y);
-	fprintf(fhout, "05.31.%04d", y);
-	fprintf(fhout, "07.31.%04d", y);
-	fprintf(fhout, "08.31.%04d", y);
-	fprintf(fhout, "10.31.%04d", y);
-	fprintf(fhout, "12.31.%04d", y);
+	fprintf(fhout, "0131%04d\n", y);
+	fprintf(fhout, "0331%04d\n", y);
+	fprintf(fhout, "0531%04d\n", y);
+	fprintf(fhout, "0731%04d\n", y);
+	fprintf(fhout, "0831%04d\n", y);
+	fprintf(fhout, "1031%04d\n", y);
+	fprintf(fhout, "1231%04d\n", y);
+	fprintf(fhout, "01.31.%04d\n", y);
+	fprintf(fhout, "03.31.%04d\n", y);
+	fprintf(fhout, "05.31.%04d\n", y);
+	fprintf(fhout, "07.31.%04d\n", y);
+	fprintf(fhout, "08.31.%04d\n", y);
+	fprintf(fhout, "10.31.%04d\n", y);
+	fprintf(fhout, "12.31.%04d\n", y);
 	}
 
 for(y = 1900; y <= thisyear; y++)
 	{
 	if (((y %4 == 0) && (y %100 != 0)) || (y %400 == 0))
 		{
-		fprintf(fhout, "0229%04d", y);
-		fprintf(fhout, "02.29.%04d", y);
+		fprintf(fhout, "0229%04d\n", y);
+		fprintf(fhout, "02.29.%04d\n", y);
 		}
 	}
 return;
@@ -1139,15 +1139,15 @@ if(essidlen == 16)
 			{
 			if(k3 < 0)
 				{
-				fprintf(fhout, "%03d%05d", k1, k3 +100000);
+				fprintf(fhout, "%03d%05d\n", k1, k3 +100000);
 				}
 			else if(k3 > 99999)
 				{
-				fprintf(fhout, "%03d%05d", k1, k3 -100000);
+				fprintf(fhout, "%03d%05d\n", k1, k3 -100000);
 				}
 			else
 				{
-				fprintf(fhout, "%03d%05d", k1, k3);
+				fprintf(fhout, "%03d%05d\n", k1, k3);
 				}
 			}
 		}
@@ -1172,14 +1172,14 @@ if(essidlen == 9)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
-			fprintf(fhout, "TC8715D%04X%c%c", k1, essid[7], essid[8]);
+			fprintf(fhout, "TC8715D%04X%c%c\n", k1, essid[7], essid[8]);
 			}
 		}
 	if(memcmp(essid, tc8717t, 7) == 0)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++)
 			{
-			fprintf(fhout, "TC8717T%04X%c%c", k1, essid[7], essid[8]);
+			fprintf(fhout, "TC8717T%04X%c%c\n", k1, essid[7], essid[8]);
 			}
 		}
 	return;
