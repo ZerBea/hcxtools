@@ -41,36 +41,38 @@
 
 #define MAX_RC_DIFF 8
 
-#define HCXT_REPLAYCOUNTGAP	1
-#define HCXT_TIMEGAP		2
-#define HCXT_NETNTLM_OUT	3
-#define HCXT_MD5_OUT		4
-#define HCXT_MD5_JOHN_OUT	5
-#define HCXT_TACACSP_OUT	6
-#define HCXT_EAPOL_OUT		7
-#define HCXT_NETWORK_OUT	8
-#define HCXT_HEXDUMP_OUT	9
-#define HCXT_HCCAP_OUT		10
-#define HCXT_HCCAP_OUT_RAW	11
+#define HCXT_REPLAYCOUNTGAP		1
+#define HCXT_TIMEGAP			2
+#define HCXT_NETNTLM_OUT		3
+#define HCXT_MD5_OUT			4
+#define HCXT_MD5_JOHN_OUT		5
+#define HCXT_TACACSP_OUT		6
+#define HCXT_EAPOL_OUT			7
+#define HCXT_NETWORK_OUT		8
+#define HCXT_HEXDUMP_OUT		9
+#define HCXT_HCCAP_OUT			10
+#define HCXT_HCCAP_OUT_RAW		11
 
-#define HCXT_WPA12_OUT		'w'
-#define HCXT_HCCAPX_OUT		'o'
-#define HCXT_HCCAPX_OUT_RAW	'O'
-#define HCXT_HC_OUT_PMKID	'k'
-#define HCXT_HC_OUT_PMKID_OLD	'z'
-#define HCXT_JOHN_OUT		'j'
-#define HCXT_JOHN_OUT_RAW	'J'
-#define HCXT_ESSID_OUT		'E'
-#define HCXT_STAESSID_OUT	'X'
-#define HCXT_TRAFFIC_OUT	'T'
-#define HCXT_GPX_OUT		'g'
-#define HCXT_IDENTITY_OUT	'I'
-#define HCXT_USERNAME_OUT	'U'
-#define HCXT_IMSI_OUT		'M'
-#define HCXT_PMK_OUT		'P'
-#define HCXT_VERBOSE_OUT	'V'
-#define HCXT_HELP		'h'
-#define HCXT_VERSION		'v'
+#define HCXT_WPA12_OUT			'w'
+#define HCXT_HCCAPX_OUT			'o'
+#define HCXT_HCCAPX_OUT_RAW		'O'
+#define HCXT_HC_OUT_PMKID		'k'
+#define HCXT_HC_OUT_PMKID_RAW		'K'
+#define HCXT_HC_OUT_PMKID_OLD		'z'
+#define HCXT_HC_OUT_PMKID_RAW_OLD	'Z'
+#define HCXT_JOHN_OUT			'j'
+#define HCXT_JOHN_OUT_RAW		'J'
+#define HCXT_ESSID_OUT			'E'
+#define HCXT_STAESSID_OUT		'X'
+#define HCXT_TRAFFIC_OUT		'T'
+#define HCXT_GPX_OUT			'g'
+#define HCXT_IDENTITY_OUT		'I'
+#define HCXT_USERNAME_OUT		'U'
+#define HCXT_IMSI_OUT			'M'
+#define HCXT_PMK_OUT			'P'
+#define HCXT_VERBOSE_OUT		'V'
+#define HCXT_HELP			'h'
+#define HCXT_VERSION			'v'
 
 #define GPSDDATA_MAX 1536
 
@@ -209,7 +211,9 @@ char *wpa12bestoutname;
 char *hccapxbestoutname;
 char *hccapxrawoutname;
 char *hcpmkidoutname;
+char *hcpmkidrawoutname;
 char *hcpmkidoldoutname;
+char *hcpmkidrawoldoutname;
 char *hccapbestoutname;
 char *hccaprawoutname;
 char *johnbestoutname;
@@ -262,7 +266,9 @@ wpa12bestoutname = NULL;
 hccapxbestoutname = NULL;
 hccapxrawoutname = NULL;
 hcpmkidoutname = NULL;
+hcpmkidrawoutname = NULL;
 hcpmkidoldoutname = NULL;
+hcpmkidrawoldoutname = NULL;
 hccapbestoutname = NULL;
 hccaprawoutname = NULL;
 johnbestoutname = NULL;
@@ -1777,7 +1783,7 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 			zeiger++;
 			}
 		fclose(fhoutlist);
-		removeemptyfile(hcpmkidoldoutname);
+		removeemptyfile(hcpmkidoutname);
 		if(essidchangecount > 1)
 			{
 			printf("%llu ESSID changes detected\n", essidchangecount);
@@ -1889,6 +1895,78 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoldoutname != NULL))
 			printf("%llu ESSID changes detected\n", essidchangecount);
 			}
 		printf("%llu PMKID(s) written in old hashcat format (<= 5.1.0) to %s \n", writtencount, hcpmkidoldoutname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+void outputrawpmkidlists()
+{
+unsigned long long int c, p, writtencount;
+pmkidl_t *zeiger;
+FILE *fhoutlist = NULL;
+
+if(hcpmkidrawoutname != NULL)
+	{
+	if((fhoutlist = fopen(hcpmkidrawoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeiger = pmkidliste;
+		for(c = 0; c < pmkidcount; c++)
+			{
+			for(p = 0; p < 16; p++)
+				{
+				fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+				}
+			fprintf(fhoutlist, ":");
+			for(p = 0; p < 6; p++)
+				{
+				fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+				}
+			fprintf(fhoutlist, ":");
+			for(p = 0; p < 6; p++)
+				{
+				fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+				}
+			fprintf(fhoutlist, "\n");
+			writtencount++;
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(hcpmkidrawoutname);
+		printf("%llu raw PMKID(s) written to %s\n", writtencount, hcpmkidrawoutname);
+		}
+	}
+
+if(hcpmkidrawoldoutname != NULL)
+	{
+	if((fhoutlist = fopen(hcpmkidrawoldoutname, "a+")) != NULL)
+		{
+		writtencount = 0;
+		zeiger = pmkidliste;
+		for(c = 0; c < pmkidcount; c++)
+			{
+			for(p = 0; p < 16; p++)
+				{
+				fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+				}
+			fprintf(fhoutlist, "*");
+			for(p = 0; p < 6; p++)
+				{
+				fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+				}
+			fprintf(fhoutlist, "*");
+			for(p = 0; p < 6; p++)
+				{
+				fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+				}
+			fprintf(fhoutlist, "\n");
+			writtencount++;
+			zeiger++;
+			}
+		fclose(fhoutlist);
+		removeemptyfile(hcpmkidrawoldoutname);
+		printf("%llu raw PMKID(s) written to %s\n", writtencount, hcpmkidrawoldoutname);
 		}
 	}
 return;
@@ -5654,6 +5732,7 @@ if(rawhandshakeliste != NULL)
 if(pmkidliste != NULL)
 	{
 	outputpmkidlists();
+	outputrawpmkidlists();
 	}
 
 if(leapliste != NULL)
@@ -5759,7 +5838,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
 	"            very slow!\n"
 	"-k <file> : output PMKID file (hashcat hashmode -m 16800 new format)\n"
+	"-K <file> : output raw PMKID file (hashcat hashmode -m 16801 new format)\n"
 	"-z <file> : output PMKID file (hashcat hashmode -m 16800 old format and john)\n"
+	"-Z <file> : output raw PMKID file (hashcat hashmode -m 16801 old format and john)\n"
 	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"            very slow!\n"
@@ -5832,7 +5913,7 @@ char *gpxhead = "<?xml version=\"1.0\"?>\n"
 
 char *gpxtail = "</gpx>\n";
 
-static const char *short_options = "w:o:O:k:z:j:J:E:X:I:U:M:P:T:g:H:Vhv";
+static const char *short_options = "w:o:O:k:K:z:Z:j:J:E:X:I:U:M:P:T:g:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
@@ -5948,8 +6029,18 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		verboseflag = true;
 		break;
 
+		case HCXT_HC_OUT_PMKID_RAW:
+		hcpmkidrawoutname = optarg;
+		verboseflag = true;
+		break;
+
 		case HCXT_HC_OUT_PMKID_OLD:
 		hcpmkidoldoutname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_HC_OUT_PMKID_RAW_OLD:
+		hcpmkidrawoldoutname = optarg;
 		verboseflag = true;
 		break;
 

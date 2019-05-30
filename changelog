@@ -1,3 +1,14 @@
+30.05.2019
+==========
+hcxpcaptool: added 2 new options to convert raw PMKIDs
+-K <file> : output raw PMKID file (hashcat hashmode -m 16801 new format)
+-Z <file> : output raw PMKID file (hashcat hashmode -m 16801 old format and john)
+
+use this options if you would like to verify a PMKID and yo don't have an ESSID
+read more here:
+https://github.com/ZerBea/hcxtools/issues/92#issuecomment-497128717
+
+
 19.05.2019
 ==========
 added new useful script: hcxgrep.py
