@@ -1,6 +1,6 @@
 30.05.2019
 ==========
-hcxtools moved to v 5.1.5
+hcxtools moved to v5.1.6 due to a bug in v5.1.5
 
 hcxpcaptool: added 2 new options to convert raw PMKIDs
 -K <file> : output raw PMKID file (hashcat hashmode -m 16801 new format)
