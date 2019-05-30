@@ -770,7 +770,7 @@ static char *dg1670A = "DG1670A";
 static char *sbg6580 = "SBG6580";
 static char *tg1672g = "TG1672G";
 
-if(essidlen == 8)
+if(essidlen >= 8)
 	{
 	if((!isxdigit(essid[6])) || (!isxdigit(essid[7])))
 		{
@@ -802,7 +802,7 @@ if(essidlen == 8)
 		}
 	return;
 	}
-if(essidlen == 9)
+if(essidlen >= 9)
 	{
 	if((!isxdigit(essid[7])) || (!isxdigit(essid[8])))
 		{
@@ -1162,7 +1162,7 @@ static int k1;
 static char *tc8715d =  "TC8715D";
 static char *tc8717t =  "TC8717T";
 
-if(essidlen == 9)
+if(essidlen >= 9)
 	{
 	if((!isxdigit(essid[7])) || (!isxdigit(essid[8])))
 		{
