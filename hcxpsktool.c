@@ -198,11 +198,16 @@ static int cn;
 
 char pskstring[PSKSTRING_LEN_MAX] = {};
 
-const char *word1[] = { "feed",
+const char *word1[] = { "card", "cash",
+	"feed",
+	"jade",
 	"name" };
 
-const char *word2[] = { "more",
-	"think" };
+const char *word2[] = { "dash",
+	"more",
+	"ride",
+	"think",
+	"wind" };
 
 for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
 	{
