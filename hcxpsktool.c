@@ -524,6 +524,12 @@ static void writeessidadd(FILE *fhout, char *essid)
 int c, d;
 static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = {};
 
+for(c = 22222; c <= 99999; c += 11111)
+	{
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
+	writepsk(fhout, essidstring);
+	}
+
 for(c = 2222; c <= 9999; c += 1111)
 	{
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
