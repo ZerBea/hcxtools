@@ -325,6 +325,23 @@ struct ie_tag
 typedef struct ie_tag ietag_t;
 #define	IETAG_SIZE offsetof(ietag_t, data)
 /*===========================================================================*/
+struct rsn_tag
+{
+ uint8_t	id;
+ uint8_t	len;
+ uint16_t	version;
+} __attribute__((__packed__));
+typedef struct rsn_tag rsntag_t;
+#define	RSNTAG_SIZE sizeof(rsntag_t)
+/*===========================================================================*/
+struct pmkidlist_tag
+{
+ uint16_t	count;
+ uint8_t	data[1];
+} __attribute__((__packed__));
+typedef struct pmkidlist_tag pmkidlisttag_t;
+#define	RPMKIDLISTTAG_SIZE offsetof(pmkidlisttag_t)
+/*===========================================================================*/
 struct llc_frame
 {
  uint8_t	dsap;

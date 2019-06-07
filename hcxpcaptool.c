@@ -100,6 +100,9 @@ eapoll_t *eapolliste;
 
 unsigned long long int pmkidallcount;
 unsigned long long int pmkidcount;
+unsigned long long int pmkidapcount;
+unsigned long long int pmkidstacount;
+
 pmkidl_t *pmkidliste;
 
 unsigned long long int handshakecount;
@@ -655,15 +658,23 @@ if(eapolpmkidwpaakmframecount != 0)
 	}
 if(eapolpmkidwpa1framecount != 0)
 	{
-	printf("EAPOL PMKIDs (WPA1)..........: %llu\n", eapolpmkidwpa1framecount);
+	printf("PMKIDs (WPA1)................: %llu\n", eapolpmkidwpa1framecount);
 	}
 if(eapolpmkidwpa2framecount != 0)
 	{
-	printf("EAPOL PMKIDs (WPA2)..........: %llu\n", eapolpmkidwpa2framecount);
+	printf("PMKIDs (WPA2)................: %llu\n", eapolpmkidwpa2framecount);
 	}
 if(eapolpmkidwpa2kv3framecount != 0)
 	{
-	printf("EAPOL PMKIDs (WPA2 keyv 3)...: %llu\n", eapolpmkidwpa2kv3framecount);
+	printf("PMKIDs (WPA2 keyv 3).........: %llu\n", eapolpmkidwpa2kv3framecount);
+	}
+if(pmkidapcount != 0)
+	{
+	printf("PMKIDs from access points....: %llu\n", pmkidapcount);
+	}
+if(pmkidstacount != 0)
+	{
+	printf("PMKIDs from stations.........: %llu\n", pmkidstacount);
 	}
 if(rc4descriptorframecount != 0)
 	{
@@ -1034,11 +1045,6 @@ if((apstaessidlistecleaned != NULL) && (wpa12bestoutname != NULL))
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-
-
-
-
-
 						writtencount++;
 						essidchangecount++;
 						memset(&essidold, 0,32);
@@ -1064,11 +1070,6 @@ if((apstaessidlistecleaned != NULL) && (wpa12bestoutname != NULL))
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-
-
-
-
-
 							writtencount++;
 							essidchangecount++;
 							memset(&essidold, 0,32);
@@ -1113,8 +1114,6 @@ if((apstaessidlistecleaned != NULL) && (wpa12bestoutname != NULL))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
-
-
 						for(p = 0; p < 16; p++)
 							{
 							fprintf(fhoutlist, "%02x", zeigerpmkid->pmkid[p]);
@@ -3072,6 +3071,8 @@ if(memcmp(&pmkid->pmkid[12], &nullnonce, 4) == 0)
 	return;
 	}
 
+pmkidallcount++;
+pmkidapcount++;
 if(pmkidliste == NULL)
 	{
 	pmkidliste = malloc(PMKIDLIST_SIZE);
@@ -3107,6 +3108,83 @@ zeiger = pmkidliste +pmkidcount;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
 memcpy(zeiger->pmkid, pmkid->pmkid, 16);
+pmkidcount++;
+return;
+}
+/*===========================================================================*/
+void addpmkidsta(uint8_t *mac_sta, uint8_t *mac_ap, uint8_t *authpacket)
+{
+unsigned long long int c;
+wpakey_t *wpak;
+uint16_t keyver;
+rsntag_t *rsntag = NULL;
+pmkidlisttag_t *pmklisttag = NULL;
+pmkidl_t *zeiger;
+
+wpak = (wpakey_t*)authpacket;
+if(ntohs(wpak->wpadatalen) != 40)
+	{
+	return;
+	}
+
+keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+if((keyver < 1) || (keyver > 3))
+	{
+	return;
+	}
+rsntag = (rsntag_t*)(authpacket + WPAKEY_SIZE);
+if(rsntag->len != 38)
+	{
+	return;
+	}
+if(rsntag->version != 1)
+	{
+	return;
+	}
+
+pmklisttag = (pmkidlisttag_t*)(authpacket + WPAKEY_SIZE +22); 
+if(ntohs(pmklisttag->count) == 0)
+	{
+	return;
+	}
+
+pmkidallcount++;
+pmkidstacount++;
+if(pmkidliste == NULL)
+	{
+	pmkidliste = malloc(PMKIDLIST_SIZE);
+	if(pmkidliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memcpy(pmkidliste->mac_ap, mac_ap, 6);
+	memcpy(pmkidliste->mac_sta, mac_sta, 6);
+	memcpy(pmkidliste->pmkid, pmklisttag->data, 16);
+	pmkidcount++;
+	return;
+	}
+
+zeiger = pmkidliste;
+for(c = 0; c < pmkidcount; c++)
+	{
+	if((memcmp(zeiger->mac_ap, mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, mac_sta, 6) == 0) && (memcmp(zeiger->pmkid, pmklisttag->data, 16) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
+zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+pmkidliste = zeiger;
+zeiger = pmkidliste +pmkidcount;
+memcpy(zeiger->mac_ap, mac_ap, 6);
+memcpy(zeiger->mac_sta, mac_sta, 6);
+memcpy(zeiger->pmkid, pmklisttag->data, 16);
 pmkidcount++;
 return;
 }
@@ -3535,11 +3613,41 @@ associationresponseframecount++;
 return;
 }
 /*===========================================================================*/
+uint8_t *gettag(uint8_t tag, uint8_t *tagptr, int restlen)
+{
+static ietag_t *tagfield;
+
+while(0 < restlen)
+	{
+	tagfield = (ietag_t*)tagptr;
+	if(tagfield->id == tag)
+		{
+		if(restlen >= (int)tagfield->len +(int)IETAG_SIZE)
+			{
+			return tagptr;
+			}
+		else
+			{
+			return NULL;
+			}
+		}
+	tagptr += tagfield->len +IETAG_SIZE;
+	restlen -= tagfield->len +IETAG_SIZE;
+	}
+return NULL;
+}
+/*===========================================================================*/
 void process80211reassoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 uint8_t *packet_ptr;
 mac_t *macf;
 int essidlen;
+uint8_t *rsntagptr = NULL;
+rsntag_t *rsntag = NULL;
+pmkidlisttag_t *pmklisttag = NULL;
+pmkidl_t *zeiger;
+unsigned long long int c;
+
 uint8_t essidstr[ESSID_LEN_MAX];
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESRESTA_SIZE +2)
@@ -3556,6 +3664,66 @@ if(essidlen == 0)
 	}
 addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 reassociationrequestframecount++;
+
+rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
+if(rsntagptr == NULL)
+	{
+	return;
+	}
+
+rsntag = (rsntag_t*)rsntagptr;
+if(rsntag->len != 38)
+	{
+	return;
+	}
+if(rsntag->version != 1)
+	{
+	return;
+	}
+pmklisttag = (pmkidlisttag_t*)(rsntagptr +22); 
+if(ntohs(pmklisttag->count) == 0)
+	{
+	return;
+	}
+
+pmkidallcount++;
+pmkidstacount++;
+if(pmkidliste == NULL)
+	{
+	pmkidliste = malloc(PMKIDLIST_SIZE);
+	if(pmkidliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memcpy(pmkidliste->mac_ap, macf->addr1, 6);
+	memcpy(pmkidliste->mac_sta, macf->addr2, 6);
+	memcpy(pmkidliste->pmkid, pmklisttag->data, 16);
+	pmkidcount++;
+	return;
+	}
+
+zeiger = pmkidliste;
+for(c = 0; c < pmkidcount; c++)
+	{
+	if((memcmp(zeiger->mac_ap, macf->addr1, 6) == 0) && (memcmp(zeiger->mac_sta, macf->addr2, 6) == 0) && (memcmp(zeiger->pmkid, pmklisttag->data, 16) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
+zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+pmkidliste = zeiger;
+zeiger = pmkidliste +pmkidcount;
+memcpy(zeiger->mac_ap,  macf->addr1, 6);
+memcpy(zeiger->mac_sta,  macf->addr2, 6);
+memcpy(zeiger->pmkid, pmklisttag->data, 16);
+pmkidcount++;
 return;
 }
 /*===========================================================================*/
@@ -3805,7 +3973,6 @@ if(keyinfo == 1)
 	if(authlen == 0x75)
 		{
 		addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
-		pmkidallcount++;
 		if(keyver == 0)
 			{
 			eapolpmkidwpaakmframecount++;
@@ -3866,6 +4033,10 @@ else if(keyinfo == 2)
 	if(keyver == 3)
 		{
 		eapolwpa2kv3framecount++;
+		}
+	if(authlen == 0x87)
+		{
+		addpmkidsta(macaddr2, macaddr1, packet +EAPAUTH_SIZE);
 		}
 	}
 else if(keyinfo == 4)
@@ -5584,6 +5755,8 @@ eapolwpa1framecount = 0;
 eapolwpa2framecount = 0;
 eapolwpa2kv3framecount = 0;
 pmkidcount = 0;
+pmkidapcount = 0;
+pmkidstacount = 0;
 pmkidallcount = 0;
 eapolpmkidwpaakmframecount = 0;
 eapolpmkidwpa1framecount = 0;
