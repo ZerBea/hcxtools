@@ -3147,6 +3147,10 @@ if(ntohs(pmklisttag->count) == 0)
 	{
 	return;
 	}
+if(memcmp(pmklisttag->data, &nullnonce, 16) == 0)
+	{
+	return;
+	}
 
 pmkidallcount++;
 pmkidstacount++;
