@@ -492,332 +492,330 @@ void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int ver
 int p;
 printf( "                                                \n"
 	"summary:                                        \n--------\n"
-	"file name....................: %s\n"
-	"file type....................: %s %d.%d\n"
-	"file hardware information....: %s\n"
-	"file os information..........: %s\n"
-	"file application information.: %s\n"
-	"network type.................: %s (%d)\n"
-	"endianness...................: %s\n"
-	"read errors..................: %s\n"
-	"packets inside...............: %llu\n"
-	"skipped packets..............: %llu\n"
-	"packets with GPS data........: %llu\n"
-	"packets with FCS.............: %llu\n"
+	"file name........................: %s\n"
+	"file type........................: %s %d.%d\n"
+	"file hardware information........: %s\n"
+	"file os information..............: %s\n"
+	"file application information.....: %s\n"
+	"network type.....................: %s (%d)\n"
+	"endianness.......................: %s\n"
+	"read errors......................: %s\n"
+	"packets inside...................: %llu\n"
+	"skipped packets..................: %llu\n"
+	"packets with GPS data............: %llu\n"
+	"packets with FCS.................: %llu\n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
 
 if(tscleanflag == true)
 	{
-	printf( "warning......................: zero value timestamps detected\n"
-		"                               this prevents correct EAPOL timeout calculation\n");
+	printf("warning..........................: zero value timestamps detected - this prevents EAPOL timeout calculation\n");
 	}
-
 if(wdsframecount != 0)
 	{
-	printf("WDS packets..................: %llu\n", wdsframecount);
+	printf("WDS packets......................: %llu\n", wdsframecount);
 	}
 if(beaconframecount != 0)
 	{
-	printf("beacons (with ESSID inside)..: %llu\n", beaconframecount);
+	printf("beacons (with ESSID inside)......: %llu\n", beaconframecount);
 	}
 if(meshidframecount != 0)
 	{
-	printf("beacons (with MESH-ID inside): %llu\n", meshidframecount);
+	printf("beacons (with MESH-ID inside)....: %llu\n", meshidframecount);
 	}
 if(proberequestframecount != 0)
 	{
-	printf("probe requests...............: %llu\n", proberequestframecount);
+	printf("probe requests...................: %llu\n", proberequestframecount);
 	}
 if(proberesponseframecount != 0)
 	{
-	printf("probe responses..............: %llu\n", proberesponseframecount);
+	printf("probe responses..................: %llu\n", proberesponseframecount);
 	}
 if(associationrequestframecount != 0)
 	{
-	printf("association requests.........: %llu\n", associationrequestframecount);
+	printf("association requests.............: %llu\n", associationrequestframecount);
 	}
 if(associationresponseframecount != 0)
 	{
-	printf("association responses........: %llu\n", associationresponseframecount);
+	printf("association responses............: %llu\n", associationresponseframecount);
 	}
 if(reassociationrequestframecount != 0)
 	{
-	printf("reassociation requests.......: %llu\n", reassociationrequestframecount);
+	printf("reassociation requests...........: %llu\n", reassociationrequestframecount);
 	}
 if(reassociationresponseframecount != 0)
 	{
-	printf("reassociation responses......: %llu\n", reassociationresponseframecount);
+	printf("reassociation responses..........: %llu\n", reassociationresponseframecount);
 	}
 if(authenticationunknownframecount != 0)
 	{
-	printf("authentications (UNKNOWN)....: %llu\n", authenticationunknownframecount);
+	printf("authentications (UNKNOWN)........: %llu\n", authenticationunknownframecount);
 	}
 if(authenticationosframecount != 0)
 	{
-	printf("authentications (OPEN SYSTEM): %llu\n", authenticationosframecount);
+	printf("authentications (OPEN SYSTEM)....: %llu\n", authenticationosframecount);
 	}
 if(authenticationskframecount != 0)
 	{
-	printf("authentications (SHARED KEY).: %llu\n", authenticationskframecount);
+	printf("authentications (SHARED KEY).....: %llu\n", authenticationskframecount);
 	}
 if(authenticationfbtframecount != 0)
 	{
-	printf("authentications (FBT)........: %llu\n", authenticationfbtframecount);
+	printf("authentications (FBT)............: %llu\n", authenticationfbtframecount);
 	}
 if(authenticationsaeframecount != 0)
 	{
-	printf("authentications (SAE)........: %llu\n", authenticationsaeframecount);
+	printf("authentications (SAE)............: %llu\n", authenticationsaeframecount);
 	}
 if(authenticationfilsframecount != 0)
 	{
-	printf("authentications (FILS).......: %llu\n", authenticationfilsframecount);
+	printf("authentications (FILS)...........: %llu\n", authenticationfilsframecount);
 	}
 if(authenticationfilspfsframecount != 0)
 	{
-	printf("authentications (FILS PFS)...: %llu\n", authenticationfilspfsframecount);
+	printf("authentications (FILS PFS).......: %llu\n", authenticationfilspfsframecount);
 	}
 if(authenticationfilspkframecount != 0)
 	{
-	printf("authentications (FILS PK)....: %llu\n", authenticationfilspkframecount);
+	printf("authentications (FILS PK)........: %llu\n", authenticationfilspkframecount);
 	}
 if(authenticationnetworkeapframecount != 0)
 	{
-	printf("authentications (NETWORK EAP): %llu\n", authenticationnetworkeapframecount);
+	printf("authentications (NETWORK EAP)....: %llu\n", authenticationnetworkeapframecount);
 	}
 if(authenticationbroadcomframecount != 0)
 	{
-	printf("authentications (BROADCOM)...: %llu\n", authenticationbroadcomframecount);
+	printf("authentications (BROADCOM).......: %llu\n", authenticationbroadcomframecount);
 	}
 if(authenticationsonosframecount != 0)
 	{
-	printf("authentications (SONOS)......: %llu\n", authenticationsonosframecount);
+	printf("authentications (SONOS)..........: %llu\n", authenticationsonosframecount);
 	}
 if(authenticationappleframecount != 0)
 	{
-	printf("authentications (APPLE)......: %llu\n", authenticationappleframecount);
+	printf("authentications (APPLE)..........: %llu\n", authenticationappleframecount);
 	}
 if(authenticationnetgearframecount != 0)
 	{
-	printf("authentications (NETGEAR)....: %llu\n", authenticationnetgearframecount);
+	printf("authentications (NETGEAR)........: %llu\n", authenticationnetgearframecount);
 	}
 if(authenticationwiliboxframecount != 0)
 	{
-	printf("authentications (WILIBOX)....: %llu\n", authenticationwiliboxframecount);
+	printf("authentications (WILIBOX)........: %llu\n", authenticationwiliboxframecount);
 	}
 if(authenticationciscoframecount != 0)
 	{
-	printf("authentications (CISCO)......: %llu\n", authenticationciscoframecount);
+	printf("authentications (CISCO)..........: %llu\n", authenticationciscoframecount);
 	}
 if(deauthenticationframecount != 0)
 	{
-	printf("deauthentications............: %llu\n", deauthenticationframecount);
+	printf("deauthentications................: %llu\n", deauthenticationframecount);
 	}
 if(disassociationframecount != 0)
 	{
-	printf("disassociations..............: %llu\n", disassociationframecount);
+	printf("disassociations..................: %llu\n", disassociationframecount);
 	}
 if(actionframecount != 0)
 	{
-	printf("action packets...............: %llu\n", actionframecount);
+	printf("action packets...................: %llu\n", actionframecount);
 	}
 if(atimframecount != 0)
 	{
-	printf("ATIM packets.................: %llu\n", atimframecount);
+	printf("ATIM packets.....................: %llu\n", atimframecount);
 	}
 if(eapolframecount != 0)
 	{
-	printf("EAPOL packets (total)........: %llu\n", eapolframecount);
+	printf("EAPOL packets (total)............: %llu\n", eapolframecount);
 	}
 if(eapoloversizedframecount != 0)
 	{
-	printf("EAPOL packets (oversized)....: %llu\n", eapoloversizedframecount);
+	printf("EAPOL packets (oversized)........: %llu\n", eapoloversizedframecount);
 	}
 if(eapolwpaakmframecount != 0)
 	{
-	printf("EAPOL packets (AKM defined)..: %llu\n", eapolwpaakmframecount);
+	printf("EAPOL packets (AKM defined)......: %llu\n", eapolwpaakmframecount);
 	}
 if(eapolwpa1framecount != 0)
 	{
-	printf("EAPOL packets (WPA1).........: %llu\n", eapolwpa1framecount);
+	printf("EAPOL packets (WPA1).............: %llu\n", eapolwpa1framecount);
 	}
 if(eapolwpa2framecount != 0)
 	{
-	printf("EAPOL packets (WPA2).........: %llu\n", eapolwpa2framecount);
+	printf("EAPOL packets (WPA2).............: %llu\n", eapolwpa2framecount);
 	}
 if(eapolwpa2kv3framecount != 0)
 	{
-	printf("EAPOL packets (WPA2 keyv 3)..: %llu\n", eapolwpa2kv3framecount);
+	printf("EAPOL packets (WPA2 kever 3).....: %llu\n", eapolwpa2kv3framecount);
 	}
 if(pmkidallcount != 0)
 	{
-	printf("EAPOL PMKIDs (total).........: %llu\n", pmkidallcount);
+	printf("PMKIDs (total)...................: %llu\n", pmkidallcount);
 	}
 if(eapolpmkidwpaakmframecount != 0)
 	{
-	printf("EAPOL PMKIDs (AKM defined)...: %llu\n", eapolpmkidwpaakmframecount);
+	printf("PMKIDs (AKM defined).............: %llu\n", eapolpmkidwpaakmframecount);
 	}
 if(eapolpmkidwpa1framecount != 0)
 	{
-	printf("PMKIDs (WPA1)................: %llu\n", eapolpmkidwpa1framecount);
+	printf("PMKIDs (WPA1)....................: %llu\n", eapolpmkidwpa1framecount);
 	}
 if(eapolpmkidwpa2framecount != 0)
 	{
-	printf("PMKIDs (WPA2)................: %llu\n", eapolpmkidwpa2framecount);
+	printf("PMKIDs (WPA2)....................: %llu\n", eapolpmkidwpa2framecount);
 	}
 if(eapolpmkidwpa2kv3framecount != 0)
 	{
-	printf("PMKIDs (WPA2 keyv 3).........: %llu\n", eapolpmkidwpa2kv3framecount);
+	printf("PMKIDs (WPA2 keyver 3)...........: %llu\n", eapolpmkidwpa2kv3framecount);
 	}
 if(pmkidapcount != 0)
 	{
-	printf("PMKIDs from access points....: %llu\n", pmkidapcount);
+	printf("PMKIDs from access points........: %llu\n", pmkidapcount);
 	}
 if(pmkidstacount != 0)
 	{
-	printf("PMKIDs from stations.........: %llu\n", pmkidstacount);
+	printf("PMKIDs from stations.............: %llu\n", pmkidstacount);
 	}
 if(rc4descriptorframecount != 0)
 	{
-	printf("EAPOL RC4 KEYs...............: %llu\n", rc4descriptorframecount);
+	printf("EAPOL RC4 KEYs...................: %llu\n", rc4descriptorframecount);
 	}
 if(groupkeyframecount != 0)
 	{
-	printf("EAPOL GROUP KEYs.............: %llu\n", groupkeyframecount);
+	printf("EAPOL GROUP KEYs.................: %llu\n", groupkeyframecount);
 	}
 if(eapframecount != 0)
 	{
-	printf("EAP packets..................: %llu\n", eapframecount);
+	printf("EAP packets......................: %llu\n", eapframecount);
 	}
 if(eapolstartframecount != 0)
 	{
-	printf("EAP START packets............: %llu\n", eapolstartframecount);
+	printf("EAP START packets................: %llu\n", eapolstartframecount);
 	}
 if(eapollogoffframecount != 0)
 	{
-	printf("EAP LOGOFF packets...........: %llu\n", eapollogoffframecount);
+	printf("EAP LOGOFF packets...............: %llu\n", eapollogoffframecount);
 	}
 if(eapolasfframecount != 0)
 	{
-	printf("EAP ASF ALERT packets........: %llu\n", eapolasfframecount);
+	printf("EAP ASF ALERT packets............: %llu\n", eapolasfframecount);
 	}
 if(wepframecount != 0)
 	{
-	printf("WEP packets..................: %llu\n", wepframecount);
+	printf("WEP packets......................: %llu\n", wepframecount);
 	}
 if(ipv4framecount != 0)
 	{
-	printf("IPv4 packets.................: %llu\n", ipv4framecount);
+	printf("IPv4 packets.....................: %llu\n", ipv4framecount);
 	}
 if(ipv6framecount != 0)
 	{
-	printf("IPv6 packets.................: %lld\n", ipv6framecount);
+	printf("IPv6 packets.....................: %lld\n", ipv6framecount);
 	}
 if(tcpframecount != 0)
 	{
-	printf("TCP packets..................: %lld\n", tcpframecount);
+	printf("TCP packets......................: %lld\n", tcpframecount);
 	}
 if(udpframecount != 0)
 	{
-	printf("UDP packets..................: %lld\n", udpframecount);
+	printf("UDP packets......................: %lld\n", udpframecount);
 	}
 if(icmp4framecount != 0)
 	{
-	printf("ICMPv4 packets...............: %lld\n", icmp4framecount);
+	printf("ICMPv4 packets...................: %lld\n", icmp4framecount);
 	}
 if(icmp6framecount != 0)
 	{
-	printf("ICMPv6 packets...............: %lld\n", icmp6framecount);
+	printf("ICMPv6 packets...................: %lld\n", icmp6framecount);
 	}
 if(dhcpframecount != 0)
 	{
-	printf("DHCP packets.................: %lld\n", dhcpframecount);
+	printf("DHCP packets.....................: %lld\n", dhcpframecount);
 	}
 if(dhcp6framecount != 0)
 	{
-	printf("DHCPv6 packets...............: %lld\n", dhcp6framecount);
+	printf("DHCPv6 packets...................: %lld\n", dhcp6framecount);
 	}
 if(greframecount != 0)
 	{
-	printf("GRE packets..................: %lld\n", greframecount);
+	printf("GRE packets......................: %lld\n", greframecount);
 	}
 if(tzspframecount != 0)
 	{
-	printf("TZSP packets.................: %lld\n", tzspframecount);
+	printf("TZSP packets.....................: %lld\n", tzspframecount);
 	}
 if(tzspethernetframecount != 0)
 	{
-	printf("TZSP (ETHERNET) packets......: %lld\n", tzspethernetframecount);
+	printf("TZSP (ETHERNET) packets..........: %lld\n", tzspethernetframecount);
 	}
 if(tzsptokenringframecount != 0)
 	{
-	printf("TZSP (TOKEN RING) packets....: %lld\n", tzsptokenringframecount);
+	printf("TZSP (TOKEN RING) packets........: %lld\n", tzsptokenringframecount);
 	}
 if(tzspslipframecount != 0)
 	{
-	printf("TZSP (SLIP) packets..........: %lld\n", tzspslipframecount);
+	printf("TZSP (SLIP) packets..............: %lld\n", tzspslipframecount);
 	}
 if(tzsppppframecount != 0)
 	{
-	printf("TZSP (PPP) packets...........: %lld\n", tzsppppframecount);
+	printf("TZSP (PPP) packets...............: %lld\n", tzsppppframecount);
 	}
 if(tzspfddiframecount != 0)
 	{
-	printf("TZSP (FDDI) packets..........: %lld\n", tzspfddiframecount);
+	printf("TZSP (FDDI) packets..............: %lld\n", tzspfddiframecount);
 	}
 if(tzsprawframecount != 0)
 	{
-	printf("TZSP (RAW) packets...........: %lld\n", tzsprawframecount);
+	printf("TZSP (RAW) packets...............: %lld\n", tzsprawframecount);
 	}
 if(tzsp80211framecount != 0)
 	{
-	printf("TZSP (802.11) packets........: %lld\n", tzsp80211framecount);
+	printf("TZSP (802.11) packets............: %lld\n", tzsp80211framecount);
 	}
 if(tzsp80211prismframecount != 0)
 	{
-	printf("TZSP (802.11 PRSIM) packets..: %lld\n", tzsp80211prismframecount);
+	printf("TZSP (802.11 PRSIM) packets......: %lld\n", tzsp80211prismframecount);
 	}
 if(tzsp80211avsframecount != 0)
 	{
-	printf("TZSP (802.11 AVS) packets....: %lld\n", tzsp80211avsframecount);
+	printf("TZSP (802.11 AVS) packets........: %lld\n", tzsp80211avsframecount);
 	}
 for(p = 0; p < 256; p++)
 	{
 	if(exeaptype[p] != 0)
 		{
-		printf("found........................: %s\n", geteaptypestring(p));
+		printf("found............................: %s\n", geteaptypestring(p));
 		}
 	}
 if(eapolmkaframecount != 0)
 	{
-	printf("found........................: MKA Authentication (Macsec Key Agreement protocol)\n");
+	printf("found............................: MKA Authentication (Macsec Key Agreement protocol)\n");
 	}
 if(chapframecount != 0)
 	{
-	printf("found........................: PPP-CHAP Authentication\n");
+	printf("found............................: PPP-CHAP Authentication\n");
 	}
 if(papframecount != 0)
 	{
-	printf("found........................: PPP-PAP Authentication\n");
+	printf("found............................: PPP-PAP Authentication\n");
 	}
 if(tacacspframecount != 0)
 	{
-	printf("found........................: TACACS+ Authentication\n");
+	printf("found............................: TACACS+ Authentication\n");
 	}
 if(radiusframecount != 0)
 	{
-	printf("found........................: RADIUS Authentication\n");
+	printf("found............................: RADIUS Authentication\n");
 	}
 if(rawhandshakecount != 0)
 	{
-	printf("raw handshakes...............: %llu (ap-less: %llu)\n", rawhandshakecount, rawhandshakeaplesscount);
+	printf("raw handshakes...................: %llu (ap-less: %llu)\n", rawhandshakecount, rawhandshakeaplesscount);
 	}
 if(handshakecount != 0)
 	{
-	printf("best handshakes..............: %llu (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
+	printf("best handshakes..................: %llu (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
 	}
 if(pmkidcount != 0)
 	{
-	printf("best PMKIDs..................: %llu\n", pmkidcount);
+	printf("best PMKIDs......................: %llu\n", pmkidcount);
 	}
 printf("\n");
 return;
