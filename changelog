@@ -1,5 +1,13 @@
 07.06.2019
 ==========
+hcxpcaptool: added new option to filter output by a single MAC address
+             all packets which doesn't contain this MAC in address 1, address 2 or address 3 are ignored.
+--filtermac=<mac>                 : filter output by MAC address
+                                    format: 112233445566
+
+
+07.06.2019
+==========
 hcxpcaptool: detect and convert PMKIDs from clients
 read more here:
 https://hashcat.net/forum/thread-6661-post-44869.html#pid44869

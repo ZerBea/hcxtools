@@ -52,6 +52,7 @@
 #define HCXT_HEXDUMP_OUT		9
 #define HCXT_HCCAP_OUT			10
 #define HCXT_HCCAP_OUT_RAW		11
+#define HCXT_FILTER_MAC			12
 
 #define HCXT_WPA12_OUT			'w'
 #define HCXT_HCCAPX_OUT			'o'
@@ -83,6 +84,7 @@ void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint
 
 bool hexmodeflag;
 bool verboseflag;
+bool filtermacflag;
 bool fcsflag;
 bool wantrawflag;
 bool gpxflag;
@@ -253,6 +255,8 @@ uint16_t dltlinktype;
 uint64_t myaktreplaycount;
 uint8_t myaktnonce[32];
 
+uint8_t filtermac[6];
+
 char pcapnghwinfo[256];
 char pcapngosinfo[256];
 char pcapngapplinfo[256];
@@ -294,6 +298,7 @@ networkoutname = NULL;
 verboseflag = false;
 hexmodeflag = false;
 wantrawflag = false;
+filtermacflag = false;
 gpxflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
@@ -4797,6 +4802,14 @@ if(gpxflag == true)
 		}
 	}
 
+if(filtermacflag == true)
+	{
+	if((memcmp(macf->addr1, &filtermac, 6) != 0) && (memcmp(macf->addr2, &filtermac, 6) != 0) && (memcmp(macf->addr3, &filtermac, 6) != 0))
+		{
+		return;
+		}
+	}
+
 if(macf->type == IEEE80211_FTYPE_MGMT)
 	{
 	if(macf->subtype == IEEE80211_STYPE_BEACON)
@@ -6042,6 +6055,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--hccap-out=<file>                : output old hccap file (hashcat -m 2500)\n"
 	"--hccap-raw-out=<file>            : output raw old hccap file (hashcat -m 2500)\n"
 	"                                    very slow!\n"
+	"--filtermac=<mac>                 : filter output by MAC address\n"
+	"                                    format: 112233445566\n"
 	"--help                            : show this help\n"
 	"--version                         : show version\n"
 	"\n"
@@ -6095,6 +6110,7 @@ static const struct option long_options[] =
 	{"hexdump-out",			required_argument,	NULL,	HCXT_HEXDUMP_OUT},
 	{"hccap-out",			required_argument,	NULL,	HCXT_HCCAP_OUT},
 	{"hccap-raw-out",		required_argument,	NULL,	HCXT_HCCAP_OUT_RAW},
+	{"filtermac",			required_argument,	NULL,	HCXT_FILTER_MAC},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},
 	{NULL,				0,			NULL,	0}
@@ -6261,6 +6277,21 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_GPX_OUT:
 		gpxoutname = optarg;
 		gpxflag = true;
+		verboseflag = true;
+		break;
+
+		case HCXT_FILTER_MAC:
+		if(strlen(optarg) != 12)
+			{
+			fprintf(stderr, "wrong MAC format (112233445566)\n");
+			exit(EXIT_FAILURE);
+			}
+		if(hex2bin(optarg, filtermac, 6) == false)
+			{
+			fprintf(stderr, "wrong MAC format (112233445566)\n");
+			exit(EXIT_FAILURE);
+			}
+		filtermacflag = true;
 		verboseflag = true;
 		break;
 
