@@ -4773,13 +4773,6 @@ gpstime.tv_usec = tv_usec;
 unsigned long long int macsrc;
 
 strftime(timestring, 62, "    <time>%Y-%m-%dT%H:%M:%SZ</time>", gmtime(&gpstime.tv_sec));
-/*
-  <trkpt lat="50.1965646353" lon="6.82632613">
-    <ele>444.26999999999998</ele>
-    <time>2015-04-06T07:09:04Z</time>
-  </trkpt>
-*/
-
 macf = (mac_t*)packet;
 if((macf->from_ds == 1) && (macf->to_ds == 1))
 	{
