@@ -4802,7 +4802,7 @@ if(gpxflag == true)
 		}
 	}
 
-if(filtermacflag == true)
+if((filtermacflag == true) && (caplen >= (uint32_t)MAC_SIZE_NORM))
 	{
 	if((memcmp(macf->addr1, &filtermac, 6) != 0) && (memcmp(macf->addr2, &filtermac, 6) != 0) && (memcmp(macf->addr3, &filtermac, 6) != 0))
 		{
