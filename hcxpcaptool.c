@@ -3967,13 +3967,13 @@ if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 	return;
 	}
 
-if(memcmp(&fakeanonce1, wpak->nonce, 32) == 0)
+if((rc == 17) && (memcmp(&fakeanonce1, wpak->nonce, 32) == 0))
 	{
 	skippedpacketcount++;
 	return;
 	}
 
-if(memcmp(&fakesnonce1, wpak->nonce, 32) == 0)
+if((rc == 17) && (memcmp(&fakesnonce1, wpak->nonce, 32) == 0))
 	{
 	skippedpacketcount++;
 	return;
