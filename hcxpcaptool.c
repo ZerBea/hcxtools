@@ -88,6 +88,7 @@ bool filtermacflag;
 bool fcsflag;
 bool wantrawflag;
 bool gpxflag;
+bool fakeflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -300,6 +301,7 @@ hexmodeflag = false;
 wantrawflag = false;
 filtermacflag = false;
 gpxflag = false;
+fakeflag = true;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
@@ -510,7 +512,10 @@ printf( "                                                \n"
 	"packets with GPS data............: %llu\n"
 	"packets with FCS.................: %llu\n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
-
+if(fakeflag == true)
+	{
+	printf("warning..........................: fake packets detected!\n");
+	}
 if(tscleanflag == true)
 	{
 	printf("warning..........................: zero value timestamps detected - this prevents EAPOL timeout calculation\n");
@@ -3885,6 +3890,18 @@ uint16_t authlen;
 uint64_t rc;
 uint16_t kl;
 
+uint8_t fakeanonce1[] =
+{
+0x07, 0xbc, 0x92, 0xea, 0x2f, 0x5a, 0x1e, 0xe2, 0x54, 0xf6, 0xb1, 0xb7, 0xe0, 0xaa, 0xd3, 0x53,
+0xf4, 0x5b, 0x0a, 0xac, 0xf9, 0xc9, 0x90, 0x2f, 0x90, 0xd8, 0x78, 0x80, 0xb7, 0x03, 0x0a, 0x20
+};
+
+uint8_t fakesnonce1[] =
+{
+0x95, 0x30, 0xd1, 0xc7, 0xc3, 0x55, 0xb9, 0xab, 0xe6, 0x83, 0xd6, 0xf3, 0x7e, 0xcb, 0x78, 0x02,
+0x75, 0x1f, 0x53, 0xcc, 0xb5, 0x81, 0xd1, 0x52, 0x3b, 0xb4, 0xba, 0xad, 0x23, 0xab, 0x01, 0x07
+};
+
 if(caplen < (uint32_t)RC4DES_SIZE)
 	{
 	return;
@@ -3953,6 +3970,20 @@ if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 		{
 		eapolwpa2kv3framecount++;
 		}
+	return;
+	}
+
+if(memcmp(&fakeanonce1, wpak->nonce, 32) == 0)
+	{
+	fakeflag = true;
+	skippedpacketcount++;
+	return;
+	}
+
+if(memcmp(&fakesnonce1, wpak->nonce, 32) == 0)
+	{
+	fakeflag = true;
+	skippedpacketcount++;
 	return;
 	}
 
