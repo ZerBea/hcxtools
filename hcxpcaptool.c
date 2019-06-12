@@ -88,7 +88,6 @@ bool filtermacflag;
 bool fcsflag;
 bool wantrawflag;
 bool gpxflag;
-bool fakeflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -301,7 +300,6 @@ hexmodeflag = false;
 wantrawflag = false;
 filtermacflag = false;
 gpxflag = false;
-fakeflag = true;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
@@ -508,14 +506,10 @@ printf( "                                                \n"
 	"endianness.......................: %s\n"
 	"read errors......................: %s\n"
 	"packets inside...................: %llu\n"
-	"skipped packets..................: %llu\n"
+	"skipped packets..................: %llu (broken, damaged or faked)\n"
 	"packets with GPS data............: %llu\n"
 	"packets with FCS.................: %llu\n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
-if(fakeflag == true)
-	{
-	printf("warning..........................: fake packets detected!\n");
-	}
 if(tscleanflag == true)
 	{
 	printf("warning..........................: zero value timestamps detected - this prevents EAPOL timeout calculation\n");
@@ -3975,14 +3969,12 @@ if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 
 if(memcmp(&fakeanonce1, wpak->nonce, 32) == 0)
 	{
-	fakeflag = true;
 	skippedpacketcount++;
 	return;
 	}
 
 if(memcmp(&fakesnonce1, wpak->nonce, 32) == 0)
 	{
-	fakeflag = true;
 	skippedpacketcount++;
 	return;
 	}
