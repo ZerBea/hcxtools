@@ -506,7 +506,7 @@ printf( "                                                \n"
 	"endianness.......................: %s\n"
 	"read errors......................: %s\n"
 	"packets inside...................: %llu\n"
-	"skipped packets..................: %llu (broken, damaged or faked)\n"
+	"skipped packets.(damaged)........: %llu\n"
 	"packets with GPS data............: %llu\n"
 	"packets with FCS.................: %llu\n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
