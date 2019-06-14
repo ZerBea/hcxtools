@@ -3499,6 +3499,90 @@ wdsframecount++;
 return;
 }
 /*===========================================================================*/
+uint8_t *gettag(uint8_t tag, uint8_t *tagptr, int restlen)
+{
+static ietag_t *tagfield;
+
+while(0 < restlen)
+	{
+	tagfield = (ietag_t*)tagptr;
+	if(tagfield->id == tag)
+		{
+		if(restlen >= (int)tagfield->len +(int)IETAG_SIZE)
+			{
+			return tagptr;
+			}
+		else
+			{
+			return NULL;
+			}
+		}
+	tagptr += tagfield->len +IETAG_SIZE;
+	restlen -= tagfield->len +IETAG_SIZE;
+	}
+return NULL;
+}
+/*===========================================================================*/
+uint8_t *getrsncipher(uint8_t *suiteptr, int restlen) 
+{
+uint8_t c;
+rsnlisttag_t *pwcilist; 
+rsnlisttag_t *akmcilist; 
+rsnsuitetag_t *rsnsuite;
+pmkidlisttag_t *pmklisttag = NULL;
+
+uint8_t rsnoiu[] =
+{
+0x00, 0x0f, 0xac
+};
+
+pwcilist = (rsnlisttag_t*)suiteptr;
+suiteptr += RSNLISTTAG_SIZE;
+restlen -= RSNLISTTAG_SIZE;
+for(c = 0; c < pwcilist->count; c++) 
+	{
+	suiteptr += RSNSUITETAG_SIZE;
+	restlen -= RSNSUITETAG_SIZE;
+	}
+
+akmcilist = (rsnlisttag_t*)suiteptr;
+suiteptr += RSNLISTTAG_SIZE;
+restlen -= RSNLISTTAG_SIZE;
+for(c = 0; c < akmcilist->count; c++) 
+	{
+	rsnsuite = (rsnsuitetag_t*)suiteptr;
+	if(memcmp(&rsnoiu, rsnsuite->oui,3) == 0)
+		{
+		if(rsnsuite->type == 8)
+			{
+			return NULL;
+			}
+		}
+	suiteptr += RSNSUITETAG_SIZE;
+	restlen -= RSNSUITETAG_SIZE;
+	}
+
+suiteptr += RSNCAPATAG_SIZE;
+restlen -= RSNCAPATAG_SIZE;
+
+pmklisttag = (pmkidlisttag_t*)(suiteptr); 
+if(pmklisttag->count != 1)
+	{
+	return NULL;
+	}
+
+if(restlen < 16)
+	{
+	return NULL;
+	}
+
+if(memcmp(&nullnonce, pmklisttag->data, 16) == 0)
+	{
+	return NULL;
+	}
+return suiteptr;
+}
+/*===========================================================================*/
 void process80211beacon(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 uint8_t *packet_ptr;
@@ -3588,30 +3672,6 @@ proberesponseframecount++;
 return;
 }
 /*===========================================================================*/
-uint8_t *gettag(uint8_t tag, uint8_t *tagptr, int restlen)
-{
-static ietag_t *tagfield;
-
-while(0 < restlen)
-	{
-	tagfield = (ietag_t*)tagptr;
-	if(tagfield->id == tag)
-		{
-		if(restlen >= (int)tagfield->len +(int)IETAG_SIZE)
-			{
-			return tagptr;
-			}
-		else
-			{
-			return NULL;
-			}
-		}
-	tagptr += tagfield->len +IETAG_SIZE;
-	restlen -= tagfield->len +IETAG_SIZE;
-	}
-return NULL;
-}
-/*===========================================================================*/
 void process80211assoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 uint8_t *packet_ptr;
@@ -3632,32 +3692,39 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESSTA_SIZE +
 	}
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESSTA_SIZE;
+associationrequestframecount++;
 memset(&essidstr, 0, 32);
 essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESSTA_SIZE, essidstr);
-if(essidlen == 0)
+if(essidlen != 0)
 	{
-	return;
+	addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
+	associationrequestframecount++;
 	}
-addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
-associationrequestframecount++;
 
 rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
 if(rsntagptr == NULL)
 	{
 	return;
 	}
-rsntag = (rsntag_t*)rsntagptr;
 
-if(rsntag->len != 38)
-	{
-	return;
-	}
+rsntag = (rsntag_t*)rsntagptr;
 if(rsntag->version != 1)
 	{
 	return;
 	}
-pmklisttag = (pmkidlisttag_t*)(rsntagptr +22); 
-if(ntohs(pmklisttag->count) == 0)
+
+rsntagptr += RSNTAG_SIZE +RSNSUITETAG_SIZE; /* skip groupcypher */
+
+rsntagptr = getrsncipher(rsntagptr, rsntag->len +2 -RSNTAG_SIZE -RSNSUITETAG_SIZE);
+	{
+	if( rsntagptr == NULL)
+		{
+		return;
+		}
+	}
+
+pmklisttag = (pmkidlisttag_t*)(rsntagptr); 
+if(pmklisttag->count == 0)
 	{
 	return;
 	}
@@ -3729,14 +3796,14 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESRESTA_SIZE
 	}
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESRESTA_SIZE;
+reassociationrequestframecount++;
 memset(&essidstr, 0, 32);
 essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESRESTA_SIZE, essidstr);
-if(essidlen == 0)
+if(essidlen != 0)
 	{
-	return;
+	addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
+	associationrequestframecount++;
 	}
-addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
-reassociationrequestframecount++;
 
 rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
 if(rsntagptr == NULL)
@@ -3745,16 +3812,26 @@ if(rsntagptr == NULL)
 	}
 
 rsntag = (rsntag_t*)rsntagptr;
-if(rsntag->len != 38)
-	{
-	return;
-	}
 if(rsntag->version != 1)
 	{
 	return;
 	}
-pmklisttag = (pmkidlisttag_t*)(rsntagptr +22); 
-if(ntohs(pmklisttag->count) == 0)
+
+
+rsntagptr += RSNTAG_SIZE +RSNSUITETAG_SIZE; /* skip groupcypher */
+
+rsntagptr = getrsncipher(rsntagptr, rsntag->len +2 -RSNTAG_SIZE -RSNSUITETAG_SIZE);
+	{
+	if( rsntagptr == NULL)
+		{
+		return;
+		}
+	}
+
+
+
+pmklisttag = (pmkidlisttag_t*)(rsntagptr); 
+if(pmklisttag->count == 0)
 	{
 	return;
 	}

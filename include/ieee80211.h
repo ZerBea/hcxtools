@@ -334,6 +334,28 @@ struct rsn_tag
 typedef struct rsn_tag rsntag_t;
 #define	RSNTAG_SIZE sizeof(rsntag_t)
 /*===========================================================================*/
+struct rsnsuite_tag
+{
+ uint8_t	oui[3];
+ uint8_t	type;
+} __attribute__((__packed__));
+typedef struct rsnsuite_tag rsnsuitetag_t;
+#define	RSNSUITETAG_SIZE sizeof(rsnsuitetag_t)
+/*===========================================================================*/
+struct rsnlist_tag
+{
+ uint16_t	count;
+} __attribute__((__packed__));
+typedef struct rsnlist_tag rsnlisttag_t;
+#define	RSNLISTTAG_SIZE sizeof(rsnlisttag_t)
+/*===========================================================================*/
+struct rsncapa_tag
+{
+ uint16_t	capabilities;
+} __attribute__((__packed__));
+typedef struct rsncapa_tag rsncapatag_t;
+#define	RSNCAPATAG_SIZE sizeof(rsncapatag_t)
+/*===========================================================================*/
 struct pmkidlist_tag
 {
  uint16_t	count;

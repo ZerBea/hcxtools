@@ -1,3 +1,8 @@
+14.06.2019
+==========
+hcxpcaptool: complete rewrite of RSN-IE PMKID detection within association frames and reassociation frames
+
+
 07.06.2019
 ==========
 hcxpcaptool: added new option to filter output by a single MAC address
