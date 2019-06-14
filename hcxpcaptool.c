@@ -5344,6 +5344,12 @@ while(1)
 			pcapngshb.minor_version		= byte_swap_16(pcapngshb.minor_version);
 			pcapngshb.section_length	= byte_swap_64(pcapngshb.section_length);
 			}
+		if(pcapngbh.total_length == 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "invalid blocktype length detected\n");
+			break;
+			}
 		aktseek = lseek(fd, 0, SEEK_CUR);
 		if(aktseek < 0)
 			{
@@ -5373,17 +5379,16 @@ while(1)
 	pcapngbh.block_type = byte_swap_32(pcapngbh.block_type);
 	pcapngbh.total_length = byte_swap_32(pcapngbh.total_length);
 	#endif
-
-	if(pcapngbh.total_length <= 0)
-		{
-		pcapreaderrors++;
-		fprintf(stderr, "invalid blocktype length detected\n");
-		break;
-		}
 	if(endianess == 1)
 		{
 		pcapngbh.block_type = byte_swap_32(pcapngbh.block_type);
 		pcapngbh.total_length = byte_swap_32(pcapngbh.total_length);
+		}
+	if(pcapngbh.total_length == 0)
+		{
+		pcapreaderrors++;
+		fprintf(stderr, "invalid blocktype length detected\n");
+		break;
 		}
 	if(pcapngbh.block_type == 1)
 		{
