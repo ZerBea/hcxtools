@@ -3588,37 +3588,6 @@ proberesponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211assoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
-{
-uint8_t *packet_ptr;
-mac_t *macf;
-int essidlen;
-uint8_t essidstr[ESSID_LEN_MAX];
-
-if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESSTA_SIZE +2)
-	{
-	return;
-	}
-macf = (mac_t*)packet;
-packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESSTA_SIZE;
-memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESSTA_SIZE, essidstr);
-if(essidlen == 0)
-	{
-	return;
-	}
-addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
-associationrequestframecount++;
-return;
-}
-/*===========================================================================*/
-void process80211assoc_resp()
-{
-
-associationresponseframecount++;
-return;
-}
-/*===========================================================================*/
 uint8_t *gettag(uint8_t tag, uint8_t *tagptr, int restlen)
 {
 static ietag_t *tagfield;
@@ -3641,6 +3610,104 @@ while(0 < restlen)
 	restlen -= tagfield->len +IETAG_SIZE;
 	}
 return NULL;
+}
+/*===========================================================================*/
+void process80211assoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
+{
+uint8_t *packet_ptr;
+mac_t *macf;
+int essidlen;
+uint8_t *rsntagptr = NULL;
+rsntag_t *rsntag = NULL;
+
+pmkidlisttag_t *pmklisttag = NULL;
+pmkidl_t *zeiger;
+unsigned long long int c;
+
+uint8_t essidstr[ESSID_LEN_MAX];
+
+if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESSTA_SIZE +2)
+	{
+	return;
+	}
+macf = (mac_t*)packet;
+packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESSTA_SIZE;
+memset(&essidstr, 0, 32);
+essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESSTA_SIZE, essidstr);
+if(essidlen == 0)
+	{
+	return;
+	}
+addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
+associationrequestframecount++;
+
+rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
+if(rsntagptr == NULL)
+	{
+	return;
+	}
+rsntag = (rsntag_t*)rsntagptr;
+
+if(rsntag->len != 38)
+	{
+	return;
+	}
+if(rsntag->version != 1)
+	{
+	return;
+	}
+pmklisttag = (pmkidlisttag_t*)(rsntagptr +22); 
+if(ntohs(pmklisttag->count) == 0)
+	{
+	return;
+	}
+
+pmkidallcount++;
+pmkidstacount++;
+if(pmkidliste == NULL)
+	{
+	pmkidliste = malloc(PMKIDLIST_SIZE);
+	if(pmkidliste == NULL)
+		{
+		fprintf(stderr, "failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memcpy(pmkidliste->mac_ap, macf->addr1, 6);
+	memcpy(pmkidliste->mac_sta, macf->addr2, 6);
+	memcpy(pmkidliste->pmkid, pmklisttag->data, 16);
+	pmkidcount++;
+	return;
+	}
+
+zeiger = pmkidliste;
+for(c = 0; c < pmkidcount; c++)
+	{
+	if((memcmp(zeiger->mac_ap, macf->addr1, 6) == 0) && (memcmp(zeiger->mac_sta, macf->addr2, 6) == 0) && (memcmp(zeiger->pmkid, pmklisttag->data, 16) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
+zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
+if(zeiger == NULL)
+	{
+	fprintf(stderr, "failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+pmkidliste = zeiger;
+zeiger = pmkidliste +pmkidcount;
+memcpy(zeiger->mac_ap,  macf->addr1, 6);
+memcpy(zeiger->mac_sta,  macf->addr2, 6);
+memcpy(zeiger->pmkid, pmklisttag->data, 16);
+pmkidcount++;
+return;
+}
+/*===========================================================================*/
+void process80211assoc_resp()
+{
+
+associationresponseframecount++;
+return;
 }
 /*===========================================================================*/
 void process80211reassoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
