@@ -5806,7 +5806,7 @@ if(resseek < 0)
 res = read(fd, &msnthdr, MSNETMON_SIZE);
 if(res != MSNETMON_SIZE)
 	{
-	printf("failed to read Microsoft NetworkMonitor header\n");
+	fprintf(stderr, "failed to read Microsoft NetworkMonitor header\n");
 	return;
 	}
 
@@ -6257,7 +6257,7 @@ static const struct option long_options[] =
 
 if(globalinit() == false)
 	{
-	printf("global  ‎initialization failed\n");
+	fprintf(stderr, "global  ‎initialization failed\n");
 	exit(EXIT_FAILURE);
 	}
 
