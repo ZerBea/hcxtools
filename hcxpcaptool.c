@@ -2298,7 +2298,7 @@ if(tacacspliste == NULL)
 	tacacspliste = malloc(TACACSPLIST_SIZE);
 	if(tacacspliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memset(tacacspliste, 0, TACACSPLIST_SIZE);
@@ -2324,7 +2324,7 @@ for(c = 0; c < tacacspcount; c++)
 zeiger = realloc(tacacspliste, (tacacspcount +1) *TACACSPLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 tacacspliste = zeiger;
@@ -2349,7 +2349,7 @@ if(md5liste == NULL)
 	md5liste = malloc(MD5LIST_SIZE);
 	if(md5liste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memset(md5liste, 0, MD5LIST_SIZE);
@@ -2374,7 +2374,7 @@ for(c = 0; c < md5count; c++)
 zeiger = realloc(md5liste, (md5count +1) *MD5LIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 md5liste = zeiger;
@@ -2402,7 +2402,7 @@ if(leap2liste == NULL)
 	leap2liste = malloc(LEAPLIST_SIZE);
 	if(leap2liste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memset(leap2liste, 0, LEAPLIST_SIZE);
@@ -2428,7 +2428,7 @@ for(c = 0; c < leap2count; c++)
 zeiger = realloc(leap2liste, (leap2count +1) *LEAPLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 leap2liste = zeiger;
@@ -2458,7 +2458,7 @@ if(leapliste == NULL)
 	leapliste = malloc(LEAPLIST_SIZE);
 	if(leapliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memset(leapliste, 0, LEAPLIST_SIZE);
@@ -2485,7 +2485,7 @@ for(c = 0; c < leapcount; c++)
 zeiger = realloc(leapliste, (leapcount +1) *LEAPLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 leapliste = zeiger;
@@ -2538,7 +2538,7 @@ if(rawhandshakeliste == NULL)
 	rawhandshakeliste = malloc(HCXLIST_SIZE);
 	if(rawhandshakeliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memset(rawhandshakeliste, 0, HCXLIST_SIZE);
@@ -2632,7 +2632,7 @@ for(c = 0; c < rawhandshakecount; c++)
 zeiger = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 rawhandshakeliste = zeiger;
@@ -2686,7 +2686,7 @@ if(handshakeliste == NULL)
 	handshakeliste = malloc(HCXLIST_SIZE);
 	if(handshakeliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memset(handshakeliste, 0, HCXLIST_SIZE);
@@ -2865,7 +2865,7 @@ for(c = 0; c < handshakecount; c++)
 zeiger = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 handshakeliste = zeiger;
@@ -3080,7 +3080,7 @@ if(pmkidliste == NULL)
 	pmkidliste = malloc(PMKIDLIST_SIZE);
 	if(pmkidliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memcpy(pmkidliste->mac_ap, mac_ap, 6);
@@ -3102,7 +3102,7 @@ for(c = 0; c < pmkidcount; c++)
 zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 pmkidliste = zeiger;
@@ -3161,7 +3161,7 @@ if(pmkidliste == NULL)
 	pmkidliste = malloc(PMKIDLIST_SIZE);
 	if(pmkidliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memcpy(pmkidliste->mac_ap, mac_ap, 6);
@@ -3183,7 +3183,7 @@ for(c = 0; c < pmkidcount; c++)
 zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 pmkidliste = zeiger;
@@ -3276,7 +3276,7 @@ if(eapolliste == NULL)
 	eapolliste = malloc(EAPOLLIST_SIZE);
 	if(eapolliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memset(eapolliste, 0, EAPOLLIST_SIZE);
@@ -3294,7 +3294,7 @@ if(eapolliste == NULL)
 zeiger = realloc(eapolliste, (eapolcount +1) *EAPOLLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 eapolliste = zeiger;
@@ -3327,7 +3327,7 @@ qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist
 
 if((apstaessidlistecleaned = calloc((apstaessidcount), APSTAESSIDLIST_SIZE)) == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 
@@ -3405,7 +3405,7 @@ if(apstaessidliste == NULL)
 	apstaessidliste = malloc(APSTAESSIDLIST_SIZE);
 	if(apstaessidliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memset(apstaessidliste, 0, APSTAESSIDLIST_SIZE);
@@ -3423,7 +3423,7 @@ if(apstaessidliste == NULL)
 zeiger = realloc(apstaessidliste, (apstaessidcount +1) *APSTAESSIDLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 apstaessidliste = zeiger;
@@ -3736,7 +3736,7 @@ if(pmkidliste == NULL)
 	pmkidliste = malloc(PMKIDLIST_SIZE);
 	if(pmkidliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memcpy(pmkidliste->mac_ap, macf->addr1, 6);
@@ -3758,7 +3758,7 @@ for(c = 0; c < pmkidcount; c++)
 zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 pmkidliste = zeiger;
@@ -3843,7 +3843,7 @@ if(pmkidliste == NULL)
 	pmkidliste = malloc(PMKIDLIST_SIZE);
 	if(pmkidliste == NULL)
 		{
-		fprintf(stderr, "failed to allocate memory\n");
+		printf("failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memcpy(pmkidliste->mac_ap, macf->addr1, 6);
@@ -3865,7 +3865,7 @@ for(c = 0; c < pmkidcount; c++)
 zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
 if(zeiger == NULL)
 	{
-	fprintf(stderr, "failed to allocate memory\n");
+	printf("failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 pmkidliste = zeiger;
@@ -5109,7 +5109,7 @@ if(linktype == DLT_NULL)
 	if(caplen < (uint32_t)LOBA_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read loopback header\n");
+		printf("failed to read loopback header\n");
 		return;
 		}
 	processloopbackpacket(tv_sec, tv_usec, caplen, packet);
@@ -5120,7 +5120,7 @@ else if(linktype == DLT_EN10MB)
 	if(caplen < (uint32_t)ETH2_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read ethernet header\n");
+		printf("failed to read ethernet header\n");
 		return;
 		}
 	processethernetpacket(tv_sec, tv_usec, caplen, packet);
@@ -5132,7 +5132,7 @@ else if(linktype == DLT_IEEE802_11_RADIO)
 	if(caplen < (uint32_t)RTH_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read radiotap header\n");
+		printf("failed to read radiotap header\n");
 		return;
 		}
 	rth = (rth_t*)packet;
@@ -5143,7 +5143,7 @@ else if(linktype == DLT_IEEE802_11_RADIO)
 	if(rth->it_len > caplen)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read radiotap header\n");
+		printf("failed to read radiotap header\n");
 		return;
 		}
 	packet_ptr += rth->it_len;
@@ -5160,7 +5160,7 @@ else if(linktype == DLT_PRISM_HEADER)
 	if(caplen < (uint32_t)PRISM_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read prism header\n");
+		printf("failed to read prism header\n");
 		return;
 		}
 	prism = (prism_t*)packet;
@@ -5174,7 +5174,7 @@ else if(linktype == DLT_PRISM_HEADER)
 		if(prism->frmlen.data > caplen)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to read prism header\n");
+			printf("failed to read prism header\n");
 			return;
 			}
 		prism->msglen = caplen -prism->frmlen.data;
@@ -5188,7 +5188,7 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 	if(caplen < (uint32_t)AVS_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read avs header\n");
+		printf("failed to read avs header\n");
 		return;
 		}
 	avs = (avs_t*)packet;
@@ -5198,7 +5198,7 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 	if(avs->len > caplen)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read avs header\n");
+		printf("failed to read avs header\n");
 		return;
 		}
 	packet_ptr += avs->len;
@@ -5210,7 +5210,7 @@ else if(linktype == DLT_PPI)
 	if(caplen < (uint32_t)PPI_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read ppi header\n");
+		printf("failed to read ppi header\n");
 		return;
 		}
 	ppi = (ppi_t*)packet;
@@ -5220,7 +5220,7 @@ else if(linktype == DLT_PPI)
 	if(ppi->pph_len > caplen)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read ppi header\n");
+		printf("failed to read ppi header\n");
 		return;
 		}
 	packet_ptr += ppi->pph_len;
@@ -5234,7 +5234,7 @@ else
 if(caplen < 4)
 	{
 	pcapreaderrors++;
-	fprintf(stderr, "failed to read packet\n");
+	printf("failed to read packet\n");
 	return;
 	}
 fcs = (fcs_t*)(packet_ptr +caplen -4);
@@ -5419,7 +5419,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed set file pointer\n");
+			printf("failed set file pointer\n");
 			return false;
 			}
 		}
@@ -5460,7 +5460,7 @@ while(1)
 	if(res != BH_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read pcapng header block\n");
+		printf("failed to read pcapng header block\n");
 		break;
 		}
 	if(pcapngbh.block_type == PCAPNGBLOCKTYPE)
@@ -5469,7 +5469,7 @@ while(1)
 		if(res != SHB_SIZE)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to read pcapng section header block\n");
+			printf("failed to read pcapng section header block\n");
 			break;
 			}
 		#ifdef BIG_ENDIAN_HOST
@@ -5491,14 +5491,14 @@ while(1)
 		if(pcapngbh.total_length == 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "invalid blocktype length detected\n");
+			printf("invalid blocktype length detected\n");
 			break;
 			}
 		aktseek = lseek(fd, 0, SEEK_CUR);
 		if(aktseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		if(pcapngbh.total_length > (SHB_SIZE +BH_SIZE +4))
@@ -5506,7 +5506,7 @@ while(1)
 			if(pcapngoptionwalk(fd, pcapngbh.total_length) == false)
 				{
 				pcapreaderrors++;
-				fprintf(stderr, "failed to read pcapng options\n");
+				printf("failed to read pcapng options\n");
 				break;
 				}
 			}
@@ -5514,7 +5514,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		continue;
@@ -5531,7 +5531,7 @@ while(1)
 	if(pcapngbh.total_length == 0)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "invalid blocktype length detected\n");
+		printf("invalid blocktype length detected\n");
 		break;
 		}
 	if(pcapngbh.block_type == 1)
@@ -5540,7 +5540,7 @@ while(1)
 		if(res != IDB_SIZE)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to get pcapng interface description block\n");
+			printf("failed to get pcapng interface description block\n");
 			break;
 			}
 		#ifdef BIG_ENDIAN_HOST
@@ -5554,14 +5554,14 @@ while(1)
 			}
 		if(pcapngidb.snaplen > MAXPACPSNAPLEN)
 			{
-			fprintf(stderr, "detected oversized snaplen (%d)          \n", pcapngidb.snaplen);
+			printf("detected oversized snaplen (%d)          \n", pcapngidb.snaplen);
 			pcapreaderrors++;
 			}
 		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -IDB_SIZE, SEEK_CUR);
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		continue;
@@ -5572,7 +5572,7 @@ while(1)
 		if(res != PB_SIZE)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to get pcapng packet block (obsolete)\n");
+			printf("failed to get pcapng packet block (obsolete)\n");
 			break;
 			}
 		#ifdef BIG_ENDIAN_HOST
@@ -5605,7 +5605,7 @@ while(1)
 			res = read(fd, &packet, pcapngpb.caplen);
 			if(res != pcapngpb.caplen)
 				{
-				fprintf(stderr, "failed to read packet %lld          \n", rawpacketcount);
+				printf("failed to read packet %lld          \n", rawpacketcount);
 				pcapreaderrors++;
 				break;
 				}
@@ -5613,7 +5613,7 @@ while(1)
 			if(resseek < 0)
 				{
 				pcapreaderrors++;
-				fprintf(stderr, "failed to set file pointer\n");
+				printf("failed to set file pointer\n");
 				break;
 				}
 			rawpacketcount++;
@@ -5624,7 +5624,7 @@ while(1)
 			if(resseek < 0)
 				{
 				pcapreaderrors++;
-				fprintf(stderr, "failed to set file pointer\n");
+				printf("failed to set file pointer\n");
 				break;
 				}
 			pcapngpb.caplen = 0;
@@ -5634,7 +5634,7 @@ while(1)
 		res = read(fd, &packet, pcapngpb.caplen);
 		if(res != pcapngpb.caplen)
 			{
-			fprintf(stderr, "failed to read packet %lld          \n", rawpacketcount);
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			pcapreaderrors++;
 			break;
 			}
@@ -5643,7 +5643,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		}
@@ -5653,7 +5653,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		continue;
@@ -5664,7 +5664,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		continue;
@@ -5675,7 +5675,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		continue;
@@ -5686,14 +5686,14 @@ while(1)
 		if(blkseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		res = read(fd, &pcapngepb, EPB_SIZE);
 		if(res != EPB_SIZE)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to get pcapng enhanced packet block\n");
+			printf("failed to get pcapng enhanced packet block\n");
 			break;
 			}
 		#ifdef BIG_ENDIAN_HOST
@@ -5716,7 +5716,7 @@ while(1)
 			res = read(fd, &packet, pcapngepb.caplen);
 			if(res != pcapngepb.caplen)
 				{
-				fprintf(stderr, "failed to read packet %lld          \n", rawpacketcount);
+				printf("failed to read packet %lld          \n", rawpacketcount);
 				pcapreaderrors++;
 				break;
 				}
@@ -5724,7 +5724,7 @@ while(1)
 			if(aktseek < 0)
 				{
 				pcapreaderrors++;
-				fprintf(stderr, "failed to set file pointer\n");
+				printf("failed to set file pointer\n");
 				break;
 				}
 			if(pcapngbh.total_length > (EPB_SIZE +BH_SIZE +4))
@@ -5743,13 +5743,13 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		}
 	else
 		{
-		fprintf(stderr, "unknown blocktype %d after packet %lld\n", pcapngbh.block_type, rawpacketcount);
+		printf("unknown blocktype %d after packet %lld\n", pcapngbh.block_type, rawpacketcount);
 		pcapreaderrors++;
 		break;
 		}
@@ -5802,7 +5802,7 @@ memset(&packet, 0, MAXPACPSNAPLEN);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
 	{
-	fprintf(stderr, "failed to read pcap header\n");
+	printf("failed to read pcap header\n");
 	return;
 	}
 
@@ -5837,7 +5837,7 @@ while(1)
 	if(res != PCAPREC_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stderr, "failed to read pcap packet header for packet %lld\n", rawpacketcount);
+		printf("failed to read pcap packet header for packet %lld\n", rawpacketcount);
 		break;
 		}
 
@@ -5860,7 +5860,7 @@ while(1)
 		res = read(fd, &packet, pcaprhdr.incl_len);
 		if(res != pcaprhdr.incl_len)
 			{
-			fprintf(stderr, "failed to read packet %lld          \n", rawpacketcount);
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			pcapreaderrors++;
 			break;
 			}
@@ -5872,7 +5872,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stderr, "failed to set file pointer\n");
+			printf("failed to set file pointer\n");
 			break;
 			}
 		pcaprhdr.incl_len = 0;
@@ -5915,14 +5915,14 @@ resseek = lseek(fd, 4L, SEEK_SET);
 if(resseek < 0)
 	{
 	pcapreaderrors++;
-	fprintf(stderr, "failed to set file pointer\n");
+	printf("failed to set file pointer\n");
 	return;
 	}
 
 res = read(fd, &msnthdr, MSNETMON_SIZE);
 if(res != MSNETMON_SIZE)
 	{
-	fprintf(stderr, "failed to read Microsoft NetworkMonitor header\n");
+	printf("failed to read Microsoft NetworkMonitor header\n");
 	return;
 	}
 
@@ -5949,13 +5949,13 @@ resseek = lseek(fd, 4L, SEEK_SET);
 if(resseek < 0)
 	{
 	pcapreaderrors++;
-	fprintf(stderr, "failed to set file pointer\n");
+	printf("failed to set file pointer\n");
 	return;
 	}
 res = read(fd, &msnthdr, MSNETMON_SIZE);
 if(res != MSNETMON_SIZE)
 	{
-	fprintf(stderr, "failed to read Microsoft NetworkMonitor header\n");
+	printf("failed to read Microsoft NetworkMonitor header\n");
 	return;
 	}
 
@@ -6124,7 +6124,7 @@ if(pcapr_fd == -1)
 magicnumber = getmagicnumber(pcapr_fd);
 if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (magicnumber != PCAPNGBLOCKTYPE) && (magicnumber != MSNETMON1) && (magicnumber != MSNETMON2))
 	{
-	fprintf(stderr, "failed to get magicnumber from %s\n", basename(pcapinname));
+	printf("failed to get magicnumber from %s\n", basename(pcapinname));
 	close(pcapr_fd);
 	if(needrmflag == true)
 		{
@@ -6136,7 +6136,7 @@ resseek = lseek(pcapr_fd, 0L, SEEK_SET);
 if(resseek < 0)
 	{
 	pcapreaderrors++;
-	fprintf(stderr, "failed to set file pointer\n");
+	printf("failed to set file pointer\n");
 	return;
 	}
 
@@ -6406,7 +6406,7 @@ static const struct option long_options[] =
 
 if(globalinit() == false)
 	{
-	fprintf(stderr, "global  ‎initialization failed\n");
+	printf("global  ‎initialization failed\n");
 	exit(EXIT_FAILURE);
 	}
 
@@ -6571,12 +6571,12 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_FILTER_MAC:
 		if(strlen(optarg) != 12)
 			{
-			fprintf(stderr, "wrong MAC format (112233445566)\n");
+			printf("wrong MAC format (112233445566)\n");
 			exit(EXIT_FAILURE);
 			}
 		if(hex2bin(optarg, filtermac, 6) == false)
 			{
-			fprintf(stderr, "wrong MAC format (112233445566)\n");
+			printf("wrong MAC format (112233445566)\n");
 			exit(EXIT_FAILURE);
 			}
 		filtermacflag = true;
@@ -6603,7 +6603,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 if(argc < 2)
 	{
-	fprintf(stderr, "no option selected\n");
+	printf("no option selected\n");
 	return EXIT_SUCCESS;
 	}
 
@@ -6611,7 +6611,7 @@ if(gpxflag == true)
 	{
 	if((fhgpx = fopen(gpxoutname, "w+")) == NULL)
 		{
-		fprintf(stderr, "error opening file %s: %s\n", gpxoutname, strerror(errno));
+		printf("error opening file %s: %s\n", gpxoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	fprintf(fhgpx, "%s", gpxhead);
@@ -6622,7 +6622,7 @@ if(hexmodeflag == true)
 	{
 	if((fhhexmode = fopen(hexmodeoutname, "a+")) == NULL)
 		{
-		fprintf(stderr, "error opening file %s: %s\n", hexmodeoutname, strerror(errno));
+		printf("error opening file %s: %s\n", hexmodeoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6631,7 +6631,7 @@ if(eapoloutname != NULL)
 	{
 	if((fheapol = fopen(eapoloutname, "a+")) == NULL)
 		{
-		fprintf(stderr, "error opening file %s: %s\n", eapoloutname, strerror(errno));
+		printf("error opening file %s: %s\n", eapoloutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6640,7 +6640,7 @@ if(networkoutname != NULL)
 	{
 	if((fhnetwork = fopen(networkoutname, "a+")) == NULL)
 		{
-		fprintf(stderr, "error opening file %s: %s\n", networkoutname, strerror(errno));
+		printf("error opening file %s: %s\n", networkoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
