@@ -39,6 +39,8 @@ static bool wpskeysflag;
 static bool easyboxflag;
 static bool ukrtelecomflag;
 
+uint8_t essidglen;
+
 /*===========================================================================*/
 static void globalinit()
 {
@@ -47,6 +49,7 @@ static struct tm *tm;
 
 apessidliste = NULL;
 apessidcount = 0;
+essidglen = 32;
 
 t = time(NULL);
 tm = localtime(&t);
@@ -524,16 +527,29 @@ static void writeessidadd(FILE *fhout, char *essid)
 int c, d;
 static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = {};
 
+
 for(c = 22222; c <= 99999; c += 11111)
 	{
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
 	writepsk(fhout, essidstring);
 	}
 
-for(c = 2222; c <= 9999; c += 1111)
+if(essidglen <= 12)
 	{
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
-	writepsk(fhout, essidstring);
+	for(c = thisyear +1; c < 10000; c++)
+		{
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
+		writepsk(fhout, essidstring);
+		}
+	}
+
+if(essidglen > 12)
+	{
+	for(c = 2222; c <= 9999; c += 1111)
+		{
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
+		writepsk(fhout, essidstring);
+		}
 	}
 
 for(c = 0; c <= thisyear; c++)
@@ -1382,6 +1398,7 @@ qsort(apessidliste, apessidcount, APESSIDLIST_SIZE, sort_apessidlist_by_essid);
 zeiger = apessidliste;
 for(c = 0; c < apessidcount; c++)
 	{
+	essidglen = zeiger->essidlen;
 	if(c == 0)
 		{
 		prepareessid(fhout, zeiger->essidlen, zeiger->essid);
