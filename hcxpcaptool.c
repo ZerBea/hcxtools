@@ -5114,8 +5114,9 @@ process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 return;
 }
 /*===========================================================================*/
-void pcapngoptionwalk(int fd, uint32_t tl)
+bool pcapngoptionwalk(int fd, uint32_t tl)
 {
+int resseek;
 uint16_t res;
 uint16_t olpad;
 option_header_t opthdr;
@@ -5136,7 +5137,7 @@ while(1)
 	res = read(fd, &opthdr, OH_SIZE);
 	if(res != OH_SIZE)
 		{
-		return;
+		return true;
 		}
 	#ifdef BIG_ENDIAN_HOST
 	opthdr.option_code = byte_swap_16(opthdr.option_code);
@@ -5149,12 +5150,12 @@ while(1)
 		}
 	if(opthdr.option_code == 0)
 		{
-		return;
+		return true;
 		}
 	olpad = opthdr.option_length + (4 -(opthdr.option_length %4)) %4;
 	if((olpad > tl) || (olpad >= 0xff))
 		{
-		return;
+		return true;
 		}
 	tl -= olpad -2;
 
@@ -5164,7 +5165,7 @@ while(1)
 		res = read(fd, &pcapngoptioninfo, olpad);
 		if(res != olpad)
 			{
-			return;
+			return true;
 			}
 		pcapngoptioninfo[res] = 0;
 		lat = 0;
@@ -5207,7 +5208,7 @@ while(1)
 		res = read(fd, &pcapnghwinfo, olpad);
 		if(res != olpad)
 			{
-			return;
+			return true;
 			}
 		}
 	else if(opthdr.option_code == 3)
@@ -5216,7 +5217,7 @@ while(1)
 		res = read(fd, &pcapngosinfo, olpad);
 		if(res != olpad)
 			{
-			return;
+			return true;
 			}
 		}
 	else if(opthdr.option_code == 4)
@@ -5225,7 +5226,7 @@ while(1)
 		res = read(fd, &pcapngapplinfo, olpad);
 		if(res != olpad)
 			{
-			return;
+			return true;
 			}
 		}
 	else if(opthdr.option_code == OPTIONCODE_RC)
@@ -5233,11 +5234,11 @@ while(1)
 		res = read(fd, &filereplaycound, olpad);
 		if(res != olpad)
 			{
-			return;
+			return true;
 			}
 		if(olpad != 8)
 			{
-			return;
+			return true;
 			}
 		myaktreplaycount = filereplaycound[0x07] & 0xff;
 		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x06] & 0xff);
@@ -5260,20 +5261,26 @@ while(1)
 		res = read(fd, &filenonce, olpad);
 		if(res != olpad)
 			{
-			return;
+			return true;
 			}
 		if(olpad != 32)
 			{
-			return;
+			return true;
 			}
 		memcpy(&myaktnonce, &filenonce, 32);
 		}
 	else
 		{
-		lseek(fd, olpad, SEEK_CUR);
+		resseek = lseek(fd, olpad, SEEK_CUR);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed set file pointer\n");
+			return false;
+			}
 		}
 	}
-return;
+return true;
 }
 /*===========================================================================*/
 void processpcapng(int fd, char *pcapinname)
@@ -5281,6 +5288,7 @@ void processpcapng(int fd, char *pcapinname)
 unsigned int res;
 int aktseek;
 int blkseek;
+int resseek;
 
 block_header_t pcapngbh;
 section_header_block_t pcapngshb;
@@ -5337,11 +5345,28 @@ while(1)
 			pcapngshb.section_length	= byte_swap_64(pcapngshb.section_length);
 			}
 		aktseek = lseek(fd, 0, SEEK_CUR);
+		if(aktseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		if(pcapngbh.total_length > (SHB_SIZE +BH_SIZE +4))
 			{
-			pcapngoptionwalk(fd, pcapngbh.total_length);
+			if(pcapngoptionwalk(fd, pcapngbh.total_length) == false)
+				{
+				pcapreaderrors++;
+				fprintf(stderr, "failed to read pcapng options\n");
+				break;
+				}
 			}
-		lseek(fd, aktseek +pcapngbh.total_length -BH_SIZE -SHB_SIZE, SEEK_SET);
+		resseek = lseek(fd, aktseek +pcapngbh.total_length -BH_SIZE -SHB_SIZE, SEEK_SET);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		continue;
 		}
 	#ifdef BIG_ENDIAN_HOST
@@ -5383,7 +5408,13 @@ while(1)
 			fprintf(stderr, "detected oversized snaplen (%d)          \n", pcapngidb.snaplen);
 			pcapreaderrors++;
 			}
-		lseek(fd, pcapngbh.total_length -BH_SIZE -IDB_SIZE, SEEK_CUR);
+		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -IDB_SIZE, SEEK_CUR);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		continue;
 		}
 	else if(pcapngbh.block_type == 2)
@@ -5429,12 +5460,24 @@ while(1)
 				pcapreaderrors++;
 				break;
 				}
-			lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngepb.caplen, SEEK_CUR);
+			resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngepb.caplen, SEEK_CUR);
+			if(resseek < 0)
+				{
+				pcapreaderrors++;
+				fprintf(stderr, "failed to set file pointer\n");
+				break;
+				}
 			rawpacketcount++;
 			}
 		else
 			{
-			lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE +pcapngpb.caplen, SEEK_CUR);
+			resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE +pcapngpb.caplen, SEEK_CUR);
+			if(resseek < 0)
+				{
+				pcapreaderrors++;
+				fprintf(stderr, "failed to set file pointer\n");
+				break;
+				}
 			pcapngpb.caplen = 0;
 			pcapngpb.len = 0;
 			skippedpacketcount++;
@@ -5447,26 +5490,56 @@ while(1)
 			break;
 			}
 		rawpacketcount++;
-		lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngpb.caplen, SEEK_CUR);
+		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngpb.caplen, SEEK_CUR);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		}
 	else if(pcapngbh.block_type == 3)
 		{
-		lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		continue;
 		}
 	else if(pcapngbh.block_type == 4)
 		{
-		lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		continue;
 		}
 	else if(pcapngbh.block_type == 5)
 		{
-		lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		continue;
 		}
 	else if(pcapngbh.block_type == 6)
 		{
 		blkseek = lseek(fd, 0, SEEK_CUR);
+		if(blkseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		res = read(fd, &pcapngepb, EPB_SIZE);
 		if(res != EPB_SIZE)
 			{
@@ -5499,6 +5572,12 @@ while(1)
 				break;
 				}
 			aktseek = lseek(fd, (4 -(pcapngepb.caplen %4)) %4, SEEK_CUR);
+			if(aktseek < 0)
+				{
+				pcapreaderrors++;
+				fprintf(stderr, "failed to set file pointer\n");
+				break;
+				}
 			if(pcapngbh.total_length > (EPB_SIZE +BH_SIZE +4))
 				{
 				pcapngoptionwalk(fd, pcapngbh.total_length);
@@ -5511,7 +5590,13 @@ while(1)
 			pcapngepb.len = 0;
 			skippedpacketcount++;
 			}
-		lseek(fd, blkseek +pcapngbh.total_length -BH_SIZE, SEEK_SET);
+		resseek = lseek(fd, blkseek +pcapngbh.total_length -BH_SIZE, SEEK_SET);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		}
 	else
 		{
@@ -5557,6 +5642,7 @@ return;
 void processpcap(int fd, char *pcapinname)
 {
 unsigned int res;
+int resseek;
 
 pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
@@ -5633,7 +5719,13 @@ while(1)
 		}
 	else
 		{
-		lseek(fd, pcaprhdr.incl_len, SEEK_CUR);
+		resseek = lseek(fd, pcaprhdr.incl_len, SEEK_CUR);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			fprintf(stderr, "failed to set file pointer\n");
+			break;
+			}
 		pcaprhdr.incl_len = 0;
 		pcaprhdr.orig_len = 0;
 		skippedpacketcount++;
@@ -5664,17 +5756,24 @@ return;
 void processmsnetmon1(int fd, char *pcapinname)
 {
 unsigned int res;
-
+int resseek;
 msntm_t msnthdr;
 uint8_t packet[MAXPACPSNAPLEN];
 
 printf("start reading from %s\n", pcapinname);
 memset(&packet, 0, MAXPACPSNAPLEN);
-lseek(fd, 4L, SEEK_SET);
+resseek = lseek(fd, 4L, SEEK_SET);
+if(resseek < 0)
+	{
+	pcapreaderrors++;
+	fprintf(stderr, "failed to set file pointer\n");
+	return;
+	}
+
 res = read(fd, &msnthdr, MSNETMON_SIZE);
 if(res != MSNETMON_SIZE)
 	{
-	printf("failed to read Microsoft NetworkMonitor header\n");
+	fprintf(stderr, "failed to read Microsoft NetworkMonitor header\n");
 	return;
 	}
 
@@ -5691,13 +5790,19 @@ return;
 void processmsnetmon2(int fd, char *pcapinname)
 {
 unsigned int res;
-
+int resseek;
 msntm_t msnthdr;
 uint8_t packet[MAXPACPSNAPLEN];
 
 printf("start reading from %s\n", pcapinname);
 memset(&packet, 0, MAXPACPSNAPLEN);
-lseek(fd, 4L, SEEK_SET);
+resseek = lseek(fd, 4L, SEEK_SET);
+if(resseek < 0)
+	{
+	pcapreaderrors++;
+	fprintf(stderr, "failed to set file pointer\n");
+	return;
+	}
 res = read(fd, &msnthdr, MSNETMON_SIZE);
 if(res != MSNETMON_SIZE)
 	{
@@ -5717,6 +5822,7 @@ return;
 /*===========================================================================*/
 void processcapfile(char *pcapinname)
 {
+int resseek = 0;
 int pcapr_fd;
 uint32_t magicnumber;
 bool needrmflag = false;
@@ -5869,7 +5975,7 @@ if(pcapr_fd == -1)
 magicnumber = getmagicnumber(pcapr_fd);
 if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (magicnumber != PCAPNGBLOCKTYPE) && (magicnumber != MSNETMON1) && (magicnumber != MSNETMON2))
 	{
-	printf("failed to get magicnumber from %s\n", basename(pcapinname));
+	fprintf(stderr, "failed to get magicnumber from %s\n", basename(pcapinname));
 	close(pcapr_fd);
 	if(needrmflag == true)
 		{
@@ -5877,7 +5983,13 @@ if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (ma
 		}
 	return;
 	}
-lseek(pcapr_fd, 0L, SEEK_SET);
+resseek = lseek(pcapr_fd, 0L, SEEK_SET);
+if(resseek < 0)
+	{
+	pcapreaderrors++;
+	fprintf(stderr, "failed to set file pointer\n");
+	return;
+	}
 
 pcapart = pcapstr;
 if(magicnumber == MSNETMON1)
