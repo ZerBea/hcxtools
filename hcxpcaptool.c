@@ -3114,87 +3114,6 @@ pmkidcount++;
 return;
 }
 /*===========================================================================*/
-void addpmkidsta(uint8_t *mac_sta, uint8_t *mac_ap, uint8_t *authpacket)
-{
-unsigned long long int c;
-wpakey_t *wpak;
-uint16_t keyver;
-rsntag_t *rsntag = NULL;
-pmkidlisttag_t *pmklisttag = NULL;
-pmkidl_t *zeiger;
-
-wpak = (wpakey_t*)authpacket;
-if(ntohs(wpak->wpadatalen) != 40)
-	{
-	return;
-	}
-
-keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((keyver < 1) || (keyver > 3))
-	{
-	return;
-	}
-rsntag = (rsntag_t*)(authpacket + WPAKEY_SIZE);
-if(rsntag->len != 38)
-	{
-	return;
-	}
-if(rsntag->version != 1)
-	{
-	return;
-	}
-
-pmklisttag = (pmkidlisttag_t*)(authpacket + WPAKEY_SIZE +22); 
-if(ntohs(pmklisttag->count) == 0)
-	{
-	return;
-	}
-if(memcmp(pmklisttag->data, &nullnonce, 16) == 0)
-	{
-	return;
-	}
-
-pmkidallcount++;
-pmkidstacount++;
-if(pmkidliste == NULL)
-	{
-	pmkidliste = malloc(PMKIDLIST_SIZE);
-	if(pmkidliste == NULL)
-		{
-		printf("failed to allocate memory\n");
-		exit(EXIT_FAILURE);
-		}
-	memcpy(pmkidliste->mac_ap, mac_ap, 6);
-	memcpy(pmkidliste->mac_sta, mac_sta, 6);
-	memcpy(pmkidliste->pmkid, pmklisttag->data, 16);
-	pmkidcount++;
-	return;
-	}
-
-zeiger = pmkidliste;
-for(c = 0; c < pmkidcount; c++)
-	{
-	if((memcmp(zeiger->mac_ap, mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, mac_sta, 6) == 0) && (memcmp(zeiger->pmkid, pmklisttag->data, 16) == 0))
-		{
-		return;
-		}
-	zeiger++;
-	}
-zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
-if(zeiger == NULL)
-	{
-	printf("failed to allocate memory\n");
-	exit(EXIT_FAILURE);
-	}
-pmkidliste = zeiger;
-zeiger = pmkidliste +pmkidcount;
-memcpy(zeiger->mac_ap, mac_ap, 6);
-memcpy(zeiger->mac_sta, mac_sta, 6);
-memcpy(zeiger->pmkid, pmklisttag->data, 16);
-pmkidcount++;
-return;
-}
-/*===========================================================================*/
 void printeapol(uint8_t *mac_sta, uint8_t *mac_ap, uint32_t authlen, uint8_t *authpacket)
 {
 uint32_t c;
@@ -3599,6 +3518,52 @@ if(memcmp(&nullnonce, pmklisttag->data, 16) == 0)
 return suiteptr;
 }
 /*===========================================================================*/
+void addpmkidsta(uint8_t *macsta, uint8_t *macap, uint8_t *stapmkid)
+{
+pmkidl_t *zeiger;
+unsigned long long int c;
+
+pmkidallcount++;
+pmkidstacount++;
+if(pmkidliste == NULL)
+	{
+	pmkidliste = malloc(PMKIDLIST_SIZE);
+	if(pmkidliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memcpy(pmkidliste->mac_ap, macap, 6);
+	memcpy(pmkidliste->mac_sta, macsta, 6);
+	memcpy(pmkidliste->pmkid, stapmkid, 16);
+	pmkidcount++;
+	return;
+	}
+
+zeiger = pmkidliste;
+for(c = 0; c < pmkidcount; c++)
+	{
+	if((memcmp(zeiger->mac_ap, macap, 6) == 0) && (memcmp(zeiger->mac_sta, macsta, 6) == 0) && (memcmp(zeiger->pmkid, stapmkid, 16) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
+zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+pmkidliste = zeiger;
+zeiger = pmkidliste +pmkidcount;
+memcpy(zeiger->mac_ap, macap, 6);
+memcpy(zeiger->mac_sta, macsta, 6);
+memcpy(zeiger->pmkid, stapmkid, 16);
+pmkidcount++;
+return;
+}
+/*===========================================================================*/
 void process80211beacon(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 uint8_t *packet_ptr;
@@ -3697,8 +3662,6 @@ uint8_t *rsntagptr = NULL;
 rsntag_t *rsntag = NULL;
 
 pmkidlisttag_t *pmklisttag = NULL;
-pmkidl_t *zeiger;
-unsigned long long int c;
 
 uint8_t essidstr[ESSID_LEN_MAX];
 
@@ -3714,7 +3677,6 @@ essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESST
 if(essidlen != 0)
 	{
 	addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
-	associationrequestframecount++;
 	}
 
 rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
@@ -3730,7 +3692,6 @@ if(rsntag->version != 1)
 	}
 
 rsntagptr += RSNTAG_SIZE +RSNSUITETAG_SIZE; /* skip groupcypher */
-
 rsntagptr = getrsncipher(rsntagptr, rsntag->len +2 -RSNTAG_SIZE -RSNSUITETAG_SIZE);
 	{
 	if( rsntagptr == NULL)
@@ -3740,49 +3701,13 @@ rsntagptr = getrsncipher(rsntagptr, rsntag->len +2 -RSNTAG_SIZE -RSNSUITETAG_SIZ
 	}
 
 pmklisttag = (pmkidlisttag_t*)(rsntagptr); 
-if(pmklisttag->count == 0)
+if(pmklisttag->count != 1)
 	{
 	return;
 	}
 
-pmkidallcount++;
-pmkidstacount++;
-if(pmkidliste == NULL)
-	{
-	pmkidliste = malloc(PMKIDLIST_SIZE);
-	if(pmkidliste == NULL)
-		{
-		printf("failed to allocate memory\n");
-		exit(EXIT_FAILURE);
-		}
-	memcpy(pmkidliste->mac_ap, macf->addr1, 6);
-	memcpy(pmkidliste->mac_sta, macf->addr2, 6);
-	memcpy(pmkidliste->pmkid, pmklisttag->data, 16);
-	pmkidcount++;
-	return;
-	}
+addpmkidsta(macf->addr2, macf->addr1, pmklisttag->data); 
 
-zeiger = pmkidliste;
-for(c = 0; c < pmkidcount; c++)
-	{
-	if((memcmp(zeiger->mac_ap, macf->addr1, 6) == 0) && (memcmp(zeiger->mac_sta, macf->addr2, 6) == 0) && (memcmp(zeiger->pmkid, pmklisttag->data, 16) == 0))
-		{
-		return;
-		}
-	zeiger++;
-	}
-zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
-if(zeiger == NULL)
-	{
-	printf("failed to allocate memory\n");
-	exit(EXIT_FAILURE);
-	}
-pmkidliste = zeiger;
-zeiger = pmkidliste +pmkidcount;
-memcpy(zeiger->mac_ap,  macf->addr1, 6);
-memcpy(zeiger->mac_sta,  macf->addr2, 6);
-memcpy(zeiger->pmkid, pmklisttag->data, 16);
-pmkidcount++;
 return;
 }
 /*===========================================================================*/
@@ -3801,8 +3726,6 @@ int essidlen;
 uint8_t *rsntagptr = NULL;
 rsntag_t *rsntag = NULL;
 pmkidlisttag_t *pmklisttag = NULL;
-pmkidl_t *zeiger;
-unsigned long long int c;
 
 uint8_t essidstr[ESSID_LEN_MAX];
 
@@ -3818,7 +3741,6 @@ essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESRE
 if(essidlen != 0)
 	{
 	addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
-	associationrequestframecount++;
 	}
 
 rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
@@ -3833,9 +3755,7 @@ if(rsntag->version != 1)
 	return;
 	}
 
-
 rsntagptr += RSNTAG_SIZE +RSNSUITETAG_SIZE; /* skip groupcypher */
-
 rsntagptr = getrsncipher(rsntagptr, rsntag->len +2 -RSNTAG_SIZE -RSNSUITETAG_SIZE);
 	{
 	if( rsntagptr == NULL)
@@ -3844,52 +3764,14 @@ rsntagptr = getrsncipher(rsntagptr, rsntag->len +2 -RSNTAG_SIZE -RSNSUITETAG_SIZ
 		}
 	}
 
-
-
 pmklisttag = (pmkidlisttag_t*)(rsntagptr); 
-if(pmklisttag->count == 0)
+if(pmklisttag->count != 1)
 	{
 	return;
 	}
 
-pmkidallcount++;
-pmkidstacount++;
-if(pmkidliste == NULL)
-	{
-	pmkidliste = malloc(PMKIDLIST_SIZE);
-	if(pmkidliste == NULL)
-		{
-		printf("failed to allocate memory\n");
-		exit(EXIT_FAILURE);
-		}
-	memcpy(pmkidliste->mac_ap, macf->addr1, 6);
-	memcpy(pmkidliste->mac_sta, macf->addr2, 6);
-	memcpy(pmkidliste->pmkid, pmklisttag->data, 16);
-	pmkidcount++;
-	return;
-	}
+addpmkidsta(macf->addr2, macf->addr1, pmklisttag->data); 
 
-zeiger = pmkidliste;
-for(c = 0; c < pmkidcount; c++)
-	{
-	if((memcmp(zeiger->mac_ap, macf->addr1, 6) == 0) && (memcmp(zeiger->mac_sta, macf->addr2, 6) == 0) && (memcmp(zeiger->pmkid, pmklisttag->data, 16) == 0))
-		{
-		return;
-		}
-	zeiger++;
-	}
-zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
-if(zeiger == NULL)
-	{
-	printf("failed to allocate memory\n");
-	exit(EXIT_FAILURE);
-	}
-pmkidliste = zeiger;
-zeiger = pmkidliste +pmkidcount;
-memcpy(zeiger->mac_ap,  macf->addr1, 6);
-memcpy(zeiger->mac_sta,  macf->addr2, 6);
-memcpy(zeiger->pmkid, pmklisttag->data, 16);
-pmkidcount++;
 return;
 }
 /*===========================================================================*/
@@ -4039,10 +3921,12 @@ eapauth_t *eap;
 wpakey_t *wpak;
 uint16_t keyinfo;
 uint16_t keyver;
-
 uint16_t authlen;
 uint64_t rc;
 uint16_t kl;
+rsntag_t *rsntag = NULL;
+uint8_t *rsntagptr = NULL;
+pmkidlisttag_t *pmklisttag = NULL;
 
 uint8_t fakeanonce1[] =
 {
@@ -4224,9 +4108,25 @@ else if(keyinfo == 2)
 		{
 		eapolwpa2kv3framecount++;
 		}
-	if(authlen == 0x87)
+	if(ntohs(wpak->wpadatalen) > 0)
 		{
-		addpmkidsta(macaddr2, macaddr1, packet +EAPAUTH_SIZE);
+		rsntag = (rsntag_t*)wpak->data;
+		if(rsntag->version == 1)
+			{
+			rsntagptr = wpak->data;
+			rsntagptr += RSNTAG_SIZE +RSNSUITETAG_SIZE; /* skip groupcypher */
+			rsntagptr = getrsncipher(rsntagptr, rsntag->len +2 -RSNTAG_SIZE -RSNSUITETAG_SIZE);
+				{
+				if( rsntagptr != NULL)
+					{
+					pmklisttag = (pmkidlisttag_t*)(rsntagptr); 
+					if(pmklisttag->count == 1)
+						{
+						addpmkidsta(macaddr2, macaddr1, pmklisttag->data); 
+						}
+					}
+				}
+			}
 		}
 	}
 else if(keyinfo == 4)
