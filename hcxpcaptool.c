@@ -3543,11 +3543,19 @@ for(c = 0; c < pwcilist->count; c++)
 	{
 	suiteptr += RSNSUITETAG_SIZE;
 	restlen -= RSNSUITETAG_SIZE;
+	if(restlen < 0)
+		{
+		return NULL;
+		}
 	}
 
 akmcilist = (rsnlisttag_t*)suiteptr;
 suiteptr += RSNLISTTAG_SIZE;
 restlen -= RSNLISTTAG_SIZE;
+if(restlen < 0)
+	{
+	return NULL;
+	}
 for(c = 0; c < akmcilist->count; c++) 
 	{
 	rsnsuite = (rsnsuitetag_t*)suiteptr;
@@ -3560,10 +3568,18 @@ for(c = 0; c < akmcilist->count; c++)
 		}
 	suiteptr += RSNSUITETAG_SIZE;
 	restlen -= RSNSUITETAG_SIZE;
+	if(restlen < 0)
+		{
+		return NULL;
+		}
 	}
 
 suiteptr += RSNCAPATAG_SIZE;
 restlen -= RSNCAPATAG_SIZE;
+if(restlen < 0)
+	{
+	return NULL;
+	}
 
 pmklisttag = (pmkidlisttag_t*)(suiteptr); 
 if(pmklisttag->count != 1)
