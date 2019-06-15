@@ -5218,7 +5218,10 @@ while(1)
 		return true;
 		}
 	tl -= olpad -2;
-
+	if(opthdr.option_length > tl)
+		{
+		return false;
+		}
 	if(opthdr.option_code == 1)
 		{
 		memset(&pcapngoptioninfo, 0, 256);
@@ -5366,6 +5369,7 @@ if(gpxflag == true)
 	fprintf(fhgpx, "<trk>\n  <name>%s</name>\n  <trkseg>\n", basename(pcapinname));
 	}
 memset(&packet, 0, MAXPACPSNAPLEN);
+
 while(1)
 	{
 	res = read(fd, &pcapngbh, BH_SIZE);
@@ -5626,6 +5630,12 @@ while(1)
 			pcapngepb.timestamp_low		= byte_swap_32(pcapngepb.timestamp_low);
 			pcapngepb.caplen		= byte_swap_32(pcapngepb.caplen);
 			pcapngepb.len			= byte_swap_32(pcapngepb.len);
+			}
+		if(pcapngepb.caplen > pcapngbh.total_length)
+			{
+			printf("failed to read packet %lld          \n", rawpacketcount);
+			pcapreaderrors++;
+			break;
 			}
 		if(pcapngepb.caplen < MAXPACPSNAPLEN)
 			{
@@ -6038,6 +6048,7 @@ if(pcapr_fd == -1)
 	}
 
 magicnumber = getmagicnumber(pcapr_fd);
+
 if((magicnumber != PCAPMAGICNUMBER) && (magicnumber != PCAPMAGICNUMBERBE) && (magicnumber != PCAPNGBLOCKTYPE) && (magicnumber != MSNETMON1) && (magicnumber != MSNETMON2))
 	{
 	printf("failed to get magicnumber from %s\n", basename(pcapinname));
@@ -6063,7 +6074,7 @@ if(magicnumber == MSNETMON1)
 	pcapart = msnetmon1str;
 	}
 
-if(magicnumber == MSNETMON2)
+else if(magicnumber == MSNETMON2)
 	{
 	processmsnetmon1(pcapr_fd, pcapinname);
 	pcapart = msnetmon2str;
