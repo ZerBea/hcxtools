@@ -4403,7 +4403,7 @@ dhcpframecount++;
 return;
 }
 /*===========================================================================*/
-uint16_t dotzsptagwalk(uint32_t caplen, uint8_t *packet)
+uint16_t dotzsptagwalk(int caplen, uint8_t *packet)
 {
 tzsptag_t *tzsptag;
 tzsptag = (tzsptag_t*)packet;
@@ -4422,8 +4422,6 @@ while(0 < caplen)
 	tzsptag = (tzsptag_t*)((uint8_t*)tzsptag +tzsptag->len +TZSPTAG_SIZE);
 	caplen -= tzsptag->len;
 	}
-
-
 return 0;
 }
 /*===========================================================================*/
