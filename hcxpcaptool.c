@@ -3380,6 +3380,10 @@ while(0 < taglen)
 		return tagl->len;
 		}
 	tagl = (ietag_t*)((uint8_t*)tagl +tagl->len +IETAG_SIZE);
+	if(tagl->len == 0)
+		{
+		return 0;
+		}
 	taglen -= tagl->len;
 	}
 return 0;
@@ -3406,6 +3410,10 @@ while(0 < taglen)
 		return tagl->len;
 		}
 	tagl = (ietag_t*)((uint8_t*)tagl +tagl->len +IETAG_SIZE);
+	if(tagl->len == 0)
+		{
+		return 0;
+		}
 	taglen -= tagl->len;
 	}
 return 0;
@@ -3437,6 +3445,10 @@ while(0 < restlen)
 			}
 		}
 	tagptr += tagfield->len +IETAG_SIZE;
+	if(tagfield->len == 0)
+		{
+		return 0;
+		}
 	restlen -= tagfield->len +IETAG_SIZE;
 	}
 return NULL;
@@ -4420,6 +4432,10 @@ while(0 < caplen)
 		tagorglen = ((uint16_t)tzsptag->data[1] << 8) | tzsptag->data[0];
 		}
 	tzsptag = (tzsptag_t*)((uint8_t*)tzsptag +tzsptag->len +TZSPTAG_SIZE);
+	if(tzsptag->len == 0)
+		{
+		return 0;
+		}
 	caplen -= tzsptag->len;
 	}
 return 0;
@@ -4702,6 +4718,7 @@ if((ipv4->ver_hlen & 0xf0) != 0x40)
 	{
 	return;
 	}
+
 ipv4len = (ipv4->ver_hlen & 0x0f) *4;
 if(caplen < (uint32_t)ipv4len)
 	{
@@ -4744,7 +4761,12 @@ if((ntohl(ipv6->ver_class) & 0xf0000000) != 0x60000000)
 	{
 	return;
 	}
+
 packet_ptr = packet +IPV6_SIZE;
+if(caplen < ntohs(ipv6->len))
+	{
+	return;
+	}
 if(ipv6->nextprotocol == NEXTHDR_ICMP6)
 	{
 	processicmp6packet();
@@ -4983,9 +5005,9 @@ loba_t *loba;
 uint8_t *packet_ptr;
 
 loba = (loba_t*)packet;
-packet_ptr = packet;
-packet_ptr += LOBA_SIZE;
+packet_ptr = packet +LOBA_SIZE;
 caplen -= LOBA_SIZE;
+
 if(ntohl(loba->family == AF_INET))
 	{
 	processipv4packet(tv_sec, tv_usec, caplen, packet_ptr);
@@ -5006,7 +5028,7 @@ uint32_t crc;
 struct timeval tvtmp;
 
 packet_ptr = packet;
-if(caplen < MAC_SIZE_NORM)
+if(caplen < (uint32_t)MAC_SIZE_NORM)
 	{
 	return;	
 	}
@@ -5017,6 +5039,7 @@ if((tv_sec == 0) && (tv_usec == 0))
 	tv_sec = tvtmp.tv_sec;
 	tv_usec = tvtmp.tv_usec;
 	}
+
 
 if(linktype == DLT_NULL)
 	{
@@ -5729,7 +5752,7 @@ return;
 void processpcap(int fd, char *pcapinname)
 {
 unsigned int res;
-int resseek;
+off_t resseek;
 
 pcap_hdr_t pcapfhdr;
 pcaprec_hdr_t pcaprhdr;
@@ -5770,7 +5793,6 @@ if(pcapfhdr.version_major != 2)
 	printf("unsupported pcap version: %d\n", pcapfhdr.version_major);
 	return;
 	}
-
 while(1)
 	{
 	res = read(fd, &pcaprhdr, PCAPREC_SIZE);
@@ -5798,10 +5820,22 @@ while(1)
 		pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
 		pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
 		}
-
+	if(pcaprhdr.incl_len > pcapfhdr.snaplen)
+		{
+		printf("failed to read packet %lld          \n", rawpacketcount);
+		pcapreaderrors++;
+		break;
+		}
+	if(pcaprhdr.incl_len > pcaprhdr.orig_len)
+		{
+		printf("failed to read packet %lld          \n", rawpacketcount);
+		pcapreaderrors++;
+		break;
+		}
 	if(pcaprhdr.incl_len < MAXPACPSNAPLEN)
 		{
 		res = read(fd, &packet, pcaprhdr.incl_len);
+
 		if(res != pcaprhdr.incl_len)
 			{
 			printf("failed to read packet %lld          \n", rawpacketcount);
