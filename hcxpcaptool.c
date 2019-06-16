@@ -5349,9 +5349,10 @@ return true;
 void processpcapng(int fd, char *pcapinname)
 {
 unsigned int res;
-int aktseek;
-int blkseek;
-int resseek;
+off_t fdsize;
+off_t aktseek;
+off_t blkseek;
+off_t resseek;
 
 block_header_t pcapngbh;
 section_header_block_t pcapngshb;
@@ -5364,6 +5365,22 @@ uint32_t timestamp_sec;
 uint32_t timestamp_usec;
 
 printf("\nreading from %s\n", basename(pcapinname));
+
+fdsize = lseek(fd, 0, SEEK_END);
+if(fdsize < 0)
+	{
+	pcapreaderrors++;
+	printf("failed to get file size\n");
+	return;
+	}
+aktseek = lseek(fd, 0L, SEEK_SET);
+if(aktseek < 0)
+	{
+	pcapreaderrors++;
+	printf("failed to set file pointer\n");
+	return;
+	}
+
 if(gpxflag == true)
 	{
 	fprintf(fhgpx, "<trk>\n  <name>%s</name>\n  <trkseg>\n", basename(pcapinname));
@@ -5412,6 +5429,12 @@ while(1)
 			{
 			pcapreaderrors++;
 			printf("invalid blocktype length detected\n");
+			break;
+			}
+		if(pcapngbh.total_length > fdsize)
+			{
+			pcapreaderrors++;
+			printf("block length greater than file size\n");
 			break;
 			}
 		aktseek = lseek(fd, 0, SEEK_CUR);
@@ -5550,21 +5573,6 @@ while(1)
 			pcapngpb.caplen = 0;
 			pcapngpb.len = 0;
 			skippedpacketcount++;
-			}
-		res = read(fd, &packet, pcapngpb.caplen);
-		if(res != pcapngpb.caplen)
-			{
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			pcapreaderrors++;
-			break;
-			}
-		rawpacketcount++;
-		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngpb.caplen, SEEK_CUR);
-		if(resseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed to set file pointer\n");
-			break;
 			}
 		}
 	else if(pcapngbh.block_type == 3)
