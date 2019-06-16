@@ -5766,6 +5766,12 @@ if(pcapfhdr.magic_number == PCAPMAGICNUMBERBE)
 	pcapfhdr.snaplen	= byte_swap_32(pcapfhdr.snaplen);
 	pcapfhdr.network	= byte_swap_32(pcapfhdr.network);
 	}
+if(pcapfhdr.version_major > 2)
+	{
+	pcapreaderrors++;
+	printf("unsupported pcap version: %d\n", pcapfhdr.version_major);
+	return;
+	}
 
 while(1)
 	{
