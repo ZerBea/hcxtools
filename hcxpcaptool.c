@@ -5425,6 +5425,12 @@ while(1)
 			pcapngshb.minor_version		= byte_swap_16(pcapngshb.minor_version);
 			pcapngshb.section_length	= byte_swap_64(pcapngshb.section_length);
 			}
+		if(pcapngshb.major_version != 1)
+			{
+			pcapreaderrors++;
+			printf("unsupported pcapng version: %d\n", pcapngshb.major_version);
+			break;
+			}
 		if(pcapngbh.total_length == 0)
 			{
 			pcapreaderrors++;
