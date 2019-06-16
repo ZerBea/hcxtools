@@ -5475,7 +5475,7 @@ while(1)
 		pcapngbh.block_type = byte_swap_32(pcapngbh.block_type);
 		pcapngbh.total_length = byte_swap_32(pcapngbh.total_length);
 		}
-	if(pcapngbh.total_length == 0)
+	if(pcapngbh.total_length < 24)
 		{
 		pcapreaderrors++;
 		printf("invalid blocktype length detected\n");
