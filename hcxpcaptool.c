@@ -520,7 +520,7 @@ if(wdsframecount != 0)
 	}
 if(beaconframecount != 0)
 	{
-	printf("beacons (with ESSID inside)......: %llu\n", beaconframecount);
+	printf("beacons (total)..................: %llu\n", beaconframecount);
 	}
 if(meshidframecount != 0)
 	{
@@ -3359,73 +3359,6 @@ apstaessidcount++;
 return;
 }
 /*===========================================================================*/
-uint16_t getmeshid(uint8_t *tagdata, int taglen, uint8_t *meshidstr)
-{
-ietag_t *tagl;
-tagl = (ietag_t*)tagdata;
-
-while(0 < taglen)
-	{
-	if(tagl->id == TAG_MESH_ID)
-		{
-		if(tagl->len == 0)
-			{
-			return 0;
-			}
-		if(tagl->data[0] == 0)
-			{
-			return 0;
-			}
-		memcpy(meshidstr, tagl->data, tagl->len);
-		return tagl->len;
-		}
-	tagl = (ietag_t*)((uint8_t*)tagl +tagl->len +IETAG_SIZE);
-	if(tagl->len == 0)
-		{
-		return 0;
-		}
-	taglen -= tagl->len;
-	}
-return 0;
-}
-/*===========================================================================*/
-uint16_t getessid(uint8_t *tagdata, int taglen, uint8_t *essidstr)
-{
-ietag_t *tagl;
-tagl = (ietag_t*)tagdata;
-
-while(0 < taglen)
-	{
-	if(tagl->id == TAG_SSID)
-		{
-		if((tagl->len == 0) || (tagl->len > 32))
-			{
-			return 0;
-			}
-		if(tagl->data[0] == 0)
-			{
-			return 0;
-			}
-		memcpy(essidstr, tagl->data, tagl->len);
-		return tagl->len;
-		}
-	tagl = (ietag_t*)((uint8_t*)tagl +tagl->len +IETAG_SIZE);
-	if(tagl->len == 0)
-		{
-		return 0;
-		}
-	taglen -= tagl->len;
-	}
-return 0;
-}
-/*===========================================================================*/
-void process80211wds()
-{
-
-wdsframecount++;
-return;
-}
-/*===========================================================================*/
 uint8_t *gettag(uint8_t tag, uint8_t *tagptr, int restlen)
 {
 static ietag_t *tagfield;
@@ -3445,10 +3378,6 @@ while(0 < restlen)
 			}
 		}
 	tagptr += tagfield->len +IETAG_SIZE;
-	if(tagfield->len == 0)
-		{
-		return 0;
-		}
 	restlen -= tagfield->len +IETAG_SIZE;
 	}
 return NULL;
@@ -3576,15 +3505,20 @@ pmkidcount++;
 return;
 }
 /*===========================================================================*/
+void process80211wds()
+{
+
+wdsframecount++;
+return;
+}
+/*===========================================================================*/
 void process80211beacon(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
-uint8_t *packet_ptr;
 mac_t *macf;
 FILE *fhoutlist = NULL;
-int essidlen;
-int meshidlen;
-uint8_t essidstr[ESSID_LEN_MAX];
-uint8_t meshidstr[0x256];
+uint8_t *packet_ptr;
+uint8_t *tagptr;
+ietag_t *thetag;
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
@@ -3592,28 +3526,41 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2
 	}
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
-memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE, essidstr);
-meshidlen = getmeshid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE, meshidstr);
 
-if(essidlen != 0)
+tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+if(tagptr != NULL)
 	{
-	addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
-	beaconframecount++;
-	}
-
-if(meshidlen != 0)
-	{
-	if(identityoutname != NULL)
+	thetag = (ietag_t*)tagptr;
+	if((thetag ->len > 0) && (thetag ->len <= 32))
 		{
-		if((fhoutlist = fopen(identityoutname, "a+")) != NULL)
+		if(thetag ->data[0] != 0)
 			{
-			fwriteessidstr(meshidlen, meshidstr, fhoutlist);
-			fclose(fhoutlist);
+			addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, thetag ->len, thetag ->data);
 			}
 		}
-	meshidframecount++;
 	}
+
+tagptr = gettag(TAG_MESH_ID, packet_ptr, caplen);
+if(tagptr != NULL)
+	{
+	thetag = (ietag_t*)tagptr;
+	if((thetag ->len > 0) && (thetag ->len <= 32))
+		{
+		if(thetag ->data[0] != 0)
+			{
+			meshidframecount++;
+			if(identityoutname != NULL)
+				{
+				if((fhoutlist = fopen(identityoutname, "a+")) != NULL)
+					{
+					fwriteessidstr(thetag ->len, thetag->data, fhoutlist);
+					fclose(fhoutlist);
+					}
+				}
+			}
+		}
+	}
+beaconframecount++;
 return;
 }
 /*===========================================================================*/
@@ -3621,8 +3568,8 @@ void process80211probe_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, u
 {
 uint8_t *packet_ptr;
 mac_t *macf;
-int essidlen;
-uint8_t essidstr[ESSID_LEN_MAX];
+uint8_t *tagptr;
+ietag_t *thetag;
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +2)
 	{
@@ -3630,13 +3577,19 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +2)
 	}
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset;
-memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset +2, essidstr);
-if(essidlen == 0)
+
+tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+if(tagptr != NULL)
 	{
-	return;
+	thetag = (ietag_t*)tagptr;
+	if((thetag ->len > 0) && (thetag ->len <= 32))
+		{
+		if(thetag ->data[0] != 0)
+			{
+			addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, thetag->len, thetag->data);
+			}
+		}
 	}
-addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
 proberequestframecount++;
 return;
 }
@@ -3645,8 +3598,8 @@ void process80211probe_resp(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, 
 {
 uint8_t *packet_ptr;
 mac_t *macf;
-int essidlen;
-uint8_t essidstr[ESSID_LEN_MAX];
+uint8_t *tagptr;
+ietag_t *thetag;
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
@@ -3654,14 +3607,19 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2
 	}
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
-memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE, essidstr);
-if(essidlen == 0)
+
+tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+if(tagptr != NULL)
 	{
-	return;
+	thetag = (ietag_t*)tagptr;
+	if((thetag ->len > 0) && (thetag ->len <= 32))
+		{
+		if(thetag ->data[0] != 0)
+			{
+			addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, thetag->len, thetag->data);
+			}
+		}
 	}
-addapstaessid(tv_sec, tv_usec, macf->addr1, macf->addr2, essidlen, essidstr);
-proberesponseframecount++;
 return;
 }
 /*===========================================================================*/
@@ -3669,13 +3627,11 @@ void process80211assoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, u
 {
 uint8_t *packet_ptr;
 mac_t *macf;
-int essidlen;
-uint8_t *rsntagptr = NULL;
-rsntag_t *rsntag = NULL;
-
+uint8_t *tagptr;
+ietag_t *thetag;
+uint8_t *rsntagptr;
+rsntag_t *rsntag;
 pmkidlisttag_t *pmklisttag = NULL;
-
-uint8_t essidstr[ESSID_LEN_MAX];
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESSTA_SIZE +2)
 	{
@@ -3684,11 +3640,18 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESSTA_SIZE +
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESSTA_SIZE;
 associationrequestframecount++;
-memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESSTA_SIZE, essidstr);
-if(essidlen != 0)
+
+tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+if(tagptr != NULL)
 	{
-	addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
+	thetag = (ietag_t*)tagptr;
+	if((thetag ->len > 0) && (thetag ->len <= 32))
+		{
+		if(thetag ->data[0] != 0)
+			{
+			addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, thetag->len, thetag->data);
+			}
+		}
 	}
 
 rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
@@ -3696,13 +3659,11 @@ if(rsntagptr == NULL)
 	{
 	return;
 	}
-
 rsntag = (rsntag_t*)rsntagptr;
 if(rsntag->version != 1)
 	{
 	return;
 	}
-
 rsntagptr += RSNTAG_SIZE +RSNSUITETAG_SIZE; /* skip groupcypher */
 rsntagptr = getrsncipher(rsntagptr, rsntag->len +2 -RSNTAG_SIZE -RSNSUITETAG_SIZE);
 	{
@@ -3717,9 +3678,7 @@ if(pmklisttag->count != 1)
 	{
 	return;
 	}
-
 addpmkidsta(macf->addr2, macf->addr1, pmklisttag->data); 
-
 return;
 }
 /*===========================================================================*/
@@ -3734,12 +3693,11 @@ void process80211reassoc_req(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen,
 {
 uint8_t *packet_ptr;
 mac_t *macf;
-int essidlen;
+uint8_t *tagptr;
+ietag_t *thetag;
 uint8_t *rsntagptr = NULL;
 rsntag_t *rsntag = NULL;
 pmkidlisttag_t *pmklisttag = NULL;
-
-uint8_t essidstr[ESSID_LEN_MAX];
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESRESTA_SIZE +2)
 	{
@@ -3748,11 +3706,18 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESRESTA_SIZE
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESRESTA_SIZE;
 reassociationrequestframecount++;
-memset(&essidstr, 0, 32);
-essidlen = getessid(packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESRESTA_SIZE, essidstr);
-if(essidlen != 0)
+
+tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+if(tagptr != NULL)
 	{
-	addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, essidlen, essidstr);
+	thetag = (ietag_t*)tagptr;
+	if((thetag ->len > 0) && (thetag ->len <= 32))
+		{
+		if(thetag ->data[0] != 0)
+			{
+			addapstaessid(tv_sec, tv_usec, macf->addr2, macf->addr1, thetag->len, thetag->data);
+			}
+		}
 	}
 
 rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
@@ -3760,13 +3725,11 @@ if(rsntagptr == NULL)
 	{
 	return;
 	}
-
 rsntag = (rsntag_t*)rsntagptr;
 if(rsntag->version != 1)
 	{
 	return;
 	}
-
 rsntagptr += RSNTAG_SIZE +RSNSUITETAG_SIZE; /* skip groupcypher */
 rsntagptr = getrsncipher(rsntagptr, rsntag->len +2 -RSNTAG_SIZE -RSNSUITETAG_SIZE);
 	{
@@ -3781,9 +3744,7 @@ if(pmklisttag->count != 1)
 	{
 	return;
 	}
-
 addpmkidsta(macf->addr2, macf->addr1, pmklisttag->data); 
-
 return;
 }
 /*===========================================================================*/
