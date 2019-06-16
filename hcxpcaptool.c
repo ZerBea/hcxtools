@@ -53,6 +53,7 @@
 #define HCXT_HCCAP_OUT			10
 #define HCXT_HCCAP_OUT_RAW		11
 #define HCXT_FILTER_MAC			12
+#define HCXT_IGNORE_FAKE_FRAMES		13
 
 #define HCXT_WPA12_OUT			'w'
 #define HCXT_HCCAPX_OUT			'o'
@@ -85,6 +86,7 @@ void process80211packet(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint
 bool hexmodeflag;
 bool verboseflag;
 bool filtermacflag;
+bool fakeframeflag;
 bool fcsflag;
 bool wantrawflag;
 bool gpxflag;
@@ -299,6 +301,7 @@ verboseflag = false;
 hexmodeflag = false;
 wantrawflag = false;
 filtermacflag = false;
+fakeframeflag = false;
 gpxflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
@@ -506,7 +509,7 @@ printf( "                                                \n"
 	"endianness.......................: %s\n"
 	"read errors......................: %s\n"
 	"packets inside...................: %llu\n"
-	"skipped packets.(damaged)........: %llu\n"
+	"skipped packets (damaged)........: %llu\n"
 	"packets with GPS data............: %llu\n"
 	"packets with FCS.................: %llu\n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
@@ -3984,16 +3987,18 @@ if(memcmp(&nullnonce, wpak->nonce, 32) == 0)
 	return;
 	}
 
-if((rc == 17) && (memcmp(&fakeanonce1, wpak->nonce, 32) == 0))
+if(fakeframeflag == true)
 	{
-	skippedpacketcount++;
-	return;
-	}
-
-if((rc == 17) && (memcmp(&fakesnonce1, wpak->nonce, 32) == 0))
-	{
-	skippedpacketcount++;
-	return;
+	if((rc == 17) && (memcmp(&fakeanonce1, wpak->nonce, 32) == 0))
+		{
+		skippedpacketcount++;
+		return;
+		}
+	if((rc == 17) && (memcmp(&fakesnonce1, wpak->nonce, 32) == 0))
+		{
+		skippedpacketcount++;
+		return;
+		}
 	}
 
 if(keyinfo == 1)
@@ -6285,6 +6290,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                    very slow!\n"
 	"--filtermac=<mac>                 : filter output by MAC address\n"
 	"                                    format: 112233445566\n"
+	"--ignore-fake-frames              : do not convert fake frames\n"
 	"--help                            : show this help\n"
 	"--version                         : show version\n"
 	"\n"
@@ -6339,6 +6345,7 @@ static const struct option long_options[] =
 	{"hccap-out",			required_argument,	NULL,	HCXT_HCCAP_OUT},
 	{"hccap-raw-out",		required_argument,	NULL,	HCXT_HCCAP_OUT_RAW},
 	{"filtermac",			required_argument,	NULL,	HCXT_FILTER_MAC},
+	{"ignore-fake-frames",		no_argument,		NULL,	HCXT_IGNORE_FAKE_FRAMES},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},
 	{NULL,				0,			NULL,	0}
@@ -6521,6 +6528,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			}
 		filtermacflag = true;
 		verboseflag = true;
+		break;
+
+		case HCXT_IGNORE_FAKE_FRAMES:
+		fakeframeflag = true;
 		break;
 
 		case HCXT_VERBOSE_OUT:

@@ -1,3 +1,10 @@
+16.06.2019
+==========
+hcxpcaptool: refactored complete tag walk engine due to several stack smashing issues (fsanitize=address)
+             added new option to detect known fake frames
+--ignore-fake-frames              : do not convert fake frames
+
+
 14.06.2019
 ==========
 hcxpcaptool: complete rewrite of RSN-IE PMKID detection within association frames and reassociation frames
