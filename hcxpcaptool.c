@@ -5221,6 +5221,10 @@ while(1)
 			}
 		}
 	tl = tl -olpad -2;
+	if(olpad > tl)
+		{
+		return;
+		}
 	if(opthdr.option_code == 1)
 		{
 		memset(&pcapngoptioninfo, 0, 1024);
