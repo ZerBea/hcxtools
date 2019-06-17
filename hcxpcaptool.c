@@ -5210,7 +5210,11 @@ while(1)
 		padding = 4 -(len %4);
 		}
 	olpad = len +padding;
-	if(olpad > 1024)
+	if(olpad > tl)
+		{
+		return;
+		}
+	if(olpad > 1023)
 		{
 		resseek = lseek(fd, olpad, SEEK_CUR);
 		if(resseek < 0)
@@ -5221,10 +5225,6 @@ while(1)
 			}
 		}
 	tl = tl -olpad -2;
-	if(olpad > tl)
-		{
-		return;
-		}
 	if(opthdr.option_code == 1)
 		{
 		memset(&pcapngoptioninfo, 0, 1024);
