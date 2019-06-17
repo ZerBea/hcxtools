@@ -5448,6 +5448,12 @@ while(1)
 			printf("unsupported pcapng version: %d\n", pcapngshb.major_version);
 			break;
 			}
+		if(pcapngbh.total_length == 0)
+			{
+			pcapreaderrors++;
+			printf("empty block detected\n");
+			break;
+			}
 		aktseek = lseek(fd, 0, SEEK_CUR);
 		if(aktseek < 0)
 			{
@@ -5459,6 +5465,7 @@ while(1)
 			{
 			pcapngoptionwalk(fd, pcapngbh.total_length);
 			}
+
 		resseek = lseek(fd, aktseek +pcapngbh.total_length -BH_SIZE -SHB_SIZE, SEEK_SET);
 		if(resseek < 0)
 			{
@@ -5476,6 +5483,12 @@ while(1)
 		{
 		pcapngbh.block_type = byte_swap_32(pcapngbh.block_type);
 		pcapngbh.total_length = byte_swap_32(pcapngbh.total_length);
+		}
+	if(pcapngbh.total_length == 0)
+		{
+		pcapreaderrors++;
+		printf("empty block detected\n");
+		break;
 		}
 	if(pcapngbh.block_type == 1)
 		{
