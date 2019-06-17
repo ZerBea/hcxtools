@@ -5451,7 +5451,7 @@ while(1)
 		if(pcapngbh.total_length < 12)
 			{
 			pcapreaderrors++;
-			printf("empty block detected\n");
+			printf("invalid block detected\n");
 			break;
 			}
 		aktseek = lseek(fd, 0, SEEK_CUR);
@@ -5487,7 +5487,7 @@ while(1)
 	if(pcapngbh.total_length < 12)
 		{
 		pcapreaderrors++;
-		printf("empty block detected\n");
+		printf("invalid block detected\n");
 		break;
 		}
 	if(pcapngbh.block_type == 1)
