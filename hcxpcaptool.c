@@ -259,10 +259,10 @@ uint8_t myaktnonce[32];
 
 uint8_t filtermac[6];
 
-char pcapnghwinfo[256];
-char pcapngosinfo[256];
-char pcapngapplinfo[256];
-char pcapngoptioninfo[256];
+char pcapnghwinfo[1024];
+char pcapngosinfo[1024];
+char pcapngapplinfo[1024];
+char pcapngoptioninfo[1024];
 
 int exeaptype[256];
 /*===========================================================================*/
@@ -3529,6 +3529,7 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2
 	}
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
+beaconframecount++;
 
 tagptr = gettag(TAG_SSID, packet_ptr, caplen);
 if(tagptr != NULL)
@@ -3563,7 +3564,6 @@ if(tagptr != NULL)
 			}
 		}
 	}
-beaconframecount++;
 return;
 }
 /*===========================================================================*/
@@ -3580,6 +3580,7 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +2)
 	}
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset;
+proberequestframecount++;
 
 tagptr = gettag(TAG_SSID, packet_ptr, caplen);
 if(tagptr != NULL)
@@ -3593,7 +3594,6 @@ if(tagptr != NULL)
 			}
 		}
 	}
-proberequestframecount++;
 return;
 }
 /*===========================================================================*/
@@ -3610,6 +3610,7 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2
 	}
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
+proberesponseframecount++;
 
 tagptr = gettag(TAG_SSID, packet_ptr, caplen);
 if(tagptr != NULL)
@@ -5161,11 +5162,13 @@ process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 return;
 }
 /*===========================================================================*/
-bool pcapngoptionwalk(int fd, int tl)
+void pcapngoptionwalk(int fd, int tl)
 {
 int resseek;
 uint16_t res;
-uint16_t olpad;
+int olpad;
+int len;
+int padding;
 option_header_t opthdr;
 char *gpsdptr;
 char *gpsd_date = "date:";
@@ -5173,15 +5176,15 @@ char *gpsd_time = "time:";
 char *gpsd_lat = "lat:";
 char *gpsd_lon = "lon:";
 char *gpsd_alt = "alt:";
-uint8_t filereplaycound[8];
-uint8_t filenonce[32];
+uint8_t filereplaycound[1024];
+uint8_t filenonce[1024];
 
 while(1)
 	{
 	res = read(fd, &opthdr, OH_SIZE);
 	if(res != OH_SIZE)
 		{
-		return true;
+		return;
 		}
 	#ifdef BIG_ENDIAN_HOST
 	opthdr.option_code = byte_swap_16(opthdr.option_code);
@@ -5192,27 +5195,39 @@ while(1)
 		opthdr.option_code = byte_swap_16(opthdr.option_code);
 		opthdr.option_length = byte_swap_16(opthdr.option_length);
 		}
-	if(opthdr.option_code == 0)
-		{
-		return true;
-		}
-	olpad = opthdr.option_length + (4 -(opthdr.option_length %4)) %4;
-	if((olpad > tl) || (olpad >= 0xff))
-		{
-		return true;
-		}
-	tl = tl -olpad -2;
 	if(opthdr.option_length > tl)
 		{
-		return false;
+		return;
 		}
+	if(opthdr.option_code == 0)
+		{
+		return;
+		}
+	padding = 0;
+	len = opthdr.option_length;
+	if((len  %4))
+		{
+		padding = 4 -(len %4);
+		}
+	olpad = len +padding;
+	if(olpad > 1024)
+		{
+		resseek = lseek(fd, olpad, SEEK_CUR);
+		if(resseek < 0)
+			{
+			pcapreaderrors++;
+			printf("failed set file pointer\n");
+			return;
+			}
+		}
+	tl = tl -olpad -2;
 	if(opthdr.option_code == 1)
 		{
-		memset(&pcapngoptioninfo, 0, 256);
+		memset(&pcapngoptioninfo, 0, 1024);
 		res = read(fd, &pcapngoptioninfo, olpad);
 		if(res != olpad)
 			{
-			return true;
+			return;
 			}
 		pcapngoptioninfo[res] = 0;
 		lat = 0;
@@ -5251,41 +5266,37 @@ while(1)
 		}
 	else if (opthdr.option_code == 2)
 		{
-		memset(&pcapnghwinfo, 0, 256);
+		memset(&pcapnghwinfo, 0, 1024);
 		res = read(fd, &pcapnghwinfo, olpad);
 		if(res != olpad)
 			{
-			return true;
+			return;
 			}
 		}
 	else if(opthdr.option_code == 3)
 		{
-		memset(&pcapngosinfo, 0, 256);
+		memset(&pcapngosinfo, 0, 1024);
 		res = read(fd, &pcapngosinfo, olpad);
 		if(res != olpad)
 			{
-			return true;
+			return;
 			}
 		}
 	else if(opthdr.option_code == 4)
 		{
-		memset(&pcapngapplinfo, 0, 256);
+		memset(&pcapngapplinfo, 0, 1024);
 		res = read(fd, &pcapngapplinfo, olpad);
 		if(res != olpad)
 			{
-			return true;
+			return;
 			}
 		}
 	else if(opthdr.option_code == OPTIONCODE_RC)
 		{
 		res = read(fd, &filereplaycound, olpad);
-		if(res != olpad)
+		if(res != 8)
 			{
-			return true;
-			}
-		if(olpad != 8)
-			{
-			return true;
+			return;
 			}
 		myaktreplaycount = filereplaycound[0x07] & 0xff;
 		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x06] & 0xff);
@@ -5306,13 +5317,9 @@ while(1)
 	else if(opthdr.option_code == OPTIONCODE_ANONCE)
 		{
 		res = read(fd, &filenonce, olpad);
-		if(res != olpad)
+		if(res != 32)
 			{
-			return true;
-			}
-		if(olpad != 32)
-			{
-			return true;
+			return;
 			}
 		memcpy(&myaktnonce, &filenonce, 32);
 		}
@@ -5323,11 +5330,11 @@ while(1)
 			{
 			pcapreaderrors++;
 			printf("failed set file pointer\n");
-			return false;
+			return;
 			}
 		}
 	}
-return true;
+return;
 }
 /*===========================================================================*/
 void processpcapng(int fd, char *pcapinname)
@@ -5413,18 +5420,6 @@ while(1)
 			printf("unsupported pcapng version: %d\n", pcapngshb.major_version);
 			break;
 			}
-		if(pcapngbh.total_length == 0)
-			{
-			pcapreaderrors++;
-			printf("invalid blocktype length detected\n");
-			break;
-			}
-		if(pcapngbh.total_length > fdsize)
-			{
-			pcapreaderrors++;
-			printf("block length greater than file size\n");
-			break;
-			}
 		aktseek = lseek(fd, 0, SEEK_CUR);
 		if(aktseek < 0)
 			{
@@ -5432,20 +5427,9 @@ while(1)
 			printf("failed to set file pointer\n");
 			break;
 			}
-		if(pcapngbh.total_length > (fdsize -aktseek))
-			{
-			pcapreaderrors++;
-			printf("block length greater than file size\n");
-			break;
-			}
 		if(pcapngbh.total_length > (SHB_SIZE +BH_SIZE +4))
 			{
-			if(pcapngoptionwalk(fd, pcapngbh.total_length) == false)
-				{
-				pcapreaderrors++;
-				printf("failed to read pcapng options\n");
-				break;
-				}
+			pcapngoptionwalk(fd, pcapngbh.total_length);
 			}
 		resseek = lseek(fd, aktseek +pcapngbh.total_length -BH_SIZE -SHB_SIZE, SEEK_SET);
 		if(resseek < 0)
@@ -5464,12 +5448,6 @@ while(1)
 		{
 		pcapngbh.block_type = byte_swap_32(pcapngbh.block_type);
 		pcapngbh.total_length = byte_swap_32(pcapngbh.total_length);
-		}
-	if(pcapngbh.total_length < 24)
-		{
-		pcapreaderrors++;
-		printf("invalid blocktype length detected\n");
-		break;
 		}
 	if(pcapngbh.block_type == 1)
 		{
