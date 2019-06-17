@@ -5167,18 +5167,14 @@ int resseek;
 uint16_t res;
 uint16_t olpad;
 option_header_t opthdr;
-
 char *gpsdptr;
-
 char *gpsd_date = "date:";
 char *gpsd_time = "time:";
 char *gpsd_lat = "lat:";
 char *gpsd_lon = "lon:";
 char *gpsd_alt = "alt:";
-
 uint8_t filereplaycound[8];
 uint8_t filenonce[32];
-
 
 while(1)
 	{
@@ -5341,7 +5337,6 @@ off_t fdsize;
 off_t aktseek;
 off_t blkseek;
 off_t resseek;
-
 block_header_t pcapngbh;
 section_header_block_t pcapngshb;
 interface_description_block_t pcapngidb;
@@ -5353,7 +5348,6 @@ uint32_t timestamp_sec;
 uint32_t timestamp_usec;
 
 printf("\nreading from %s\n", basename(pcapinname));
-
 fdsize = lseek(fd, 0, SEEK_END);
 if(fdsize < 0)
 	{
