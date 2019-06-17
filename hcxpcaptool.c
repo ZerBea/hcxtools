@@ -5161,7 +5161,7 @@ process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 return;
 }
 /*===========================================================================*/
-bool pcapngoptionwalk(int fd, uint32_t tl)
+bool pcapngoptionwalk(int fd, int tl)
 {
 int resseek;
 uint16_t res;
@@ -5178,6 +5178,7 @@ char *gpsd_alt = "alt:";
 
 uint8_t filereplaycound[8];
 uint8_t filenonce[32];
+
 
 while(1)
 	{
@@ -5204,7 +5205,7 @@ while(1)
 		{
 		return true;
 		}
-	tl -= olpad -2;
+	tl = tl -olpad -2;
 	if(opthdr.option_length > tl)
 		{
 		return false;
@@ -5435,6 +5436,12 @@ while(1)
 			{
 			pcapreaderrors++;
 			printf("failed to set file pointer\n");
+			break;
+			}
+		if(pcapngbh.total_length > (fdsize -aktseek))
+			{
+			pcapreaderrors++;
+			printf("block length greater than file size\n");
 			break;
 			}
 		if(pcapngbh.total_length > (SHB_SIZE +BH_SIZE +4))
@@ -5801,7 +5808,6 @@ while(1)
 	if(pcaprhdr.incl_len < MAXPACPSNAPLEN)
 		{
 		res = read(fd, &packet, pcaprhdr.incl_len);
-
 		if(res != pcaprhdr.incl_len)
 			{
 			printf("failed to read packet %lld          \n", rawpacketcount);
