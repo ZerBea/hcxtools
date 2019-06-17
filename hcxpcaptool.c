@@ -133,6 +133,7 @@ unsigned long long int gpsdframecount;
 unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
+unsigned long long int wpsframecount;
 unsigned long long int meshidframecount;
 unsigned long long int proberequestframecount;
 unsigned long long int proberesponseframecount;
@@ -524,6 +525,10 @@ if(wdsframecount != 0)
 if(beaconframecount != 0)
 	{
 	printf("beacons (total)..................: %llu\n", beaconframecount);
+	}
+if(wpsframecount != 0)
+	{
+	printf("beacons (WPS capabilities).......: %llu\n", wpsframecount);
 	}
 if(meshidframecount != 0)
 	{
@@ -3522,6 +3527,12 @@ FILE *fhoutlist = NULL;
 uint8_t *packet_ptr;
 uint8_t *tagptr;
 ietag_t *thetag;
+mscwpstag_t *mscwpstag;
+
+uint8_t mscoui[] =
+{
+0x00, 0x50, 0xf2
+};
 
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
@@ -3548,7 +3559,7 @@ tagptr = gettag(TAG_MESH_ID, packet_ptr, caplen);
 if(tagptr != NULL)
 	{
 	thetag = (ietag_t*)tagptr;
-	if((thetag ->len > 0) && (thetag ->len <= 32))
+	if((thetag ->len > 0) && (thetag ->len < 64))
 		{
 		if(thetag ->data[0] != 0)
 			{
@@ -3561,6 +3572,19 @@ if(tagptr != NULL)
 					fclose(fhoutlist);
 					}
 				}
+			}
+		}
+	}
+
+tagptr = gettag(TAG_VENDOR, packet_ptr, caplen);
+if(tagptr != NULL)
+	{
+	mscwpstag = (mscwpstag_t*)tagptr;
+	if(memcmp(&mscoui, mscwpstag->oui, 3) == 0)
+		{
+		if(mscwpstag->type == 4)
+			{
+			wpsframecount++;
 			}
 		}
 	}
@@ -5934,6 +5958,7 @@ gpsdframecount = 0;
 fcsframecount = 0;
 wdsframecount = 0;
 beaconframecount = 0;
+wpsframecount = 0;
 meshidframecount = 0;
 proberequestframecount = 0;
 proberesponseframecount = 0;

@@ -319,6 +319,7 @@ struct ie_tag
 #define	TAG_CHAN	0x03
 #define	TAG_RSN		0x30
 #define	TAG_MESH_ID	0x72
+#define	TAG_VENDOR	0xdd
 	uint8_t		len;
 	uint8_t		data[1];
 } __attribute__((__packed__));
@@ -364,6 +365,27 @@ struct pmkidlist_tag
 typedef struct pmkidlist_tag pmkidlisttag_t;
 #define	RPMKIDLISTTAG_SIZE offsetof(pmkidlisttag_t)
 /*===========================================================================*/
+struct mscwps_tag
+{
+ uint8_t	tagnr;
+ uint8_t	taglen;
+ uint8_t	oui[3];
+ uint8_t	type;
+ uint8_t	data[1];
+} __attribute__ ((packed));
+typedef struct mscwps_tag mscwpstag_t;
+#define	MSCWPSTAG_SIZE offsetof(mscwpstag_t, data)
+/*===========================================================================*/
+struct vendor_tag
+{
+ uint8_t	tagnr;
+ uint8_t	taglen;
+ uint8_t	oui[3];
+ uint8_t	data[1];
+} __attribute__ ((packed));
+typedef struct vendor_tag vendor_t;
+#define	VENDORTAG_SIZE offsetof(vendor_t, data)
+/*===========================================================================*/
 struct llc_frame
 {
  uint8_t	dsap;
@@ -397,16 +419,6 @@ struct authentication_frame
 } __attribute__((__packed__));
 typedef struct authentication_frame authf_t;
 #define	AUTHENTICATIONFRAME_SIZE (sizeof(authf_t))
-/*===========================================================================*/
-struct vendor_tag
-{
- uint8_t	tagnr;
- uint8_t	taglen;
- uint8_t	oui[3];
- uint8_t	data[1];
-} __attribute__ ((packed));
-typedef struct vendor_tag vendor_t;
-#define	VENDORTAG_SIZE offsetof(vendor_t, data)
 /*===========================================================================*/
 struct action_frame
 {
