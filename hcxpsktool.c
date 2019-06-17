@@ -541,6 +541,8 @@ if(essidglen <= 12)
 		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
 		writepsk(fhout, essidstring);
 		}
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "*(%s)*", essid);
+	writepsk(fhout, essidstring);
 	}
 
 if(essidglen > 12)
@@ -584,8 +586,6 @@ for(c = 10; c < 100; c++)
 	writepsk(fhout, essidstring);
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d!", essid, c);
 	writepsk(fhout, essidstring);
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
-	writepsk(fhout, essidstring);
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%d%s", c, essid);
 	writepsk(fhout, essidstring);
 	}
@@ -607,11 +607,13 @@ for(c = 0; c <= 31; c++)
 		}
 	}
 
-for(c = 0; c < 10; c++)
+for(c = 0x21; c < 0x7f; c++)
 	{
-	for(d = 0; d < 10; d++)
+	for(d = 0x21; d < 0x7f; d++)
 		{
-		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%d%s%d", c, essid, d);
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%c%c", essid, c, d);
+		writepsk(fhout, essidstring);
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%c%s%c", c, essid, d);
 		writepsk(fhout, essidstring);
 		}
 	}
@@ -620,15 +622,6 @@ for(c = 0x21; c < 0x7f; c++)
 	{
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%c", essid, c);
 	writepsk(fhout, essidstring);
-	}
-
-for(c = 0x21; c < 0x7f; c++)
-	{
-	for(d = 0x21; d < 0x7f; d++)
-		{
-		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%c%c", essid, c, d);
-		writepsk(fhout, essidstring);
-		}
 	}
 
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1234567890", essid);
@@ -694,12 +687,6 @@ writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@dsl", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s@123", essid);
-writepsk(fhout, essidstring);
-snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s!@", essid);
-writepsk(fhout, essidstring);
-snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "+%s+", essid);
-writepsk(fhout, essidstring);
-snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "!%s!", essid);
 writepsk(fhout, essidstring);
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX, "%s%s%s", essid, essid, essid);
 writepsk(fhout, essidstring);
