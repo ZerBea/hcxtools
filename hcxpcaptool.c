@@ -5517,7 +5517,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			printf("failed to set file pointer\n");
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			break;
 			}
 		continue;
@@ -5528,7 +5528,7 @@ while(1)
 		if(res != PB_SIZE)
 			{
 			pcapreaderrors++;
-			printf("failed to get pcapng packet block (obsolete)\n");
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			break;
 			}
 		#ifdef BIG_ENDIAN_HOST
@@ -5548,6 +5548,12 @@ while(1)
 			pcapngpb.caplen		= byte_swap_32(pcapngpb.caplen);
 			pcapngpb.len		= byte_swap_32(pcapngpb.len);
 			}
+		if(pcapngepb.caplen > pcapngbh.total_length)
+			{
+			printf("failed to read packet %lld          \n", rawpacketcount);
+			pcapreaderrors++;
+			break;
+			}
 		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
 			{
 			tscleanflag = true;
@@ -5556,7 +5562,7 @@ while(1)
 		timestamp = (timestamp << 32) +pcapngepb.timestamp_low;
 		timestamp_sec = timestamp /1000000;
 		timestamp_usec = timestamp %1000000;
-		if(pcapngpb.caplen < MAXPACPSNAPLEN)
+		if((pcapngpb.caplen < MAXPACPSNAPLEN) && (pcapngpb.caplen == pcapngpb.len))
 			{
 			res = read(fd, &packet, pcapngpb.caplen);
 			if(res != pcapngpb.caplen)
@@ -5569,7 +5575,7 @@ while(1)
 			if(resseek < 0)
 				{
 				pcapreaderrors++;
-				printf("failed to set file pointer\n");
+				printf("failed to read packet %lld          \n", rawpacketcount);
 				break;
 				}
 			rawpacketcount++;
@@ -5580,7 +5586,7 @@ while(1)
 			if(resseek < 0)
 				{
 				pcapreaderrors++;
-				printf("failed to set file pointer\n");
+				printf("failed to read packet %lld          \n", rawpacketcount);
 				break;
 				}
 			pcapngpb.caplen = 0;
@@ -5594,7 +5600,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			printf("failed to set file pointer\n");
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			break;
 			}
 		continue;
@@ -5605,7 +5611,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			printf("failed to set file pointer\n");
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			break;
 			}
 		continue;
@@ -5616,7 +5622,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			printf("failed to set file pointer\n");
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			break;
 			}
 		continue;
@@ -5627,14 +5633,14 @@ while(1)
 		if(blkseek < 0)
 			{
 			pcapreaderrors++;
-			printf("failed to set file pointer\n");
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			break;
 			}
 		res = read(fd, &pcapngepb, EPB_SIZE);
 		if(res != EPB_SIZE)
 			{
 			pcapreaderrors++;
-			printf("failed to get pcapng enhanced packet block\n");
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			break;
 			}
 		#ifdef BIG_ENDIAN_HOST
@@ -5658,7 +5664,7 @@ while(1)
 			pcapreaderrors++;
 			break;
 			}
-		if(pcapngepb.caplen < MAXPACPSNAPLEN)
+		if((pcapngpb.caplen < MAXPACPSNAPLEN) && (pcapngpb.caplen == pcapngpb.len))
 			{
 			res = read(fd, &packet, pcapngepb.caplen);
 			if(res != pcapngepb.caplen)
@@ -5671,7 +5677,7 @@ while(1)
 			if(aktseek < 0)
 				{
 				pcapreaderrors++;
-				printf("failed to set file pointer\n");
+				printf("failed to read packet %lld          \n", rawpacketcount);
 				break;
 				}
 			if(pcapngbh.total_length > (EPB_SIZE +BH_SIZE +4))
@@ -5690,7 +5696,7 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			printf("failed to set file pointer\n");
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			break;
 			}
 		}
@@ -5700,7 +5706,7 @@ while(1)
 		pcapreaderrors++;
 		break;
 		}
-	if(pcapngepb.caplen > 0)
+	if((pcapngepb.caplen > 0) && (pcapngepb.caplen < pcapngbh.total_length) && (pcapngepb.caplen == pcapngepb.len))
 		{
 		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
 			{
