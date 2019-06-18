@@ -4601,10 +4601,20 @@ if(caplen < (uint32_t)CHAP_SIZE)
 chap = (chap_t*)packet;
 chaplen = ntohs(chap->len);
 authlen = chap->data[0];
+
 if(caplen < chaplen)
 	{
 	return;
 	}
+if(chaplen < 16)
+	{
+	return;
+	}
+if((authlen < 16) || (authlen > (chaplen -CHAP_SIZE)))
+	{
+	return;
+	}
+
 if((chap->code == CHAP_CODE_REQ) || (chap->code == CHAP_CODE_RESP))
 	{
 	if((chaplen -authlen -CHAP_SIZE) < caplen)
