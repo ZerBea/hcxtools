@@ -3523,7 +3523,6 @@ return;
 void process80211beacon(uint32_t tv_sec, uint32_t tv_usec, uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
 {
 mac_t *macf;
-FILE *fhoutlist = NULL;
 uint8_t *packet_ptr;
 uint8_t *tagptr;
 ietag_t *thetag;
@@ -3564,14 +3563,6 @@ if(tagptr != NULL)
 		if(thetag ->data[0] != 0)
 			{
 			meshidframecount++;
-			if(identityoutname != NULL)
-				{
-				if((fhoutlist = fopen(identityoutname, "a+")) != NULL)
-					{
-					fwriteessidstr(thetag ->len, thetag->data, fhoutlist);
-					fclose(fhoutlist);
-					}
-				}
 			}
 		}
 	}
