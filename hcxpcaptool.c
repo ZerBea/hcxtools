@@ -4610,7 +4610,15 @@ if(chaplen < 16)
 	{
 	return;
 	}
-if((authlen < 16) || (authlen > (chaplen -CHAP_SIZE)))
+if(authlen < 16)
+	{
+	return;
+	}
+if(authlen > (chaplen -CHAP_SIZE))
+	{
+	return;
+	}
+if((chaplen -authlen -CHAP_SIZE) < 1)
 	{
 	return;
 	}
