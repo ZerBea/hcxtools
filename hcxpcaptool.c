@@ -2405,6 +2405,14 @@ if(usernamelen > 255)
 	{
 	usernamelen = 255;
 	}
+if(usernamelen == 0)
+	{
+	return;
+	}
+if((count != 16) && (count != 49))
+	{
+	return;
+	}
 if(leap2liste == NULL)
 	{
 	leap2liste = malloc(LEAPLIST_SIZE);
@@ -4608,22 +4616,6 @@ chaplen = ntohs(chap->len);
 authlen = chap->data[0];
 
 if(caplen < chaplen)
-	{
-	return;
-	}
-if(chaplen < 16)
-	{
-	return;
-	}
-if(authlen < 16)
-	{
-	return;
-	}
-if(authlen > (chaplen -CHAP_SIZE))
-	{
-	return;
-	}
-if((chaplen -authlen -CHAP_SIZE) < 1)
 	{
 	return;
 	}
