@@ -3527,6 +3527,7 @@ uint8_t *packet_ptr;
 uint8_t *tagptr;
 ietag_t *thetag;
 mscwpstag_t *mscwpstag;
+//mscwpsietag_t *mscwpsietag;
 
 uint8_t mscoui[] =
 {
@@ -3575,6 +3576,10 @@ if(tagptr != NULL)
 		{
 		if(mscwpstag->type == 4)
 			{
+//			mscwpsietag = (mscwpsietag_t*)(tagptr +MSCWPSTAG_SIZE);
+
+//			printf("%04x %04x\n", ntohs(mscwpsietag->detype), ntohs(mscwpsietag->detypelen));
+
 			wpsframecount++;
 			}
 		}

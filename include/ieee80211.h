@@ -365,6 +365,16 @@ struct pmkidlist_tag
 typedef struct pmkidlist_tag pmkidlisttag_t;
 #define	RPMKIDLISTTAG_SIZE offsetof(pmkidlisttag_t)
 /*===========================================================================*/
+struct vendor_tag
+{
+ uint8_t	tagnr;
+ uint8_t	taglen;
+ uint8_t	oui[3];
+ uint8_t	data[1];
+} __attribute__ ((packed));
+typedef struct vendor_tag vendor_t;
+#define	VENDORTAG_SIZE offsetof(vendor_t, data)
+/*===========================================================================*/
 struct mscwps_tag
 {
  uint8_t	tagnr;
@@ -376,15 +386,13 @@ struct mscwps_tag
 typedef struct mscwps_tag mscwpstag_t;
 #define	MSCWPSTAG_SIZE offsetof(mscwpstag_t, data)
 /*===========================================================================*/
-struct vendor_tag
+struct mscwpsie_tag
 {
- uint8_t	tagnr;
- uint8_t	taglen;
- uint8_t	oui[3];
- uint8_t	data[1];
+ uint16_t	detype;
+ uint16_t	detypelen;
 } __attribute__ ((packed));
-typedef struct vendor_tag vendor_t;
-#define	VENDORTAG_SIZE offsetof(vendor_t, data)
+typedef struct mscwpsie_tag mscwpsietag_t;
+#define	MSCWPSIETAG_SIZE offsetof(mscwpsietag_t, data)
 /*===========================================================================*/
 struct llc_frame
 {
