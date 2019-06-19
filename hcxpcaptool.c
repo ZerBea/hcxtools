@@ -71,6 +71,7 @@
 #define HCXT_IDENTITY_OUT		'I'
 #define HCXT_USERNAME_OUT		'U'
 #define HCXT_IMSI_OUT			'M'
+#define HCXT_DEVICEINFO_OUT		'D'
 #define HCXT_PMK_OUT			'P'
 #define HCXT_VERBOSE_OUT		'V'
 #define HCXT_HELP			'h'
@@ -234,6 +235,7 @@ char *pmkoutname;
 char *identityoutname;
 char *useroutname;
 char *imsioutname;
+char *deviceinfooutname;
 char *netntlm1outname;
 char *md5outname;
 char *md5johnoutname;
@@ -291,6 +293,7 @@ pmkoutname = NULL;
 identityoutname = NULL;
 useroutname = NULL;
 imsioutname = NULL;
+deviceinfooutname = NULL;
 netntlm1outname = NULL;
 md5outname = NULL;
 md5johnoutname = NULL;
@@ -3475,6 +3478,30 @@ if(memcmp(&nullnonce, pmklisttag->data, 16) == 0)
 return suiteptr;
 }
 /*===========================================================================*/
+uint8_t *getwpstag(uint16_t tag, uint8_t *tagptr, int restlen)
+{
+static mscwpsietag_t *mscwpsietag;
+
+while(0 < restlen)
+	{
+	mscwpsietag = (mscwpsietag_t*)tagptr;
+	if(ntohs(mscwpsietag->detype) == tag)
+		{
+		if(restlen >= ntohs(mscwpsietag->detypelen) +(int)MSCWPSIETAG_SIZE)
+			{
+			return tagptr;
+			}
+		else
+			{
+			return NULL;
+			}
+		}
+	tagptr += ntohs(mscwpsietag->detypelen) +MSCWPSIETAG_SIZE;
+	restlen -= ntohs(mscwpsietag->detypelen) +MSCWPSIETAG_SIZE;
+	}
+return NULL;
+}
+/*===========================================================================*/
 void addpmkidsta(uint8_t *macsta, uint8_t *macap, uint8_t *stapmkid)
 {
 pmkidl_t *zeiger;
@@ -3535,7 +3562,8 @@ uint8_t *packet_ptr;
 uint8_t *tagptr;
 ietag_t *thetag;
 mscwpstag_t *mscwpstag;
-//mscwpsietag_t *mscwpsietag;
+mscwpsietag_t *mscwpsietag;
+FILE *fhoutlist;
 
 uint8_t mscoui[] =
 {
@@ -3584,9 +3612,23 @@ if(tagptr != NULL)
 		{
 		if(mscwpstag->type == 4)
 			{
-//			mscwpsietag = (mscwpsietag_t*)(tagptr +MSCWPSTAG_SIZE);
-
-//			printf("%04x %04x\n", ntohs(mscwpsietag->detype), ntohs(mscwpsietag->detypelen));
+			tagptr = getwpstag(MSCWPSDEVICENAME, mscwpstag->data, mscwpstag->taglen);
+			if(tagptr != NULL)
+				{
+				mscwpsietag = (mscwpsietag_t*)tagptr;
+				if( ntohs(mscwpsietag->detypelen) > 0)
+					{
+					if(deviceinfooutname != NULL)
+						{
+						if((fhoutlist = fopen(deviceinfooutname, "a+")) != NULL)
+							{
+							fwriteaddr1(macf->addr2, fhoutlist);
+							fwriteessidstr(ntohs(mscwpsietag->detypelen), mscwpsietag->data, fhoutlist);
+							fclose(fhoutlist);
+							}
+						}
+					}
+				}
 
 			wpsframecount++;
 			}
@@ -4624,7 +4666,6 @@ if(authlen > chaplen)
 	{
 	return;
 	}
-
 
 if((chap->code == CHAP_CODE_REQ) || (chap->code == CHAP_CODE_RESP))
 	{
@@ -6317,6 +6358,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-I <file> : output unsorted identity list\n"
 	"-U <file> : output unsorted username list\n"
 	"-M <file> : output unsorted IMSI number list\n"
+	"-D <file> : output unsorted device information list\n"
+	"            format = MAC:DEVICEINFO string\n"
 	"-P <file> : output possible WPA/WPA2 plainmasterkey list\n"
 	"-T <file> : output management traffic information list\n"
 	"            european date : timestamp : mac_sta : mac_ap : essid\n"
@@ -6383,7 +6426,7 @@ char *gpxhead = "<?xml version=\"1.0\"?>\n"
 
 char *gpxtail = "</gpx>\n";
 
-static const char *short_options = "w:o:O:k:K:z:Z:j:J:E:X:I:U:M:P:T:g:H:Vhv";
+static const char *short_options = "w:o:O:k:K:z:Z:j:J:E:X:I:U:M:D:P:T:g:H:Vhv";
 static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
@@ -6549,6 +6592,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_IMSI_OUT:
 		imsioutname = optarg;
+		verboseflag = true;
+		break;
+
+		case HCXT_DEVICEINFO_OUT:
+		deviceinfooutname = optarg;
 		verboseflag = true;
 		break;
 

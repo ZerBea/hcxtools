@@ -389,7 +389,9 @@ typedef struct mscwps_tag mscwpstag_t;
 struct mscwpsie_tag
 {
  uint16_t	detype;
+#define	MSCWPSDEVICENAME	0x1011
  uint16_t	detypelen;
+ uint8_t	data[1];
 } __attribute__ ((packed));
 typedef struct mscwpsie_tag mscwpsietag_t;
 #define	MSCWPSIETAG_SIZE offsetof(mscwpsietag_t, data)
