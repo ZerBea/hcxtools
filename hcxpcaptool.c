@@ -4620,6 +4620,12 @@ if(caplen < chaplen)
 	return;
 	}
 
+if(authlen > chaplen)
+	{
+	return;
+	}
+
+
 if((chap->code == CHAP_CODE_REQ) || (chap->code == CHAP_CODE_RESP))
 	{
 	if((chaplen -authlen -CHAP_SIZE) < caplen)
@@ -5451,7 +5457,13 @@ while(1)
 		if(pcapngshb.major_version != 1)
 			{
 			pcapreaderrors++;
-			printf("unsupported pcapng version: %d\n", pcapngshb.major_version);
+			printf("unsupported pcapng version: %d.%d\n", pcapngshb.major_version, pcapngshb.minor_version);
+			break;
+			}
+		if(pcapngshb.minor_version != 0)
+			{
+			pcapreaderrors++;
+			printf("unsupported pcapng version: %d.%d\n", pcapngshb.major_version, pcapngshb.minor_version);
 			break;
 			}
 		if(pcapngbh.total_length < 12)
@@ -5785,12 +5797,24 @@ if(pcapfhdr.magic_number == PCAPMAGICNUMBERBE)
 	pcapfhdr.snaplen	= byte_swap_32(pcapfhdr.snaplen);
 	pcapfhdr.network	= byte_swap_32(pcapfhdr.network);
 	}
+
+versionmajor = pcapfhdr.version_major;
+versionminor = pcapfhdr.version_minor;
+dltlinktype  = pcapfhdr.network;
+
 if(pcapfhdr.version_major != 2)
 	{
 	pcapreaderrors++;
-	printf("unsupported pcap version: %d\n", pcapfhdr.version_major);
+	printf("unsupported pcap major version: %d.%d\n", pcapfhdr.version_major, pcapfhdr.version_minor);
 	return;
 	}
+if(pcapfhdr.version_minor != 4)
+	{
+	pcapreaderrors++;
+	printf("unsupported pcap major version: %d.%d\n", pcapfhdr.version_major, pcapfhdr.version_minor);
+	return;
+	}
+
 while(1)
 	{
 	res = read(fd, &pcaprhdr, PCAPREC_SIZE);
@@ -5871,9 +5895,6 @@ while(1)
 			}
 		}
 	}
-versionmajor = pcapfhdr.version_major;
-versionminor = pcapfhdr.version_minor;
-dltlinktype  = pcapfhdr.network;
 return;
 }
 /*===========================================================================*/
