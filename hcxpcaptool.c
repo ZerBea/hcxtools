@@ -135,6 +135,7 @@ unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
 unsigned long long int wpsframecount;
+unsigned long long int deviceinfoframecount;
 unsigned long long int meshidframecount;
 unsigned long long int proberequestframecount;
 unsigned long long int proberesponseframecount;
@@ -531,11 +532,15 @@ if(beaconframecount != 0)
 	}
 if(wpsframecount != 0)
 	{
-	printf("beacons (WPS capabilities).......: %llu\n", wpsframecount);
+	printf("beacons (WPS info inside)........: %llu\n", wpsframecount);
+	}
+if(deviceinfoframecount != 0)
+	{
+	printf("beacons (device info inside).....: %llu\n", deviceinfoframecount);
 	}
 if(meshidframecount != 0)
 	{
-	printf("beacons (with MESH-ID inside)....: %llu\n", meshidframecount);
+	printf("beacons (MESH-ID inside).........: %llu\n", meshidframecount);
 	}
 if(proberequestframecount != 0)
 	{
@@ -3612,12 +3617,14 @@ if(tagptr != NULL)
 		{
 		if(mscwpstag->type == 4)
 			{
+			wpsframecount++;
 			tagptr = getwpstag(MSCWPSDEVICENAME, mscwpstag->data, mscwpstag->taglen);
 			if(tagptr != NULL)
 				{
 				mscwpsietag = (mscwpsietag_t*)tagptr;
 				if( ntohs(mscwpsietag->detypelen) > 0)
 					{
+					deviceinfoframecount++;
 					if(deviceinfooutname != NULL)
 						{
 						if((fhoutlist = fopen(deviceinfooutname, "a+")) != NULL)
@@ -3629,8 +3636,6 @@ if(tagptr != NULL)
 						}
 					}
 				}
-
-			wpsframecount++;
 			}
 		}
 	}
@@ -6046,6 +6051,7 @@ fcsframecount = 0;
 wdsframecount = 0;
 beaconframecount = 0;
 wpsframecount = 0;
+deviceinfoframecount = 0;
 meshidframecount = 0;
 proberequestframecount = 0;
 proberesponseframecount = 0;
