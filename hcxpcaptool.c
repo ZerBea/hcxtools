@@ -2404,23 +2404,11 @@ md5count++;
 return;
 }
 /*===========================================================================*/
-void addpppchapleap(uint8_t code, uint8_t id, uint8_t count, uint8_t *data, uint16_t usernamelen, uint8_t *username)
+void addpppchapleap(uint8_t code, uint8_t id, uint8_t count, uint8_t *data, uint8_t usernamelen, uint8_t *username)
 {
 leapl_t *zeiger;
 unsigned long long int c;
 
-if(usernamelen > 255)
-	{
-	return;
-	}
-if(usernamelen == 0)
-	{
-	return;
-	}
-if((count != 16) && (count != 49))
-	{
-	return;
-	}
 if(leap2liste == NULL)
 	{
 	leap2liste = malloc(LEAPLIST_SIZE);
@@ -4652,7 +4640,8 @@ void processpppchappacket(uint32_t caplen, uint8_t *packet)
 {
 chap_t *chap;
 uint16_t chaplen;
-uint8_t authlen;
+uint16_t authlen;
+uint16_t usernamelen;
 
 if(caplen < (uint32_t)CHAP_SIZE)
 	{
@@ -4661,26 +4650,37 @@ if(caplen < (uint32_t)CHAP_SIZE)
 chap = (chap_t*)packet;
 chaplen = ntohs(chap->len);
 authlen = chap->data[0];
+usernamelen = chaplen -authlen -CHAP_SIZE;
 
-if(caplen < chaplen)
+//printf("%d %d %d %d\n", caplen, chaplen, authlen, hashlen);
+
+if(chaplen > caplen)
 	{
 	return;
 	}
-
 if(authlen > chaplen)
+	{
+	return;
+	}
+if(usernamelen > authlen)
+	{
+	return;
+	}
+if((usernamelen == 0) || (usernamelen > LEAP_LEN_MAX))
+	{
+	return;
+	}
+if((authlen == 0) || (authlen > LEAP_LEN_MAX))
 	{
 	return;
 	}
 
 if((chap->code == CHAP_CODE_REQ) || (chap->code == CHAP_CODE_RESP))
 	{
-	if((chaplen -authlen -CHAP_SIZE) < caplen)
+	addpppchapleap(chap->code, chap->id, authlen, chap->data +1, usernamelen, packet +authlen +CHAP_SIZE);
+	if(chaplen -authlen -CHAP_SIZE != 0)
 		{
-		addpppchapleap(chap->code, chap->id, authlen, chap->data +1, chaplen -authlen -CHAP_SIZE, packet +authlen +CHAP_SIZE);
-		if(chaplen -authlen -CHAP_SIZE != 0)
-			{
-			outlistusername(chaplen -authlen -CHAP_SIZE, packet +authlen +CHAP_SIZE);
-			}
+		outlistusername(chaplen -authlen -CHAP_SIZE, packet +authlen +CHAP_SIZE);
 		}
 	}
 chapframecount++;
@@ -5850,13 +5850,13 @@ dltlinktype  = pcapfhdr.network;
 if(pcapfhdr.version_major != 2)
 	{
 	pcapreaderrors++;
-	printf("unsupported pcap major version %d.%d          \n", pcapfhdr.version_major, pcapfhdr.version_minor);
+	printf("unsupported pcap version %d.%d          \n", pcapfhdr.version_major, pcapfhdr.version_minor);
 	return;
 	}
 if(pcapfhdr.version_minor != 4)
 	{
 	pcapreaderrors++;
-	printf("unsupported pcap major version %d.%d          \n", pcapfhdr.version_major, pcapfhdr.version_minor);
+	printf("unsupported pcap version %d.%d          \n", pcapfhdr.version_major, pcapfhdr.version_minor);
 	return;
 	}
 if(pcapfhdr.snaplen > MAXPACPSNAPLEN)

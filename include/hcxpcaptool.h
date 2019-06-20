@@ -1,4 +1,6 @@
 #define ESSID_LEN_MAX 32
+#define LEAP_LEN_MAX 0x0ff
+
 
 #ifdef __BYTE_ORDER__
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
@@ -136,9 +138,9 @@ struct leaplist_s
  uint8_t	code;
  uint8_t	id;
  uint8_t	len;
- uint8_t	data[0xff];
+ uint8_t	data[LEAP_LEN_MAX];
  uint16_t	username_len;
- uint8_t	username[0xff];
+ uint8_t	username[LEAP_LEN_MAX];
 } __attribute__((__packed__));
 typedef struct leaplist_s leapl_t;
 #define	LEAPLIST_SIZE (sizeof(leapl_t))
