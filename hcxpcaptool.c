@@ -5605,19 +5605,19 @@ while(1)
 			}
 		if(pcapngepb->caplen != pcapngepb->len)
 			{
-			printf("caplen != snaplen (%d - %d)          \n", pcapngepb->caplen, pcapngepb->len);
+			printf("caplen != snaplen (%d != %d)          \n", pcapngepb->caplen, pcapngepb->len);
 			pcapreaderrors++;
 			continue;
 			}
 		if(pcapngepb->caplen > MAXPACPSNAPLEN)
 			{
-			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngepb->caplen);
+			printf("caplen > MAXSNAPLEN (%d)             \n", pcapngepb->caplen);
 			pcapreaderrors++;
 			continue;
 			}
 		if(pcapngepb->caplen > pcapngbh->total_length)
 			{
-			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngepb->caplen);
+			printf("caplen > block length (%d)             \n", pcapngepb->caplen);
 			pcapreaderrors++;
 			continue;
 			}
