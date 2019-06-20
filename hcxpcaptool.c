@@ -2411,7 +2411,7 @@ unsigned long long int c;
 
 if(usernamelen > 255)
 	{
-	usernamelen = 255;
+	return;
 	}
 if(usernamelen == 0)
 	{
