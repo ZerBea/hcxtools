@@ -5096,7 +5096,6 @@ if((tv_sec == 0) && (tv_usec == 0))
 	tv_usec = tvtmp.tv_usec;
 	}
 
-
 if(linktype == DLT_NULL)
 	{
 	if(caplen < (uint32_t)LOBA_SIZE)
@@ -5251,78 +5250,48 @@ process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 return;
 }
 /*===========================================================================*/
-void pcapngoptionwalk(int fd, int tl)
+void pcapngoptionwalk(uint32_t blocktype, uint8_t *optr, int restlen)
 {
-int resseek;
-uint16_t res;
-int olpad;
-int len;
+option_header_t *option;
 int padding;
-option_header_t opthdr;
 char *gpsdptr;
 char *gpsd_date = "date:";
 char *gpsd_time = "time:";
 char *gpsd_lat = "lat:";
 char *gpsd_lon = "lon:";
 char *gpsd_alt = "alt:";
-uint8_t filereplaycound[1024];
-uint8_t filenonce[1024];
 
-while(1)
+while(0 < restlen)
 	{
-	res = read(fd, &opthdr, OH_SIZE);
-	if(res != OH_SIZE)
-		{
-		return;
-		}
+	option = (option_header_t*)optr;
 	#ifdef BIG_ENDIAN_HOST
-	opthdr.option_code = byte_swap_16(opthdr.option_code);
-	opthdr.option_length = byte_swap_16(opthdr.option_length);
+	option->option_code = byte_swap_16(option->option_code);
+	option->option_length = byte_swap_16(option->option_length);
 	#endif
 	if(endianess == 1)
 		{
-		opthdr.option_code = byte_swap_16(opthdr.option_code);
-		opthdr.option_length = byte_swap_16(opthdr.option_length);
-		}
-	if(opthdr.option_length > tl)
-		{
-		return;
-		}
-	if(opthdr.option_code == 0)
-		{
-		return;
+		option->option_code = byte_swap_16(option->option_code);
+		option->option_length = byte_swap_16(option->option_length);
 		}
 	padding = 0;
-	len = opthdr.option_length;
-	if((len  %4))
+	if((option->option_length  %4))
 		{
-		padding = 4 -(len %4);
+		padding = 4 -(option->option_length %4);
 		}
-	olpad = len +padding;
-	if(olpad > tl)
+
+	if(option->option_code == 0)
 		{
 		return;
 		}
-	if(olpad > 1023)
-		{
-		resseek = lseek(fd, olpad, SEEK_CUR);
-		if(resseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed set file pointer\n");
-			return;
-			}
-		}
-	tl = tl -olpad -2;
-	if(opthdr.option_code == 1)
+
+	if((option->option_code == 1) && (blocktype == 6))
 		{
 		memset(&pcapngoptioninfo, 0, 1024);
-		res = read(fd, &pcapngoptioninfo, olpad);
-		if(res != olpad)
+		if(option->option_length < 1024)
 			{
-			return;
+			memset(&pcapngoptioninfo, 0, 1024);
+			memcpy(&pcapngoptioninfo, option->data, option->option_length);
 			}
-		pcapngoptioninfo[res] = 0;
 		lat = 0;
 		lon = 0;
 		alt = 0;
@@ -5357,75 +5326,60 @@ while(1)
 			gpsdframecount++;
 			}
 		}
-	else if (opthdr.option_code == 2)
+	if((option->option_code == 2) && (blocktype == PCAPNGBLOCKTYPE))
 		{
-		memset(&pcapnghwinfo, 0, 1024);
-		res = read(fd, &pcapnghwinfo, olpad);
-		if(res != olpad)
+		if(option->option_length < 1024)
 			{
-			return;
+			memset(&pcapnghwinfo, 0, 1024);
+			memcpy(&pcapnghwinfo, option->data, option->option_length);
 			}
 		}
-	else if(opthdr.option_code == 3)
+	if((option->option_code == 3) && (blocktype == PCAPNGBLOCKTYPE))
 		{
-		memset(&pcapngosinfo, 0, 1024);
-		res = read(fd, &pcapngosinfo, olpad);
-		if(res != olpad)
+		if(option->option_length < 1024)
 			{
-			return;
+			memset(&pcapngosinfo, 0, 1024);
+			memcpy(&pcapngosinfo, option->data, option->option_length);
 			}
 		}
-	else if(opthdr.option_code == 4)
+	if((option->option_code == 4) && (blocktype == PCAPNGBLOCKTYPE))
 		{
-		memset(&pcapngapplinfo, 0, 1024);
-		res = read(fd, &pcapngapplinfo, olpad);
-		if(res != olpad)
+		if(option->option_length < 1024)
 			{
-			return;
+			memset(&pcapngapplinfo, 0, 1024);
+			memcpy(&pcapngapplinfo, option->data, option->option_length);
 			}
 		}
-	else if(opthdr.option_code == OPTIONCODE_RC)
+	if (option->option_code == OPTIONCODE_RC)
 		{
-		res = read(fd, &filereplaycound, olpad);
-		if(res != 8)
+		if(option->option_length == 8)
 			{
-			return;
-			}
-		myaktreplaycount = filereplaycound[0x07] & 0xff;
-		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x06] & 0xff);
-		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x05] & 0xff);
-		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x04] & 0xff);
-		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x03] & 0xff);
-		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x02] & 0xff);
-		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x01] & 0xff);
-		myaktreplaycount = (myaktreplaycount << 8) + (filereplaycound[0x00] & 0xff);
-		#ifdef BIG_ENDIAN_HOST
-		myaktreplaycount = byte_swap_64(myaktreplaycount);
-		#endif
-		if(endianess == 1)
-			{
+			myaktreplaycount = option->data[0x07] & 0xff;
+			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x06] & 0xff);
+			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x05] & 0xff);
+			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x04] & 0xff);
+			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x03] & 0xff);
+			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x02] & 0xff);
+			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x01] & 0xff);
+			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x00] & 0xff);
+			#ifdef BIG_ENDIAN_HOST
 			myaktreplaycount = byte_swap_64(myaktreplaycount);
+			#endif
+			if(endianess == 1)
+				{
+				myaktreplaycount = byte_swap_64(myaktreplaycount);
+				}
 			}
 		}
-	else if(opthdr.option_code == OPTIONCODE_ANONCE)
+	if (option->option_code == OPTIONCODE_ANONCE)
 		{
-		res = read(fd, &filenonce, olpad);
-		if(res != 32)
+		if(option->option_length == 32)
 			{
-			return;
-			}
-		memcpy(&myaktnonce, &filenonce, 32);
-		}
-	else
-		{
-		resseek = lseek(fd, olpad, SEEK_CUR);
-		if(resseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed set file pointer\n");
-			return;
+			memcpy(&myaktnonce, &option->data, 32);
 			}
 		}
+	optr += option->option_length +padding +OH_SIZE;
+	restlen -= option->option_length +padding +OH_SIZE;
 	}
 return;
 }
@@ -5435,17 +5389,21 @@ void processpcapng(int fd, char *pcapinname)
 unsigned int res;
 off_t fdsize;
 off_t aktseek;
-off_t blkseek;
 off_t resseek;
-block_header_t pcapngbh;
-section_header_block_t pcapngshb;
-interface_description_block_t pcapngidb;
-packet_block_t pcapngpb;
-enhanced_packet_block_t pcapngepb;
-uint8_t packet[MAXPACPSNAPLEN];
+
 uint64_t timestamp;
 uint32_t timestamp_sec;
 uint32_t timestamp_usec;
+uint32_t snaplen;
+block_header_t *pcapngbh;
+section_header_block_t *pcapngshb;
+interface_description_block_t *pcapngidb;
+packet_block_t *pcapngpb;
+enhanced_packet_block_t *pcapngepb;
+int padding;
+
+uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
+uint8_t packet[MAXPACPSNAPLEN];
 
 printf("\nreading from %s\n", basename(pcapinname));
 fdsize = lseek(fd, 0, SEEK_END);
@@ -5470,9 +5428,17 @@ if(gpxflag == true)
 	}
 memset(&packet, 0, MAXPACPSNAPLEN);
 
+snaplen = 0;
 while(1)
 	{
-	res = read(fd, &pcapngbh, BH_SIZE);
+	aktseek = lseek(fd, 0, SEEK_CUR);
+	if(aktseek < 0)
+		{
+		pcapreaderrors++;
+		printf("failed to set file pointer\n");
+		break;
+		}
+	res = read(fd, &pcpngblock, BH_SIZE);
 	if(res == 0)
 		{
 		break;
@@ -5483,326 +5449,199 @@ while(1)
 		printf("failed to read pcapng header block\n");
 		break;
 		}
-	if(pcapngbh.block_type == PCAPNGBLOCKTYPE)
-		{
-		res = read(fd, &pcapngshb, SHB_SIZE);
-		if(res != SHB_SIZE)
-			{
-			pcapreaderrors++;
-			printf("failed to read pcapng section header block\n");
-			break;
-			}
-		#ifdef BIG_ENDIAN_HOST
-		pcapngbh.total_length 		= byte_swap_32(pcapngbh.total_length);
-		pcapngshb.byte_order_magic	= byte_swap_32(pcapngshb.byte_order_magic);
-		pcapngshb.major_version		= byte_swap_16(pcapngshb.major_version);
-		pcapngshb.minor_version		= byte_swap_16(pcapngshb.minor_version);
-		pcapngshb.section_length	= byte_swap_64(pcapngshb.section_length);
-		#endif
-		if(pcapngshb.byte_order_magic == PCAPNGMAGICNUMBERBE)
-			{
-			endianess = 1;
-			pcapngbh.total_length = byte_swap_32(pcapngbh.total_length);
-			pcapngshb.byte_order_magic	= byte_swap_32(pcapngshb.byte_order_magic);
-			pcapngshb.major_version		= byte_swap_16(pcapngshb.major_version);
-			pcapngshb.minor_version		= byte_swap_16(pcapngshb.minor_version);
-			pcapngshb.section_length	= byte_swap_64(pcapngshb.section_length);
-			}
-		if(pcapngshb.major_version != 1)
-			{
-			pcapreaderrors++;
-			printf("unsupported pcapng version %d.%d\n", pcapngshb.major_version, pcapngshb.minor_version);
-			break;
-			}
-		if(pcapngshb.minor_version != 0)
-			{
-			pcapreaderrors++;
-			printf("unsupported pcapng version %d.%d\n", pcapngshb.major_version, pcapngshb.minor_version);
-			break;
-			}
-		if(pcapngbh.total_length < 12)
-			{
-			pcapreaderrors++;
-			printf("invalid block detected\n");
-			break;
-			}
-		aktseek = lseek(fd, 0, SEEK_CUR);
-		if(aktseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed to set file pointer\n");
-			break;
-			}
-		if(pcapngbh.total_length > (SHB_SIZE +BH_SIZE +4))
-			{
-			pcapngoptionwalk(fd, pcapngbh.total_length);
-			}
-
-		resseek = lseek(fd, aktseek +pcapngbh.total_length -BH_SIZE -SHB_SIZE, SEEK_SET);
-		if(resseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed to set file pointer\n");
-			break;
-			}
-		continue;
-		}
+	pcapngbh = (block_header_t*)pcpngblock;
 	#ifdef BIG_ENDIAN_HOST
-	pcapngbh.block_type = byte_swap_32(pcapngbh.block_type);
-	pcapngbh.total_length = byte_swap_32(pcapngbh.total_length);
+	pcapngbh->block_type = byte_swap_32(pcapngbh->block_type);
+	pcapngbh->total_length = byte_swap_32(pcapngbh->total_length);
 	#endif
 	if(endianess == 1)
 		{
-		pcapngbh.block_type = byte_swap_32(pcapngbh.block_type);
-		pcapngbh.total_length = byte_swap_32(pcapngbh.total_length);
+		pcapngbh->block_type = byte_swap_32(pcapngbh->block_type);
+		pcapngbh->total_length = byte_swap_32(pcapngbh->total_length);
 		}
-	if(pcapngbh.total_length < 12)
+	resseek = lseek(fd, aktseek, SEEK_SET);
+	if(resseek < 0)
 		{
 		pcapreaderrors++;
-		printf("invalid block detected\n");
+		printf("failed to set file pointer\n");
 		break;
 		}
-	if(pcapngbh.block_type == 1)
-		{
-		res = read(fd, &pcapngidb, IDB_SIZE);
-		if(res != IDB_SIZE)
-			{
-			pcapreaderrors++;
-			printf("failed to get pcapng interface description block\n");
-			break;
-			}
-		#ifdef BIG_ENDIAN_HOST
-		pcapngidb.linktype	= byte_swap_16(pcapngidb.linktype);
-		pcapngidb.snaplen	= byte_swap_32(pcapngidb.snaplen);
-		#endif
-		if(endianess == 1)
-			{
-			pcapngidb.linktype	= byte_swap_16(pcapngidb.linktype);
-			pcapngidb.snaplen	= byte_swap_32(pcapngidb.snaplen);
-			}
-		if(pcapngidb.snaplen > MAXPACPSNAPLEN)
-			{
-			printf("detected oversized snaplen (%d)          \n", pcapngidb.snaplen);
-			pcapreaderrors++;
-			}
-		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -IDB_SIZE, SEEK_CUR);
-		if(resseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			break;
-			}
-		continue;
-		}
-	else if(pcapngbh.block_type == 2)
-		{
-		res = read(fd, &pcapngpb, PB_SIZE);
-		if(res != PB_SIZE)
-			{
-			pcapreaderrors++;
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			break;
-			}
-		#ifdef BIG_ENDIAN_HOST
-		pcapngpb.interface_id	= byte_swap_16(pcapngpb.interface_id);
-		pcapngpb.drops_count	= byte_swap_16(pcapngpb.drops_count);
-		pcapngpb.timestamp_high	= byte_swap_32(pcapngpb.timestamp_high);
-		pcapngpb.timestamp_low	= byte_swap_32(pcapngpb.timestamp_low);
-		pcapngpb.caplen		= byte_swap_32(pcapngpb.caplen);
-		pcapngpb.len		= byte_swap_32(pcapngpb.len);
-		#endif
-		if(endianess == 1)
-			{
-			pcapngpb.interface_id	= byte_swap_16(pcapngpb.interface_id);
-			pcapngpb.drops_count	= byte_swap_16(pcapngpb.drops_count);
-			pcapngpb.timestamp_high	= byte_swap_32(pcapngpb.timestamp_high);
-			pcapngpb.timestamp_low	= byte_swap_32(pcapngpb.timestamp_low);
-			pcapngpb.caplen		= byte_swap_32(pcapngpb.caplen);
-			pcapngpb.len		= byte_swap_32(pcapngpb.len);
-			}
-		timestamp = pcapngpb.timestamp_high;
-		timestamp = (timestamp << 32) +pcapngpb.timestamp_low;
-		timestamp_sec = timestamp /1000000;
-		timestamp_usec = timestamp %1000000;
-		if((pcapngpb.timestamp_high == 0) && (pcapngpb.timestamp_low == 0))
-			{
-			tscleanflag = true;
-			}
-		if((pcapngpb.caplen > 0) && (pcapngpb.caplen < MAXPACPSNAPLEN) && (pcapngpb.caplen < pcapngbh.total_length) && (pcapngpb.caplen == pcapngpb.len))
-			{
-			res = read(fd, &packet, pcapngpb.caplen);
-			if(res != pcapngpb.caplen)
-				{
-				printf("failed to read packet %lld          \n", rawpacketcount);
-				pcapreaderrors++;
-				break;
-				}
-			resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngpb.caplen, SEEK_CUR);
-			if(resseek < 0)
-				{
-				pcapreaderrors++;
-				printf("failed to read packet %lld          \n", rawpacketcount);
-				break;
-				}
-			rawpacketcount++;
-			if(hexmodeflag == true)
-				{
-				packethexdump(timestamp_sec, timestamp_usec, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngpb.caplen, pcapngpb.len, packet);
-				}
-			if(verboseflag == true)
-				{
-				processpacket(timestamp_sec, timestamp_usec, pcapngidb.linktype, pcapngpb.caplen, packet);
-				}
-			if((rawpacketcount > 100000) && ((rawpacketcount %100000) == 0))
-				{
-				printf("%lld packets processed - be patient!\r", rawpacketcount);
-				}
-			}
-		else
-			{
-			resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE +pcapngpb.caplen, SEEK_CUR);
-			if(resseek < 0)
-				{
-				pcapreaderrors++;
-				printf("failed to read packet %lld          \n", rawpacketcount);
-				break;
-				}
-			pcapngpb.caplen = 0;
-			pcapngpb.len = 0;
-			skippedpacketcount++;
-			}
-		}
-	else if(pcapngbh.block_type == 3)
-		{
-		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
-		if(resseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			break;
-			}
-		continue;
-		}
-	else if(pcapngbh.block_type == 4)
-		{
-		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
-		if(resseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			break;
-			}
-		continue;
-		}
-	else if(pcapngbh.block_type == 5)
-		{
-		resseek = lseek(fd, pcapngbh.total_length -BH_SIZE, SEEK_CUR);
-		if(resseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			break;
-			}
-		continue;
-		}
-	else if(pcapngbh.block_type == 6)
-		{
-		blkseek = lseek(fd, 0, SEEK_CUR);
-		if(blkseek < 0)
-			{
-			pcapreaderrors++;
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			break;
-			}
-		res = read(fd, &pcapngepb, EPB_SIZE);
-		if(res != EPB_SIZE)
-			{
-			pcapreaderrors++;
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			break;
-			}
-		#ifdef BIG_ENDIAN_HOST
-		pcapngepb.interface_id		= byte_swap_32(pcapngepb.interface_id);
-		pcapngepb.timestamp_high	= byte_swap_32(pcapngepb.timestamp_high);
-		pcapngepb.timestamp_low		= byte_swap_32(pcapngepb.timestamp_low);
-		pcapngepb.caplen		= byte_swap_32(pcapngepb.caplen);
-		pcapngepb.len			= byte_swap_32(pcapngepb.len);
-		#endif
-		if(endianess == 1)
-			{
-			pcapngepb.interface_id		= byte_swap_32(pcapngepb.interface_id);
-			pcapngepb.timestamp_high	= byte_swap_32(pcapngepb.timestamp_high);
-			pcapngepb.timestamp_low		= byte_swap_32(pcapngepb.timestamp_low);
-			pcapngepb.caplen		= byte_swap_32(pcapngepb.caplen);
-			pcapngepb.len			= byte_swap_32(pcapngepb.len);
-			}
-		timestamp = pcapngepb.timestamp_high;
-		timestamp = (timestamp << 32) +pcapngepb.timestamp_low;
-		timestamp_sec = timestamp /1000000;
-		timestamp_usec = timestamp %1000000;
-		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
-			{
-			tscleanflag = true;
-			}
 
-		if((pcapngepb.caplen > 0) && (pcapngepb.caplen < MAXPACPSNAPLEN) && (pcapngepb.caplen < pcapngbh.total_length) && (pcapngepb.caplen == pcapngepb.len))
+	if(pcapngbh->total_length > (2 *MAXPACPSNAPLEN))
+		{
+		pcapreaderrors++;
+		printf("failed to read pcapng header block\n");
+		break;
+		}
+	res = read(fd, &pcpngblock, pcapngbh->total_length);
+	if(res != pcapngbh->total_length)
+		{
+		pcapreaderrors++;
+		printf("failed to read pcapng header block\n");
+		break;
+		}
+
+	if(pcapngbh->block_type == PCAPNGBLOCKTYPE)
+		{
+		pcapngshb = (section_header_block_t*) pcpngblock;
+		#ifdef BIG_ENDIAN_HOST
+		pcapngshb->byte_order_magic	= byte_swap_32(pcapngshb->byte_order_magic);
+		pcapngshb->major_version	= byte_swap_16(pcapngshb->major_version);
+		pcapngshb->minor_version	= byte_swap_16(pcapngshb->minor_version);
+		pcapngshb->section_length	= byte_swap_64(pcapngshb->.section_length);
+		#endif
+		if(pcapngshb->byte_order_magic == PCAPNGMAGICNUMBERBE)
 			{
-			res = read(fd, &packet, pcapngepb.caplen);
-			if(res != pcapngepb.caplen)
-				{
-				printf("failed to read packet %lld          \n", rawpacketcount);
-				pcapreaderrors++;
-				break;
-				}
-			aktseek = lseek(fd, (4 -(pcapngepb.caplen %4)) %4, SEEK_CUR);
-			if(aktseek < 0)
-				{
-				pcapreaderrors++;
-				printf("failed to read packet %lld          \n", rawpacketcount);
-				break;
-				}
-			if(pcapngbh.total_length > (EPB_SIZE +BH_SIZE +4))
-				{
-				pcapngoptionwalk(fd, pcapngbh.total_length);
-				}
-			rawpacketcount++;
-			if(hexmodeflag == true)
-				{
-				packethexdump(timestamp_sec, timestamp_usec, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
-				}
-			if(verboseflag == true)
-				{
-				processpacket(timestamp_sec, timestamp_usec, pcapngidb.linktype, pcapngepb.caplen, packet);
-				}
-			if((rawpacketcount > 100000) && ((rawpacketcount %100000) == 0))
-				{
-				printf("%lld packets processed - be patient!\r", rawpacketcount);
-				}
+			endianess = 1;
 			}
-		else
+		versionmajor = pcapngshb->major_version;
+		versionminor = pcapngshb->minor_version;
+		pcapngoptionwalk(pcapngbh->block_type, pcapngshb->data, pcapngbh->total_length -SHB_SIZE);
+		}
+
+	else if(pcapngbh->block_type == 1)
+		{
+		pcapngidb = (interface_description_block_t*) pcpngblock;
+		#ifdef BIG_ENDIAN_HOST
+		pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
+		pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
+		#endif
+		if(endianess == 1)
 			{
-			pcapngepb.caplen = 0;
-			pcapngepb.len = 0;
-			skippedpacketcount++;
+			pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
+			pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
 			}
-		resseek = lseek(fd, blkseek +pcapngbh.total_length -BH_SIZE, SEEK_SET);
-		if(resseek < 0)
+		dltlinktype = pcapngidb->linktype;
+		snaplen = pcapngidb->snaplen;
+		if(pcapngidb->snaplen > MAXPACPSNAPLEN)
 			{
+			printf("detected oversized snaplen (%d)          \n", pcapngidb->snaplen);
 			pcapreaderrors++;
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			break;
 			}
 		}
-	else
+
+	else if(pcapngbh->block_type == 2)
 		{
-		printf("unknown blocktype %d after packet %lld\n", pcapngbh.block_type, rawpacketcount);
-		pcapreaderrors++;
-		break;
+		pcapngpb = (packet_block_t*) pcpngblock;
+		#ifdef BIG_ENDIAN_HOST
+		pcapngpb->caplen		= byte_swap_32(pcapngpb->caplen);
+		#endif
+		if(endianess == 1)
+			{
+			pcapngpb->caplen		= byte_swap_32(pcapngpb->caplen);
+			}
+		timestamp = 0;
+		timestamp = 0;
+		timestamp_sec = 0;
+		timestamp_usec = 0;
+		tscleanflag = true;
+		if(pcapngpb->caplen > MAXPACPSNAPLEN)
+			{
+			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
+			pcapreaderrors++;
+			continue;
+			}
+		if(pcapngpb->caplen > pcapngbh->total_length)
+			{
+			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
+			pcapreaderrors++;
+			continue;
+			}
+		rawpacketcount++;
+		if(verboseflag == true)
+			{
+			processpacket(timestamp_sec, timestamp_usec, dltlinktype, pcapngpb->caplen, pcapngpb->data);
+			}
+		if(hexmodeflag == true)
+			{
+			packethexdump(timestamp_sec, timestamp_usec, rawpacketcount, dltlinktype, snaplen, pcapngepb->caplen, pcapngpb->len, pcapngpb->data);
+			}
+		if((rawpacketcount > 100000) && ((rawpacketcount %100000) == 0))
+			{
+			printf("%lld packets processed - be patient!\r", rawpacketcount);
+			}
+		}
+
+	else if(pcapngbh->block_type == 3)
+		{
+		continue;
+		}
+
+	else if(pcapngbh->block_type == 4)
+		{
+		continue;
+		}
+
+	else if(pcapngbh->block_type == 5)
+		{
+		continue;
+		}
+
+	else if(pcapngbh->block_type == 6)
+		{
+		pcapngepb = (enhanced_packet_block_t*)pcpngblock;
+		#ifdef BIG_ENDIAN_HOST
+		pcapngepb->interface_id		= byte_swap_32(pcapngepb->interface_id);
+		pcapngepb->timestamp_high	= byte_swap_32(pcapngepb->timestamp_high);
+		pcapngepb->timestamp_low	= byte_swap_32(pcapngepb->timestamp_low);
+		pcapngepb->caplen		= byte_swap_32(pcapngepb->caplen);
+		pcapngepb->len			= byte_swap_32(pcapngepb->len);
+		#endif
+		if(endianess == 1)
+			{
+			pcapngepb->interface_id		= byte_swap_32(pcapngepb->interface_id);
+			pcapngepb->timestamp_high	= byte_swap_32(pcapngepb->timestamp_high);
+			pcapngepb->timestamp_low	= byte_swap_32(pcapngepb->timestamp_low);
+			pcapngepb->caplen		= byte_swap_32(pcapngepb->caplen);
+			pcapngepb->len			= byte_swap_32(pcapngepb->len);
+			}
+		timestamp = pcapngepb->timestamp_high;
+		timestamp = (timestamp << 32) +pcapngepb->timestamp_low;
+		timestamp_sec = timestamp /1000000;
+		timestamp_usec = timestamp %1000000;
+		if((pcapngepb->timestamp_high == 0) && (pcapngepb->timestamp_low == 0))
+			{
+			tscleanflag = true;
+			}
+		if(pcapngepb->caplen != pcapngepb->len)
+			{
+			printf("caplen != snaplen (%d - %d)          \n", pcapngepb->caplen, pcapngepb->len);
+			pcapreaderrors++;
+			continue;
+			}
+		if(pcapngepb->caplen > MAXPACPSNAPLEN)
+			{
+			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngepb->caplen);
+			pcapreaderrors++;
+			continue;
+			}
+		if(pcapngepb->caplen > pcapngbh->total_length)
+			{
+			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngepb->caplen);
+			pcapreaderrors++;
+			continue;
+			}
+		rawpacketcount++;
+		if(verboseflag == true)
+			{
+			processpacket(timestamp_sec, timestamp_usec, dltlinktype, pcapngepb->caplen, pcapngepb->data);
+			}
+		if(hexmodeflag == true)
+			{
+			packethexdump(timestamp_sec, timestamp_usec, rawpacketcount, dltlinktype, snaplen, pcapngepb->caplen, pcapngepb->len, pcapngepb->data);
+			}
+		if((rawpacketcount > 100000) && ((rawpacketcount %100000) == 0))
+			{
+			printf("%lld packets processed - be patient!\r", rawpacketcount);
+			}
+		padding = 0;
+		if((pcapngepb->caplen  %4))
+			{
+			padding = 4 -(pcapngepb->caplen %4);
+			}
+		pcapngoptionwalk(pcapngbh->block_type, pcapngepb->data +pcapngepb->caplen +padding, pcapngbh->total_length -EPB_SIZE -pcapngepb->caplen -padding);
 		}
 	}
-versionmajor = pcapngshb.major_version;
-versionminor = pcapngshb.minor_version;
-dltlinktype = pcapngidb.linktype;
 
 if(gpxflag == true)
 	{

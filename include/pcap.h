@@ -245,24 +245,24 @@
 /*===========================================================================*/
 struct pcap_hdr_s
 {
- uint32_t magic_number;		/* magic number */
- uint16_t version_major;	/* major version number */
- uint16_t version_minor;	/* minor version number */
- int32_t thiszone;		/* GMT to local correction */
- uint32_t sigfigs;		/* accuracy of timestamps */
- uint32_t snaplen;		/* max length of captured packets, in octets */
- uint32_t network;		/* data link type */
+ uint32_t	magic_number;		/* magic number */
+ uint16_t	version_major;		/* major version number */
+ uint16_t	version_minor;		/* minor version number */
+ int32_t	thiszone;		/* GMT to local correction */
+ uint32_t	sigfigs;		/* accuracy of timestamps */
+ uint32_t	snaplen;		/* max length of captured packets, in octets */
+ uint32_t	network;		/* data link type */
 } __attribute__((__packed__));
 typedef struct pcap_hdr_s pcap_hdr_t;
 #define	PCAPHDR_SIZE (sizeof(pcap_hdr_t))
 /*===========================================================================*/
 struct pcaprec_hdr_s
 {
- uint32_t ts_sec;	/* timestamp seconds */
- uint32_t ts_usec;	/* timestamp microseconds */
- uint32_t incl_len;	/* number of octets of packet saved in file */
- uint32_t orig_len;	/* actual length of packet */
- uint8_t data[1];
+ uint32_t	ts_sec;		/* timestamp seconds */
+ uint32_t	ts_usec;	/* timestamp microseconds */
+ uint32_t	incl_len;	/* number of octets of packet saved in file */
+ uint32_t	orig_len;	/* actual length of packet */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct pcaprec_hdr_s pcaprec_hdr_t;
 #define	PCAPREC_SIZE offsetof(pcaprec_hdr_t, data)
@@ -279,85 +279,107 @@ typedef struct block_header_s block_header_t;
 /* Header of all pcapng options */
 struct option_header_s
 {
- uint16_t		option_code;	/* option code - depending of block (0 - end of opts, 1 - comment are in common) */
- uint16_t		option_length;	/* option length - length of option in bytes (will be padded to 32bit) */
+ uint16_t	option_code;	/* option code - depending of block (0 - end of opts, 1 - comment are in common) */
+ uint16_t	option_length;	/* option length - length of option in bytes (will be padded to 32bit) */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct option_header_s option_header_t;
-#define	OH_SIZE (sizeof(option_header_t))
+#define	OH_SIZE offsetof (option_header_t, data)
 /*===========================================================================*/
 /* Section Header Block (SHB) - ID 0x0A0D0D0A */
 struct section_header_block_s
 {
+ uint32_t	block_type;	/* block type */
+ uint32_t	total_length;	/* block length */
  uint32_t	byte_order_magic;	/* byte order magic - indicates swapped data */
  uint16_t	major_version;		/* major version of pcapng (1 atm) */
  uint16_t	minor_version;		/* minor version of pcapng (0 atm) */
  int64_t	section_length;		/* length of section - can be -1 (parsing necessary) */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct section_header_block_s section_header_block_t;
-#define	SHB_SIZE (sizeof(section_header_block_t))
+#define	SHB_SIZE offsetof (section_header_block_t, data)
 /*===========================================================================*/
 /* Interface Description Block (IDB) - ID 0x00000001 */
 struct interface_description_block_s
  {
+ uint32_t	block_type;	/* block type */
+ uint32_t	total_length;	/* block length */
  uint16_t	linktype;	/* the link layer type (was -network- in classic pcap global header) */
  uint16_t	reserved;	/* 2 bytes of reserved data */
  uint32_t	snaplen;	/* maximum number of bytes dumped from each packet (was -snaplen- in classic pcap global header */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct interface_description_block_s interface_description_block_t;
-#define	IDB_SIZE (sizeof(interface_description_block_t))
+#define	IDB_SIZE offsetof  (interface_description_block_t, data)
 /*===========================================================================*/
 /* Packet Block (PB) - ID 0x00000002 (OBSOLETE - EPB should be used instead) */
 struct packet_block_s
 {
+ uint32_t	block_type;	/* block type */
+ uint32_t	total_length;	/* block length */
  uint16_t	interface_id;	/* the interface the packet was captured from - identified by interface description block in current section */
  uint16_t	drops_count;	/* packet dropped by IF and OS since prior packet */
  uint32_t	timestamp_high;	/* high bytes of timestamp */
  uint32_t	timestamp_low;	/* low bytes of timestamp */
  uint32_t	caplen;	/* length of packet in the capture file (was -incl_len- in classic pcap packet header) */
  uint32_t	len;	/* length of packet when transmitted (was -orig_len- in classic pcap packet header) */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct packet_block_s packet_block_t;
-#define	PB_SIZE (sizeof(packet_block_t))
+#define	PB_SIZE offsetof (packet_block_t, data)
 /*===========================================================================*/
 /* Simple Packet Block (SPB) - ID 0x00000003 */
 struct simple_packet_block_s
 {
+ uint32_t	block_type;	/* block type */
+ uint32_t	total_length;	/* block length */
  uint32_t	len;  /* length of packet when transmitted (was -orig_len- in classic pcap packet header) */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct simple_packet_block_s simple_packet_block_t;
-#define	SPB_SIZE (sizeof(simple_packet_block_t))
+#define	SPB_SIZE offsetof (simple_packet_block, data)
 /*===========================================================================*/
 /* Name Resolution Block (NRB) - ID 0x00000004 */
 struct name_resolution_block_s
 {
+ uint32_t	block_type;	/* block type */
+ uint32_t	total_length;	/* block length */
  uint16_t	record_type;    /* type of record (ipv4 / ipv6) */
  uint16_t	record_length;  /* length of record value */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct name_resolution_block_s name_resolution_block_t;
-#define	NRB_SIZE (sizeof(name_resolution_block_t))
+#define	NRB_SIZE offsetof (name_resolution_block_t, data)
 /*===========================================================================*/
 /* Interface Statistics Block - ID 0x00000005 */
 struct interface_statistics_block_s
 {
+ uint32_t	block_type;	/* block type */
+ uint32_t	total_length;	/* block length */
  uint32_t	interface_id;     /* the interface the stats refer to - identified by interface description block in current section */
  uint32_t	timestamp_high;   /* high bytes of timestamp */
  uint32_t	timestamp_low;    /* low bytes of timestamp */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct interface_statistics_block_s interface_statistics_block_t;
-#define	ISB_SIZE (sizeof(interface_statistics_block_t))
+#define	ISB_SIZE offsetof (interface_statistics_block_t, data)
 
 /*===========================================================================*/
 /* Enhanced Packet Block (EPB) - ID 0x00000006 */
 struct enhanced_packet_block_s
 {
-uint32_t	interface_id;     /* the interface the packet was captured from - identified by interface description block in current section */
-uint32_t	timestamp_high;   /* high bytes of timestamp */
-uint32_t	timestamp_low;    /* low bytes of timestamp */
-uint32_t	caplen;           /* length of packet in the capture file (was -incl_len- in classic pcap packet header) */
-uint32_t	len;              /* length of packet when transmitted (was -orig_len- in classic pcap packet header) */
+ uint32_t	block_type;	/* block type */
+ uint32_t	total_length;	/* block length */
+ uint32_t	interface_id;     /* the interface the packet was captured from - identified by interface description block in current section */
+ uint32_t	timestamp_high;   /* high bytes of timestamp */
+ uint32_t	timestamp_low;    /* low bytes of timestamp */
+ uint32_t	caplen;           /* length of packet in the capture file (was -incl_len- in classic pcap packet header) */
+ uint32_t	len;              /* length of packet when transmitted (was -orig_len- in classic pcap packet header) */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct enhanced_packet_block_s enhanced_packet_block_t;
-#define	EPB_SIZE (sizeof(enhanced_packet_block_t))
+#define	EPB_SIZE offsetof (enhanced_packet_block_t, data)
 /*===========================================================================*/
 
 
