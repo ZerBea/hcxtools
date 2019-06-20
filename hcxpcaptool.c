@@ -5613,21 +5613,15 @@ while(1)
 			pcapngpb.caplen		= byte_swap_32(pcapngpb.caplen);
 			pcapngpb.len		= byte_swap_32(pcapngpb.len);
 			}
-		if(pcapngepb.caplen > pcapngbh.total_length)
-			{
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			pcapreaderrors++;
-			break;
-			}
-		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
+		timestamp = pcapngpb.timestamp_high;
+		timestamp = (timestamp << 32) +pcapngpb.timestamp_low;
+		timestamp_sec = timestamp /1000000;
+		timestamp_usec = timestamp %1000000;
+		if((pcapngpb.timestamp_high == 0) && (pcapngpb.timestamp_low == 0))
 			{
 			tscleanflag = true;
 			}
-		timestamp = pcapngepb.timestamp_high;
-		timestamp = (timestamp << 32) +pcapngepb.timestamp_low;
-		timestamp_sec = timestamp /1000000;
-		timestamp_usec = timestamp %1000000;
-		if((pcapngpb.caplen < MAXPACPSNAPLEN) && (pcapngpb.caplen == pcapngpb.len))
+		if((pcapngpb.caplen > 0) && (pcapngpb.caplen < MAXPACPSNAPLEN) && (pcapngpb.caplen < pcapngbh.total_length) && (pcapngpb.caplen == pcapngpb.len))
 			{
 			res = read(fd, &packet, pcapngpb.caplen);
 			if(res != pcapngpb.caplen)
@@ -5636,7 +5630,7 @@ while(1)
 				pcapreaderrors++;
 				break;
 				}
-			resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngepb.caplen, SEEK_CUR);
+			resseek = lseek(fd, pcapngbh.total_length -BH_SIZE -PB_SIZE -pcapngpb.caplen, SEEK_CUR);
 			if(resseek < 0)
 				{
 				pcapreaderrors++;
@@ -5644,6 +5638,18 @@ while(1)
 				break;
 				}
 			rawpacketcount++;
+			if(hexmodeflag == true)
+				{
+				packethexdump(timestamp_sec, timestamp_usec, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngpb.caplen, pcapngpb.len, packet);
+				}
+			if(verboseflag == true)
+				{
+				processpacket(timestamp_sec, timestamp_usec, pcapngidb.linktype, pcapngpb.caplen, packet);
+				}
+			if((rawpacketcount > 100000) && ((rawpacketcount %100000) == 0))
+				{
+				printf("%lld packets processed - be patient!\r", rawpacketcount);
+				}
 			}
 		else
 			{
@@ -5723,13 +5729,16 @@ while(1)
 			pcapngepb.caplen		= byte_swap_32(pcapngepb.caplen);
 			pcapngepb.len			= byte_swap_32(pcapngepb.len);
 			}
-		if(pcapngepb.caplen > pcapngbh.total_length)
+		timestamp = pcapngepb.timestamp_high;
+		timestamp = (timestamp << 32) +pcapngepb.timestamp_low;
+		timestamp_sec = timestamp /1000000;
+		timestamp_usec = timestamp %1000000;
+		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
 			{
-			printf("failed to read packet %lld          \n", rawpacketcount);
-			pcapreaderrors++;
-			break;
+			tscleanflag = true;
 			}
-		if((pcapngpb.caplen < MAXPACPSNAPLEN) && (pcapngepb.caplen == pcapngepb.len))
+
+		if((pcapngepb.caplen > 0) && (pcapngepb.caplen < MAXPACPSNAPLEN) && (pcapngepb.caplen < pcapngbh.total_length) && (pcapngepb.caplen == pcapngepb.len))
 			{
 			res = read(fd, &packet, pcapngepb.caplen);
 			if(res != pcapngepb.caplen)
@@ -5750,6 +5759,18 @@ while(1)
 				pcapngoptionwalk(fd, pcapngbh.total_length);
 				}
 			rawpacketcount++;
+			if(hexmodeflag == true)
+				{
+				packethexdump(timestamp_sec, timestamp_usec, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
+				}
+			if(verboseflag == true)
+				{
+				processpacket(timestamp_sec, timestamp_usec, pcapngidb.linktype, pcapngepb.caplen, packet);
+				}
+			if((rawpacketcount > 100000) && ((rawpacketcount %100000) == 0))
+				{
+				printf("%lld packets processed - be patient!\r", rawpacketcount);
+				}
 			}
 		else
 			{
@@ -5770,31 +5791,6 @@ while(1)
 		printf("unknown blocktype %d after packet %lld\n", pcapngbh.block_type, rawpacketcount);
 		pcapreaderrors++;
 		break;
-		}
-
-
-	if((pcapngepb.caplen > 0) && (pcapngepb.caplen < pcapngbh.total_length) && (pcapngepb.caplen == pcapngepb.len))
-		{
-		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
-			{
-			tscleanflag = true;
-			}
-		timestamp = pcapngepb.timestamp_high;
-		timestamp = (timestamp << 32) +pcapngepb.timestamp_low;
-		timestamp_sec = timestamp /1000000;
-		timestamp_usec = timestamp %1000000;
-		if(hexmodeflag == true)
-			{
-			packethexdump(timestamp_sec, timestamp_usec, rawpacketcount, pcapngidb.linktype, pcapngidb.snaplen, pcapngepb.caplen, pcapngepb.len, packet);
-			}
-		if(verboseflag == true)
-			{
-			processpacket(timestamp_sec, timestamp_usec, pcapngidb.linktype, pcapngepb.caplen, packet);
-			}
-		if((rawpacketcount > 100000) && ((rawpacketcount %100000) == 0))
-			{
-			printf("%lld packets processed - be patient!\r", rawpacketcount);
-			}
 		}
 	}
 versionmajor = pcapngshb.major_version;
