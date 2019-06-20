@@ -2461,10 +2461,6 @@ void addeapleap(uint8_t code, uint8_t id, uint8_t count, uint8_t *data, uint16_t
 leapl_t *zeiger;
 unsigned long long int c;
 
-if(usernamelen > 255)
-	{
-	usernamelen = 255;
-	}
 if(leapliste == NULL)
 	{
 	leapliste = malloc(LEAPLIST_SIZE);
@@ -4323,6 +4319,7 @@ void processeapleapauthentication(uint32_t eaplen, uint8_t *packet)
 {
 eapleap_t *leap;
 uint16_t leaplen;
+uint16_t usernamelen;
 
 if(eaplen < 4)
 	{
@@ -4330,7 +4327,8 @@ if(eaplen < 4)
 	}
 leap = (eapleap_t*)packet;
 leaplen = ntohs(leap->len);
-if(eaplen < leaplen)
+
+if(leaplen > eaplen)
 	{
 	return;
 	}
@@ -4338,12 +4336,21 @@ if(leap->version != 1)
 	{
 	return;
 	}
+if(leap->count > leaplen)
+	{
+	return;
+	}
+usernamelen = leaplen -8 -leap->count;
+if(usernamelen > LEAP_LEN_MAX)
+	{
+	return;
+	}
 if((leap->code == EAP_CODE_REQ) || (leap->code == EAP_CODE_RESP))
 	{
-	addeapleap(leap->code, leap->id, leap->count, leap->data, leaplen -8 -leap->count, packet +8 +leap->count);
+	addeapleap(leap->code, leap->id, leap->count, leap->data, usernamelen, packet +8 +leap->count);
 	if(leaplen -8 -leap->count != 0)
 		{
-		outlistusername(leaplen -8 -leap->count, packet +8 +leap->count);
+		outlistusername(usernamelen, packet +8 +leap->count);
 		}
 	}
 return;
@@ -4680,7 +4687,7 @@ if((chap->code == CHAP_CODE_REQ) || (chap->code == CHAP_CODE_RESP))
 	addpppchapleap(chap->code, chap->id, authlen, chap->data +1, usernamelen, packet +authlen +CHAP_SIZE);
 	if(chaplen -authlen -CHAP_SIZE != 0)
 		{
-		outlistusername(chaplen -authlen -CHAP_SIZE, packet +authlen +CHAP_SIZE);
+		outlistusername(usernamelen, packet +authlen +CHAP_SIZE);
 		}
 	}
 chapframecount++;
