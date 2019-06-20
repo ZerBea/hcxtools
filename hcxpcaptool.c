@@ -5503,13 +5503,13 @@ while(1)
 		if(pcapngshb.major_version != 1)
 			{
 			pcapreaderrors++;
-			printf("unsupported pcapng version: %d.%d\n", pcapngshb.major_version, pcapngshb.minor_version);
+			printf("unsupported pcapng version %d.%d\n", pcapngshb.major_version, pcapngshb.minor_version);
 			break;
 			}
 		if(pcapngshb.minor_version != 0)
 			{
 			pcapreaderrors++;
-			printf("unsupported pcapng version: %d.%d\n", pcapngshb.major_version, pcapngshb.minor_version);
+			printf("unsupported pcapng version %d.%d\n", pcapngshb.major_version, pcapngshb.minor_version);
 			break;
 			}
 		if(pcapngbh.total_length < 12)
@@ -5851,14 +5851,19 @@ dltlinktype  = pcapfhdr.network;
 if(pcapfhdr.version_major != 2)
 	{
 	pcapreaderrors++;
-	printf("unsupported pcap major version: %d.%d\n", pcapfhdr.version_major, pcapfhdr.version_minor);
+	printf("unsupported pcap major version %d.%d          \n", pcapfhdr.version_major, pcapfhdr.version_minor);
 	return;
 	}
 if(pcapfhdr.version_minor != 4)
 	{
 	pcapreaderrors++;
-	printf("unsupported pcap major version: %d.%d\n", pcapfhdr.version_major, pcapfhdr.version_minor);
+	printf("unsupported pcap major version %d.%d          \n", pcapfhdr.version_major, pcapfhdr.version_minor);
 	return;
+	}
+if(pcapfhdr.snaplen > MAXPACPSNAPLEN)
+	{
+	printf("detected oversized snaplen (%d)          \n", pcapfhdr.snaplen);
+	pcapreaderrors++;
 	}
 
 while(1)
