@@ -541,8 +541,6 @@ if(essidglen <= 12)
 		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
 		writepsk(fhout, essidstring);
 		}
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "*(%s)*", essid);
-	writepsk(fhout, essidstring);
 	}
 
 if(essidglen > 12)
@@ -594,8 +592,6 @@ for(c = 0; c < 10; c++)
 	{
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%03d", essid, c);
 	writepsk(fhout, essidstring);
-	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%d%s", c, essid);
-	writepsk(fhout, essidstring);
 	}
 
 for(c = 0; c <= 31; c++)
@@ -611,6 +607,8 @@ for(c = 0x21; c < 0x7f; c++)
 	{
 	for(d = 0x21; d < 0x7f; d++)
 		{
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%c%c%s%c%c", c, d, essid, d, c);
+		writepsk(fhout, essidstring);
 		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%c%c", essid, c, d);
 		writepsk(fhout, essidstring);
 		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%c%s%c", c, essid, d);
