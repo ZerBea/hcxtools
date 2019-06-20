@@ -5448,6 +5448,7 @@ if(fdsize < 0)
 	printf("failed to get file size\n");
 	return;
 	}
+
 aktseek = lseek(fd, 0L, SEEK_SET);
 if(aktseek < 0)
 	{
@@ -5728,7 +5729,7 @@ while(1)
 			pcapreaderrors++;
 			break;
 			}
-		if((pcapngpb.caplen < MAXPACPSNAPLEN) && (pcapngpb.caplen == pcapngpb.len))
+		if((pcapngpb.caplen < MAXPACPSNAPLEN) && (pcapngepb.caplen == pcapngepb.len))
 			{
 			res = read(fd, &packet, pcapngepb.caplen);
 			if(res != pcapngepb.caplen)
@@ -5770,6 +5771,8 @@ while(1)
 		pcapreaderrors++;
 		break;
 		}
+
+
 	if((pcapngepb.caplen > 0) && (pcapngepb.caplen < pcapngbh.total_length) && (pcapngepb.caplen == pcapngepb.len))
 		{
 		if((pcapngepb.timestamp_high == 0) && (pcapngepb.timestamp_low == 0))
@@ -6145,7 +6148,6 @@ strcpy(pcapnghwinfo, unknown);
 strcpy(pcapngosinfo, unknown);
 strcpy(pcapngapplinfo, unknown);
 
-
 if(testgzipfile(pcapinname) == true)
 	{
 	memset(&tmpoutname, 0, PATH_MAX+1);
@@ -6194,28 +6196,30 @@ pcapart = pcapstr;
 if(magicnumber == MSNETMON1)
 	{
 	processmsnetmon1(pcapr_fd, pcapinname);
+	close(pcapr_fd);
 	pcapart = msnetmon1str;
 	}
 
 else if(magicnumber == MSNETMON2)
 	{
 	processmsnetmon1(pcapr_fd, pcapinname);
+	close(pcapr_fd);
 	pcapart = msnetmon2str;
 	}
 
 else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	{
 	processpcap(pcapr_fd, pcapinname);
+	close(pcapr_fd);
 	pcapart = pcapstr;
 	}
 
 else if(magicnumber == PCAPNGBLOCKTYPE)
 	{
 	processpcapng(pcapr_fd, pcapinname);
+	close(pcapr_fd);
 	pcapart = pcapngstr;
 	}
-
-close(pcapr_fd);
 
 if(needrmflag == true)
 	{
