@@ -5441,8 +5441,6 @@ while(1)
 	res = read(fd, &pcpngblock, BH_SIZE);
 	if(res != BH_SIZE)
 		{
-		pcapreaderrors++;
-		printf("failed to read pcapng header block\n");
 		break;
 		}
 	pcapngbh = (block_header_t*)pcpngblock;
