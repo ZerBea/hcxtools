@@ -5439,10 +5439,6 @@ while(1)
 		break;
 		}
 	res = read(fd, &pcpngblock, BH_SIZE);
-	if(res == 0)
-		{
-		break;
-		}
 	if(res != BH_SIZE)
 		{
 		pcapreaderrors++;
@@ -5513,8 +5509,8 @@ while(1)
 		snaplen = pcapngidb->snaplen;
 		if(pcapngidb->snaplen > MAXPACPSNAPLEN)
 			{
-			printf("detected oversized snaplen (%d)          \n", pcapngidb->snaplen);
 			pcapreaderrors++;
+			printf("detected oversized snaplen (%d)          \n", pcapngidb->snaplen);
 			}
 		}
 
@@ -5535,14 +5531,14 @@ while(1)
 		tscleanflag = true;
 		if(pcapngpb->caplen > MAXPACPSNAPLEN)
 			{
-			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
 			pcapreaderrors++;
+			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
 			continue;
 			}
 		if(pcapngpb->caplen > pcapngbh->total_length)
 			{
-			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
 			pcapreaderrors++;
+			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
 			continue;
 			}
 		rawpacketcount++;
@@ -5562,16 +5558,19 @@ while(1)
 
 	else if(pcapngbh->block_type == 3)
 		{
+		skippedpacketcount++;
 		continue;
 		}
 
 	else if(pcapngbh->block_type == 4)
 		{
+		skippedpacketcount++;
 		continue;
 		}
 
 	else if(pcapngbh->block_type == 5)
 		{
+		skippedpacketcount++;
 		continue;
 		}
 
@@ -5603,20 +5602,20 @@ while(1)
 			}
 		if(pcapngepb->caplen != pcapngepb->len)
 			{
-			printf("caplen != snaplen (%d != %d)          \n", pcapngepb->caplen, pcapngepb->len);
 			pcapreaderrors++;
+			printf("caplen != snaplen (%d != %d)          \n", pcapngepb->caplen, pcapngepb->len);
 			continue;
 			}
 		if(pcapngepb->caplen > MAXPACPSNAPLEN)
 			{
-			printf("caplen > MAXSNAPLEN (%d)             \n", pcapngepb->caplen);
 			pcapreaderrors++;
+			printf("caplen > MAXSNAPLEN (%d)             \n", pcapngepb->caplen);
 			continue;
 			}
 		if(pcapngepb->caplen > pcapngbh->total_length)
 			{
-			printf("caplen > block length (%d)             \n", pcapngepb->caplen);
 			pcapreaderrors++;
+			printf("caplen > block length (%d)             \n", pcapngepb->caplen);
 			continue;
 			}
 		rawpacketcount++;
@@ -5638,6 +5637,10 @@ while(1)
 			padding = 4 -(pcapngepb->caplen %4);
 			}
 		pcapngoptionwalk(pcapngbh->block_type, pcapngepb->data +pcapngepb->caplen +padding, pcapngbh->total_length -EPB_SIZE -pcapngepb->caplen -padding);
+		}
+	else
+		{
+		skippedpacketcount++;
 		}
 	}
 
@@ -5662,6 +5665,7 @@ memset(&packet, 0, MAXPACPSNAPLEN);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
 	{
+	pcapreaderrors++;
 	printf("failed to read pcap header\n");
 	return;
 	}
@@ -5705,8 +5709,8 @@ if(pcapfhdr.version_minor != 4)
 	}
 if(pcapfhdr.snaplen > MAXPACPSNAPLEN)
 	{
-	printf("detected oversized snaplen (%d)          \n", pcapfhdr.snaplen);
 	pcapreaderrors++;
+	printf("detected oversized snaplen (%d)          \n", pcapfhdr.snaplen);
 	}
 
 while(1)
@@ -5738,14 +5742,14 @@ while(1)
 		}
 	if(pcaprhdr.incl_len > pcapfhdr.snaplen)
 		{
-		printf("failed to read packet %lld          \n", rawpacketcount);
 		pcapreaderrors++;
+		printf("failed to read packet %lld          \n", rawpacketcount);
 		break;
 		}
 	if(pcaprhdr.incl_len > pcaprhdr.orig_len)
 		{
-		printf("failed to read packet %lld          \n", rawpacketcount);
 		pcapreaderrors++;
+		printf("failed to read packet %lld          \n", rawpacketcount);
 		break;
 		}
 	if(pcaprhdr.incl_len < MAXPACPSNAPLEN)
@@ -5753,8 +5757,8 @@ while(1)
 		res = read(fd, &packet, pcaprhdr.incl_len);
 		if(res != pcaprhdr.incl_len)
 			{
-			printf("failed to read packet %lld          \n", rawpacketcount);
 			pcapreaderrors++;
+			printf("failed to read packet %lld          \n", rawpacketcount);
 			break;
 			}
 		rawpacketcount++;
