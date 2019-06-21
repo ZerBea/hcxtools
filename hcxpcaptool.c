@@ -5459,6 +5459,12 @@ while(1)
 		pcapngbh->block_type = byte_swap_32(pcapngbh->block_type);
 		pcapngbh->total_length = byte_swap_32(pcapngbh->total_length);
 		}
+	if(pcapngbh->total_length > (2 *MAXPACPSNAPLEN))
+		{
+		pcapreaderrors++;
+		printf("failed to read pcapng header block\n");
+		break;
+		}
 	resseek = lseek(fd, aktseek, SEEK_SET);
 	if(resseek < 0)
 		{
@@ -5466,21 +5472,13 @@ while(1)
 		printf("failed to set file pointer\n");
 		break;
 		}
-
-	if(pcapngbh->total_length > (2 *MAXPACPSNAPLEN))
-		{
-		pcapreaderrors++;
-		printf("failed to read pcapng header block\n");
-		break;
-		}
 	res = read(fd, &pcpngblock, pcapngbh->total_length);
-	if(res != pcapngbh->total_length)
+	if((res == 0) || (res != pcapngbh->total_length))
 		{
 		pcapreaderrors++;
 		printf("failed to read pcapng header block\n");
 		break;
 		}
-
 	if(pcapngbh->block_type == PCAPNGBLOCKTYPE)
 		{
 		pcapngshb = (section_header_block_t*) pcpngblock;
