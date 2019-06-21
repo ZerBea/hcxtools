@@ -5473,7 +5473,7 @@ while(1)
 		break;
 		}
 	res = read(fd, &pcpngblock, pcapngbh->total_length);
-	if((res == 0) || (res != pcapngbh->total_length))
+	if((res < 12) || (res != pcapngbh->total_length))
 		{
 		pcapreaderrors++;
 		printf("failed to read pcapng header block\n");
@@ -5712,7 +5712,7 @@ if(pcapfhdr.snaplen > MAXPACPSNAPLEN)
 while(1)
 	{
 	res = read(fd, &pcaprhdr, PCAPREC_SIZE);
-	if(res == 0)
+	if(res == 0) 
 		{
 		break;
 		}
