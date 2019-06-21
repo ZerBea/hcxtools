@@ -5494,6 +5494,18 @@ while(1)
 			}
 		versionmajor = pcapngshb->major_version;
 		versionminor = pcapngshb->minor_version;
+		if(pcapngshb->major_version != PCAPNG_MAJOR_VER)
+			{
+			pcapreaderrors++;
+			printf("unsupported pcapng version\n");
+			break;
+			}
+		if(pcapngshb->minor_version != PCAPNG_MINOR_VER)
+			{
+			pcapreaderrors++;
+			printf("unsupported pcapng version\n");
+			break;
+			}
 		pcapngoptionwalk(pcapngbh->block_type, pcapngshb->data, pcapngbh->total_length -SHB_SIZE);
 		}
 
@@ -5684,31 +5696,20 @@ pcapfhdr.snaplen	= byte_swap_32(pcapfhdr.snaplen);
 pcapfhdr.network	= byte_swap_32(pcapfhdr.network);
 #endif
 
-if(pcapfhdr.magic_number == PCAPMAGICNUMBERBE)
-	{
-	endianess = 1;
-	pcapfhdr.version_major	= byte_swap_16(pcapfhdr.version_major);
-	pcapfhdr.version_minor	= byte_swap_16(pcapfhdr.version_minor);
-	pcapfhdr.thiszone	= byte_swap_32(pcapfhdr.thiszone);
-	pcapfhdr.sigfigs	= byte_swap_32(pcapfhdr.sigfigs);
-	pcapfhdr.snaplen	= byte_swap_32(pcapfhdr.snaplen);
-	pcapfhdr.network	= byte_swap_32(pcapfhdr.network);
-	}
-
 versionmajor = pcapfhdr.version_major;
 versionminor = pcapfhdr.version_minor;
 dltlinktype  = pcapfhdr.network;
 
-if(pcapfhdr.version_major != 2)
+if(pcapfhdr.version_major != PCAP_MAJOR_VER)
 	{
 	pcapreaderrors++;
-	printf("unsupported pcap version %d.%d          \n", pcapfhdr.version_major, pcapfhdr.version_minor);
+	printf("unsupported pcap version                 \n");
 	return;
 	}
-if(pcapfhdr.version_minor != 4)
+if(pcapfhdr.version_minor != PCAP_MINOR_VER)
 	{
 	pcapreaderrors++;
-	printf("unsupported pcap version %d.%d          \n", pcapfhdr.version_major, pcapfhdr.version_minor);
+	printf("unsupported pcap version                 \n");
 	return;
 	}
 if(pcapfhdr.snaplen > MAXPACPSNAPLEN)
