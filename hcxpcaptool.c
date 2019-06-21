@@ -5439,8 +5439,14 @@ while(1)
 		break;
 		}
 	res = read(fd, &pcpngblock, BH_SIZE);
+	if(res == 0)
+		{
+		break;
+		}
 	if(res != BH_SIZE)
 		{
+		pcapreaderrors++;
+		printf("failed to read block header\n");
 		break;
 		}
 	pcapngbh = (block_header_t*)pcpngblock;
