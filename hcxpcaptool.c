@@ -5360,10 +5360,6 @@ while(0 < restlen)
 			#ifdef BIG_ENDIAN_HOST
 			myaktreplaycount = byte_swap_64(myaktreplaycount);
 			#endif
-			if(endianess == 1)
-				{
-				myaktreplaycount = byte_swap_64(myaktreplaycount);
-				}
 			}
 		}
 	if (option->option_code == OPTIONCODE_ANONCE)
