@@ -5486,7 +5486,7 @@ while(1)
 		pcapngshb->byte_order_magic	= byte_swap_32(pcapngshb->byte_order_magic);
 		pcapngshb->major_version	= byte_swap_16(pcapngshb->major_version);
 		pcapngshb->minor_version	= byte_swap_16(pcapngshb->minor_version);
-		pcapngshb->section_length	= byte_swap_64(pcapngshb->.section_length);
+		pcapngshb->section_length	= byte_swap_64(pcapngshb->section_length);
 		#endif
 		if(pcapngshb->byte_order_magic == PCAPNGMAGICNUMBERBE)
 			{
