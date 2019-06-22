@@ -270,8 +270,9 @@ typedef struct pcaprec_hdr_s pcaprec_hdr_t;
 /* Header of all pcapng blocks */
 struct block_header_s
 {
- uint32_t	block_type;	/* block type */
- uint32_t	total_length;	/* block length */
+ uint32_t	block_type;		/* block type */
+ uint32_t	total_length;		/* block length */
+ uint32_t	byte_order_magic;	/* byte order magic - indicates swapped data */
 } __attribute__((__packed__));
 typedef struct block_header_s block_header_t;
 #define	BH_SIZE (sizeof(block_header_t))

@@ -15,8 +15,8 @@
 #include <sys/types.h>
 #include <openssl/sha.h>
 #include <openssl/evp.h>
-#include <openssl/sha.h>
 #include <openssl/hmac.h>
+#include <openssl/cmac.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #define PATH_MAX 255
 #include <libgen.h>
@@ -876,17 +876,149 @@ if(memcmp(&zeropmkid, pmkid, 32) == 0)
 return false;
 }
 /*===========================================================================*/
-/* EAPOL zeroed PMK check */
-/*
-bool testespolzeropmk(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
+int omac1_aes_128_vector(const uint8_t *key, size_t num_elem, const uint8_t *addr[], const size_t *len, uint8_t *mac)
 {
+	CMAC_CTX *ctx;
+	int ret = -1;
+	size_t outlen, i;
+
+	ctx = CMAC_CTX_new();
+	if (ctx == NULL)
+		return -1;
+
+	if (!CMAC_Init(ctx, key, 16, EVP_aes_128_cbc(), NULL))
+		goto fail;
+	for (i = 0; i < num_elem; i++) {
+		if (!CMAC_Update(ctx, addr[i], len[i]))
+			goto fail;
+	}
+	if (!CMAC_Final(ctx, mac, &outlen) || outlen != 16)
+		goto fail;
+
+	ret = 0;
+fail:
+	CMAC_CTX_free(ctx);
+	return ret;
+}
+/*===========================================================================*/
+int omac1_aes_128(const uint8_t *key, const uint8_t *data, size_t data_len, uint8_t *mac)
+{
+return omac1_aes_128_vector(key, 1, &data, &data_len, mac);
+}
+/*===========================================================================*/
+/* EAPOL zeroed PMK check */
+bool testeapolzeropmk(uint8_t keyver, uint8_t *macsta, uint8_t *macap, uint8_t *nonceap, uint8_t *noncesta, uint8_t eapollen, uint8_t *eapolmessage)
+{
+int p;
+uint8_t *pkeptr;
+wpakey_t *wpakzero, *wpak;
+
+uint8_t zeropmk[] =
+{
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
 
 
+uint8_t pkedata[102];
+uint8_t pkedata_prf[2 + 98 + 2];
+uint8_t ptk[128];
+uint8_t eapoldata[0xff];
+uint8_t miczero[16];
 
+memcpy(&eapoldata, eapolmessage, eapollen);
+wpakzero = (wpakey_t*)(eapoldata +EAPAUTH_SIZE);
+memset(wpakzero->keymic, 0, 16);
+wpak = (wpakey_t*)(eapolmessage +EAPAUTH_SIZE);
 
+memset(&ptk, 0, sizeof(ptk));
+memset(&pkedata, 0, sizeof(pkedata));
+pkeptr = pkedata;
+
+if((keyver == 1) || (keyver == 2))
+	{
+	memcpy(pkeptr, "Pairwise key expansion", 23);
+	if(memcmp(macap, macsta, 6) < 0)
+		{
+		memcpy(pkeptr +23, macap, 6);
+		memcpy(pkeptr +29, macsta, 6);
+		}
+	else
+		{
+		memcpy(pkeptr +23, macsta, 6);
+		memcpy(pkeptr +29, macap, 6);
+		}
+
+	if(memcmp(nonceap, noncesta, 32) < 0)
+		{
+		memcpy (pkeptr +35, nonceap, 32);
+		memcpy (pkeptr +67, noncesta, 32);
+		}
+	else
+		{
+		memcpy (pkeptr +35, noncesta, 32);
+		memcpy (pkeptr +67, nonceap, 32);
+		}
+
+	for (p = 0; p < 4; p++)
+		{
+		pkedata[99] = p;
+		HMAC(EVP_sha1(), zeropmk, 32, pkedata, 100, ptk + p *20, NULL);
+		}
+	if(keyver == 1)
+		{
+		HMAC(EVP_md5(), &ptk, 16, eapoldata, eapollen, miczero, NULL);
+		if(memcmp(&miczero, wpak->keymic, 16) == 0)
+			{
+			return true;
+			}
+		}
+	else if(keyver == 2)
+		{
+		HMAC(EVP_sha1(), ptk, 16, eapoldata, eapollen, miczero, NULL);
+		if(memcmp(&miczero, wpak->keymic, 16) == 0)
+			{
+			return true;
+			}
+		}
+	}
+else if(keyver ==3)
+	{
+	memcpy(pkeptr, "Pairwise key expansion", 22);
+	if(memcmp(macap, macsta, 6) < 0)
+		{
+		memcpy(pkeptr +22, macap, 6);
+		memcpy(pkeptr +28, macsta, 6);
+		}
+	else
+		{
+		memcpy(pkeptr +22, macsta, 6);
+		memcpy(pkeptr +28, macap, 6);
+		}
+	if(memcmp(nonceap, noncesta, 32) < 0)
+		{
+		memcpy (pkeptr +34, nonceap, 32);
+		memcpy (pkeptr +66, noncesta, 32);
+		}
+	else
+		{
+		memcpy (pkeptr +34, noncesta, 32);
+		memcpy (pkeptr +66, nonceap, 32);
+		}
+	pkedata_prf[0] = 1;
+	pkedata_prf[1] = 0;
+	memcpy (pkedata_prf + 2, pkedata, 98);
+	pkedata_prf[100] = 0x80;
+	pkedata_prf[101] = 1;
+	HMAC(EVP_sha256(), zeropmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
+	omac1_aes_128(ptk, eapoldata, eapollen, miczero);
+	if(memcmp(&miczero, wpak->keymic, 16) == 0)
+		{
+		return true;
+		}
+	}
 return false;
 }
-*/
 /*===========================================================================*/
 void packethexdump(uint32_t tv_sec, uint32_t ts_usec, unsigned long long int packetnr, uint32_t networktype, uint32_t snaplen, uint32_t caplen, uint32_t len, uint8_t *packet)
 {
@@ -2736,6 +2868,12 @@ if((keyverea < 1) || (keyverea > 3))
 	{
 	return;
 	}
+
+if(testeapolzeropmk(keyverea, zeigerea->mac_sta, zeigerea->mac_ap, wpaeo->nonce, wpaea->nonce, zeigerea->authlen, zeigerea->eapol) == true)
+	{
+	return;
+	}
+
 if(handshakeliste == NULL)
 	{
 	handshakeliste = malloc(HCXLIST_SIZE);
@@ -5326,6 +5464,11 @@ while(0 < restlen)
 	option->option_code = byte_swap_16(option->option_code);
 	option->option_length = byte_swap_16(option->option_length);
 	#endif
+	if(endianess == 1)
+		{
+		option->option_code = byte_swap_16(option->option_code);
+		option->option_length = byte_swap_16(option->option_length);
+		}
 	padding = 0;
 	if((option->option_length  %4))
 		{
@@ -5418,6 +5561,10 @@ while(0 < restlen)
 			#ifdef BIG_ENDIAN_HOST
 			myaktreplaycount = byte_swap_64(myaktreplaycount);
 			#endif
+			if(endianess == 1)
+				{
+				myaktreplaycount = byte_swap_64(myaktreplaycount);
+				}
 			}
 		}
 	if (option->option_code == OPTIONCODE_ANONCE)
@@ -5444,13 +5591,16 @@ uint64_t timestamp;
 uint32_t timestamp_sec;
 uint32_t timestamp_usec;
 uint32_t snaplen;
+uint32_t blocktype;
+uint32_t blocklen;
+uint32_t blockmagic;
+
 block_header_t *pcapngbh;
 section_header_block_t *pcapngshb;
 interface_description_block_t *pcapngidb;
 packet_block_t *pcapngpb;
 enhanced_packet_block_t *pcapngepb;
 int padding;
-uint32_t totallength;
 
 uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 uint8_t packet[MAXPACPSNAPLEN];
@@ -5500,12 +5650,28 @@ while(1)
 		break;
 		}
 	pcapngbh = (block_header_t*)pcpngblock;
+	blocktype = pcapngbh->block_type;
+	blocklen =  pcapngbh->total_length;
+	blockmagic = pcapngbh->byte_order_magic;
 	#ifdef BIG_ENDIAN_HOST
-	pcapngbh->block_type = byte_swap_32(pcapngbh->block_type);
-	pcapngbh->total_length = byte_swap_32(pcapngbh->total_length);
+	blocktype  = byte_swap_32(blocktype);
+	blocklen = byte_swap_32(blocklen);
+	blockmagic = byte_swap_32(blockmagic)
 	#endif
-	totallength = pcapngbh->total_length;
-	if((totallength > (2 *MAXPACPSNAPLEN)) || ((totallength %4) != 0))
+	if(blocktype == PCAPNGBLOCKTYPE)
+		{
+		if(blockmagic == PCAPNGMAGICNUMBERBE)
+			{
+			endianess = 1;
+			}
+		}
+	if(endianess == 1)
+		{
+		blocktype  = byte_swap_32(blocktype);
+		blocklen = byte_swap_32(blocklen);
+		}
+
+	if((blocklen > (2 *MAXPACPSNAPLEN)) || ((blocklen %4) != 0))
 		{
 		pcapreaderrors++;
 		printf("failed to read pcapng header block\n");
@@ -5518,36 +5684,32 @@ while(1)
 		printf("failed to set file pointer\n");
 		break;
 		}
-	res = read(fd, &pcpngblock,totallength);
-	if((res < 12) || (res != totallength))
+	res = read(fd, &pcpngblock, blocklen);
+	if((res < BH_SIZE) || (res != blocklen))
 		{
 		pcapreaderrors++;
 		printf("failed to read pcapng header block\n");
 		break;
 		}
-	if(memcmp(&pcpngblock[4], &pcpngblock[totallength -4], 4) != 0)
+	if(memcmp(&pcpngblock[4], &pcpngblock[ blocklen -4], 4) != 0)
 		{
 		pcapreaderrors++;
 		printf("failed to read pcapng header block\n");
 		break;
 		}
-	#ifdef BIG_ENDIAN_HOST
-	pcapngbh->block_type = byte_swap_32(pcapngbh->block_type);
-	pcapngbh->total_length = byte_swap_32(pcapngbh->total_length);
-	#endif
-
-	if(pcapngbh->block_type == PCAPNGBLOCKTYPE)
+	if(blocktype == PCAPNGBLOCKTYPE)
 		{
-		pcapngshb = (section_header_block_t*) pcpngblock;
+		pcapngshb = (section_header_block_t*)pcpngblock;
 		#ifdef BIG_ENDIAN_HOST
-		pcapngshb->byte_order_magic	= byte_swap_32(pcapngshb->byte_order_magic);
 		pcapngshb->major_version	= byte_swap_16(pcapngshb->major_version);
 		pcapngshb->minor_version	= byte_swap_16(pcapngshb->minor_version);
 		pcapngshb->section_length	= byte_swap_64(pcapngshb->section_length);
 		#endif
-		if(pcapngshb->byte_order_magic == PCAPNGMAGICNUMBERBE)
+		if(endianess == 1)
 			{
-			endianess = 1;
+			pcapngshb->major_version	= byte_swap_16(pcapngshb->major_version);
+			pcapngshb->minor_version	= byte_swap_16(pcapngshb->minor_version);
+			pcapngshb->section_length	= byte_swap_64(pcapngshb->section_length);
 			}
 		versionmajor = pcapngshb->major_version;
 		versionminor = pcapngshb->minor_version;
@@ -5563,16 +5725,21 @@ while(1)
 			printf("unsupported pcapng version\n");
 			break;
 			}
-		pcapngoptionwalk(pcapngbh->block_type, pcapngshb->data, pcapngbh->total_length -SHB_SIZE);
+		pcapngoptionwalk(blocktype, pcapngshb->data, blocklen -SHB_SIZE);
 		}
 
-	else if(pcapngbh->block_type == 1)
+	else if(blocktype == 1)
 		{
 		pcapngidb = (interface_description_block_t*) pcpngblock;
 		#ifdef BIG_ENDIAN_HOST
 		pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
 		pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
 		#endif
+		if(endianess == 1)
+			{
+			pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
+			pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
+			}
 		dltlinktype = pcapngidb->linktype;
 		snaplen = pcapngidb->snaplen;
 		if(pcapngidb->snaplen > MAXPACPSNAPLEN)
@@ -5588,6 +5755,10 @@ while(1)
 		#ifdef BIG_ENDIAN_HOST
 		pcapngpb->caplen		= byte_swap_32(pcapngpb->caplen);
 		#endif
+		if(endianess == 1)
+			{
+			pcapngpb->caplen		= byte_swap_32(pcapngpb->caplen);
+			}
 		timestamp = 0;
 		timestamp = 0;
 		timestamp_sec = 0;
@@ -5620,22 +5791,22 @@ while(1)
 			}
 		}
 
-	else if(pcapngbh->block_type == 3)
+	else if(blocktype == 3)
 		{
 		continue;
 		}
 
-	else if(pcapngbh->block_type == 4)
+	else if(blocktype == 4)
 		{
 		continue;
 		}
 
-	else if(pcapngbh->block_type == 5)
+	else if(blocktype == 5)
 		{
 		continue;
 		}
 
-	else if(pcapngbh->block_type == 6)
+	else if(blocktype == 6)
 		{
 		pcapngepb = (enhanced_packet_block_t*)pcpngblock;
 		#ifdef BIG_ENDIAN_HOST
@@ -5645,6 +5816,14 @@ while(1)
 		pcapngepb->caplen		= byte_swap_32(pcapngepb->caplen);
 		pcapngepb->len			= byte_swap_32(pcapngepb->len);
 		#endif
+		if(endianess == 1)
+			{
+			pcapngepb->interface_id		= byte_swap_32(pcapngepb->interface_id);
+			pcapngepb->timestamp_high	= byte_swap_32(pcapngepb->timestamp_high);
+			pcapngepb->timestamp_low	= byte_swap_32(pcapngepb->timestamp_low);
+			pcapngepb->caplen		= byte_swap_32(pcapngepb->caplen);
+			pcapngepb->len			= byte_swap_32(pcapngepb->len);
+			}
 		timestamp = pcapngepb->timestamp_high;
 		timestamp = (timestamp << 32) +pcapngepb->timestamp_low;
 		timestamp_sec = timestamp /1000000;
@@ -5665,7 +5844,7 @@ while(1)
 			printf("caplen > MAXSNAPLEN (%d)             \n", pcapngepb->caplen);
 			continue;
 			}
-		if(pcapngepb->caplen > pcapngbh->total_length)
+		if(pcapngepb->caplen > blocklen)
 			{
 			pcapreaderrors++;
 			printf("caplen > block length (%d)             \n", pcapngepb->caplen);
@@ -5689,7 +5868,7 @@ while(1)
 			{
 			padding = 4 -(pcapngepb->caplen %4);
 			}
-		pcapngoptionwalk(pcapngbh->block_type, pcapngepb->data +pcapngepb->caplen +padding, pcapngbh->total_length -EPB_SIZE -pcapngepb->caplen -padding);
+		pcapngoptionwalk(blocktype, pcapngepb->data +pcapngepb->caplen +padding, blocklen -EPB_SIZE -pcapngepb->caplen -padding);
 		}
 	else
 		{
