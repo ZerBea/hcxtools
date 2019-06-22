@@ -877,6 +877,7 @@ return false;
 }
 /*===========================================================================*/
 /* EAPOL zeroed PMK check */
+/*
 bool testespolzeropmk(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
 
@@ -885,6 +886,7 @@ bool testespolzeropmk(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 
 return false;
 }
+*/
 /*===========================================================================*/
 void packethexdump(uint32_t tv_sec, uint32_t ts_usec, unsigned long long int packetnr, uint32_t networktype, uint32_t snaplen, uint32_t caplen, uint32_t len, uint8_t *packet)
 {
