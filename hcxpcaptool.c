@@ -841,6 +841,16 @@ printf("\n");
 return;
 }
 /*===========================================================================*/
+/* ZERO PMK check */
+
+
+
+
+
+
+
+
+/*===========================================================================*/
 void packethexdump(uint32_t tv_sec, uint32_t ts_usec, unsigned long long int packetnr, uint32_t networktype, uint32_t snaplen, uint32_t caplen, uint32_t len, uint8_t *packet)
 {
 int c;
@@ -5563,13 +5573,11 @@ while(1)
 
 	else if(pcapngbh->block_type == 3)
 		{
-		skippedpacketcount++;
 		continue;
 		}
 
 	else if(pcapngbh->block_type == 4)
 		{
-		skippedpacketcount++;
 		continue;
 		}
 
