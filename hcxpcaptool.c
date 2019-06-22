@@ -927,7 +927,6 @@ uint8_t zeropmk[] =
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-
 uint8_t pkedata[102];
 uint8_t pkedata_prf[2 + 98 + 2];
 uint8_t ptk[128];
@@ -939,10 +938,11 @@ wpakzero = (wpakey_t*)(eapoldata +EAPAUTH_SIZE);
 memset(wpakzero->keymic, 0, 16);
 wpak = (wpakey_t*)(eapolmessage +EAPAUTH_SIZE);
 
-memset(&ptk, 0, sizeof(ptk));
 memset(&pkedata, 0, sizeof(pkedata));
-pkeptr = pkedata;
+memset(&pkedata_prf, 0, sizeof(pkedata_prf));
+memset(&ptk, 0, sizeof(ptk));
 
+pkeptr = pkedata;
 if((keyver == 1) || (keyver == 2))
 	{
 	memcpy(pkeptr, "Pairwise key expansion", 23);
@@ -990,7 +990,7 @@ if((keyver == 1) || (keyver == 2))
 			}
 		}
 	}
-else if(keyver ==3)
+else if(keyver == 3)
 	{
 	memcpy(pkeptr, "Pairwise key expansion", 22);
 	if(memcmp(macap, macsta, 6) < 0)
