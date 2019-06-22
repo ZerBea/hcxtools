@@ -14,6 +14,9 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <openssl/sha.h>
+#include <openssl/evp.h>
+#include <openssl/sha.h>
+#include <openssl/hmac.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #define PATH_MAX 255
 #include <libgen.h>
@@ -107,6 +110,7 @@ unsigned long long int pmkidallcount;
 unsigned long long int pmkidcount;
 unsigned long long int pmkidapcount;
 unsigned long long int pmkidstacount;
+unsigned long long int zeroedpmkpmkidcount;
 
 pmkidl_t *pmkidliste;
 
@@ -694,6 +698,10 @@ if(pmkidstacount != 0)
 	{
 	printf("PMKIDs from stations.............: %llu\n", pmkidstacount);
 	}
+if(zeroedpmkpmkidcount != 0)
+	{
+	printf("PMKIDs with zeroed PMK...........: %llu\n", zeroedpmkpmkidcount);
+	}
 if(rc4descriptorframecount != 0)
 	{
 	printf("EAPOL RC4 KEYs...................: %llu\n", rc4descriptorframecount);
@@ -841,15 +849,42 @@ printf("\n");
 return;
 }
 /*===========================================================================*/
-/* ZERO PMK check */
+/* PMKID zeroed PMK check */
+bool testpmkidzeropmk(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
+{
+char *pmkname = "PMK Name";
+
+uint8_t zeropmk[] =
+{
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+uint8_t salt[32];
+uint8_t zeropmkid[32];
+
+memcpy(&salt, pmkname, 8);
+memcpy(&salt[8], macap, 6);
+memcpy(&salt[14], macsta, 6);
+
+HMAC(EVP_sha1(), zeropmk, 32, salt, 20, zeropmkid, NULL);
+
+if(memcmp(&zeropmkid, pmkid, 32) == 0)
+	{
+	return true;
+	}
+return false;
+}
+/*===========================================================================*/
+/* EAPOL zeroed PMK check */
+bool testespolzeropmk(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
+{
 
 
 
 
-
-
-
-
+return false;
+}
 /*===========================================================================*/
 void packethexdump(uint32_t tv_sec, uint32_t ts_usec, unsigned long long int packetnr, uint32_t networktype, uint32_t snaplen, uint32_t caplen, uint32_t len, uint8_t *packet)
 {
@@ -3093,6 +3128,12 @@ if(memcmp(&pmkid->pmkid[12], &nullnonce, 4) == 0)
 
 pmkidallcount++;
 pmkidapcount++;
+
+if(testpmkidzeropmk(mac_sta, mac_ap, pmkid->pmkid) == true)
+	{
+	zeroedpmkpmkidcount++;
+	}
+
 if(pmkidliste == NULL)
 	{
 	pmkidliste = malloc(PMKIDLIST_SIZE);
@@ -3508,6 +3549,12 @@ unsigned long long int c;
 
 pmkidallcount++;
 pmkidstacount++;
+
+if(testpmkidzeropmk(macsta, macap, stapmkid) == true)
+	{
+	zeroedpmkpmkidcount++;
+	}
+
 if(pmkidliste == NULL)
 	{
 	pmkidliste = malloc(PMKIDLIST_SIZE);
@@ -5929,6 +5976,7 @@ pmkidcount = 0;
 pmkidapcount = 0;
 pmkidstacount = 0;
 pmkidallcount = 0;
+zeroedpmkpmkidcount = 0;
 eapolpmkidwpaakmframecount = 0;
 eapolpmkidwpa1framecount = 0;
 eapolpmkidwpa2framecount = 0;
