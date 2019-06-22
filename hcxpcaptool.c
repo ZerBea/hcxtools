@@ -110,7 +110,7 @@ unsigned long long int pmkidallcount;
 unsigned long long int pmkidcount;
 unsigned long long int pmkidapcount;
 unsigned long long int pmkidstacount;
-unsigned long long int zeroedpmkpmkidcount;
+unsigned long long int zeroedpmkcount;
 
 pmkidl_t *pmkidliste;
 
@@ -698,9 +698,9 @@ if(pmkidstacount != 0)
 	{
 	printf("PMKIDs from stations.............: %llu\n", pmkidstacount);
 	}
-if(zeroedpmkpmkidcount != 0)
+if(zeroedpmkcount != 0)
 	{
-	printf("PMKIDs with zeroed PMK...........: %llu\n", zeroedpmkpmkidcount);
+	printf("zeroed PMK.......................: %llu\n", zeroedpmkcount);
 	}
 if(rc4descriptorframecount != 0)
 	{
@@ -832,6 +832,14 @@ if(tacacspframecount != 0)
 if(radiusframecount != 0)
 	{
 	printf("found............................: RADIUS Authentication\n");
+	}
+if(rawhandshakecount != 0)
+	{
+	printf("raw handshakes...................: %llu (ap-less: %llu)\n", rawhandshakecount, rawhandshakeaplesscount);
+	}
+if(zeroedpmkcount != 0)
+	{
+	printf("zeroed PMKs......................: %llu\n", zeroedpmkcount);
 	}
 if(rawhandshakecount != 0)
 	{
@@ -2871,7 +2879,7 @@ if((keyverea < 1) || (keyverea > 3))
 
 if(testeapolzeropmk(keyverea, zeigerea->mac_sta, zeigerea->mac_ap, wpaeo->nonce, wpaea->nonce, zeigerea->authlen, zeigerea->eapol) == true)
 	{
-	return;
+	zeroedpmkcount++;
 	}
 
 if(handshakeliste == NULL)
@@ -3268,10 +3276,9 @@ if(memcmp(&pmkid->pmkid[12], &nullnonce, 4) == 0)
 
 pmkidallcount++;
 pmkidapcount++;
-
 if(testpmkidzeropmk(mac_sta, mac_ap, pmkid->pmkid) == true)
 	{
-	zeroedpmkpmkidcount++;
+	zeroedpmkcount++;
 	}
 
 if(pmkidliste == NULL)
@@ -3692,7 +3699,7 @@ pmkidstacount++;
 
 if(testpmkidzeropmk(macsta, macap, stapmkid) == true)
 	{
-	zeroedpmkpmkidcount++;
+	zeroedpmkcount++;
 	}
 
 if(pmkidliste == NULL)
@@ -6157,7 +6164,7 @@ pmkidcount = 0;
 pmkidapcount = 0;
 pmkidstacount = 0;
 pmkidallcount = 0;
-zeroedpmkpmkidcount = 0;
+zeroedpmkcount = 0;
 eapolpmkidwpaakmframecount = 0;
 eapolpmkidwpa1framecount = 0;
 eapolpmkidwpa2framecount = 0;
