@@ -5268,11 +5268,6 @@ while(0 < restlen)
 	option->option_code = byte_swap_16(option->option_code);
 	option->option_length = byte_swap_16(option->option_length);
 	#endif
-	if(endianess == 1)
-		{
-		option->option_code = byte_swap_16(option->option_code);
-		option->option_length = byte_swap_16(option->option_length);
-		}
 	padding = 0;
 	if((option->option_length  %4))
 		{
@@ -5401,6 +5396,7 @@ interface_description_block_t *pcapngidb;
 packet_block_t *pcapngpb;
 enhanced_packet_block_t *pcapngepb;
 int padding;
+uint32_t totallength;
 
 uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 uint8_t packet[MAXPACPSNAPLEN];
@@ -5454,17 +5450,14 @@ while(1)
 	pcapngbh->block_type = byte_swap_32(pcapngbh->block_type);
 	pcapngbh->total_length = byte_swap_32(pcapngbh->total_length);
 	#endif
-	if(endianess == 1)
-		{
-		pcapngbh->block_type = byte_swap_32(pcapngbh->block_type);
-		pcapngbh->total_length = byte_swap_32(pcapngbh->total_length);
-		}
-	if(pcapngbh->total_length > (2 *MAXPACPSNAPLEN))
+	totallength = pcapngbh->total_length;
+	if((totallength > (2 *MAXPACPSNAPLEN)) || ((totallength %4) != 0))
 		{
 		pcapreaderrors++;
 		printf("failed to read pcapng header block\n");
 		break;
 		}
+
 	resseek = lseek(fd, aktseek, SEEK_SET);
 	if(resseek < 0)
 		{
@@ -5472,13 +5465,24 @@ while(1)
 		printf("failed to set file pointer\n");
 		break;
 		}
-	res = read(fd, &pcpngblock, pcapngbh->total_length);
-	if((res < 12) || (res != pcapngbh->total_length))
+	res = read(fd, &pcpngblock,totallength);
+	if((res < 12) || (res != totallength))
 		{
 		pcapreaderrors++;
 		printf("failed to read pcapng header block\n");
 		break;
 		}
+	if(memcmp(&pcpngblock[4], &pcpngblock[totallength -4], 4) != 0)
+		{
+		pcapreaderrors++;
+		printf("failed to read pcapng header block\n");
+		break;
+		}
+	#ifdef BIG_ENDIAN_HOST
+	pcapngbh->block_type = byte_swap_32(pcapngbh->block_type);
+	pcapngbh->total_length = byte_swap_32(pcapngbh->total_length);
+	#endif
+
 	if(pcapngbh->block_type == PCAPNGBLOCKTYPE)
 		{
 		pcapngshb = (section_header_block_t*) pcpngblock;
@@ -5516,11 +5520,6 @@ while(1)
 		pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
 		pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
 		#endif
-		if(endianess == 1)
-			{
-			pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
-			pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
-			}
 		dltlinktype = pcapngidb->linktype;
 		snaplen = pcapngidb->snaplen;
 		if(pcapngidb->snaplen > MAXPACPSNAPLEN)
@@ -5536,10 +5535,6 @@ while(1)
 		#ifdef BIG_ENDIAN_HOST
 		pcapngpb->caplen		= byte_swap_32(pcapngpb->caplen);
 		#endif
-		if(endianess == 1)
-			{
-			pcapngpb->caplen		= byte_swap_32(pcapngpb->caplen);
-			}
 		timestamp = 0;
 		timestamp = 0;
 		timestamp_sec = 0;
@@ -5600,14 +5595,6 @@ while(1)
 		pcapngepb->caplen		= byte_swap_32(pcapngepb->caplen);
 		pcapngepb->len			= byte_swap_32(pcapngepb->len);
 		#endif
-		if(endianess == 1)
-			{
-			pcapngepb->interface_id		= byte_swap_32(pcapngepb->interface_id);
-			pcapngepb->timestamp_high	= byte_swap_32(pcapngepb->timestamp_high);
-			pcapngepb->timestamp_low	= byte_swap_32(pcapngepb->timestamp_low);
-			pcapngepb->caplen		= byte_swap_32(pcapngepb->caplen);
-			pcapngepb->len			= byte_swap_32(pcapngepb->len);
-			}
 		timestamp = pcapngepb->timestamp_high;
 		timestamp = (timestamp << 32) +pcapngepb->timestamp_low;
 		timestamp_sec = timestamp /1000000;
@@ -5738,13 +5725,6 @@ while(1)
 	pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
 	pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
 	#endif
-	if(endianess == 1)
-		{
-		pcaprhdr.ts_sec		= byte_swap_32(pcaprhdr.ts_sec);
-		pcaprhdr.ts_usec	= byte_swap_32(pcaprhdr.ts_usec);
-		pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
-		pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
-		}
 	if(pcaprhdr.incl_len > pcapfhdr.snaplen)
 		{
 		pcapreaderrors++;
