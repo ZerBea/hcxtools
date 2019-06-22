@@ -5026,7 +5026,6 @@ else if (macf->type == IEEE80211_FTYPE_DATA)
 	{
 	process80211datapacket(tv_sec, tv_usec, caplen, wdsoffset, packet);
 	}
-
 return;
 }
 /*===========================================================================*/
@@ -5453,7 +5452,6 @@ while(1)
 		printf("failed to read pcapng header block\n");
 		break;
 		}
-
 	resseek = lseek(fd, aktseek, SEEK_SET);
 	if(resseek < 0)
 		{
@@ -5577,7 +5575,6 @@ while(1)
 
 	else if(pcapngbh->block_type == 5)
 		{
-		skippedpacketcount++;
 		continue;
 		}
 
@@ -5642,7 +5639,6 @@ while(1)
 		skippedpacketcount++;
 		}
 	}
-
 if(gpxflag == true)
 	{
 	fprintf(fhgpx, "  </trkseg>\n</trk>\n");
