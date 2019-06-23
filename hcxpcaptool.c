@@ -6465,27 +6465,27 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
+	"--filtermac=<mac>                 : filter output by MAC address\n"
+	"                                    format: 112233445566\n"
+	"--ignore-fake-frames              : do not convert fake frames\n"
+	"--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)\n"
 	"--time-error-corrections=<digit>  : maximum time gap between EAPOL frames - EAPOL TIMEOUT (default: %llus)\n"
 	"--nonce-error-corrections=<digit> : maximum replycount/nonce gap to be converted (default: %llu)\n"
 	"                                    example: --nonce-error-corrections=60\n"
 	"                                    convert handshakes up to a possible packetloss of 59 packets\n"
 	"                                    you should use the same value for hashcat\n"
+	"--eapol-out=<file>                : output EAPOL packets in hex\n"
+	"                                    format = mac_ap:mac_sta:EAPOL\n"
 	"--netntlm-out=<file>              : output netNTLMv1 file (hashcat -m 5500, john netntlm)\n"
 	"--md5-out=<file>                  : output MD5 challenge file (hashcat -m 4800)\n"
 	"--md5-john-out=<file>             : output MD5 challenge file (john chap)\n"
 	"--tacacsplus-out=<file>           : output TACACS+ authentication file (hashcat -m 16100, john tacacs-plus)\n"
-	"--eapol-out=<file>                : output EAPOL packets in hex\n"
-	"                                    format = mac_ap:mac_sta:EAPOL\n"
 	"--network-out=<file>              : output network information\n"
 	"                                    format = mac_ap:ESSID\n"
 	"--hexdump-out=<file>              : output dump raw packets in hex\n"
 	"--hccap-out=<file>                : output old hccap file (hashcat -m 2500)\n"
 	"--hccap-raw-out=<file>            : output raw old hccap file (hashcat -m 2500)\n"
 	"                                    very slow!\n"
-	"--filtermac=<mac>                 : filter output by MAC address\n"
-	"                                    format: 112233445566\n"
-	"--ignore-fake-frames              : do not convert fake frames\n"
-	"--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)\n"
 	"--prefix-out=<file>               : output this files:\n"
 	"                                    hccapx (-o) file.hccapx\n"
 	"                                    PMKID (-k) file.16800\n"
@@ -6493,6 +6493,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                    identitylist (-I) file.identitylist \n"
 	"                                    usernamelist (-U) file.userlist\n"
 	"                                    deviceinfolist (-D) file.deviceinfolist\n"
+	"                                    netntlm (--netntlm-out) file.5500\n"
+	"                                    md5 (--md5-out) file.4800\n"
+	"                                    tacacsplus (--tacacsplus) file.16100\n"
 	"--help                            : show this help\n"
 	"--version                         : show version\n"
 	"\n"
@@ -6540,6 +6543,9 @@ char *suffixessid = ".essidlist";
 char *suffixidentity = ".identitylist";
 char *suffixuser = ".userlist";
 char *suffixdeviceinfo = ".deviceinfolist";
+char *suffixnetntlm1 = ".5500";
+char *suffixmd5 = ".4800";
+char *suffixtacacsp = ".16100";
 
 char prefixhccapxname[PATH_MAX];
 char prefix16800name[PATH_MAX];
@@ -6547,6 +6553,9 @@ char prefixessidname[PATH_MAX];
 char prefixidentityname[PATH_MAX];
 char prefixusername[PATH_MAX];
 char prefixdeviceinfoname[PATH_MAX];
+char prefixnetntlm1name[PATH_MAX];
+char prefixmd5name[PATH_MAX];
+char prefixtacacspname[PATH_MAX];
 
 
 static const char *short_options = "w:o:O:k:K:z:Z:j:J:E:X:I:U:M:D:P:T:g:H:Vhv";
@@ -6844,6 +6853,17 @@ if(prefixoutname != NULL)
 	strncat(prefixdeviceinfoname, suffixdeviceinfo, PATH_MAX -20);
 	deviceinfooutname = prefixdeviceinfoname;
 
+	strcpy(prefixnetntlm1name, prefixoutname);
+	strncat(prefixnetntlm1name, suffixnetntlm1, PATH_MAX -20);
+	netntlm1outname = prefixnetntlm1name;
+
+	strcpy(prefixmd5name, prefixoutname);
+	strncat(prefixmd5name, suffixmd5, PATH_MAX -20);
+	md5outname = prefixmd5name;
+
+	strcpy(prefixtacacspname, prefixoutname);
+	strncat(prefixtacacspname, suffixtacacsp, PATH_MAX -20);
+	tacacspoutname = prefixtacacspname;
 	}
 
 
