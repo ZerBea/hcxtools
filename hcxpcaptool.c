@@ -698,10 +698,6 @@ if(pmkidstacount != 0)
 	{
 	printf("PMKIDs from stations.............: %llu\n", pmkidstacount);
 	}
-if(zeroedpmkcount != 0)
-	{
-	printf("zeroed PMK.......................: %llu\n", zeroedpmkcount);
-	}
 if(rc4descriptorframecount != 0)
 	{
 	printf("EAPOL RC4 KEYs...................: %llu\n", rc4descriptorframecount);
@@ -839,7 +835,7 @@ if(rawhandshakecount != 0)
 	}
 if(zeroedpmkcount != 0)
 	{
-	printf("zeroed PMKs......................: %llu\n", zeroedpmkcount);
+	printf("zeroed PMK(s)....................: %llu\n", zeroedpmkcount);
 	}
 if(rawhandshakecount != 0)
 	{
