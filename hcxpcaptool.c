@@ -5679,7 +5679,7 @@ while(1)
 	#ifdef BIG_ENDIAN_HOST
 	blocktype  = byte_swap_32(blocktype);
 	blocklen = byte_swap_32(blocklen);
-	blockmagic = byte_swap_32(blockmagic)
+	blockmagic = byte_swap_32(blockmagic);
 	#endif
 	if(blocktype == PCAPNGBLOCKTYPE)
 		{
