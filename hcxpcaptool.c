@@ -58,6 +58,7 @@
 #define HCXT_FILTER_MAC			12
 #define HCXT_IGNORE_FAKE_FRAMES		13
 #define HCXT_IGNORE_ZEROED_PMKS		14
+#define HCXT_PREFIX_OUT			15
 
 #define HCXT_WPA12_OUT			'w'
 #define HCXT_HCCAPX_OUT			'o'
@@ -249,6 +250,7 @@ char *md5johnoutname;
 char *tacacspoutname;
 char *eapoloutname;
 char *networkoutname;
+char *prefixoutname;
 
 FILE *fhhexmode;
 FILE *fhgpx;
@@ -307,6 +309,7 @@ md5johnoutname = NULL;
 tacacspoutname = NULL;
 eapoloutname = NULL;
 networkoutname = NULL;
+prefixoutname = NULL;
 
 verboseflag = false;
 hexmodeflag = false;
@@ -6481,6 +6484,13 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                    format: 112233445566\n"
 	"--ignore-fake-frames              : do not convert fake frames\n"
 	"--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)\n"
+	"--prefix-out=<file>               : output this files:\n"
+	"                                    hccapx (-o) file.hccapx\n"
+	"                                    PMKID (-k) file.16800\n"
+	"                                    wordlist (-E) file.essidlist\n"
+	"                                    identitylist (-I) file.identitylist \n"
+	"                                    usernamelist (-U) file.userlist\n"
+	"                                    deviceinfolist (-D) file.deviceinfolist\n"
 	"--help                            : show this help\n"
 	"--version                         : show version\n"
 	"\n"
@@ -6522,6 +6532,21 @@ char *gpxhead = "<?xml version=\"1.0\"?>\n"
 
 char *gpxtail = "</gpx>\n";
 
+char *suffixhccapx = ".hccapx";
+char *suffixpmkid = ".16800";
+char *suffixessid = ".essidlist";
+char *suffixidentity = ".identitylist";
+char *suffixuser = ".userlist";
+char *suffixdeviceinfo = ".deviceinfolist";
+
+char prefixhccapxname[PATH_MAX];
+char prefix16800name[PATH_MAX];
+char prefixessidname[PATH_MAX];
+char prefixidentityname[PATH_MAX];
+char prefixusername[PATH_MAX];
+char prefixdeviceinfoname[PATH_MAX];
+
+
 static const char *short_options = "w:o:O:k:K:z:Z:j:J:E:X:I:U:M:D:P:T:g:H:Vhv";
 static const struct option long_options[] =
 {
@@ -6539,6 +6564,7 @@ static const struct option long_options[] =
 	{"filtermac",			required_argument,	NULL,	HCXT_FILTER_MAC},
 	{"ignore-fake-frames",		no_argument,		NULL,	HCXT_IGNORE_FAKE_FRAMES},
 	{"ignore-zeroed-pmks",		no_argument,		NULL,	HCXT_IGNORE_ZEROED_PMKS},
+	{"prefix-out",			required_argument,	NULL,	HCXT_PREFIX_OUT},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},
 	{NULL,				0,			NULL,	0}
@@ -6713,6 +6739,16 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		verboseflag = true;
 		break;
 
+		case HCXT_PREFIX_OUT:
+		prefixoutname = optarg;
+		if(strlen(prefixoutname) > (PATH_MAX -20))
+			{
+			printf("prefix filename is too long\n");
+			exit(EXIT_FAILURE);
+			}
+		verboseflag = true;
+		break;
+
 		case HCXT_FILTER_MAC:
 		if(strlen(optarg) != 12)
 			{
@@ -6779,6 +6815,35 @@ if(hexmodeflag == true)
 		exit(EXIT_FAILURE);
 		}
 	}
+
+if(prefixoutname != NULL)
+	{
+	strcpy(prefixhccapxname, prefixoutname);
+	strncat(prefixhccapxname, suffixhccapx, PATH_MAX -20);
+	hccapxbestoutname = prefixhccapxname;
+
+	strcpy(prefix16800name, prefixoutname);
+	strncat(prefix16800name, suffixpmkid, PATH_MAX -20);
+	hcpmkidoutname = prefix16800name;
+
+	strcpy(prefixessidname, prefixoutname);
+	strncat(prefixessidname, suffixessid, PATH_MAX -20);
+	essidoutname = prefixessidname;
+
+	strcpy(prefixidentityname, prefixoutname);
+	strncat(prefixidentityname, suffixidentity, PATH_MAX -20);
+	identityoutname = prefixidentityname;
+
+	strcpy(prefixusername, prefixoutname);
+	strncat(prefixusername, suffixuser, PATH_MAX -20);
+	useroutname = prefixusername;
+
+	strcpy(prefixdeviceinfoname, prefixoutname);
+	strncat(prefixdeviceinfoname, suffixdeviceinfo, PATH_MAX -20);
+	deviceinfooutname = prefixdeviceinfoname;
+
+	}
+
 
 if(eapoloutname != NULL)
 	{
