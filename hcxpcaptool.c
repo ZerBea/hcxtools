@@ -5601,13 +5601,13 @@ uint32_t snaplen;
 uint32_t blocktype;
 uint32_t blocklen;
 uint32_t blockmagic;
+int padding;
 
 block_header_t *pcapngbh;
 section_header_block_t *pcapngshb;
 interface_description_block_t *pcapngidb;
 packet_block_t *pcapngpb;
 enhanced_packet_block_t *pcapngepb;
-int padding;
 
 uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 uint8_t packet[MAXPACPSNAPLEN];
@@ -5756,7 +5756,7 @@ while(1)
 			}
 		}
 
-	else if(pcapngbh->block_type == 2)
+	else if(blocktype == 2)
 		{
 		pcapngpb = (packet_block_t*) pcpngblock;
 		#ifdef BIG_ENDIAN_HOST
@@ -5777,7 +5777,7 @@ while(1)
 			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
 			continue;
 			}
-		if(pcapngpb->caplen > pcapngbh->total_length)
+		if(pcapngpb->caplen > blocklen)
 			{
 			pcapreaderrors++;
 			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
