@@ -1,3 +1,11 @@
+23.06.2019
+==========
+hcxpcaptool: fixed several big endian issues
+             show information about handshakes and PMKIDs calculated by a zeroed PMK
+             added new option --ignore-zeroed-pmks
+--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)
+
+
 20.06.2019
 ==========
 hcxpcaptool: complete refactoring of pcapng engine 

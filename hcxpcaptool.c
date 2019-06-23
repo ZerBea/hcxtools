@@ -57,6 +57,7 @@
 #define HCXT_HCCAP_OUT_RAW		11
 #define HCXT_FILTER_MAC			12
 #define HCXT_IGNORE_FAKE_FRAMES		13
+#define HCXT_IGNORE_ZEROED_PMKS		14
 
 #define HCXT_WPA12_OUT			'w'
 #define HCXT_HCCAPX_OUT			'o'
@@ -91,6 +92,7 @@ bool hexmodeflag;
 bool verboseflag;
 bool filtermacflag;
 bool fakeframeflag;
+bool zeroedpmkflag;
 bool fcsflag;
 bool wantrawflag;
 bool gpxflag;
@@ -311,6 +313,7 @@ hexmodeflag = false;
 wantrawflag = false;
 filtermacflag = false;
 fakeframeflag = false;
+zeroedpmkflag = false;
 gpxflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
@@ -2876,6 +2879,11 @@ if((keyverea < 1) || (keyverea > 3))
 if(testeapolzeropmk(keyverea, zeigerea->mac_sta, zeigerea->mac_ap, wpaeo->nonce, wpaea->nonce, zeigerea->authlen, zeigerea->eapol) == true)
 	{
 	zeroedpmkcount++;
+	if(zeroedpmkflag == true)
+		{
+		skippedpacketcount++;
+		return;
+		}
 	}
 
 if(handshakeliste == NULL)
@@ -3275,6 +3283,11 @@ pmkidapcount++;
 if(testpmkidzeropmk(mac_sta, mac_ap, pmkid->pmkid) == true)
 	{
 	zeroedpmkcount++;
+	if(zeroedpmkflag == true)
+		{
+		skippedpacketcount++;
+		return;
+		}
 	}
 
 if(pmkidliste == NULL)
@@ -3692,10 +3705,14 @@ unsigned long long int c;
 
 pmkidallcount++;
 pmkidstacount++;
-
 if(testpmkidzeropmk(macsta, macap, stapmkid) == true)
 	{
 	zeroedpmkcount++;
+	if(zeroedpmkflag == true)
+		{
+		skippedpacketcount++;
+		return;
+		}
 	}
 
 if(pmkidliste == NULL)
@@ -6463,6 +6480,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--filtermac=<mac>                 : filter output by MAC address\n"
 	"                                    format: 112233445566\n"
 	"--ignore-fake-frames              : do not convert fake frames\n"
+	"--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)\n"
 	"--help                            : show this help\n"
 	"--version                         : show version\n"
 	"\n"
@@ -6518,6 +6536,7 @@ static const struct option long_options[] =
 	{"hccap-raw-out",		required_argument,	NULL,	HCXT_HCCAP_OUT_RAW},
 	{"filtermac",			required_argument,	NULL,	HCXT_FILTER_MAC},
 	{"ignore-fake-frames",		no_argument,		NULL,	HCXT_IGNORE_FAKE_FRAMES},
+	{"ignore-zeroed-pmks",		no_argument,		NULL,	HCXT_IGNORE_ZEROED_PMKS},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},
 	{NULL,				0,			NULL,	0}
@@ -6709,6 +6728,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_IGNORE_FAKE_FRAMES:
 		fakeframeflag = true;
+		break;
+
+		case HCXT_IGNORE_ZEROED_PMKS:
+		zeroedpmkflag = true;
 		break;
 
 		case HCXT_VERBOSE_OUT:
