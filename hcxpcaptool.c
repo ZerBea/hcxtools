@@ -6486,16 +6486,20 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--hccap-out=<file>                : output old hccap file (hashcat -m 2500)\n"
 	"--hccap-raw-out=<file>            : output raw old hccap file (hashcat -m 2500)\n"
 	"                                    very slow!\n"
-	"--prefix-out=<file>               : output this files:\n"
+	"--prefix-out=<file>               : convert everything to lists uing this prefix (overrides single options):\n"
 	"                                    hccapx (-o) file.hccapx\n"
 	"                                    PMKID (-k) file.16800\n"
-	"                                    wordlist (-E) file.essidlist\n"
-	"                                    identitylist (-I) file.identitylist \n"
-	"                                    usernamelist (-U) file.userlist\n"
-	"                                    deviceinfolist (-D) file.deviceinfolist\n"
 	"                                    netntlm (--netntlm-out) file.5500\n"
 	"                                    md5 (--md5-out) file.4800\n"
 	"                                    tacacsplus (--tacacsplus) file.16100\n"
+	"                                    wordlist (-E) file.essidlist\n"
+	"                                    identitylist (-I) file.identitylist \n"
+	"                                    usernamelist (-U) file.userlist\n"
+	"                                    imsilist (-M) file.imsilist\n"
+	"                                    networklist (-network-out) file.networklist\n"
+	"                                    trafficlist (-T) file.networklist\n"
+	"                                    clientlist (-X) file.clientlist\n"
+	"                                    deviceinfolist (-D) file.deviceinfolist\n"
 	"--help                            : show this help\n"
 	"--version                         : show version\n"
 	"\n"
@@ -6539,24 +6543,31 @@ char *gpxtail = "</gpx>\n";
 
 char *suffixhccapx = ".hccapx";
 char *suffixpmkid = ".16800";
-char *suffixessid = ".essidlist";
-char *suffixidentity = ".identitylist";
-char *suffixuser = ".userlist";
-char *suffixdeviceinfo = ".deviceinfolist";
 char *suffixnetntlm1 = ".5500";
 char *suffixmd5 = ".4800";
 char *suffixtacacsp = ".16100";
+char *suffixessid = ".essidlist";
+char *suffixidentity = ".identitylist";
+char *suffixuser = ".userlist";
+char *suffiximsi = ".imsilist";
+char *suffixnetwork = ".networklist";
+char *suffixtraffic = ".trafficlist";
+char *suffixstaessid = ".clientlist";
+char *suffixdeviceinfo = ".deviceinfolist";
 
 char prefixhccapxname[PATH_MAX];
 char prefix16800name[PATH_MAX];
-char prefixessidname[PATH_MAX];
-char prefixidentityname[PATH_MAX];
-char prefixusername[PATH_MAX];
-char prefixdeviceinfoname[PATH_MAX];
 char prefixnetntlm1name[PATH_MAX];
 char prefixmd5name[PATH_MAX];
 char prefixtacacspname[PATH_MAX];
-
+char prefixessidname[PATH_MAX];
+char prefixidentityname[PATH_MAX];
+char prefixusername[PATH_MAX];
+char prefiximsiname[PATH_MAX];
+char prefixnetworkname[PATH_MAX];
+char prefixtrafficname[PATH_MAX];
+char prefixstaessidname[PATH_MAX];
+char prefixdeviceinfoname[PATH_MAX];
 
 static const char *short_options = "w:o:O:k:K:z:Z:j:J:E:X:I:U:M:D:P:T:g:H:Vhv";
 static const struct option long_options[] =
@@ -6635,15 +6646,18 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_EAPOL_OUT:
 		eapoloutname = optarg;
+		verboseflag = true;
 		break;
 
 		case HCXT_NETWORK_OUT:
 		networkoutname = optarg;
+		verboseflag = true;
 		break;
 
 		case HCXT_HEXDUMP_OUT:
 		hexmodeflag = true;
 		hexmodeoutname = optarg;
+		verboseflag = true;
 		break;
 
 		case HCXT_HCCAP_OUT:
@@ -6837,6 +6851,18 @@ if(prefixoutname != NULL)
 	strncat(prefix16800name, suffixpmkid, PATH_MAX -20);
 	hcpmkidoutname = prefix16800name;
 
+	strcpy(prefixnetntlm1name, prefixoutname);
+	strncat(prefixnetntlm1name, suffixnetntlm1, PATH_MAX -20);
+	netntlm1outname = prefixnetntlm1name;
+
+	strcpy(prefixmd5name, prefixoutname);
+	strncat(prefixmd5name, suffixmd5, PATH_MAX -20);
+	md5outname = prefixmd5name;
+
+	strcpy(prefixtacacspname, prefixoutname);
+	strncat(prefixtacacspname, suffixtacacsp, PATH_MAX -20);
+	tacacspoutname = prefixtacacspname;
+
 	strcpy(prefixessidname, prefixoutname);
 	strncat(prefixessidname, suffixessid, PATH_MAX -20);
 	essidoutname = prefixessidname;
@@ -6849,23 +6875,26 @@ if(prefixoutname != NULL)
 	strncat(prefixusername, suffixuser, PATH_MAX -20);
 	useroutname = prefixusername;
 
+	strcpy(prefiximsiname, prefixoutname);
+	strncat(prefiximsiname, suffiximsi, PATH_MAX -20);
+	imsioutname = prefiximsiname;
+
+	strcpy(prefixnetworkname, prefixoutname);
+	strncat(prefixnetworkname, suffixnetwork, PATH_MAX -20);
+	networkoutname = prefixnetworkname;
+
+	strcpy(prefixtrafficname, prefixoutname);
+	strncat(prefixtrafficname, suffixtraffic, PATH_MAX -20);
+	trafficoutname = prefixtrafficname;
+
+	strcpy(prefixstaessidname, prefixoutname);
+	strncat(prefixstaessidname, suffixstaessid, PATH_MAX -20);
+	staessidoutname = prefixstaessidname;
+
 	strcpy(prefixdeviceinfoname, prefixoutname);
 	strncat(prefixdeviceinfoname, suffixdeviceinfo, PATH_MAX -20);
 	deviceinfooutname = prefixdeviceinfoname;
-
-	strcpy(prefixnetntlm1name, prefixoutname);
-	strncat(prefixnetntlm1name, suffixnetntlm1, PATH_MAX -20);
-	netntlm1outname = prefixnetntlm1name;
-
-	strcpy(prefixmd5name, prefixoutname);
-	strncat(prefixmd5name, suffixmd5, PATH_MAX -20);
-	md5outname = prefixmd5name;
-
-	strcpy(prefixtacacspname, prefixoutname);
-	strncat(prefixtacacspname, suffixtacacsp, PATH_MAX -20);
-	tacacspoutname = prefixtacacspname;
 	}
-
 
 if(eapoloutname != NULL)
 	{

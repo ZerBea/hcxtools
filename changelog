@@ -4,16 +4,22 @@ hcxpcaptool: fixed several big endian issues
              show information about handshakes and PMKIDs calculated by a zeroed PMK
              added new options --ignore-zeroed-pmks and --prefix-out=<file>
 --ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)
+
+This option is useful to reduce the commandline length if all lists are requested:
+--prefix-out=<file>               : convert everything to lists uing this prefix (overrides single options):
                                     hccapx (-o) file.hccapx
                                     PMKID (-k) file.16800
-                                    wordlist (-E) file.essidlist
-                                    identitylist (-I) file.identitylist 
-                                    usernamelist (-U) file.userlist
-                                    deviceinfolist (-D) file.deviceinfolist
                                     netntlm (--netntlm-out) file.5500
                                     md5 (--md5-out) file.4800
                                     tacacsplus (--tacacsplus) file.16100
-
+                                    wordlist (-E) file.essidlist
+                                    identitylist (-I) file.identitylist 
+                                    usernamelist (-U) file.userlist
+                                    imsilist (-M) file.imsilist
+                                    networklist (-network-out) file.networklist
+                                    trafficlist (-T) file.networklist
+                                    clientlist (-X) file.clientlist
+                                    deviceinfolist (-D) file.deviceinfolist
 
 
 20.06.2019
