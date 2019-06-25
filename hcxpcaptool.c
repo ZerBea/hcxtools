@@ -1460,7 +1460,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 			essidok = 0;
 			for(d = 0; d < apstaessidcountcleaned; d++)
 				{
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 						{
@@ -3380,6 +3380,7 @@ void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_
 eapoll_t *zeiger;
 wpakey_t *eaptest;
 
+
 eaptest = (wpakey_t*)(authpacket +EAPAUTH_SIZE);
 if(ntohs(eaptest->wpadatalen) > (authlen -99))
 	{
@@ -3407,7 +3408,6 @@ if(eapoloutname != NULL)
 	{
 	printeapol(mac_sta, mac_ap, authlen, authpacket);
 	}
-
 if(eapolliste == NULL)
 	{
 	eapolliste = malloc(EAPOLLIST_SIZE);
@@ -4067,35 +4067,35 @@ if(macf->protected == 1)
 	{
 	authenticationskframecount++;
 	}
-else if(auth->authentication_algho == OPEN_SYSTEM)
+else if(ntohs(auth->authentication_algho) == OPEN_SYSTEM)
 	{
 	authenticationosframecount++;
 	}
-else if(auth->authentication_algho == SHARED_KEY)
+else if(ntohs(auth->authentication_algho) == SHARED_KEY)
 	{
 	authenticationskframecount++;
 	}
-else if(auth->authentication_algho == FBT)
+else if(ntohs(auth->authentication_algho) == FBT)
 	{
 	authenticationfbtframecount++;
 	}
-else if(auth->authentication_algho == SAE)
+else if(ntohs(auth->authentication_algho) == SAE)
 	{
 	authenticationsaeframecount++;
 	}
-else if(auth->authentication_algho == FILS)
+else if(ntohs(auth->authentication_algho) == FILS)
 	{
 	authenticationfilsframecount++;
 	}
-else if(auth->authentication_algho == FILSPFS)
+else if(ntohs(auth->authentication_algho) == FILSPFS)
 	{
 	authenticationfilspfsframecount++;
 	}
-else if(auth->authentication_algho == FILSPK)
+else if(ntohs(auth->authentication_algho) == FILSPK)
 	{
 	authenticationfilspkframecount++;
 	}
-else if(auth->authentication_algho == NETWORKEAP)
+else if(ntohs(auth->authentication_algho) == NETWORKEAP)
 	{
 	authenticationnetworkeapframecount++;
 	}
@@ -4584,30 +4584,31 @@ if(eaplen < (uint32_t)EXTEAP_SIZE)
 	{
 	return;
 	}
-exeap = (exteap_t*)(packet +EAPAUTH_SIZE);
+exeap = (exteap_t*)packet;
+
 if(exeap->exttype == EAP_TYPE_ID)
 	{
 	if(eaplen != 0)
 		{
-		outlistidentity(eaplen, packet +EAPAUTH_SIZE);
-		outlistimsi(eaplen, packet +EAPAUTH_SIZE);
+		outlistidentity(eaplen, packet);
+		outlistimsi(eaplen, packet);
 		}
 	}
 else if(exeap->exttype == EAP_TYPE_AKA)
 	{
-	processeapakaauthentication(eaplen, packet +EAPAUTH_SIZE);
+	processeapakaauthentication(eaplen, packet);
 	}
 else if(exeap->exttype == EAP_TYPE_SIM)
 	{
-	processeapsimauthentication(eaplen, packet +EAPAUTH_SIZE);
+	processeapsimauthentication(eaplen, packet);
 	}
 else if(exeap->exttype == EAP_TYPE_LEAP)
 	{
-	processeapleapauthentication(eaplen, packet +EAPAUTH_SIZE);
+	processeapleapauthentication(eaplen, packet);
 	}
 else if(exeap->exttype == EAP_TYPE_MD5)
 	{
-	processeapmd5authentication(eaplen, packet +EAPAUTH_SIZE);
+	processeapmd5authentication(eaplen, packet);
 	}
 
 exeaptype[exeap->exttype] = 1;
@@ -4624,13 +4625,14 @@ if(caplen < (uint32_t)EAPAUTH_SIZE)
 	return;
 	}
 eap = (eapauth_t*)packet;
+
 if(eap->type == EAPOL_KEY)
 	{
 	process80211eapolauthentication(tv_sec, tv_usec, caplen, macaddr1, macaddr2, packet);
 	}
-else if(eap->type == EAP_PACKET)
+else if((eap->type == EAP_PACKET) && (caplen > ntohs(eap->len)))
 	{
-	processexeapauthentication(ntohs(eap->len), packet);
+	processexeapauthentication(ntohs(eap->len), packet  +EAPAUTH_SIZE);
 	}
 else if(eap->type == EAPOL_START)
 	{
@@ -5089,15 +5091,15 @@ if((macf->subtype == IEEE80211_STYPE_DATA) || (macf->subtype == IEEE80211_STYPE_
 		}
 	llc = (llc_t*)(packet +MAC_SIZE_NORM +wdsoffset);
 	packet_ptr += MAC_SIZE_NORM +wdsoffset +LLC_SIZE;
-	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
+	if((ntohs(llc->type) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -wdsoffset -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
-	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
+	else if((ntohs(llc->type) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -wdsoffset -LLC_SIZE, packet_ptr);
 		}
-	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
+	else if((ntohs(llc->type) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_NORM -wdsoffset -LLC_SIZE, packet_ptr);
 		}
@@ -5120,15 +5122,15 @@ if((macf->subtype == IEEE80211_STYPE_QOS_DATA) || (macf->subtype == IEEE80211_ST
 		}
 	llc = (llc_t*)(packet +MAC_SIZE_QOS +wdsoffset);
 	packet_ptr += MAC_SIZE_QOS +wdsoffset +LLC_SIZE;
-	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
+	if((ntohs(llc->type) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		process80211networkauthentication(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -wdsoffset -LLC_SIZE, macf->addr1, macf->addr2, packet_ptr);
 		}
-	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
+	else if((ntohs(llc->type) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		processipv4packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -wdsoffset -LLC_SIZE, packet_ptr);
 		}
-	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
+	else if((ntohs(llc->type) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 		processipv6packet(tv_sec, tv_usec, caplen -MAC_SIZE_QOS -wdsoffset -LLC_SIZE, packet_ptr);
 		}
@@ -5351,6 +5353,11 @@ else if(linktype == DLT_IEEE802_11_RADIO)
 	rth->it_len	= byte_swap_16(rth->it_len);
 	rth->it_present	= byte_swap_32(rth->it_present);
 	#endif
+	if(endianess == 1)
+		{
+		rth->it_len	= byte_swap_16(rth->it_len);
+		rth->it_present	= byte_swap_32(rth->it_present);
+		}
 	if(rth->it_len > caplen)
 		{
 		pcapreaderrors++;
@@ -5380,6 +5387,13 @@ else if(linktype == DLT_PRISM_HEADER)
 	prism->msglen		= byte_swap_32(prism->msglen);
 	prism->frmlen.data	= byte_swap_32(prism->frmlen.data);
 	#endif
+	if(endianess == 1)
+		{
+		prism->msgcode		= byte_swap_32(prism->msgcode);
+		prism->msglen		= byte_swap_32(prism->msglen);
+		prism->frmlen.data	= byte_swap_32(prism->frmlen.data);
+		}
+
 	if(prism->msglen > caplen)
 		{
 		if(prism->frmlen.data > caplen)
@@ -5406,6 +5420,10 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 	#ifdef BIG_ENDIAN_HOST
 	avs->len		= byte_swap_32(avs->len);
 	#endif
+	if(endianess == 1)
+		{
+		avs->len		= byte_swap_32(avs->len);
+		}
 	if(avs->len > caplen)
 		{
 		pcapreaderrors++;
@@ -5428,6 +5446,10 @@ else if(linktype == DLT_PPI)
 	#ifdef BIG_ENDIAN_HOST
 	ppi->pph_len	= byte_swap_16(ppi->pph_len);
 	#endif
+	if(endianess == 1)
+		{
+		ppi->pph_len	= byte_swap_16(ppi->pph_len);
+		}
 	if(ppi->pph_len > caplen)
 		{
 		pcapreaderrors++;
@@ -5449,14 +5471,16 @@ if(caplen < 4)
 	return;
 	}
 fcs = (fcs_t*)(packet_ptr +caplen -4);
+
+crc = fcscrc32check(packet_ptr, caplen -4);
+
+#ifdef BIG_ENDIAN_HOST
+crc	= byte_swap_32(crc);
+#endif
 if(endianess == 1)
 	{
-	fcs->fcs	= byte_swap_32(fcs->fcs);
+	crc	= byte_swap_32(crc);
 	}
-#ifdef BIG_ENDIAN_HOST
-fcs->fcs	= byte_swap_32(fcs->fcs);
-#endif
-crc = fcscrc32check(packet_ptr, caplen -4);
 if(crc == fcs->fcs)
 	{
 	fcsflag = true;
@@ -5934,6 +5958,19 @@ pcapfhdr.snaplen	= byte_swap_32(pcapfhdr.snaplen);
 pcapfhdr.network	= byte_swap_32(pcapfhdr.network);
 #endif
 
+if(pcapfhdr.magic_number == PCAPMAGICNUMBERBE)
+	{
+	pcapfhdr.magic_number	= byte_swap_32(pcapfhdr.magic_number);
+	pcapfhdr.version_major	= byte_swap_16(pcapfhdr.version_major);
+	pcapfhdr.version_minor	= byte_swap_16(pcapfhdr.version_minor);
+	pcapfhdr.thiszone	= byte_swap_32(pcapfhdr.thiszone);
+	pcapfhdr.sigfigs	= byte_swap_32(pcapfhdr.sigfigs);
+	pcapfhdr.snaplen	= byte_swap_32(pcapfhdr.snaplen);
+	pcapfhdr.network	= byte_swap_32(pcapfhdr.network);
+	endianess = 1;
+	}
+
+
 versionmajor = pcapfhdr.version_major;
 versionminor = pcapfhdr.version_minor;
 dltlinktype  = pcapfhdr.network;
@@ -5976,6 +6013,13 @@ while(1)
 	pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
 	pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
 	#endif
+	if(endianess == 1)
+		{
+		pcaprhdr.ts_sec		= byte_swap_32(pcaprhdr.ts_sec);
+		pcaprhdr.ts_usec	= byte_swap_32(pcaprhdr.ts_usec);
+		pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
+		pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
+		}
 
 	if(pcaprhdr.incl_len > pcapfhdr.snaplen)
 		{
