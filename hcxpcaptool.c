@@ -5976,16 +5976,16 @@ while(1)
 	pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
 	pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
 	#endif
+
 	if(pcaprhdr.incl_len > pcapfhdr.snaplen)
 		{
 		pcapreaderrors++;
-		printf("failed to read packet %lld          \n", rawpacketcount);
-		break;
+//		printf("failed to read packet %lld (incl len %d > snaplen %d)\n", rawpacketcount, pcaprhdr.incl_len, pcapfhdr.snaplen);
 		}
 	if(pcaprhdr.incl_len > pcaprhdr.orig_len)
 		{
 		pcapreaderrors++;
-		printf("failed to read packet %lld          \n", rawpacketcount);
+		printf("failed to read packet %lld  (incl len %d > orig len %d)\n", rawpacketcount, pcaprhdr.incl_len, pcaprhdr.orig_len);
 		break;
 		}
 	if(pcaprhdr.incl_len < MAXPACPSNAPLEN)
@@ -5994,7 +5994,7 @@ while(1)
 		if(res != pcaprhdr.incl_len)
 			{
 			pcapreaderrors++;
-			printf("failed to read packet %lld          \n", rawpacketcount);
+			printf("failed to read packet %lld (packet len %d != incl len %d   \n", rawpacketcount, res, pcaprhdr.incl_len);
 			break;
 			}
 		rawpacketcount++;
