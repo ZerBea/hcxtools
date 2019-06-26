@@ -41,24 +41,25 @@
 #include "include/johnops.c"
 
 #define MAX_TV_DIFF 600000000llu
-
 #define MAX_RC_DIFF 8
+#define MAX_ESSID_CHANGES 8
 
 #define HCXT_REPLAYCOUNTGAP		1
 #define HCXT_TIMEGAP			2
-#define HCXT_NETNTLM_OUT		3
-#define HCXT_MD5_OUT			4
-#define HCXT_MD5_JOHN_OUT		5
-#define HCXT_TACACSP_OUT		6
-#define HCXT_EAPOL_OUT			7
-#define HCXT_NETWORK_OUT		8
-#define HCXT_HEXDUMP_OUT		9
-#define HCXT_HCCAP_OUT			10
-#define HCXT_HCCAP_OUT_RAW		11
-#define HCXT_FILTER_MAC			12
-#define HCXT_IGNORE_FAKE_FRAMES		13
-#define HCXT_IGNORE_ZEROED_PMKS		14
-#define HCXT_PREFIX_OUT			15
+#define HCXT_MAX_ESSID_CHANGES		3
+#define HCXT_NETNTLM_OUT		4
+#define HCXT_MD5_OUT			5
+#define HCXT_MD5_JOHN_OUT		6
+#define HCXT_TACACSP_OUT		7
+#define HCXT_EAPOL_OUT			8
+#define HCXT_NETWORK_OUT		9
+#define HCXT_HEXDUMP_OUT		10
+#define HCXT_HCCAP_OUT			11
+#define HCXT_HCCAP_OUT_RAW		12
+#define HCXT_FILTER_MAC			13
+#define HCXT_IGNORE_FAKE_FRAMES		14
+#define HCXT_IGNORE_ZEROED_PMKS		15
+#define HCXT_PREFIX_OUT			16
 
 #define HCXT_WPA12_OUT			'w'
 #define HCXT_HCCAPX_OUT			'o'
@@ -100,6 +101,7 @@ bool gpxflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
+int maxessidchanges;
 
 unsigned long long int apstaessidcount;
 apstaessidl_t *apstaessidliste;
@@ -321,6 +323,7 @@ gpxflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
+maxessidchanges = MAX_ESSID_CHANGES;
 
 setbuf(stdout, NULL);
 srand(time(NULL));
@@ -1422,11 +1425,12 @@ return;
 void outputwpalists(char *pcapinname)
 {
 unsigned long long int c, d;
-uint8_t essidok;
 hcxl_t *zeiger;
 apstaessidl_t *zeigeressid;
 FILE *fhoutlist = NULL;
-unsigned long long int writtencount, essidchangecount;
+unsigned long long int writtencount;
+int essidchangecount;
+bool essidchangeflag;
 
 uint8_t essidold[ESSID_LEN_MAX];
 
@@ -1451,42 +1455,18 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 		{
 		writtencount = 0;
 		zeiger = handshakeliste;
+		essidchangeflag = false;
 		for(c = 0; c < handshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
 			zeigeressid = apstaessidlistecleaned;
-			essidchangecount = 0;
 			memset(&essidold, 0,32);
-			essidok = 0;
+			essidchangecount = 0;
 			for(d = 0; d < apstaessidcountcleaned; d++)
 				{
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
 					{
-					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
-						{
-						zeiger->essidlen = zeigeressid->essidlen;
-						memset(zeiger->essid, 0, 32);
-						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						writehccapxrecord(zeiger, fhoutlist);
-						writtencount++;
-						essidchangecount++;
-						memset(&essidold, 0,32);
-						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-						essidok = 1;
-						}
-					}
-				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-					{
-					break;
-					}
-				zeigeressid++;
-				}
-			if(essidok == 0)
-				{
-				zeigeressid = apstaessidlistecleaned;
-				for(d = 0; d < apstaessidcountcleaned; d++)
-					{
-					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					if((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(zeigeressid->mac_sta, &mac_broadcast, 6) == 0))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 							{
@@ -1495,25 +1475,33 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 							writehccapxrecord(zeiger, fhoutlist);
 							writtencount++;
-							essidchangecount++;
 							memset(&essidold, 0,32);
 							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							essidchangecount++;
+							if(essidchangecount > 1)
+								{
+								essidchangeflag = true;
+								}
+							if(essidchangecount >= maxessidchanges)
+								{
+								break;
+								}
 							}
 						}
-					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-						{
-						break;
-						}
-					zeigeressid++;
 					}
+				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+					{
+					break;
+					}
+				zeigeressid++;
 				}
 			zeiger++;
 			}
 		fclose(fhoutlist);
 		removeemptyfile(hccapxbestoutname);
-		if(essidchangecount > 1)
+		if(essidchangeflag == true)
 			{
-			printf("%llu ESSID changes detected\n", essidchangecount);
+			printf("ESSID changes detected\n");
 			}
 		printf("%llu handshake(s) written to %s\n", writtencount, hccapxbestoutname);
 		}
@@ -1526,42 +1514,18 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 		{
 		writtencount = 0;
 		zeiger = handshakeliste;
+		essidchangeflag = false;
 		for(c = 0; c < handshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
 			zeigeressid = apstaessidlistecleaned;
-			essidchangecount = 0;
 			memset(&essidold, 0,32);
-			essidok = 0;
+			essidchangecount = 0;
 			for(d = 0; d < apstaessidcountcleaned; d++)
 				{
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
 					{
-					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
-						{
-						zeiger->essidlen = zeigeressid->essidlen;
-						memset(zeiger->essid, 0, 32);
-						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						writehccaprecord(maxrcdiff, zeiger, fhoutlist);
-						writtencount++;
-						essidchangecount++;
-						memset(&essidold, 0,32);
-						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-						essidok = 1;
-						}
-					}
-				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-					{
-					break;
-					}
-				zeigeressid++;
-				}
-			if(essidok == 0)
-				{
-				zeigeressid = apstaessidlistecleaned;
-				for(d = 0; d < apstaessidcountcleaned; d++)
-					{
-					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					if((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(zeiger->mac_sta, &mac_broadcast, 6) == 0))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 							{
@@ -1570,17 +1534,21 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 							writehccaprecord(maxrcdiff, zeiger, fhoutlist);
 							writtencount++;
-							essidchangecount++;
 							memset(&essidold, 0,32);
 							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							essidchangecount++;
+							if(essidchangecount >= maxessidchanges)
+								{
+								break;
+								}
 							}
 						}
-					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-						{
-						break;
-						}
-					zeigeressid++;
 					}
+				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+					{
+					break;
+					}
+				zeigeressid++;
 				}
 			zeiger++;
 			}
@@ -1588,7 +1556,7 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 		removeemptyfile(hccapbestoutname);
 		if(essidchangecount > 1)
 			{
-			printf("%llu ESSID changes detected\n", essidchangecount);
+			printf("ESSID changes detected\n");
 			}
 		printf("%llu handshake(s) written to %s\n", writtencount, hccapbestoutname);
 		}
@@ -1601,42 +1569,18 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 		{
 		writtencount = 0;
 		zeiger = handshakeliste;
+		essidchangeflag = false;
 		for(c = 0; c < handshakecount; c++)
 			{
 			zeiger->tv_diff = zeiger->tv_ea;
 			zeigeressid = apstaessidlistecleaned;
 			memset(&essidold, 0,32);
 			essidchangecount = 0;
-			essidok = 0;
 			for(d = 0; d < apstaessidcountcleaned; d++)
 				{
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0))
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
 					{
-					if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
-						{
-						zeiger->essidlen = zeigeressid->essidlen;
-						memset(zeiger->essid, 0, 32);
-						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
-						writtencount++;
-						essidchangecount++;
-						memset(&essidold, 0,32);
-						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-						essidok = 1;
-						}
-					}
-				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-					{
-					break;
-					}
-				zeigeressid++;
-				}
-			if(essidok == 0)
-				{
-				zeigeressid = apstaessidlistecleaned;
-				for(d = 0; d < apstaessidcountcleaned; d++)
-					{
-					if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+					if((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(zeiger->mac_sta, &mac_broadcast, 6) == 0))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, zeigeressid->essidlen) != 0)
 							{
@@ -1645,17 +1589,21 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 							writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
 							writtencount++;
-							essidchangecount++;
 							memset(&essidold, 0,32);
 							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							essidchangecount++;
+							if(essidchangecount >= maxessidchanges)
+								{
+								break;
+								}
 							}
 						}
-					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
-						{
-						break;
-						}
-					zeigeressid++;
 					}
+				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+					{
+					break;
+					}
+				zeigeressid++;
 				}
 			zeiger++;
 			}
@@ -1663,7 +1611,7 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 		removeemptyfile(johnbestoutname);
 		if(essidchangecount > 1)
 			{
-			printf("%llu ESSID changes detected\n", essidchangecount);
+			printf("ESSID changes detected\n");
 			}
 		printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
 		}
@@ -6518,6 +6466,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                    example: --nonce-error-corrections=60 \n"
 	"                                    convert handshakes up to a possible packetloss of 59 packets\n"
 	"                                    hashcat nonce-error-corrections should be twice as much as hcxpcaptool value\n"
+	"--max-essid-changes=<digit>       : allow maximum ESSID changes (default: %d) \n"
 	"--eapol-out=<file>                : output EAPOL packets in hex\n"
 	"                                    format = mac_ap:mac_sta:EAPOL\n"
 	"--netntlm-out=<file>              : output netNTLMv1 file (hashcat -m 5500, john netntlm)\n"
@@ -6560,7 +6509,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
 	"It is not a good idea to merge a lot of small cap/pcap/pcapng files to a big one!\n"
 	"It is much better to run gzip to cmpress the files. Wireshark, tshark and hcxpcaptool will understand this.\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff/1000000, maxrcdiff, eigenname);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff/1000000, maxrcdiff, maxessidchanges, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -6618,6 +6567,7 @@ static const struct option long_options[] =
 {
 	{"nonce-error-corrections",	required_argument,	NULL,	HCXT_REPLAYCOUNTGAP},
 	{"time-error-corrections",	required_argument,	NULL,	HCXT_TIMEGAP},
+	{"max-essid-changess",		required_argument,	NULL,	HCXT_MAX_ESSID_CHANGES},
 	{"netntlm-out",			required_argument,	NULL,	HCXT_NETNTLM_OUT},
 	{"md5-out",			required_argument,	NULL,	HCXT_MD5_OUT},
 	{"md5-john-out",		required_argument,	NULL,	HCXT_MD5_JOHN_OUT},
@@ -6665,6 +6615,14 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		if(maxrcdiff < 1)
 			{
 			maxrcdiff = 1;
+			}
+		break;
+
+		case HCXT_MAX_ESSID_CHANGES:
+		maxessidchanges = strtoull(optarg, NULL, 10);
+		if(maxessidchanges < 1)
+			{
+			maxessidchanges = 1;
 			}
 		break;
 

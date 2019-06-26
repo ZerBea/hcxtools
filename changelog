@@ -1,3 +1,12 @@
+26.06.2019
+==========
+hcxpcaptool: added new option --max-essid-changes
+--max-essid-changes=<digit>       : allow maximum ESSID changes (default: 8) 
+
+useful on merged cap files with many ESSID changes for a single mac_ap
+or on damaged ESSIDs
+
+
 23.06.2019
 ==========
 hcxpcaptool: fixed several big endian issues
