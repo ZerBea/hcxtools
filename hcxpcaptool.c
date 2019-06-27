@@ -2766,6 +2766,14 @@ if((keyverea < 1) || (keyverea > 3))
 
 if(handshakeliste == NULL)
 	{
+	if(testeapolzeropmk(keyverea, zeigerea->mac_sta, zeigerea->mac_ap, wpaeo->nonce, wpaea->nonce, zeigerea->authlen, zeigerea->eapol) == true)
+		{
+		zeroedpmkcount++;
+		if(zeroedpmkflag == true)
+			{
+			return;
+			}
+		}
 	handshakeliste = malloc(HCXLIST_SIZE);
 	if(handshakeliste == NULL)
 		{
@@ -2786,14 +2794,6 @@ if(handshakeliste == NULL)
 	memcpy(handshakeliste->nonce, wpaeo->nonce, 32);
 	handshakeliste->authlen = zeigerea->authlen;
 	memcpy(handshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
-	if(testeapolzeropmk(keyverea, zeigerea->mac_sta, zeigerea->mac_ap, wpaeo->nonce, wpaea->nonce, zeigerea->authlen, zeigerea->eapol) == true)
-		{
-		zeroedpmkcount++;
-		if(zeroedpmkflag == true)
-			{
-			return;
-			}
-		}
 	if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
 		{
 		handshakeliste->endianess = 0x10;
@@ -2953,6 +2953,14 @@ for(c = 0; c < handshakecount; c++)
 	zeiger++;
 	}
 
+if(testeapolzeropmk(keyverea, zeigerea->mac_sta, zeigerea->mac_ap, wpaeo->nonce, wpaea->nonce, zeigerea->authlen, zeigerea->eapol) == true)
+	{
+	zeroedpmkcount++;
+	if(zeroedpmkflag == true)
+		{
+		return;
+		}
+	}
 zeiger = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
 if(zeiger == NULL)
 	{
@@ -2975,14 +2983,6 @@ zeiger->keyinfo_sta = zeigerea->keyinfo;
 memcpy(zeiger->nonce, wpaeo->nonce, 32);
 zeiger->authlen = zeigerea->authlen;
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-if(testeapolzeropmk(keyverea, zeigerea->mac_sta, zeigerea->mac_ap, wpaeo->nonce, wpaea->nonce, zeigerea->authlen, zeigerea->eapol) == true)
-	{
-	zeroedpmkcount++;
-	if(zeroedpmkflag == true)
-		{
-		return;
-		}
-	}
 if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
 	{
 	zeiger->endianess = 0x10;
@@ -3174,6 +3174,14 @@ if(memcmp(&pmkid->pmkid[12], &nullnonce, 4) == 0)
 
 if(pmkidliste == NULL)
 	{
+	if(testpmkidzeropmk(mac_sta, mac_ap, pmkid->pmkid) == true)
+		{
+		zeroedpmkcount++;
+		if(zeroedpmkflag == true)
+			{
+			return;
+			}
+		}
 	pmkidliste = malloc(PMKIDLIST_SIZE);
 	if(pmkidliste == NULL)
 		{
@@ -3183,14 +3191,6 @@ if(pmkidliste == NULL)
 	memcpy(pmkidliste->mac_ap, mac_ap, 6);
 	memcpy(pmkidliste->mac_sta, mac_sta, 6);
 	memcpy(pmkidliste->pmkid, pmkid->pmkid, 16);
-	if(testpmkidzeropmk(mac_sta, mac_ap, pmkid->pmkid) == true)
-		{
-		zeroedpmkcount++;
-		if(zeroedpmkflag == true)
-			{
-			return;
-			}
-		}
 	pmkidcount++;
 	pmkidallcount++;
 	pmkidapcount++;
@@ -3206,6 +3206,14 @@ for(c = 0; c < pmkidcount; c++)
 		}
 	zeiger++;
 	}
+if(testpmkidzeropmk(mac_sta, mac_ap, pmkid->pmkid) == true)
+	{
+	zeroedpmkcount++;
+	if(zeroedpmkflag == true)
+		{
+		return;
+		}
+	}
 zeiger = realloc(pmkidliste, (pmkidcount +1) *PMKIDLIST_SIZE);
 if(zeiger == NULL)
 	{
@@ -3217,14 +3225,6 @@ zeiger = pmkidliste +pmkidcount;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
 memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-if(testpmkidzeropmk(mac_sta, mac_ap, pmkid->pmkid) == true)
-	{
-	zeroedpmkcount++;
-	if(zeroedpmkflag == true)
-		{
-		return;
-		}
-	}
 pmkidcount++;
 pmkidallcount++;
 pmkidapcount++;
