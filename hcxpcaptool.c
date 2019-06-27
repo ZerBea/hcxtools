@@ -3368,44 +3368,28 @@ if((apstaessidlistecleaned = calloc((apstaessidcount), APSTAESSIDLIST_SIZE)) == 
 
 zeiger1 = apstaessidliste;
 zeiger2 = apstaessidlistecleaned;
-for(c = 0; c < apstaessidcount; c++)
+memset(apstaessidlistecleaned, 0, apstaessidcount *APSTAESSIDLIST_SIZE);
+memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
+memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
+zeiger2->essidlen = zeiger1->essidlen;
+memset(zeiger2->essid, 0, 32);
+memcpy(zeiger2->essid, zeiger1->essid, zeiger1->essidlen);
+apstaessidcountcleaned = 1;
+zeiger1++;
+for(c = 1; c < apstaessidcount; c++)
 	{
-	if(c == 0)
+	if((memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) == 0) && (memcmp(zeiger1->mac_sta, zeiger2->mac_sta, 6) == 0) && (memcmp(zeiger1->essid, zeiger2->essid, 32) == 0))
 		{
-		memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
-		memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
-		zeiger2->essidlen = zeiger1->essidlen;
-		memset(zeiger2->essid, 0, 32);
-		memcpy(zeiger2->essid, zeiger1->essid, zeiger1->essidlen);
-		apstaessidcountcleaned++;
-
+		zeiger1++;
+		continue;
 		}
-	else
-		{
-		if(memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) != 0)
-			{
-			zeiger2++;
-			memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
-			memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
-			zeiger2->essidlen = zeiger1->essidlen;
-			memset(zeiger2->essid, 0, 32);
-			memcpy(zeiger2->essid, zeiger1->essid, zeiger1->essidlen);
-			apstaessidcountcleaned++;
-			}
-		else
-			{
-			if(memcmp(zeiger1->mac_sta, zeiger2->mac_sta, 6) != 0)
-				{
-				zeiger2++;
-				memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
-				memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
-				zeiger2->essidlen = zeiger1->essidlen;
-				memset(zeiger2->essid, 0, 32);
-				memcpy(zeiger2->essid, zeiger1->essid, zeiger1->essidlen);
-				apstaessidcountcleaned++;
-				}
-			}
-		}
+	zeiger2++;
+	memcpy(zeiger2->mac_ap, zeiger1->mac_ap, 6);
+	memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
+	zeiger2->essidlen = zeiger1->essidlen;
+	memset(zeiger2->essid, 0, 32);
+	memcpy(zeiger2->essid, zeiger1->essid, zeiger1->essidlen);
+	apstaessidcountcleaned++;
 	zeiger1++;
 	}
 return;
