@@ -4200,6 +4200,7 @@ if(keyinfo == 1)
 		{
 		eapolwpa2kv3framecount++;
 		}
+
 	if(authlen == 0x75)
 		{
 		addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
@@ -5868,7 +5869,6 @@ if(pcapfhdr.magic_number == PCAPMAGICNUMBERBE)
 	endianess = 1;
 	}
 
-
 versionmajor = pcapfhdr.version_major;
 versionminor = pcapfhdr.version_minor;
 dltlinktype  = pcapfhdr.network;
@@ -5918,18 +5918,18 @@ while(1)
 		pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
 		pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
 		}
-
 	if(pcaprhdr.incl_len > pcapfhdr.snaplen)
 		{
 		pcapreaderrors++;
 //		printf("failed to read packet %lld (incl len %d > snaplen %d)\n", rawpacketcount, pcaprhdr.incl_len, pcapfhdr.snaplen);
 		}
+/*
 	if(pcaprhdr.incl_len > pcaprhdr.orig_len)
 		{
 		pcapreaderrors++;
 		printf("failed to read packet %lld  (incl len %d > orig len %d)\n", rawpacketcount, pcaprhdr.incl_len, pcaprhdr.orig_len);
-		break;
 		}
+*/
 	if(pcaprhdr.incl_len < MAXPACPSNAPLEN)
 		{
 		res = read(fd, &packet, pcaprhdr.incl_len);
@@ -5950,9 +5950,8 @@ while(1)
 			printf("failed to set file pointer\n");
 			break;
 			}
-		pcaprhdr.incl_len = 0;
-		pcaprhdr.orig_len = 0;
 		skippedpacketcount++;
+		continue;
 		}
 
 	if(pcaprhdr.incl_len > 0)
