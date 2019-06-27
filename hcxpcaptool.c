@@ -3279,7 +3279,6 @@ void addeapol(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_
 eapoll_t *zeiger;
 wpakey_t *eaptest;
 
-
 eaptest = (wpakey_t*)(authpacket +EAPAUTH_SIZE);
 if(ntohs(eaptest->wpadatalen) > (authlen -99))
 	{
@@ -5572,9 +5571,9 @@ if(gpxflag == true)
 	{
 	fprintf(fhgpx, "<trk>\n  <name>%s</name>\n  <trkseg>\n", basename(pcapinname));
 	}
-memset(&packet, 0, MAXPACPSNAPLEN);
 
 snaplen = 0;
+memset(&packet, 0, MAXPACPSNAPLEN);
 while(1)
 	{
 	aktseek = lseek(fd, 0, SEEK_CUR);
@@ -5688,10 +5687,10 @@ while(1)
 			}
 		dltlinktype = pcapngidb->linktype;
 		snaplen = pcapngidb->snaplen;
-		if(pcapngidb->snaplen > MAXPACPSNAPLEN)
+		if(snaplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
-			printf("detected oversized snaplen (%d)          \n", pcapngidb->snaplen);
+			printf("detected oversized snaplen (%d)          \n", snaplen);
 			}
 		}
 
@@ -5703,7 +5702,7 @@ while(1)
 		#endif
 		if(endianess == 1)
 			{
-			pcapngpb->caplen		= byte_swap_32(pcapngpb->caplen);
+			pcapngpb->caplen	= byte_swap_32(pcapngpb->caplen);
 			}
 		timestamp = 0;
 		timestamp = 0;
@@ -5713,13 +5712,13 @@ while(1)
 		if(pcapngpb->caplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
-			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
+			printf("caplen > MAXSNAPLEN (%d > %d)             \n", pcapngpb->caplen, MAXPACPSNAPLEN);
 			continue;
 			}
 		if(pcapngpb->caplen > blocklen)
 			{
 			pcapreaderrors++;
-			printf("caplen > MAXSNAPLEN /%d)             \n", pcapngpb->caplen);
+			printf("caplen > blocklen (%d > %d )             \n", pcapngpb->caplen, blocklen);
 			continue;
 			}
 		rawpacketcount++;
@@ -5781,19 +5780,19 @@ while(1)
 		if(pcapngepb->caplen != pcapngepb->len)
 			{
 			pcapreaderrors++;
-			printf("caplen != snaplen (%d != %d)          \n", pcapngepb->caplen, pcapngepb->len);
+			printf("caplen != len (%d != %d)          \n", pcapngepb->caplen, pcapngepb->len);
 			continue;
 			}
 		if(pcapngepb->caplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
-			printf("caplen > MAXSNAPLEN (%d)             \n", pcapngepb->caplen);
+			printf("caplen > MAXSNAPLEN (%d > %d)             \n", pcapngepb->caplen, MAXPACPSNAPLEN);
 			continue;
 			}
 		if(pcapngepb->caplen > blocklen)
 			{
 			pcapreaderrors++;
-			printf("caplen > block length (%d)             \n", pcapngepb->caplen);
+			printf("caplen > blocklen (%d > %d)             \n", pcapngepb->caplen, blocklen);
 			continue;
 			}
 		rawpacketcount++;
