@@ -5222,7 +5222,6 @@ else if(linktype == DLT_EN10MB)
 	processethernetpacket(tv_sec, tv_usec, caplen, packet);
 	return;
 	}
-
 else if(linktype == DLT_IEEE802_11_RADIO)
 	{
 	if(caplen < (uint32_t)RTH_SIZE)
@@ -5250,12 +5249,10 @@ else if(linktype == DLT_IEEE802_11_RADIO)
 	packet_ptr += rth->it_len;
 	caplen -= rth->it_len;
 	}
-
 else if(linktype == DLT_IEEE802_11)
 	{
 	/* nothing to do */
 	}
-
 else if(linktype == DLT_PRISM_HEADER)
 	{
 	if(caplen < (uint32_t)PRISM_SIZE)
@@ -5276,7 +5273,6 @@ else if(linktype == DLT_PRISM_HEADER)
 		prism->msglen		= byte_swap_32(prism->msglen);
 		prism->frmlen.data	= byte_swap_32(prism->frmlen.data);
 		}
-
 	if(prism->msglen > caplen)
 		{
 		if(prism->frmlen.data > caplen)
@@ -5290,7 +5286,6 @@ else if(linktype == DLT_PRISM_HEADER)
 	packet_ptr += prism->msglen;
 	caplen -= prism->msglen;
 	}
-
 else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 	{
 	if(caplen < (uint32_t)AVS_SIZE)
@@ -5316,7 +5311,6 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 	packet_ptr += avs->len;
 	caplen -= avs->len;
 	}
-
 else if(linktype == DLT_PPI)
 	{
 	if(caplen < (uint32_t)PPI_SIZE)
@@ -5344,6 +5338,7 @@ else if(linktype == DLT_PPI)
 	}
 else
 	{
+	printf("unsupported network type %d\n", linktype);
 	return;
 	}
 
