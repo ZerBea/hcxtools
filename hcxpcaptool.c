@@ -1480,6 +1480,17 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 								continue;
 								}
 							}
+
+						for(ec = 0; ec < zeigeressid->essidlen; ec++)
+							{
+							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
+								{
+								zeigeressid++;
+								continue;
+								}
+							}
+
+
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -3148,14 +3159,6 @@ if(memcmp(&pmkidoui, pmkid->oui, PMKIDOUI_SIZE) != 0)
 	return;
 	}
 if(pmkid->type != 0x04)
-	{
-	return;
-	}
-if(memcmp(mac_ap, &mac_null, 6) == 0)
-	{
-	return;
-	}
-if(memcmp(mac_sta, &mac_null, 6) == 0)
 	{
 	return;
 	}
@@ -5098,6 +5101,16 @@ if((filtermacflag == true) && (caplen >= (uint32_t)MAC_SIZE_NORM))
 		}
 	}
 
+if(memcmp(macf->addr2, &mac_null, 6) == 0)
+	{
+	skippedpacketcount++;
+	return;
+	}
+if(memcmp(macf->addr1, &mac_null, 6) == 0)
+	{
+	skippedpacketcount++;
+	return;
+	}
 if(macf->type == IEEE80211_FTYPE_MGMT)
 	{
 	if(macf->subtype == IEEE80211_STYPE_BEACON)
