@@ -5272,11 +5272,6 @@ else if(linktype == DLT_IEEE802_11_RADIO)
 	rth->it_len	= byte_swap_16(rth->it_len);
 	rth->it_present	= byte_swap_32(rth->it_present);
 	#endif
-	if(endianess == 1)
-		{
-		rth->it_len	= byte_swap_16(rth->it_len);
-		rth->it_present	= byte_swap_32(rth->it_present);
-		}
 	if(rth->it_len > caplen)
 		{
 		pcapreaderrors++;
