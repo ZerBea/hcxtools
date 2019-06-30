@@ -5299,12 +5299,6 @@ else if(linktype == DLT_PRISM_HEADER)
 	prism->msglen		= byte_swap_32(prism->msglen);
 	prism->frmlen.data	= byte_swap_32(prism->frmlen.data);
 	#endif
-	if(endianess == 1)
-		{
-		prism->msgcode		= byte_swap_32(prism->msgcode);
-		prism->msglen		= byte_swap_32(prism->msglen);
-		prism->frmlen.data	= byte_swap_32(prism->frmlen.data);
-		}
 	if(prism->msglen > caplen)
 		{
 		if(prism->frmlen.data > caplen)
@@ -5330,10 +5324,6 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 	#ifdef BIG_ENDIAN_HOST
 	avs->len		= byte_swap_32(avs->len);
 	#endif
-	if(endianess == 1)
-		{
-		avs->len		= byte_swap_32(avs->len);
-		}
 	if(avs->len > caplen)
 		{
 		pcapreaderrors++;
@@ -5355,10 +5345,6 @@ else if(linktype == DLT_PPI)
 	#ifdef BIG_ENDIAN_HOST
 	ppi->pph_len	= byte_swap_16(ppi->pph_len);
 	#endif
-	if(endianess == 1)
-		{
-		ppi->pph_len	= byte_swap_16(ppi->pph_len);
-		}
 	if(ppi->pph_len > caplen)
 		{
 		pcapreaderrors++;
