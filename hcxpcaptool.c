@@ -1876,7 +1876,7 @@ return;
 void outputpmkidlists()
 {
 unsigned long long int c, d, p, writtencount;
-int essidchangecount;
+int essidchangecount, ec;
 bool essidchangeflag;
 pmkidl_t *zeiger;
 apstaessidl_t *zeigeressid;
@@ -1912,6 +1912,22 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 						{
+						for(ec = 0; ec < zeigeressid->essidlen; ec++)
+							{
+							if(zeigeressid->essid[ec] < 0x20)
+								{
+								zeigeressid++;
+								continue;
+								}
+							}
+						for(ec = 0; ec < zeigeressid->essidlen; ec++)
+							{
+							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 1))
+								{
+								zeigeressid++;
+								continue;
+								}
+							}
 						for(p = 0; p < 16; p++)
 							{
 							fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
@@ -1986,6 +2002,22 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoldoutname != NULL))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 						{
+						for(ec = 0; ec < zeigeressid->essidlen; ec++)
+							{
+							if(zeigeressid->essid[ec] < 0x20)
+								{
+								zeigeressid++;
+								continue;
+								}
+							}
+						for(ec = 0; ec < zeigeressid->essidlen; ec++)
+							{
+							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 1))
+								{
+								zeigeressid++;
+								continue;
+								}
+							}
 						for(p = 0; p < 16; p++)
 							{
 							fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
