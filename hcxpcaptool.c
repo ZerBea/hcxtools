@@ -1476,14 +1476,16 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 							{
 							if(zeigeressid->essid[ec] < 0x20)
 								{
-								break;
+								zeigeressid++;
+								continue;
 								}
 							}
-						for(ec = 0; ec < 10; ec++)
+						for(ec = 0; ec < zeigeressid->essidlen; ec++)
 							{
-							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
+							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 1))
 								{
-								break;
+								zeigeressid++;
+								continue;
 								}
 							}
 						zeiger->essidlen = zeigeressid->essidlen;
@@ -1549,14 +1551,16 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 							{
 							if(zeigeressid->essid[ec] < 0x20)
 								{
-								break;
+								zeigeressid++;
+								continue;
 								}
 							}
-						for(ec = 0; ec < 10; ec++)
+						for(ec = 0; ec < zeigeressid->essidlen; ec++)
 							{
 							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
 								{
-								break;
+								zeigeressid++;
+								continue;
 								}
 							}
 						zeiger->essidlen = zeigeressid->essidlen;
@@ -1618,14 +1622,16 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 							{
 							if(zeigeressid->essid[ec] < 0x20)
 								{
-								break;
+								zeigeressid++;
+								continue;
 								}
 							}
-						for(ec = 0; ec < 10; ec++)
+						for(ec = 0; ec < zeigeressid->essidlen; ec++)
 							{
 							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
 								{
-								break;
+								zeigeressid++;
+								continue;
 								}
 							}
 						zeiger->essidlen = zeigeressid->essidlen;
