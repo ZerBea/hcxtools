@@ -1,7 +1,6 @@
 #define ESSID_LEN_MAX 32
 #define LEAP_LEN_MAX 0x0ff
 
-
 #ifdef __BYTE_ORDER__
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST
@@ -17,6 +16,7 @@
 /*===========================================================================*/
 struct apstaessidlist_s
 {
+ uint32_t	essidcount;
  uint32_t	tv_sec;
  uint32_t	tv_usec;
  uint8_t	mac_ap[6];
@@ -68,6 +68,25 @@ else if(memcmp(ia->mac_ap, ib->mac_ap, 6) < 0)
 if(memcmp(ia->mac_sta, ib->mac_sta, 6) > 0)
 	return 1;
 else if(memcmp(ia->mac_sta, ib->mac_sta, 6) < 0)
+	return -1;
+if(memcmp(ia->essid, ib->essid, 32) > 0)
+	return 1;
+else if(memcmp(ia->essid, ib->essid, 32) < 0)
+	return -1;
+return 0;
+}
+/*===========================================================================*/
+static int sort_apstaessidlist_by_ap_count_essid(const void *a, const void *b)
+{
+const apstaessidl_t *ia = (const apstaessidl_t *)a;
+const apstaessidl_t *ib = (const apstaessidl_t *)b;
+if(memcmp(ia->mac_ap, ib->mac_ap, 6) > 0)
+	return 1;
+else if(memcmp(ia->mac_ap, ib->mac_ap, 6) < 0)
+	return -1;
+if(ia->essidcount < ib->essidcount)
+	return 1;
+else if(ia->essidcount > ib->essidcount)
 	return -1;
 if(memcmp(ia->essid, ib->essid, 32) > 0)
 	return 1;

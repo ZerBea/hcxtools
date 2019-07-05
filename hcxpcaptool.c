@@ -42,7 +42,7 @@
 
 #define MAX_TV_DIFF 600000000llu
 #define MAX_RC_DIFF 8
-#define MAX_ESSID_CHANGES 8
+#define MAX_ESSID_CHANGES 1
 
 #define HCXT_REPLAYCOUNTGAP		1
 #define HCXT_TIMEGAP			2
@@ -1438,14 +1438,10 @@ if(handshakeliste == NULL)
 	{
 	return;
 	}
+
 if(apstaessidlistecleaned != NULL)
 	{
-	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
-	}
-
-if(apstaessidliste != NULL)
-	{
-	qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_count_essid);
 	}
 
 if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
@@ -1686,11 +1682,6 @@ if(apstaessidlistecleaned != NULL)
 	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
 	}
 
-if(apstaessidliste != NULL)
-	{
-	qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
-	}
-
 if(hccapxrawoutname != NULL)
 	{
 	essidchangecount = 0;
@@ -1706,7 +1697,7 @@ if(hccapxrawoutname != NULL)
 				zeigeressid = apstaessidliste;
 				essidchangecount = 0;
 				memset(&essidold, 0,32);
-				for(d = 0; d < apstaessidcount; d++)
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
 						{
@@ -1766,7 +1757,7 @@ if(hccaprawoutname != NULL)
 				zeigeressid = apstaessidliste;
 				essidchangecount = 0;
 				memset(&essidold, 0,32);
-				for(d = 0; d < apstaessidcount; d++)
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
 						{
@@ -1826,7 +1817,7 @@ if(johnrawoutname != NULL)
 				zeigeressid = apstaessidliste;
 				memset(&essidold, 0,32);
 				essidchangecount = 0;
-				for(d = 0; d < apstaessidcount; d++)
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
 					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
 						{
@@ -1886,7 +1877,7 @@ uint8_t essidold[ESSID_LEN_MAX];
 
 if(apstaessidlistecleaned != NULL)
 	{
-	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_essid);
+	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_count_essid);
 	}
 
 if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
@@ -3446,12 +3437,14 @@ memcpy(zeiger2->mac_sta, zeiger1->mac_sta, 6);
 zeiger2->essidlen = zeiger1->essidlen;
 memset(zeiger2->essid, 0, 32);
 memcpy(zeiger2->essid, zeiger1->essid, zeiger1->essidlen);
+zeiger2->essidcount = 1;
 apstaessidcountcleaned = 1;
 zeiger1++;
 for(c = 1; c < apstaessidcount; c++)
 	{
-	if((memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) == 0) && (memcmp(zeiger1->mac_sta, zeiger2->mac_sta, 6) == 0) && (memcmp(zeiger1->essid, zeiger2->essid, 32) == 0))
+	if((memcmp(zeiger1->mac_ap, zeiger2->mac_ap, 6) == 0) && (memcmp(zeiger1->mac_sta, zeiger2->mac_sta, 6) == 0) && (memcmp(zeiger1->essid, zeiger2->essid, 5) == 0))
 		{
+		zeiger2->essidcount +=1;
 		zeiger1++;
 		continue;
 		}
@@ -3461,6 +3454,7 @@ for(c = 1; c < apstaessidcount; c++)
 	zeiger2->essidlen = zeiger1->essidlen;
 	memset(zeiger2->essid, 0, 32);
 	memcpy(zeiger2->essid, zeiger1->essid, zeiger1->essidlen);
+	zeiger2->essidcount = 1;
 	apstaessidcountcleaned++;
 	zeiger1++;
 	}
@@ -3504,8 +3498,7 @@ if(apstaessidliste == NULL)
 	apstaessidliste->tv_usec = tv_usec;
 	memcpy(apstaessidliste->mac_ap, mac_ap, 6);
 	memcpy(apstaessidliste->mac_sta, mac_sta, 6);
-	memset(apstaessidliste->essid, 0, 32);
-	memcpy(apstaessidliste->essid, essid, 32);
+	memcpy(apstaessidliste->essid, essid, essidlen);
 	apstaessidliste->essidlen = essidlen;
 	apstaessidcount++;
 	return;
@@ -3524,8 +3517,7 @@ zeiger->tv_sec = tv_sec;
 zeiger->tv_usec = tv_usec;
 memcpy(zeiger->mac_ap, mac_ap, 6);
 memcpy(zeiger->mac_sta, mac_sta, 6);
-memset(zeiger->essid, 0, 32);
-memcpy(zeiger->essid, essid, 32);
+memcpy(zeiger->essid, essid, essidlen);
 zeiger->essidlen = essidlen;
 apstaessidcount++;
 return;
@@ -6457,7 +6449,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                    example: --nonce-error-corrections=60 \n"
 	"                                    convert handshakes up to a possible packetloss of 59 packets\n"
 	"                                    hashcat nonce-error-corrections should be twice as much as hcxpcaptool value\n"
-	"--max-essid-changes=<digit>       : allow maximum ESSID changes (default: %d) \n"
+	"--max-essid-changes=<digit>       : allow maximum ESSID changes (default: %d - no ESSID change is allowed)\n"
 	"--eapol-out=<file>                : output EAPOL packets in hex\n"
 	"                                    format = mac_ap:mac_sta:EAPOL\n"
 	"--netntlm-out=<file>              : output netNTLMv1 file (hashcat -m 5500, john netntlm)\n"
