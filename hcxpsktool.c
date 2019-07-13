@@ -1556,12 +1556,22 @@ static void preparebssid(FILE *fhout, unsigned long long int macaddr)
 static int c;
 static unsigned long long int oui;
 static unsigned long long int nic;
+static int swap;
+
+static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 oui = macaddr &0xffffff000000L;
 nic = (macaddr &0xffffffL) -8;
 for(c = 0; c < 0x10; c++)
 	{
 	writebssid(fhout, oui +nic +c);
+	}
+
+swap = (nic >> 8) & 0xffff;
+	{
+	swap = (swap & 0xf000) >> 12 | (swap & 0x0f00) >> 4 | (swap & 0x00f0) << 4 |  (swap & 0x000f) << 12;
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "000000%04X", swap);
+	fprintf(fhout, "%s\n", pskstring);
 	}
 test000559(fhout, macaddr);
 return;
