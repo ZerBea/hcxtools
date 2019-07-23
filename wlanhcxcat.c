@@ -263,7 +263,7 @@ while(c < hcxrecords)
 		zeigerhcx2 = hcxdata +c -1;
 		if(memcmp(zeigerhcx->essid, zeigerhcx2->essid, 32) != 0)
 			{
-			if(PKCS5_PBKDF2_HMAC(passwordname, passwordlen, zeigerhcx->essid, zeigerhcx->essid_len, 4096, EVP_sha1(), 32, pmkin) == 0)
+			if(PKCS5_PBKDF2_HMAC_SHA1(passwordname, passwordlen, zeigerhcx->essid, zeigerhcx->essid_len, 4096, 32, pmkin) == 0)
 				{
 				fprintf(stderr, "could not generate plainmasterkey\n");
 				return;
@@ -273,7 +273,7 @@ while(c < hcxrecords)
 		}
 	else if(c == 0)
 		{
-		if(PKCS5_PBKDF2_HMAC(passwordname, passwordlen, zeigerhcx->essid, zeigerhcx->essid_len, 4096, EVP_sha1(), 32, pmkin) == 0)
+		if(PKCS5_PBKDF2_HMAC_SHA1(passwordname, passwordlen, zeigerhcx->essid, zeigerhcx->essid_len, 4096, 32, pmkin) == 0)
 			{
 			fprintf(stderr, "could not generate plainmasterkey\n");
 			return;
@@ -362,7 +362,7 @@ char outstr[1024];
 
 memcpy(&essid, essidname, essidlen);
 
-if(PKCS5_PBKDF2_HMAC(passwordname, passwordlen, essid, essidlen, 4096, EVP_sha1(), 32, pmkin) == 0)
+if(PKCS5_PBKDF2_HMAC_SHA1(passwordname, passwordlen, essid, essidlen, 4096, 32, pmkin) == 0)
 	{
 	fprintf(stderr, "could not generate plainmasterkey\n");
 	return;
