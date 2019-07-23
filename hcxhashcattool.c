@@ -130,7 +130,7 @@ for(c = 0; c < pmkcountthread; c++)
 	{
 	if(memcmp(&emptypmk, zeiger->pmk, 32) == 0)
 		{
-		if(PKCS5_PBKDF2_HMAC((const char*)zeiger->psk, zeiger->psklen, (unsigned char*)zeiger->essid, zeiger->essidlen, 4096, EVP_sha1(), 32, zeiger->pmk) == 0)
+		if(PKCS5_PBKDF2_HMAC_SHA1((const char*)zeiger->psk, zeiger->psklen, (unsigned char*)zeiger->essid, zeiger->essidlen, 4096, 32, zeiger->pmk) == 0)
 			{
 			printf("failed to calculate PMK\n");
 			exit(EXIT_FAILURE);
@@ -190,7 +190,7 @@ if(ct > 0)
 		{
 		if(memcmp(&emptypmk, zeiger->pmk, 32) == 0)
 			{
-			if(PKCS5_PBKDF2_HMAC((const char*)zeiger->psk, zeiger->psklen, (unsigned char*)zeiger->essid, zeiger->essidlen, 4096, EVP_sha1(), 32, zeiger->pmk) == 0)
+			if(PKCS5_PBKDF2_HMAC_SHA1((const char*)zeiger->psk, zeiger->psklen, (unsigned char*)zeiger->essid, zeiger->essidlen, 4096, 32, zeiger->pmk) == 0)
 				{
 				printf("failed to calculate PMK\n");
 				exit(EXIT_FAILURE);
