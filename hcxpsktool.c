@@ -1087,29 +1087,44 @@ return;
 static void testmtel(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2;
+static char *a1 = "A1_";
 static char *mtel = "M-Tel_";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if(essidlen != 10)
+if(essidlen == 7)
 	{
-	return;
-	}
-if(memcmp(essid, mtel, 6) != 0)
-	{
-	return;
-	}
-if((!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isxdigit(essid[9])))
-	{
+	if(memcmp(essid, a1, 3) == 0)
+		{
+		if((isxdigit(essid[3])) && (isxdigit(essid[4])) && (isxdigit(essid[5])) && (isxdigit(essid[6])))
+			{
+			for(k1 = 0; k1 < 0x100; k1++)
+				for(k2 = 0; k2 < 0x100; k2++)
+					{
+					snprintf(essidtmp, PSKSTRING_LEN_MAX, "48575443%02X%c%c%c%c%02X", k1, essid[3], essid[4], essid[5], essid[6], k2);
+					writepsk(fhout, essidtmp);
+				}
+			}
+		}
 	return;
 	}
 
-for(k1 = 0; k1 < 0x100; k1++)
-	for(k2 = 0; k2 < 0x100; k2++)
+if(essidlen == 10)
+	{
+	if(memcmp(essid, mtel, 6) == 0)
 		{
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "48575443%02X%c%c%c%c%02X", k1, essid[6], essid[7], essid[8], essid[9], k2);
-		writepsk(fhout, essidtmp);
+		if((isxdigit(essid[6])) && (isxdigit(essid[7])) && (isxdigit(essid[8])) && (isxdigit(essid[9])))
+			{
+			for(k1 = 0; k1 < 0x100; k1++)
+				for(k2 = 0; k2 < 0x100; k2++)
+					{
+					snprintf(essidtmp, PSKSTRING_LEN_MAX, "48575443%02X%c%c%c%c%02X", k1, essid[6], essid[7], essid[8], essid[9], k2);
+					writepsk(fhout, essidtmp);
+				}
+			}
 		}
+	return;
+	}
 return;
 }
 /*===========================================================================*/
