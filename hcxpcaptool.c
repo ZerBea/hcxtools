@@ -6212,6 +6212,9 @@ lat = 0;
 lon = 0;
 alt = 0;
 
+tv_sec_old = 0xffffffff;
+tv_usec_old = 0xffffffff;
+
 char *unknown = "unknown";
 char tmpoutname[PATH_MAX+1];
 
