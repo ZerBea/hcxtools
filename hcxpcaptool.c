@@ -260,7 +260,6 @@ FILE *fheapol;
 FILE *fhnetwork;
 
 bool tscleanflag;
-bool tssameflag;
 
 int endianess;
 int pcapreaderrors;
@@ -274,9 +273,6 @@ uint64_t myaktreplaycount;
 uint8_t myaktnonce[32];
 
 uint8_t filtermac[6];
-
-uint32_t tv_sec_old;
-uint32_t tv_usec_old;
 
 char pcapnghwinfo[1024];
 char pcapngosinfo[1024];
@@ -539,10 +535,6 @@ printf( "                                                \n"
 if(tscleanflag == true)
 	{
 	printf("warning..........................: zero value time stamps detected - this prevents EAPOL timeout calculation\n");
-	}
-if(tssameflag == true)
-	{
-	printf("warning..........................: packets with same time stamp detected - this prevents EAPOL timeout calculation\n");
 	}
 if(wdsframecount != 0)
 	{
@@ -5282,12 +5274,6 @@ if((tv_sec == 0) && (tv_usec == 0))
 	tv_sec = tvtmp.tv_sec;
 	tv_usec = tvtmp.tv_usec;
 	}
-else if ((tv_sec == tv_sec_old) && (tv_usec == tv_usec_old)) 
-	{
-	tssameflag = true;
-	}
-tv_sec_old = tv_sec;
-tv_usec_old = tv_usec;
 
 if(linktype == DLT_NULL)
 	{
@@ -6114,7 +6100,6 @@ char *msnetmon1str = "Microsoft NetworkMonitor 1";
 char *msnetmon2str = "Microsoft NetworkMonitor 2";
 
 tscleanflag = false;
-tssameflag = false;
 
 versionmajor = 0;
 versionminor = 0;
@@ -6211,9 +6196,6 @@ wepframecount = 0;
 lat = 0;
 lon = 0;
 alt = 0;
-
-tv_sec_old = 0xffffffff;
-tv_usec_old = 0xffffffff;
 
 char *unknown = "unknown";
 char tmpoutname[PATH_MAX+1];
