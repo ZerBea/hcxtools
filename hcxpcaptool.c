@@ -98,6 +98,8 @@ bool zeroedpmkflag;
 bool fcsflag;
 bool wantrawflag;
 bool gpxflag;
+bool tscleanflag;
+bool tssameflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -258,8 +260,6 @@ FILE *fhhexmode;
 FILE *fhgpx;
 FILE *fheapol;
 FILE *fhnetwork;
-
-bool tscleanflag;
 
 int endianess;
 int pcapreaderrors;
@@ -535,6 +535,10 @@ printf( "                                                \n"
 if(tscleanflag == true)
 	{
 	printf("warning..........................: zero value time stamps detected - this prevents EAPOL timeout calculation\n");
+	}
+if(tssameflag == true)
+	{
+	printf("warning..........................: time stamps with the same value detected - this prevents EAPOL timeout calculation\n");
 	}
 if(wdsframecount != 0)
 	{
@@ -2689,6 +2693,10 @@ if(checkok == false)
 
 if(rawhandshakeliste == NULL)
 	{
+	if(timegap == 0)
+		{
+		tssameflag = true;
+		}
 	rawhandshakeliste = malloc(HCXLIST_SIZE);
 	if(rawhandshakeliste == NULL)
 		{
@@ -2783,6 +2791,11 @@ for(c = 0; c < rawhandshakecount; c++)
 	zeiger++;
 	}
 
+if(timegap == 0)
+	{
+	tssameflag = true;
+	}
+
 zeiger = realloc(rawhandshakeliste, (rawhandshakecount +1) *HCXLIST_SIZE);
 if(zeiger == NULL)
 	{
@@ -2838,6 +2851,10 @@ if((keyverea < 1) || (keyverea > 3))
 
 if(handshakeliste == NULL)
 	{
+	if(timegap == 0)
+		{
+		tssameflag = true;
+		}
 	if(testeapolzeropmk(keyverea, zeigerea->mac_sta, zeigerea->mac_ap, wpaeo->nonce, wpaea->nonce, zeigerea->authlen, zeigerea->eapol) == true)
 		{
 		zeroedpmkcount++;
@@ -3023,6 +3040,11 @@ for(c = 0; c < handshakecount; c++)
 		return;
 		}
 	zeiger++;
+	}
+
+if(timegap == 0)
+	{
+	tssameflag = true;
 	}
 
 if(testeapolzeropmk(keyverea, zeigerea->mac_sta, zeigerea->mac_ap, wpaeo->nonce, wpaea->nonce, zeigerea->authlen, zeigerea->eapol) == true)
@@ -6100,6 +6122,7 @@ char *msnetmon1str = "Microsoft NetworkMonitor 1";
 char *msnetmon2str = "Microsoft NetworkMonitor 2";
 
 tscleanflag = false;
+tssameflag = false;
 
 versionmajor = 0;
 versionminor = 0;
