@@ -538,7 +538,7 @@ if(tscleanflag == true)
 	}
 if(tssameflag == true)
 	{
-	printf("warning..........................: time stamps with the same value detected - this prevents EAPOL timeout calculation\n");
+	printf("warning..........................: EAPOL packet time stamps with the same value detected - this prevents EAPOL timeout calculation\n");
 	}
 if(wdsframecount != 0)
 	{
