@@ -1911,7 +1911,7 @@ if(mp0c != 0)
 if(mp1c != 0)
 	{
 	printf("message pair M14E4...............: %lld", mp1c);
-	if(mp80c != 0)
+	if(mp81c != 0)
 		{
 		printf(" (warning: %lld not replaycount checked)", mp81c);
 		}
@@ -1920,7 +1920,7 @@ if(mp1c != 0)
 if(mp2c != 0)
 	{
 	printf("message pair M32E2...............: %lld", mp2c);
-	if(mp80c != 0)
+	if(mp82c != 0)
 		{
 		printf(" (warning: %lld not replaycount checked)", mp82c);
 		}
@@ -1929,7 +1929,7 @@ if(mp2c != 0)
 if(mp3c != 0)
 	{
 	printf("message pair M32E3...............: %lld", mp3c);
-	if(mp80c != 0)
+	if(mp83c != 0)
 		{
 		printf(" (warning: %lld not replaycount checked)", mp83c);
 		}
@@ -1938,7 +1938,7 @@ if(mp3c != 0)
 if(mp4c != 0)
 	{
 	printf("message pair M34E3...............: %lld", mp4c);
-	if(mp80c != 0)
+	if(mp84c != 0)
 		{
 		printf(" (warning: %lld not replaycount checked)", mp84c);
 		}
@@ -1947,7 +1947,7 @@ if(mp4c != 0)
 if(mp5c != 0)
 	{
 	printf("message pair M34E4...............: %lld", mp5c);
-	if(mp80c != 0)
+	if(mp85c != 0)
 		{
 		printf(" (warning: %lld not replaycount checked)", mp85c);
 		}
