@@ -1479,8 +1479,6 @@ unsigned long long int mp2c;
 unsigned long long int mp3c;
 unsigned long long int mp4c;
 unsigned long long int mp5c;
-unsigned long long int mple;
-unsigned long long int mpbe;
 unsigned long long int mp80c;
 unsigned long long int mp81c;
 unsigned long long int mp82c;
@@ -1510,8 +1508,6 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 	mp3c = 0;
 	mp4c = 0;
 	mp5c = 0;
-	mple = 0;
-	mpbe = 0;
 	mp80c = 0;
 	mp81c = 0;
 	mp82c = 0;
@@ -1598,14 +1594,6 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 							if((mp & 0x80) == 0x80)
 								mp85c++;
 							}
-						if((mp & 0x20) == 0x20)
-							{
-							mple++;
-							}
-						if((mp & 0x40) == 0x40)
-							{
-							mpbe++;
-							}
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
 						essidchangecount++;
@@ -1658,8 +1646,6 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 	mp3c = 0;
 	mp4c = 0;
 	mp5c = 0;
-	mple = 0;
-	mpbe = 0;
 	mp80c = 0;
 	mp81c = 0;
 	mp82c = 0;
@@ -1746,14 +1732,6 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 							if((mp & 0x80) == 0x80)
 								mp85c++;
 							}
-						if((mp & 0x20) == 0x20)
-							{
-							mple++;
-							}
-						if((mp & 0x40) == 0x40)
-							{
-							mpbe++;
-							}
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
 						essidchangecount++;
@@ -1802,8 +1780,6 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 	mp3c = 0;
 	mp4c = 0;
 	mp5c = 0;
-	mple = 0;
-	mpbe = 0;
 	mp80c = 0;
 	mp81c = 0;
 	mp82c = 0;
@@ -1889,14 +1865,6 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 							mp5c++;
 							if((mp & 0x80) == 0x80)
 								mp85c++;
-							}
-						if((mp & 0x20) == 0x20)
-							{
-							mple++;
-							}
-						if((mp & 0x40) == 0x40)
-							{
-							mpbe++;
 							}
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
