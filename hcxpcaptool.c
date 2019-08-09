@@ -1529,104 +1529,104 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 			zeigeressid = apstaessidlistecleaned;
 			memset(&essidold, 0,32);
 			essidchangecount = 0;
-			for(d = 0; d < apstaessidcountcleaned; d++)
+			mp = getmessagepair(zeiger);
+			if(((mp & 0x80) != 0x80) || (replaycountcheckflag == true))
 				{
-				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
-					break;
-					}
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
-					{
-					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
+					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
 						{
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
+						break;
+						}
+					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
+						{
+						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
-							if(zeigeressid->essid[ec] < 0x20)
+							for(ec = 0; ec < zeigeressid->essidlen; ec++)
 								{
-								zeigeressid++;
-								continue;
+								if(zeigeressid->essid[ec] < 0x20)
+									{
+									zeigeressid++;
+									continue;
+									}
 								}
-							}
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
-							{
-							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 1))
+							for(ec = 0; ec < zeigeressid->essidlen; ec++)
 								{
-								zeigeressid++;
-								continue;
+								if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 1))
+									{
+									zeigeressid++;
+									continue;
+									}
 								}
-							}
-						zeiger->essidlen = zeigeressid->essidlen;
-						memset(zeiger->essid, 0, 32);
-						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						mp = getmessagepair(zeiger);
-						if((replaycountcheckflag == true) && ((mp & 0x80) == 0x80))
-							{
-							continue;
-							}
-						writehccapxrecord(zeiger, fhoutlist);
-						writtencount++;
-						if((mp & 0x03) == 0)
-							{
-							mp0c++;
-							if((mp & 0x80) == 0x80)
+							zeiger->essidlen = zeigeressid->essidlen;
+							memset(zeiger->essid, 0, 32);
+							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+							mp = getmessagepair(zeiger);
+							writehccapxrecord(zeiger, fhoutlist);
+							writtencount++;
+							if((mp & 0x07) == 0)
 								{
-								mp80c++;
+								mp0c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp80c++;
+									}
 								}
-							}
-						if((mp & 0x03) == 1)
-							{
-							mp1c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 1)
 								{
-								mp81c++;
+								mp1c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp81c++;
+									}
 								}
-							}
-						if((mp & 0x03) == 2)
-							{
-							mp2c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 2)
 								{
-								mp82c++;
+								mp2c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp82c++;
+									}
 								}
-							}
-						if((mp & 0x07) == 3)
-							{
-							mp3c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 3)
 								{
-								mp83c++;
+								mp3c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp83c++;
+									}
 								}
-							}
-						if((mp & 0x07) == 4)
-							{
-							mp4c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 4)
 								{
-								mp84c++;
+								mp4c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp84c++;
+									}
 								}
-							}
-						if((mp & 0x07) == 5)
-							{
-							mp5c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 5)
 								{
-								mp85c++;
+								mp5c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp85c++;
+									}
 								}
-							}
-						memset(&essidold, 0,32);
-						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-						essidchangecount++;
-						if(essidchangecount > 1)
-							{
-							essidchangeflag = true;
-							}
-						if(essidchangecount >= maxessidchanges)
-							{
-							break;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							essidchangecount++;
+							if(essidchangecount > 1)
+								{
+								essidchangeflag = true;
+								}
+							if(essidchangecount >= maxessidchanges)
+								{
+								break;
+								}
 							}
 						}
+					zeigeressid++;
 					}
-				zeigeressid++;
 				}
 			zeiger++;
 			}
@@ -1669,100 +1669,99 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 			zeigeressid = apstaessidlistecleaned;
 			memset(&essidold, 0,32);
 			essidchangecount = 0;
-			for(d = 0; d < apstaessidcountcleaned; d++)
+			mp = getmessagepair(zeiger);
+			if(((mp & 0x80) != 0x80) || (replaycountcheckflag == true))
 				{
-				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
-					break;
-					}
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
-					{
-					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
+					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
 						{
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
+						break;
+						}
+					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
+						{
+						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
-							if(zeigeressid->essid[ec] < 0x20)
+							for(ec = 0; ec < zeigeressid->essidlen; ec++)
 								{
-								zeigeressid++;
-								continue;
+								if(zeigeressid->essid[ec] < 0x20)
+									{
+									zeigeressid++;
+									continue;
+									}
 								}
-							}
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
-							{
-							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
+							for(ec = 0; ec < zeigeressid->essidlen; ec++)
 								{
-								zeigeressid++;
-								continue;
+								if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
+									{
+									zeigeressid++;
+									continue;
+									}
 								}
-							}
-						zeiger->essidlen = zeigeressid->essidlen;
-						memset(zeiger->essid, 0, 32);
-						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						mp = getmessagepair(zeiger);
-						if((replaycountcheckflag == true) && ((mp & 0x80) == 0x80))
-							{
-							continue;
-							}
-						writehccaprecord(maxrcdiff, zeiger, fhoutlist);
-						writtencount++;
-						if((mp & 0x03) == 0)
-							{
-							mp0c++;
-							if((mp & 0x80) == 0x80)
+							zeiger->essidlen = zeigeressid->essidlen;
+							memset(zeiger->essid, 0, 32);
+							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+							writehccaprecord(maxrcdiff, zeiger, fhoutlist);
+							writtencount++;
+							if((mp & 0x07) == 0)
 								{
-								mp80c++;
+								mp0c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp80c++;
+									}
 								}
-							}
-						if((mp & 0x03) == 1)
-							{
-							mp1c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 1)
 								{
-								mp81c++;
+								mp1c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp81c++;
+									}
 								}
-							}
-						if((mp & 0x03) == 2)
-							{
-							mp2c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 2)
 								{
-								mp82c++;
+								mp2c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp82c++;
+									}
 								}
-							}
-						if((mp & 0x07) == 3)
-							{
-							mp3c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 3)
 								{
-								mp83c++;
+								mp3c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp83c++;
+									}
 								}
-							}
-						if((mp & 0x07) == 4)
-							{
-							mp4c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 4)
 								{
-								mp84c++;
+								mp4c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp84c++;
+									}
 								}
-							}
-						if((mp & 0x07) == 5)
-							{
-							mp5c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 5)
 								{
-								mp85c++;
+								mp5c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp85c++;
+									}
 								}
-							}
-						memset(&essidold, 0,32);
-						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-						essidchangecount++;
-						if(essidchangecount >= maxessidchanges)
-							{
-							break;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							essidchangecount++;
+							if(essidchangecount >= maxessidchanges)
+								{
+								break;
+								}
 							}
 						}
+					zeigeressid++;
 					}
-				zeigeressid++;
 				}
 			zeiger++;
 			}
@@ -1805,100 +1804,99 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 			zeigeressid = apstaessidlistecleaned;
 			memset(&essidold, 0,32);
 			essidchangecount = 0;
-			for(d = 0; d < apstaessidcountcleaned; d++)
+			mp = getmessagepair(zeiger);
+			if(((mp & 0x80) != 0x80) || (replaycountcheckflag == true))
 				{
-				if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
+				for(d = 0; d < apstaessidcountcleaned; d++)
 					{
-					break;
-					}
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
-					{
-					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
+					if(memcmp(zeigeressid->mac_ap, zeiger->mac_ap, 6) > 0)
 						{
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
+						break;
+						}
+					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
+						{
+						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
-							if(zeigeressid->essid[ec] < 0x20)
+							for(ec = 0; ec < zeigeressid->essidlen; ec++)
 								{
-								zeigeressid++;
-								continue;
+								if(zeigeressid->essid[ec] < 0x20)
+									{
+									zeigeressid++;
+									continue;
+									}
 								}
-							}
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
-							{
-							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
+							for(ec = 0; ec < zeigeressid->essidlen; ec++)
 								{
-								zeigeressid++;
-								continue;
+								if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
+									{
+									zeigeressid++;
+									continue;
+									}
 								}
-							}
-						zeiger->essidlen = zeigeressid->essidlen;
-						memset(zeiger->essid, 0, 32);
-						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-						mp = getmessagepair(zeiger);
-						if((replaycountcheckflag == true) && ((mp & 0x80) == 0x80))
-							{
-							continue;
-							}
-						writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
-						writtencount++;
-						if((mp & 0x03) == 0)
-							{
-							mp0c++;
-							if((mp & 0x80) == 0x80)
+							zeiger->essidlen = zeigeressid->essidlen;
+							memset(zeiger->essid, 0, 32);
+							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+							writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
+							writtencount++;
+							if((mp & 0x07) == 0)
 								{
-								mp80c++;
+								mp0c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp80c++;
+									}
 								}
-							}
-						if((mp & 0x03) == 1)
-							{
-							mp1c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 1)
 								{
-								mp81c++;
+								mp1c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp81c++;
+									}
 								}
-							}
-						if((mp & 0x03) == 2)
-							{
-							mp2c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 2)
 								{
-								mp82c++;
+								mp2c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp82c++;
+									}
 								}
-							}
-						if((mp & 0x07) == 3)
-							{
-							mp3c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 3)
 								{
-								mp83c++;
+								mp3c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp83c++;
+									}
 								}
-							}
-						if((mp & 0x07) == 4)
-							{
-							mp4c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 4)
 								{
-								mp84c++;
+								mp4c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp84c++;
+									}
 								}
-							}
-						if((mp & 0x07) == 5)
-							{
-							mp5c++;
-							if((mp & 0x80) == 0x80)
+							if((mp & 0x07) == 5)
 								{
-								mp85c++;
+								mp5c++;
+								if((mp & 0x80) == 0x80)
+									{
+									mp85c++;
+									}
 								}
-							}
-						memset(&essidold, 0,32);
-						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
-						essidchangecount++;
-						if(essidchangecount >= maxessidchanges)
-							{
-							break;
+							memset(&essidold, 0,32);
+							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
+							essidchangecount++;
+							if(essidchangecount >= maxessidchanges)
+								{
+								break;
+								}
 							}
 						}
+					zeigeressid++;
 					}
-				zeigeressid++;
 				}
 			zeiger++;
 			}
@@ -1910,7 +1908,7 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 			}
 		else
 			{
-			printf("%llu handshake(s) written to %s", writtencount, johnbestoutname);
+			printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
 			}
 		}
 	}
@@ -6772,7 +6770,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                    format: 112233445566\n"
 	"--ignore-fake-frames              : do not convert fake frames\n"
 	"--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)\n"
-	"--replaycountcheck                : convert only replaycount checked EAPOL frames\n"
+	"--ignore-replaycountcheck         : allow not replaycount checked best handshakes\n"
 	"--time-error-corrections=<digit>  : maximum time gap between EAPOL frames - EAPOL TIMEOUT (default: %llus)\n"
 	"--nonce-error-corrections=<digit> : maximum replycount/nonce gap to be converted (default: %llu)\n"
 	"                                    example: --nonce-error-corrections=60 \n"
@@ -6892,7 +6890,7 @@ static const struct option long_options[] =
 	{"filtermac",			required_argument,	NULL,	HCXT_FILTER_MAC},
 	{"ignore-fake-frames",		no_argument,		NULL,	HCXT_IGNORE_FAKE_FRAMES},
 	{"ignore-zeroed-pmks",		no_argument,		NULL,	HCXT_IGNORE_ZEROED_PMKS},
-	{"replaycountcheck",		no_argument,		NULL,	HCXT_REPLAYCOUNTCHECK},
+	{"ignore-replaycountcheck",	no_argument,		NULL,	HCXT_REPLAYCOUNTCHECK},
 	{"prefix-out",			required_argument,	NULL,	HCXT_PREFIX_OUT},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},

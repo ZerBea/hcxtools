@@ -362,21 +362,21 @@ while(c < hcxrecords)
 	if(eapver == 2)
 		xverc2++;
 
-	if((zeigerhcx->message_pair & 0x03) == 0)
+	if((zeigerhcx->message_pair & 0x07) == 0)
 		{
 		mp0c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 			mp80c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x03) == 1)
+	if((zeigerhcx->message_pair & 0x07) == 1)
 		{
 		mp1c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
 			mp81c++;
 		}
 
-	if((zeigerhcx->message_pair & 0x03) == 2)
+	if((zeigerhcx->message_pair & 0x07) == 2)
 		{
 		mp2c++;
 		if((zeigerhcx->message_pair & 0x80) == 0x80)
