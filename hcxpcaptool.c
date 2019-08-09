@@ -1901,32 +1901,28 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 	}
 if(mp0c != 0)
 	{
-	printf("message pair M12E2...............: %lld (%lld not replaycount checked)\n", mp0c, mp80c);
+	printf("message pair M12E2...............: %lld (warning: %lld not replaycount checked)\n", mp0c, mp80c);
 	}
 if(mp1c != 0)
 	{
-	printf("message pair M14E4...............: %lld (%lld not replaycount checked)\n", mp1c, mp81c);
+	printf("message pair M14E4...............: %lld (warning: %lld not replaycount checked)\n", mp1c, mp81c);
 	}
 if(mp2c != 0)
 	{
-	printf("message pair M32E2...............: %lld (%lld not replaycount checked)\n", mp2c, mp82c);
+	printf("message pair M32E2...............: %lld (warning: %lld not replaycount checked)\n", mp2c, mp82c);
 	}
 if(mp3c != 0)
 	{
-	printf("message pair M32E3...............: %lld (%lld not replaycount checked)\n", mp3c, mp83c);
+	printf("message pair M32E3...............: %lld (warning: %lld not replaycount checked)\n", mp3c, mp83c);
 	}
 if(mp4c != 0)
 	{
-	printf("message pair M34E3...............: %lld (%lld not replaycount checked)\n", mp4c, mp84c);
+	printf("message pair M34E3...............: %lld (warning: %lld not replaycount checked)\n", mp4c, mp84c);
 	}
 if(mp5c != 0)
 	{
-	printf("message pair M34E4...............: %lld (%lld not replaycount checked)\n", mp5c, mp85c);
+	printf("message pair M34E4...............: %lld (warning: %lld not replaycount checked)\n", mp5c, mp85c);
 	}
-
-
-
-
 return;
 }
 /*===========================================================================*/
