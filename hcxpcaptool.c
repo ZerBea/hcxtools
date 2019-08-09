@@ -1473,18 +1473,18 @@ unsigned long long int writtencount;
 int essidchangecount;
 bool essidchangeflag;
 int mp;
-unsigned long long int mp0c;
-unsigned long long int mp1c;
-unsigned long long int mp2c;
-unsigned long long int mp3c;
-unsigned long long int mp4c;
-unsigned long long int mp5c;
-unsigned long long int mp80c;
-unsigned long long int mp81c;
-unsigned long long int mp82c;
-unsigned long long int mp83c;
-unsigned long long int mp84c;
-unsigned long long int mp85c;
+unsigned long long int mp0c = 0;
+unsigned long long int mp1c = 0;
+unsigned long long int mp2c = 0;
+unsigned long long int mp3c = 0;
+unsigned long long int mp4c = 0;
+unsigned long long int mp5c = 0;
+unsigned long long int mp80c = 0;
+unsigned long long int mp81c = 0;
+unsigned long long int mp82c = 0;
+unsigned long long int mp83c = 0;
+unsigned long long int mp84c = 0;
+unsigned long long int mp85c = 0;
 
 uint8_t essidold[ESSID_LEN_MAX];
 
@@ -1627,25 +1627,11 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 		removeemptyfile(hccapxbestoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu handshake(s) written to %s (ESSID changes detected):\n"
-			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
-			, writtencount, hccapxbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			printf("%llu handshake(s) written to %s (ESSID changes detected)\n", writtencount, hccapxbestoutname);
 			}
 		else
 			{
-			printf("%llu handshake(s) written to %s:\n"
-			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
-			, writtencount, hccapxbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			printf("%llu handshake(s) written to %s\n", writtencount, hccapxbestoutname);
 			}
 		}
 	}
@@ -1773,25 +1759,11 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 		removeemptyfile(hccapbestoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu handshake(s) written to %s (ESSID changes detected):\n"
-			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
-			, writtencount, hccapbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			printf("%llu handshake(s) written to %s (ESSID changes detected)\n", writtencount, hccapbestoutname);
 			}
 		else
 			{
-			printf("%llu handshake(s) written to %s:\n"
-			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
-			, writtencount, hccapbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			printf("%llu handshake(s) written to %s\n", writtencount, hccapbestoutname);
 			}
 		}
 	}
@@ -1919,28 +1891,42 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 		removeemptyfile(johnbestoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu handshake(s) written to %s (ESSID changes detected):\n"
-			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
-			, writtencount, johnbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			printf("%llu handshake(s) written to %s (ESSID changes detected)\n", writtencount, johnbestoutname);
 			}
 		else
 			{
-			printf("%llu handshake(s) written to %s:\n"
-			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
-			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
-			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
-			, writtencount, johnbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
+			printf("%llu handshake(s) written to %s", writtencount, johnbestoutname);
 			}
 		}
 	}
+if(mp0c != 0)
+	{
+	printf("message pair M12E2...............: %lld (%lld not replaycount checked)\n", mp0c, mp80c);
+	}
+if(mp1c != 0)
+	{
+	printf("message pair M14E4...............: %lld (%lld not replaycount checked)\n", mp1c, mp81c);
+	}
+if(mp2c != 0)
+	{
+	printf("message pair M32E2...............: %lld (%lld not replaycount checked)\n", mp2c, mp82c);
+	}
+if(mp3c != 0)
+	{
+	printf("message pair M32E3...............: %lld (%lld not replaycount checked)\n", mp3c, mp83c);
+	}
+if(mp4c != 0)
+	{
+	printf("message pair M34E3...............: %lld (%lld not replaycount checked)\n", mp4c, mp84c);
+	}
+if(mp5c != 0)
+	{
+	printf("message pair M34E4...............: %lld (%lld not replaycount checked)\n", mp5c, mp85c);
+	}
+
+
+
+
 return;
 }
 /*===========================================================================*/
