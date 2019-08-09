@@ -59,7 +59,7 @@
 #define HCXT_FILTER_MAC			13
 #define HCXT_IGNORE_FAKE_FRAMES		14
 #define HCXT_IGNORE_ZEROED_PMKS		15
-#define HCXT_REPLAYCOUNTCHECK		16
+#define HCXT_IGNORE_REPLAYCOUNT		16
 #define HCXT_PREFIX_OUT			17
 
 #define HCXT_WPA12_OUT			'w'
@@ -6770,7 +6770,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                    format: 112233445566\n"
 	"--ignore-fake-frames              : do not convert fake frames\n"
 	"--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)\n"
-	"--ignore-replaycountcheck         : allow not replaycount checked best handshakes\n"
+	"--ignore-replaycount              : allow not replaycount checked best handshakes\n"
 	"--time-error-corrections=<digit>  : maximum time gap between EAPOL frames - EAPOL TIMEOUT (default: %llus)\n"
 	"--nonce-error-corrections=<digit> : maximum replycount/nonce gap to be converted (default: %llu)\n"
 	"                                    example: --nonce-error-corrections=60 \n"
@@ -6890,7 +6890,7 @@ static const struct option long_options[] =
 	{"filtermac",			required_argument,	NULL,	HCXT_FILTER_MAC},
 	{"ignore-fake-frames",		no_argument,		NULL,	HCXT_IGNORE_FAKE_FRAMES},
 	{"ignore-zeroed-pmks",		no_argument,		NULL,	HCXT_IGNORE_ZEROED_PMKS},
-	{"ignore-replaycountcheck",	no_argument,		NULL,	HCXT_REPLAYCOUNTCHECK},
+	{"ignore-replaycount",		no_argument,		NULL,	HCXT_IGNORE_REPLAYCOUNT},
 	{"prefix-out",			required_argument,	NULL,	HCXT_PREFIX_OUT},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},
@@ -7110,7 +7110,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		zeroedpmkflag = true;
 		break;
 
-		case HCXT_REPLAYCOUNTCHECK:
+		case HCXT_IGNORE_REPLAYCOUNT:
 		replaycountcheckflag = true;
 		break;
 
