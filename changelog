@@ -4,6 +4,32 @@ hcxpcaptool: removed option --replaycountcheck
              added option --ignore-replaycount to allow conversion of not replaycount checked handshakes
              if we have no replaycount matching handshake - in that case nc must be used!
 
+Remarks:
+total best handshakes and total best PMKIDs can be different to realy written ones:
+
+best handshakes (total)..........: 190 (ap-less: 122)
+best PMKIDs (total)..............: 30
+
+summary output file(s):
+-----------------------
+175 handshake(s) written to /tmp/test.hccapx
+message pair M12E2...............: 157
+message pair M32E2...............: 16
+message pair M34E4...............: 2
+29 PMKID(s) written to /tmp/test.16800
+
+That depend on this additional options and the quality of the cap file:
+--ignore-fake-frames              : do not convert fake frames
+--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)
+--ignore-replaycount              : allow not replaycount checked best handshakes
+--time-error-corrections=<digit>  : maximum time gap between EAPOL frames - EAPOL TIMEOUT (default: 600s)
+--nonce-error-corrections=<digit> : maximum replycount/nonce gap to be converted (default: 8)
+                                    example: --nonce-error-corrections=60 
+                                    convert handshakes up to a possible packetloss of 59 packets
+                                    hashcat nonce-error-corrections should be twice as much as hcxpcaptool value
+--max-essid-changes=<digit>       : allow maximum ESSID changes (default: 1 - no ESSID change is allowed)
+
+
 
 09.08.2019
 ==========

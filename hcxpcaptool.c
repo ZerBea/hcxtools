@@ -861,11 +861,11 @@ if(rawhandshakecount != 0)
 	}
 if(handshakecount != 0)
 	{
-	printf("best handshakes..................: %llu (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
+	printf("best handshakes (total)..........: %llu (ap-less: %llu)\n", handshakecount, handshakeaplesscount);
 	}
 if(pmkidcount != 0)
 	{
-	printf("best PMKIDs......................: %llu\n", pmkidcount);
+	printf("best PMKIDs (total)..............: %llu\n", pmkidcount);
 	}
 printf("\n");
 return;
