@@ -518,7 +518,8 @@ void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int ver
 {
 int p;
 printf( "                                                \n"
-	"summary:                                        \n--------\n"
+	"summary capture file:                           \n"
+	"---------------------\n"
 	"file name........................: %s\n"
 	"file type........................: %s %d.%d\n"
 	"file hardware information........: %s\n"
@@ -1211,6 +1212,46 @@ if(trafficoutname != NULL)
 return;
 }
 /*===========================================================================*/
+static int getmessagepair(hcxl_t *zeiger)
+{
+int messagepair = 0x80;
+if((zeiger->keyinfo_ap == 1) && (zeiger->keyinfo_sta == 4))
+	{
+	messagepair = MESSAGE_PAIR_M12E2;
+	if(zeiger->replaycount_ap != zeiger->replaycount_sta)
+		{
+		messagepair |= 0x80;
+		}
+	}
+else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 4))
+	{
+	messagepair = MESSAGE_PAIR_M32E2;
+	if(zeiger->replaycount_ap -1 != zeiger->replaycount_sta)
+		{
+		messagepair |= 0x80;
+		}
+	}
+else if((zeiger->keyinfo_ap == 1) && (zeiger->keyinfo_sta == 8))
+	{
+	messagepair = MESSAGE_PAIR_M14E4;
+	if(zeiger->replaycount_ap +1 != zeiger->replaycount_sta)
+		{
+		messagepair |= 0x80;
+		}
+	}
+else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 8))
+	{
+	messagepair = MESSAGE_PAIR_M34E4;
+	if(zeiger->replaycount_ap != zeiger->replaycount_sta)
+		{
+		messagepair |= 0x80;
+		}
+	}
+messagepair |= zeiger->endianess;
+return messagepair;
+}
+
+/*===========================================================================*/
 void outputwpacrossoverlists()
 {
 unsigned long long int c, d, p;
@@ -1349,9 +1390,6 @@ if((apstaessidlistecleaned != NULL) && (wpa12bestoutname != NULL))
 							fprintf(fhoutlist, "%02x", zeigeressid->essid[p]);
 							}
 						fprintf(fhoutlist, "\n");
-
-
-
 						writtencount++;
 						essidchangecount++;
 						memset(&essidold, 0,32);
@@ -1422,8 +1460,6 @@ if((apstaessidlistecleaned != NULL) && (wpa12bestoutname != NULL))
 		printf("%llu PMKID(s) written to %s\n", writtencount, wpa12bestoutname);
 		}
 	}
-
-
 return;
 }
 /*===========================================================================*/
@@ -1436,6 +1472,21 @@ FILE *fhoutlist = NULL;
 unsigned long long int writtencount;
 int essidchangecount;
 bool essidchangeflag;
+int mp;
+unsigned long long int mp0c;
+unsigned long long int mp1c;
+unsigned long long int mp2c;
+unsigned long long int mp3c;
+unsigned long long int mp4c;
+unsigned long long int mp5c;
+unsigned long long int mple;
+unsigned long long int mpbe;
+unsigned long long int mp80c;
+unsigned long long int mp81c;
+unsigned long long int mp82c;
+unsigned long long int mp83c;
+unsigned long long int mp84c;
+unsigned long long int mp85c;
 
 uint8_t essidold[ESSID_LEN_MAX];
 
@@ -1449,8 +1500,24 @@ if(apstaessidlistecleaned != NULL)
 	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_count_essid);
 	}
 
+printf(	"summary output file(s):\n"
+	"-----------------------\n");
 if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 	{
+	mp0c = 0;
+	mp1c = 0;
+	mp2c = 0;
+	mp3c = 0;
+	mp4c = 0;
+	mp5c = 0;
+	mple = 0;
+	mpbe = 0;
+	mp80c = 0;
+	mp81c = 0;
+	mp82c = 0;
+	mp83c = 0;
+	mp84c = 0;
+	mp85c = 0;
 	essidchangecount = 0;
 	if((fhoutlist = fopen(hccapxbestoutname, "a+")) != NULL)
 		{
@@ -1494,6 +1561,51 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 						writehccapxrecord(zeiger, fhoutlist);
 						writtencount++;
+						mp = getmessagepair(zeiger);
+						if((mp & 0x03) == 0)
+							{
+							mp0c++;
+							if((mp & 0x80) == 0x80)
+								mp80c++;
+							}
+						if((mp & 0x03) == 1)
+							{
+							mp1c++;
+							if((mp & 0x80) == 0x80)
+								mp81c++;
+							}
+						if((mp & 0x03) == 2)
+							{
+							mp2c++;
+							if((mp & 0x80) == 0x80)
+								mp82c++;
+							}
+						if((mp & 0x07) == 3)
+							{
+							mp3c++;
+							if((mp & 0x80) == 0x80)
+								mp83c++;
+							}
+						if((mp & 0x07) == 4)
+							{
+							mp4c++;
+							if((mp & 0x80) == 0x80)
+								mp84c++;
+							}
+						if((mp & 0x07) == 5)
+							{
+							mp5c++;
+							if((mp & 0x80) == 0x80)
+								mp85c++;
+							}
+						if((mp & 0x20) == 0x20)
+							{
+							mple++;
+							}
+						if((mp & 0x40) == 0x40)
+							{
+							mpbe++;
+							}
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
 						essidchangecount++;
@@ -1515,17 +1627,45 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 		removeemptyfile(hccapxbestoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu handshake(s) written to %s (ESSID changes detected)\n", writtencount, hccapxbestoutname);
+			printf("%llu handshake(s) written to %s (ESSID changes detected):\n"
+			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
+			, writtencount, hccapxbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 			}
 		else
 			{
-			printf("%llu handshake(s) written to %s\n", writtencount, hccapxbestoutname);
+			printf("%llu handshake(s) written to %s:\n"
+			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
+			, writtencount, hccapxbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 			}
 		}
 	}
 
 if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 	{
+	mp0c = 0;
+	mp1c = 0;
+	mp2c = 0;
+	mp3c = 0;
+	mp4c = 0;
+	mp5c = 0;
+	mple = 0;
+	mpbe = 0;
+	mp80c = 0;
+	mp81c = 0;
+	mp82c = 0;
+	mp83c = 0;
+	mp84c = 0;
+	mp85c = 0;
 	essidchangecount = 0;
 	if((fhoutlist = fopen(hccapbestoutname, "a+")) != NULL)
 		{
@@ -1569,6 +1709,51 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 						writehccaprecord(maxrcdiff, zeiger, fhoutlist);
 						writtencount++;
+						mp = getmessagepair(zeiger);
+						if((mp & 0x03) == 0)
+							{
+							mp0c++;
+							if((mp & 0x80) == 0x80)
+								mp80c++;
+							}
+						if((mp & 0x03) == 1)
+							{
+							mp1c++;
+							if((mp & 0x80) == 0x80)
+								mp81c++;
+							}
+						if((mp & 0x03) == 2)
+							{
+							mp2c++;
+							if((mp & 0x80) == 0x80)
+								mp82c++;
+							}
+						if((mp & 0x07) == 3)
+							{
+							mp3c++;
+							if((mp & 0x80) == 0x80)
+								mp83c++;
+							}
+						if((mp & 0x07) == 4)
+							{
+							mp4c++;
+							if((mp & 0x80) == 0x80)
+								mp84c++;
+							}
+						if((mp & 0x07) == 5)
+							{
+							mp5c++;
+							if((mp & 0x80) == 0x80)
+								mp85c++;
+							}
+						if((mp & 0x20) == 0x20)
+							{
+							mple++;
+							}
+						if((mp & 0x40) == 0x40)
+							{
+							mpbe++;
+							}
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
 						essidchangecount++;
@@ -1586,17 +1771,45 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 		removeemptyfile(hccapbestoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu handshake(s) written to %s (ESSID changes detected)\n", writtencount, hccapbestoutname);
+			printf("%llu handshake(s) written to %s (ESSID changes detected):\n"
+			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
+			, writtencount, hccapbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 			}
 		else
 			{
-			printf("%llu handshake(s) written to %s\n", writtencount, hccapbestoutname);
+			printf("%llu handshake(s) written to %s:\n"
+			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
+			, writtencount, hccapbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 			}
 		}
 	}
 
 if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 	{
+	mp0c = 0;
+	mp1c = 0;
+	mp2c = 0;
+	mp3c = 0;
+	mp4c = 0;
+	mp5c = 0;
+	mple = 0;
+	mpbe = 0;
+	mp80c = 0;
+	mp81c = 0;
+	mp82c = 0;
+	mp83c = 0;
+	mp84c = 0;
+	mp85c = 0;
 	essidchangecount = 0;
 	if((fhoutlist = fopen(johnbestoutname, "a+")) != NULL)
 		{
@@ -1640,6 +1853,51 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 						writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
 						writtencount++;
+						mp = getmessagepair(zeiger);
+						if((mp & 0x03) == 0)
+							{
+							mp0c++;
+							if((mp & 0x80) == 0x80)
+								mp80c++;
+							}
+						if((mp & 0x03) == 1)
+							{
+							mp1c++;
+							if((mp & 0x80) == 0x80)
+								mp81c++;
+							}
+						if((mp & 0x03) == 2)
+							{
+							mp2c++;
+							if((mp & 0x80) == 0x80)
+								mp82c++;
+							}
+						if((mp & 0x07) == 3)
+							{
+							mp3c++;
+							if((mp & 0x80) == 0x80)
+								mp83c++;
+							}
+						if((mp & 0x07) == 4)
+							{
+							mp4c++;
+							if((mp & 0x80) == 0x80)
+								mp84c++;
+							}
+						if((mp & 0x07) == 5)
+							{
+							mp5c++;
+							if((mp & 0x80) == 0x80)
+								mp85c++;
+							}
+						if((mp & 0x20) == 0x20)
+							{
+							mple++;
+							}
+						if((mp & 0x40) == 0x40)
+							{
+							mpbe++;
+							}
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
 						essidchangecount++;
@@ -1657,11 +1915,25 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 		removeemptyfile(johnbestoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu handshake(s) written to %s (ESSID changes detected)\n", writtencount, johnbestoutname);
+			printf("%llu handshake(s) written to %s (ESSID changes detected):\n"
+			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
+			, writtencount, johnbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 			}
 		else
 			{
-			printf("%llu handshake(s) written to %s\n", writtencount, johnbestoutname);
+			printf("%llu handshake(s) written to %s:\n"
+			"message pair M12E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M14E4...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E2...............: %lld (%lld not replaycount checked)\n"
+			"message pair M32E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E3...............: %lld (%lld not replaycount checked)\n"
+			"message pair M34E4...............: %lld (%lld not replaycount checked)\n"
+			, writtencount, johnbestoutname, mp0c, mp80c, mp1c, mp81c, mp2c, mp82c, mp3c, mp83c, mp4c, mp84c, mp5c, mp85c);
 			}
 		}
 	}
