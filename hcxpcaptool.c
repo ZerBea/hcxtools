@@ -1634,7 +1634,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 		removeemptyfile(hccapxbestoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu handshake(s) written to %s (ESSID changes detected)\n", writtencount, hccapxbestoutname);
+			printf("%llu handshake(s) written to %s (warning: ESSID changes detected)\n", writtencount, hccapxbestoutname);
 			}
 		else
 			{
@@ -1770,7 +1770,7 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 		removeemptyfile(hccapbestoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu handshake(s) written to %s (ESSID changes detected)\n", writtencount, hccapbestoutname);
+			printf("%llu handshake(s) written to %s (warning: ESSID changes detected)\n", writtencount, hccapbestoutname);
 			}
 		else
 			{
@@ -1906,7 +1906,7 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 		removeemptyfile(johnbestoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu handshake(s) written to %s (ESSID changes detected)\n", writtencount, johnbestoutname);
+			printf("%llu handshake(s) written to %s (warning: ESSID changes detected)\n", writtencount, johnbestoutname);
 			}
 		else
 			{
@@ -2269,7 +2269,7 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 		removeemptyfile(hcpmkidoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu PMKID(s) written to %s (ESSID changes detected)\n", writtencount, hcpmkidoutname);
+			printf("%llu PMKID(s) written to %s (warning: ESSID changes detected)\n", writtencount, hcpmkidoutname);
 			}
 		else
 			{
@@ -2359,7 +2359,7 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoldoutname != NULL))
 		removeemptyfile(hcpmkidoldoutname);
 		if(essidchangeflag == true)
 			{
-			printf("%llu PMKID(s) written to %s (ESSID changes detected)\n", writtencount, hcpmkidoldoutname);
+			printf("%llu PMKID(s) written to %s (warning: ESSID changes detected)\n", writtencount, hcpmkidoldoutname);
 			}
 		else
 			{

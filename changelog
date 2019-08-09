@@ -2,6 +2,9 @@
 ==========
 hcxpcaptool: added summary (replaycount check) and print warning if result is not replaycount checked
              (in this case nc is necessary)
+
+             added warning if an ESSID change is detected.
+             this can be handled by increase the value of option --max-essid-changes
  
              added new option --replaycountcheck
 --replaycountcheck                : convert only replaycount checked frames
