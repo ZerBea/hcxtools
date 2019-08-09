@@ -1562,37 +1562,49 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 							{
 							mp0c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp80c++;
+								}
 							}
 						if((mp & 0x03) == 1)
 							{
 							mp1c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp81c++;
+								}
 							}
 						if((mp & 0x03) == 2)
 							{
 							mp2c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp82c++;
+								}
 							}
 						if((mp & 0x07) == 3)
 							{
 							mp3c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp83c++;
+								}
 							}
 						if((mp & 0x07) == 4)
 							{
 							mp4c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp84c++;
+								}
 							}
 						if((mp & 0x07) == 5)
 							{
 							mp5c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp85c++;
+								}
 							}
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
@@ -1700,37 +1712,49 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 							{
 							mp0c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp80c++;
+								}
 							}
 						if((mp & 0x03) == 1)
 							{
 							mp1c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp81c++;
+								}
 							}
 						if((mp & 0x03) == 2)
 							{
 							mp2c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp82c++;
+								}
 							}
 						if((mp & 0x07) == 3)
 							{
 							mp3c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp83c++;
+								}
 							}
 						if((mp & 0x07) == 4)
 							{
 							mp4c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp84c++;
+								}
 							}
 						if((mp & 0x07) == 5)
 							{
 							mp5c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp85c++;
+								}
 							}
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
@@ -1834,37 +1858,49 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 							{
 							mp0c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp80c++;
+								}
 							}
 						if((mp & 0x03) == 1)
 							{
 							mp1c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp81c++;
+								}
 							}
 						if((mp & 0x03) == 2)
 							{
 							mp2c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp82c++;
+								}
 							}
 						if((mp & 0x07) == 3)
 							{
 							mp3c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp83c++;
+								}
 							}
 						if((mp & 0x07) == 4)
 							{
 							mp4c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp84c++;
+								}
 							}
 						if((mp & 0x07) == 5)
 							{
 							mp5c++;
 							if((mp & 0x80) == 0x80)
+								{
 								mp85c++;
+								}
 							}
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
