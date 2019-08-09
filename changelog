@@ -2,6 +2,9 @@
 ==========
 hcxpcaptool: added summary (replaycount check) and print warning if result is not replaycount checked
              (in this case nc is necessary)
+ 
+             added new option --replaycountcheck
+--replaycountcheck                : convert only replaycount checked frames
 
 
 26.06.2019

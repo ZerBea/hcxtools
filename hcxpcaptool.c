@@ -59,7 +59,8 @@
 #define HCXT_FILTER_MAC			13
 #define HCXT_IGNORE_FAKE_FRAMES		14
 #define HCXT_IGNORE_ZEROED_PMKS		15
-#define HCXT_PREFIX_OUT			16
+#define HCXT_REPLAYCOUNTCHECK		16
+#define HCXT_PREFIX_OUT			17
 
 #define HCXT_WPA12_OUT			'w'
 #define HCXT_HCCAPX_OUT			'o'
@@ -100,6 +101,7 @@ bool wantrawflag;
 bool gpxflag;
 bool tscleanflag;
 bool tssameflag;
+bool replaycountcheckflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -320,6 +322,7 @@ wantrawflag = false;
 filtermacflag = false;
 fakeframeflag = false;
 zeroedpmkflag = false;
+replaycountcheckflag = false;
 gpxflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
@@ -1555,9 +1558,13 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						mp = getmessagepair(zeiger);
+						if((replaycountcheckflag == true) && ((mp & 0x80) == 0x80))
+							{
+							continue;
+							}
 						writehccapxrecord(zeiger, fhoutlist);
 						writtencount++;
-						mp = getmessagepair(zeiger);
 						if((mp & 0x03) == 0)
 							{
 							mp0c++;
@@ -1691,9 +1698,13 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						mp = getmessagepair(zeiger);
+						if((replaycountcheckflag == true) && ((mp & 0x80) == 0x80))
+							{
+							continue;
+							}
 						writehccaprecord(maxrcdiff, zeiger, fhoutlist);
 						writtencount++;
-						mp = getmessagepair(zeiger);
 						if((mp & 0x03) == 0)
 							{
 							mp0c++;
@@ -1823,9 +1834,13 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 						zeiger->essidlen = zeigeressid->essidlen;
 						memset(zeiger->essid, 0, 32);
 						memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
+						mp = getmessagepair(zeiger);
+						if((replaycountcheckflag == true) && ((mp & 0x80) == 0x80))
+							{
+							continue;
+							}
 						writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
 						writtencount++;
-						mp = getmessagepair(zeiger);
 						if((mp & 0x03) == 0)
 							{
 							mp0c++;
@@ -6757,6 +6772,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                    format: 112233445566\n"
 	"--ignore-fake-frames              : do not convert fake frames\n"
 	"--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)\n"
+	"--replaycountcheck                : convert only replaycount checked frames\n"
 	"--time-error-corrections=<digit>  : maximum time gap between EAPOL frames - EAPOL TIMEOUT (default: %llus)\n"
 	"--nonce-error-corrections=<digit> : maximum replycount/nonce gap to be converted (default: %llu)\n"
 	"                                    example: --nonce-error-corrections=60 \n"
@@ -6876,6 +6892,7 @@ static const struct option long_options[] =
 	{"filtermac",			required_argument,	NULL,	HCXT_FILTER_MAC},
 	{"ignore-fake-frames",		no_argument,		NULL,	HCXT_IGNORE_FAKE_FRAMES},
 	{"ignore-zeroed-pmks",		no_argument,		NULL,	HCXT_IGNORE_ZEROED_PMKS},
+	{"replaycountcheck",		no_argument,		NULL,	HCXT_REPLAYCOUNTCHECK},
 	{"prefix-out",			required_argument,	NULL,	HCXT_PREFIX_OUT},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},
@@ -7093,6 +7110,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_IGNORE_ZEROED_PMKS:
 		zeroedpmkflag = true;
+		break;
+
+		case HCXT_REPLAYCOUNTCHECK:
+		replaycountcheckflag = true;
 		break;
 
 		case HCXT_VERBOSE_OUT:
