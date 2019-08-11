@@ -7259,7 +7259,7 @@ if(gpxflag == true)
 	fprintf(fhgpx, "%s", gpxtail);
 	fclose(fhgpx);
 	}
-
+printf("\n");
 return EXIT_SUCCESS;
 }
 /*===========================================================================*/
