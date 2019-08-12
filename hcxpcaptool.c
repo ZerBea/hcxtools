@@ -271,6 +271,9 @@ uint16_t versionmajor;
 uint16_t versionminor;
 uint16_t dltlinktype;
 
+struct timeval mintv;
+struct timeval maxtv;
+
 uint64_t myaktreplaycount;
 uint8_t myaktnonce[32];
 
@@ -520,6 +523,14 @@ return "unknow nendian";
 void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int version_minor, int networktype, int endianess, unsigned long long int rawpacketcount, unsigned long long int skippedpacketcount, int pcapreaderrors, bool tscleanflag)
 {
 int p;
+
+static char mintimestring[32];
+static char maxtimestring[32];
+
+strftime(mintimestring, 32, "%m.%d.%Y %H:%M:%S", localtime(&mintv.tv_sec));
+strftime(maxtimestring, 32, "%m.%d.%Y %H:%M:%S", localtime(&maxtv.tv_sec));
+
+
 printf( "                                                \n"
 	"summary capture file:                           \n"
 	"---------------------\n"
@@ -531,11 +542,13 @@ printf( "                                                \n"
 	"network type.....................: %s (%d)\n"
 	"endianness.......................: %s\n"
 	"read errors......................: %s\n"
+	"first packet.....................: %s\n"
+	"last packet......................: %s\n"
 	"packets inside...................: %llu\n"
 	"skipped packets (damaged)........: %llu\n"
 	"packets with GPS data............: %llu\n"
 	"packets with FCS.................: %llu\n"
-	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
+	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
 if(tscleanflag == true)
 	{
 	printf("warning..........................: zero value time stamps detected - this prevents EAPOL timeout calculation\n");
@@ -5585,6 +5598,22 @@ ppi_t *ppi;
 uint32_t crc;
 struct timeval tvtmp;
 
+
+if(mintv.tv_sec == 0)
+	{
+	mintv.tv_sec = tv_sec;
+	}
+
+if(tv_sec <= mintv.tv_sec)
+	{
+	mintv.tv_sec = tv_sec;
+	}
+
+if(tv_sec >= maxtv.tv_sec)
+	{
+	maxtv.tv_sec = tv_sec;
+	}
+
 packet_ptr = packet;
 if(caplen < (uint32_t)MAC_SIZE_NORM)
 	{
@@ -6520,6 +6549,12 @@ wepframecount = 0;
 lat = 0;
 lon = 0;
 alt = 0;
+
+mintv.tv_sec = 0;
+mintv.tv_usec = 0;
+
+maxtv.tv_sec = 0;
+maxtv.tv_usec = 0;
 
 char *unknown = "unknown";
 char tmpoutname[PATH_MAX+1];
