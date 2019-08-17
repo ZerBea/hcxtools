@@ -1208,6 +1208,8 @@ if(essidlen == 10)
 				fprintf(fhout, "454C54585C0%05X\n", k1);
 				fprintf(fhout, "454C54585C1%05X\n", k1);
 				fprintf(fhout, "53434F4D1A0%05X\n", k1);
+				fprintf(fhout, "ELTX1A0%05X\n", k1);
+				fprintf(fhout, "ELTX5C0%05X\n", k1);
 				}
 			}
 		return;
