@@ -527,8 +527,8 @@ int p;
 static char mintimestring[32];
 static char maxtimestring[32];
 
-strftime(mintimestring, 32, "%d.%m.%Y %H:%M:%S", localtime(&mintv.tv_sec));
-strftime(maxtimestring, 32, "%d.%m.%Y %H:%M:%S", localtime(&maxtv.tv_sec));
+strftime(mintimestring, 32, "%d.%m.%Y %H:%M:%S", gmtime(&mintv.tv_sec));
+strftime(maxtimestring, 32, "%d.%m.%Y %H:%M:%S", gmtime(&maxtv.tv_sec));
 printf( "                                                \n"
 	"summary capture file:                           \n"
 	"---------------------\n"
