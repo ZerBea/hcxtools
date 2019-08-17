@@ -1192,6 +1192,29 @@ if(essidlen == 16)
 return;
 }
 /*===========================================================================*/
+static void testrtk(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1;
+static char *rtk =  "RTK-";
+
+if(essidlen == 10)
+	{
+	if((isxdigit(essid[4])) && (isxdigit(essid[5])) && (isxdigit(essid[6])) && (isxdigit(essid[7])) && (isxdigit(essid[8])) && (isxdigit(essid[9])))
+		{
+		if(memcmp(essid, rtk, 4) == 0)
+			{
+			for(k1 = 0; k1 < 0x100000; k1++)
+				{
+				fprintf(fhout, "454C54585C0%05X\n", k1);
+				fprintf(fhout, "454C54585C1%05X\n", k1);
+				}
+			}
+		return;
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static void testtechnicolor(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
@@ -1371,6 +1394,7 @@ testhotbox(fhout, essidlen, essid);
 testmtel(fhout, essidlen, essid);
 testmywifi(fhout, essidlen, essid);
 testroamingman(fhout, essidlen, essid);
+testrtk(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
 testukrtelecom(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
