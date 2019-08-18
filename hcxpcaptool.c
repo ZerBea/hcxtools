@@ -858,10 +858,6 @@ if(radiusframecount != 0)
 	{
 	printf("found............................: RADIUS Authentication\n");
 	}
-if(rawhandshakecount != 0)
-	{
-	printf("raw handshakes...................: %llu (ap-less: %llu)\n", rawhandshakecount, rawhandshakeaplesscount);
-	}
 if(zeroedpmkcount != 0)
 	{
 	printf("zeroed PMK(s)....................: %llu\n", zeroedpmkcount);
