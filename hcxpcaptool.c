@@ -5598,12 +5598,12 @@ if(mintv.tv_sec == 0)
 	mintv.tv_sec = tv_sec;
 	}
 
-if(tv_sec <= mintv.tv_sec)
+if((long int)tv_sec <= mintv.tv_sec)
 	{
 	mintv.tv_sec = tv_sec;
 	}
 
-if(tv_sec >= maxtv.tv_sec)
+if((long int)tv_sec >= maxtv.tv_sec)
 	{
 	maxtv.tv_sec = tv_sec;
 	}
