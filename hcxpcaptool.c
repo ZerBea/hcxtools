@@ -120,6 +120,7 @@ unsigned long long int pmkidcount;
 unsigned long long int pmkidapcount;
 unsigned long long int pmkidstacount;
 unsigned long long int zeroedpmkcount;
+unsigned long long int zeroedpmkidcount;
 
 pmkidl_t *pmkidliste;
 
@@ -699,9 +700,13 @@ if(eapolwpa2kv3framecount != 0)
 	{
 	printf("EAPOL packets (WPA2 kever 3).....: %llu\n", eapolwpa2kv3framecount);
 	}
+if(zeroedpmkidcount != 0)
+	{
+	printf("PMKIDs (zeroed and useless)......: %llu\n", zeroedpmkidcount);
+	}
 if(pmkidallcount != 0)
 	{
-	printf("PMKIDs (total)...................: %llu\n", pmkidallcount);
+	printf("PMKIDs (not zeroed - total)......: %llu\n", pmkidallcount);
 	}
 if(eapolpmkidwpaakmframecount != 0)
 	{
@@ -3539,6 +3544,7 @@ if(memcmp(mac_sta, &mac_broadcast, 6) == 0)
 	}
 if(memcmp(pmkid->pmkid, &nullnonce, 16) == 0)
 	{
+	zeroedpmkidcount++;
 	return;
 	}
 if(memcmp(&pmkid->pmkid[2], &nullnonce, 4) == 0)
@@ -6505,6 +6511,7 @@ pmkidapcount = 0;
 pmkidstacount = 0;
 pmkidallcount = 0;
 zeroedpmkcount = 0;
+zeroedpmkidcount = 0;
 eapolpmkidwpaakmframecount = 0;
 eapolpmkidwpa1framecount = 0;
 eapolpmkidwpa2framecount = 0;
