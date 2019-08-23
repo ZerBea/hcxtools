@@ -534,6 +534,15 @@ for(c = 22222; c <= 99999; c += 11111)
 	writepsk(fhout, essidstring);
 	}
 
+if(essidglen <= 3)
+	{
+	for(c = thisyear +1; c < 100000; c++)
+		{
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%d", essid, c);
+		writepsk(fhout, essidstring);
+		}
+	}
+
 if(essidglen <= 12)
 	{
 	for(c = thisyear +1; c < 10000; c++)
