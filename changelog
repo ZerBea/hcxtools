@@ -1,3 +1,11 @@
+28.08.2019
+==========
+moved to v5.2.1
+hcxpsktool : added new weak candidates
+hcxdumptool: added additional warnings about handling of pcapng files ( im
+             imrpoved status out: count zeroed PMKIDs
+
+
 19.08.2019
 ==========
 move to v5.2.0
