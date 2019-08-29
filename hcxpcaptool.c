@@ -550,11 +550,13 @@ printf( "                                                \n"
 	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
 if(tscleanflag == true)
 	{
-	printf("warning..........................: zero value time stamps detected - this prevents EAPOL timeout calculation\n");
+	printf("warning..........................: zero value time stamps detected\n"
+		"                                   this prevents EAPOL timeout calculation\n");
 	}
 if(tssameflag == true)
 	{
-	printf("warning..........................: EAPOL packet time stamps with the same value detected - this prevents EAPOL timeout calculation\n");
+	printf("warning..........................: EAPOL packet time stamps with the same value detected\n"
+		"                                   this prevents EAPOL timeout calculation\n");
 	}
 if(wdsframecount != 0)
 	{
