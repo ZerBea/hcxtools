@@ -6009,7 +6009,7 @@ while(1)
 	if((blocklen > (2 *MAXPACPSNAPLEN)) || ((blocklen %4) != 0))
 		{
 		pcapreaderrors++;
-		printf("failed to read pcapng header block\n");
+		printf("failed to read pcapng block header \n");
 		break;
 		}
 	resseek = lseek(fd, aktseek, SEEK_SET);
@@ -6023,13 +6023,13 @@ while(1)
 	if((res < BH_SIZE) || (res != blocklen))
 		{
 		pcapreaderrors++;
-		printf("failed to read pcapng header block\n");
+		printf("failed to read pcapng block header\n");
 		break;
 		}
 	if(memcmp(&pcpngblock[4], &pcpngblock[ blocklen -4], 4) != 0)
 		{
 		pcapreaderrors++;
-		printf("failed to read pcapng header block\n");
+		printf("failed to read pcapng block header \n");
 		break;
 		}
 	if(blocktype == PCAPNGBLOCKTYPE)
