@@ -639,6 +639,8 @@ for(c = 0x21; c < 0x7f; c++)
 	{
 	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%c", essid, c);
 	writepsk(fhout, essidstring);
+	snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%c%s", c, essid);
+	writepsk(fhout, essidstring);
 	}
 
 snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s1234567890", essid);
