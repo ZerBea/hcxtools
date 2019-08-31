@@ -611,9 +611,9 @@ for(c = 0; c < 10; c++)
 	writepsk(fhout, essidstring);
 	}
 
-for(c = 0; c <= 31; c++)
+for(c = 0; c <= 99; c++)
 	{
-	for(d = 0; d <= 12; d++)
+	for(d = 0; d <= 99; d++)
 		{
 		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%02d%s%02d", c, essid, d);
 		writepsk(fhout, essidstring);
