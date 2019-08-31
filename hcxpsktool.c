@@ -628,6 +628,8 @@ for(c = 0x21; c < 0x7f; c++)
 		writepsk(fhout, essidstring);
 		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%s%c%c", essid, c, d);
 		writepsk(fhout, essidstring);
+		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%c%c%s", c, d, essid);
+		writepsk(fhout, essidstring);
 		snprintf(essidstring, PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX , "%c%s%c", c, essid, d);
 		writepsk(fhout, essidstring);
 		}
@@ -1403,6 +1405,7 @@ if((essidlen == 0) || (essidlen > 32))
 	return;
 	}
 
+testalcatellinkzone(fhout, essidlen, essid);
 testalcatellinkzone(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
