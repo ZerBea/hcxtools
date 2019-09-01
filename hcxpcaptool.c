@@ -6867,9 +6867,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"6: BE router detected (set to 1) - nonce-error-corrections only for BE necessary\n"
 	"7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely necessary\n"
 	"\n"
-	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
 	"Do not edit, merge or convert pcapng files!. This will remove optional comment fields!\n"
-	"It is much better to run gzip to cmpress the files. Wireshark, tshark and hcxpcaptool will understand this.\n"
+	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
+	"It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcaptool will understand this.\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff/1000000, maxrcdiff, maxessidchanges, eigenname);
 exit(EXIT_SUCCESS);
 }
