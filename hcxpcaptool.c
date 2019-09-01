@@ -284,6 +284,7 @@ char pcapnghwinfo[1024];
 char pcapngosinfo[1024];
 char pcapngapplinfo[1024];
 char pcapngoptioninfo[1024];
+uint8_t pcapngdeviceinfo[6];
 
 int exeaptype[256];
 /*===========================================================================*/
@@ -336,6 +337,7 @@ maxessidchanges = MAX_ESSID_CHANGES;
 setbuf(stdout, NULL);
 srand(time(NULL));
 
+memset(&pcapngdeviceinfo, 0, 6);
 return true;
 }
 /*===========================================================================*/
@@ -536,6 +538,7 @@ printf( "                                                \n"
 	"file name........................: %s\n"
 	"file type........................: %s %d.%d\n"
 	"file hardware information........: %s\n"
+	"capture device vendor information: %02x%02x%02x\n"
 	"file os information..............: %s\n"
 	"file application information.....: %s\n"
 	"network type.....................: %s (%d)\n"
@@ -547,7 +550,7 @@ printf( "                                                \n"
 	"skipped packets (damaged)........: %llu\n"
 	"packets with GPS data............: %llu\n"
 	"packets with FCS.................: %llu\n"
-	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
+	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
 if(tscleanflag == true)
 	{
 	printf("warning..........................: zero value time stamps detected\n"
@@ -5909,6 +5912,15 @@ while(0 < restlen)
 			memcpy(&myaktnonce, &option->data, 32);
 			}
 		}
+	if((option->option_code == IF_MACADDR) && (blocktype == 1))
+		{
+		if(option->option_length == 6)
+			{
+			memset(&pcapngdeviceinfo, 0, 6);
+			memcpy(&pcapngdeviceinfo, option->data, 6);
+			}
+		}
+
 	optr += option->option_length +padding +OH_SIZE;
 	restlen -= option->option_length +padding +OH_SIZE;
 	}
@@ -6082,6 +6094,7 @@ while(1)
 			pcapreaderrors++;
 			printf("detected oversized snaplen (%d)          \n", snaplen);
 			}
+		pcapngoptionwalk(blocktype, pcapngshb->data, blocklen -IDB_SIZE);
 		}
 
 	else if(blocktype == 2)
