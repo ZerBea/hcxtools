@@ -5920,7 +5920,6 @@ while(0 < restlen)
 			memcpy(&pcapngdeviceinfo, option->data, 6);
 			}
 		}
-
 	optr += option->option_length +padding +OH_SIZE;
 	restlen -= option->option_length +padding +OH_SIZE;
 	}
@@ -6094,7 +6093,7 @@ while(1)
 			pcapreaderrors++;
 			printf("detected oversized snaplen (%d)          \n", snaplen);
 			}
-		pcapngoptionwalk(blocktype, pcapngshb->data, blocklen -IDB_SIZE);
+		pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE);
 		}
 
 	else if(blocktype == 2)
