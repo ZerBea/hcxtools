@@ -1518,8 +1518,6 @@ if(apstaessidlistecleaned != NULL)
 	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_count_essid);
 	}
 
-printf(	"summary output file(s):\n"
-	"-----------------------\n");
 if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 	{
 	mp0c = 0;
@@ -6589,14 +6587,18 @@ if(eapolliste != NULL)
 	}
 printcapstatus(pcapart, pcapinname, versionmajor, versionminor, dltlinktype, endianess, rawpacketcount, skippedpacketcount, pcapreaderrors, tscleanflag);
 
+printf(	"summary output file(s):\n"
+	"-----------------------\n");
+
 if(apstaessidliste != NULL) 
 	{
 	outputessidlists();
 	}
 
-if(handshakeliste != NULL)
+if(pmkidliste != NULL)
 	{
-	outputwpalists(pcapinname);
+	outputrawpmkidlists();
+	outputpmkidlists();
 	}
 
 if(rawhandshakeliste != NULL)
@@ -6604,10 +6606,9 @@ if(rawhandshakeliste != NULL)
 	outputrawwpalists(pcapinname);
 	}
 
-if(pmkidliste != NULL)
+if(handshakeliste != NULL)
 	{
-	outputpmkidlists();
-	outputrawpmkidlists();
+	outputwpalists(pcapinname);
 	}
 
 if(leapliste != NULL)
