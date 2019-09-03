@@ -1485,7 +1485,7 @@ return;
 /*===========================================================================*/
 void outputwpalists(char *pcapinname)
 {
-unsigned long long int c, d, ec;
+unsigned long long int c, d;
 hcxl_t *zeiger;
 apstaessidl_t *zeigeressid;
 FILE *fhoutlist = NULL;
@@ -1559,22 +1559,6 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
-							for(ec = 0; ec < zeigeressid->essidlen; ec++)
-								{
-								if(zeigeressid->essid[ec] < 0x20)
-									{
-									zeigeressid++;
-									continue;
-									}
-								}
-							for(ec = 0; ec < zeigeressid->essidlen; ec++)
-								{
-								if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 1))
-									{
-									zeigeressid++;
-									continue;
-									}
-								}
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -1699,22 +1683,6 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
-							for(ec = 0; ec < zeigeressid->essidlen; ec++)
-								{
-								if(zeigeressid->essid[ec] < 0x20)
-									{
-									zeigeressid++;
-									continue;
-									}
-								}
-							for(ec = 0; ec < zeigeressid->essidlen; ec++)
-								{
-								if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
-									{
-									zeigeressid++;
-									continue;
-									}
-								}
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -1834,22 +1802,6 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
-							for(ec = 0; ec < zeigeressid->essidlen; ec++)
-								{
-								if(zeigeressid->essid[ec] < 0x20)
-									{
-									zeigeressid++;
-									continue;
-									}
-								}
-							for(ec = 0; ec < zeigeressid->essidlen; ec++)
-								{
-								if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 2))
-									{
-									zeigeressid++;
-									continue;
-									}
-								}
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
@@ -2190,7 +2142,7 @@ return;
 void outputpmkidlists()
 {
 unsigned long long int c, d, p, writtencount;
-int essidchangecount, ec;
+int essidchangecount;
 bool essidchangeflag;
 pmkidl_t *zeiger;
 apstaessidl_t *zeigeressid;
@@ -2226,22 +2178,6 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 						{
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
-							{
-							if(zeigeressid->essid[ec] < 0x20)
-								{
-								zeigeressid++;
-								continue;
-								}
-							}
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
-							{
-							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 1))
-								{
-								zeigeressid++;
-								continue;
-								}
-							}
 						for(p = 0; p < 16; p++)
 							{
 							fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
@@ -2316,22 +2252,6 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoldoutname != NULL))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 						{
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
-							{
-							if(zeigeressid->essid[ec] < 0x20)
-								{
-								zeigeressid++;
-								continue;
-								}
-							}
-						for(ec = 0; ec < zeigeressid->essidlen; ec++)
-							{
-							if((zeigeressid->essid[ec] > 0x7e) && (essidchangecount > 1))
-								{
-								zeigeressid++;
-								continue;
-								}
-							}
 						for(p = 0; p < 16; p++)
 							{
 							fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
