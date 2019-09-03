@@ -1,3 +1,9 @@
+03.09.2019
+==========
+move to v5.2.2
+fixed bug in damaged ESSID handling
+
+
 01.09.2019
 ==========
 hcxpcaptool: show capture device vendor
