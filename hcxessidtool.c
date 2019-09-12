@@ -189,9 +189,9 @@ static void writehccapx2()
 static int written;
 static int fd_file;
 
-if((fd_file = open(hccapx1outname, O_WRONLY | O_CREAT, 0644)) == -1)
+if((fd_file = open(hccapx2outname, O_WRONLY | O_CREAT, 0644)) == -1)
 	{
-	fprintf(stderr, "failed to open HCCAPX file %s\n", hccapx1outname);
+	fprintf(stderr, "failed to open HCCAPX file %s\n", hccapx2outname);
 	return;
 	}
 
@@ -208,7 +208,7 @@ for(hccapxzeiger2 = hccapx2list; hccapxzeiger2 < (hccapx2list +hccapx2count); hc
 		}
 	}
 close(fd_file);
-printf("%d hashes written to %s\n", written, hccapx1outname);
+printf("%d hashes written to %s\n", written, hccapx2outname);
 return;
 }
 /*===========================================================================*/
