@@ -166,7 +166,7 @@ static void writehccapx()
 static int written;
 static int fd_file;
 
-if((fd_file = open(hccapxoutname, O_WRONLY | O_CREAT, 0644)) == -1)
+if((fd_file = open(hccapxoutname, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
 	{
 	perror("f");
 	fprintf(stderr, "failed to open HCCAPX file %s\n", hccapxoutname);
@@ -189,7 +189,7 @@ static void writehccapx2()
 static int written;
 static int fd_file;
 
-if((fd_file = open(hccapx2outname, O_WRONLY | O_CREAT, 0644)) == -1)
+if((fd_file = open(hccapx2outname, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
 	{
 	fprintf(stderr, "failed to open HCCAPX file %s\n", hccapx2outname);
 	return;
@@ -218,7 +218,7 @@ static int written;
 static int fd_file;
 
 printf("%s\n", hccapx1outname);
-if((fd_file = open(hccapx1outname, O_WRONLY | O_CREAT, 0644)) == -1)
+if((fd_file = open(hccapx1outname, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
 	{
 	fprintf(stderr, "failed to open HCCAPX file %s\n", hccapx1outname);
 	return;
@@ -492,7 +492,7 @@ static void writepmkid()
 static int written;
 static FILE *fh_file;
 
-if((fh_file = fopen(pmkidoutname, "w+")) == NULL)
+if((fh_file = fopen(pmkidoutname, "a")) == NULL)
 	{
 	fprintf(stderr, "failed to open PMKID file %s\n", pmkidoutname);
 	return;
@@ -513,7 +513,7 @@ static void writepmkid2()
 static int written;
 static FILE *fh_file;
 
-if((fh_file = fopen(pmkid2outname, "w+")) == NULL)
+if((fh_file = fopen(pmkid2outname, "a")) == NULL)
 	{
 	fprintf(stderr, "failed to open PMKID file %s\n", pmkid2outname);
 	return;
@@ -539,7 +539,7 @@ static void writepmkid1()
 static int written;
 static FILE *fh_file;
 
-if((fh_file = fopen(pmkid1outname, "w+")) == NULL)
+if((fh_file = fopen(pmkid1outname, "a")) == NULL)
 	{
 	fprintf(stderr, "failed to open PMKID file %s\n", pmkid1outname);
 	return;
