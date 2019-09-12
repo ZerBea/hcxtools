@@ -189,10 +189,9 @@ static void writehccapx2()
 static int written;
 static int fd_file;
 
-if((fd_file = open(hccapx12outname, O_WRONLY | O_CREAT, 0644)) == -1)
+if((fd_file = open(hccapx1outname, O_WRONLY | O_CREAT, 0644)) == -1)
 	{
-	perror("f");
-	fprintf(stderr, "failed to open HCCAPX file %s\n", hccapx12outname);
+	fprintf(stderr, "failed to open HCCAPX file %s\n", hccapx1outname);
 	return;
 	}
 
@@ -209,7 +208,7 @@ for(hccapxzeiger2 = hccapx2list; hccapxzeiger2 < (hccapx2list +hccapx2count); hc
 		}
 	}
 close(fd_file);
-printf("%d hashes written to %s\n", written, hccapx12outname);
+printf("%d hashes written to %s\n", written, hccapx1outname);
 return;
 }
 /*===========================================================================*/
@@ -218,10 +217,10 @@ static void writehccapx1()
 static int written;
 static int fd_file;
 
-if((fd_file = open(hccapx12outname, O_WRONLY | O_CREAT, 0644)) == -1)
+printf("%s\n", hccapx1outname);
+if((fd_file = open(hccapx1outname, O_WRONLY | O_CREAT, 0644)) == -1)
 	{
-	perror("f");
-	fprintf(stderr, "failed to open HCCAPX file %s\n", hccapx12outname);
+	fprintf(stderr, "failed to open HCCAPX file %s\n", hccapx1outname);
 	return;
 	}
 
@@ -238,7 +237,7 @@ for(hccapxzeiger1 = hccapx1list; hccapxzeiger1 < (hccapx1list +hccapx1count); hc
 		}
 	}
 close(fd_file);
-printf("%d hashes written to %s\n", written, hccapx12outname);
+printf("%d hashes written to %s\n", written, hccapx1outname);
 return;
 }
 /*===========================================================================*/
