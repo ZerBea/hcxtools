@@ -42,6 +42,7 @@ Detailed description
 | hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper        |
 | hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcaptool output (-o, -z- -U) or commandline input |
 | hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E, -I- -U)                               |
+| hcxessidtool   | Various filter operations on HCCAPX and PMKID files                                                               |
 | hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                         |
 | whoismac       | Show vendor information and/or download oui reference list                                                        |
 | wlancap2wpasec | Upload multiple caps to https://wpa-sec.stanev.org                                                                |
@@ -49,7 +50,6 @@ Detailed description
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                         |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                                          |
 | wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                              |
-| wlanhcx2essid  | Merges hccapx containing the same ESSID                                                                           |
 | wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                                          |
 | wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                                   |
 | wlanhcxmnc     | Help to calculate hashcat's nonce-error-corrections value on byte number xx of an anonce                          |
