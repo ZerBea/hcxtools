@@ -142,7 +142,7 @@ for(zeiger = pmkidlist; zeiger < (pmkidlist +pmkidcount); zeiger++)
 		}
 	else
 		{
-		if((memcmp(zeigernext->macap, zeiger->macap, 6) != 0) && (memcmp(zeigernext->essid, zeiger->essid, zeiger->essidlen) != 0))
+		if((memcmp(zeigernext->macap, zeiger->macap, 6) != 0) || (memcmp(zeigernext->essid, zeiger->essid, zeiger->essidlen) != 0))
 			{
 			fwriteaddr1(zeiger->macap, fh_file); 
 			fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_file); 
