@@ -21,6 +21,7 @@
 #include "include/version.h"
 #include "include/hcxessidtool.h"
 #include "include/strings.c"
+#include "include/fileops.c"
 
 /*===========================================================================*/
 /* global var */
@@ -59,6 +60,7 @@ static char *hccapxoutname = NULL;
 static inthccapx_t *hccapx1list, *hccapxzeiger1, *hccapxzeigerakt1;
 static inthccapx_t *hccapx2list, *hccapxzeiger2, *hccapxzeigerakt2;
 
+static char *essidoutname = NULL;
 
 static char separator;
 /*===========================================================================*/
@@ -73,6 +75,78 @@ if(pmkid2list != NULL)
 	{
 	free(pmkid2list);
 	}
+return;
+}
+/*===========================================================================*/
+static void writeessidhccapx(char *sourcefile, inthccapx_t *hccapxlist, int hccapxcount)
+{
+static int written;
+static FILE *fh_file;
+static inthccapx_t *zeiger, *zeigernext;
+
+if((fh_file = fopen(essidoutname, "a")) == NULL)
+	{
+	fprintf(stderr, "failed to open ESSID file %s\n", essidoutname);
+	return;
+	}
+written = 0;
+zeiger = hccapxlist;
+for(zeiger = hccapxlist; zeiger < (hccapxlist +hccapxcount); zeiger++)
+	{
+	zeigernext = zeiger;
+	zeigernext++;
+	if(zeigernext->essidlen != zeiger->essidlen)
+		{
+		fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_file); 
+		written++;
+		}
+	else
+		{
+		if(memcmp(zeigernext->essid, zeiger->essid, zeiger->essidlen) != 0)
+			{
+			fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_file); 
+			written++;
+			}
+		}
+	}
+fclose(fh_file);
+printf("%d ESSIDs written to %s from %s\n", written, basename(essidoutname), basename(sourcefile));
+return;
+}
+/*===========================================================================*/
+static void writeessidpmkid(char *sourcefile, intpmkid_t *pmkidlist, int pmkidcount)
+{
+static int written;
+static FILE *fh_file;
+static intpmkid_t *zeiger, *zeigernext;
+
+if((fh_file = fopen(essidoutname, "a")) == NULL)
+	{
+	fprintf(stderr, "failed to open ESSID file %s\n", essidoutname);
+	return;
+	}
+written = 0;
+zeiger = pmkidlist;
+for(zeiger = pmkidlist; zeiger < (pmkidlist +pmkidcount); zeiger++)
+	{
+	zeigernext = zeiger;
+	zeigernext++;
+	if(zeigernext->essidlen != zeiger->essidlen)
+		{
+		fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_file); 
+		written++;
+		}
+	else
+		{
+		if(memcmp(zeigernext->essid, zeiger->essid, zeiger->essidlen) != 0)
+			{
+			fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_file); 
+			written++;
+			}
+		}
+	}
+fclose(fh_file);
+printf("%d ESSIDs written to %s from %s\n", written, basename(essidoutname), basename(sourcefile));
 return;
 }
 /*===========================================================================*/
@@ -180,7 +254,7 @@ for(hccapxzeiger1 = hccapx1list; hccapxzeiger1 < (hccapx1list +hccapx1count); hc
 	written = writehccapxline(fd_file, hccapxzeiger1, written);
 	}
 close(fd_file);
-printf("%d hashes written to %s\n", written, hccapxoutname);
+printf("%d hashes written to %s\n", written, basename(hccapxoutname));
 return;
 }
 /*===========================================================================*/
@@ -208,7 +282,7 @@ for(hccapxzeiger2 = hccapx2list; hccapxzeiger2 < (hccapx2list +hccapx2count); hc
 		}
 	}
 close(fd_file);
-printf("%d hashes written to %s\n", written, hccapx2outname);
+printf("%d hashes written to %s\n", written, basename(hccapx2outname));
 return;
 }
 /*===========================================================================*/
@@ -237,7 +311,7 @@ for(hccapxzeiger1 = hccapx1list; hccapxzeiger1 < (hccapx1list +hccapx1count); hc
 		}
 	}
 close(fd_file);
-printf("%d hashes written to %s\n", written, hccapx1outname);
+printf("%d hashes written to %s\n", written, basename(hccapx1outname));
 return;
 }
 /*===========================================================================*/
@@ -279,7 +353,7 @@ for(hccapxzeiger2 = hccapx2list; hccapxzeiger2 < (hccapx2list +hccapx2count); hc
 	}
 
 close(fd_file);
-printf("%d hashes written to %s\n", written, hccapx12outname);
+printf("%d hashes written to %s\n", written, basename(hccapx12outname));
 return;
 }
 /*===========================================================================*/
@@ -504,7 +578,7 @@ for(pmkidzeiger1 = pmkid1list; pmkidzeiger1 < (pmkid1list +pmkid1count); pmkidze
 	written = writepmkidline(fh_file, pmkidzeiger1, written);
 	}
 fclose(fh_file);
-printf("%d hashes written to %s\n", written, pmkidoutname);
+printf("%d hashes written to %s\n", written, basename(pmkidoutname));
 return;
 }
 /*===========================================================================*/
@@ -530,7 +604,7 @@ for(pmkidzeiger2 = pmkid2list; pmkidzeiger2 < (pmkid2list +pmkid2count); pmkidze
 		}
 	}
 fclose(fh_file);
-printf("%d hashes written to %s\n", written, pmkid2outname);
+printf("%d hashes written to %s\n", written, basename(pmkid2outname));
 return;
 }
 /*===========================================================================*/
@@ -556,7 +630,7 @@ for(pmkidzeiger1 = pmkid1list; pmkidzeiger1 < (pmkid1list +pmkid1count); pmkidze
 		}
 	}
 fclose(fh_file);
-printf("%d hashes written to %s\n", written, pmkid1outname);
+printf("%d hashes written to %s\n", written, basename(pmkid1outname));
 return;
 }
 /*===========================================================================*/
@@ -595,7 +669,7 @@ for(pmkidzeiger2 = pmkid2list; pmkidzeiger2 < (pmkid2list +pmkid2count); pmkidze
 		}
 	}
 fclose(fh_file);
-printf("%d hashes written to %s\n", written, pmkid12outname);
+printf("%d hashes written to %s\n", written, basename(pmkid12outname));
 return;
 }
 /*===========================================================================*/
@@ -881,6 +955,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--hccapxout1=<file>    : output only lines present in HCCAPX file1\n"
 	"--hccapxout2=<file>    : output only lines present in HCCAPX file 2\n"
 	"--hccapxout=<file>     : output only ESSID filtered lines present in HCCAPX file 1\n"
+	"--essidout=<file>      : output ESSID list\n"
 	"--help                 : show this help\n"
 	"--version              : show version\n"
 	"\n"
@@ -921,6 +996,7 @@ static const struct option long_options[] =
 	{"hccapxout1",			required_argument,	NULL,	HCXD_WRITE_HCCAPX1},
 	{"hccapxout2",			required_argument,	NULL,	HCXD_WRITE_HCCAPX2},
 	{"hccapxout",			required_argument,	NULL,	HCXD_WRITE_HCCAPX},
+	{"essidout",			required_argument,	NULL,	HCXD_WRITE_ESSIDLIST},
 	{"version",			no_argument,		NULL,	HCXD_VERSION},
 	{"help",			no_argument,		NULL,	HCXD_HELP},
 	{NULL,				0,			NULL,	0}
@@ -980,6 +1056,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_WRITE_HCCAPX:
 		hccapxoutname = optarg;
+		break;
+
+		case HCXD_WRITE_ESSIDLIST:
+		essidoutname = optarg;
 		break;
 	
 		case HCXD_ESSID_LEN:
@@ -1056,7 +1136,6 @@ if((pmkidoutname != NULL) && (pmkid1count > 0))
 	writepmkid();
 	}
 
-
 if(hccapx1name != NULL)
 	{
 	readhccapx1file();
@@ -1080,6 +1159,23 @@ if((hccapx2outname != NULL) && (hccapx1count > 0) && (hccapx2count > 0))
 if((hccapxoutname != NULL) && (hccapx1count > 0))
 	{
 	writehccapx();
+	}
+
+if((essidoutname != NULL) && (pmkid1count > 0))
+	{
+	writeessidpmkid(pmkid1name, pmkid1list, pmkid1count);
+	}
+if((essidoutname != NULL) && (pmkid2count > 0))
+	{
+	writeessidpmkid(pmkid2name, pmkid2list, pmkid2count);
+	}
+if((essidoutname != NULL) && (hccapx1count > 0))
+	{
+	writeessidhccapx(hccapx1name, hccapx1list, hccapx1count);
+	}
+if((essidoutname != NULL) && (hccapx2count > 0))
+	{
+	writeessidhccapx(hccapx2name, hccapx2list, hccapx2count);
 	}
 
 

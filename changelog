@@ -1,7 +1,13 @@
+13.09.2019
+==========
+hcxessidtool: added new option
+--essidout=<file>      : output ESSID list
+
+
 12.09.2019
 ==========
-deprecated: wlanhcx2essid
-added:      hcxessidtool
+removed     : wlanhcx2essid (deprecated)
+added       : hcxessidtool
 options:
 -e <essid>  : filter by ESSID
 -E <essid>  : filter by part of ESSID
