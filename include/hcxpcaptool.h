@@ -16,7 +16,7 @@
 /*===========================================================================*/
 struct apstaessidlist_s
 {
- uint32_t	essidcount;
+ int		essidcount;
  uint32_t	tv_sec;
  uint32_t	tv_usec;
  uint8_t	mac_ap[6];
@@ -80,6 +80,7 @@ static int sort_apstaessidlist_by_ap_count_essid(const void *a, const void *b)
 {
 const apstaessidl_t *ia = (const apstaessidl_t *)a;
 const apstaessidl_t *ib = (const apstaessidl_t *)b;
+
 if(memcmp(ia->mac_ap, ib->mac_ap, 6) > 0)
 	return 1;
 else if(memcmp(ia->mac_ap, ib->mac_ap, 6) < 0)
