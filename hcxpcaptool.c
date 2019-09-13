@@ -7083,6 +7083,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXT_IGNORE_REPLAYCOUNT:
 		replaycountcheckflag = true;
+		maxrcdiff = 2147483647;
 		break;
 
 		case HCXT_VERBOSE_OUT:
