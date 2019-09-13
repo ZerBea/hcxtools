@@ -476,6 +476,7 @@ while((count = read(fd_file, zeiger, INTHCCAPX_SIZE)))
 	hccapx2count++;
 	zeiger++;
 	}
+memset(zeiger, 0, INTHCCAPX_SIZE);
 close(fd_file);
 if(hccapx2count > 0)
 	{
@@ -503,7 +504,8 @@ if((st.st_size %INTHCCAPX_SIZE) != 0)
 	return false;
 	}
 
-hccapx1list = malloc(st.st_size);
+hccapx1list = malloc(st.st_size +INTHCCAPX_SIZE);
+
 if(hccapx1list == NULL)
 	{
 	printf("failed to allocate memory\n");
@@ -524,10 +526,10 @@ while((count = read(fd_file, zeiger, INTHCCAPX_SIZE)))
 		fprintf(stderr, "%d record has a wrong HCCAPX signature\n", hccapx1count);
 		break;
 		}
-		
 	hccapx1count++;
 	zeiger++;
 	}
+memset(zeiger, 0, INTHCCAPX_SIZE);
 close(fd_file);
 if(hccapx1count > 0)
 	{
