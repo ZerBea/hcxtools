@@ -61,6 +61,7 @@ static inthccapx_t *hccapx1list, *hccapxzeiger1, *hccapxzeigerakt1;
 static inthccapx_t *hccapx2list, *hccapxzeiger2, *hccapxzeigerakt2;
 
 static char *essidoutname = NULL;
+static char *essidmacapoutname = NULL;
 
 static char separator;
 /*===========================================================================*/
@@ -75,6 +76,82 @@ if(pmkid2list != NULL)
 	{
 	free(pmkid2list);
 	}
+return;
+}
+/*===========================================================================*/
+static void writeessidmacaphccapx(char *sourcefile, inthccapx_t *hccapxlist, int hccapxcount)
+{
+static int written;
+static FILE *fh_file;
+static inthccapx_t *zeiger, *zeigernext;
+
+if((fh_file = fopen(essidmacapoutname, "a")) == NULL)
+	{
+	fprintf(stderr, "failed to open ESSID file %s\n", essidmacapoutname);
+	return;
+	}
+written = 0;
+zeiger = hccapxlist;
+for(zeiger = hccapxlist; zeiger < (hccapxlist +hccapxcount); zeiger++)
+	{
+	zeigernext = zeiger;
+	zeigernext++;
+	if(zeigernext->essidlen != zeiger->essidlen)
+		{
+		fwriteaddr1(zeiger->macap, fh_file); 
+		fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_file); 
+		written++;
+		}
+	else
+		{
+		if((memcmp(zeigernext->macap, zeiger->macap, 6) != 0) && (memcmp(zeigernext->essid, zeiger->essid, zeiger->essidlen) != 0))
+			{
+			fwriteaddr1(zeiger->macap, fh_file); 
+			fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_file); 
+			written++;
+			}
+		}
+	}
+fclose(fh_file);
+printf("%d ESSIDs written to %s from %s\n", written, basename(essidmacapoutname), basename(sourcefile));
+return;
+}
+/*===========================================================================*/
+static void writeessidmacappmkid(char *sourcefile, intpmkid_t *pmkidlist, int pmkidcount)
+{
+static int written;
+static FILE *fh_file;
+static intpmkid_t *zeiger, *zeigernext;
+
+if((fh_file = fopen(essidmacapoutname, "a")) == NULL)
+	{
+	fprintf(stderr, "failed to open ESSID file %s\n", essidmacapoutname);
+	return;
+	}
+written = 0;
+zeiger = pmkidlist;
+for(zeiger = pmkidlist; zeiger < (pmkidlist +pmkidcount); zeiger++)
+	{
+	zeigernext = zeiger;
+	zeigernext++;
+	if(zeigernext->essidlen != zeiger->essidlen)
+		{
+		fwriteaddr1(zeiger->macap, fh_file); 
+		fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_file); 
+		written++;
+		}
+	else
+		{
+		if((memcmp(zeigernext->macap, zeiger->macap, 6) != 0) && (memcmp(zeigernext->essid, zeiger->essid, zeiger->essidlen) != 0))
+			{
+			fwriteaddr1(zeiger->macap, fh_file); 
+			fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_file); 
+			written++;
+			}
+		}
+	}
+fclose(fh_file);
+printf("%d ESSIDs written to %s from %s\n", written, basename(essidmacapoutname), basename(sourcefile));
 return;
 }
 /*===========================================================================*/
@@ -956,6 +1033,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--hccapxout2=<file>    : output only lines present in HCCAPX file 2\n"
 	"--hccapxout=<file>     : output only ESSID filtered lines present in HCCAPX file 1\n"
 	"--essidout=<file>      : output ESSID list\n"
+	"--essidmacapout=<file> : output MAC_AP:ESSID list\n"
 	"--help                 : show this help\n"
 	"--version              : show version\n"
 	"\n"
@@ -997,6 +1075,7 @@ static const struct option long_options[] =
 	{"hccapxout2",			required_argument,	NULL,	HCXD_WRITE_HCCAPX2},
 	{"hccapxout",			required_argument,	NULL,	HCXD_WRITE_HCCAPX},
 	{"essidout",			required_argument,	NULL,	HCXD_WRITE_ESSIDLIST},
+	{"essidmacapout",		required_argument,	NULL,	HCXD_WRITE_ESSID_MACAP_LIST},
 	{"version",			no_argument,		NULL,	HCXD_VERSION},
 	{"help",			no_argument,		NULL,	HCXD_HELP},
 	{NULL,				0,			NULL,	0}
@@ -1060,6 +1139,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_WRITE_ESSIDLIST:
 		essidoutname = optarg;
+		break;
+
+		case HCXD_WRITE_ESSID_MACAP_LIST:
+		essidmacapoutname = optarg;
 		break;
 	
 		case HCXD_ESSID_LEN:
@@ -1174,6 +1257,23 @@ if((essidoutname != NULL) && (hccapx1count > 0))
 	writeessidhccapx(hccapx1name, hccapx1list, hccapx1count);
 	}
 if((essidoutname != NULL) && (hccapx2count > 0))
+	{
+	writeessidhccapx(hccapx2name, hccapx2list, hccapx2count);
+	}
+
+if((essidmacapoutname != NULL) && (pmkid1count > 0))
+	{
+	writeessidmacappmkid(pmkid1name, pmkid1list, pmkid1count);
+	}
+if((essidmacapoutname != NULL) && (pmkid2count > 0))
+	{
+	writeessidmacappmkid(pmkid2name, pmkid2list, pmkid2count);
+	}
+if((essidmacapoutname != NULL) && (hccapx1count > 0))
+	{
+	writeessidmacaphccapx(hccapx1name, hccapx1list, hccapx1count);
+	}
+if((essidmacapoutname != NULL) && (hccapx2count > 0))
 	{
 	writeessidhccapx(hccapx2name, hccapx2list, hccapx2count);
 	}

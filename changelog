@@ -1,7 +1,8 @@
 13.09.2019
 ==========
-hcxessidtool: added new option
+hcxessidtool: added new options
 --essidout=<file>      : output ESSID list
+--essidmacapout=<file> : output MAC_AP:ESSID list
 
 
 12.09.2019
