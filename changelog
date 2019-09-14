@@ -1,12 +1,6 @@
 14.09.2019
 ==========
 hcxpcaptool  : improved detection of damaged ESSIDs
-               added automatic detection of UTF-8 and ISO-8859-1 ESSIDs
-               this will help to remove damaged ESSIDs
-               automatic detection can be disabled by option --disable-char-enc-detection
---disable-char-enc-detection      : disable automatic character encoding detection on ESSIDs
-                                    default: UTF-8 and ISO-8859-1 detection is enabled
-                                    ESSIDs that contain other characters than UTF-8 and ISO-8859-1 are ignored
 
 
 13.09.2019

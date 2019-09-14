@@ -60,8 +60,7 @@
 #define HCXT_IGNORE_FAKE_FRAMES				14
 #define HCXT_IGNORE_ZEROED_PMKS				15
 #define HCXT_IGNORE_REPLAYCOUNT				16
-#define HCXT_DISABLE_CHARACTER_ENCODING_DETECTION	17
-#define HCXT_PREFIX_OUT					18
+#define HCXT_PREFIX_OUT					17
 
 #define HCXT_WPA12_OUT			'w'
 #define HCXT_HCCAPX_OUT			'o'
@@ -103,7 +102,6 @@ bool gpxflag;
 bool tscleanflag;
 bool tssameflag;
 bool replaycountcheckflag;
-bool essidcharencdetectionflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -220,7 +218,6 @@ unsigned long long int tzsprawframecount;
 unsigned long long int tzsp80211framecount;
 unsigned long long int tzsp80211prismframecount;
 unsigned long long int tzsp80211avsframecount;
-unsigned long long int removedessidcount;
 
 static long double lat = 0;
 static long double lon = 0;
@@ -331,7 +328,6 @@ filtermacflag = false;
 fakeframeflag = false;
 zeroedpmkflag = false;
 replaycountcheckflag = false;
-essidcharencdetectionflag = false;
 gpxflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
@@ -552,10 +548,9 @@ printf( "                                                \n"
 	"maximum time stamp...............: %s (GMT)\n"
 	"packets inside...................: %llu\n"
 	"skipped damaged packets..........: %llu\n"
-	"removed damaged ESSIDs...........: %llu\n"
 	"packets with GPS data............: %llu\n"
 	"packets with FCS.................: %llu\n"
-	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, removedessidcount, gpsdframecount, fcsframecount);
+	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
 if(tscleanflag == true)
 	{
 	printf("warning..........................: zero value time stamps detected\n"
@@ -3746,50 +3741,8 @@ fwriteessidstr(essidlen, essid, fhnetwork);
 return;
 }
 /*===========================================================================*/
-static bool detectiso8859(uint8_t essidlen, uint8_t *essid)
-{
-static uint8_t c;
-for(c = 0; c < essidlen; c++)
-	{
-	if(essid[c] < 0x20)	
-		{
-		return false;
-		}
-	if((essid[c] >= 0x80) && (essid[c] < 0xa0))	
-		{
-		return false;
-		}
-	}
-return true;
-}
-/*===========================================================================*/
-static uint8_t detectencoding(char *string)
-{
-static uint8_t c;
-static uint8_t flags;
-static uint8_t i = 0;
-
-while (string[i] | string[i + 1] | string[i + 2] | string[i + 3]) flags = (c = string[i++]) ? flags | ((!(flags % 4) && c > 0x7F) << 3) : flags | 1 | (!(i & 1) << 1) | ((string[i] == 0) << 2);
-return (flags & 1) + ((flags & 2) != 0) + ((flags & 4) != 0) + ((flags & 8) != 0);
-}   
-/*===========================================================================*/
 void addapstaessid(uint32_t tv_sec, uint32_t tv_usec, uint8_t *mac_sta, uint8_t *mac_ap, uint8_t essidlen, uint8_t *essid)
 {
-static char essidstring[36];
-
-if(essidcharencdetectionflag == false)
-	{
-	memset(&essidstring, 0 ,36);
-	memcpy(&essidstring, essid, essidlen);
-	if(detectiso8859(essidlen, essid) == false)
-		{
-		if(detectencoding(essidstring) != 0)
-			{
-			removedessidcount++;
-			return;
-			}
-		}
-	}
 if(networkoutname != NULL)
 	{
 	printnetwork(mac_ap, essidlen, essid);
@@ -6530,7 +6483,6 @@ tzsp80211framecount = 0;
 tzsp80211prismframecount = 0;
 tzsp80211avsframecount = 0;
 wepframecount = 0;
-removedessidcount = 0;
 lat = 0;
 lon = 0;
 alt = 0;
@@ -6800,9 +6752,6 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                    convert handshakes up to a possible packetloss of 59 packets\n"
 	"                                    hashcat nonce-error-corrections should be twice as much as hcxpcaptool value\n"
 	"--max-essid-changes=<digit>       : allow maximum ESSID changes (default: %d - no ESSID change is allowed)\n"
-	"--disable-char-enc-detection      : disable automatic character encoding detection on ESSIDs\n"
-	"                                    default: UTF-8 and ISO-8859-1 detection is enabled\n"
-	"                                    ESSIDs that contain other characters than UTF-8 and ISO-8859-1 are ignored\n"
 	"--eapol-out=<file>                : output EAPOL packets in hex\n"
 	"                                    format = mac_ap:mac_sta:EAPOL\n"
 	"--netntlm-out=<file>              : output netNTLMv1 file (hashcat -m 5500, john netntlm)\n"
@@ -6917,7 +6866,6 @@ static const struct option long_options[] =
 	{"ignore-fake-frames",		no_argument,		NULL,	HCXT_IGNORE_FAKE_FRAMES},
 	{"ignore-zeroed-pmks",		no_argument,		NULL,	HCXT_IGNORE_ZEROED_PMKS},
 	{"ignore-replaycount",		no_argument,		NULL,	HCXT_IGNORE_REPLAYCOUNT},
-	{"disable-char-enc-detection",	no_argument,		NULL,	HCXT_DISABLE_CHARACTER_ENCODING_DETECTION},
 	{"prefix-out",			required_argument,	NULL,	HCXT_PREFIX_OUT},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},
@@ -7140,10 +7088,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_IGNORE_REPLAYCOUNT:
 		replaycountcheckflag = true;
 		maxrcdiff = 2147483647;
-		break;
-
-		case HCXT_DISABLE_CHARACTER_ENCODING_DETECTION:
-		essidcharencdetectionflag = true;
 		break;
 
 		case HCXT_VERBOSE_OUT:
