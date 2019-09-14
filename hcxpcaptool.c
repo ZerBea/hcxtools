@@ -2172,7 +2172,7 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 					{
 					break;
 					}
-				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && ((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 						{
@@ -2246,7 +2246,7 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoldoutname != NULL))
 					{
 					break;
 					}
-				if(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)
+				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && ((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 						{
