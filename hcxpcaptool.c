@@ -1517,7 +1517,7 @@ if(apstaessidlistecleaned != NULL)
 	{
 	qsort(apstaessidlistecleaned, apstaessidcountcleaned, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_ap_count_essid);
 	}
-
+	
 if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 	{
 	mp0c = 0;
@@ -1553,7 +1553,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 						{
 						break;
 						}
-					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0))
+					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && ((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
