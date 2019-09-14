@@ -1560,55 +1560,58 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-							mp = getmessagepair(zeiger);
-							writehccapxrecord(zeiger, fhoutlist);
-							writtencount++;
-							if((mp & 0x07) == 0)
+							if(essidchangecount < maxessidchanges)
 								{
-								mp0c++;
-								if((mp & 0x80) == 0x80)
+								mp = getmessagepair(zeiger);
+								writehccapxrecord(zeiger, fhoutlist);
+								writtencount++;
+								if((mp & 0x07) == 0)
 									{
-									mp80c++;
+									mp0c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp80c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 1)
-								{
-								mp1c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 1)
 									{
-									mp81c++;
+									mp1c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp81c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 2)
-								{
-								mp2c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 2)
 									{
-									mp82c++;
+									mp2c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp82c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 3)
-								{
-								mp3c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 3)
 									{
-									mp83c++;
+									mp3c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp83c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 4)
-								{
-								mp4c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 4)
 									{
-									mp84c++;
+									mp4c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp84c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 5)
-								{
-								mp5c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 5)
 									{
-									mp85c++;
+									mp5c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp85c++;
+										}
 									}
 								}
 							memset(&essidold, 0,32);
@@ -1617,10 +1620,6 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 							if(essidchangecount > 1)
 								{
 								essidchangeflag = true;
-								}
-							if(essidchangecount >= maxessidchanges)
-								{
-								break;
 								}
 							}
 						}
@@ -1684,62 +1683,65 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-							writehccaprecord(maxrcdiff, zeiger, fhoutlist);
-							writtencount++;
-							if((mp & 0x07) == 0)
+							if(essidchangecount < maxessidchanges)
 								{
-								mp0c++;
-								if((mp & 0x80) == 0x80)
+								writehccaprecord(maxrcdiff, zeiger, fhoutlist);
+								writtencount++;
+								if((mp & 0x07) == 0)
 									{
-									mp80c++;
+									mp0c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp80c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 1)
-								{
-								mp1c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 1)
 									{
-									mp81c++;
+									mp1c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp81c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 2)
-								{
-								mp2c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 2)
 									{
-									mp82c++;
+									mp2c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp82c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 3)
-								{
-								mp3c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 3)
 									{
-									mp83c++;
+									mp3c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp83c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 4)
-								{
-								mp4c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 4)
 									{
-									mp84c++;
+									mp4c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp84c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 5)
-								{
-								mp5c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 5)
 									{
-									mp85c++;
+									mp5c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp85c++;
+										}
 									}
 								}
 							memset(&essidold, 0,32);
 							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
 							essidchangecount++;
-							if(essidchangecount >= maxessidchanges)
+							if(essidchangecount > 1)
 								{
-								break;
+								essidchangeflag = true;
 								}
 							}
 						}
@@ -1803,62 +1805,65 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-							writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
-							writtencount++;
-							if((mp & 0x07) == 0)
+							if(essidchangecount < maxessidchanges)
 								{
-								mp0c++;
-								if((mp & 0x80) == 0x80)
+								writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
+								writtencount++;
+								if((mp & 0x07) == 0)
 									{
-									mp80c++;
+									mp0c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp80c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 1)
-								{
-								mp1c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 1)
 									{
-									mp81c++;
+									mp1c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp81c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 2)
-								{
-								mp2c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 2)
 									{
-									mp82c++;
+									mp2c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp82c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 3)
-								{
-								mp3c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 3)
 									{
-									mp83c++;
+									mp3c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp83c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 4)
-								{
-								mp4c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 4)
 									{
-									mp84c++;
+									mp4c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp84c++;
+										}
 									}
-								}
-							if((mp & 0x07) == 5)
-								{
-								mp5c++;
-								if((mp & 0x80) == 0x80)
+								if((mp & 0x07) == 5)
 									{
-									mp85c++;
+									mp5c++;
+									if((mp & 0x80) == 0x80)
+										{
+										mp85c++;
+										}
 									}
 								}
 							memset(&essidold, 0,32);
 							memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
 							essidchangecount++;
-							if(essidchangecount >= maxessidchanges)
+							if(essidchangecount > 1)
 								{
-								break;
+								essidchangeflag = true;
 								}
 							}
 						}
@@ -2176,37 +2181,36 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 						{
-						for(p = 0; p < 16; p++)
+						if(essidchangecount < maxessidchanges)
 							{
-							fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+							for(p = 0; p < 16; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->pmkid[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < 6; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
+								}
+							fprintf(fhoutlist, ":");
+							for(p = 0; p < zeigeressid->essidlen; p++)
+								{
+								fprintf(fhoutlist, "%02x", zeigeressid->essid[p]);
+								}
+							fprintf(fhoutlist, "\n");
+							writtencount++;
 							}
-						fprintf(fhoutlist, ":");
-						for(p = 0; p < 6; p++)
-							{
-							fprintf(fhoutlist, "%02x", zeiger->mac_ap[p]);
-							}
-						fprintf(fhoutlist, ":");
-						for(p = 0; p < 6; p++)
-							{
-							fprintf(fhoutlist, "%02x", zeiger->mac_sta[p]);
-							}
-						fprintf(fhoutlist, ":");
-						for(p = 0; p < zeigeressid->essidlen; p++)
-							{
-							fprintf(fhoutlist, "%02x", zeigeressid->essid[p]);
-							}
-						fprintf(fhoutlist, "\n");
-						writtencount++;
 						memset(&essidold, 0,32);
 						memcpy(&essidold, zeigeressid->essid, zeigeressid->essidlen);
 						essidchangecount++;
 						if(essidchangecount > 1)
 							{
 							essidchangeflag = true;
-							}
-						if(essidchangecount >= maxessidchanges)
-							{
-							break;
 							}
 						}
 					}
