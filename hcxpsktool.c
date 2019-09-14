@@ -1750,7 +1750,7 @@ return;
 }
 /*===========================================================================*/
 /*===========================================================================*/
-static inline size_t chop(char *buffer, size_t len)
+static size_t chop(char *buffer, size_t len)
 {
 static char *ptr;
 
@@ -1772,7 +1772,7 @@ while(len)
 return len;
 }
 /*---------------------------------------------------------------------------*/
-static inline int fgetline(FILE *inputstream, size_t size, char *buffer)
+static int fgetline(FILE *inputstream, size_t size, char *buffer)
 {
 static size_t len;
 static char *buffptr;
@@ -1787,7 +1787,7 @@ len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
-static inline void readpmkidfile(char *pmkidname)
+static void readpmkidfile(char *pmkidname)
 {
 static int len;
 static int aktread = 1;
@@ -1848,7 +1848,7 @@ fclose(fh_file);
 return;
 }
 /*===========================================================================*/
-static inline int getwpapskfmt(int lenlinein, char *linein)
+static int getwpapskfmt(int lenlinein, char *linein)
 {
 static int p;
 static const char *johnformat = "$WPAPSK$";
@@ -1863,7 +1863,7 @@ static const char *johnformat = "$WPAPSK$";
 return 0;
 }
 /*===========================================================================*/
-static inline void readjohnfile(char *johnname)
+static void readjohnfile(char *johnname)
 {
 static int len;
 static int aktread = 1;
@@ -1942,7 +1942,7 @@ fclose(fh_file);
 return;
 }
 /*===========================================================================*/
-static inline void readhccapxfile(char *hccapxname)
+static void readhccapxfile(char *hccapxname)
 {
 static struct stat statinfo;
 static hccapx_t *hcxptr;
@@ -1997,7 +1997,7 @@ fclose(fhhcx);
 return;
 }
 /*===========================================================================*/
-static inline void readcommandline(char *macapname, char *essidname)
+static void readcommandline(char *macapname, char *essidname)
 {
 static int essidlen = 0;
 static int essidlenuh = 0;
@@ -2038,14 +2038,14 @@ return;
 }
 /*===========================================================================*/
 __attribute__ ((noreturn))
-static inline void version(char *eigenname)
+static void version(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
-static inline void usage(char *eigenname)
+static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
 	"usage:\n"
@@ -2084,7 +2084,7 @@ exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
-static inline void usageerror(char *eigenname)
+static void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"
 	"usage: %s -h for help\n", eigenname, VERSION, VERSION_JAHR, eigenname);

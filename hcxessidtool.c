@@ -752,7 +752,7 @@ printf("%d hashes written to %s\n", written, basename(pmkid12outname));
 return;
 }
 /*===========================================================================*/
-static inline size_t chop(char *buffer, size_t len)
+static size_t chop(char *buffer, size_t len)
 {
 static char *ptr;
 
@@ -774,7 +774,7 @@ while(len)
 return len;
 }
 /*---------------------------------------------------------------------------*/
-static inline int fgetline(FILE *inputstream, size_t size, char *buffer)
+static int fgetline(FILE *inputstream, size_t size, char *buffer)
 {
 static size_t len;
 static char *buffptr;
@@ -1002,14 +1002,14 @@ return true;
 
 /*===========================================================================*/
 __attribute__ ((noreturn))
-static inline void version(char *eigenname)
+static void version(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
-static inline void usage(char *eigenname)
+static void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
 	"usage:\n"
@@ -1049,7 +1049,7 @@ exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
-static inline void usageerror(char *eigenname)
+static void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"
 	"usage: %s -h for help\n", eigenname, VERSION, VERSION_JAHR, eigenname);
