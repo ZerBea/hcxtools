@@ -3815,16 +3815,18 @@ apstaessidcount++;
 return;
 }
 /*===========================================================================*/
-uint8_t *gettag(uint8_t tag, uint8_t *tagptr, int restlen)
+uint8_t *gettag(uint8_t tag, uint8_t *tagptr, uint32_t plen)
 {
-static ietag_t *tagfield;
+ietag_t *tagfield;
+uint32_t tlen;
 
-while(0 < restlen)
+tlen = 0;
+while(tlen < plen)
 	{
 	tagfield = (ietag_t*)tagptr;
 	if(tagfield->id == tag)
 		{
-		if(restlen >= (int)tagfield->len +(int)IETAG_SIZE)
+		if((tlen +tagfield->len +2) <= plen)
 			{
 			return tagptr;
 			}
@@ -3834,7 +3836,7 @@ while(0 < restlen)
 			}
 		}
 	tagptr += tagfield->len +IETAG_SIZE;
-	restlen -= tagfield->len +IETAG_SIZE;
+	tlen += tagfield->len +IETAG_SIZE;
 	}
 return NULL;
 }
@@ -4017,23 +4019,27 @@ uint8_t mscoui[] =
 0x00, 0x50, 0xf2
 };
 
+
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
+	beaconframedamagedcount++;
 	return;
 	}
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
 beaconframecount++;
+
+
 if(memcmp(macf->addr1, &mac_broadcast, 6) != 0)
 	{
 	beaconframedamagedcount++;
 	}
 
-tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+tagptr = gettag(TAG_SSID, packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE);
 if(tagptr != NULL)
 	{
 	thetag = (ietag_t*)tagptr;
-	if((thetag ->len > 0) && (thetag ->len <= 32))
+	if((thetag->len > 0) && (thetag->len <= 32))
 		{
 		if(thetag ->data[0] != 0)
 			{
@@ -4043,7 +4049,7 @@ if(tagptr != NULL)
 	}
 
 
-tagptr = gettag(TAG_MESH_ID, packet_ptr, caplen);
+tagptr = gettag(TAG_MESH_ID, packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE);
 if(tagptr != NULL)
 	{
 	thetag = (ietag_t*)tagptr;
@@ -4056,7 +4062,7 @@ if(tagptr != NULL)
 		}
 	}
 
-tagptr = gettag(TAG_VENDOR, packet_ptr, caplen);
+tagptr = gettag(TAG_VENDOR, packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE);
 if(tagptr != NULL)
 	{
 	mscwpstag = (mscwpstag_t*)tagptr;
@@ -4104,7 +4110,7 @@ macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset;
 proberequestframecount++;
 
-tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+tagptr = gettag(TAG_SSID, packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset);
 if(tagptr != NULL)
 	{
 	thetag = (ietag_t*)tagptr;
@@ -4134,7 +4140,7 @@ macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
 proberesponseframecount++;
 
-tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+tagptr = gettag(TAG_SSID, packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE);
 if(tagptr != NULL)
 	{
 	thetag = (ietag_t*)tagptr;
@@ -4167,7 +4173,7 @@ macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESSTA_SIZE;
 associationrequestframecount++;
 
-tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+tagptr = gettag(TAG_SSID, packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESSTA_SIZE);
 if(tagptr != NULL)
 	{
 	thetag = (ietag_t*)tagptr;
@@ -4180,7 +4186,7 @@ if(tagptr != NULL)
 		}
 	}
 
-rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
+rsntagptr = gettag(TAG_RSN, packet_ptr,  caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESSTA_SIZE);
 if(rsntagptr == NULL)
 	{
 	return;
@@ -4233,7 +4239,7 @@ macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESRESTA_SIZE;
 reassociationrequestframecount++;
 
-tagptr = gettag(TAG_SSID, packet_ptr, caplen);
+tagptr = gettag(TAG_SSID, packet_ptr,  caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESSTA_SIZE);
 if(tagptr != NULL)
 	{
 	thetag = (ietag_t*)tagptr;
@@ -4246,7 +4252,7 @@ if(tagptr != NULL)
 		}
 	}
 
-rsntagptr = gettag(TAG_RSN, packet_ptr, caplen);
+rsntagptr = gettag(TAG_RSN, packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESSTA_SIZE);
 if(rsntagptr == NULL)
 	{
 	return;
@@ -5558,7 +5564,6 @@ ppi_t *ppi;
 uint32_t crc;
 struct timeval tvtmp;
 
-
 if(mintv.tv_sec == 0)
 	{
 	mintv.tv_sec = tv_sec;
@@ -5727,6 +5732,7 @@ if(endianess == 1)
 	{
 	crc	= byte_swap_32(crc);
 	}
+
 if(crc == fcs->fcs)
 	{
 	fcsflag = true;
