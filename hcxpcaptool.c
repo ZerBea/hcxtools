@@ -60,7 +60,8 @@
 #define HCXT_IGNORE_FAKE_FRAMES				14
 #define HCXT_IGNORE_ZEROED_PMKS				15
 #define HCXT_IGNORE_REPLAYCOUNT				16
-#define HCXT_PREFIX_OUT					17
+#define HCXT_IGNORE_MAC					17
+#define HCXT_PREFIX_OUT					18
 
 #define HCXT_WPA12_OUT			'w'
 #define HCXT_HCCAPX_OUT			'o'
@@ -102,6 +103,7 @@ bool gpxflag;
 bool tscleanflag;
 bool tssameflag;
 bool replaycountcheckflag;
+bool maccheckflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -328,6 +330,8 @@ filtermacflag = false;
 fakeframeflag = false;
 zeroedpmkflag = false;
 replaycountcheckflag = false;
+maccheckflag = false;
+
 gpxflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
@@ -1553,7 +1557,11 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 						{
 						break;
 						}
-					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && ((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))
+					if(((maccheckflag == false) &&
+					((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) &&
+					((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))) ||
+					((maccheckflag == true) &&
+					(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
@@ -1676,7 +1684,11 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 						{
 						break;
 						}
-					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && ((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))
+					if(((maccheckflag == false) &&
+					((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) &&
+					((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))) ||
+					((maccheckflag == true) &&
+					(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
@@ -1798,7 +1810,11 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 						{
 						break;
 						}
-					if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && ((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))
+					if(((maccheckflag == false) &&
+					((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) &&
+					((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))) ||
+					((maccheckflag == true) &&
+					(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)))
 						{
 						if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 							{
@@ -2177,7 +2193,11 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoutname != NULL))
 					{
 					break;
 					}
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && ((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))
+				if(((maccheckflag == false) &&
+				((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) &&
+				((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))) ||
+				((maccheckflag == true) &&
+				(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 						{
@@ -2250,7 +2270,11 @@ if((apstaessidlistecleaned != NULL) && (hcpmkidoldoutname != NULL))
 					{
 					break;
 					}
-				if((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) && ((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))
+				if(((maccheckflag == false) &&
+				((memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0) &&
+				((memcmp(zeiger->mac_sta, zeigeressid->mac_sta, 6) == 0) || (memcmp(&mac_broadcast, zeigeressid->mac_sta, 6) == 0)))) ||
+				((maccheckflag == true) &&
+				(memcmp(zeiger->mac_ap, zeigeressid->mac_ap, 6) == 0)))
 					{
 					if(memcmp(&essidold, zeigeressid->essid, 32) != 0)
 						{
@@ -6716,13 +6740,17 @@ printf("%s %s (C) %s ZeroBeat\n"
 //	"-w <file> : output WPA1/2 EAPOL/PMKID hash file (hashcat)\n"
 	"-o <file> : output hccapx file (hashcat -m 2500/2501)\n"
 	"-O <file> : output raw hccapx file (hashcat -m 2500/2501)\n"
+	"            this will disable all(!) 802.11 validity checks\n"
 	"            very slow!\n"
 	"-k <file> : output PMKID file (hashcat hashmode -m 16800 new format)\n"
 	"-K <file> : output raw PMKID file (hashcat hashmode -m 16801 new format)\n"
+	"            this will disable usage of ESSIDs completely\n"
 	"-z <file> : output PMKID file (hashcat hashmode -m 16800 old format and john)\n"
 	"-Z <file> : output raw PMKID file (hashcat hashmode -m 16801 old format and john)\n"
+	"            this will disable usage of ESSIDs completely\n"
 	"-j <file> : output john WPAPSK-PMK file (john wpapsk-opencl)\n"
 	"-J <file> : output raw john WPAPSK-PMK file (john wpapsk-opencl)\n"
+	"            this will disable all(!) 802.11 validity checks\n"
 	"            very slow!\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-I <file> : output unsorted identity list\n"
@@ -6746,6 +6774,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--ignore-fake-frames              : do not convert fake frames\n"
 	"--ignore-zeroed-pmks              : do not convert frames which use a zeroed plainmasterkey (PMK)\n"
 	"--ignore-replaycount              : allow not replaycount checked best handshakes\n"
+	"--ignore-mac                      : do not check MAC addresses\n"
+	"                                    this will allow to use ESSIDs from frames with damaged broadcast MAC address\n"
 	"--time-error-corrections=<digit>  : maximum time gap between EAPOL frames - EAPOL TIMEOUT (default: %llus)\n"
 	"--nonce-error-corrections=<digit> : maximum replycount/nonce gap to be converted (default: %llu)\n"
 	"                                    example: --nonce-error-corrections=60 \n"
@@ -6763,6 +6793,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--hexdump-out=<file>              : output dump raw packets in hex\n"
 	"--hccap-out=<file>                : output old hccap file (hashcat -m 2500)\n"
 	"--hccap-raw-out=<file>            : output raw old hccap file (hashcat -m 2500)\n"
+	"                                    this will disable all(!) 802.11 validity checks\n"
 	"                                    very slow!\n"
 	"--prefix-out=<file>               : convert everything to lists using this prefix (overrides single options):\n"
 	"                                    hccapx (-o) file.hccapx\n"
@@ -6866,6 +6897,7 @@ static const struct option long_options[] =
 	{"ignore-fake-frames",		no_argument,		NULL,	HCXT_IGNORE_FAKE_FRAMES},
 	{"ignore-zeroed-pmks",		no_argument,		NULL,	HCXT_IGNORE_ZEROED_PMKS},
 	{"ignore-replaycount",		no_argument,		NULL,	HCXT_IGNORE_REPLAYCOUNT},
+	{"ignore-mac",			no_argument,		NULL,	HCXT_IGNORE_MAC},
 	{"prefix-out",			required_argument,	NULL,	HCXT_PREFIX_OUT},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},
@@ -7088,6 +7120,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCXT_IGNORE_REPLAYCOUNT:
 		replaycountcheckflag = true;
 		maxrcdiff = 2147483647;
+		break;
+
+		case HCXT_IGNORE_MAC:
+		maccheckflag = true;
 		break;
 
 		case HCXT_VERBOSE_OUT:

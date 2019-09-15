@@ -1,3 +1,10 @@
+15.09.2019
+==========
+hcxpcaptool: added new option and improved help
+--ignore-mac     : do not check MAC addresses
+                   this will allow to use ESSIDs from frames with damaged broadcast MAC address
+
+
 14.09.2019
 ==========
 hcxpcaptool  : improved detection of damaged ESSIDs
