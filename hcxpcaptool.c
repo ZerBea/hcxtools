@@ -1702,6 +1702,14 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 							if(essidchangecount < maxessidchanges)
 								{
+								if(maxrcdiff > 128)
+									{
+									writehccaprecord(128, zeiger, fhoutlist);
+									}
+								else
+									{
+									writehccaprecord(maxrcdiff, zeiger, fhoutlist);
+									}
 								writehccaprecord(maxrcdiff, zeiger, fhoutlist);
 								writtencount++;
 								if((mp & 0x07) == 0)
@@ -1828,7 +1836,14 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 							if(essidchangecount < maxessidchanges)
 								{
-								writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
+								if(maxrcdiff > 128)
+									{
+									writejohnrecord(128, zeiger, fhoutlist, pcapinname);
+									}
+								else
+									{
+									writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
+									}
 								writtencount++;
 								if((mp & 0x07) == 0)
 									{
