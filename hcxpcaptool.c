@@ -1702,9 +1702,9 @@ if((apstaessidlistecleaned != NULL) && (hccapbestoutname != NULL))
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 							if(essidchangecount < maxessidchanges)
 								{
-								if(maxrcdiff > 128)
+								if(maxrcdiff > 8)
 									{
-									writehccaprecord(128, zeiger, fhoutlist);
+									writehccaprecord(8, zeiger, fhoutlist);
 									}
 								else
 									{
@@ -1836,9 +1836,9 @@ if((apstaessidlistecleaned != NULL) && (johnbestoutname != NULL))
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
 							if(essidchangecount < maxessidchanges)
 								{
-								if(maxrcdiff > 128)
+								if(maxrcdiff > 8)
 									{
-									writejohnrecord(128, zeiger, fhoutlist, pcapinname);
+									writejohnrecord(8, zeiger, fhoutlist, pcapinname);
 									}
 								else
 									{
@@ -2084,7 +2084,14 @@ if(hccaprawoutname != NULL)
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-							writehccaprecord(maxrcdiff, zeiger, fhoutlist);
+							if(maxrcdiff > 8)
+								{
+								writehccaprecord(8, zeiger, fhoutlist);
+								}
+							else
+								{
+								writehccaprecord(maxrcdiff, zeiger, fhoutlist);
+								}
 							writtencount++;
 							essidchangecount++;
 							memset(&essidold, 0,32);
@@ -2100,7 +2107,14 @@ if(hccaprawoutname != NULL)
 					{
 					memset(zeiger->essid, 0, 32);
 					zeiger->essidlen = 0;
-					writehccaprecord(maxrcdiff, zeiger, fhoutlist);
+					if(maxrcdiff > 8)
+						{
+						writehccaprecord(8, zeiger, fhoutlist);
+						}
+					else
+						{
+						writehccaprecord(maxrcdiff, zeiger, fhoutlist);
+						}
 					writtencount++;
 					}
 				}
@@ -2144,7 +2158,14 @@ if(johnrawoutname != NULL)
 							zeiger->essidlen = zeigeressid->essidlen;
 							memset(zeiger->essid, 0, 32);
 							memcpy(zeiger->essid, zeigeressid->essid, zeigeressid->essidlen);
-							writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
+							if(maxrcdiff > 8)
+								{
+								writejohnrecord(8, zeiger, fhoutlist, pcapinname);
+								}
+							else
+								{
+								writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
+								}
 							writtencount++;
 							essidchangecount++;
 							memset(&essidold, 0,32);
@@ -2160,7 +2181,14 @@ if(johnrawoutname != NULL)
 					{
 					memset(zeiger->essid, 0, 32);
 					zeiger->essidlen = 0;
-					writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
+					if(maxrcdiff > 8)
+						{
+						writejohnrecord(8, zeiger, fhoutlist, pcapinname);
+						}
+					else
+						{
+						writejohnrecord(maxrcdiff, zeiger, fhoutlist, pcapinname);
+						}
 					writtencount++;
 					}
 				}
