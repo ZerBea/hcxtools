@@ -150,6 +150,7 @@ unsigned long long int gpsdframecount;
 unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
+unsigned long long int beaconframedamagedcount;
 unsigned long long int wpsframecount;
 unsigned long long int deviceinfoframecount;
 unsigned long long int meshidframecount;
@@ -572,6 +573,10 @@ if(wdsframecount != 0)
 if(beaconframecount != 0)
 	{
 	printf("beacons (total)..................: %llu\n", beaconframecount);
+	}
+if(beaconframedamagedcount != 0)
+	{
+	printf("beacons (damaged)................: %llu\n", beaconframedamagedcount);
 	}
 if(wpsframecount != 0)
 	{
@@ -4019,6 +4024,10 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
 beaconframecount++;
+if(memcmp(macf->addr1, &mac_broadcast, 6) != 0)
+	{
+	beaconframedamagedcount++;
+	}
 
 tagptr = gettag(TAG_SSID, packet_ptr, caplen);
 if(tagptr != NULL)
@@ -6428,6 +6437,7 @@ gpsdframecount = 0;
 fcsframecount = 0;
 wdsframecount = 0;
 beaconframecount = 0;
+beaconframedamagedcount = 0;
 wpsframecount = 0;
 deviceinfoframecount = 0;
 meshidframecount = 0;
