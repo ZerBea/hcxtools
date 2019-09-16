@@ -4330,9 +4330,24 @@ reassociationresponseframecount++;
 return;
 }
 /*===========================================================================*/
-void process80211authentication(uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
+void process80211fbtauthentication()
 {
 
+
+authenticationfbtframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211saeauthentication()
+{
+
+
+authenticationsaeframecount++;
+return;
+}
+/*===========================================================================*/
+void process80211authentication(uint32_t caplen, uint32_t wdsoffset, uint8_t *packet)
+{
 authf_t *auth;
 vendor_t *vendorauth;
 uint8_t *packet_ptr;
@@ -4349,7 +4364,6 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SI
 	{
 	return;
 	}
-
 mac_t *macf;
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset;
@@ -4359,35 +4373,35 @@ if(macf->protected == 1)
 	{
 	authenticationskframecount++;
 	}
-else if(ntohs(auth->authentication_algho) == OPEN_SYSTEM)
+else if(auth->authentication_algho == OPEN_SYSTEM)
 	{
 	authenticationosframecount++;
 	}
-else if(ntohs(auth->authentication_algho) == SHARED_KEY)
+else if(auth->authentication_algho == SHARED_KEY)
 	{
 	authenticationskframecount++;
 	}
-else if(ntohs(auth->authentication_algho) == FBT)
+else if(auth->authentication_algho == FBT)
 	{
-	authenticationfbtframecount++;
+	process80211fbtauthentication();
 	}
-else if(ntohs(auth->authentication_algho) == SAE)
+else if(auth->authentication_algho == SAE)
 	{
-	authenticationsaeframecount++;
+	process80211saeauthentication();
 	}
-else if(ntohs(auth->authentication_algho) == FILS)
+else if(auth->authentication_algho == FILS)
 	{
 	authenticationfilsframecount++;
 	}
-else if(ntohs(auth->authentication_algho) == FILSPFS)
+else if(auth->authentication_algho == FILSPFS)
 	{
 	authenticationfilspfsframecount++;
 	}
-else if(ntohs(auth->authentication_algho) == FILSPK)
+else if(auth->authentication_algho == FILSPK)
 	{
 	authenticationfilspkframecount++;
 	}
-else if(ntohs(auth->authentication_algho) == NETWORKEAP)
+else if(auth->authentication_algho == NETWORKEAP)
 	{
 	authenticationnetworkeapframecount++;
 	}
@@ -4400,10 +4414,9 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)AUTHENTICATIONFRAME_SI
 	{
 	return;
 	}
+
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +AUTHENTICATIONFRAME_SIZE;
 vendorauth = (vendor_t*)packet_ptr;
-
-
 if(vendorauth->tagnr != 0xdd)
 	{
 	return;
