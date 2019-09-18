@@ -288,7 +288,7 @@ char pcapngosinfo[1024];
 char pcapngapplinfo[1024];
 char pcapngoptioninfo[1024];
 uint8_t pcapngdeviceinfo[6];
-
+char weakcandidate[64];
 int exeaptype[256];
 /*===========================================================================*/
 /* global init */
@@ -343,6 +343,7 @@ setbuf(stdout, NULL);
 srand(time(NULL));
 
 memset(&pcapngdeviceinfo, 0, 6);
+memset(&weakcandidate, 0, 64);
 return true;
 }
 /*===========================================================================*/
@@ -1125,6 +1126,7 @@ void outputessidlists()
 {
 unsigned long long int c;
 FILE *fhoutlist = NULL;
+int wecl;
 apstaessidl_t *zeiger, *zeigerold;
 
 if(essidoutname != NULL)
@@ -1134,6 +1136,11 @@ if(essidoutname != NULL)
 		zeiger = apstaessidliste;
 		zeigerold = zeiger;
 		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_essid);
+		wecl = strlen(weakcandidate);
+		if(wecl < 64)
+			{
+			fprintf(fhoutlist, "%s\n", weakcandidate); 
+			}
 		for(c = 0; c < apstaessidcount; c++)
 			{
 			if(c == 0)
@@ -5927,6 +5934,14 @@ while(0 < restlen)
 		if(option->option_length == 32)
 			{
 			memcpy(&myaktnonce, &option->data, 32);
+			}
+		}
+
+	if (option->option_code == OPTIONCODE_WEAKCANDIDATE)
+		{
+		if(option->option_length < 64)
+			{
+			memcpy(&weakcandidate, &option->data, option->option_length);
 			}
 		}
 	if((option->option_code == IF_MACADDR) && (blocktype == 1))
