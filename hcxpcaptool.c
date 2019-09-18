@@ -917,7 +917,7 @@ memcpy(&salt[14], macsta, 6);
 
 HMAC(EVP_sha1(), zeropmk, 32, salt, 20, zeropmkid, NULL);
 
-if(memcmp(&zeropmkid, pmkid, 32) == 0)
+if(memcmp(&zeropmkid, pmkid, 16) == 0)
 	{
 	return true;
 	}
