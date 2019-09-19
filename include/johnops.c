@@ -56,7 +56,7 @@ else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 4))
 		message_pair |= 0x80;
 		}
 	}
-else if((zeiger->keyinfo_ap == 4) && (zeiger->keyinfo_sta == 2))
+else if((zeiger->keyinfo_ap == 16) && (zeiger->keyinfo_sta == 2))
 	{
 	message_pair = MESSAGE_PAIR_M32E3;
 	if(zeiger->replaycount_ap -1 != zeiger->replaycount_sta)
@@ -95,7 +95,7 @@ wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 memcpy(&hccap.essid, zeiger->essid, 32);
 memcpy(&hccap.mac1, zeiger->mac_ap, 6);
 memcpy(&hccap.mac2, zeiger->mac_sta, 6);
-if(zeiger->keyinfo_ap == 4)
+if(zeiger->keyinfo_ap == 16)
 	{
 	memcpy(&hccap.nonce1, zeiger->nonce, 32);
 	memcpy(&hccap.nonce2, wpak->nonce, 32);

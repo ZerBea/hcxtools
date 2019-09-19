@@ -1267,6 +1267,7 @@ return;
 static int getmessagepair(hcxl_t *zeiger)
 {
 int messagepair = 0x80;
+
 if((zeiger->keyinfo_ap == 1) && (zeiger->keyinfo_sta == 4))
 	{
 	messagepair = MESSAGE_PAIR_M12E2;
@@ -1283,7 +1284,7 @@ else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 4))
 		messagepair |= 0x80;
 		}
 	}
-else if((zeiger->keyinfo_ap == 4) && (zeiger->keyinfo_sta == 2))
+else if((zeiger->keyinfo_ap == 16) && (zeiger->keyinfo_sta == 4))
 	{
 	messagepair = MESSAGE_PAIR_M32E3;
 	if(zeiger->replaycount_ap -1 != zeiger->replaycount_sta)
@@ -1584,9 +1585,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 			zeigeressid = apstaessidlistecleaned;
 			memset(&essidold, 0,32);
 			essidchangecount = 0;
-
 			mp = getmessagepair(zeiger);
-
 			if(((mp & 0x80) != 0x80) || (replaycountcheckflag == true))
 				{
 				for(d = 0; d < apstaessidcountcleaned; d++)
@@ -3199,7 +3198,7 @@ if(handshakeliste == NULL)
 	handshakeliste->rc_diff = 0;
 	memcpy(handshakeliste->mac_ap, zeigerap->mac_ap, 6);
 	memcpy(handshakeliste->mac_sta, &myaktsta, 6);
-	handshakeliste->keyinfo_ap = zeigerap->keyinfo;
+	handshakeliste->keyinfo_ap = 16;
 	handshakeliste->keyinfo_sta = 4;
 	memcpy(handshakeliste->nonce, &myaktsnonce, 32);
 	handshakeliste->authlen = zeigerap->authlen;
@@ -3235,7 +3234,7 @@ zeiger->replaycount_sta = zeigerap->replaycount -1;
 zeiger->rc_diff = 0;
 memcpy(zeiger->mac_ap, zeigerap->mac_ap, 6);
 memcpy(zeiger->mac_sta, &myaktsta, 6);
-zeiger->keyinfo_ap = zeigerap->keyinfo;
+zeiger->keyinfo_ap = 16;
 zeiger->keyinfo_sta = 4;
 memcpy(zeiger->nonce, &myaktsnonce, 32);
 zeiger->authlen = zeigerap->authlen;
@@ -3524,6 +3523,7 @@ for(c = 0; c < eapolcount; c++)
 		}
 	if((zeigerea->keyinfo >= 4) && (memcmp(zeigerea->mac_sta, &myaktsta, 6) != 0))
 		{
+
 		lltimeea = ((uint64_t)zeigerea->tv_sec *1000000) +zeigerea->tv_usec;
 		for(d = 1; d <= c; d++)
 			{
