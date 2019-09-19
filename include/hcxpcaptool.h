@@ -144,7 +144,7 @@ struct hcxtoollist_s
  uint64_t	replaycount_sta;
  uint8_t	endianess;
  uint8_t	nonce[32];
- uint8_t	authlen;
+ uint16_t	authlen;
  uint8_t	eapol[256];
  uint8_t	essidlen;
  uint8_t	essid[ESSID_LEN_MAX];

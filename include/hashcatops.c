@@ -28,6 +28,14 @@ else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 4))
 		hccapx.message_pair |= 0x80;
 		}
 	}
+else if((zeiger->keyinfo_ap == 4) && (zeiger->keyinfo_sta == 2))
+	{
+	hccapx.message_pair = MESSAGE_PAIR_M32E3;
+	if(zeiger->replaycount_ap -1 != zeiger->replaycount_sta)
+		{
+		hccapx.message_pair |= 0x80;
+		}
+	}
 else if((zeiger->keyinfo_ap == 1) && (zeiger->keyinfo_sta == 8))
 	{
 	hccapx.message_pair = MESSAGE_PAIR_M14E4;
@@ -49,9 +57,17 @@ wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 hccapx.essid_len = zeiger->essidlen;
 memcpy(&hccapx.essid, zeiger->essid, 32);
 memcpy(&hccapx.mac_ap, zeiger->mac_ap, 6);
-memcpy(&hccapx.nonce_ap, zeiger->nonce, 32);
 memcpy(&hccapx.mac_sta, zeiger->mac_sta, 6);
-memcpy(&hccapx.nonce_sta, wpak->nonce, 32);
+if(zeiger->keyinfo_ap == 4)
+	{
+	memcpy(&hccapx.nonce_ap, wpak->nonce, 32);
+	memcpy(&hccapx.nonce_sta, zeiger->nonce, 32);
+	}
+else
+	{
+	memcpy(&hccapx.nonce_ap, zeiger->nonce, 32);
+	memcpy(&hccapx.nonce_sta, wpak->nonce, 32);
+	}
 hccapx.eapol_len = zeiger->authlen;
 memcpy(&hccapx.eapol, zeiger->eapol, zeiger->authlen);
 memcpy(&hccapx.keymic, wpak->keymic, 16);
@@ -79,8 +95,16 @@ wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 memcpy(&hccap.essid, zeiger->essid, 32);
 memcpy(&hccap.mac1, zeiger->mac_ap, 6);
 memcpy(&hccap.mac2, zeiger->mac_sta, 6);
-memcpy(&hccap.nonce1, wpak->nonce, 32);
-memcpy(&hccap.nonce2, zeiger->nonce, 32);
+if(zeiger->keyinfo_ap == 4)
+	{
+	memcpy(&hccap.nonce1, zeiger->nonce, 32);
+	memcpy(&hccap.nonce2, wpak->nonce, 32);
+	}
+else
+	{
+	memcpy(&hccap.nonce1, wpak->nonce, 32);
+	memcpy(&hccap.nonce2, zeiger->nonce, 32);
+	}
 hccap.eapol_size = zeiger->authlen;
 memcpy(&hccap.eapol, zeiger->eapol, zeiger->authlen);
 memcpy(&hccap.keymic, wpak->keymic, 16);

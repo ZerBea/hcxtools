@@ -278,8 +278,11 @@ uint16_t dltlinktype;
 struct timeval mintv;
 struct timeval maxtv;
 
+uint8_t myaktap[6];
+uint8_t myaktsta[6];
+uint8_t myaktanonce[32];
+uint8_t myaktsnonce[32];
 uint64_t myaktreplaycount;
-uint8_t myaktnonce[32];
 
 uint8_t filtermac[6];
 
@@ -343,7 +346,12 @@ setbuf(stdout, NULL);
 srand(time(NULL));
 
 memset(&pcapngdeviceinfo, 0, 6);
+memset(&myaktap, 0, 6);
+memset(&myaktanonce, 0, 32);
+memset(&myaktsta, 0, 6);
+memset(&myaktsnonce, 0, 32);
 memset(&weakcandidate, 0, 64);
+
 return true;
 }
 /*===========================================================================*/
@@ -1275,6 +1283,14 @@ else if((zeiger->keyinfo_ap == 2) && (zeiger->keyinfo_sta == 4))
 		messagepair |= 0x80;
 		}
 	}
+else if((zeiger->keyinfo_ap == 4) && (zeiger->keyinfo_sta == 2))
+	{
+	messagepair = MESSAGE_PAIR_M32E3;
+	if(zeiger->replaycount_ap -1 != zeiger->replaycount_sta)
+		{
+		messagepair |= 0x80;
+		}
+	}
 else if((zeiger->keyinfo_ap == 1) && (zeiger->keyinfo_sta == 8))
 	{
 	messagepair = MESSAGE_PAIR_M14E4;
@@ -1568,7 +1584,9 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 			zeigeressid = apstaessidlistecleaned;
 			memset(&essidold, 0,32);
 			essidchangecount = 0;
+
 			mp = getmessagepair(zeiger);
+
 			if(((mp & 0x80) != 0x80) || (replaycountcheckflag == true))
 				{
 				for(d = 0; d < apstaessidcountcleaned; d++)
@@ -1593,7 +1611,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 								mp = getmessagepair(zeiger);
 								writehccapxrecord(zeiger, fhoutlist);
 								writtencount++;
-								if((mp & 0x07) == 0)
+								if((mp & 0x07) == MESSAGE_PAIR_M12E2)
 									{
 									mp0c++;
 									if((mp & 0x80) == 0x80)
@@ -1601,7 +1619,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 										mp80c++;
 										}
 									}
-								if((mp & 0x07) == 1)
+								if((mp & 0x07) == MESSAGE_PAIR_M14E4)
 									{
 									mp1c++;
 									if((mp & 0x80) == 0x80)
@@ -1609,7 +1627,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 										mp81c++;
 										}
 									}
-								if((mp & 0x07) == 2)
+								if((mp & 0x07) == MESSAGE_PAIR_M32E2)
 									{
 									mp2c++;
 									if((mp & 0x80) == 0x80)
@@ -1617,7 +1635,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 										mp82c++;
 										}
 									}
-								if((mp & 0x07) == 3)
+								if((mp & 0x07) == MESSAGE_PAIR_M32E3)
 									{
 									mp3c++;
 									if((mp & 0x80) == 0x80)
@@ -1625,7 +1643,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 										mp83c++;
 										}
 									}
-								if((mp & 0x07) == 4)
+								if((mp & 0x07) == MESSAGE_PAIR_M34E3)
 									{
 									mp4c++;
 									if((mp & 0x80) == 0x80)
@@ -1633,7 +1651,7 @@ if((apstaessidlistecleaned != NULL) && (hccapxbestoutname != NULL))
 										mp84c++;
 										}
 									}
-								if((mp & 0x07) == 5)
+								if((mp & 0x07) == MESSAGE_PAIR_M34E4)
 									{
 									mp5c++;
 									if((mp & 0x80) == 0x80)
@@ -3043,7 +3061,7 @@ if(rawhandshakeliste == NULL)
 	memcpy(rawhandshakeliste->nonce, wpaeo->nonce, 32);
 	rawhandshakeliste->authlen = zeigerea->authlen;
 	memcpy(rawhandshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
-	if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
+	if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktanonce, 32) == 0))
 		{
 		rawhandshakeliste->endianess = 0x10;
 		rawhandshakeaplesscount++;
@@ -3070,9 +3088,9 @@ for(c = 0; c < rawhandshakecount; c++)
 			{
 			zeiger->endianess = 0x40;
 			}
-		if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
+		if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktanonce, 32) == 0))
 			{
-			if((zeiger->replaycount_ap != myaktreplaycount) && (zeiger->replaycount_sta != myaktreplaycount) && (memcmp(zeiger->nonce, &myaktnonce, 32) == 0))
+			if((zeiger->replaycount_ap != myaktreplaycount) && (zeiger->replaycount_sta != myaktreplaycount) && (memcmp(zeiger->nonce, &myaktanonce, 32) == 0))
 				{
 				rawhandshakeaplesscount++;
 				}
@@ -3144,12 +3162,86 @@ zeiger->keyinfo_sta = zeigerea->keyinfo;
 memcpy(zeiger->nonce, wpaeo->nonce, 32);
 zeiger->authlen = zeigerea->authlen;
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
+if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktanonce, 32) == 0))
 	{
 	zeiger->endianess = 0x10;
 	rawhandshakeaplesscount++;
 	}
 rawhandshakecount++;
+return;
+}
+/*===========================================================================*/
+void addwchandshake(eapoll_t *zeigerap)
+{
+uint64_t timewc;
+hcxl_t *zeiger;
+unsigned long long int c;
+
+if(zeigerap->authlen > 0x0fc)
+	{
+	return;
+	}
+timewc = ((uint64_t)zeigerap->tv_sec *1000000) +zeigerap->tv_usec;
+if(handshakeliste == NULL)
+	{
+	handshakeliste = malloc(HCXLIST_SIZE);
+	if(handshakeliste == NULL)
+		{
+		printf("failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+	memset(handshakeliste, 0, HCXLIST_SIZE);
+	handshakeliste->tv_ea = timewc;
+	handshakeliste->tv_eo = timewc +1;
+	handshakeliste->tv_diff = 0;
+	handshakeliste->replaycount_ap = zeigerap->replaycount;
+	handshakeliste->replaycount_sta = zeigerap->replaycount -1;
+	handshakeliste->rc_diff = 0;
+	memcpy(handshakeliste->mac_ap, zeigerap->mac_ap, 6);
+	memcpy(handshakeliste->mac_sta, &myaktsta, 6);
+	handshakeliste->keyinfo_ap = zeigerap->keyinfo;
+	handshakeliste->keyinfo_sta = 4;
+	memcpy(handshakeliste->nonce, &myaktsnonce, 32);
+	handshakeliste->authlen = zeigerap->authlen;
+	memcpy(handshakeliste->eapol, zeigerap->eapol, zeigerap->authlen);
+	handshakeliste->endianess = 0x10;
+	handshakecount++;
+	return;
+	}
+
+zeiger = handshakeliste;
+for(c = 0; c < handshakecount; c++)
+	{
+	if((memcmp(zeiger->mac_ap, zeigerap->mac_ap, 6) == 0) && (memcmp(zeiger->mac_sta, zeigerap->mac_sta, 6) == 0))
+		{
+		return;
+		}
+	zeiger++;
+	}
+zeiger = realloc(handshakeliste, (handshakecount +1) *HCXLIST_SIZE);
+if(zeiger == NULL)
+	{
+	printf("failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+handshakeliste = zeiger;
+zeiger = handshakeliste +handshakecount;
+memset(zeiger, 0, HCXLIST_SIZE);
+zeiger->tv_ea = timewc;
+zeiger->tv_eo = timewc +1;
+zeiger->tv_diff = 0;
+zeiger->replaycount_ap = zeigerap->replaycount;
+zeiger->replaycount_sta = zeigerap->replaycount -1;
+zeiger->rc_diff = 0;
+memcpy(zeiger->mac_ap, zeigerap->mac_ap, 6);
+memcpy(zeiger->mac_sta, &myaktsta, 6);
+zeiger->keyinfo_ap = zeigerap->keyinfo;
+zeiger->keyinfo_sta = 4;
+memcpy(zeiger->nonce, &myaktsnonce, 32);
+zeiger->authlen = zeigerap->authlen;
+memcpy(zeiger->eapol, zeigerap->eapol, zeigerap->authlen);
+zeiger->endianess = 0x10;
+handshakecount++;
 return;
 }
 /*===========================================================================*/
@@ -3209,7 +3301,7 @@ if(handshakeliste == NULL)
 	memcpy(handshakeliste->nonce, wpaeo->nonce, 32);
 	handshakeliste->authlen = zeigerea->authlen;
 	memcpy(handshakeliste->eapol, zeigerea->eapol, zeigerea->authlen);
-	if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
+	if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktanonce, 32) == 0))
 		{
 		handshakeliste->endianess = 0x10;
 		handshakeaplesscount++;
@@ -3235,9 +3327,9 @@ for(c = 0; c < handshakecount; c++)
 			{
 			zeiger->endianess = 0x40;
 			}
-		if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
+		if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktanonce, 32) == 0))
 			{
-			if((zeiger->replaycount_ap != myaktreplaycount) && (zeiger->replaycount_sta != myaktreplaycount) && (memcmp(zeiger->nonce, &myaktnonce, 32) != 0))
+			if((zeiger->replaycount_ap != myaktreplaycount) && (zeiger->replaycount_sta != myaktreplaycount) && (memcmp(zeiger->nonce, &myaktanonce, 32) != 0))
 				{
 				handshakeaplesscount++;
 				}
@@ -3403,7 +3495,7 @@ zeiger->keyinfo_sta = zeigerea->keyinfo;
 memcpy(zeiger->nonce, wpaeo->nonce, 32);
 zeiger->authlen = zeigerea->authlen;
 memcpy(zeiger->eapol, zeigerea->eapol, zeigerea->authlen);
-if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktnonce, 32) == 0))
+if((zeigerea->replaycount == myaktreplaycount) && (zeigereo->replaycount == myaktreplaycount) && (memcmp(wpaeo->nonce, &myaktanonce, 32) == 0))
 	{
 	zeiger->endianess = 0x10;
 	handshakeaplesscount++;
@@ -3423,7 +3515,14 @@ uint64_t rcgap;
 zeigerea = eapolliste;
 for(c = 0; c < eapolcount; c++)
 	{
-	if(zeigerea->keyinfo >= 4)
+	if((zeigerea->keyinfo == 2) && (memcmp(&myaktsta, &mac_null, 6) != 0))
+		{
+		if((memcmp(zeigerea->mac_sta, &myaktsta, 6) == 0) && (memcmp(&myaktsnonce, &nullnonce, 32) != 0))
+			{
+			addwchandshake(zeigerea);
+			}
+		}
+	if((zeigerea->keyinfo >= 4) && (memcmp(zeigerea->mac_sta, &myaktsta, 6) != 0))
 		{
 		lltimeea = ((uint64_t)zeigerea->tv_sec *1000000) +zeigerea->tv_usec;
 		for(d = 1; d <= c; d++)
@@ -5937,11 +6036,33 @@ while(0 < restlen)
 				}
 			}
 		}
+
+	if (option->option_code == OPTIONCODE_MACMYAP)
+		{
+		if(option->option_length == 6)
+			{
+			memcpy(&myaktap, &option->data, 6);
+			}
+		}
 	if (option->option_code == OPTIONCODE_ANONCE)
 		{
 		if(option->option_length == 32)
 			{
-			memcpy(&myaktnonce, &option->data, 32);
+			memcpy(&myaktanonce, &option->data, 32);
+			}
+		}
+	if (option->option_code == OPTIONCODE_MACMYSTA)
+		{
+		if(option->option_length == 6)
+			{
+			memcpy(&myaktsta, &option->data, 6);
+			}
+		}
+	if (option->option_code == OPTIONCODE_SNONCE)
+		{
+		if(option->option_length == 32)
+			{
+			memcpy(&myaktsnonce, &option->data, 32);
 			}
 		}
 
@@ -6616,7 +6737,7 @@ char *unknown = "unknown";
 char tmpoutname[PATH_MAX+1];
 
 myaktreplaycount = MYREPLAYCOUNT;
-memcpy(&myaktnonce, &mynonce, 32);
+memcpy(&myaktanonce, &mynonce, 32);
 strcpy(pcapnghwinfo, unknown);
 strcpy(pcapngosinfo, unknown);
 strcpy(pcapngapplinfo, unknown);
