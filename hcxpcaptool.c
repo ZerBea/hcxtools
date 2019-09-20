@@ -104,6 +104,7 @@ bool tscleanflag;
 bool tssameflag;
 bool replaycountcheckflag;
 bool maccheckflag;
+bool hcxdumptoolflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -541,9 +542,20 @@ void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int ver
 {
 int p;
 
+static char *hcxsignedinfo = "(signed)";
+static char *hcxunsignedinfo = "(not signed - old version)";
+
 static char mintimestring[32];
 static char maxtimestring[32];
 
+
+static char *hcxsignedptr;
+
+hcxsignedptr = hcxsignedinfo;
+if(hcxdumptoolflag == false)
+	{
+	hcxsignedptr = hcxunsignedinfo;
+	}
 strftime(mintimestring, 32, "%d.%m.%Y %H:%M:%S", gmtime(&mintv.tv_sec));
 strftime(maxtimestring, 32, "%d.%m.%Y %H:%M:%S", gmtime(&maxtv.tv_sec));
 printf( "                                                \n"
@@ -554,7 +566,7 @@ printf( "                                                \n"
 	"file hardware information........: %s\n"
 	"capture device vendor information: %02x%02x%02x\n"
 	"file os information..............: %s\n"
-	"file application information.....: %s\n"
+	"file application information.....: %s %s\n"
 	"network type.....................: %s (%d)\n"
 	"endianness.......................: %s\n"
 	"read errors......................: %s\n"
@@ -564,7 +576,7 @@ printf( "                                                \n"
 	"skipped damaged packets..........: %llu\n"
 	"packets with GPS data............: %llu\n"
 	"packets with FCS.................: %llu\n"
-	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngosinfo, pcapngapplinfo, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
+	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngosinfo, pcapngapplinfo, hcxsignedptr, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
 if(tscleanflag == true)
 	{
 	printf("warning..........................: zero value time stamps detected\n"
@@ -6015,7 +6027,22 @@ while(0 < restlen)
 			memcpy(&pcapngapplinfo, option->data, option->option_length);
 			}
 		}
-	if (option->option_code == OPTIONCODE_RC)
+	if((option->option_code == IF_MACADDR) && (blocktype == 1) && (hcxdumptoolflag != true))
+		{
+		if(option->option_length == 6)
+			{
+			memset(&pcapngdeviceinfo, 0, 6);
+			memcpy(&pcapngdeviceinfo, option->data, 6);
+			}
+		}
+	if((hcxdumptoolflag == true) && (blocktype != 0xbad))
+		{
+		optr += option->option_length +padding +OH_SIZE;
+		restlen -= option->option_length +padding +OH_SIZE;
+		continue;
+		}
+
+	if(option->option_code == OPTIONCODE_RC)
 		{
 		if(option->option_length == 8)
 			{
@@ -6036,7 +6063,6 @@ while(0 < restlen)
 				}
 			}
 		}
-
 	if (option->option_code == OPTIONCODE_MACMYAP)
 		{
 		if(option->option_length == 6)
@@ -6065,7 +6091,6 @@ while(0 < restlen)
 			memcpy(&myaktsnonce, &option->data, 32);
 			}
 		}
-
 	if (option->option_code == OPTIONCODE_WEAKCANDIDATE)
 		{
 		if(option->option_length < 64)
@@ -6073,7 +6098,7 @@ while(0 < restlen)
 			memcpy(&weakcandidate, &option->data, option->option_length);
 			}
 		}
-	if((option->option_code == IF_MACADDR) && (blocktype == 1))
+	if((option->option_code == OPTIONCODE_MACMYORIG) && (blocktype == 0xbad))
 		{
 		if(option->option_length == 6)
 			{
@@ -6108,11 +6133,13 @@ section_header_block_t *pcapngshb;
 interface_description_block_t *pcapngidb;
 packet_block_t *pcapngpb;
 enhanced_packet_block_t *pcapngepb;
+custom_block_t *pcapngcb;
 
 uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 uint8_t packet[MAXPACPSNAPLEN];
 
 printf("\nreading from %s\n", basename(pcapinname));
+hcxdumptoolflag = false;
 fdsize = lseek(fd, 0, SEEK_END);
 if(fdsize < 0)
 	{
@@ -6237,7 +6264,7 @@ while(1)
 
 	else if(blocktype == 1)
 		{
-		pcapngidb = (interface_description_block_t*) pcpngblock;
+		pcapngidb = (interface_description_block_t*)pcpngblock;
 		#ifdef BIG_ENDIAN_HOST
 		pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
 		pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
@@ -6259,7 +6286,7 @@ while(1)
 
 	else if(blocktype == 2)
 		{
-		pcapngpb = (packet_block_t*) pcpngblock;
+		pcapngpb = (packet_block_t*)pcpngblock;
 		#ifdef BIG_ENDIAN_HOST
 		pcapngpb->caplen		= byte_swap_32(pcapngpb->caplen);
 		#endif
@@ -6377,6 +6404,27 @@ while(1)
 			padding = 4 -(pcapngepb->caplen %4);
 			}
 		pcapngoptionwalk(blocktype, pcapngepb->data +pcapngepb->caplen +padding, blocklen -EPB_SIZE -pcapngepb->caplen -padding);
+		}
+	else if(blocktype == 0xbad)
+		{
+		pcapngcb = (custom_block_t*)pcpngblock;
+		if(blocklen < CB_SIZE)
+			{
+			skippedpacketcount++;
+			continue;
+			}
+		if(memcmp(pcapngcb->pen, & hcxmagic, 4) != 0)
+			{
+			skippedpacketcount++;
+			continue;
+			}
+		if(memcmp(pcapngcb->hcxm, & hcxmagic, 32) != 0)
+			{
+			skippedpacketcount++;
+			continue;
+			}
+		hcxdumptoolflag = true;
+		pcapngoptionwalk(blocktype, pcapngcb->data, blocklen -CB_SIZE);
 		}
 	else
 		{

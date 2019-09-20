@@ -5,19 +5,22 @@
 
 #define PCAPMAGICNUMBER		0xa1b2c3d4
 #define PCAPMAGICNUMBERBE	0xd4c3b2a1
+#define PCAP_MAJOR_VER 		2
+#define PCAP_MINOR_VER		4
+#define PCAP_SNAPLEN		0xffff
+#define MAXPACPSNAPLEN		0x80000
 
-
+#define PCAPNG_MAJOR_VER	1
+#define PCAPNG_MINOR_VER	0
+#define PCAPNG_SNAPLEN		0x80000
 #define PCAPNGBLOCKTYPE		0x0a0d0d0a
 #define PCAPNGMAGICNUMBER	0x1a2b3c4d
 #define PCAPNGMAGICNUMBERBE	0x4d3c2b1a
 
-#define PCAP_MAJOR_VER 		2
-#define PCAP_MINOR_VER		4
-#define PCAP_SNAPLEN		0xffff
-
 #define IF_MACADDR		6
 
 /* local */
+#define OPTIONCODE_MACMYORIG		0xf29a
 #define OPTIONCODE_MACMYAP		0xf29b
 #define OPTIONCODE_RC			0xf29c
 #define OPTIONCODE_ANONCE		0xf29d
@@ -25,11 +28,7 @@
 #define OPTIONCODE_SNONCE		0xf29f
 #define OPTIONCODE_WEAKCANDIDATE	0xf2a0
 
-#define PCAPNG_MAJOR_VER	1
-#define PCAPNG_MINOR_VER	0
-#define PCAPNG_SNAPLEN		0x80000
 
-#define MAXPACPSNAPLEN		0x80000
 
 #ifndef LIBPCAPSUPPORT
 #define DLT_NULL			0
@@ -391,13 +390,21 @@ typedef struct enhanced_packet_block_s enhanced_packet_block_t;
 struct custom_block_s
 {
  uint32_t	block_type;		/* block type */
-#define CBBID	0x0x00000bad;
+#define CBID	0x00000bad;
  uint32_t	total_length;		/* block length */
- uint32_t	pen;			/* private enterprise number */
- uint32_t	cdata;			/* custom data and custom options */
+ uint32_t	pen[4];			/* Private Enterprise Number */
+ uint8_t	hcxm[32];		/* hcxdumptool magic number */
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct custom_block_s custom_block_t;
-#define	CB_SIZE (sizeof(custom_block_t))
+#define	CB_SIZE offsetof (custom_block_t, data)
+
+uint8_t hcxmagic[] =
+{
+0x2a, 0xce, 0x46, 0xa1, 0x79, 0xa0, 0x72, 0x33, 0x83, 0x37, 0x27, 0xab, 0x59, 0x33, 0xb3, 0x62,
+0x45, 0x37, 0x11, 0x47, 0xa7, 0xcf, 0x32, 0x7f, 0x8d, 0x69, 0x80, 0xc0, 0x89, 0x5e, 0x5e, 0x98
+};
+#define	HCXMAGIC_SIZE (sizeof(hcxmagic))
 /*===========================================================================*/
 
 
