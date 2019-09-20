@@ -387,6 +387,18 @@ struct enhanced_packet_block_s
 typedef struct enhanced_packet_block_s enhanced_packet_block_t;
 #define	EPB_SIZE offsetof (enhanced_packet_block_t, data)
 /*===========================================================================*/
+/* Custom Block (CB) - ID 0x00000bad */
+struct custom_block_s
+{
+ uint32_t	block_type;		/* block type */
+#define CBBID	0x0x00000bad;
+ uint32_t	total_length;		/* block length */
+ uint32_t	pen;			/* private enterprise number */
+ uint32_t	cdata;			/* custom data and custom options */
+} __attribute__((__packed__));
+typedef struct custom_block_s custom_block_t;
+#define	CB_SIZE (sizeof(custom_block_t))
+/*===========================================================================*/
 
 
 
