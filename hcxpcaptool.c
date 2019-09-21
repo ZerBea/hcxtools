@@ -543,7 +543,7 @@ void printcapstatus(char *pcaptype, char *pcapinname, int version_major, int ver
 int p;
 
 static char *hcxsignedinfo = "(signed)";
-static char *hcxunsignedinfo = "(not signed: old version or edited)";
+static char *hcxunsignedinfo = "(not signed)";
 
 static char mintimestring[32];
 static char maxtimestring[32];
