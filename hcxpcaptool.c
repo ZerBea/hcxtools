@@ -6098,7 +6098,7 @@ while(0 < restlen)
 			memcpy(&weakcandidate, &option->data, option->option_length);
 			}
 		}
-	if((option->option_code == OPTIONCODE_MACMYORIG) && (blocktype == 0xbad))
+	if(option->option_code == OPTIONCODE_MACMYORIG)
 		{
 		if(option->option_length == 6)
 			{
