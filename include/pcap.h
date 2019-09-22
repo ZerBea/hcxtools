@@ -17,19 +17,6 @@
 #define PCAPNGMAGICNUMBER	0x1a2b3c4d
 #define PCAPNGMAGICNUMBERBE	0x4d3c2b1a
 
-#define IF_MACADDR		6
-
-/* local */
-#define OPTIONCODE_MACMYORIG		0xf29a
-#define OPTIONCODE_MACMYAP		0xf29b
-#define OPTIONCODE_RC			0xf29c
-#define OPTIONCODE_ANONCE		0xf29d
-#define OPTIONCODE_MACMYSTA		0xf29e
-#define OPTIONCODE_SNONCE		0xf29f
-#define OPTIONCODE_WEAKCANDIDATE	0xf2a0
-
-
-
 #ifndef LIBPCAPSUPPORT
 #define DLT_NULL			0
 #define DLT_EN10MB			1
@@ -284,6 +271,27 @@ typedef struct block_header_s block_header_t;
 /* Header of all pcapng options */
 struct option_header_s
 {
+#define SHB_EOC		0
+#define SHB_COMMENT	1
+#define SHB_HARDWARE	2
+#define SHB_OS		3
+#define SHB_USER_APPL	4
+#define SHB_CUSTOM_OCT	0x0bad
+
+#define IF_NAME		2
+#define IF_DESCRIPTION	3
+#define IF_MACADDR	6
+#define IF_TZONE	10
+
+/* custom option code */
+#define OPTIONCODE_MACMYORIG		0xf29a
+#define OPTIONCODE_MACMYAP		0xf29b
+#define OPTIONCODE_RC			0xf29c
+#define OPTIONCODE_ANONCE		0xf29d
+#define OPTIONCODE_MACMYSTA		0xf29e
+#define OPTIONCODE_SNONCE		0xf29f
+#define OPTIONCODE_WEAKCANDIDATE	0xf2a0
+
  uint16_t	option_code;	/* option code - depending of block (0 - end of opts, 1 - comment are in common) */
  uint16_t	option_length;	/* option length - length of option in bytes (will be padded to 32bit) */
  uint8_t	data[1];

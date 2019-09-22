@@ -104,7 +104,8 @@ bool tscleanflag;
 bool tssameflag;
 bool replaycountcheckflag;
 bool maccheckflag;
-bool hcxdumptoolflag;
+bool hcxdumptoolcbflag;
+bool hcxdumptoolcoflag;
 
 unsigned long long int maxtvdiff;
 unsigned long long int maxrcdiff;
@@ -552,7 +553,7 @@ static char maxtimestring[32];
 static char *hcxsignedptr;
 
 hcxsignedptr = hcxsignedinfo;
-if(hcxdumptoolflag == false)
+if(hcxdumptoolcbflag == false)
 	{
 	hcxsignedptr = hcxunsignedinfo;
 	}
@@ -5926,6 +5927,13 @@ process80211packet(tv_sec, tv_usec, caplen, packet_ptr);
 
 return;
 }
+
+/*===========================================================================*/
+void pcapngcustomoptionwalk()
+{
+hcxdumptoolcoflag = true;
+return;
+}
 /*===========================================================================*/
 void pcapngoptionwalk(uint32_t blocktype, uint8_t *optr, int restlen)
 {
@@ -5956,12 +5964,12 @@ while(0 < restlen)
 		padding = 4 -(option->option_length %4);
 		}
 
-	if(option->option_code == 0)
+	if(option->option_code == SHB_EOC)
 		{
 		return;
 		}
 
-	if((option->option_code == 1) && (blocktype == 6))
+	else if((option->option_code == SHB_COMMENT) && (blocktype == 6))
 		{
 		memset(&pcapngoptioninfo, 0, 1024);
 		if(option->option_length < 1024)
@@ -6003,7 +6011,7 @@ while(0 < restlen)
 			gpsdframecount++;
 			}
 		}
-	if((option->option_code == 2) && (blocktype == PCAPNGBLOCKTYPE))
+	else if((option->option_code == SHB_HARDWARE) && (blocktype == PCAPNGBLOCKTYPE))
 		{
 		if(option->option_length < 1024)
 			{
@@ -6011,7 +6019,7 @@ while(0 < restlen)
 			memcpy(&pcapnghwinfo, option->data, option->option_length);
 			}
 		}
-	if((option->option_code == 3) && (blocktype == PCAPNGBLOCKTYPE))
+	else if((option->option_code == SHB_OS) && (blocktype == PCAPNGBLOCKTYPE))
 		{
 		if(option->option_length < 1024)
 			{
@@ -6019,7 +6027,7 @@ while(0 < restlen)
 			memcpy(&pcapngosinfo, option->data, option->option_length);
 			}
 		}
-	if((option->option_code == 4) && (blocktype == PCAPNGBLOCKTYPE))
+	else if((option->option_code == SHB_USER_APPL) && (blocktype == PCAPNGBLOCKTYPE))
 		{
 		if(option->option_length < 1024)
 			{
@@ -6027,7 +6035,7 @@ while(0 < restlen)
 			memcpy(&pcapngapplinfo, option->data, option->option_length);
 			}
 		}
-	if((option->option_code == IF_MACADDR) && (blocktype == 1) && (hcxdumptoolflag != true))
+	else if((option->option_code == IF_MACADDR) && (blocktype == 1) && (hcxdumptoolcbflag != true))
 		{
 		if(option->option_length == 6)
 			{
@@ -6035,14 +6043,23 @@ while(0 < restlen)
 			memcpy(&pcapngdeviceinfo, option->data, 6);
 			}
 		}
-	if((hcxdumptoolflag == true) && (blocktype != 0xbad))
+	else if(option->option_code == SHB_CUSTOM_OCT)
+		{
+		if(option->option_length > 40)
+			{
+			if((memcmp(option->data, &hcxmagic, 4) == 0) && (memcmp(&option->data[4], & hcxmagic, 32) == 0))
+				{
+				pcapngcustomoptionwalk();
+				}
+			}
+		}
+	else if((hcxdumptoolcbflag == true) && (blocktype != 0xbad))
 		{
 		optr += option->option_length +padding +OH_SIZE;
 		restlen -= option->option_length +padding +OH_SIZE;
 		continue;
 		}
-
-	if(option->option_code == OPTIONCODE_RC)
+	else if(option->option_code == OPTIONCODE_RC)
 		{
 		if(option->option_length == 8)
 			{
@@ -6063,42 +6080,42 @@ while(0 < restlen)
 				}
 			}
 		}
-	if (option->option_code == OPTIONCODE_MACMYAP)
+	else if(option->option_code == OPTIONCODE_MACMYAP)
 		{
 		if(option->option_length == 6)
 			{
 			memcpy(&myaktap, &option->data, 6);
 			}
 		}
-	if (option->option_code == OPTIONCODE_ANONCE)
+	else if(option->option_code == OPTIONCODE_ANONCE)
 		{
 		if(option->option_length == 32)
 			{
 			memcpy(&myaktanonce, &option->data, 32);
 			}
 		}
-	if (option->option_code == OPTIONCODE_MACMYSTA)
+	else if(option->option_code == OPTIONCODE_MACMYSTA)
 		{
 		if(option->option_length == 6)
 			{
 			memcpy(&myaktsta, &option->data, 6);
 			}
 		}
-	if (option->option_code == OPTIONCODE_SNONCE)
+	else if(option->option_code == OPTIONCODE_SNONCE)
 		{
 		if(option->option_length == 32)
 			{
 			memcpy(&myaktsnonce, &option->data, 32);
 			}
 		}
-	if (option->option_code == OPTIONCODE_WEAKCANDIDATE)
+	else if(option->option_code == OPTIONCODE_WEAKCANDIDATE)
 		{
 		if(option->option_length < 64)
 			{
 			memcpy(&weakcandidate, &option->data, option->option_length);
 			}
 		}
-	if(option->option_code == OPTIONCODE_MACMYORIG)
+	else if(option->option_code == OPTIONCODE_MACMYORIG)
 		{
 		if(option->option_length == 6)
 			{
@@ -6139,7 +6156,8 @@ uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 uint8_t packet[MAXPACPSNAPLEN];
 
 printf("\nreading from %s\n", basename(pcapinname));
-hcxdumptoolflag = false;
+hcxdumptoolcbflag = false;
+hcxdumptoolcoflag = false;
 fdsize = lseek(fd, 0, SEEK_END);
 if(fdsize < 0)
 	{
@@ -6423,7 +6441,7 @@ while(1)
 			skippedpacketcount++;
 			continue;
 			}
-		hcxdumptoolflag = true;
+		hcxdumptoolcbflag = true;
 		pcapngoptionwalk(blocktype, pcapngcb->data, blocklen -CB_SIZE);
 		}
 	else
