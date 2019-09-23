@@ -317,6 +317,7 @@ typedef struct section_header_block_s section_header_block_t;
 struct interface_description_block_s
  {
  uint32_t	block_type;	/* block type */
+#define	IDBID	0x00000001
  uint32_t	total_length;	/* block length */
  uint16_t	linktype;	/* the link layer type (was -network- in classic pcap global header) */
  uint16_t	reserved;	/* 2 bytes of reserved data */
@@ -369,6 +370,7 @@ typedef struct name_resolution_block_s name_resolution_block_t;
 struct interface_statistics_block_s
 {
  uint32_t	block_type;	/* block type */
+#define	ISBID	0x00000005
  uint32_t	total_length;	/* block length */
  uint32_t	interface_id;     /* the interface the stats refer to - identified by interface description block in current section */
  uint32_t	timestamp_high;   /* high bytes of timestamp */
@@ -383,6 +385,7 @@ typedef struct interface_statistics_block_s interface_statistics_block_t;
 struct enhanced_packet_block_s
 {
  uint32_t	block_type;	/* block type */
+#define EPBBID	0x00000006
  uint32_t	total_length;	/* block length */
  uint32_t	interface_id;     /* the interface the packet was captured from - identified by interface description block in current section */
  uint32_t	timestamp_high;   /* high bytes of timestamp */
@@ -398,7 +401,7 @@ typedef struct enhanced_packet_block_s enhanced_packet_block_t;
 struct custom_block_s
 {
  uint32_t	block_type;		/* block type */
-#define CBID	0x00000bad;
+#define CBID	0x00000bad
  uint32_t	total_length;		/* block length */
  uint32_t	pen[4];			/* Private Enterprise Number */
  uint8_t	hcxm[32];		/* hcxdumptool magic number */
