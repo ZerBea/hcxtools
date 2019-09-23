@@ -6397,7 +6397,7 @@ while(1)
 		pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE);
 		}
 
-	else if(blocktype == 2)
+	else if(blocktype == PBID)
 		{
 		pcapngpb = (packet_block_t*)pcpngblock;
 		#ifdef BIG_ENDIAN_HOST
@@ -6439,12 +6439,12 @@ while(1)
 			}
 		}
 
-	else if(blocktype == 3)
+	else if(blocktype == SPBID)
 		{
 		continue;
 		}
 
-	else if(blocktype == 4)
+	else if(blocktype == NRBID)
 		{
 		continue;
 		}
@@ -6454,7 +6454,7 @@ while(1)
 		continue;
 		}
 
-	else if(blocktype == EPBBID)
+	else if(blocktype == EPBID)
 		{
 		pcapngepb = (enhanced_packet_block_t*)pcpngblock;
 		#ifdef BIG_ENDIAN_HOST
