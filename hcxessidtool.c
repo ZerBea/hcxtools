@@ -116,7 +116,7 @@ for(zeiger = hccapxlist; zeiger < (hccapxlist +hccapxcount); zeiger++)
 		}
 	}
 fclose(fh_file);
-printf("%d ESSIDs written to %s from %s\n", written, basename(essidmacapoutname), basename(sourcefile));
+printf("%d ESSID(s) written to %s from %s\n", written, basename(essidmacapoutname), basename(sourcefile));
 return;
 }
 /*===========================================================================*/
@@ -154,7 +154,7 @@ for(zeiger = pmkidlist; zeiger < (pmkidlist +pmkidcount); zeiger++)
 		}
 	}
 fclose(fh_file);
-printf("%d ESSIDs written to %s from %s\n", written, basename(essidmacapoutname), basename(sourcefile));
+printf("%d ESSID(s) written to %s from %s\n", written, basename(essidmacapoutname), basename(sourcefile));
 return;
 }
 /*===========================================================================*/
@@ -190,7 +190,7 @@ for(zeiger = hccapxlist; zeiger < (hccapxlist +hccapxcount); zeiger++)
 		}
 	}
 fclose(fh_file);
-printf("%d ESSIDs written to %s from %s\n", written, basename(essidoutname), basename(sourcefile));
+printf("%d ESSID(s) written to %s from %s\n", written, basename(essidoutname), basename(sourcefile));
 return;
 }
 /*===========================================================================*/
@@ -226,7 +226,7 @@ for(zeiger = pmkidlist; zeiger < (pmkidlist +pmkidcount); zeiger++)
 		}
 	}
 fclose(fh_file);
-printf("%d ESSIDs written to %s from %s\n", written, basename(essidoutname), basename(sourcefile));
+printf("%d ESSID(s) written to %s from %s\n", written, basename(essidoutname), basename(sourcefile));
 return;
 }
 /*===========================================================================*/
@@ -380,7 +380,7 @@ for(hccapxzeiger1 = hccapx1list; hccapxzeiger1 < (hccapx1list +hccapx1count); hc
 	written = writehccapxline(fd_file, hccapxzeiger1, written);
 	}
 close(fd_file);
-printf("%d hashes written to %s\n", written, basename(hccapxoutname));
+printf("%d record(s) written to %s\n", written, basename(hccapxoutname));
 return;
 }
 /*===========================================================================*/
@@ -408,7 +408,7 @@ for(hccapxzeiger2 = hccapx2list; hccapxzeiger2 < (hccapx2list +hccapx2count); hc
 		}
 	}
 close(fd_file);
-printf("%d hashes written to %s\n", written, basename(hccapx2outname));
+printf("%d record(s) written to %s\n", written, basename(hccapx2outname));
 return;
 }
 /*===========================================================================*/
@@ -437,7 +437,7 @@ for(hccapxzeiger1 = hccapx1list; hccapxzeiger1 < (hccapx1list +hccapx1count); hc
 		}
 	}
 close(fd_file);
-printf("%d hashes written to %s\n", written, basename(hccapx1outname));
+printf("%d record(s) written to %s\n", written, basename(hccapx1outname));
 return;
 }
 /*===========================================================================*/
@@ -479,7 +479,7 @@ for(hccapxzeiger2 = hccapx2list; hccapxzeiger2 < (hccapx2list +hccapx2count); hc
 	}
 
 close(fd_file);
-printf("%d hashes written to %s\n", written, basename(hccapx12outname));
+printf("%d record(s) written to %s\n", written, basename(hccapx12outname));
 return;
 }
 /*===========================================================================*/
@@ -531,7 +531,7 @@ if(hccapx2count > 0)
 	{
 	qsort(hccapx2list, hccapx2count, INTHCCAPX_SIZE, sort_inthccapx_by_essid);
 	}
-printf("%d records read from %s\n", hccapx2count, hccapx2name);
+printf("%d record(s) read from %s\n", hccapx2count, hccapx2name);
 return true;
 }
 /*===========================================================================*/
@@ -584,7 +584,7 @@ if(hccapx1count > 0)
 	{
 	qsort(hccapx1list, hccapx1count, INTHCCAPX_SIZE, sort_inthccapx_by_essid);
 	}
-printf("%d records read from %s\n", hccapx1count, hccapx1name);
+printf("%d record(s) read from %s\n", hccapx1count, hccapx1name);
 return true;
 }
 /*===========================================================================*/
@@ -696,7 +696,7 @@ for(pmkidzeiger1 = pmkid1list; pmkidzeiger1 < (pmkid1list +pmkid1count); pmkidze
 	written = writepmkidline(fh_file, pmkidzeiger1, written);
 	fclose(fh_file);
 	}
-printf("%d hashes written to PMKID groups\n", written);
+printf("%d record(s) written to PMKID groups\n", written);
 return;
 }
 /*===========================================================================*/
@@ -751,7 +751,7 @@ for(pmkidzeiger1 = pmkid1list; pmkidzeiger1 < (pmkid1list +pmkid1count); pmkidze
 	written = writepmkidline(fh_file, pmkidzeiger1, written);
 	}
 fclose(fh_file);
-printf("%d hashes written to %s\n", written, basename(pmkidoutname));
+printf("%d record(s) written to %s\n", written, basename(pmkidoutname));
 return;
 }
 /*===========================================================================*/
@@ -777,7 +777,7 @@ for(pmkidzeiger2 = pmkid2list; pmkidzeiger2 < (pmkid2list +pmkid2count); pmkidze
 		}
 	}
 fclose(fh_file);
-printf("%d hashes written to %s\n", written, basename(pmkid2outname));
+printf("%d record(s) written to %s\n", written, basename(pmkid2outname));
 return;
 }
 /*===========================================================================*/
@@ -803,7 +803,7 @@ for(pmkidzeiger1 = pmkid1list; pmkidzeiger1 < (pmkid1list +pmkid1count); pmkidze
 		}
 	}
 fclose(fh_file);
-printf("%d hashes written to %s\n", written, basename(pmkid1outname));
+printf("%d record(s) written to %s\n", written, basename(pmkid1outname));
 return;
 }
 /*===========================================================================*/
@@ -842,7 +842,7 @@ for(pmkidzeiger2 = pmkid2list; pmkidzeiger2 < (pmkid2list +pmkid2count); pmkidze
 		}
 	}
 fclose(fh_file);
-printf("%d hashes written to %s\n", written, basename(pmkid12outname));
+printf("%d record(s) written to %s\n", written, basename(pmkid12outname));
 return;
 }
 /*===========================================================================*/
@@ -898,7 +898,7 @@ if(stat(pmkid2name, &st) == -1)
 	perror("stat PMKID2 file failed\n");
 	return false;
 	}
-pmkid2list = malloc(st.st_size);
+pmkid2list = malloc(st.st_size +INTPMKID_SIZE);
 if(pmkid2list == NULL)
 	{
 	printf("failed to allocate memory\n");
@@ -984,7 +984,7 @@ if(pmkid2count > 0)
 	{
 	qsort(pmkid2list, pmkid2count, INTPMKID_SIZE, sort_intpmkid_by_essid);
 	}
-printf("%d records read from %s\n", pmkid2count, pmkid2name);
+printf("%d record(s) read from %s\n", pmkid2count, pmkid2name);
 return true;
 }
 /*===========================================================================*/
@@ -1003,7 +1003,7 @@ if(stat(pmkid1name, &st) == -1)
 	perror("stat PMKID1 file failed\n");
 	return false;
 	}
-pmkid1list = malloc(st.st_size);
+pmkid1list = malloc(st.st_size +INTPMKID_SIZE);
 if(pmkid1list == NULL)
 	{
 	printf("failed to allocate memory\n");
@@ -1073,6 +1073,7 @@ while(1)
 		aktread++;
 		continue;
 		}
+
 	zeiger->essidlen = zeiger->essidlen /2;
 	if(hex2bin(&linein[59], zeiger->essid, zeiger->essidlen) ==false)
 		{
@@ -1080,6 +1081,8 @@ while(1)
 		aktread++;
 		continue;
 		}
+	printf("%d %d\n", len, aktread);
+
 	pmkid1count++;
 	zeiger++;
 	aktread++;
@@ -1089,7 +1092,7 @@ if(pmkid1count > 0)
 	{
 	qsort(pmkid1list, pmkid1count, INTPMKID_SIZE, sort_intpmkid_by_essid);
 	}
-printf("%d records read from %s\n", pmkid1count, pmkid1name);
+printf("%d record(s) read from %s\n", pmkid1count, pmkid1name);
 return true;
 }
 /*===========================================================================*/
@@ -1302,6 +1305,7 @@ if(argc < 2)
 	return EXIT_SUCCESS;
 	}
 
+
 if(pmkid1name != NULL)
 	{
 	readpmkid1file();
@@ -1326,7 +1330,7 @@ if((pmkidoutname != NULL) && (pmkid1count > 0))
 	{
 	writepmkid();
 	}
-if(pmkid1count > 0)
+if((pmkidgroupflag == true) && (pmkid1count > 0))
 	{
 	writepmkidgroups();
 	}
@@ -1355,7 +1359,7 @@ if((hccapxoutname != NULL) && (hccapx1count > 0))
 	{
 	writehccapx();
 	}
-if(hccapx1count > 0)
+if((hccapxgroupflag == true) && (hccapx1count > 0))
 	{
 	writehccapxgroups();
 	}
