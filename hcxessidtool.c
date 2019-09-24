@@ -296,6 +296,13 @@ written = 0;
 hccapxzeiger1 = hccapx1list;
 for(hccapxzeiger1 = hccapx1list; hccapxzeiger1 < (hccapx1list +hccapx1count); hccapxzeiger1++)
 	{
+	if(essidonlylen > 0)
+		{
+		if(hccapxzeiger1->essidlen != essidonlylen)
+			{
+			continue;
+			}
+		}
 	ceo = 0;
 	for (cei = 0; cei < hccapxzeiger1->essidlen; cei++)
 		{
@@ -663,6 +670,13 @@ written = 0;
 pmkidzeiger1 = pmkid1list;
 for(pmkidzeiger1 = pmkid1list; pmkidzeiger1 < (pmkid1list +pmkid1count); pmkidzeiger1++)
 	{
+	if(essidonlylen > 0)
+		{
+		if(pmkidzeiger1->essidlen != essidonlylen)
+			{
+			continue;
+			}
+		}
 	ceo = 0;
 	for (cei = 0; cei < pmkidzeiger1->essidlen; cei++)
 		{
