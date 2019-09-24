@@ -79,6 +79,16 @@ if(pmkid2list != NULL)
 	{
 	free(pmkid2list);
 	}
+
+if(hccapx1list != NULL)
+	{
+	free(hccapx1list);
+	}
+
+if(hccapx2list != NULL)
+	{
+	free(hccapx2list);
+	}
 return;
 }
 /*===========================================================================*/
