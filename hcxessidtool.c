@@ -34,8 +34,8 @@ static int essidpartfilterlen = 0;
 static char *essidfiltername = NULL;
 static char *essidpartfiltername = NULL;
 
-static int pmkid1count;
-static int pmkid2count;
+static int pmkid1count = 0;
+static int pmkid2count = 0;
 
 static char *pmkid1name = NULL;
 static char *pmkid2name = NULL;
@@ -44,11 +44,11 @@ static char *pmkid1outname = NULL;
 static char *pmkid2outname = NULL;
 static char *pmkidoutname = NULL;
 
-static intpmkid_t *pmkid1list, *pmkidzeiger1, *pmkidzeigerakt1;
-static intpmkid_t *pmkid2list, *pmkidzeiger2, *pmkidzeigerakt2;
+static intpmkid_t *pmkid1list = NULL, *pmkidzeiger1 = NULL, *pmkidzeigerakt1 = NULL;
+static intpmkid_t *pmkid2list = NULL, *pmkidzeiger2 = NULL, *pmkidzeigerakt2 = NULL;
 
-static int hccapx1count;
-static int hccapx2count;
+static int hccapx1count = 0;
+static int hccapx2count = 0;;
 
 static char *hccapx1name = NULL;
 static char *hccapx2name = NULL;
@@ -60,13 +60,13 @@ static char *hccapxoutname = NULL;
 static bool pmkidgroupflag = false;
 static bool hccapxgroupflag = false;
 
-static inthccapx_t *hccapx1list, *hccapxzeiger1, *hccapxzeigerakt1;
-static inthccapx_t *hccapx2list, *hccapxzeiger2, *hccapxzeigerakt2;
+static inthccapx_t *hccapx1list = NULL, *hccapxzeiger1 = NULL, *hccapxzeigerakt1 = NULL;
+static inthccapx_t *hccapx2list = NULL, *hccapxzeiger2 = NULL, *hccapxzeigerakt2 = NULL;
 
 static char *essidoutname = NULL;
 static char *essidmacapoutname = NULL;
 
-static char separator;
+static char separator = ':';
 /*===========================================================================*/
 static void globalclose()
 {
@@ -1302,7 +1302,6 @@ if(argc < 2)
 	fprintf(stderr, "no option selected\n");
 	return EXIT_SUCCESS;
 	}
-
 
 if(pmkid1name != NULL)
 	{
