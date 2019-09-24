@@ -1081,8 +1081,6 @@ while(1)
 		aktread++;
 		continue;
 		}
-	printf("%d %d\n", len, aktread);
-
 	pmkid1count++;
 	zeiger++;
 	aktread++;
