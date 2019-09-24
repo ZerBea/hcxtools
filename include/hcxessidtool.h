@@ -1,21 +1,22 @@
 #define ESSID_LEN_MAX 		32
 #define PMKID_LINE_LEN		128
 
-
 #define HCXD_PMKID1			1
 #define HCXD_PMKID2			2
 #define HCXD_WRITE_PMKID12		3
 #define HCXD_WRITE_PMKID1		4
 #define HCXD_WRITE_PMKID2		5
 #define HCXD_WRITE_PMKID		6
-#define HCXD_HCCAPX1			7
-#define HCXD_HCCAPX2			8
-#define HCXD_WRITE_HCCAPX12		9
-#define HCXD_WRITE_HCCAPX1		10
-#define HCXD_WRITE_HCCAPX2		11
-#define HCXD_WRITE_HCCAPX		12
-#define HCXD_WRITE_ESSIDLIST		13
-#define HCXD_WRITE_ESSID_MACAP_LIST	14
+#define HCXD_WRITE_PMKID_GROUP		7
+#define HCXD_HCCAPX1			8
+#define HCXD_HCCAPX2			9
+#define HCXD_WRITE_HCCAPX12		10
+#define HCXD_WRITE_HCCAPX1		11
+#define HCXD_WRITE_HCCAPX2		12
+#define HCXD_WRITE_HCCAPX		13
+#define HCXD_WRITE_HCCAPX_GROUP		14
+#define HCXD_WRITE_ESSIDLIST		15
+#define HCXD_WRITE_ESSID_MACAP_LIST	16
 
 #define HCXD_ESSID		'e'
 #define HCXD_ESSID_PART		'E'
@@ -23,7 +24,6 @@
 
 #define HCXD_HELP		'h'
 #define HCXD_VERSION		'v'
-
 
 /*===========================================================================*/
 struct intpmkid_s

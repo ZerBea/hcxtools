@@ -1,3 +1,10 @@
+24.09.2019
+==========
+hcxessidtool: added new options and improved help
+--pmkidgroupout=<file> : output ESSID groups from ESSIDs present in PMKID1
+--hccapxgroupout=<file>: output ESSID groups from ESSIDs present in HCCAPX1
+
+
 15.09.2019
 ==========
 hcxpcaptool: added new option and improved help

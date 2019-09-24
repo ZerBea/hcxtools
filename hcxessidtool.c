@@ -57,6 +57,9 @@ static char *hccapx1outname = NULL;
 static char *hccapx2outname = NULL;
 static char *hccapxoutname = NULL;
 
+static bool pmkidgroupflag = false;
+static bool hccapxgroupflag = false;
+
 static inthccapx_t *hccapx1list, *hccapxzeiger1, *hccapxzeigerakt1;
 static inthccapx_t *hccapx2list, *hccapxzeiger2, *hccapxzeigerakt2;
 
@@ -276,6 +279,45 @@ if((write(fd_file, hccapxline, INTHCCAPX_SIZE)) == -1)
 	}
 written++;
 return written;
+}
+/*===========================================================================*/
+static void writehccapxgroups()
+{
+static int written;
+static int fd_file;
+static int cei;
+static int ceo;
+
+char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+
+char groupoutname[256];
+
+written = 0;
+hccapxzeiger1 = hccapx1list;
+for(hccapxzeiger1 = hccapx1list; hccapxzeiger1 < (hccapx1list +hccapx1count); hccapxzeiger1++)
+	{
+	ceo = 0;
+	for (cei = 0; cei < hccapxzeiger1->essidlen; cei++)
+		{
+		groupoutname[ceo] = digit[(hccapxzeiger1->essid[cei] & 0xff) >> 4];
+		ceo++;
+		groupoutname[ceo] = digit[hccapxzeiger1->essid[cei] & 0x0f];
+		ceo++;
+		}
+	groupoutname[ceo] = 0;
+	strcat(&groupoutname[ceo], ".hccapx");
+
+	if((fd_file = open(groupoutname, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
+		{
+		perror("f");
+		fprintf(stderr, "failed to open HCCAPX file %s\n",groupoutname);
+		return;
+		}
+	written = writehccapxline(fd_file, hccapxzeiger1, written);
+	close(fd_file);
+	}
+printf("%d hashes written to HCCAPX groups\n", written);
+return;
 }
 /*===========================================================================*/
 static bool findhccapx21()
@@ -604,6 +646,44 @@ for(c = 0; c < pmkidline->essidlen; c++)
 fprintf(fh_file, "\n");
 written++;
 return written;
+}
+/*===========================================================================*/
+static void writepmkidgroups()
+{
+static int written;
+static FILE *fh_file;
+static int cei;
+static int ceo;
+
+char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+
+char groupoutname[256];
+
+written = 0;
+pmkidzeiger1 = pmkid1list;
+for(pmkidzeiger1 = pmkid1list; pmkidzeiger1 < (pmkid1list +pmkid1count); pmkidzeiger1++)
+	{
+	ceo = 0;
+	for (cei = 0; cei < pmkidzeiger1->essidlen; cei++)
+		{
+		groupoutname[ceo] = digit[(pmkidzeiger1->essid[cei] & 0xff) >> 4];
+		ceo++;
+		groupoutname[ceo] = digit[pmkidzeiger1->essid[cei] & 0x0f];
+		ceo++;
+		}
+	groupoutname[ceo] = 0;
+	strcat(&groupoutname[ceo], ".16800");
+	if((fh_file = fopen(groupoutname, "a")) == NULL)
+		{
+		perror("f");
+		fprintf(stderr, "failed to open pmkid file %s\n", groupoutname);
+		return;
+		}
+	written = writepmkidline(fh_file, pmkidzeiger1, written);
+	fclose(fh_file);
+	}
+printf("%d hashes written to PMKID groups\n", written);
+return;
 }
 /*===========================================================================*/
 static bool findpmkid21()
@@ -1024,16 +1104,18 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"--pmkid1=<file>        : input PMKID file 1\n"
 	"--pmkid2=<file>        : input PMKID file 2\n"
-	"--pmkidout12=<file>    : output only lines present in both PMKID file 1 and PMKID file 2\n"
-	"--pmkidout1=<file>     : output only lines present in PMKID file 1\n"
-	"--pmkidout2=<file>     : output only lines present in PMKID file 2\n"
-	"--pmkidout=<file>      : output only ESSID filtered lines present in PMKID file 1\n"
-	"--hccapx1=<file>       : input HCCAPX file 1\n"
-	"--hccapx2=<file>       : input HCCAPX file 2\n"
-	"--hccapxout12=<file>   : output only lines present in both HCCAPX file 1 and HCCAPX file 2\n"
-	"--hccapxout1=<file>    : output only lines present in HCCAPX file1\n"
-	"--hccapxout2=<file>    : output only lines present in HCCAPX file 2\n"
-	"--hccapxout=<file>     : output only ESSID filtered lines present in HCCAPX file 1\n"
+	"--pmkidout12=<file>    : output only lines present in both PMKID1 and PMKID2\n"
+	"--pmkidout1=<file>     : output only lines present in PMKID1\n"
+	"--pmkidout2=<file>     : output only lines present in PMKID2\n"
+	"--pmkidout=<file>      : output only ESSID filtered lines present in PMKID1\n"
+	"--pmkidgroupout=<file> : output ESSID groups from ESSIDs present in PMKID1\n"
+	"--hccapx1=<file>       : input HCCAPX1\n"
+	"--hccapx2=<file>       : input HCCAPX2\n"
+	"--hccapxout12=<file>   : output only lines present in both HCCAPX1 and HCCAPX2\n"
+	"--hccapxout1=<file>    : output only lines present in HCCAPX1\n"
+	"--hccapxout2=<file>    : output only lines present in HCCAPX2\n"
+	"--hccapxout=<file>     : output only ESSID filtered lines present in HCCAPX1\n"
+	"--hccapxgroupout=<file>: output ESSID groups from ESSIDs present in HCCAPX1\n"
 	"--essidout=<file>      : output ESSID list\n"
 	"--essidmacapout=<file> : output MAC_AP:ESSID list\n"
 	"--help                 : show this help\n"
@@ -1070,12 +1152,14 @@ static const struct option long_options[] =
 	{"pmkidout1",			required_argument,	NULL,	HCXD_WRITE_PMKID1},
 	{"pmkidout2",			required_argument,	NULL,	HCXD_WRITE_PMKID2},
 	{"pmkidout",			required_argument,	NULL,	HCXD_WRITE_PMKID},
+	{"pmkidgroupout",		no_argument,		NULL,	HCXD_WRITE_PMKID_GROUP},
 	{"hccapx1",			required_argument,	NULL,	HCXD_HCCAPX1},
 	{"hccapx2",			required_argument,	NULL,	HCXD_HCCAPX2},
 	{"hccapxout12",			required_argument,	NULL,	HCXD_WRITE_HCCAPX12},
 	{"hccapxout1",			required_argument,	NULL,	HCXD_WRITE_HCCAPX1},
 	{"hccapxout2",			required_argument,	NULL,	HCXD_WRITE_HCCAPX2},
 	{"hccapxout",			required_argument,	NULL,	HCXD_WRITE_HCCAPX},
+	{"hccapxgroupout",		no_argument,		NULL,	HCXD_WRITE_HCCAPX_GROUP},
 	{"essidout",			required_argument,	NULL,	HCXD_WRITE_ESSIDLIST},
 	{"essidmacapout",		required_argument,	NULL,	HCXD_WRITE_ESSID_MACAP_LIST},
 	{"version",			no_argument,		NULL,	HCXD_VERSION},
@@ -1115,6 +1199,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		pmkidoutname = optarg;
 		break;
 
+		case HCXD_WRITE_PMKID_GROUP:
+		pmkidgroupflag = true;
+		break;
+
 		case HCXD_HCCAPX1:
 		hccapx1name = optarg;
 		break;
@@ -1137,6 +1225,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_WRITE_HCCAPX:
 		hccapxoutname = optarg;
+		break;
+
+		case HCXD_WRITE_HCCAPX_GROUP:
+		hccapxgroupflag = true;
 		break;
 
 		case HCXD_WRITE_ESSIDLIST:
@@ -1220,6 +1312,10 @@ if((pmkidoutname != NULL) && (pmkid1count > 0))
 	{
 	writepmkid();
 	}
+if(pmkid1count > 0)
+	{
+	writepmkidgroups();
+	}
 
 if(hccapx1name != NULL)
 	{
@@ -1244,6 +1340,10 @@ if((hccapx2outname != NULL) && (hccapx1count > 0) && (hccapx2count > 0))
 if((hccapxoutname != NULL) && (hccapx1count > 0))
 	{
 	writehccapx();
+	}
+if(hccapx1count > 0)
+	{
+	writehccapxgroups();
 	}
 
 if((essidoutname != NULL) && (pmkid1count > 0))
@@ -1279,6 +1379,8 @@ if((essidmacapoutname != NULL) && (hccapx2count > 0))
 	{
 	writeessidhccapx(hccapx2name, hccapx2list, hccapx2count);
 	}
+
+
 
 
 globalclose();
