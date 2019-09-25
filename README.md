@@ -46,7 +46,7 @@ Detailed description
 | hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files                                                     |
 | hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                         |
 | whoismac       | Show vendor information and/or download oui reference list                                                        |
-| wlancap2wpasec | Upload multiple caps to https://wpa-sec.stanev.org                                                                |
+| wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                        |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- |
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                         |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                                          |
@@ -54,7 +54,6 @@ Detailed description
 | wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                                          |
 | wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                                   |
 | wlanhcxmnc     | Help to calculate hashcat's nonce-error-corrections value on byte number xx of an anonce                          |
-| wlanhashhcx    | Generate hashlist from hccapx hashfile (md5_64 hash:mac_ap:mac_sta:essid)                                         |
 | wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 SHA256 AES-128-CMAC (hash-modes 2500, 2501)                       |
 | wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000 or john PBKDF2-HMAC-SHA1                   |
 | wlanjohn2hcx   | Converts john wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                                         |
