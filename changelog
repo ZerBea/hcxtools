@@ -1,3 +1,26 @@
+25.09.2019
+==========
+hcxmactool:   added new tool (MAC based counterpart to ESSID based hcxessidtool)
+options:
+-o <oui>    : filter access point by OUI
+-n <nic>    : filter access point by NIC
+-m <mac>    : filter access point by MAC
+-a <vendor> : filter access point by VENDOR name
+-O <oui>    : filter client by OUI
+-N <nic>    : filter client point by NIC
+-M <mac>    : filter client point by MAC
+-A <vendor> : filter client by VENDOR name
+-h          : show this help
+-v          : show version
+
+--pmkidin=<file>       : input PMKID file 1
+--pmkidout=<file>      : output PMKID file 1
+--hccapxin=<file>      : input HCCAPX file
+--hccapxout=<file>     : output HCCAPX file
+--help                 : show this help
+--version              : show version
+
+
 24.09.2019
 ==========
 hcxessidtool: added new options and improved help
