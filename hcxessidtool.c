@@ -346,7 +346,7 @@ for(hccapxzeiger1 = hccapxzeigerakt1; hccapxzeiger1 < (hccapx1list +hccapx1count
 		hccapxzeigerakt1 = hccapxzeiger1;
 		return true;
 		}
-	if(hccapxzeiger1->essidlen > hccapxzeiger2->essidlen)
+	if(memcmp(hccapxzeiger2->essid, hccapxzeiger1->essid, ESSID_LEN_MAX) > 0)
 		{
 		return false;
 		}
@@ -363,7 +363,7 @@ for(hccapxzeiger2 = hccapx2list; hccapxzeiger2 < (hccapx2list +hccapx2count); hc
 		hccapxzeigerakt2 = hccapxzeiger2;
 		return true;
 		}
-	if(hccapxzeiger2->essidlen > hccapxzeiger1->essidlen)
+	if(memcmp(hccapxzeiger1->essid, hccapxzeiger2->essid, ESSID_LEN_MAX) > 0)
 		{
 		return false;
 		}
@@ -719,7 +719,7 @@ for(pmkidzeiger1 = pmkidzeigerakt1; pmkidzeiger1 < (pmkid1list +pmkid1count); pm
 		pmkidzeigerakt1 = pmkidzeiger1;
 		return true;
 		}
-	if(pmkidzeiger1->essidlen > pmkidzeiger2->essidlen)
+	if(memcmp(pmkidzeiger2->essid, pmkidzeiger1->essid, ESSID_LEN_MAX) > 0)
 		{
 		return false;
 		}
@@ -736,7 +736,7 @@ for(pmkidzeiger2 = pmkid2list; pmkidzeiger2 < (pmkid2list +pmkid2count); pmkidze
 		pmkidzeigerakt2 = pmkidzeiger2;
 		return true;
 		}
-	if(pmkidzeiger2->essidlen > pmkidzeiger1->essidlen)
+	if(memcmp(pmkidzeiger1->essid, pmkidzeiger2->essid, ESSID_LEN_MAX) > 0)
 		{
 		return false;
 		}
