@@ -99,7 +99,7 @@ for(zeiger = ouilist; zeiger < (ouilist +ouicount); zeiger++)
 	{
 	if(memcmp(zeiger->oui, macsta, 3) == 0)
 		{
-		if(strstr(zeiger->vendor, vendorapname) != NULL)
+		if(strstr(zeiger->vendor, vendorstaname) != NULL)
 			{
 			return true;
 			}
@@ -197,7 +197,7 @@ for(zeiger = hccapxlist; zeiger < (hccapxlist +hccapxcount); zeiger++)
 		written = writehccapxline(fd_file, zeiger, written);
 		continue;
 		}
-	if((vendorapflag == true) && (isvendorsta(zeiger->macsta) == true))
+	if((vendorstaflag == true) && (isvendorsta(zeiger->macsta) == true))
 		{
 		written = writehccapxline(fd_file, zeiger, written);
 		continue;
