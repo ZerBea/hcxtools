@@ -33,7 +33,6 @@ TOOLS+=wlanwkp2hcx
 TOOLS+=wlanhcxinfo
 TOOLS+=wlanhcx2ssid
 TOOLS+=wlanhcxmnc
-TOOLS+=wlanhashhcx
 TOOLS+=wlanhcxcat
 wlanhcxcat_libs=-lcrypto
 TOOLS+=wlanpmk2hcx
