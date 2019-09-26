@@ -4715,6 +4715,10 @@ if(fakeframeflag == true)
 
 if(keyinfo == 1)
 	{
+	if((authlen != 0x5f) && (authlen != 0x75))
+		{
+		return;
+		}
 	addeapol(tv_sec, tv_usec, macaddr1, macaddr2, 1, rc, authlen +4, packet);
 	eapolframecount++;
 	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -4734,7 +4738,6 @@ if(keyinfo == 1)
 		{
 		eapolwpa2kv3framecount++;
 		}
-
 	if(authlen == 0x75)
 		{
 		addpmkid(macaddr1, macaddr2, packet +EAPAUTH_SIZE);
