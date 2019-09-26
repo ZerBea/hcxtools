@@ -88,6 +88,14 @@ void fwriteessidstr(uint8_t len, unsigned char *essidstr, FILE *fhd)
 {
 int p;
 
+if((len == 0) || (len > ESSID_LEN_MAX))
+	{
+	return;
+	}
+if(essidstr[0] == 0)
+	{
+	return;
+	}
 if(isasciistring(len, essidstr) != false)
 	{
 	fwrite(essidstr, len, 1, fhd);
