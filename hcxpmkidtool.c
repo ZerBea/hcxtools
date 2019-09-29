@@ -37,6 +37,7 @@ intpsk_t *wordlist;
 int essidlen;
 int pskoutlen;
 bool pskfoundflag;
+bool pmkfoundflag;
 
 char separator = ':';
 uint8_t macsta[6];
@@ -60,6 +61,7 @@ return true;
 bool globalinit()
 {
 pskfoundflag = false;
+pmkfoundflag = false;
 
 if((cores = sysconf(_SC_NPROCESSORS_ONLN)) == -1)
 	{
@@ -318,6 +320,39 @@ fclose(fh_file);
 return;
 }
 /*===========================================================================*/
+void processpmkname(char *pmkname)
+{
+int plen;
+
+char *pmkn = "PMK Name";
+
+uint8_t pmk[32];
+uint8_t salt[32];
+uint8_t mypmkid[32];
+
+plen = strlen(pmkname);
+if(plen != 64)
+	{
+	return;
+	}
+if(hex2bin(pmkname, pmk, 32) == false)
+	{
+	return;
+	}
+
+memcpy(&salt, pmkn, 8);
+memcpy(&salt[8], &macap, 6);
+memcpy(&salt[14], &macsta, 6);
+HMAC(EVP_sha1(), &pmk, 32, salt, 20, mypmkid, NULL);
+
+if(memcmp(&mypmkid, &pmkid, 16) == 0)
+	{
+	pmkfoundflag = true;
+	memcpy(&pmkout, &pmk, 32);
+	}
+return;
+}
+/*===========================================================================*/
 void processwordname(char *wordname)
 {
 int plen;
@@ -444,19 +479,24 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options>\n"
 	"\n"
 	"options:\n"
-	"-w <file>   : input wordlist\n"
-	"-W <word>   : input single word\n"
 	"-p <pmkid>  : input PMKID\n"
+	"              PMKID:MAC_AP:MAC_STA:ESSID(XDIGIT)\n"
+	"              PMKID*MAC_AP*MAC_STA*ESSID(XDIGIT)\n"
+	"-w <file>   : input wordlist (8...63 characters)\n"
+	"              output: PMK:ESSID (XDIGIT):password\n"
+	"-W <word>   : input single word (8...63 characters)\n"
+	"              output: PMK:ESSID (XDIGIT):password\n"
+	"-K <pmk>    : input single PMK\n"
+	"              output: PMK:ESSID (XDIGIT)\n"
 	"              format:\n"
-	"              PMKID:MAC_AP:MAC_STA:ESSID(in HEX)\n"
-	"              PMKID*MAC_AP*MAC_STA*ESSID(in HEX)\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
 	"--help      : show this help\n"
 	"--version   : show version\n"
 	"\n"
-	"output      : PMK:ESSID (in HEX):password\n"
+	"hcxpmkidtool designed to verify an existing PSK or and existing PMK.\n"
+	"It is not designed to run big wordlists!\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -478,9 +518,9 @@ int c;
 char *wordlistname = NULL;
 char *wordname = NULL;
 char *pmkidname = NULL;
+char *pmkname = NULL;
 
-
-const char *short_options = "w:W:p:hv";
+const char *short_options = "w:W:K:p:hv";
 const struct option long_options[] =
 {
 	{"version",			no_argument,		NULL,	HCXD_VERSION},
@@ -498,10 +538,24 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		{
 		case HCXD_WORD_IN:
 		wordname = optarg;
+		if((strlen(wordname) < 8) || (strlen(wordname) > 63))
+			{
+			fprintf(stderr, "only 8...63 characters allowed\n");
+			exit(EXIT_FAILURE);
+			}
 		break;
 
 		case HCXD_WORDLIST_IN:
 		wordlistname = optarg;
+		break;
+
+		case HCXD_PMK_IN:
+		pmkname = optarg;
+		if(strlen(pmkname) != 64)
+			{
+			fprintf(stderr, "only 64 (XDIGIT) characters allowed\n");
+			exit(EXIT_FAILURE);
+			}
 		break;
 
 		case HCXD_PMKID_IN:
@@ -550,40 +604,61 @@ if((wordlistname != NULL) && (pskfoundflag == false))
 	processwordlist(wordlistname);
 	}
 
+if((pmkname != NULL) && (pmkfoundflag == false))
+	{
+	processpmkname(pmkname);
+	}
+
 if(globalclose() == false)
 	{
 	fprintf(stderr, "deinitialization failed\n");
 	exit(EXIT_FAILURE);
 	}
 
-if(pskfoundflag == false)
+if(pskfoundflag == true)
 	{
-	return EXHAUSTED;
+	printf("verified:");
+	for(c = 0; c < 32; c++)
+		{
+		printf("%02x", pmkout[c]);
+		}
+	printf("%c", separator);
+	for(c = 0; c < essidlen; c++)
+		{
+		printf("%02x", essid[c]);
+		}
+	printf("%c", separator);
+	if(isasciisepstring(pskoutlen, pskout) == true)
+		{
+		printf("%s\n", pskout);
+		}
+	else
+		{
+		printf("$HEX[");
+		for(c = 0; c < pskoutlen; c++)
+			{
+			printf("%02x", pskout[c]);
+			}
+		printf("]/n");
+		}
+	return EXIT_SUCCESS;
 	}
 
-for(c = 0; c < 32; c++)
+if(pmkfoundflag == true)
 	{
-	printf("%02x", pmkout[c]);
-	}
-printf("%c", separator);
-for(c = 0; c < essidlen; c++)
-	{
-	printf("%02x", essid[c]);
-	}
-printf("%c", separator);
-if(isasciisepstring(pskoutlen, pskout) == true)
-	{
-	printf("%s\n", pskout);
-	}
-else
-	{
-	printf("$HEX[");
-	for(c = 0; c < pskoutlen; c++)
+	printf("verified:");
+	for(c = 0; c < 32; c++)
 		{
-		printf("%02x", pskout[c]);
+		printf("%02x", pmkout[c]);
 		}
-	printf("]/n");
+	printf("%c", separator);
+	for(c = 0; c < essidlen; c++)
+		{
+		printf("%02x", essid[c]);
+		}
+	printf("\n");
+	return EXIT_SUCCESS;
 	}
-return EXIT_SUCCESS;
+return EXHAUSTED;
 }
 /*===========================================================================*/

@@ -2,22 +2,24 @@
 ==========
 hcxpmkidtool: added new tool to verify a PMKID (CPU based)
 options:
--w <file>   : input wordlist
--W <word>   : input single word
 -p <pmkid>  : input PMKID
+              PMKID:MAC_AP:MAC_STA:ESSID(XDIGIT)
+              PMKID*MAC_AP*MAC_STA*ESSID(XDIGIT)
+-w <file>   : input wordlist (8...63 characters)
+              output: PMK:ESSID (XDIGIT):password
+-W <word>   : input single word (8...63 characters)
+              output: PMK:ESSID (XDIGIT):password
+-K <pmk>    : input single PMK
+              output: PMK:ESSID (XDIGIT)
               format:
-              PMKID:MAC_AP:MAC_STA:ESSID(in HEX)
-              PMKID*MAC_AP*MAC_STA*ESSID(in HEX)
 -h          : show this help
 -v          : show version
 
 --help      : show this help
 --version   : show version
 
-output      : PMK:ESSID (in HEX):password
-
-hcxpmkidtool is not designed to run big wordlists!
-
+hcxpmkidtool is designed to verify an existing PSK or and existing PMK.
+It is not designed to run big wordlists!
 
 
 25.09.2019

@@ -1,5 +1,6 @@
 #define HCXD_WORDLIST_IN	'w'
 #define HCXD_WORD_IN		'W'
+#define HCXD_PMK_IN		'K'
 #define HCXD_PMKID_IN		'p'
 #define HCXD_HELP		'h'
 #define HCXD_VERSION		'v'
