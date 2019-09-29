@@ -1,5 +1,28 @@
+29.09.2019
+==========
+hcxpmkidtool: added new tool to verify a PMKID (CPU based)
+options:
+-w <file>   : input wordlist
+-W <word>   : input single word
+-p <pmkid>  : input PMKID
+              format:
+              PMKID:MAC_AP:MAC_STA:ESSID(in HEX)
+              PMKID*MAC_AP*MAC_STA*ESSID(in HEX)
+-h          : show this help
+-v          : show version
+
+--help      : show this help
+--version   : show version
+
+output      : PMK:ESSID (in HEX):password
+
+hcxpmkidtool is not designed to run big wordlists!
+
+
+
 25.09.2019
 ==========
+wlanhashhcx:  removed
 hcxmactool:   added new tool (MAC based counterpart to ESSID based hcxessidtool)
 options:
 -o <oui>    : filter access point by OUI

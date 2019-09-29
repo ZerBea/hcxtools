@@ -44,6 +44,7 @@ Detailed description
 | hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E, -I- -U)                               |
 | hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                   |
 | hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files                                                     |
+| hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                 |
 | hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                         |
 | whoismac       | Show vendor information and/or download oui reference list                                                        |
 | wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                        |
