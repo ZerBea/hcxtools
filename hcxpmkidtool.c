@@ -65,7 +65,7 @@ pmkfoundflag = false;
 
 if((cores = sysconf(_SC_NPROCESSORS_ONLN)) == -1)
 	{
-	printf("failed to CPU information\n");
+	printf("failed to get CPU information\n");
 	return false;
 	}
 if(cores < 1)
@@ -487,8 +487,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-W <word>   : input single word (8...63 characters)\n"
 	"              output: PMK:ESSID (XDIGIT):password\n"
 	"-K <pmk>    : input single PMK\n"
-	"              output: PMK:ESSID (XDIGIT)\n"
 	"              format:\n"
+	"              output: PMK:ESSID (XDIGIT)\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
