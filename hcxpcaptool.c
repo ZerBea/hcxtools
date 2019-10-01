@@ -1166,7 +1166,7 @@ if(essidoutname != NULL)
 		zeigerold = zeiger;
 		qsort(apstaessidliste, apstaessidcount, APSTAESSIDLIST_SIZE, sort_apstaessidlist_by_essid);
 		wecl = strlen(weakcandidate);
-		if(wecl < 64)
+		if((wecl > 0) && (wecl < 64))
 			{
 			fprintf(fhoutlist, "%s\n", weakcandidate); 
 			}
@@ -6899,6 +6899,12 @@ maxtv.tv_usec = 0;
 
 char *unknown = "unknown";
 char tmpoutname[PATH_MAX+1];
+
+memset(&pcapngdeviceinfo, 0, 6);
+memset(&myaktap, 0, 6);
+memset(&myaktsta, 0, 6);
+memset(&myaktsnonce, 0, 32);
+memset(&weakcandidate, 0, 64);
 
 myaktreplaycount = MYREPLAYCOUNT;
 memcpy(&myaktanonce, &mynonce, 32);
