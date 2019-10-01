@@ -71,16 +71,20 @@ for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 return true;
 }
 /*===========================================================================*/
-size_t ishexify(const char *str)
+size_t ishexify(const char *string)
 {
-char *hexid = "$HEX[";
 size_t len;
 
-len = strlen(str);
-if((memcmp(str, hexid, 5) == 0) && (str[len -1] == ']') && (len % 2 == 0))
-	{
-	return (len -6)/2;
-	}
-return 0;
+len = strlen(string);
+if (len < 6) return 0;
+if ((len &1)  == 1) return 0;
+if (string[0]      != '$') return 0;
+if (string[1]      != 'H') return 0;
+if (string[2]      != 'E') return 0;
+if (string[3]      != 'X') return 0;
+if (string[4]      != '[') return 0;
+if (string[len -1] != ']') return 0;
+
+return (len -6)/2;
 }
 /*===========================================================================*/
