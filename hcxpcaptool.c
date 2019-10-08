@@ -5960,7 +5960,6 @@ while(0 < restlen)
 		{
 		return;
 		}
-
 	else if(option->option_code == OPTIONCODE_MACMYORIG)
 		{
 		if(option->option_length == 6)
@@ -6140,7 +6139,7 @@ while(0 < restlen)
 			memcpy(&pcapngdeviceinfo, option->data, 6);
 			}
 		}
-	else if(option->option_code == SHB_CUSTOM_OCT)
+	else if(option->option_code == SHB_CUSTOM_OPT)
 		{
 		if(option->option_length > 40)
 			{

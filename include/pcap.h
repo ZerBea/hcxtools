@@ -276,7 +276,7 @@ struct option_header_s
 #define SHB_HARDWARE	2
 #define SHB_OS		3
 #define SHB_USER_APPL	4
-#define SHB_CUSTOM_OCT	0x0bad
+#define SHB_CUSTOM_OPT	0x0bad
 
 #define IF_NAME		2
 #define IF_DESCRIPTION	3
@@ -326,7 +326,7 @@ struct interface_description_block_s
  uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct interface_description_block_s interface_description_block_t;
-#define	IDB_SIZE offsetof  (interface_description_block_t, data)
+#define	IDB_SIZE offsetof (interface_description_block_t, data)
 /*===========================================================================*/
 /* Packet Block (PB) - ID 0x00000002 (OBSOLETE - EPB should be used instead) */
 struct packet_block_s
