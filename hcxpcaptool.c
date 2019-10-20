@@ -6143,7 +6143,11 @@ while(0 < restlen)
 		{
 		if(option->option_length > 40)
 			{
-			if((memcmp(&option->data[1], &hcxmagic, 4) == 0) && (memcmp(&option->data[5], &hcxmagic, 32) == 0))
+			if((memcmp(&option->data[0], &hcxmagic, 4) == 0) && (memcmp(&option->data[4], &hcxmagic, 32) == 0))
+				{
+				pcapngcustomoptionwalk(optr +OH_SIZE +36, option->option_length -36);
+				}
+			else if((memcmp(&option->data[1], &hcxmagic, 4) == 0) && (memcmp(&option->data[5], &hcxmagic, 32) == 0))
 				{
 				pcapngcustomoptionwalk(optr +OH_SIZE +1 +36, option->option_length -36);
 				}
