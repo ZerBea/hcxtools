@@ -295,6 +295,7 @@ char pcapngoptioninfo[1024];
 uint8_t pcapngdeviceinfo[6];
 char weakcandidate[64];
 int exeaptype[256];
+char nmeasentence[NMEA_MAX];
 /*===========================================================================*/
 /* global init */
 
@@ -353,7 +354,7 @@ memset(&myaktanonce, 0, 32);
 memset(&myaktsta, 0, 6);
 memset(&myaktsnonce, 0, 32);
 memset(&weakcandidate, 0, 64);
-
+memset(&nmeasentence, 0, NMEA_MAX);
 return true;
 }
 /*===========================================================================*/
@@ -4189,7 +4190,6 @@ uint8_t mscoui[] =
 0x00, 0x50, 0xf2
 };
 
-
 if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2)
 	{
 	beaconframedamagedcount++;
@@ -4198,7 +4198,6 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
 beaconframecount++;
-
 
 if(memcmp(macf->addr1, &mac_broadcast, 6) != 0)
 	{
@@ -6025,6 +6024,14 @@ while(0 < restlen)
 			memcpy(&weakcandidate, &option->data, option->option_length);
 			}
 		}
+	else if(option->option_code == OPTIONCODE_NMEA)
+		{
+		if(option->option_length >= 66)
+			{
+			memset(&nmeasentence, 0, NMEA_MAX);
+			memcpy(&nmeasentence, &option->data, option->option_length);
+			}
+		}
 	optr += option->option_length +padding +OH_SIZE;
 	restlen -= option->option_length +padding +OH_SIZE;
 	}
@@ -6222,6 +6229,14 @@ while(0 < restlen)
 			{
 			memset(&weakcandidate, 0, 64);
 			memcpy(&weakcandidate, &option->data, option->option_length);
+			}
+		}
+	else if(option->option_code == OPTIONCODE_NMEA)
+		{
+		if(option->option_length >= 66)
+			{
+			memset(&nmeasentence, 0, NMEA_MAX);
+			memcpy(&nmeasentence, &option->data, option->option_length);
 			}
 		}
 	optr += option->option_length +padding +OH_SIZE;

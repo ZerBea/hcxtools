@@ -291,6 +291,7 @@ struct option_header_s
 #define OPTIONCODE_MACMYSTA		0xf29e
 #define OPTIONCODE_SNONCE		0xf29f
 #define OPTIONCODE_WEAKCANDIDATE	0xf2a0
+#define OPTIONCODE_NMEA			0xf2a1
 
  uint16_t	option_code;	/* option code - depending of block (0 - end of opts, 1 - comment are in common) */
  uint16_t	option_length;	/* option length - length of option in bytes (will be padded to 32bit) */

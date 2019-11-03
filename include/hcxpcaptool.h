@@ -1,6 +1,8 @@
 #define ESSID_LEN_MAX 32
 #define LEAP_LEN_MAX 0x0ff
 
+#define NMEA_MAX 256
+
 #ifdef __BYTE_ORDER__
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST
