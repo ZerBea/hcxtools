@@ -62,6 +62,7 @@
 #define HCXT_IGNORE_REPLAYCOUNT				16
 #define HCXT_IGNORE_MAC					17
 #define HCXT_PREFIX_OUT					18
+#define HCXT_NMEA_NAME					19
 
 #define HCXT_WPA12_OUT			'w'
 #define HCXT_HCCAPX_OUT			'o'
@@ -100,6 +101,7 @@ bool zeroedpmkflag;
 bool fcsflag;
 bool wantrawflag;
 bool gpxflag;
+bool nmeaflag;
 bool tscleanflag;
 bool tssameflag;
 bool replaycountcheckflag;
@@ -227,6 +229,7 @@ unsigned long long int tzsp80211avsframecount;
 static long double lat = 0;
 static long double lon = 0;
 static long double alt = 0;
+static int nmealen = 0;
 
 static int day = 0;
 static int month = 0;
@@ -251,6 +254,7 @@ char *essidoutname;
 char *staessidoutname;
 char *trafficoutname;
 char *gpxoutname;
+char *nmeaoutname;
 char *pmkoutname;
 char *identityoutname;
 char *useroutname;
@@ -266,6 +270,7 @@ char *prefixoutname;
 
 FILE *fhhexmode;
 FILE *fhgpx;
+FILE *fhnmea;
 FILE *fheapol;
 FILE *fhnetwork;
 
@@ -317,6 +322,7 @@ essidoutname = NULL;
 staessidoutname = NULL;
 trafficoutname = NULL;
 gpxoutname = NULL;
+nmeaoutname = NULL;
 pmkoutname = NULL;
 identityoutname = NULL;
 useroutname = NULL;
@@ -340,6 +346,7 @@ replaycountcheckflag = false;
 maccheckflag = false;
 
 gpxflag = false;
+nmeaflag = false;
 
 maxtvdiff = MAX_TV_DIFF;
 maxrcdiff = MAX_RC_DIFF;
@@ -2812,6 +2819,35 @@ if(imsioutname != NULL)
 return;
 }
 /*===========================================================================*/
+static void writegpwpl(uint8_t *mac)
+{
+static int c;
+static int cs;
+
+static char *gpwplptr;
+static char gpwpl[NMEA_MAX];
+
+static const char gpgga[] = "$GPGGA";
+static const char gprmc[] = "$GPRMC";
+
+if(nmealen < 30) return;
+if(memcmp(&gpgga, &nmeasentence, 6) == 0) snprintf(gpwpl, NMEA_MAX-1, "$GPWPL,%.*s,%02x%02x%02x%02x%02x%02x*", 26, &nmeasentence[17], mac[0] , mac[1], mac[2], mac[3], mac[4], mac[5]);
+else if(memcmp(&gprmc, &nmeasentence, 6) == 0) snprintf(gpwpl, NMEA_MAX-1, "$GPWPL,%.*s,%02x%02x%02x%02x%02x%02x*", 26, &nmeasentence[19], mac[0] , mac[1], mac[2], mac[3], mac[4], mac[5]);
+else return;
+
+gpwplptr = gpwpl+1;
+c = 0;
+cs = 0;
+while(gpwplptr[c] != '*')
+	{
+	cs ^= gpwplptr[c];
+	gpwplptr++;
+	}
+snprintf(gpwplptr +1, NMEA_MAX -44, "%02x", cs);
+fprintf(fhnmea, "%s\n", gpwpl);
+return;
+}
+/*===========================================================================*/
 void addtacacsp(uint8_t version, uint8_t sequencenr, uint32_t sessionid, uint32_t len, uint8_t *data)
 {
 tacacspl_t *zeiger;
@@ -4204,6 +4240,8 @@ if(memcmp(macf->addr1, &mac_broadcast, 6) != 0)
 	beaconframedamagedcount++;
 	}
 
+if(fhnmea != 0) writegpwpl(macf->addr2);
+
 tagptr = gettag(TAG_SSID, packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE);
 if(tagptr != NULL)
 	{
@@ -4308,7 +4346,7 @@ if(caplen < (uint32_t)MAC_SIZE_NORM +wdsoffset +(uint32_t)CAPABILITIESAP_SIZE +2
 macf = (mac_t*)packet;
 packet_ptr = packet +MAC_SIZE_NORM +wdsoffset +CAPABILITIESAP_SIZE;
 proberesponseframecount++;
-
+if(fhnmea != 0) writegpwpl(macf->addr2);
 tagptr = gettag(TAG_SSID, packet_ptr, caplen -MAC_SIZE_NORM -wdsoffset -CAPABILITIESAP_SIZE);
 if(tagptr != NULL)
 	{
@@ -6235,8 +6273,11 @@ while(0 < restlen)
 		{
 		if(option->option_length >= 66)
 			{
+			nmealen = option->option_length;
 			memset(&nmeasentence, 0, NMEA_MAX);
 			memcpy(&nmeasentence, &option->data, option->option_length);
+			if(fhnmea != NULL) fprintf(fhnmea, "%s\n", nmeasentence);
+			gpsdframecount++;
 			}
 		}
 	optr += option->option_length +padding +OH_SIZE;
@@ -7199,6 +7240,11 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--hccap-raw-out=<file>            : output raw old hccap file (hashcat -m 2500)\n"
 	"                                    this will disable all(!) 802.11 validity checks\n"
 	"                                    very slow!\n"
+	"--nmea=<file>                     : save track to file\n"
+	"                                    format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
+	"                                    to convert it to gpx, use GPSBabel:\n"
+	"                                    gpsbabel -i nmea -f hcxdumptool.nmea -o gpx -F file.gpx\n"
+	"                                    to display the track, open file.gpx with viking\n"
 	"--prefix-out=<file>               : convert everything to lists using this prefix (overrides single options):\n"
 	"                                    hccapx (-o) file.hccapx\n"
 	"                                    PMKID (-k) file.16800\n"
@@ -7302,6 +7348,7 @@ static const struct option long_options[] =
 	{"ignore-zeroed-pmks",		no_argument,		NULL,	HCXT_IGNORE_ZEROED_PMKS},
 	{"ignore-replaycount",		no_argument,		NULL,	HCXT_IGNORE_REPLAYCOUNT},
 	{"ignore-mac",			no_argument,		NULL,	HCXT_IGNORE_MAC},
+	{"nmea",			required_argument,	NULL,	HCXT_NMEA_NAME},
 	{"prefix-out",			required_argument,	NULL,	HCXT_PREFIX_OUT},
 	{"version",			no_argument,		NULL,	HCXT_VERSION},
 	{"help",			no_argument,		NULL,	HCXT_HELP},
@@ -7488,6 +7535,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		verboseflag = true;
 		break;
 
+		case HCXT_NMEA_NAME:
+		nmeaoutname = optarg;
+		break;
+
 		case HCXT_PREFIX_OUT:
 		prefixoutname = optarg;
 		if(strlen(prefixoutname) > (PATH_MAX -20))
@@ -7563,6 +7614,16 @@ if(gpxflag == true)
 		}
 	fprintf(fhgpx, "%s", gpxhead);
 	fprintf(fhgpx, "<name>%s</name>\n", basename(gpxoutname));
+	}
+
+fhnmea = NULL;
+if(nmeaoutname != NULL) 
+	{
+	if((fhnmea = fopen(nmeaoutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", nmeaoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
 	}
 
 if(hexmodeflag == true) 
@@ -7675,6 +7736,12 @@ if(gpxflag == true)
 	fprintf(fhgpx, "%s", gpxtail);
 	fclose(fhgpx);
 	}
+
+if(fhnmea != NULL)
+	{
+	fclose(fhnmea);
+	}
+
 printf("\n");
 return EXIT_SUCCESS;
 }
