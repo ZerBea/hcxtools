@@ -4752,7 +4752,7 @@ if(fakeframeflag == true)
 
 if(keyinfo == 1)
 	{
-	if((authlen != 0x5f) && (authlen != 0x75))
+	if(authlen < 0x5f)
 		{
 		return;
 		}
