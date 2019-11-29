@@ -511,7 +511,7 @@ if((st.st_size %INTHCCAPX_SIZE) != 0)
 	return false;
 	}
 
-hccapx2list = malloc(st.st_size);
+hccapx2list = malloc(st.st_size +INTHCCAPX_SIZE);
 if(hccapx2list == NULL)
 	{
 	printf("failed to allocate memory\n");
