@@ -307,10 +307,11 @@ const char *weakword[] =
 "Skywalker", "Slipknot", "Snickers", "Snowball", "Snowboard", "Something",
 "Southpark", "Spiderman", "Spitfire", "SpongeBob", "Starcraft", "Stargate",
 "StarTrek", "StarWars", "Steelers", "Stephanie", "Strawberry", "Sunflower",
-"Sunshine", "Superman", "Superstar", "Swordfish", "Serminator", "SestTest",
-"TaxiLinQ", "Tinkerbell", "TrustNo1", "Twilight", "Undertaker", "Valentina", "Valentine",
-"Veronica", "Victoria", "Warcraft", "Warhammer", "Welcome1", "Westside",
-"WhatEver", "Williams", "Wolverine", "Wordpass", "zaq12wsx", "zaq1xsw2"
+"Sunshine", "Superman", "Superstar", "Swordfish", "TaxiLinQ",  "Terminator",
+"TestTest", "Tinkerbell", "TrustNo1", "Twilight", "Undertaker", "Valentina",
+"Valentine", "Veronica", "Victoria", "Warcraft", "Warhammer", "Welcome1",
+"Westside", "WhatEver", "Williams", "Wolverine", "Wordpass", "zaq12wsx",
+"zaq1xsw2"
 };
 
 for(w = 0; w < (sizeof(weakword) /sizeof(weakword[0])); w++)
