@@ -30,11 +30,13 @@ static int apessidcount;
 static int thisyear;
 
 static bool netgearflag;
+static bool phomeflag;
 static bool tendaflag;
 static bool weakpassflag;
 static bool eudateflag;
 static bool usdateflag;
 static bool wpskeysflag;
+
 
 static bool easyboxflag;
 static bool ukrtelecomflag;
@@ -188,6 +190,59 @@ for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
 				snprintf(pskstring, 64, "%s%s%03d", adjectiv[ca], substantiv[cs], cn);
 				fprintf(fhout,"%s\n", pskstring);
 				}
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void keywritephome(FILE *fhout)
+{
+static size_t ca, cs;
+static int cn;
+
+char pskstring[PSKSTRING_LEN_MAX] = {};
+
+const char *five[] = {"about", "again", "aisle", "alley", "amaze", "apron", "attic", "award",
+	"bacon", "badge", "bagel", "beard", "begin", "being", "bloom", "bread", "brick", "bring", "brook", "build",
+	"built",
+	"cause", "chair", "charm", "chart", "chase", "check", "chime", "chord", "chore", "chose", "cough", "class",
+	"coast", "cough", "cover", "court", "creak",
+	"daily", "daisy", "diner", "dodge", "dough", "dozed", "drain", "drink",
+	"eager", "eagle", "earth", "elect", "empty", "enter", "event", "exact",
+	"fancy", "favor", "feast", "fence", "field", "fifty"
+	};
+
+const char *six[] = {"action", "always", "animal", "answer", "anyone", "appear", "arctic", "autumn",
+	"basket", "beside", "better", "bottle", "breezy", "bridge", "button", 
+	"cactus", "called", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery", "cellar",
+	"change", "charge", "cheery", "chores", "chosen", "circle", "cities", "comedy", "copied", "county", "create", 
+	"degree", "depend", "detail", "dimmed", "dinner", "direct",
+	"effect", "eighty", "eleven",
+	"factir", "famous", "filter", "finish", "flower", "follow", "forest",
+	"gather",
+	"harbor", "hardly", "health"
+	};
+
+for(ca = 0; ca < (sizeof(five) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(six) / sizeof(char *)); cs++)
+		{
+		for (cn = 0; cn < 10000; cn++)
+			{
+			snprintf(pskstring, 64, "%s%04d%s", five[ca], cn, six[cs]);
+			fprintf(fhout,"%s\n", pskstring);
+			}
+		}
+	}
+for(ca = 0; ca < (sizeof(six) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(five) / sizeof(char *)); cs++)
+		{
+		for (cn = 0; cn < 10000; cn++)
+			{
+			snprintf(pskstring, 64, "%s%04d%s", six[ca], cn, five[cs]);
+			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
 	}
@@ -1671,11 +1726,15 @@ for(c = 0; c < apessidcount; c++)
 return;
 }
 /*===========================================================================*/
-static void processadditionals(FILE *fhout, bool weakpassflag, bool eudateflag, bool usdateflag, bool wpsflag, bool netgearflag, bool tendaflag)
+static void processadditionals(FILE *fhout)
 {
 if(netgearflag == true)
 	{
 	keywritenetgear(fhout);
+	}
+if(phomeflag == true)
+	{
+	keywritephome(fhout);
 	}
 if(tendaflag == true)
 	{
@@ -1698,7 +1757,7 @@ if((eudateflag == true) || (usdateflag == true))
 	{
 	keywriteyearyear(fhout);
 	}
-if(wpsflag == true)
+if(wpskeysflag == true)
 	{
 	writewpsall(fhout);
 	}
@@ -2066,6 +2125,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-v          : show version\n"
 	"\n"
 	"--netgear : include weak NETGEAR candidates\n"
+	"--phome   : include weak PEGATRON HOME candidates\n"
 	"--tenda   : include weak TENDA candidates\n"
 	"--weakpass: include weak password candidates\n"
 	"--eudate  : include complete european dates\n"
@@ -2106,6 +2166,7 @@ static char *macapname = NULL;
 static char *pskname = NULL;
 
 netgearflag = false;
+phomeflag = false;
 tendaflag = false;
 weakpassflag = false;
 eudateflag = false;
@@ -2118,6 +2179,7 @@ static const char *short_options = "i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
+	{"phome",			no_argument,		NULL,	HCXD_PHOME},
 	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
@@ -2138,6 +2200,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		{
 		case HCXD_NETGEAR:
 		netgearflag = true;
+		break;
+
+		case HCXD_PHOME:
+		phomeflag = true;
 		break;
 
 		case HCXD_TENDA:
@@ -2246,14 +2312,14 @@ if(pskname != NULL)
 	processbssids(fhpsk);
 	processessids(fhpsk);
 	processbssidsessids(fhpsk);
-	processadditionals(fhpsk, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag, tendaflag);
+	processadditionals(fhpsk);
 	}
 else
 	{
 	processbssids(stdout);
 	processessids(stdout);
 	processbssidsessids(stdout);
-	processadditionals(stdout, weakpassflag, eudateflag, usdateflag, wpskeysflag, netgearflag, tendaflag);
+	processadditionals(stdout);
 	}
 
 
