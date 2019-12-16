@@ -296,105 +296,101 @@ typedef struct capabilities_ap_frame capap_t;
 /*===========================================================================*/
 struct capabilities_sta_frame
 {
- uint16_t client_capabilities;
- uint16_t client_listeninterval;
+ uint16_t capabilities;
+ uint16_t listeninterval;
 } __attribute__((__packed__));
 typedef struct capabilities_sta_frame capsta_t;
 #define	CAPABILITIESSTA_SIZE sizeof(capsta_t)
 /*===========================================================================*/
-struct capabilitiesre_sta_frame
+struct capabilitiesreq_sta_frame
 {
- uint16_t client_capabilities;
- uint16_t client_listeninterval;
- uint8_t	addr1[6];
+ uint16_t 	capabilities;
+ uint16_t 	listeninterval;
+ uint8_t	addr[6];
 } __attribute__((__packed__));
-typedef struct capabilitiesre_sta_frame capresta_t;
-#define	CAPABILITIESRESTA_SIZE sizeof(capresta_t)
+typedef struct capabilitiesreq_sta_frame capreqsta_t;
+#define	CAPABILITIESREQSTA_SIZE sizeof(capreqsta_t)
 /*===========================================================================*/
 struct ie_tag
 {
-	uint8_t		id;
-#define	TAG_SSID	0
+ uint8_t		id;
+#define	TAG_SSID	0x00
 #define	TAG_RATE	0x01
 #define	TAG_CHAN	0x03
 #define	TAG_RSN		0x30
-#define	TAG_MESH_ID	0x72
 #define	TAG_VENDOR	0xdd
-	uint8_t		len;
-	uint8_t		data[1];
+ uint8_t		len;
+ uint8_t		data[1];
 } __attribute__((__packed__));
 typedef struct ie_tag ietag_t;
 #define	IETAG_SIZE offsetof(ietag_t, data)
 /*===========================================================================*/
-struct rsn_tag
+struct rsnie_tag
 {
  uint8_t	id;
  uint8_t	len;
  uint16_t	version;
+ uint8_t	data[1];
 } __attribute__((__packed__));
-typedef struct rsn_tag rsntag_t;
-#define	RSNTAG_SIZE sizeof(rsntag_t)
+typedef struct rsnie_tag rsnie_t;
+#define	RSNIE_SIZE offsetof(rsnie_t, data)
 /*===========================================================================*/
-struct rsnsuite_tag
+struct wpaie_tag
 {
- uint8_t	oui[3];
- uint8_t	type;
-} __attribute__((__packed__));
-typedef struct rsnsuite_tag rsnsuitetag_t;
-#define	RSNSUITETAG_SIZE sizeof(rsnsuitetag_t)
-/*===========================================================================*/
-struct rsnlist_tag
+ uint8_t		id;
+ uint8_t		len;
+ uint8_t		oui[3];
+ uint8_t		ouitype;
+ uint16_t		type;
+#define	VT_WPA_IE	1
+ uint8_t		data[1];
+} __attribute__ ((packed));
+typedef struct wpaie_tag wpaie_t;
+#define	WPAIE_SIZE offsetof(wpaie_t, data)
+#define OUI_SIZE	3
+
+static const uint8_t mscorp[3] =
 {
- uint16_t	count;
-} __attribute__((__packed__));
-typedef struct rsnlist_tag rsnlisttag_t;
-#define	RSNLISTTAG_SIZE sizeof(rsnlisttag_t)
+0x00, 0x50, 0xf2
+};
 /*===========================================================================*/
-struct rsncapa_tag
-{
- uint16_t	capabilities;
-} __attribute__((__packed__));
-typedef struct rsncapa_tag rsncapatag_t;
-#define	RSNCAPATAG_SIZE sizeof(rsncapatag_t)
-/*===========================================================================*/
-struct pmkidlist_tag
+struct suitecount_s
 {
  uint16_t	count;
  uint8_t	data[1];
-} __attribute__((__packed__));
-typedef struct pmkidlist_tag pmkidlisttag_t;
-#define	RPMKIDLISTTAG_SIZE offsetof(pmkidlisttag_t)
-/*===========================================================================*/
-struct vendor_tag
-{
- uint8_t	tagnr;
- uint8_t	taglen;
- uint8_t	oui[3];
- uint8_t	data[1];
 } __attribute__ ((packed));
-typedef struct vendor_tag vendor_t;
-#define	VENDORTAG_SIZE offsetof(vendor_t, data)
+typedef struct suitecount_s suitecount_t;
+#define	SUITECOUNT_SIZE offsetof(suitecount_t, data)
 /*===========================================================================*/
-struct mscwps_tag
+struct suite_s
 {
- uint8_t	tagnr;
- uint8_t	taglen;
  uint8_t	oui[3];
  uint8_t	type;
- uint8_t	data[1];
+#define CS_WEP40	1
+#define CS_TKIP		2
+#define CS_WRAP		3
+#define CS_CCMP		4
+#define CS_WEP104	5
+#define	AK_PMKSA	1
+#define	AK_PSK		2
+#define AK_FT		3
+#define	AK_PSKSHA256	6
+#define	AK_SAE_SHA256	8
 } __attribute__ ((packed));
-typedef struct mscwps_tag mscwpstag_t;
-#define	MSCWPSTAG_SIZE offsetof(mscwpstag_t, data)
-/*===========================================================================*/
-struct mscwpsie_tag
+typedef struct suite_s suite_t;
+#define	SUITE_SIZE sizeof(suite_t)
+
+static const uint8_t suiteoui[3] =
 {
- uint16_t	detype;
-#define	MSCWPSDEVICENAME	0x1011
- uint16_t	detypelen;
- uint8_t	data[1];
-} __attribute__ ((packed));
-typedef struct mscwpsie_tag mscwpsietag_t;
-#define	MSCWPSIETAG_SIZE offsetof(mscwpsietag_t, data)
+0x00, 0x0f, 0xac
+};
+/*===========================================================================*/
+struct rsncapabilites_s
+{
+ uint16_t	rsncapa;
+};
+typedef struct rsncapabilites_s rsncapabilites_t;
+#define	RSNCAPABILITIES_SIZE sizeof(rsncapabilites_t)
 /*===========================================================================*/
 struct llc_frame
 {
@@ -415,36 +411,66 @@ typedef struct llc_frame llc_t;
 /*===========================================================================*/
 struct authentication_frame
 {
- uint16_t	authentication_algho;
-#define OPEN_SYSTEM 0
-#define SHARED_KEY 1
-#define FBT 2
-#define SAE 3
-#define FILS 4
-#define FILSPFS 5
-#define FILSPK 6
-#define NETWORKEAP 128
- uint16_t	authentication_seq;
- uint16_t	statuscode;
+ uint16_t		algorithm;
+#define	OPEN_SYSTEM	0
+#define	SHARED_KEY	1
+#define	FBT		2
+#define	SAE		3
+#define	FILS		4
+#define	FILSPFS		5
+#define	FILSPK		6
+#define	NETWORKEAP	128
+ uint16_t		sequence;
+ uint16_t		statuscode;
+#define AUTH_OK		0
 } __attribute__((__packed__));
 typedef struct authentication_frame authf_t;
 #define	AUTHENTICATIONFRAME_SIZE (sizeof(authf_t))
 /*===========================================================================*/
+struct sae_commit_authentication_frame
+{
+ uint16_t	group_id;
+ uint8_t	scalar[32];
+ uint8_t	commit_element_x[32];
+ uint8_t	commit_element_y[32];
+} __attribute__((__packed__));
+typedef struct sae_commit_authentication_frame saecommitauthf_t;
+#define	SAECOMMITAUTHENTICATIONFRAME_SIZE (sizeof(saecommitauthf_t))
+/*===========================================================================*/
+struct sae_confirm_authentication_frame
+{
+ uint16_t	send_confirm;
+ uint8_t	confirm[32];
+} __attribute__((__packed__));
+typedef struct sae_confirm_authentication_frame saeconfirmauthf_t;
+#define	SAECONFIRMAUTHENTICATIONFRAME_SIZE (sizeof(saeconfirmauthf_t))
+/*===========================================================================*/
+
+struct association_resp_frame
+{
+ uint16_t	capabilities;
+ uint16_t	authentication_seq;
+ uint16_t	statuscode;
+ uint16_t	id;
+} __attribute__((__packed__));
+typedef struct association_resp_frame assocrepf_t;
+#define	ASSOCIATIONRESPFRAME_SIZE (sizeof(assocrepf_t))
+/*===========================================================================*/
 struct action_frame
 {
  uint8_t	categoriecode;
- #define	CAT_BLOCK_ACK		3
-#define	CAT_RADIO_MEASUREMENT		5
+#define CAT_BLOCK_ACK		3
+#define CAT_RADIO_MEASUREMENT		5
  uint8_t	actioncode;
-#define	ACT_ADD_BLOCK_ACK_REQ		0
-#define	ACT_ADD_BLOCK_ACK_RESP		0
-#define	ACT_DELETE_BLOCK_REQ		2
-#define	ACT_RADIO_MEASUREMENT_REQ	0
+#define ACT_ADD_BLOCK_ACK_REQ		0
+#define ACT_ADD_BLOCK_ACK_RESP		0
+#define ACT_DELETE_BLOCK_REQ		2
+#define ACT_RADIO_MEASUREMENT_REQ	0
 };
 typedef struct action_frame actf_t;
-#define	ACTIONFRAME_SIZE (sizeof(actf_t))
+#define ACTIONFRAME_SIZE (sizeof(actf_t))
 /*===========================================================================*/
-struct eapauthentication_frame
+struct eapauthentication_s
 {
  uint8_t	version;
  uint8_t	type;
@@ -457,10 +483,10 @@ struct eapauthentication_frame
  uint16_t	len;
  uint8_t	data[1];
 } __attribute__((__packed__));
-typedef struct eapauthentication_frame eapauth_t;
+typedef struct eapauthentication_s eapauth_t;
 #define	EAPAUTH_SIZE offsetof(eapauth_t, data)
 /*===========================================================================*/
-struct wpakey_frame
+struct wpakey_s
 {
  uint8_t	keydescriptor;
  uint16_t	keyinfo;
@@ -474,10 +500,10 @@ struct wpakey_frame
  uint16_t	wpadatalen;
  uint8_t	data[1];
 } __attribute__((__packed__));
-typedef struct wpakey_frame wpakey_t;
+typedef struct wpakey_s wpakey_t;
 #define	WPAKEY_SIZE offsetof(wpakey_t, data)
 /*===========================================================================*/
-struct pmkid_frame
+struct pmkid_s
 {
  uint8_t	id;
  uint8_t	len;
@@ -485,34 +511,27 @@ struct pmkid_frame
  uint8_t	type;
  uint8_t	pmkid[16];
 } __attribute__((__packed__));
-typedef struct pmkid_frame pmkid_t;
+typedef struct pmkid_s pmkid_t;
 #define	PMKID_SIZE (sizeof(pmkid_t))
 /*===========================================================================*/
-struct rc4descriptor_frame
+struct rsnpmkidlist_s
 {
- uint8_t	keydescriptor;
-#define	RC4DESCRIPTOR	1
- uint16_t	keylen;
- uint64_t	replaycount;
- uint8_t	keyiv[16];
- uint8_t	keyindex;
- uint8_t	keysignature[16];
- uint8_t	key[13];
+ uint16_t	count;
 } __attribute__((__packed__));
-typedef struct rc4descriptor_frame rc4des_t;
-#define	RC4DES_SIZE (sizeof(rc4des_t))
+typedef struct rsnpmkidlist_s rsnpmkidlist_t;
+#define	RSNPMKIDLIST_SIZE (sizeof(rsnpmkidlist_t))
 /*===========================================================================*/
 struct exteap_frame
 {
  uint8_t			code;
-#define	EAP_CODE_REQ		1
-#define	EAP_CODE_RESP		2
-#define	EAP_CODE_SUCCESS	3
-#define	EAP_CODE_FAILURE	4
-#define	EAP_CODE_INITIATE	5
-#define	EAP_CODE_FINISH		6
+#define EAP_CODE_REQ		1
+#define EAP_CODE_RESP		2
+#define EAP_CODE_SUCCESS	3
+#define EAP_CODE_FAILURE	4
+#define EAP_CODE_INITIATE	5
+#define EAP_CODE_FINISH		6
  uint8_t			id;
-#define	EAP_TYPE_ID		1
+#define EAP_TYPE_ID		1
  uint16_t			extlen;
  uint8_t			exttype;
 #define EAP_TYPE_EAP		0
@@ -574,54 +593,6 @@ struct exteap_frame
 } __attribute__((__packed__));
 typedef struct exteap_frame exteap_t;
 #define	EXTEAP_SIZE offsetof(exteap_t, data)
-/*===========================================================================*/
-struct eapaka_frame
-{
- uint8_t	code;
- uint8_t	id;
- uint16_t	len;
- uint8_t	type;
- uint8_t	subtype;
-#define AKA_CHALLENGE			1
-#define AKA_AUTHENTICATION_REJECT	2
-#define AKA_SYNC_FAILURE		4
-#define AKA_IDENTITY			5
-#define AKA_SIM_START			10
-#define AKA_SIM_CHALLENGE		11
-#define AKA_NOTIFICATION		12
-#define AKA_REAUTHENTICATION		13
-#define AKA_CLIENT_ERROR		14
- uint16_t	reserved;
- uint8_t	attribute;
-#define AT_IDENTITY			14
- uint8_t	aka_len;
- uint16_t	aka_actlen;
- uint8_t	aka_prefix;
-#define AKA_PERMANENT			'0'
- uint8_t			data[1];
-} __attribute__((__packed__));
-typedef struct eapaka_frame eapaka_t;
-#define	EAPAKA_SIZE offsetof(eapaka_t, data)
-/*===========================================================================*/
-struct eapsim_frame
-{
- uint8_t	code;
- uint8_t	id;
- uint16_t	len;
- uint8_t	type;
- uint8_t	subtype;
-#define SIM_SIM_START			10
-
- uint16_t	reserved;
- uint8_t	attribute;
- uint8_t	sim_len;
- uint16_t	sim_actlen;
- uint8_t	sim_prefix;
-#define SIM_PERMANENT			'1'
- uint8_t			data[1];
-} __attribute__((__packed__));
-typedef struct eapsim_frame eapsim_t;
-#define	EAPSIM_SIZE offsetof(eapsim_t, data)
 /*===========================================================================*/
 struct eapleap_frame
 {
@@ -837,13 +808,7 @@ typedef struct radius_frame_t radius_t;
 #define	RADIUS_SIZE offsetof(radius_t, data)
 /*===========================================================================*/
 /* global var */
-static const uint8_t nulliv[] =
-{
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-};
-#define	NULLIV_SIZE (sizeof(nulliv))
-
-static const uint8_t nullnonce[] =
+static const uint8_t zeroed32[] =
 {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -882,10 +847,10 @@ static const int myvendorap[] =
 };
 #define MYVENDORAP_SIZE sizeof(myvendorap)
 
-static const int myvendorsta[] =
+static const int myvendorclient[] =
 {
 0xa4a6a9, 0xacde48, 0xb025aa, 0xb0ece1, 0xb0febd, 0xb4e1eb, 0xc02250, 0xc8aacc,
 0xd85dfb, 0xdc7014, 0xe00db9, 0xe0cb1d, 0xe80410, 0xf04f7c, 0xf0a225, 0xfcc233
 };
-#define MYVENDORSTA_SIZE sizeof(myvendorsta)
+#define MYVENDORCLIENT_SIZE sizeof(myvendorclient)
 /*===========================================================================*/
