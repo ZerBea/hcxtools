@@ -8,7 +8,7 @@ and recommended by hashcat. This branch is pretty closely synced to hashcat git 
 (that means: latest hcxtools matching on latest hashcat beta) and John the Ripper
 git branch ("bleeding-jumbo").
 
-Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000, 16100, 16800, 16801
+Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000, 16100, 16800, 16801, 22000
  
 Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm, tacacs-plus
 
@@ -40,6 +40,7 @@ Detailed description
 | Tool           | Description                                                                                                       |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- |
 | hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper        |
+| hcxpcapngtool  | Provide new hashcat format 22000 - highly experimental - format may change until final release (see changelog)    |
 | hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcaptool output (-o, -z- -U) or commandline input |
 | hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E, -I- -U)                               |
 | hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                   |
