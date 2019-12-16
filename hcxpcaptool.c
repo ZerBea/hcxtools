@@ -30,7 +30,7 @@
 
 #include "include/version.h"
 #include "include/hcxpcaptool.h"
-#include "include/ieee80211.c"
+#include "include/ieee80211.old.c"
 #include "include/strings.c"
 #include "include/byteops.c"
 #include "include/fileops.c"
@@ -5997,7 +5997,7 @@ while(0 < restlen)
 		{
 		return;
 		}
-	else if(option->option_code == OPTIONCODE_MACMYORIG)
+	else if(option->option_code == OPTIONCODE_MACORIG)
 		{
 		if(option->option_length == 6)
 			{
@@ -6005,7 +6005,7 @@ while(0 < restlen)
 			memcpy(&pcapngdeviceinfo, option->data, 6);
 			}
 		}
-	else if(option->option_code == OPTIONCODE_MACMYAP)
+	else if(option->option_code == OPTIONCODE_MACAP)
 		{
 		if(option->option_length == 6)
 			{
@@ -6040,7 +6040,7 @@ while(0 < restlen)
 			memcpy(&myaktanonce, &option->data, 32);
 			}
 		}
-	else if(option->option_code == OPTIONCODE_MACMYSTA)
+	else if(option->option_code == OPTIONCODE_MACCLIENT)
 		{
 		if(option->option_length == 6)
 			{
@@ -6204,7 +6204,7 @@ while(0 < restlen)
 		restlen -= option->option_length +padding +OH_SIZE;
 		continue;
 		}
-	else if(option->option_code == OPTIONCODE_MACMYORIG)
+	else if(option->option_code == OPTIONCODE_MACORIG)
 		{
 		if(option->option_length == 6)
 			{
@@ -6212,7 +6212,7 @@ while(0 < restlen)
 			memcpy(&pcapngdeviceinfo, option->data, 6);
 			}
 		}
-	else if(option->option_code == OPTIONCODE_MACMYAP)
+	else if(option->option_code == OPTIONCODE_MACAP)
 		{
 		if(option->option_length == 6)
 			{
@@ -6247,7 +6247,7 @@ while(0 < restlen)
 			memcpy(&myaktanonce, &option->data, 32);
 			}
 		}
-	else if(option->option_code == OPTIONCODE_MACMYSTA)
+	else if(option->option_code == OPTIONCODE_MACCLIENT)
 		{
 		if(option->option_length == 6)
 			{

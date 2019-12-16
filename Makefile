@@ -18,6 +18,8 @@ endif
 
 
 TOOLS=
+TOOLS+=hcxpcapngtool
+hcxpcapngtool_libs=-lz -lcrypto
 TOOLS+=hcxpcaptool
 hcxpcaptool_libs=-lz -lcrypto
 TOOLS+=hcxpsktool
