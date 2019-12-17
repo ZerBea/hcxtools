@@ -105,7 +105,7 @@ return 0;
 struct messagelist_s
 {
  uint64_t		timestamp;
- uint64_t		epcount;
+ long int		eapolmsgcount;
  uint8_t		status;
 #define	ST_M12E2	0
 #define	ST_M14E4	1
@@ -138,7 +138,7 @@ static int sort_messagelist_by_epcount(const void *a, const void *b)
 {
 const messagelist_t *ia = (const messagelist_t *)a;
 const messagelist_t *ib = (const messagelist_t *)b;
-return (ia->epcount < ib->epcount);
+return (ia->eapolmsgcount < ib->eapolmsgcount);
 }
 /*===========================================================================*/
 struct handshakelist_s
