@@ -382,11 +382,6 @@ for(zeiger = handshakelist; zeiger < handshakelistptr -1; zeiger++)
 		{
 		if(memcmp(zeiger->ap, zeigernext->ap, 6) != 0) break;
 		if(memcmp(zeiger->client, zeigernext->client, 6) != 0) break;
-/*
-		if(memcmp(zeiger->anonce, zeigernext->anonce, 32) != 0) break;
-		if(zeiger->eapauthlen != zeigernext->eapauthlen) break;
-		if(memcmp(zeiger->eapol, zeigernext->eapol, zeigernext->eapauthlen) != 0) break;
-*/
 		if(zeiger->timestampgap > zeigernext->timestampgap) zeiger->timestampgap =zeigernext->timestampgap;
 		if(zeiger->rcgap > zeigernext->rcgap) zeiger->rcgap = zeigernext->rcgap;
 		zeiger->messageap |= zeigernext->messageap;
@@ -659,9 +654,11 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	{
 	if(((zeiger->message &HS_M1) != HS_M1) && ((zeiger->message &HS_M3) != HS_M3)) continue;
 	if(memcmp(zeiger->ap, macfm, 6) != 0) continue;
-	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[29], &wpak->nonce[29], 4) != 0))
+	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0))
 		{
 		zeiger->status |= ST_NC;
+		if(zeiger->nonce[31] != wpak->nonce[31]) zeiger->status |= ST_LE;
+		else if(zeiger->nonce[28] != wpak->nonce[28]) zeiger->status |= ST_BE;
 		}
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epcount);
@@ -771,9 +768,11 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	{
 	if(((zeiger->message &HS_M1) != HS_M1) && ((zeiger->message &HS_M3) != HS_M3)) continue;
 	if(memcmp(zeiger->ap, macfm, 6) != 0) continue;
-	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[29], &wpak->nonce[29], 4) != 0))
+	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0))
 		{
 		zeiger->status |= ST_NC;
+		if(zeiger->nonce[31] != wpak->nonce[31]) zeiger->status |= ST_LE;
+		else if(zeiger->nonce[28] != wpak->nonce[28]) zeiger->status |= ST_BE;
 		}
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epcount);
@@ -2336,7 +2335,6 @@ if(pmkideapolhcoutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
-
 if(pmkideapoljtroutname != NULL)
 	{
 	if((fh_pmkideapoljtr = fopen(pmkideapoljtroutname, "a+")) == NULL)
