@@ -2324,8 +2324,6 @@ if(argc < 2)
 if(optind == argc)
 	{
 	printf("no input file(s) selected\n");
-	if(fh_pmkideapolhc != NULL) fclose(fh_pmkideapolhc);
-	if(fh_pmkideapoljtr != NULL) fclose(fh_pmkideapoljtr);
 	exit(EXIT_FAILURE);
 	}
 
