@@ -1908,6 +1908,84 @@ fclose(fh_file);
 return;
 }
 /*===========================================================================*/
+static void readpmkideapolfile(char *pmkideapolname)
+{
+static int len;
+static int aktread = 1;
+static int essidlen;
+static char *macaddrstop = NULL;
+static char *essidstop = NULL;
+static unsigned long long int macaddr;
+static FILE *fh_file;
+
+static const char hlid1[] = { "WPA:01:" };
+static const char hlid2[] = { "WPA:02:" };
+
+static char linein[PMKIDEAPOL_LINE_LEN];
+static uint8_t essid[ESSID_LEN_MAX];
+
+if((fh_file = fopen(pmkideapolname, "r")) == NULL)
+	{
+	fprintf(stderr, "opening hash file failed %s\n", pmkideapolname);
+	return;
+	}
+
+while(1)
+	{
+	if((len = fgetline(fh_file, PMKIDEAPOL_LINE_LEN, linein)) == -1)
+		{
+		break;
+		}
+	if(len < 68)
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+	if((memcmp(&hlid1, linein, 7) != 0) && (memcmp(&hlid2, linein, 7) != 0))
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+
+	if((linein[3] != ':') && (linein[6] != ':') && (linein[39] != ':') && (linein[52] != ':') && (linein[65] != ':'))
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+	essidstop = strchr(&linein[66], ':');
+	if(essidstop == NULL)
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+	essidlen = essidstop -linein -66;
+	if((essidlen %2) != 0)
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+	macaddr = strtoull(linein +40, &macaddrstop, 16);
+	if((macaddrstop -linein) != 52)
+		{
+		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
+		aktread++;
+		continue;
+		}
+	if(hex2bin(&linein[66], essid, essidlen/2) == true)
+		{
+		addapessid(macaddr, essidlen/2, essid);
+		}
+	aktread++;
+	}
+fclose(fh_file);
+return;
+}
+/*===========================================================================*/
 static int getwpapskfmt(int lenlinein, char *linein)
 {
 static int p;
@@ -2112,6 +2190,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options>\n"
 	"\n"
 	"options:\n"
+	"-c <file>   : input PMKID/EAPOL hash file (hashcat -m 22000)\n"
 	"-i <file>   : input EAPOL hash file (hashcat)\n"
 	"-j <file>   : input EAPOL hash file (john)\n"
 	"-z <file>   : input PMKID hash file (hashcat and john)\n"
@@ -2158,6 +2237,7 @@ static int auswahl;
 static int index;
 static FILE *fhpsk;
 
+static char *pmkideapolname = NULL;
 static char *hccapxname = NULL;
 static char *johnname = NULL;
 static char *pmkidname = NULL;
@@ -2175,7 +2255,7 @@ wpskeysflag = false;
 easyboxflag = false;
 ukrtelecomflag = false;
 
-static const char *short_options = "i:j:z:o:e:b:o:hv";
+static const char *short_options = "c:i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
@@ -2234,6 +2314,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		version(basename(argv[0]));
 		break;
 
+		case 'c':
+		pmkideapolname = optarg;
+		break;
+
 		case 'i':
 		hccapxname = optarg;
 		break;
@@ -2280,6 +2364,11 @@ globalinit();
 if((macapname != NULL) || (essidname != NULL))
 	{
 	readcommandline(macapname, essidname);
+	}
+
+if(pmkideapolname != NULL)
+	{
+	readpmkideapolfile(pmkideapolname);
 	}
 
 if(pmkidname != NULL)
