@@ -273,7 +273,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
 			memset(wpak->keymic, 0, 16);
 			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapolhc, "%02x", zeigerhs->eapol[p]);
-			fprintf(fh_pmkideapolhc, ":%02d\n", zeigerhs->status);
+			fprintf(fh_pmkideapolhc, ":%02x\n", zeigerhs->status);
 			eapolwrittenhcount++;
 			}
 		}
