@@ -48,6 +48,7 @@ static messagelist_t *messagelist;
 static handshakelist_t *handshakelist, *handshakelistptr;
 static pmkidlist_t *pmkidlist, *pmkidlistptr;
 
+static char *jtrbasename;
 static FILE *fh_pmkideapolhc;
 static FILE *fh_pmkideapoljtr;
 
@@ -92,7 +93,8 @@ static long int eapolm2count;
 static long int eapolm3count;
 static long int eapolm4count;
 static long int eapolwrittenhcount;
-static long int eapolwrittenaplesscount;
+static long int eapolaplesscount;
+static long int eapolwrittenjcount;
 
 static uint64_t timestampstart;
 static uint32_t eapoltimeoutvalue;
@@ -204,7 +206,8 @@ eapolm2count = 0;
 eapolm3count = 0;
 eapolm4count = 0;
 eapolwrittenhcount = 0;
-eapolwrittenaplesscount = 0;
+eapolaplesscount = 0;
+eapolwrittenjcount = 0;
 
 return true;
 }
@@ -242,8 +245,10 @@ if(eapolm2count > 0)			printf("EAPOL M2 messages.....................: %ld\n", e
 if(eapolm3count > 0)			printf("EAPOL M3 messages.....................: %ld\n", eapolm3count);
 if(eapolm4count > 0)			printf("EAPOL M4 messages.....................: %ld\n", eapolm4count);
 if(eapolmpcount > 0)			printf("EAPOL message pairs...................: %ld\n", eapolmpcount);
-if(eapolwrittenaplesscount > 0)	printf("EAPOL message pairs (AP-LESS).........: %ld\n", eapolwrittenaplesscount);
+if(eapolaplesscount > 0)		printf("EAPOL message pairs (AP-LESS).........: %ld\n", eapolaplesscount);
 if(eapolwrittenhcount > 0)		printf("EAPOL message pairs written to hashcat: %ld\n", eapolwrittenhcount);
+if(eapolwrittenjcount > 0)		printf("EAPOL message pairs written to JtR....: %ld\n", eapolwrittenjcount);
+
 return;
 }
 /*===========================================================================*/
@@ -257,11 +262,11 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	{
 	if(memcmp(zeigermac->addr, zeigerhs->ap, 6) == 0)
 		{
-		if((zeigerhs->status & ST_APLESS) == ST_APLESS) eapolwrittenaplesscount++;
+		if((zeigerhs->status & ST_APLESS) == ST_APLESS) eapolaplesscount++;
+		if((ncvalue > 0) && (zeigerhs->status & ST_APLESS) != ST_APLESS) zeigerhs->status |= ST_NC;
+		wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 		if(fh_pmkideapolhc != 0)
 			{
-			if((ncvalue > 0) && (zeigerhs->status & ST_APLESS) != ST_APLESS) zeigerhs->status |= ST_NC;
-			wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 			//WPA:TYPE:PMKID-ODER-MIC:MACAP:MACSTA:ESSID_HEX:ANONCE:EAPOL:ZUSATZINFO
 			fprintf(fh_pmkideapolhc, "WPA:%02d:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:",
 				HCX_TYPE_EAPOL,
@@ -281,6 +286,16 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			fprintf(fh_pmkideapolhc, ":%02x\n", zeigerhs->status);
 			eapolwrittenhcount++;
 			}
+/*
+		if(fh_pmkideapoljtr != 0)
+			{
+			fprintf(fh_pmkideapoljtr, "%.*s:$WPAPSK$%.*s#", zeigermac->essidlen, zeigermac->essid, zeigermac->essidlen, zeigermac->essid);
+			if((zeigerhs->status &0x7) == 0) fprintf(fh_pmkideapoljtr, ":not verified");
+			else  fprintf(fh_pmkideapoljtr, ":verified");
+			fprintf(fh_pmkideapoljtr, ":%s\n", basename(jtrbasename));
+			eapolwrittenjcount++;
+			}
+*/
 		}
 	if(memcmp(zeigerhs->ap, zeigermac->addr, 6) > 0)
 		{
@@ -1665,9 +1680,13 @@ printf("\nsummary capture file\n"
 	"--------------------\n"
 	"file name.............................: %s\n"
 	"version (pcap/cap)....................: %d.%d (very basic format without any additional information)\n"  
-//	"network type..........................: %s (%d)\n"
 	, basename(pcaporgname), versionmajor, versionminor
 	);
+if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
+if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type................: DLT_IEEE802_11 (%d)\n", dltlinktype);
+if(dltlinktype == DLT_PPI)			printf("link layer header type................: DLT_PPI (%d)\n", dltlinktype);
+if(dltlinktype == DLT_PRISM_HEADER)		printf("link layer header type................: DLT_PRISM_HEADER (%d)\n", dltlinktype);
+if(dltlinktype == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype);
 
 cleanupmac();
 cleanuphandshake();
@@ -2079,8 +2098,6 @@ printf("\nsummary capture file\n"
 	"REPLAYCOUNT...........................: %"  PRIu64  "\n"
 	"ANONCE................................: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
 	"SNONCE................................: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
-
-//	"network type...................: %s (%d)\n"
 	, basename(pcaporgname), versionmajor, versionminor,
 	pcapngosinfo, pcapngapplinfo, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngweakcandidate,
 	myaktap[0], myaktap[1], myaktap[2], myaktap[3], myaktap[4], myaktap[5],
@@ -2094,8 +2111,12 @@ printf("\nsummary capture file\n"
 	myaktsnonce[8], myaktsnonce[9], myaktsnonce[10], myaktsnonce[11], myaktsnonce[12], myaktsnonce[13], myaktsnonce[14], myaktsnonce[15],
 	myaktsnonce[16], myaktsnonce[17], myaktsnonce[18], myaktsnonce[19], myaktsnonce[20], myaktsnonce[21], myaktsnonce[22], myaktsnonce[23],
 	myaktsnonce[24], myaktsnonce[25], myaktsnonce[26], myaktsnonce[27], myaktsnonce[28], myaktsnonce[29], myaktsnonce[30], myaktsnonce[31]
-
 	);
+if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
+if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type................: DLT_IEEE802_11 (%d)\n", dltlinktype);
+if(dltlinktype == DLT_PPI)			printf("link layer header type................: DLT_PPI (%d)\n", dltlinktype);
+if(dltlinktype == DLT_PRISM_HEADER)		printf("link layer header type................: DLT_PRISM_HEADER (%d)\n", dltlinktype);
+if(dltlinktype == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype);
 
 cleanupmac();
 cleanuppmkid();
@@ -2125,7 +2146,7 @@ if(testgzipfile(pcapinname) == true)
 	pcaptempnameptr = tmpoutname;
 	pcapnameptr = tmpoutname;
 	}
-
+jtrbasename = pcapinname;
 fd_pcap = open(pcapnameptr, O_RDONLY);
 if(fd_pcap == -1)
 	{
@@ -2183,11 +2204,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"%s <options> input.pcapng\n"
 	"%s <options> *.pcapng\n"
 	"%s <options> *.pcap\n"
+	"%s <options> *.cap\n"
 	"%s <options> *.*\n"
 	"\n"
 	"options:\n"
 	"-o <file> : output PMKID/EAPOL (hashcat -m 22000/22001)\n"
-	"-j <file> : output PMKID/EAPOL (JtR wpapsk-opencl wpapsk-pmk-opencl)\n"
+	"-j <file> : output PMKID/EAPOL (JtR wpapsk-opencl/wpapsk-pmk-opencl)\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
@@ -2218,7 +2240,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"Do not edit, merge or convert pcapng files!. This will remove optional comment fields!\n"
 	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
 	"It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcaptool will understand this.\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, eigenname,
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, eigenname, eigenname,
 	EAPOLTIMEOUT /10000, NONCEERRORCORRECTION, ESSIDSMAX,
 	eigenname);
 exit(EXIT_SUCCESS);
