@@ -272,7 +272,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
 			memset(wpak->keymic, 0, 16);
 			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapolhc, "%02x", zeigerhs->eapol[p]);
-			fprintf(fh_pmkideapolhc, ":00\n");
+			fprintf(fh_pmkideapolhc, ":%02d\n", zeigerhs->status);
 			eapolwrittenhcount++;
 			}
 		}
@@ -480,6 +480,7 @@ if(handshakelistptr >= handshakelist +handshakelistmax)
 	}
 memset(handshakelistptr, 0, HANDSHAKELIST_SIZE);
 handshakelistptr->timestampgap = eaptimegap;
+handshakelistptr->status = msgap->status | msgclient->status;
 handshakelistptr->rcgap = rcgap;
 handshakelistptr->messageap = msgap->message;
 handshakelistptr->messageclient = msgclient->message;
@@ -643,6 +644,15 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX);
 	}
+for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
+	{
+	if(((zeiger->message &HS_M1) != HS_M1) && ((zeiger->message &HS_M3) != HS_M3)) continue;
+	if(memcmp(zeiger->ap, macfm, 6) != 0) continue;
+	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[29], &wpak->nonce[29], 4) != 0))
+		{
+		zeiger->status |= ST_NC;
+		}
+	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epcount);
 return;
 }
@@ -739,6 +749,7 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	{
+	if(((zeiger->message &HS_M1) != HS_M1) && ((zeiger->message &HS_M3) != HS_M3)) continue;
 	if(memcmp(zeiger->ap, macfm, 6) != 0) continue;
 	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[29], &wpak->nonce[29], 4) != 0))
 		{

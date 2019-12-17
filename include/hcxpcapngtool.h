@@ -107,7 +107,16 @@ struct messagelist_s
  uint64_t		timestamp;
  uint64_t		epcount;
  uint8_t		status;
-#define	ST_NC		1
+#define	ST_M12E2	0
+#define	ST_M14E4	1
+#define	ST_M32E2	2
+#define	ST_M32E3	3
+#define	ST_M34E3	4
+#define	ST_M34E4	5
+#define	ST_APLESS	8
+#define	ST_LE		16
+#define	ST_BE		32
+#define	ST_NC		64
  uint8_t		ap[6];
  uint8_t		client[6];
  uint8_t		message;
@@ -135,6 +144,7 @@ return (ia->epcount < ib->epcount);
 struct handshakelist_s
 {
  uint64_t		timestampgap;
+ uint8_t		status;
  uint8_t		messageap;
  uint8_t		messageclient;
  unsigned long long int	rcgap;
