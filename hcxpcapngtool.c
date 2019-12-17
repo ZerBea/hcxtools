@@ -2321,6 +2321,14 @@ if(argc < 2)
 	return EXIT_SUCCESS;
 	}
 
+if(optind == argc)
+	{
+	printf("no input file(s) selected\n");
+	if(fh_pmkideapolhc != NULL) fclose(fh_pmkideapolhc);
+	if(fh_pmkideapoljtr != NULL) fclose(fh_pmkideapoljtr);
+	exit(EXIT_FAILURE);
+	}
+
 if(pmkideapolhcoutname != NULL)
 	{
 	if((fh_pmkideapolhc = fopen(pmkideapolhcoutname, "a+")) == NULL)
