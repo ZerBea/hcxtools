@@ -113,10 +113,10 @@ struct messagelist_s
 #define	ST_M32E3	3
 #define	ST_M34E3	4
 #define	ST_M34E4	5
-#define	ST_APLESS	8
-#define	ST_LE		16
-#define	ST_BE		32
-#define	ST_NC		64
+#define	ST_APLESS	0b00010000
+#define	ST_LE		0b00100000
+#define	ST_BE		0b01000000
+#define	ST_NC		0b10000000
  uint8_t		ap[6];
  uint8_t		client[6];
  uint8_t		message;

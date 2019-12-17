@@ -256,6 +256,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		{
 		if(fh_pmkideapolhc != 0)
 			{
+			if((ncvalue > 0) && (zeigerhs->status & ST_APLESS) != ST_APLESS) zeigerhs->status |= ST_NC;
 			wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 			//WPA:TYPE:PMKID-ODER-MIC:MACAP:MACSTA:ESSID_HEX:ANONCE:EAPOL:ZUSATZINFO
 			fprintf(fh_pmkideapolhc, "WPA:%02d:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:",
@@ -510,7 +511,7 @@ for(c = 0; c < 20; c ++)
 	if(memcmp(zeiger->pmkid, pmkidlistptr->pmkid, 16) != 0) continue;
 	return true;
 	}
-return false;	
+return false;
 }
 /*===========================================================================*/
 static void addpmkid(uint8_t *macclient, uint8_t *macap, uint8_t *pmkid)
@@ -2225,7 +2226,7 @@ static const char *short_options = "o:j:hv";
 static const struct option long_options[] =
 {
 	{"eapoltimeout",		required_argument,	NULL,	HCX_EAPOL_TIMEOUT},
-	{"nonce-error-corections",	required_argument,	NULL,	HCX_NC},
+	{"nonce-error-corrections",	required_argument,	NULL,	HCX_NC},
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
