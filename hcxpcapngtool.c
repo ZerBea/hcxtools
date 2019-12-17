@@ -2240,6 +2240,7 @@ static int index;
 static char *pmkideapolhcoutname;
 static char *pmkideapoljtroutname;
 struct timeval tv;
+static struct stat statinfo;
 
 static const char *short_options = "o:j:hv";
 static const struct option long_options[] =
@@ -2353,6 +2354,20 @@ for(index = optind; index < argc; index++)
 if(fh_pmkideapolhc != NULL) fclose(fh_pmkideapolhc);
 if(fh_pmkideapoljtr != NULL) fclose(fh_pmkideapoljtr);
 
+if(pmkideapolhcoutname != NULL)
+	{
+	if(stat(pmkideapolhcoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(pmkideapolhcoutname);
+		}
+	}
+if(pmkideapoljtroutname != NULL)
+	{
+	if(stat(pmkideapoljtroutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(pmkideapoljtroutname);
+		}
+	}
 return EXIT_SUCCESS;
 }
 /*===========================================================================*/
