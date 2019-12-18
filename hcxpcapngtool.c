@@ -40,6 +40,21 @@
 #include "include/pcap.c"
 #include "include/gzops.c"
 
+struct hccap_s
+{
+  char essid[36];
+  unsigned char mac_ap[6];
+  unsigned char mac_client[6];
+  unsigned char snonce[32];
+  unsigned char anonce[32];
+  unsigned char eapol[256];
+  int eapol_size;
+  int keyver;
+  unsigned char keymic[16];
+};
+typedef struct hccap_s hccap_t;
+#define	HCCAP_SIZE (sizeof(hccap_t))
+
 /*===========================================================================*/
 /* global var */
 
@@ -49,9 +64,10 @@ static handshakelist_t *handshakelist, *handshakelistptr;
 static pmkidlist_t *pmkidlist, *pmkidlistptr;
 
 static char *jtrbasename;
-static FILE *fh_pmkideapolhc;
-static FILE *fh_pmkideapoljtr;
-static FILE *fh_pmkid;
+static FILE *fh_pmkiddeprecatedeapolhc;
+static FILE *fh_pmkiddeprecatedeapoljtr;
+static FILE *fh_pmkiddeprecated;
+static FILE *fh_hccapdeprecated;
 
 static int maclistmax;
 static int messagelistmax;
@@ -97,6 +113,7 @@ static long int eapolm4count;
 static long int eapolwrittenhcount;
 static long int eapolaplesscount;
 static long int eapolwrittenjcount;
+static long int eapolwrittenhcpcountdeprecated;
 
 static uint64_t timestampstart;
 static uint32_t eapoltimeoutvalue;
@@ -224,7 +241,7 @@ eapolm4count = 0;
 eapolwrittenhcount = 0;
 eapolaplesscount = 0;
 eapolwrittenjcount = 0;
-
+eapolwrittenhcpcountdeprecated = 0;
 return true;
 }
 /*===========================================================================*/
@@ -265,7 +282,23 @@ if(eapolmpcount > 0)			printf("EAPOL message pairs...................: %ld\n", e
 if(eapolaplesscount > 0)		printf("EAPOL message pairs (AP-LESS).........: %ld\n", eapolaplesscount);
 if(eapolwrittenhcount > 0)		printf("EAPOL message pairs written to hashcat: %ld\n", eapolwrittenhcount);
 if(eapolwrittenjcount > 0)		printf("EAPOL message pairs written to JtR....: %ld\n", eapolwrittenjcount);
+if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL message pairs written to hccap..: %ld\n", eapolwrittenhcpcountdeprecated);
 
+return;
+}
+/*===========================================================================*/
+static void hccap2base(unsigned char *in, unsigned char b)
+{
+static const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+fprintf(fh_pmkiddeprecatedeapoljtr, "%c", (itoa64[in[0] >> 2]));
+fprintf(fh_pmkiddeprecatedeapoljtr, "%c", (itoa64[((in[0] & 0x03) << 4) | (in[1] >> 4)]));
+if(b)
+	{
+	fprintf(fh_pmkiddeprecatedeapoljtr, "%c", (itoa64[((in[1] & 0x0f) << 2) | (in[2] >> 6)]));
+	fprintf(fh_pmkiddeprecatedeapoljtr, "%c", (itoa64[in[2] & 0x3f]));
+	}
+else fprintf(fh_pmkiddeprecatedeapoljtr, "%c", (itoa64[((in[1] & 0x0f) << 2)]));
 return;
 }
 /*===========================================================================*/
@@ -274,6 +307,12 @@ static handshakelist_t *gethandshake(maclist_t *zeigermac, handshakelist_t *zeig
 static int p;
 static handshakelist_t *zeigerhs;
 static wpakey_t *wpak;
+static int i;
+static unsigned char *hcpos;
+static uint8_t keyvertemp;
+static uint8_t keymictemp[16];
+static hccap_t hccap;
+
 
 for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	{
@@ -282,37 +321,76 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		if((zeigerhs->status & ST_APLESS) == ST_APLESS) eapolaplesscount++;
 		if((ncvalue > 0) && (zeigerhs->status & ST_APLESS) != ST_APLESS) zeigerhs->status |= ST_NC;
 		wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
-		if(fh_pmkideapolhc != 0)
+		keyvertemp = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+		memcpy(&keymictemp, wpak->keymic, 16);
+		memset(wpak->keymic, 0, 16);
+		if(fh_pmkiddeprecatedeapolhc != 0)
 			{
 			//WPA:TYPE:PMKID-ODER-MIC:MACAP:MACSTA:ESSID_HEX:ANONCE:EAPOL:ZUSATZINFO
-			fprintf(fh_pmkideapolhc, "WPA:%02d:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:",
+			fprintf(fh_pmkiddeprecatedeapolhc, "WPA:%02d:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:",
 				HCX_TYPE_EAPOL,
-				wpak->keymic[0], wpak->keymic[1], wpak->keymic[2], wpak->keymic[3], wpak->keymic[4], wpak->keymic[5] ,wpak->keymic[6], wpak->keymic[7],
-				wpak->keymic[8], wpak->keymic[9], wpak->keymic[10], wpak->keymic[11], wpak->keymic[12], wpak->keymic[13] ,wpak->keymic[14], wpak->keymic[15],
+				keymictemp[0], keymictemp[1], keymictemp[2], keymictemp[3], keymictemp[4], keymictemp[5], keymictemp[6], keymictemp[7],
+				keymictemp[8], keymictemp[9], keymictemp[10], keymictemp[11], keymictemp[12], keymictemp[13], keymictemp[14], keymictemp[15],
 				zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
 				zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5]);
-			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolhc, "%02x", zeigermac->essid[p]);
-			fprintf(fh_pmkideapolhc, ":");
-			fprintf(fh_pmkideapolhc, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:",
-			zeigerhs->anonce[0], zeigerhs->anonce[1], zeigerhs->anonce[2], zeigerhs->anonce[3], zeigerhs->anonce[4], zeigerhs->anonce[5], zeigerhs->anonce[6], zeigerhs->anonce[7],
-			zeigerhs->anonce[8], zeigerhs->anonce[9], zeigerhs->anonce[10], zeigerhs->anonce[11], zeigerhs->anonce[12], zeigerhs->anonce[13], zeigerhs->anonce[14], zeigerhs->anonce[15],
-			zeigerhs->anonce[16], zeigerhs->anonce[17], zeigerhs->anonce[18], zeigerhs->anonce[19], zeigerhs->anonce[20], zeigerhs->anonce[21], zeigerhs->anonce[22], zeigerhs->anonce[23],
-			zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
-			memset(wpak->keymic, 0, 16);
-			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapolhc, "%02x", zeigerhs->eapol[p]);
-			fprintf(fh_pmkideapolhc, ":%02x\n", zeigerhs->status);
+			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkiddeprecatedeapolhc, "%02x", zeigermac->essid[p]);
+			fprintf(fh_pmkiddeprecatedeapolhc, ":");
+			fprintf(fh_pmkiddeprecatedeapolhc, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:",
+				zeigerhs->anonce[0], zeigerhs->anonce[1], zeigerhs->anonce[2], zeigerhs->anonce[3], zeigerhs->anonce[4], zeigerhs->anonce[5], zeigerhs->anonce[6], zeigerhs->anonce[7],
+				zeigerhs->anonce[8], zeigerhs->anonce[9], zeigerhs->anonce[10], zeigerhs->anonce[11], zeigerhs->anonce[12], zeigerhs->anonce[13], zeigerhs->anonce[14], zeigerhs->anonce[15],
+				zeigerhs->anonce[16], zeigerhs->anonce[17], zeigerhs->anonce[18], zeigerhs->anonce[19], zeigerhs->anonce[20], zeigerhs->anonce[21], zeigerhs->anonce[22], zeigerhs->anonce[23],
+				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
+			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkiddeprecatedeapolhc, "%02x", zeigerhs->eapol[p]);
+			fprintf(fh_pmkiddeprecatedeapolhc, ":%02x\n", zeigerhs->status);
 			eapolwrittenhcount++;
 			}
-/*
-		if(fh_pmkideapoljtr != 0)
+		if(fh_pmkiddeprecatedeapoljtr != 0)
 			{
-			fprintf(fh_pmkideapoljtr, "%.*s:$WPAPSK$%.*s#", zeigermac->essidlen, zeigermac->essid, zeigermac->essidlen, zeigermac->essid);
-			if((zeigerhs->status &0x7) == 0) fprintf(fh_pmkideapoljtr, ":not verified");
-			else  fprintf(fh_pmkideapoljtr, ":verified");
-			fprintf(fh_pmkideapoljtr, ":%s\n", basename(jtrbasename));
+			memset (&hccap, 0, sizeof(hccap_t));
+			memcpy(&hccap.mac_ap, zeigerhs->ap, 6);
+			memcpy(&hccap.mac_client, zeigerhs->client, 6);
+			memcpy(&hccap.anonce, zeigerhs->anonce, 32);
+			memcpy(&hccap.snonce, wpak->nonce, 32);
+			memcpy(&hccap.keymic, &keymictemp, 16);
+			hccap.keyver = keyvertemp;
+			hccap.eapol_size = zeigerhs->eapauthlen;
+			memcpy(&hccap.eapol, zeigerhs->eapol, zeigerhs->eapauthlen);
+			#ifdef BIG_ENDIAN_HOST
+			hccap.eapol_size = byte_swap_16(hccap.eapol_size);
+			#endif
+			fprintf(fh_pmkiddeprecatedeapoljtr, "%.*s:$WPAPSK$%.*s#", zeigermac->essidlen, zeigermac->essid, zeigermac->essidlen, zeigermac->essid);
+			hcpos = (unsigned char*)&hccap;
+			for (i = 36; i + 3 < (int)HCCAP_SIZE; i += 3) hccap2base(&hcpos[i], 1);
+			hccap2base(&hcpos[i], 0);
+			fprintf(fh_pmkiddeprecatedeapoljtr, ":%02x-%02x-%02x-%02x-%02x-%02x:%02x-%02x-%02x-%02x-%02x-%02x:%02x%02x%02x%02x%02x%02x",
+				zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5],
+				zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
+				zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5]);
+			if(keyvertemp == 1) fprintf(fh_pmkiddeprecatedeapoljtr, "::WPA");
+			else fprintf(fh_pmkiddeprecatedeapoljtr, "::WPA2");
+			if((zeigerhs->status &0x7) == 0) fprintf(fh_pmkiddeprecatedeapoljtr, ":not verified");
+			else fprintf(fh_pmkiddeprecatedeapoljtr, ":verified");
+			fprintf(fh_pmkiddeprecatedeapoljtr, ":%s\n", basename(jtrbasename));
 			eapolwrittenjcount++;
 			}
-*/
+		if(fh_hccapdeprecated != 0)
+			{
+			memset (&hccap, 0, sizeof(hccap_t));
+			memcpy(&hccap.essid, zeigermac->essid, zeigermac->essidlen);
+			memcpy(&hccap.mac_ap, zeigerhs->ap, 6);
+			memcpy(&hccap.mac_client, zeigerhs->client, 6);
+			memcpy(&hccap.anonce, zeigerhs->anonce, 32);
+			memcpy(&hccap.snonce, wpak->nonce, 32);
+			memcpy(&hccap.keymic, &keymictemp, 16);
+			hccap.keyver = keyvertemp;
+			hccap.eapol_size = zeigerhs->eapauthlen;
+			memcpy(&hccap.eapol, zeigerhs->eapol, zeigerhs->eapauthlen);
+			#ifdef BIG_ENDIAN_HOST
+			hccap.eapol_size = byte_swap_16(hccap.eapol_size);
+			#endif
+			fwrite(&hccap, HCCAP_SIZE, 1, fh_hccapdeprecated);
+			eapolwrittenhcpcountdeprecated++;
+			}
 		}
 	if(memcmp(zeigerhs->ap, zeigermac->addr, 6) > 0)
 		{
@@ -332,43 +410,41 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 	{
 	if(memcmp(zeigermac->addr, zeigerpmkid->ap, 6) == 0)
 		{
-		if(fh_pmkideapolhc != 0)
+		if(fh_pmkiddeprecatedeapolhc != 0)
 			{
 			//WPA:TYPE:PMKID-ODER-MIC:MACAP:MACSTA:ESSID_HEX:ANONCE:EAPOL:ZUSATZINFO
-			fprintf(fh_pmkideapolhc, "WPA:%02d:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:",
+			fprintf(fh_pmkiddeprecatedeapolhc, "WPA:%02d:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x:",
 				HCX_TYPE_PMKID,
 				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
 				zeigerpmkid->pmkid[8], zeigerpmkid->pmkid[9], zeigerpmkid->pmkid[10], zeigerpmkid->pmkid[11], zeigerpmkid->pmkid[12], zeigerpmkid->pmkid[13], zeigerpmkid->pmkid[14], zeigerpmkid->pmkid[15],
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
-			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolhc, "%02x", zeigermac->essid[p]);
-			fprintf(fh_pmkideapolhc, ":::\n");
+			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkiddeprecatedeapolhc, "%02x", zeigermac->essid[p]);
+			fprintf(fh_pmkiddeprecatedeapolhc, ":::\n");
 			pmkidwrittenhcount++;
 			}
-		if(fh_pmkideapoljtr != 0)
+		if(fh_pmkiddeprecatedeapoljtr != 0)
 			{
-			fprintf(fh_pmkideapoljtr, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+			fprintf(fh_pmkiddeprecatedeapoljtr, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
 				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
 				zeigerpmkid->pmkid[8], zeigerpmkid->pmkid[9], zeigerpmkid->pmkid[10], zeigerpmkid->pmkid[11], zeigerpmkid->pmkid[12], zeigerpmkid->pmkid[13], zeigerpmkid->pmkid[14], zeigerpmkid->pmkid[15],
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
-			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapoljtr, "%02x", zeigermac->essid[p]);
-			fprintf(fh_pmkideapoljtr, "\n");
+			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkiddeprecatedeapoljtr, "%02x", zeigermac->essid[p]);
+			fprintf(fh_pmkiddeprecatedeapoljtr, "\n");
 			pmkidwrittenjcount++;
 			}
-
-		if(fh_pmkid != 0)
+		if(fh_pmkiddeprecated != 0)
 			{
-			fprintf(fh_pmkid, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+			fprintf(fh_pmkiddeprecated, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
 				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
 				zeigerpmkid->pmkid[8], zeigerpmkid->pmkid[9], zeigerpmkid->pmkid[10], zeigerpmkid->pmkid[11], zeigerpmkid->pmkid[12], zeigerpmkid->pmkid[13], zeigerpmkid->pmkid[14], zeigerpmkid->pmkid[15],
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
-			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkid, "%02x", zeigermac->essid[p]);
-			fprintf(fh_pmkid, "\n");
+			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkiddeprecated, "%02x", zeigermac->essid[p]);
+			fprintf(fh_pmkiddeprecated, "\n");
 			pmkidwrittencountdeprecated++;
 			}
-
 		}
 	if(memcmp(zeigerpmkid->ap, zeigermac->addr, 6) > 0)
 		{
@@ -2278,12 +2354,13 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     CIPHER and/OR AKM information,\n"
 	"                                     and can lead to uncrackable hashes\n"
 	"--do-not-clean                     : do not remove clean hash output\n"
-	"                                   : do not remove out of protocoll frames\n"
+	"                                   : do not remove out of protocol frames\n"
 	"                                     that can lead to uncrackable hashes\n"
 	"--max-essids=<digit>               : maximum allowed ESSIDs\n"
 	"                                     default: %d ESSID\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
-	"--pmkid=<file>                       output old PMKID file (delimter *)\n"
+	"--pmkid=<file>                       output deprecated PMKID file (delimter *)\n"
+	"--hccap=<file>                       output deprecated hccap file (delimter *)\n"
 	"--help                             : show this help\n"
 	"--version                          : show version\n"
 	"\n"
@@ -2320,7 +2397,8 @@ static int auswahl;
 static int index;
 static char *pmkideapolhcoutname;
 static char *pmkideapoljtroutname;
-static char *pmkidoutname;
+static char *pmkidoutnamedeprecated;
+static char *hccapoutnamedeprecated;
 struct timeval tv;
 static struct stat statinfo;
 
@@ -2333,6 +2411,7 @@ static const struct option long_options[] =
 	{"do-not-clean",		no_argument,		NULL,	HCX_NOT_CLEAN},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
+	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT_DEPRECATED},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
 	{NULL,				0,			NULL,	0}
@@ -2389,7 +2468,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_PMKID_OUT_DEPRECATED:
-		pmkidoutname = optarg;
+		pmkidoutnamedeprecated = optarg;
+		break;
+
+		case HCX_HCCAP_OUT_DEPRECATED:
+		hccapoutnamedeprecated = optarg;
 		break;
 
 		case HCX_HELP:
@@ -2423,7 +2506,7 @@ if(optind == argc)
 
 if(pmkideapolhcoutname != NULL)
 	{
-	if((fh_pmkideapolhc = fopen(pmkideapolhcoutname, "a+")) == NULL)
+	if((fh_pmkiddeprecatedeapolhc = fopen(pmkideapolhcoutname, "a+")) == NULL)
 		{
 		printf("error opening file %s: %s\n", pmkideapolhcoutname, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -2431,18 +2514,25 @@ if(pmkideapolhcoutname != NULL)
 	}
 if(pmkideapoljtroutname != NULL)
 	{
-	if((fh_pmkideapoljtr = fopen(pmkideapoljtroutname, "a+")) == NULL)
+	if((fh_pmkiddeprecatedeapoljtr = fopen(pmkideapoljtroutname, "a+")) == NULL)
 		{
 		printf("error opening file %s: %s\n", pmkideapoljtroutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
-
-if(pmkidoutname != NULL)
+if(pmkidoutnamedeprecated != NULL)
 	{
-	if((fh_pmkid = fopen(pmkidoutname, "a+")) == NULL)
+	if((fh_pmkiddeprecated = fopen(pmkidoutnamedeprecated, "a+")) == NULL)
 		{
-		printf("error opening file %s: %s\n", pmkidoutname, strerror(errno));
+		printf("error opening file %s: %s\n", pmkidoutnamedeprecated, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+if(hccapoutnamedeprecated != NULL)
+	{
+	if((fh_hccapdeprecated = fopen(hccapoutnamedeprecated, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", hccapoutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -2452,9 +2542,11 @@ for(index = optind; index < argc; index++)
 	processcapfile(argv[index]);
 	}
 
-if(fh_pmkideapolhc != NULL) fclose(fh_pmkideapolhc);
-if(fh_pmkideapoljtr != NULL) fclose(fh_pmkideapoljtr);
-if(fh_pmkid != NULL) fclose(fh_pmkid);
+if(fh_pmkiddeprecatedeapolhc != NULL) fclose(fh_pmkiddeprecatedeapolhc);
+if(fh_pmkiddeprecatedeapoljtr != NULL) fclose(fh_pmkiddeprecatedeapoljtr);
+if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
+if(fh_hccapdeprecated != NULL) fclose(fh_hccapdeprecated);
+
 
 if(pmkideapolhcoutname != NULL)
 	{
@@ -2470,11 +2562,18 @@ if(pmkideapoljtroutname != NULL)
 		if(statinfo.st_size == 0) remove(pmkideapoljtroutname);
 		}
 	}
-if(pmkidoutname != NULL)
+if(pmkidoutnamedeprecated != NULL)
 	{
-	if(stat(pmkidoutname, &statinfo) == 0)
+	if(stat(pmkidoutnamedeprecated, &statinfo) == 0)
 		{
-		if(statinfo.st_size == 0) remove(pmkidoutname);
+		if(statinfo.st_size == 0) remove(pmkidoutnamedeprecated);
+		}
+	}
+if(hccapoutnamedeprecated != NULL)
+	{
+	if(stat(hccapoutnamedeprecated, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(hccapoutnamedeprecated);
 		}
 	}
 return EXIT_SUCCESS;
