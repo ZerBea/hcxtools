@@ -51,6 +51,7 @@ static pmkidlist_t *pmkidlist, *pmkidlistptr;
 static char *jtrbasename;
 static FILE *fh_pmkideapolhc;
 static FILE *fh_pmkideapoljtr;
+static FILE *fh_pmkid;
 
 static int maclistmax;
 static int messagelistmax;
@@ -86,6 +87,7 @@ static long int pmkidcount;
 static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
 static long int pmkidwrittenjcount;
+static long int pmkidwrittencount;
 static long int eapolmsgcount;
 static long int eapolmpcount;
 static long int eapolm1count;
@@ -199,6 +201,7 @@ pmkidcount = 0;
 pmkiduselesscount = 0;
 pmkidwrittenhcount = 0;
 pmkidwrittenjcount = 0;
+pmkidwrittencount = 0;
 eapolmsgcount = 0;
 eapolmpcount = 0;
 eapolm1count = 0;
@@ -239,6 +242,7 @@ if(pmkidcount > 0)			printf("PMKID.................................: %ld\n", pmk
 if(pmkiduselesscount > 0)		printf("PMKID (useless).......................: %ld\n", pmkiduselesscount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to hashcat..............: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcount > 0)		printf("PMKID written to JtR..................: %ld\n", pmkidwrittenjcount);
+if(pmkidwrittencount > 0)		printf("PMKID written to old format (1680x)...: %ld\n", pmkidwrittencount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total)................: %ld\n", eapolmsgcount);
 if(eapolm1count > 0)			printf("EAPOL M1 messages.....................: %ld\n", eapolm1count);
 if(eapolm2count > 0)			printf("EAPOL M2 messages.....................: %ld\n", eapolm2count);
@@ -339,6 +343,19 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			fprintf(fh_pmkideapoljtr, "\n");
 			pmkidwrittenjcount++;
 			}
+
+		if(fh_pmkid != 0)
+			{
+			fprintf(fh_pmkid, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
+				zeigerpmkid->pmkid[8], zeigerpmkid->pmkid[9], zeigerpmkid->pmkid[10], zeigerpmkid->pmkid[11], zeigerpmkid->pmkid[12], zeigerpmkid->pmkid[13], zeigerpmkid->pmkid[14], zeigerpmkid->pmkid[15],
+				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
+				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
+			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkid, "%02x", zeigermac->essid[p]);
+			fprintf(fh_pmkid, "\n");
+			pmkidwrittencount++;
+			}
+
 		}
 	if(memcmp(zeigerpmkid->ap, zeigermac->addr, 6) > 0)
 		{
@@ -2224,6 +2241,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--max-essids=<digit>               : maximum allowed ESSIDs\n"
 	"                                     default: %d ESSID\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
+	"--pmkid=<file>                       output old PMKID file (delimter *)\n"
 	"--help                             : show this help\n"
 	"--version                          : show version\n"
 	"\n"
@@ -2260,6 +2278,7 @@ static int auswahl;
 static int index;
 static char *pmkideapolhcoutname;
 static char *pmkideapoljtroutname;
+static char *pmkidoutname;
 struct timeval tv;
 static struct stat statinfo;
 
@@ -2270,6 +2289,7 @@ static const struct option long_options[] =
 	{"nonce-error-corrections",	required_argument,	NULL,	HCX_NC},
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
+	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
 	{NULL,				0,			NULL,	0}
@@ -2320,6 +2340,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		pmkideapoljtroutname = optarg;
 		break;
 
+		case HCX_PMKID_OUT:
+		pmkidoutname = optarg;
+		break;
+
 		case HCX_HELP:
 		usage(basename(argv[0]));
 		break;
@@ -2366,6 +2390,15 @@ if(pmkideapoljtroutname != NULL)
 		}
 	}
 
+if(pmkidoutname != NULL)
+	{
+	if((fh_pmkid = fopen(pmkidoutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", pmkidoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
 for(index = optind; index < argc; index++)
 	{
 	processcapfile(argv[index]);
@@ -2373,6 +2406,7 @@ for(index = optind; index < argc; index++)
 
 if(fh_pmkideapolhc != NULL) fclose(fh_pmkideapolhc);
 if(fh_pmkideapoljtr != NULL) fclose(fh_pmkideapoljtr);
+if(fh_pmkid != NULL) fclose(fh_pmkid);
 
 if(pmkideapolhcoutname != NULL)
 	{
@@ -2386,6 +2420,13 @@ if(pmkideapoljtroutname != NULL)
 	if(stat(pmkideapoljtroutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(pmkideapoljtroutname);
+		}
+	}
+if(pmkidoutname != NULL)
+	{
+	if(stat(pmkidoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(pmkidoutname);
 		}
 	}
 return EXIT_SUCCESS;
