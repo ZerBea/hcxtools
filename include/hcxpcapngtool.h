@@ -1,8 +1,9 @@
 #define HCX_EAPOL_TIMEOUT		1
 #define HCX_NC				2
 #define HCX_IE				3
-#define HCX_ESSIDS			4
-#define HCX_PMKID_OUT_DEPRECATED			5
+#define HCX_NOT_CLEAN			4
+#define HCX_ESSIDS			5
+#define HCX_PMKID_OUT_DEPRECATED	6
 #define HCX_PMKIDEAPOLHC_OUT		'o'
 #define HCX_PMKIDEAPOLJTR_OUT		'j'
 #define HCX_HELP			'h'

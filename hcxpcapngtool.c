@@ -104,6 +104,7 @@ static uint64_t ncvalue;
 static int essidsvalue;
 
 static bool ignoreieflag;
+static bool donotcleanflag;
 
 static uint8_t myaktap[6];
 static uint8_t myaktclient[6];
@@ -417,6 +418,7 @@ static void cleanuphandshake()
 static handshakelist_t *zeiger;
 static handshakelist_t *zeigernext;
 
+if(donotcleanflag == true) return;
 if(handshakelistptr == handshakelist) return;
 qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_mac);
 for(zeiger = handshakelist; zeiger < handshakelistptr -1; zeiger++)
@@ -441,6 +443,7 @@ static void cleanuppmkid()
 static pmkidlist_t *zeiger;
 static pmkidlist_t *zeigernext;
 
+if(donotcleanflag == true) return;
 if(pmkidlistptr == pmkidlist) return;
 qsort(pmkidlist, pmkidlistptr -pmkidlist, PMKIDLIST_SIZE, sort_pmkidlist_by_mac);
 for(zeiger = pmkidlist; zeiger < pmkidlistptr -1; zeiger++)
@@ -487,6 +490,7 @@ static bool cleanbackhandshake()
 static int c;
 static handshakelist_t *zeiger;
 
+if(donotcleanflag == true) return false;
 zeiger = handshakelistptr;
 for(c = 0; c < 20; c ++)
 	{
@@ -544,6 +548,7 @@ static bool cleanbackpmkid()
 static int c;
 static pmkidlist_t *zeiger;
 
+if(donotcleanflag == true) return false;
 zeiger = pmkidlistptr;
 for(c = 0; c < 20; c ++)
 	{
@@ -603,8 +608,11 @@ if(authlen > eapauthlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 rc = be64toh(wpak->replaycount);
-if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if(donotcleanflag == false)
+	{
+	if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+	if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+	}
 if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
@@ -669,8 +677,11 @@ if(authlen > eapauthlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 rc = be64toh(wpak->replaycount);
-if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if(donotcleanflag == false)
+	{
+	if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+	if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+	}
 memset(zeigerakt, 0, MESSAGELIST_SIZE);
 zeigerakt->timestamp = eaptimestamp;
 zeigerakt->eapolmsgcount = eapolmsgcount;
@@ -734,8 +745,11 @@ if(authlen > eapauthlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 rc = be64toh(wpak->replaycount);
-if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if(donotcleanflag == false)
+	{
+	if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+	if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+	}
 if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
@@ -792,8 +806,11 @@ if(authlen > eapauthlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 rc = be64toh(wpak->replaycount);
-if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if(donotcleanflag == false)
+	{
+	if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+	if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+	}
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
@@ -2257,8 +2274,12 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     warning: values > 0 can lead to uncrackable handshakes\n"
 	"                                   : default: %d\n"
 	"--ignore-ie                        : do not use CIPHER and AKM information\n"
-	"                                     this will convert damaged frames,\n"
-	"                                     but can lead to uncrackable hashes\n"
+	"                                     this will convert all frames regadless of\n"
+	"                                     CIPHER and/OR AKM information,\n"
+	"                                     and can lead to uncrackable hashes\n"
+	"--do-not-clean                     : do not remove clean hash output\n"
+	"                                   : do not remove out of protocoll frames\n"
+	"                                     that can lead to uncrackable hashes\n"
 	"--max-essids=<digit>               : maximum allowed ESSIDs\n"
 	"                                     default: %d ESSID\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
@@ -2309,6 +2330,7 @@ static const struct option long_options[] =
 	{"eapoltimeout",		required_argument,	NULL,	HCX_EAPOL_TIMEOUT},
 	{"nonce-error-corrections",	required_argument,	NULL,	HCX_NC},
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
+	{"do-not-clean",		no_argument,		NULL,	HCX_NOT_CLEAN},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
@@ -2321,6 +2343,7 @@ index = 0;
 optind = 1;
 optopt = 0;
 ignoreieflag = false;
+donotcleanflag = false;
 eapoltimeoutvalue = EAPOLTIMEOUT;
 ncvalue = NONCEERRORCORRECTION;
 essidsvalue = ESSIDSMAX;
@@ -2348,7 +2371,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		case HCX_IE:
 		ignoreieflag = true;
 		break;
-		
+
+		case HCX_NOT_CLEAN:
+		donotcleanflag = true;
+		break;
+
 		case HCX_ESSIDS:
 		essidsvalue = strtol(optarg, NULL, 10);
 		break;
