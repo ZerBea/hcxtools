@@ -87,7 +87,7 @@ static long int pmkidcount;
 static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
 static long int pmkidwrittenjcount;
-static long int pmkidwrittencount;
+static long int pmkidwrittencountdeprecated;
 static long int eapolmsgcount;
 static long int eapolmpcount;
 static long int eapolm1count;
@@ -117,6 +117,18 @@ static char pcapngapplinfo[OPTIONLEN_MAX];
 static char pcapngoptioninfo[OPTIONLEN_MAX];
 static char pcapngweakcandidate[OPTIONLEN_MAX];
 static uint8_t pcapngdeviceinfo[6];
+
+static const uint8_t fakenonce1[] =
+{
+0x07, 0xbc, 0x92, 0xea, 0x2f, 0x5a, 0x1e, 0xe2, 0x54, 0xf6, 0xb1, 0xb7, 0xe0, 0xaa, 0xd3, 0x53,
+0xf4, 0x5b, 0x0a, 0xac, 0xf9, 0xc9, 0x90, 0x2f, 0x90, 0xd8, 0x78, 0x80, 0xb7, 0x03, 0x0a, 0x20
+};
+
+static const uint8_t fakenonce2[] =
+{
+0x95, 0x30, 0xd1, 0xc7, 0xc3, 0x55, 0xb9, 0xab, 0xe6, 0x83, 0xd6, 0xf3, 0x7e, 0xcb, 0x78, 0x02,
+0x75, 0x1f, 0x53, 0xcc, 0xb5, 0x81, 0xd1, 0x52, 0x3b, 0xb4, 0xba, 0xad, 0x23, 0xab, 0x01, 0x07
+};
 
 /*===========================================================================*/
 static inline void debugprint(int len, uint8_t *ptr)
@@ -201,7 +213,7 @@ pmkidcount = 0;
 pmkiduselesscount = 0;
 pmkidwrittenhcount = 0;
 pmkidwrittenjcount = 0;
-pmkidwrittencount = 0;
+pmkidwrittencountdeprecated = 0;
 eapolmsgcount = 0;
 eapolmpcount = 0;
 eapolm1count = 0;
@@ -242,7 +254,7 @@ if(pmkidcount > 0)			printf("PMKID.................................: %ld\n", pmk
 if(pmkiduselesscount > 0)		printf("PMKID (useless).......................: %ld\n", pmkiduselesscount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to hashcat..............: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcount > 0)		printf("PMKID written to JtR..................: %ld\n", pmkidwrittenjcount);
-if(pmkidwrittencount > 0)		printf("PMKID written to old format (1680x)...: %ld\n", pmkidwrittencount);
+if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)...: %ld\n", pmkidwrittencountdeprecated);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total)................: %ld\n", eapolmsgcount);
 if(eapolm1count > 0)			printf("EAPOL M1 messages.....................: %ld\n", eapolm1count);
 if(eapolm2count > 0)			printf("EAPOL M2 messages.....................: %ld\n", eapolm2count);
@@ -353,7 +365,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkid, "%02x", zeigermac->essid[p]);
 			fprintf(fh_pmkid, "\n");
-			pmkidwrittencount++;
+			pmkidwrittencountdeprecated++;
 			}
 
 		}
@@ -590,6 +602,9 @@ authlen = ntohs(eapauth->len);
 if(authlen > eapauthlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
+rc = be64toh(wpak->replaycount);
+if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
@@ -598,7 +613,6 @@ zeiger->eapolmsgcount = eapolmsgcount;
 memcpy(zeiger->client, macfm, 6);
 memcpy(zeiger->ap, macto, 6);
 zeiger->message = HS_M4;
-rc = be64toh(wpak->replaycount);
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
 zeiger->eapauthlen = eapauthlen;
@@ -654,13 +668,15 @@ authlen = ntohs(eapauth->len);
 if(authlen > eapauthlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
+rc = be64toh(wpak->replaycount);
+if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 memset(zeigerakt, 0, MESSAGELIST_SIZE);
 zeigerakt->timestamp = eaptimestamp;
 zeigerakt->eapolmsgcount = eapolmsgcount;
 memcpy(zeigerakt->client, macto, 6);
 memcpy(zeigerakt->ap, macfm, 6);
 zeigerakt->message = HS_M3;
-rc = be64toh(wpak->replaycount);
 zeigerakt->rc = rc;
 memcpy(zeigerakt->nonce, wpak->nonce, 32);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
@@ -717,6 +733,9 @@ authlen = ntohs(eapauth->len);
 if(authlen > eapauthlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
+rc = be64toh(wpak->replaycount);
+if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
@@ -725,7 +744,6 @@ zeiger->eapolmsgcount = eapolmsgcount;
 memcpy(zeiger->client, macfm, 6);
 memcpy(zeiger->ap, macto, 6);
 zeiger->message = HS_M2;
-rc = be64toh(wpak->replaycount);
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
 zeiger->eapauthlen = eapauthlen;
@@ -765,6 +783,7 @@ static uint32_t authlen;
 static pmkid_t *pmkid;
 static uint64_t rc;
 
+
 eapolm1count++;
 eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
@@ -772,6 +791,9 @@ authlen = ntohs(eapauth->len);
 if(authlen > eapauthlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
+rc = be64toh(wpak->replaycount);
+if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
@@ -779,7 +801,6 @@ zeiger->eapolmsgcount = eapolmsgcount;
 memcpy(zeiger->client, macto, 6);
 memcpy(zeiger->ap, macfm, 6);
 zeiger->message = HS_M1;
-rc = be64toh(wpak->replaycount);
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
 if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
@@ -2289,7 +2310,7 @@ static const struct option long_options[] =
 	{"nonce-error-corrections",	required_argument,	NULL,	HCX_NC},
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
-	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT},
+	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
 	{NULL,				0,			NULL,	0}
@@ -2340,7 +2361,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		pmkideapoljtroutname = optarg;
 		break;
 
-		case HCX_PMKID_OUT:
+		case HCX_PMKID_OUT_DEPRECATED:
 		pmkidoutname = optarg;
 		break;
 
