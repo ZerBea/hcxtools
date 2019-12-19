@@ -1,11 +1,15 @@
+#define HCX_TYPE_PMKID		1
+#define HCX_TYPE_EAPOL		2
+
 #define ESSID_LEN_MAX 		32
 #define PMKID_LINE_LEN		128
 #define OUI_LINE_LEN		128
 
-#define HCXD_PMKID_IN		1
-#define HCXD_PMKID_OUT		2
-#define HCXD_HCCAPX_IN		3
-#define HCXD_HCCAPX_OUT		4
+#define HCXD_PMKIDEAPOL_OUT	1
+#define HCXD_PMKID_IN		2
+#define HCXD_PMKID_OUT		3
+#define HCXD_HCCAPX_IN		4
+#define HCXD_HCCAPX_OUT		5
 
 #define HCXD_FILTER_OUI_AP	'o'
 #define HCXD_FILTER_NIC_AP	'n'

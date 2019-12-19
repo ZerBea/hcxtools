@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <fcntl.h>
+#include <errno.h>
 #include <getopt.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -40,6 +41,7 @@ static inthccapx_t *hccapxlist = NULL;
 static char *hccapxinname = NULL;
 static char *pmkidinname = NULL;
 
+static char *pmkideapoloutname = NULL;
 static char *hccapxoutname = NULL;
 static char *pmkidoutname = NULL;
 
@@ -213,6 +215,98 @@ printf("%d record(s) written to %s\n", written, basename(hccapxoutname));
 return;
 }
 /*===========================================================================*/
+static int writeeapollinee(FILE *fh_pmkideapol, inthccapx_t *hccapx, int written)
+{
+static int p;
+
+//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*ZUSATZINFO
+fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+	HCX_TYPE_EAPOL,
+	hccapx->keymic[0], hccapx->keymic[1], hccapx->keymic[2], hccapx->keymic[3], hccapx->keymic[4], hccapx->keymic[5], hccapx->keymic[6], hccapx->keymic[7],
+	hccapx->keymic[8], hccapx->keymic[9], hccapx->keymic[10], hccapx->keymic[11], hccapx->keymic[12], hccapx->keymic[13], hccapx->keymic[14], hccapx->keymic[15],
+	hccapx->macap[0], hccapx->macap[1], hccapx->macap[2], hccapx->macap[3], hccapx->macap[4], hccapx->macap[5],
+	hccapx->macsta[0], hccapx->macsta[1], hccapx->macsta[2], hccapx->macsta[3], hccapx->macsta[4], hccapx->macsta[5]);
+for(p = 0; p < hccapx->essidlen; p++) fprintf(fh_pmkideapol, "%02x", hccapx->essid[p]);
+fprintf(fh_pmkideapol, "*");
+fprintf(fh_pmkideapol, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*",
+	hccapx->nonceap[0], hccapx->nonceap[1], hccapx->nonceap[2], hccapx->nonceap[3], hccapx->nonceap[4], hccapx->nonceap[5], hccapx->nonceap[6], hccapx->nonceap[7],
+	hccapx->nonceap[8], hccapx->nonceap[9], hccapx->nonceap[10], hccapx->nonceap[11], hccapx->nonceap[12], hccapx->nonceap[13], hccapx->nonceap[14], hccapx->nonceap[15],
+	hccapx->nonceap[16], hccapx->nonceap[17], hccapx->nonceap[18], hccapx->nonceap[19], hccapx->nonceap[20], hccapx->nonceap[21], hccapx->nonceap[22], hccapx->nonceap[23],
+	hccapx->nonceap[24], hccapx->nonceap[25], hccapx->nonceap[26], hccapx->nonceap[27], hccapx->nonceap[28], hccapx->nonceap[29], hccapx->nonceap[30], hccapx->nonceap[31]);
+for(p = 0; p < hccapx->eapollen; p++) fprintf(fh_pmkideapol, "%02x", hccapx->eapol[p]);
+fprintf(fh_pmkideapol, "*%02x\n", hccapx->message_pair);
+
+written++;
+return written;
+}
+/*===========================================================================*/
+static void writepmkideapolefile()
+{
+static int written;
+static FILE *fh_file;
+static inthccapx_t *zeiger;
+
+if((fh_file = fopen(pmkideapoloutname, "a+")) == NULL)
+	{
+	printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+	return;
+	}
+
+written = 0;
+zeiger = hccapxlist;
+for(zeiger = hccapxlist; zeiger < (hccapxlist +hccapxcount); zeiger++)
+	{
+	if((ouiapflag == true) && (memcmp(zeiger->macap, ouiap, 3) == 0))
+		{
+		written = writeeapollinee(fh_file, zeiger, written);
+		continue;
+		}
+	if((nicapflag == true) && (memcmp(&zeiger->macap[3], nicap, 3) == 0))
+		{
+		written = writeeapollinee(fh_file, zeiger, written);
+		continue;
+		}
+	if((macapflag == true) && (memcmp(zeiger->macap, macap, 6) == 0))
+		{
+		written = writeeapollinee(fh_file, zeiger, written);
+		continue;
+		}
+	if((vendorapflag == true) && (isvendorap(zeiger->macap) == true))
+		{
+		written = writeeapollinee(fh_file, zeiger, written);
+		continue;
+		}
+	if((ouistaflag == true) && (memcmp(zeiger->macsta, ouista, 3) == 0))
+		{
+		written = writeeapollinee(fh_file, zeiger, written);
+		continue;
+		}
+	if((nicstaflag == true) && (memcmp(&zeiger->macsta[3], nicsta, 3) == 0))
+		{
+		written = writeeapollinee(fh_file, zeiger, written);
+		continue;
+		}
+	if((macstaflag == true) && (memcmp(zeiger->macsta, macsta, 6) == 0))
+		{
+		written = writeeapollinee(fh_file, zeiger, written);
+		continue;
+		}
+	if((vendorstaflag == true) && (isvendorsta(zeiger->macsta) == true))
+		{
+		written = writeeapollinee(fh_file, zeiger, written);
+		continue;
+		}
+	if((ouiapflag != true) && (nicapflag != true) && (macapflag != true) && (vendorapflag != true) && (ouistaflag != true) && (nicstaflag != true) && (macstaflag != true) && (vendorstaflag != true))
+		{
+		written = writeeapollinee(fh_file, zeiger, written);
+		continue;
+		}
+	}
+fclose(fh_file);
+printf("%d record(s) written to %s\n", written, basename(pmkideapoloutname));
+return;
+}
+/*===========================================================================*/
 static bool readhccapxfile()
 {
 static int count;
@@ -291,6 +385,7 @@ for(c = 0; c < pmkidline->essidlen; c++)
 	fprintf(fh_file, "%02x", pmkidline->essid[c]);
 	}
 fprintf(fh_file, "\n");
+
 written++;
 return written;
 }
@@ -359,6 +454,90 @@ for(zeiger = pmkidlist; zeiger < (pmkidlist +pmkidcount); zeiger++)
 	}
 fclose(fh_file);
 printf("%d record(s) written to %s\n", written, basename(pmkidoutname));
+return;
+}
+/*===========================================================================*/
+static int writepmkideapollinep(FILE *fh_pmkideapol, intpmkid_t *pmkidline, int written)
+{
+static int p;
+
+//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*ZUSATZINFO
+fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+	HCX_TYPE_PMKID,
+	pmkidline->pmkid[0], pmkidline->pmkid[1], pmkidline->pmkid[2], pmkidline->pmkid[3], pmkidline->pmkid[4], pmkidline->pmkid[5], pmkidline->pmkid[6], pmkidline->pmkid[7],
+	pmkidline->pmkid[8], pmkidline->pmkid[9], pmkidline->pmkid[10], pmkidline->pmkid[11], pmkidline->pmkid[12], pmkidline->pmkid[13], pmkidline->pmkid[14], pmkidline->pmkid[15],
+	pmkidline->macap[0], pmkidline->macap[1], pmkidline->macap[2], pmkidline->macap[3], pmkidline->macap[4], pmkidline->macap[5],
+	pmkidline->macsta[0], pmkidline->macsta[1], pmkidline->macsta[2], pmkidline->macsta[3], pmkidline->macsta[4], pmkidline->macsta[5]);
+for(p = 0; p < pmkidline->essidlen; p++) fprintf(fh_pmkideapol, "%02x", pmkidline->essid[p]);
+fprintf(fh_pmkideapol, "***\n");
+written++;
+return written;
+}
+/*===========================================================================*/
+static void writepmkideapolpfile()
+{
+static int written;
+static FILE *fh_file;
+static intpmkid_t *zeiger;
+
+if((fh_file = fopen(pmkideapoloutname, "a")) == NULL)
+	{
+	fprintf(stderr, "failed to open PMKID file %s\n", pmkideapoloutname);
+	return;
+	}
+
+written = 0;
+zeiger = pmkidlist;
+for(zeiger = pmkidlist; zeiger < (pmkidlist +pmkidcount); zeiger++)
+	{
+	if((ouiapflag == true) && (memcmp(zeiger->macap, ouiap, 3) == 0))
+		{
+		written = writepmkideapollinep(fh_file, zeiger, written);
+		continue;
+		}
+	if((nicapflag == true) && (memcmp(&zeiger->macap[3], nicap, 3) == 0))
+		{
+		written = writepmkideapollinep(fh_file, zeiger, written);
+		continue;
+		}
+	if((macapflag == true) && (memcmp(zeiger->macap, macap, 6) == 0))
+		{
+		written = writepmkideapollinep(fh_file, zeiger, written);
+		continue;
+		}
+	if((vendorapflag == true) && (isvendorap(zeiger->macap) == true))
+		{
+		written = writepmkideapollinep(fh_file, zeiger, written);
+		continue;
+		}
+	if((ouistaflag == true) && (memcmp(zeiger->macsta, ouista, 3) == 0))
+		{
+		written = writepmkideapollinep(fh_file, zeiger, written);
+		continue;
+		}
+	if((nicstaflag == true) && (memcmp(&zeiger->macsta[3], nicsta, 3) == 0))
+		{
+		written = writepmkideapollinep(fh_file, zeiger, written);
+		continue;
+		}
+	if((macstaflag == true) && (memcmp(zeiger->macsta, macsta, 6) == 0))
+		{
+		written = writepmkideapollinep(fh_file, zeiger, written);
+		continue;
+		}
+	if((vendorapflag == true) && (isvendorsta(zeiger->macsta) == true))
+		{
+		written = writepmkideapollinep(fh_file, zeiger, written);
+		continue;
+		}
+	if((ouiapflag != true) && (nicapflag != true) && (macapflag != true) && (vendorapflag != true) && (ouistaflag != true) && (nicstaflag != true) && (macstaflag != true) && (vendorstaflag != true))
+		{
+		written = writepmkideapollinep(fh_file, zeiger, written);
+		continue;
+		}
+	}
+fclose(fh_file);
+printf("%d record(s) written to %s\n", written, basename(pmkideapoloutname));
 return;
 }
 /*===========================================================================*/
@@ -618,6 +797,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
+	"--pmkideapolout=<file> : output PMKID/EAPOL hash line (22000 format)\n"
 	"--pmkidin=<file>       : input PMKID file\n"
 	"--pmkidout=<file>      : output PMKID file\n"
 	"--hccapxin=<file>      : input HCCAPX file\n"
@@ -646,6 +826,7 @@ unsigned long long int macinput;
 static const char *short_options = "e:E:l:o:n:m:a:O:N:M:A:hv";
 static const struct option long_options[] =
 {
+	{"pmkideapolout",		required_argument,	NULL,	HCXD_PMKIDEAPOL_OUT},
 	{"pmkidin",			required_argument,	NULL,	HCXD_PMKID_IN},
 	{"pmkidout",			required_argument,	NULL,	HCXD_PMKID_OUT},
 	{"hccapxin",			required_argument,	NULL,	HCXD_HCCAPX_IN},
@@ -663,6 +844,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	{
 	switch (auswahl)
 		{
+		case HCXD_PMKIDEAPOL_OUT:
+		pmkideapoloutname = optarg;
+		break;
+
 		case HCXD_PMKID_IN:
 		pmkidinname = optarg;
 		break;
@@ -812,6 +997,16 @@ if(hccapxinname != NULL)
 	readhccapxfile();
 	}
 
+if((pmkideapoloutname != NULL) && (pmkidcount > 0))
+	{
+	writepmkideapolpfile();
+	}
+
+if((pmkideapoloutname != NULL) && (hccapxcount > 0))
+	{
+	writepmkideapolefile();
+	}
+
 if((pmkidoutname != NULL) && (pmkidcount > 0))
 	{
 	writepmkidfile();
@@ -821,6 +1016,7 @@ if((hccapxoutname != NULL) && (hccapxcount > 0))
 	{
 	writehccapxfile();
 	}
+
 
 globalclose();
 
