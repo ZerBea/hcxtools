@@ -1918,8 +1918,8 @@ static char *essidstop = NULL;
 static unsigned long long int macaddr;
 static FILE *fh_file;
 
-static const char hlid1[] = { "WPA:01:" };
-static const char hlid2[] = { "WPA:02:" };
+static const char hlid1[] = { "WPA*01*" };
+static const char hlid2[] = { "WPA*02*" };
 
 static char linein[PMKIDEAPOL_LINE_LEN];
 static uint8_t essid[ESSID_LEN_MAX];
@@ -1949,13 +1949,13 @@ while(1)
 		continue;
 		}
 
-	if((linein[3] != ':') && (linein[6] != ':') && (linein[39] != ':') && (linein[52] != ':') && (linein[65] != ':'))
+	if((linein[3] != '*') && (linein[6] != '*') && (linein[39] != '*') && (linein[52] != '*') && (linein[65] != '*'))
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		aktread++;
 		continue;
 		}
-	essidstop = strchr(&linein[66], ':');
+	essidstop = strchr(&linein[66], '*');
 	if(essidstop == NULL)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
