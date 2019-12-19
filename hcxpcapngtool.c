@@ -43,8 +43,8 @@
 struct hccap_s
 {
   char essid[36];
-  unsigned char mac_ap[6];
-  unsigned char mac_client[6];
+  unsigned char ap[6];
+  unsigned char client[6];
   unsigned char snonce[32];
   unsigned char anonce[32];
   unsigned char eapol[256];
@@ -67,10 +67,10 @@ struct hccapx_s
  uint8_t	essid[32];
  uint8_t	keyver;
  uint8_t	keymic[16];
- uint8_t	mac_ap[6];
- uint8_t	nonce_ap[32];
- uint8_t	mac_sta[6];
- uint8_t	nonce_sta[32];
+ uint8_t	ap[6];
+ uint8_t	anonce[32];
+ uint8_t	client[6];
+ uint8_t	snonce[32];
  uint16_t	eapol_len;
  uint8_t	eapol[256];
 } __attribute__((packed));
@@ -88,6 +88,7 @@ static char *jtrbasename;
 static FILE *fh_pmkideapolhc;
 static FILE *fh_pmkideapoljtr;
 static FILE *fh_pmkiddeprecated;
+static FILE *fh_hccapxdeprecated;
 static FILE *fh_hccapdeprecated;
 
 static int maclistmax;
@@ -134,6 +135,7 @@ static long int eapolm4count;
 static long int eapolwrittenhcount;
 static long int eapolaplesscount;
 static long int eapolwrittenjcount;
+static long int eapolwrittenhcpxcountdeprecated;
 static long int eapolwrittenhcpcountdeprecated;
 
 static uint64_t timestampstart;
@@ -262,6 +264,7 @@ eapolm4count = 0;
 eapolwrittenhcount = 0;
 eapolaplesscount = 0;
 eapolwrittenjcount = 0;
+eapolwrittenhcpxcountdeprecated = 0;
 eapolwrittenhcpcountdeprecated = 0;
 return true;
 }
@@ -303,6 +306,7 @@ if(eapolmpcount > 0)			printf("EAPOL message pairs...................: %ld\n", e
 if(eapolaplesscount > 0)		printf("EAPOL message pairs (AP-LESS).........: %ld\n", eapolaplesscount);
 if(eapolwrittenhcount > 0)		printf("EAPOL message pairs written to hashcat: %ld\n", eapolwrittenhcount);
 if(eapolwrittenjcount > 0)		printf("EAPOL message pairs written to JtR....: %ld\n", eapolwrittenjcount);
+if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL message pairs written to hccapx.: %ld\n", eapolwrittenhcpxcountdeprecated);
 if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL message pairs written to hccap..: %ld\n", eapolwrittenhcpcountdeprecated);
 
 return;
@@ -332,6 +336,7 @@ static int i;
 static unsigned char *hcpos;
 static uint8_t keyvertemp;
 static uint8_t keymictemp[16];
+static hccapx_t hccapx;
 static hccap_t hccap;
 
 
@@ -368,8 +373,8 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		if(fh_pmkideapoljtr != 0)
 			{
 			memset (&hccap, 0, sizeof(hccap_t));
-			memcpy(&hccap.mac_ap, zeigerhs->ap, 6);
-			memcpy(&hccap.mac_client, zeigerhs->client, 6);
+			memcpy(&hccap.ap, zeigerhs->ap, 6);
+			memcpy(&hccap.client, zeigerhs->client, 6);
 			memcpy(&hccap.anonce, zeigerhs->anonce, 32);
 			memcpy(&hccap.snonce, wpak->nonce, 32);
 			memcpy(&hccap.keymic, &keymictemp, 16);
@@ -394,12 +399,37 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			fprintf(fh_pmkideapoljtr, ":%s\n", basename(jtrbasename));
 			eapolwrittenjcount++;
 			}
+		if(fh_hccapxdeprecated != 0)
+			{
+			memset (&hccapx, 0, sizeof(hccapx_t));
+			hccapx.signature = HCCAPX_SIGNATURE;
+			hccapx.version = HCCAPX_VERSION;
+			hccapx.message_pair = zeigerhs->status;
+			hccapx.essid_len = zeigermac->essidlen;
+			memcpy(&hccapx.essid, zeigermac->essid, zeigermac->essidlen);
+			memcpy(&hccapx.ap, zeigerhs->ap, 6);
+			memcpy(&hccapx.client, zeigerhs->client, 6);
+			memcpy(&hccapx.anonce, zeigerhs->anonce, 32);
+			memcpy(&hccapx.snonce, wpak->nonce, 32);
+			hccapx.eapol_len = zeigerhs->eapauthlen;
+			memcpy(&hccapx.eapol, zeigerhs->eapol, zeigerhs->eapauthlen);
+			hccapx.keyver = keyvertemp;
+			memcpy(&hccapx.keymic, &keymictemp, 16);
+
+			#ifdef BIG_ENDIAN_HOST
+			hccapx.signature = byte_swap_32(hccapx.signature);
+			hccapx.version = byte_swap_32(hccapx.version);
+			hccapx.eapol_len = byte_swap_16(hccapx.eapol_len);
+			#endif
+			fwrite (&hccapx, sizeof(hccapx_t), 1, fh_hccapxdeprecated);
+			eapolwrittenhcpxcountdeprecated++;
+			}
 		if(fh_hccapdeprecated != 0)
 			{
-			memset (&hccap, 0, sizeof(hccap_t));
+			memset(&hccap, 0, sizeof(hccap_t));
 			memcpy(&hccap.essid, zeigermac->essid, zeigermac->essidlen);
-			memcpy(&hccap.mac_ap, zeigerhs->ap, 6);
-			memcpy(&hccap.mac_client, zeigerhs->client, 6);
+			memcpy(&hccap.ap, zeigerhs->ap, 6);
+			memcpy(&hccap.client, zeigerhs->client, 6);
 			memcpy(&hccap.anonce, zeigerhs->anonce, 32);
 			memcpy(&hccap.snonce, wpak->nonce, 32);
 			memcpy(&hccap.keymic, &keymictemp, 16);
@@ -2380,8 +2410,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--max-essids=<digit>               : maximum allowed ESSIDs\n"
 	"                                     default: %d ESSID\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
-	"--pmkid=<file>                       output deprecated PMKID file (delimter *)\n"
-	"--hccap=<file>                       output deprecated hccap file (delimter *)\n"
+	"--pmkid=<file>                     : output deprecated PMKID file (delimter *)\n"
+	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
+	"--hccap=<file>                     : output deprecated hccap file (delimter *)\n"
 	"--help                             : show this help\n"
 	"--version                          : show version\n"
 	"\n"
@@ -2419,6 +2450,7 @@ static int index;
 static char *pmkideapolhcoutname;
 static char *pmkideapoljtroutname;
 static char *pmkidoutnamedeprecated;
+static char *hccapxoutnamedeprecated;
 static char *hccapoutnamedeprecated;
 struct timeval tv;
 static struct stat statinfo;
@@ -2432,6 +2464,7 @@ static const struct option long_options[] =
 	{"do-not-clean",		no_argument,		NULL,	HCX_NOT_CLEAN},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
+	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT_DEPRECATED},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT_DEPRECATED},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
@@ -2492,6 +2525,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		pmkidoutnamedeprecated = optarg;
 		break;
 
+		case HCX_HCCAPX_OUT_DEPRECATED:
+		hccapxoutnamedeprecated = optarg;
+		break;
+
 		case HCX_HCCAP_OUT_DEPRECATED:
 		hccapoutnamedeprecated = optarg;
 		break;
@@ -2549,6 +2586,14 @@ if(pmkidoutnamedeprecated != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
+if(hccapxoutnamedeprecated != NULL)
+	{
+	if((fh_hccapxdeprecated = fopen(hccapxoutnamedeprecated, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", hccapxoutnamedeprecated, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
 if(hccapoutnamedeprecated != NULL)
 	{
 	if((fh_hccapdeprecated = fopen(hccapoutnamedeprecated, "a+")) == NULL)
@@ -2566,6 +2611,7 @@ for(index = optind; index < argc; index++)
 if(fh_pmkideapolhc != NULL) fclose(fh_pmkideapolhc);
 if(fh_pmkideapoljtr != NULL) fclose(fh_pmkideapoljtr);
 if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
+if(fh_hccapxdeprecated != NULL) fclose(fh_hccapxdeprecated);
 if(fh_hccapdeprecated != NULL) fclose(fh_hccapdeprecated);
 
 
@@ -2588,6 +2634,13 @@ if(pmkidoutnamedeprecated != NULL)
 	if(stat(pmkidoutnamedeprecated, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(pmkidoutnamedeprecated);
+		}
+	}
+if(hccapxoutnamedeprecated != NULL)
+	{
+	if(stat(hccapxoutnamedeprecated, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(hccapxoutnamedeprecated);
 		}
 	}
 if(hccapoutnamedeprecated != NULL)
