@@ -8,12 +8,11 @@
 #define HCX_HCCAP_OUT_DEPRECATED		8
 #define HCX_PMKIDEAPOLJTR_OUT_DEPRECATED	9
 #define HCX_PMKIDEAPOL_OUT			'o'
+#define HCX_ESSID_OUT				'E'
 #define HCX_HELP				'h'
 #define HCX_VERSION				'v'
 
 #define ESSID_LEN_MAX		32
-#define RSN_LEN_MIN		20
-#define WPA_LEN_MIN		22
 #define	OPTIONLEN_MAX		1024
 
 #define MACLIST_MAX		100000
@@ -33,11 +32,29 @@
 /*===========================================================================*/
 struct tags_s
 {
- uint8_t	channel;
- uint8_t	kdversion;
- uint8_t	akm;
+ uint8_t		channel;
+ uint8_t		kdversion;
+#define KV_RSNIE	1
+#define KV_WPAIE	2
  uint8_t	groupcipher;
  uint8_t	cipher;
+#define TCS_WEP40	0b00000001
+#define TCS_TKIP	0b00000010
+#define TCS_WRAP	0b00000100
+#define TCS_CCMP	0b00001000
+#define TCS_WEP104	0b00010000
+#define TCS_BIP		0b00100000
+#define TCS_NOT_ALLOWED	0b01000000
+ uint16_t	akm;
+#define	TAK_PMKSA	0b0000000000000001
+#define	TAK_PSK		0b0000000000000010
+#define TAK_FT		0b0000000000000100
+#define TAK_FT_PSK	0b0000000000001000
+#define	TAK_PMKSA256	0b0000000000010000
+#define	TAK_PSKSHA256	0b0000000000100000
+#define	TAK_TDLS	0b0000000001000000
+#define	TAK_SAE_SHA256	0b0000000010000000
+#define TAK_FT_SAE	0b0000000100000000
  uint8_t	pmkid[16];
  uint8_t	essidlen;
  uint8_t	essid[ESSID_LEN_MAX];
@@ -105,6 +122,18 @@ if(memcmp(ia->essid, ib->essid, ib->essidlen) < 0) return 1;
 else if(memcmp(ia->essid, ib->essid, ib->essidlen) > 0) return -1;
 return 0;
 }
+
+static int sort_maclist_by_essidlen(const void *a, const void *b)
+{
+const maclist_t *ia = (const maclist_t *)a;
+const maclist_t *ib = (const maclist_t *)b;
+if(memcmp(ia->essid, ib->essid, ib->essidlen) > 0) return 1;
+else if(memcmp(ia->essid, ib->essid, ib->essidlen) < 0) return -1;
+if(ia->essidlen > ib->essidlen) return 1;
+else if(ia->essidlen < ib->essidlen) return -1;
+return 0;
+}
+
 /*===========================================================================*/
 struct messagelist_s
 {

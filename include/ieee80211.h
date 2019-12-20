@@ -327,18 +327,17 @@ typedef struct ie_tag ietag_t;
 /*===========================================================================*/
 struct rsnie_tag
 {
- uint8_t	id;
- uint8_t	len;
- uint16_t	version;
- uint8_t	data[1];
+#define	VT_RSN_IE	2
+ uint16_t		version;
+ uint8_t		data[1];
 } __attribute__((__packed__));
 typedef struct rsnie_tag rsnie_t;
 #define	RSNIE_SIZE offsetof(rsnie_t, data)
+#define RSNIE_LEN_MIN	20
+
 /*===========================================================================*/
 struct wpaie_tag
 {
- uint8_t		id;
- uint8_t		len;
  uint8_t		oui[3];
  uint8_t		ouitype;
  uint16_t		type;
@@ -348,6 +347,7 @@ struct wpaie_tag
 typedef struct wpaie_tag wpaie_t;
 #define	WPAIE_SIZE offsetof(wpaie_t, data)
 #define OUI_SIZE	3
+#define WPAIE_LEN_MIN	22
 
 static const uint8_t mscorp[3] =
 {
@@ -371,11 +371,17 @@ struct suite_s
 #define CS_WRAP		3
 #define CS_CCMP		4
 #define CS_WEP104	5
+#define CS_BIP		6
+#define CS_NOT_ALLOWED	7
 #define	AK_PMKSA	1
 #define	AK_PSK		2
 #define AK_FT		3
+#define AK_FT_PSK	4
+#define	AK_PMKSA256	5
 #define	AK_PSKSHA256	6
+#define	AK_TDLS	7
 #define	AK_SAE_SHA256	8
+#define AK_FT_SAE	9
 } __attribute__ ((packed));
 typedef struct suite_s suite_t;
 #define	SUITE_SIZE sizeof(suite_t)
@@ -445,7 +451,6 @@ struct sae_confirm_authentication_frame
 typedef struct sae_confirm_authentication_frame saeconfirmauthf_t;
 #define	SAECONFIRMAUTHENTICATIONFRAME_SIZE (sizeof(saeconfirmauthf_t))
 /*===========================================================================*/
-
 struct association_resp_frame
 {
  uint16_t	capabilities;

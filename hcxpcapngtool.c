@@ -85,7 +85,9 @@ static handshakelist_t *handshakelist, *handshakelistptr;
 static pmkidlist_t *pmkidlist, *pmkidlistptr;
 
 static char *jtrbasenamedeprecated;
+
 static FILE *fh_pmkideapol;
+static FILE *fh_essid;
 static FILE *fh_pmkideapoljtrdeprecated;
 static FILE *fh_pmkiddeprecated;
 static FILE *fh_hccapxdeprecated;
@@ -188,7 +190,6 @@ return;
 /*===========================================================================*/
 static void closelists()
 {
-
 if(aplist != NULL) free(aplist);
 if(messagelist != NULL) free(messagelist);
 if(handshakelist != NULL) free(handshakelist);
@@ -311,6 +312,27 @@ if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap.....
 return;
 }
 /*===========================================================================*/
+static void outputwordlists()
+{
+static maclist_t *zeigermac, *zeigermacold;
+
+qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_essidlen);
+zeigermacold = NULL;
+
+for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
+	{
+	if((zeigermacold != NULL) && (zeigermac->essidlen == zeigermacold->essidlen))
+		{
+		if(memcmp(zeigermac->essid, zeigermacold->essid, zeigermac->essidlen) == 0) continue;
+		}
+	if(zeigermac->essidlen > ESSID_LEN_MAX) continue;
+	if(zeigermac->essidlen == 0) continue;
+	fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essid);
+	zeigermacold = zeigermac;
+	}
+return;
+}
+/*===========================================================================*/
 static void hccap2base(unsigned char *in, unsigned char b)
 {
 static const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -337,7 +359,6 @@ static uint8_t keyvertemp;
 static uint8_t keymictemp[16];
 static hccapx_t hccapx;
 static hccap_t hccap;
-
 
 for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	{
@@ -530,7 +551,8 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		getpmkid(zeigermac, zeigerpmkidakt);
 		gethandshake(zeigermac, zeigerhsakt);
 		}
-	else if((zeigermac->akm == AK_PSK) || (zeigermac->akm == AK_PSKSHA256))
+	else if
+	(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 		{
 		getpmkid(zeigermac, zeigerpmkidakt);
 		gethandshake(zeigermac, zeigerhsakt);
@@ -1041,6 +1063,7 @@ static bool cleanbackmac()
 static int c;
 static maclist_t *zeiger;
 zeiger = aplistptr;
+
 for(c = 0; c < 20; c ++)
 	{
 	zeiger--;
@@ -1061,35 +1084,183 @@ for(c = 0; c < 20; c ++)
 return false;
 }
 /*===========================================================================*/
-static inline bool getaptags(int infolen, uint8_t *infoptr, tags_t *zeiger)
+static inline void gettagwpa(int wpalen, uint8_t *ieptr, tags_t *zeiger)
 {
 static int c;
-static ietag_t *tagptr;
-static rsnie_t *rsnptr;
 static wpaie_t *wpaptr;
-static suite_t *suiteptr;
-static suitecount_t *suitecountptr;
-static int suitelen;
-static rsnpmkidlist_t *rsnpmkidlistptr;
+static suite_t *gsuiteptr;
+static suitecount_t *csuitecountptr;
+static suite_t *csuiteptr;
+static suitecount_t *asuitecountptr;
+static suite_t *asuiteptr;
+
+wpaptr = (wpaie_t*)ieptr;
+wpalen -= WPAIE_SIZE;
+ieptr += WPAIE_SIZE;
+if(memcmp(wpaptr->oui, &mscorp, 3) != 0) return;
+if(wpaptr->ouitype != 1) return;
+if(wpaptr->type != VT_WPA_IE) return;
+gsuiteptr = (suite_t*)ieptr; 
+if(memcmp(gsuiteptr->oui, &mscorp, 3) == 0)
+	{
+	if(gsuiteptr->type == CS_WEP40) zeiger->groupcipher = TCS_WEP40;
+	if(gsuiteptr->type == CS_TKIP) zeiger->groupcipher = TCS_TKIP;
+	if(gsuiteptr->type == CS_WRAP) zeiger->groupcipher = TCS_WRAP;
+	if(gsuiteptr->type == CS_CCMP) zeiger->groupcipher = TCS_CCMP;
+	if(gsuiteptr->type == CS_WEP104) zeiger->groupcipher = TCS_WEP104;
+	if(gsuiteptr->type == CS_BIP) zeiger->groupcipher = TCS_BIP;
+	if(gsuiteptr->type == CS_NOT_ALLOWED) zeiger->groupcipher = TCS_NOT_ALLOWED;
+	}
+wpalen -= SUITE_SIZE;
+ieptr += SUITE_SIZE;
+csuitecountptr = (suitecount_t*)ieptr;
+wpalen -= SUITECOUNT_SIZE;
+ieptr += SUITECOUNT_SIZE;
+for(c = 0; c < csuitecountptr->count; c++)
+	{
+	csuiteptr = (suite_t*)ieptr; 
+	if(memcmp(csuiteptr->oui, &mscorp, 3) == 0)
+		{
+		if(csuiteptr->type == CS_WEP40) zeiger->cipher |= TCS_WEP40;
+		if(csuiteptr->type == CS_TKIP) zeiger->cipher |= TCS_TKIP;
+		if(csuiteptr->type == CS_WRAP) zeiger->cipher |= TCS_WRAP;
+		if(csuiteptr->type == CS_CCMP) zeiger->cipher |= TCS_CCMP;
+		if(csuiteptr->type == CS_WEP104) zeiger->cipher |= TCS_WEP104;
+		if(csuiteptr->type == CS_BIP) zeiger->cipher |= TCS_BIP;
+		if(csuiteptr->type == CS_NOT_ALLOWED) zeiger->cipher |= TCS_NOT_ALLOWED;
+		}
+	wpalen -= SUITE_SIZE;
+	ieptr += SUITE_SIZE;
+	if(wpalen <= 0) return;
+	}
+asuitecountptr = (suitecount_t*)ieptr;
+wpalen -= SUITECOUNT_SIZE;
+ieptr += SUITECOUNT_SIZE;
+for(c = 0; c < asuitecountptr->count; c++)
+	{
+	asuiteptr = (suite_t*)ieptr; 
+	if(memcmp(asuiteptr->oui, &mscorp, 3) == 0)
+		{
+		if(asuiteptr->type == AK_PMKSA) zeiger->akm |= TAK_PMKSA;
+		if(asuiteptr->type == AK_PSK) zeiger->akm |= TAK_PSK;
+		if(asuiteptr->type == AK_FT) zeiger->akm |= TAK_FT;
+		if(asuiteptr->type == AK_FT_PSK) zeiger->akm |= TAK_FT_PSK;
+		if(asuiteptr->type == AK_PMKSA256) zeiger->akm |= TAK_PMKSA256;
+		if(asuiteptr->type == AK_PSKSHA256) zeiger->akm |= TAK_PSKSHA256;
+		if(asuiteptr->type == AK_TDLS) zeiger->akm |= TAK_TDLS;
+		if(asuiteptr->type == AK_SAE_SHA256) zeiger->akm |= TAK_SAE_SHA256;
+		if(asuiteptr->type == AK_FT_SAE) zeiger->akm |= TAK_FT_SAE;
+		}
+	wpalen -= SUITE_SIZE;
+	ieptr += SUITE_SIZE;
+	if(wpalen <= 0) return;
+	}
+return;
+}
+/*===========================================================================*/
+static inline void gettagrsn(int rsnlen, uint8_t *ieptr, tags_t *zeiger)
+{
+static int c;
+static rsnie_t *rsnptr;
+static suite_t *gsuiteptr;
+static suitecount_t *csuitecountptr;
+static suite_t *csuiteptr;
+static suitecount_t *asuitecountptr;
+static suite_t *asuiteptr;
+static rsnpmkidlist_t *rsnpmkidlistptr; 
+
+rsnptr = (rsnie_t*)ieptr;
+if(rsnptr->version != 1) return;
+rsnlen -= RSNIE_SIZE;
+ieptr += RSNIE_SIZE;
+gsuiteptr = (suite_t*)ieptr; 
+if(memcmp(gsuiteptr->oui, &suiteoui, 3) == 0)
+	{
+	if(gsuiteptr->type == CS_WEP40) zeiger->groupcipher = TCS_WEP40;
+	if(gsuiteptr->type == CS_TKIP) zeiger->groupcipher = TCS_TKIP;
+	if(gsuiteptr->type == CS_WRAP) zeiger->groupcipher = TCS_WRAP;
+	if(gsuiteptr->type == CS_CCMP) zeiger->groupcipher = TCS_CCMP;
+	if(gsuiteptr->type == CS_WEP104) zeiger->groupcipher = TCS_WEP104;
+	if(gsuiteptr->type == CS_BIP) zeiger->groupcipher = TCS_BIP;
+	if(gsuiteptr->type == CS_NOT_ALLOWED) zeiger->groupcipher = TCS_NOT_ALLOWED;
+	}
+rsnlen -= SUITE_SIZE;
+ieptr += SUITE_SIZE;
+csuitecountptr = (suitecount_t*)ieptr;
+rsnlen -= SUITECOUNT_SIZE;
+ieptr += SUITECOUNT_SIZE;
+for(c = 0; c < csuitecountptr->count; c++)
+	{
+	csuiteptr = (suite_t*)ieptr; 
+	if(memcmp(csuiteptr->oui, &suiteoui, 3) == 0)
+		{
+		if(csuiteptr->type == CS_WEP40) zeiger->cipher |= TCS_WEP40;
+		if(csuiteptr->type == CS_TKIP) zeiger->cipher |= TCS_TKIP;
+		if(csuiteptr->type == CS_WRAP) zeiger->cipher |= TCS_WRAP;
+		if(csuiteptr->type == CS_CCMP) zeiger->cipher |= TCS_CCMP;
+		if(csuiteptr->type == CS_WEP104) zeiger->cipher |= TCS_WEP104;
+		if(csuiteptr->type == CS_BIP) zeiger->cipher |= TCS_BIP;
+		if(csuiteptr->type == CS_NOT_ALLOWED) zeiger->cipher |= TCS_NOT_ALLOWED;
+		}
+	rsnlen -= SUITE_SIZE;
+	ieptr += SUITE_SIZE;
+	if(rsnlen <= 0) return;
+	}
+asuitecountptr = (suitecount_t*)ieptr;
+rsnlen -= SUITECOUNT_SIZE;
+ieptr += SUITECOUNT_SIZE;
+for(c = 0; c < asuitecountptr->count; c++)
+	{
+	asuiteptr = (suite_t*)ieptr; 
+	if(memcmp(asuiteptr->oui, &suiteoui, 3) == 0)
+		{
+		if(asuiteptr->type == AK_PMKSA) zeiger->akm |= TAK_PMKSA;
+		if(asuiteptr->type == AK_PSK) zeiger->akm |= TAK_PSK;
+		if(asuiteptr->type == AK_FT) zeiger->akm |= TAK_FT;
+		if(asuiteptr->type == AK_FT_PSK) zeiger->akm |= TAK_FT_PSK;
+		if(asuiteptr->type == AK_PMKSA256) zeiger->akm |= TAK_PMKSA256;
+		if(asuiteptr->type == AK_PSKSHA256) zeiger->akm |= TAK_PSKSHA256;
+		if(asuiteptr->type == AK_TDLS) zeiger->akm |= TAK_TDLS;
+		if(asuiteptr->type == AK_SAE_SHA256) zeiger->akm |= TAK_SAE_SHA256;
+		if(asuiteptr->type == AK_FT_SAE) zeiger->akm |= TAK_FT_SAE;
+		}
+	rsnlen -= SUITE_SIZE;
+	ieptr += SUITE_SIZE;
+	if(rsnlen <= 0) return;
+	}
+
+rsnlen -= RSNCAPABILITIES_SIZE;
+ieptr += RSNCAPABILITIES_SIZE;
+if(rsnlen <= 0) return;
+rsnpmkidlistptr = (rsnpmkidlist_t*)ieptr; 
+if(rsnpmkidlistptr->count == 0) return;
+rsnlen -= RSNPMKIDLIST_SIZE;
+ieptr += RSNPMKIDLIST_SIZE;
+if(rsnlen < 16) return;
+if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+	{
+	printf("pmkid\n");
+	memcpy(zeiger->pmkid, ieptr, 16);
+	}
+return;
+}
+/*===========================================================================*/
+static void gettags(int infolen, uint8_t *infoptr, tags_t *zeiger)
+{
+static ietag_t *tagptr;
 
 memset(zeiger, 0, TAGS_SIZE);
 while(0 < infolen)
 	{
 	tagptr = (ietag_t*)infoptr;
-	if(tagptr->len > (infolen -IETAG_SIZE))
-		{
-		if(ignoreieflag == true) return true;
-		else return false;
-		}
+	if(tagptr->len == 0) return;
+	if(tagptr->len > infolen) return;
 	if(tagptr->id == TAG_SSID)
 		{
-		if((tagptr->len > 0) && (tagptr->len <= ESSID_LEN_MAX))
+		if((tagptr->len > 0) &&  (tagptr->len <= ESSID_LEN_MAX))
 			{
-			if(tagptr->data[0] != 0)
-				{
-				memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
-				zeiger->essidlen = tagptr->len;
-				}
+			memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
+			zeiger->essidlen = tagptr->len;
 			}
 		}
 	else if(tagptr->id == TAG_CHAN)
@@ -1098,118 +1269,16 @@ while(0 < infolen)
 		}
 	else if(tagptr->id == TAG_RSN)
 		{
-		if(tagptr->len >= RSN_LEN_MIN)
-			{
-			rsnptr = (rsnie_t*)infoptr;
-			if(rsnptr->version == 1)
-				{
-				zeiger->kdversion |= WPA2;
-				suiteptr = (suite_t*)(infoptr + RSNIE_SIZE); 
-				if(memcmp(suiteptr->oui, &suiteoui, 3) == 0)
-					{
-					zeiger->groupcipher = suiteptr->type;
-					suitelen = RSNIE_SIZE +SUITE_SIZE;
-					suitecountptr = (suitecount_t*)(infoptr +suitelen);
-					suitelen += SUITECOUNT_SIZE;
-					for(c = 0; c < suitecountptr->count; c++)
-						{
-						suiteptr = (suite_t*)(infoptr +suitelen);
-						suitelen += SUITE_SIZE;
-						if(suitelen > rsnptr->len +(int)IETAG_SIZE) break;
-						if((suiteptr->type == CS_CCMP) || (suiteptr->type == CS_TKIP)) zeiger->cipher = suiteptr->type;
-						}
-					if(suitelen < rsnptr->len)
-						{
-						suitecountptr = (suitecount_t*)(infoptr +suitelen);
-						suitelen += SUITECOUNT_SIZE;
-						for(c = 0; c < suitecountptr->count; c++)
-							{
-							suiteptr = (suite_t*)(infoptr +suitelen);
-							suitelen += SUITE_SIZE;
-							if(suitelen > rsnptr->len +(int)IETAG_SIZE) break;
-							if(memcmp(suiteptr->oui, &suiteoui, 3) == 0)
-								{
-								if((suiteptr->type == AK_PSK) || (suiteptr->type == AK_PSKSHA256))
-									{
-									zeiger->akm = suiteptr->type;
-									break;
-									}
-								}
-							}
-						}
-					if(suitelen < rsnptr->len) 
-						{
-						suitelen += RSNCAPABILITIES_SIZE;
-						rsnpmkidlistptr = (rsnpmkidlist_t*)(infoptr +suitelen);
-						if(rsnpmkidlistptr->count == 0) break;
-						suitelen += RSNPMKIDLIST_SIZE;
-						if(suitelen +16 > rsnptr->len +4 +(int)IETAG_SIZE) break;
-						memcpy(zeiger->pmkid, &infoptr[suitelen], 16);
-						}
-					}
-				}
-			}
+		if(tagptr->len >= RSNIE_LEN_MIN) gettagrsn(tagptr->len, tagptr->data, zeiger);
 		}
 	else if(tagptr->id == TAG_VENDOR)
 		{
-		if(tagptr->len >= WPA_LEN_MIN)
-			{
-			wpaptr = (wpaie_t*)infoptr;
-			if(memcmp(wpaptr->oui, &mscorp, 3) == 0)
-				{
-				if(wpaptr->ouitype == 1)
-					{
-					if(wpaptr->type == VT_WPA_IE)
-						{
-						zeiger->kdversion |= WPA1;
-						suiteptr = (suite_t*)(infoptr + WPAIE_SIZE); 
-						if(memcmp(suiteptr->oui, &mscorp, 3) == 0)
-							{
-							zeiger->groupcipher = suiteptr->type;
-							suitelen = WPAIE_SIZE +SUITE_SIZE;
-							suitecountptr = (suitecount_t*)(infoptr +suitelen);
-							suitelen += SUITECOUNT_SIZE;
-							for(c = 0; c < suitecountptr->count; c++)
-								{
-								suiteptr = (suite_t*)(infoptr +suitelen);
-								suitelen += SUITE_SIZE;
-								if(suitelen > wpaptr->len +(int)IETAG_SIZE) break;
-								if((suiteptr->type == CS_CCMP) || (suiteptr->type == CS_TKIP)) zeiger->cipher = suiteptr->type;
-								}
-							if(suitelen < wpaptr->len)
-								{
-								suitecountptr = (suitecount_t*)(infoptr +suitelen);
-								suitelen += SUITECOUNT_SIZE;
-								for(c = 0; c < suitecountptr->count; c++)
-									{
-									suiteptr = (suite_t*)(infoptr +suitelen);
-									suitelen += SUITE_SIZE;
-									if(suitelen > wpaptr->len +(int)IETAG_SIZE) break;
-									if(memcmp(suiteptr->oui, &mscorp, 3) == 0)
-										{
-										if((suiteptr->type == AK_PSK) || (suiteptr->type == AK_PSKSHA256))
-											{
-											zeiger->akm = suiteptr->type;
-											break;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+		if(tagptr->len >= WPAIE_LEN_MIN) gettagwpa(tagptr->len, tagptr->data, zeiger);
 		}
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
-	if(infolen == 4) return true;
 	}
-if(infolen != 0)
-	{
-	if(ignoreieflag == false) return false;
-	}
-return true;
+return;
 }
 /*===========================================================================*/
 static void process80211reassociation_req(uint64_t reassociationrequesttimestamp, uint8_t *macclient, uint8_t *macap, uint32_t reassociationrequestlen, uint8_t *reassociationrequestptr)
@@ -1219,15 +1288,12 @@ static uint8_t *clientinfoptr;
 static maclist_t *aplistnew;
 
 static tags_t tags;
-
 reassociationrequestcount++;
 clientinfoptr = reassociationrequestptr +CAPABILITIESREQSTA_SIZE;
 clientinfolen = reassociationrequestlen -CAPABILITIESREQSTA_SIZE;
 if(clientinfolen < (int)IETAG_SIZE) return;
-if(getaptags(clientinfolen, clientinfoptr, &tags) == false) return;
+gettags(clientinfolen, clientinfoptr, &tags);
 if(memcmp(&tags.pmkid, &zeroed32, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
-if(tags.essidlen == 0) return;
-if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -1289,9 +1355,7 @@ associationrequestcount++;
 clientinfoptr = associationrequestptr +CAPABILITIESSTA_SIZE;
 clientinfolen = associationrequestlen -CAPABILITIESSTA_SIZE;
 if(clientinfolen < (int)IETAG_SIZE) return;
-if(getaptags(clientinfolen, clientinfoptr, &tags) == false) return;
-if(tags.essidlen == 0) return;
-if(tags.essid[0] == 0) return;
+gettags(clientinfolen, clientinfoptr, &tags);
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -1368,9 +1432,7 @@ static tags_t tags;
 
 proberequestdirectedcount++;
 if(proberequestlen < (int)IETAG_SIZE) return;
-if(getaptags(proberequestlen, proberequestptr, &tags) == false) return;
-if(tags.essidlen == 0) return;
-if(tags.essid[0] == 0) return;
+gettags(proberequestlen, proberequestptr, &tags);
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -1423,9 +1485,7 @@ static tags_t tags;
 
 proberequestcount++;
 if(proberequestlen < (int)IETAG_SIZE) return;
-if(getaptags(proberequestlen, proberequestptr, &tags) == false) return;
-if(tags.essidlen == 0) return;
-if(tags.essid[0] == 0) return;
+gettags(proberequestlen, proberequestptr, &tags);
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -1461,9 +1521,7 @@ proberesponsecount++;
 apinfoptr = proberesponseptr +CAPABILITIESAP_SIZE;
 apinfolen = proberesponselen -CAPABILITIESAP_SIZE;
 if(proberesponselen < (int)IETAG_SIZE) return;
-if(getaptags(apinfolen, apinfoptr, &tags) == false) return;
-if(tags.essidlen == 0) return;
-if(tags.essid[0] == 0) return;
+gettags(apinfolen, apinfoptr, &tags);
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -1502,7 +1560,7 @@ beaconcount++;
 apinfoptr = beaconptr +CAPABILITIESAP_SIZE;
 apinfolen = beaconlen -CAPABILITIESAP_SIZE;
 if(beaconlen < (int)IETAG_SIZE) return;
-if(getaptags(apinfolen, apinfoptr, &tags) == false) return;
+gettags(apinfolen, apinfoptr, &tags);
 if(tags.essidlen == 0) return;
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
@@ -1529,7 +1587,6 @@ aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(cleanbackmac() == false) aplistptr++;
-aplistptr++;
 return;
 }
 /*===========================================================================*/
@@ -1885,6 +1942,7 @@ cleanupmac();
 cleanuphandshake();
 cleanuppmkid();
 outputwpalists();
+outputwordlists();
 printcontentinfo();
 
 return;
@@ -2011,23 +2069,21 @@ static unsigned int res;
 static off_t fdsize;
 static off_t aktseek;
 static off_t resseek;
-
 static uint32_t snaplen;
 static uint32_t blocktype;
 static uint32_t blocklen;
 static uint32_t blockmagic;
 static uint64_t timestamppcapng;
 static int padding;
+static block_header_t *pcapngbh;
+static section_header_block_t *pcapngshb;
+static interface_description_block_t *pcapngidb;
+static packet_block_t *pcapngpb;
+static enhanced_packet_block_t *pcapngepb;
+static custom_block_t *pcapngcb;
 
-block_header_t *pcapngbh;
-section_header_block_t *pcapngshb;
-interface_description_block_t *pcapngidb;
-packet_block_t *pcapngpb;
-enhanced_packet_block_t *pcapngepb;
-custom_block_t *pcapngcb;
-
-uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
-uint8_t packet[MAXPACPSNAPLEN];
+static uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
+static uint8_t packet[MAXPACPSNAPLEN];
 
 printf("reading from %s...\n", basename(pcapinname));
 fdsize = lseek(fd, 0, SEEK_END);
@@ -2315,6 +2371,7 @@ cleanupmac();
 cleanuppmkid();
 cleanuphandshake();
 outputwpalists();
+outputwordlists();
 printcontentinfo();
 
 return;
@@ -2403,6 +2460,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output PMKID/EAPOL hash file\n"
 	"            hashcat -m 22000/22001 and JtR wpapsk-opencl/wpapsk-pmk-opencl\n"
+	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
@@ -2464,10 +2522,12 @@ static char *pmkideapoljtroutnamedeprecated;
 static char *pmkidoutnamedeprecated;
 static char *hccapxoutnamedeprecated;
 static char *hccapoutnamedeprecated;
+static char *essidoutname;
+
 struct timeval tv;
 static struct stat statinfo;
 
-static const char *short_options = "o:hv";
+static const char *short_options = "o:E:hv";
 static const struct option long_options[] =
 {
 	{"eapoltimeout",		required_argument,	NULL,	HCX_EAPOL_TIMEOUT},
@@ -2546,6 +2606,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		hccapoutnamedeprecated = optarg;
 		break;
 
+		case HCX_ESSID_OUT:
+		essidoutname = optarg;
+		break;
+
 		case HCX_HELP:
 		usage(basename(argv[0]));
 		break;
@@ -2583,6 +2647,15 @@ if(pmkideapoloutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
+if(essidoutname != NULL)
+	{
+	if((fh_essid = fopen(essidoutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", essidoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
 if(pmkideapoljtroutnamedeprecated != NULL)
 	{
 	if((fh_pmkideapoljtrdeprecated = fopen(pmkideapoljtroutnamedeprecated, "a+")) == NULL)
@@ -2622,6 +2695,7 @@ for(index = optind; index < argc; index++)
 	}
 
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+if(fh_essid != NULL) fclose(fh_essid);
 if(fh_pmkideapoljtrdeprecated != NULL) fclose(fh_pmkideapoljtrdeprecated);
 if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
 if(fh_hccapxdeprecated != NULL) fclose(fh_hccapxdeprecated);
@@ -2635,6 +2709,14 @@ if(pmkideapoloutname != NULL)
 		if(statinfo.st_size == 0) remove(pmkideapoloutname);
 		}
 	}
+if(essidoutname != NULL)
+	{
+	if(stat(essidoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(essidoutname);
+		}
+	}
+
 if(pmkideapoljtroutnamedeprecated != NULL)
 	{
 	if(stat(pmkideapoljtroutnamedeprecated, &statinfo) == 0)
