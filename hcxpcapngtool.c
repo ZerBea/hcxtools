@@ -314,11 +314,13 @@ return;
 /*===========================================================================*/
 static void outputwordlists()
 {
+static int wecl;
 static maclist_t *zeigermac, *zeigermacold;
 
-qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_essidlen);
 zeigermacold = NULL;
-
+qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_essidlen);
+wecl = strlen(pcapngweakcandidate);
+if((wecl > 0) && (wecl < 64)) fprintf(fh_essid, "%s\n", pcapngweakcandidate); 
 for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	{
 	if((zeigermacold != NULL) && (zeigermac->essidlen == zeigermacold->essidlen))
@@ -1239,11 +1241,7 @@ if(rsnpmkidlistptr->count == 0) return;
 rsnlen -= RSNPMKIDLIST_SIZE;
 ieptr += RSNPMKIDLIST_SIZE;
 if(rsnlen < 16) return;
-if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
-	{
-	printf("pmkid\n");
-	memcpy(zeiger->pmkid, ieptr, 16);
-	}
+if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256)) memcpy(zeiger->pmkid, ieptr, 16);
 return;
 }
 /*===========================================================================*/
