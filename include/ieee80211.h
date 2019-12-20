@@ -254,7 +254,7 @@ struct mac_frame
  unsigned	version : 2;
 
  unsigned	ordered : 1;
- unsigned	protected : 1;
+ unsigned	prot : 1;
  unsigned	more_data : 1;
  unsigned	power : 1;
  unsigned	retry : 1;
@@ -272,7 +272,7 @@ struct mac_frame
  unsigned	retry : 1;
  unsigned	power : 1;
  unsigned	more_data : 1;
- unsigned	protected : 1;
+ unsigned	prot : 1;
  unsigned	ordered : 1;
 #endif
  uint16_t	duration;
@@ -346,8 +346,8 @@ struct wpaie_tag
 } __attribute__ ((packed));
 typedef struct wpaie_tag wpaie_t;
 #define	WPAIE_SIZE offsetof(wpaie_t, data)
-#define OUI_SIZE	3
 #define WPAIE_LEN_MIN	22
+#define OUI_SIZE	3
 
 static const uint8_t mscorp[3] =
 {

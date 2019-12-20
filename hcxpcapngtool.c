@@ -1100,15 +1100,16 @@ ieptr += WPAIE_SIZE;
 if(memcmp(wpaptr->oui, &mscorp, 3) != 0) return;
 if(wpaptr->ouitype != 1) return;
 if(wpaptr->type != VT_WPA_IE) return;
+zeiger->kdversion |= KV_WPAIE;
 gsuiteptr = (suite_t*)ieptr; 
 if(memcmp(gsuiteptr->oui, &mscorp, 3) == 0)
 	{
-	if(gsuiteptr->type == CS_WEP40) zeiger->groupcipher = TCS_WEP40;
-	if(gsuiteptr->type == CS_TKIP) zeiger->groupcipher = TCS_TKIP;
-	if(gsuiteptr->type == CS_WRAP) zeiger->groupcipher = TCS_WRAP;
-	if(gsuiteptr->type == CS_CCMP) zeiger->groupcipher = TCS_CCMP;
-	if(gsuiteptr->type == CS_WEP104) zeiger->groupcipher = TCS_WEP104;
-	if(gsuiteptr->type == CS_BIP) zeiger->groupcipher = TCS_BIP;
+	if(gsuiteptr->type == CS_WEP40) zeiger->groupcipher |= TCS_WEP40;
+	if(gsuiteptr->type == CS_TKIP) zeiger->groupcipher |= TCS_TKIP;
+	if(gsuiteptr->type == CS_WRAP) zeiger->groupcipher |= TCS_WRAP;
+	if(gsuiteptr->type == CS_CCMP) zeiger->groupcipher |= TCS_CCMP;
+	if(gsuiteptr->type == CS_WEP104) zeiger->groupcipher |= TCS_WEP104;
+	if(gsuiteptr->type == CS_BIP) zeiger->groupcipher |= TCS_BIP;
 	if(gsuiteptr->type == CS_NOT_ALLOWED) zeiger->groupcipher = TCS_NOT_ALLOWED;
 	}
 wpalen -= SUITE_SIZE;
@@ -1171,18 +1172,19 @@ static rsnpmkidlist_t *rsnpmkidlistptr;
 
 rsnptr = (rsnie_t*)ieptr;
 if(rsnptr->version != 1) return;
+zeiger->kdversion |= KV_RSNIE;
 rsnlen -= RSNIE_SIZE;
 ieptr += RSNIE_SIZE;
 gsuiteptr = (suite_t*)ieptr; 
 if(memcmp(gsuiteptr->oui, &suiteoui, 3) == 0)
 	{
-	if(gsuiteptr->type == CS_WEP40) zeiger->groupcipher = TCS_WEP40;
-	if(gsuiteptr->type == CS_TKIP) zeiger->groupcipher = TCS_TKIP;
-	if(gsuiteptr->type == CS_WRAP) zeiger->groupcipher = TCS_WRAP;
-	if(gsuiteptr->type == CS_CCMP) zeiger->groupcipher = TCS_CCMP;
-	if(gsuiteptr->type == CS_WEP104) zeiger->groupcipher = TCS_WEP104;
-	if(gsuiteptr->type == CS_BIP) zeiger->groupcipher = TCS_BIP;
-	if(gsuiteptr->type == CS_NOT_ALLOWED) zeiger->groupcipher = TCS_NOT_ALLOWED;
+	if(gsuiteptr->type == CS_WEP40) zeiger->groupcipher |= TCS_WEP40;
+	if(gsuiteptr->type == CS_TKIP) zeiger->groupcipher |= TCS_TKIP;
+	if(gsuiteptr->type == CS_WRAP) zeiger->groupcipher |= TCS_WRAP;
+	if(gsuiteptr->type == CS_CCMP) zeiger->groupcipher |= TCS_CCMP;
+	if(gsuiteptr->type == CS_WEP104) zeiger->groupcipher |= TCS_WEP104;
+	if(gsuiteptr->type == CS_BIP) zeiger->groupcipher |= TCS_BIP;
+	if(gsuiteptr->type == CS_NOT_ALLOWED) zeiger->groupcipher |= TCS_NOT_ALLOWED;
 	}
 rsnlen -= SUITE_SIZE;
 ieptr += SUITE_SIZE;
@@ -1649,7 +1651,7 @@ else if(macfrx->type == IEEE80211_FTYPE_DATA)
 		{
 //		process80211ipv6();
 		}
-	else if(macfrx->protected ==1)
+	else if(macfrx->prot ==1)
 		{
 /*
 		mpduptr = payloadptr;
