@@ -295,7 +295,7 @@ if(associationrequestcount > 0)		printf("ASSOCIATIONREQUEST....................:
 if(reassociationrequestcount > 0)	printf("REASSOCIATIONREQUEST..................: %ld\n", reassociationrequestcount);
 if(pmkidcount > 0)			printf("PMKID.................................: %ld\n", pmkidcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless).......................: %ld\n", pmkiduselesscount);
-if(pmkidwrittenhcount > 0)		printf("PMKID written to hashcat..............: %ld\n", pmkidwrittenhcount);
+if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hashline.......: %ld\n", pmkidwrittenhcount);
 if(eapolwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format.......: %ld\n", eapolwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)...: %ld\n", pmkidwrittencountdeprecated);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total)................: %ld\n", eapolmsgcount);
@@ -305,7 +305,7 @@ if(eapolm3count > 0)			printf("EAPOL M3 messages.....................: %ld\n", e
 if(eapolm4count > 0)			printf("EAPOL M4 messages.....................: %ld\n", eapolm4count);
 if(eapolmpcount > 0)			printf("EAPOL pairs...........................: %ld\n", eapolmpcount);
 if(eapolaplesscount > 0)		printf("EAPOL pairs (AP-LESS).................: %ld\n", eapolaplesscount);
-if(eapolwrittencount > 0)		printf("EAPOL pairs written...................: %ld\n", eapolwrittencount);
+if(eapolwrittencount > 0)		printf("EAPOL pairs written  to combi hashline: %ld\n", eapolwrittencount);
 if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format.: %ld\n", eapolwrittenjcountdeprecated);
 if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx.........: %ld\n", eapolwrittenhcpxcountdeprecated);
 if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap..........: %ld\n", eapolwrittenhcpcountdeprecated);
@@ -2544,8 +2544,14 @@ donotcleanflag = false;
 eapoltimeoutvalue = EAPOLTIMEOUT;
 ncvalue = NONCEERRORCORRECTION;
 essidsvalue = ESSIDSMAX;
+
 pmkideapoloutname = NULL;
 pmkideapoljtroutnamedeprecated = NULL;
+pmkidoutnamedeprecated = NULL;
+hccapxoutnamedeprecated = NULL;
+hccapoutnamedeprecated = NULL;
+essidoutname = NULL;
+
 
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
