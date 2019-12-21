@@ -108,6 +108,7 @@ static long int rawpacketcount;
 static long int pcapreaderrors;
 static long int skippedpacketcount;
 static long int fcsframecount;
+static long int wdscount;
 static long int beaconcount;
 static long int proberesponsecount;
 static long int proberequestcount;
@@ -123,6 +124,10 @@ static long int authnetworkeapcount;
 static long int authunknowncount;
 static long int associationrequestcount;
 static long int reassociationrequestcount;
+static long int ipv4count;
+static long int ipv6count;
+static long int wepenccount;
+static long int wpaenccount;
 static long int pmkidcount;
 static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
@@ -242,6 +247,7 @@ rawpacketcount = 0;
 pcapreaderrors = 0;
 skippedpacketcount = 0;
 fcsframecount = 0;
+wdscount = 0;
 beaconcount = 0;
 proberesponsecount = 0;
 proberequestcount = 0;
@@ -257,6 +263,10 @@ authnetworkeapcount = 0;
 authunknowncount = 0;
 associationrequestcount = 0;
 reassociationrequestcount = 0;
+ipv4count = 0;
+ipv6count = 0;
+wepenccount = 0;
+wpaenccount = 0;
 pmkidcount = 0;
 pmkiduselesscount = 0;
 pmkidwrittenhcount = 0;
@@ -291,6 +301,7 @@ if(rawpacketcount > 0)			printf("packets inside........................: %ld\n",
 if(pcapreaderrors > 0)			printf("read errors...........................: %ld\n", pcapreaderrors);
 if(skippedpacketcount > 0)		printf("skipped packets.......................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			printf("frames with correct FCS...............: %ld\n", fcsframecount);
+if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM..........: %ld\n", wdscount);
 if(beaconcount > 0)			printf("BEACON................................: %ld\n", beaconcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST..........................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)...............: %ld\n", proberequestdirectedcount);
@@ -306,6 +317,10 @@ if(authnetworkeapcount > 0)		printf("AUTHENTICATION (NETWORK EAP)..........: %ld
 if(authunknowncount > 0)		printf("AUTHENTICATION (unknown)..............: %ld\n", authunknowncount);
 if(associationrequestcount > 0)		printf("ASSOCIATIONREQUEST....................: %ld\n", associationrequestcount);
 if(reassociationrequestcount > 0)	printf("REASSOCIATIONREQUEST..................: %ld\n", reassociationrequestcount);
+if(ipv4count > 0)			printf("IPv4..................................: %ld\n", ipv4count);
+if(ipv6count > 0)			printf("IPv6..................................: %ld\n", ipv6count);
+if(wepenccount > 0)			printf("WEP encrypted.........................: %ld\n", wepenccount);
+if(wpaenccount > 0)			printf("WPA encrypted.........................: %ld\n", wpaenccount);
 if(pmkidcount > 0)			printf("PMKID.................................: %ld\n", pmkidcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless).......................: %ld\n", pmkiduselesscount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hashline.......: %ld\n", pmkidwrittenhcount);
@@ -1608,15 +1623,14 @@ return;
 /*===========================================================================*/
 static void process80211packet(uint64_t packetimestamp, uint32_t packetlen, uint8_t *packetptr)
 {
-
 //static uint32_t wdsoffset = 0;
 static mac_t *macfrx;
 static uint32_t payloadlen;
 static uint8_t *payloadptr;
 static uint8_t *llcptr;
 static llc_t *llc;
-//static uint8_t *mpduptr;
-//static mpdu_t *mpdu;
+static uint8_t *mpduptr;
+static mpdu_t *mpdu;
 
 if(packetlen < (int)MAC_SIZE_NORM) return;
 macfrx = (mac_t*)packetptr;
@@ -1624,6 +1638,7 @@ if((macfrx->from_ds == 1) && (macfrx->to_ds == 1))
 	{
 	payloadptr = packetptr +MAC_SIZE_LONG;
 	payloadlen = packetlen -MAC_SIZE_LONG;
+	wdscount++;
 	}
 else
 	{
@@ -1660,19 +1675,19 @@ else if(macfrx->type == IEEE80211_FTYPE_DATA)
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 //		process80211ipv4();
+		ipv4count++;
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
 //		process80211ipv6();
+		ipv6count++;
 		}
 	else if(macfrx->prot ==1)
 		{
-/*
 		mpduptr = payloadptr;
 		mpdu = (mpdu_t*)mpduptr;
-		if(((mpdu->keyid >> 5) &1) == 1) process80211data_wpa();
-		else if(((mpdu->keyid >> 5) &1) == 0) process80211data_wep();
-*/
+		if(((mpdu->keyid >> 5) &1) == 1) wpaenccount++;
+		else if(((mpdu->keyid >> 5) &1) == 0) wepenccount++;
 		}
 	}
 return;
