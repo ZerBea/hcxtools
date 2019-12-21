@@ -6,6 +6,7 @@ HOSTOS := $(shell uname -s)
 CC		?= gcc
 CFLAGS		?= -O3 -Wall -Wextra
 CFLAGS		+= -std=gnu99
+#CFLAGS		+= -ggdb -fsanitize=address
 INSTFLAGS	= -m 0755
 
 ifeq ($(HOSTOS), Linux)

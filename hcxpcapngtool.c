@@ -320,17 +320,20 @@ static maclist_t *zeigermac, *zeigermacold;
 zeigermacold = NULL;
 qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_essidlen);
 wecl = strlen(pcapngweakcandidate);
-if((wecl > 0) && (wecl < 64)) fprintf(fh_essid, "%s\n", pcapngweakcandidate); 
-for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
+if(fh_essid != NULL)
 	{
-	if((zeigermacold != NULL) && (zeigermac->essidlen == zeigermacold->essidlen))
+	if((wecl > 0) && (wecl < 64)) fprintf(fh_essid, "%s\n", pcapngweakcandidate); 
+	for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		{
-		if(memcmp(zeigermac->essid, zeigermacold->essid, zeigermac->essidlen) == 0) continue;
+		if((zeigermacold != NULL) && (zeigermac->essidlen == zeigermacold->essidlen))
+			{
+			if(memcmp(zeigermac->essid, zeigermacold->essid, zeigermac->essidlen) == 0) continue;
+			}
+		if(zeigermac->essidlen > ESSID_LEN_MAX) continue;
+		if(zeigermac->essidlen == 0) continue;
+		fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essid);
+		zeigermacold = zeigermac;
 		}
-	if(zeigermac->essidlen > ESSID_LEN_MAX) continue;
-	if(zeigermac->essidlen == 0) continue;
-	fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essid);
-	zeigermacold = zeigermac;
 	}
 return;
 }
@@ -2462,9 +2465,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     this will convert all frames regadless of\n"
 	"                                     CIPHER and/OR AKM information,\n"
 	"                                     and can lead to uncrackable hashes\n"
-	"--do-not-clean                     : do not remove clean hash output\n"
-	"                                   : do not remove out of protocol frames\n"
-	"                                     that can lead to uncrackable hashes\n"
+	"--do-not-clean                     : convert all possible hashes\n"
+	"                                     that can lead to much overhead hashes\n"
 	"--max-essids=<digit>               : maximum allowed ESSIDs\n"
 	"                                     default: %d ESSID\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
