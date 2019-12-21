@@ -192,6 +192,8 @@ static uint8_t pcapngdeviceinfo[6];
 static char nmeasentence[OPTIONLEN_MAX];
 static char gpwplold[OPTIONLEN_MAX];
 
+//static unsigned char pmk[64];
+
 /*===========================================================================*/
 static inline void debugprint(int len, uint8_t *ptr)
 {
@@ -442,6 +444,34 @@ if(b)
 else fprintf(fh_pmkideapoljtrdeprecated, "%c", (itoa64[((in[1] & 0x0f) << 2)]));
 return;
 }
+
+/*===========================================================================*/
+/*
+static bool testpmkid(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
+{
+char *pmkname = "PMK Name";
+
+uint8_t salt[32];
+uint8_t testpmkid[32];
+
+memcpy(&salt, pmkname, 8);
+memcpy(&salt[8], macap, 6);
+memcpy(&salt[14], macsta, 6);
+
+HMAC(EVP_sha1(), pmk, 32, salt, 20, testpmkid, NULL);
+
+if(memcmp(&testpmkid, pmkid, 16) == 0) return true;
+return false;
+}
+*/
+/*===========================================================================*/
+/*
+static bool dopbkdf2(uint8_t psklen, char *psk, uint8_t essidlen, uint8_t *essid)
+{
+if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmk) == 0) return false;
+return true;
+}
+*/
 /*===========================================================================*/
 static handshakelist_t *gethandshake(maclist_t *zeigermac, handshakelist_t *zeigerhsakt)
 {
