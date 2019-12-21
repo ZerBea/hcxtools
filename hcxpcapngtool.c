@@ -130,6 +130,7 @@ static long int ipv4count;
 static long int ipv6count;
 static long int wepenccount;
 static long int wpaenccount;
+static long int eapcount;
 static long int pmkidcount;
 static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
@@ -277,6 +278,7 @@ ipv4count = 0;
 ipv6count = 0;
 wepenccount = 0;
 wpaenccount = 0;
+eapcount = 0;
 pmkidcount = 0;
 pmkiduselesscount = 0;
 pmkidwrittenhcount = 0;
@@ -332,6 +334,7 @@ if(ipv4count > 0)			printf("IPv4..................................: %ld\n", ipv4
 if(ipv6count > 0)			printf("IPv6..................................: %ld\n", ipv6count);
 if(wepenccount > 0)			printf("WEP encrypted.........................: %ld\n", wepenccount);
 if(wpaenccount > 0)			printf("WPA encrypted.........................: %ld\n", wpaenccount);
+if(eapcount > 0)			printf("EAP...................................: %ld\n", eapcount);
 if(pmkidcount > 0)			printf("PMKID.................................: %ld\n", pmkidcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless).......................: %ld\n", pmkiduselesscount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hashline.......: %ld\n", pmkidwrittenhcount);
@@ -833,6 +836,22 @@ if(cleanbackpmkid() == false) pmkidlistptr++;
 return;
 }
 /*===========================================================================*/
+static void process80211exteap(uint32_t eapauthlen, uint8_t *eapptr)
+{
+static eapauth_t *eapauth;
+static uint32_t authlen;
+
+eapcount++;
+if(eapauthlen < (int)EAPAUTH_SIZE) return; 
+eapauth = (eapauth_t*)eapptr;
+authlen = ntohs(eapauth->len);
+if(authlen > eapauthlen) return;
+
+
+
+return;
+}
+/*===========================================================================*/
 static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t eapauthlen, uint8_t *eapauthptr)
 {
 static messagelist_t *zeiger;
@@ -1120,21 +1139,22 @@ else if(keyinfo == 4) process80211eapol_m4(eaptimestamp, macto, macfm, eapauthle
 return;
 }
 /*===========================================================================*/
-static void process80211eap(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint8_t eaplen, uint8_t *eapptr)
+static void process80211eap(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t eaplen, uint8_t *eapptr)
 {
-static uint8_t *eapauthptr;
 static eapauth_t *eapauth;
 
-eapauthptr = eapptr;
-eapauth = (eapauth_t*)eapauthptr;
+eapauth = (eapauth_t*)eapptr;
 if(eaplen < (int)EAPAUTH_SIZE) return; 
 if(eapauth->type == EAPOL_KEY)
 	{
-	process80211eapol(eaptimestamp, macto, macfm, eaplen, eapauthptr);
+	process80211eapol(eaptimestamp, macto, macfm, eaplen, eapptr);
 	}
-//else if(eapauth->type == EAP_PACKET) process80211exteap(authlen);
+else if(eapauth->type == EAP_PACKET) process80211exteap(eaplen, eapptr);
 //else if(eapauth->type == EAPOL_ASF) process80211exteap_asf();
 //else if(eapauth->type == EAPOL_MKA) process80211exteap_mka();
+else if(eapauth->type == EAPOL_START)
+	{
+	}
 else if(eapauth->type == EAPOL_START)
 	{
 	}
