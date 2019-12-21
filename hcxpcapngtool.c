@@ -188,8 +188,8 @@ static char pcapngoptioninfo[OPTIONLEN_MAX];
 static char pcapngweakcandidate[OPTIONLEN_MAX];
 static uint8_t pcapngdeviceinfo[6];
 
-static char nmeasentence[NMEA_MAX];
-static char gpwplold[NMEA_MAX];
+static char nmeasentence[OPTIONLEN_MAX];
+static char gpwplold[OPTIONLEN_MAX];
 
 /*===========================================================================*/
 static inline void debugprint(int len, uint8_t *ptr)
@@ -242,6 +242,8 @@ memset(&pcapngweakcandidate, 0 ,OPTIONLEN_MAX);
 memset(&pcapngdeviceinfo, 0 ,6);
 memset(&myaktap, 0 ,6);
 memset(&myaktclient, 0 ,6);
+memset(&nmeasentence, 0, OPTIONLEN_MAX);
+memset(&gpwplold, 0, OPTIONLEN_MAX);
 
 memcpy(&pcapnghwinfo, nastring, 3);
 memcpy(&pcapngosinfo, nastring, 3);
