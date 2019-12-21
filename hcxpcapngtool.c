@@ -761,11 +761,8 @@ wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((ignoreieflag == false) && (keyver == 0)) return;
 rc = be64toh(wpak->replaycount);
-if(donotcleanflag == false)
-	{
-	if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-	if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-	}
+if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
@@ -833,11 +830,8 @@ wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((ignoreieflag == false) && (keyver == 0)) return;
 rc = be64toh(wpak->replaycount);
-if(donotcleanflag == false)
-	{
-	if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-	if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-	}
+if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 memset(zeigerakt, 0, MESSAGELIST_SIZE);
 zeigerakt->timestamp = eaptimestamp;
 zeigerakt->eapolmsgcount = eapolmsgcount;
@@ -904,11 +898,8 @@ wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((ignoreieflag == false) && (keyver == 0)) return;
 rc = be64toh(wpak->replaycount);
-if(donotcleanflag == false)
-	{
-	if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-	if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-	}
+if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
@@ -968,11 +959,8 @@ wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((ignoreieflag == false) && (keyver == 0)) return;
 rc = be64toh(wpak->replaycount);
-if(donotcleanflag == false)
-	{
-	if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-	if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-	}
+if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
