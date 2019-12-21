@@ -1693,6 +1693,31 @@ else if(macfrx->type == IEEE80211_FTYPE_DATA)
 return;
 }
 /*===========================================================================*/
+void processethernetpacket(uint32_t caplen, uint8_t *packetptr)
+{
+static eth2_t *eth2;
+
+if(caplen < (int)LLC_SIZE) return;
+eth2 = (eth2_t*)packetptr;
+if(ntohs(eth2->ether_type) == LLC_TYPE_IPV4)
+	{
+//	processipv4packet(tv_sec, tv_usec, caplen, packet_ptr);
+	ipv4count++;
+	}
+else if(ntohs(eth2->ether_type) == LLC_TYPE_IPV6)
+	{
+//	processipv6packet(tv_sec, tv_usec, caplen, packet_ptr);
+	ipv6count++;
+	}
+/*
+if(ntohs(eth2->ether_type) == LLC_TYPE_AUTH)
+	{
+	process80211networkauthentication(tv_sec, tv_usec, caplen, eth2->addr1, eth2->addr2, packet_ptr);
+	}
+*/
+return;
+}
+/*===========================================================================*/
 static void processlinktype(uint64_t captimestamp, int linktype, uint32_t caplen, uint8_t *capptr)
 {
 static uint16_t rthlen;
@@ -1802,6 +1827,19 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 		}
 	packetlen = caplen -avs->len;
 	packetptr = capptr +avs->len;
+	}
+else if(linktype == DLT_EN10MB)
+	{
+	if(caplen < (uint32_t)ETH2_SIZE)
+		{
+		pcapreaderrors++;
+		printf("failed to read ethernet header\n");
+		return;
+		}
+	packetlen = caplen -ETH2_SIZE;
+	packetptr = capptr +ETH2_SIZE;
+	processethernetpacket(packetlen, packetptr);
+	return;
 	}
 else
 	{
