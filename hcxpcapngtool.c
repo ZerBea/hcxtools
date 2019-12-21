@@ -86,6 +86,7 @@ static pmkidlist_t *pmkidlist, *pmkidlistptr;
 
 static char *jtrbasenamedeprecated;
 
+static FILE *fh_nmea;
 static FILE *fh_pmkideapol;
 static FILE *fh_essid;
 static FILE *fh_pmkideapoljtrdeprecated;
@@ -106,6 +107,7 @@ static uint16_t dltlinktype;
 
 static long int rawpacketcount;
 static long int pcapreaderrors;
+static long int nmeacount;
 static long int skippedpacketcount;
 static long int fcsframecount;
 static long int wdscount;
@@ -156,8 +158,22 @@ static uint32_t eapoltimeoutvalue;
 static uint64_t ncvalue;
 static int essidsvalue;
 
+static int nmealen;
+
 static bool ignoreieflag;
 static bool donotcleanflag;
+
+static const uint8_t fakenonce1[] =
+{
+0x07, 0xbc, 0x92, 0xea, 0x2f, 0x5a, 0x1e, 0xe2, 0x54, 0xf6, 0xb1, 0xb7, 0xe0, 0xaa, 0xd3, 0x53,
+0xf4, 0x5b, 0x0a, 0xac, 0xf9, 0xc9, 0x90, 0x2f, 0x90, 0xd8, 0x78, 0x80, 0xb7, 0x03, 0x0a, 0x20
+};
+
+static const uint8_t fakenonce2[] =
+{
+0x95, 0x30, 0xd1, 0xc7, 0xc3, 0x55, 0xb9, 0xab, 0xe6, 0x83, 0xd6, 0xf3, 0x7e, 0xcb, 0x78, 0x02,
+0x75, 0x1f, 0x53, 0xcc, 0xb5, 0x81, 0xd1, 0x52, 0x3b, 0xb4, 0xba, 0xad, 0x23, 0xab, 0x01, 0x07
+};
 
 static uint8_t myaktap[6];
 static uint8_t myaktclient[6];
@@ -172,17 +188,8 @@ static char pcapngoptioninfo[OPTIONLEN_MAX];
 static char pcapngweakcandidate[OPTIONLEN_MAX];
 static uint8_t pcapngdeviceinfo[6];
 
-static const uint8_t fakenonce1[] =
-{
-0x07, 0xbc, 0x92, 0xea, 0x2f, 0x5a, 0x1e, 0xe2, 0x54, 0xf6, 0xb1, 0xb7, 0xe0, 0xaa, 0xd3, 0x53,
-0xf4, 0x5b, 0x0a, 0xac, 0xf9, 0xc9, 0x90, 0x2f, 0x90, 0xd8, 0x78, 0x80, 0xb7, 0x03, 0x0a, 0x20
-};
-
-static const uint8_t fakenonce2[] =
-{
-0x95, 0x30, 0xd1, 0xc7, 0xc3, 0x55, 0xb9, 0xab, 0xe6, 0x83, 0xd6, 0xf3, 0x7e, 0xcb, 0x78, 0x02,
-0x75, 0x1f, 0x53, 0xcc, 0xb5, 0x81, 0xd1, 0x52, 0x3b, 0xb4, 0xba, 0xad, 0x23, 0xab, 0x01, 0x07
-};
+static char nmeasentence[NMEA_MAX];
+static char gpwplold[NMEA_MAX];
 
 /*===========================================================================*/
 static inline void debugprint(int len, uint8_t *ptr)
@@ -245,6 +252,7 @@ memcpy(&pcapngweakcandidate, nastring, 3);
 endianess = 0;
 rawpacketcount = 0;
 pcapreaderrors = 0;
+nmeacount = 0;
 skippedpacketcount = 0;
 fcsframecount = 0;
 wdscount = 0;
@@ -299,6 +307,7 @@ if(endianess == 0)			printf("endianess.............................: little endi
 else					printf("endianess.............................: big endian\n");
 if(rawpacketcount > 0)			printf("packets inside........................: %ld\n", rawpacketcount);
 if(pcapreaderrors > 0)			printf("read errors...........................: %ld\n", pcapreaderrors);
+if(nmeacount > 0)			printf("NMEA sentence ........................: %ld\n", nmeacount);
 if(skippedpacketcount > 0)		printf("skipped packets.......................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			printf("frames with correct FCS...............: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM..........: %ld\n", wdscount);
@@ -380,6 +389,37 @@ if(fh_essid != NULL)
 		zeigermacold = zeigermac;
 		}
 	}
+return;
+}
+/*===========================================================================*/
+static void writegpwpl(uint8_t *mac)
+{
+static int c;
+static int cs;
+static int gpwpllen;
+static char *gpwplptr;
+static char gpwpl[NMEA_MAX];
+
+static const char gpgga[] = "$GPGGA";
+static const char gprmc[] = "$GPRMC";
+
+if(nmealen < 30) return;
+if(memcmp(&gpgga, &nmeasentence, 6) == 0) snprintf(gpwpl, NMEA_MAX-1, "$GPWPL,%.*s,%02x%02x%02x%02x%02x%02x*", 26, &nmeasentence[17], mac[0] , mac[1], mac[2], mac[3], mac[4], mac[5]);
+else if(memcmp(&gprmc, &nmeasentence, 6) == 0) snprintf(gpwpl, NMEA_MAX-1, "$GPWPL,%.*s,%02x%02x%02x%02x%02x%02x*", 26, &nmeasentence[19], mac[0] , mac[1], mac[2], mac[3], mac[4], mac[5]);
+else return;
+
+gpwplptr = gpwpl+1;
+c = 0;
+cs = 0;
+while(gpwplptr[c] != '*')
+	{
+	cs ^= gpwplptr[c];
+	gpwplptr++;
+	}
+snprintf(gpwplptr +1, NMEA_MAX -44, "%02x", cs);
+gpwpllen = strlen(gpwpl);
+if(memcmp(&gpwplold, &gpwpl, gpwpllen) != 0) fprintf(fh_nmea, "%s\n", gpwpl);
+memcpy(&gpwplold, &gpwpl, gpwpllen);
 return;
 }
 /*===========================================================================*/
@@ -1099,6 +1139,7 @@ else if(eapauth->type == EAPOL_START)
 else if(eapauth->type == EAPOL_LOGOFF)
 	{
 	}
+if(fh_nmea != NULL) writegpwpl(macfm);
 return;
 }
 /*===========================================================================*/
@@ -1348,6 +1389,7 @@ if(aplistptr >= aplist +maclistmax)
 	aplistptr = aplistnew +maclistmax;
 	maclistmax += MACLIST_MAX;
 	}
+if(fh_nmea != NULL) writegpwpl(macclient);
 memset(aplistptr, 0, MACLIST_SIZE);
 aplistptr->timestamp = reassociationrequesttimestamp;
 aplistptr->count = 1;
@@ -1383,6 +1425,7 @@ aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(cleanbackmac() == false) aplistptr++;
+if(fh_nmea != NULL) writegpwpl(macclient);
 return;
 }
 /*===========================================================================*/
@@ -1446,10 +1489,11 @@ aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(cleanbackmac() == false) aplistptr++;
+if(fh_nmea != NULL) writegpwpl(macclient);
 return;
 }
 /*===========================================================================*/
-static inline void process80211authentication(uint32_t authenticationlen, uint8_t *authenticationptr)
+static inline void process80211authentication(uint8_t *macfm, uint32_t authenticationlen, uint8_t *authenticationptr)
 {
 static authf_t *auth;
 
@@ -1464,6 +1508,7 @@ else if(auth->algorithm == FILSPFS) authfilspfs++;
 else if(auth->algorithm == FILSPK) authfilspkcount++;
 else if(auth->algorithm == NETWORKEAP) authnetworkeapcount++;
 else authunknowncount++;
+if(fh_nmea != NULL) writegpwpl(macfm);
 return;
 }
 /*===========================================================================*/
@@ -1588,6 +1633,7 @@ aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(cleanbackmac() == false) aplistptr++;
+if(fh_nmea != NULL) writegpwpl(macap);
 return;
 }
 /*===========================================================================*/
@@ -1629,6 +1675,7 @@ aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(cleanbackmac() == false) aplistptr++;
+if(fh_nmea != NULL) writegpwpl(macap);
 return;
 }
 /*===========================================================================*/
@@ -1660,7 +1707,7 @@ if(macfrx->type == IEEE80211_FTYPE_MGMT)
 	{
 	if(macfrx->subtype == IEEE80211_STYPE_BEACON) process80211beacon(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_PROBE_RESP) process80211probe_resp(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
-	else if(macfrx->subtype == IEEE80211_STYPE_AUTH) process80211authentication(payloadlen, payloadptr);
+	else if(macfrx->subtype == IEEE80211_STYPE_AUTH) process80211authentication(macfrx->addr2, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_ASSOC_REQ) process80211association_req(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_REASSOC_REQ) process80211reassociation_req(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_PROBE_REQ)
@@ -2133,6 +2180,17 @@ while(0 < restlen)
 		{
 		if(option->option_length < 64) memcpy(&pcapngweakcandidate, &option->data, option->option_length);
 		}
+	else if(option->option_code == OPTIONCODE_NMEA)
+		{
+		if(option->option_length >= 66)
+			{
+			nmealen = option->option_length;
+			memset(&nmeasentence, 0, NMEA_MAX);
+			memcpy(&nmeasentence, &option->data, option->option_length);
+			if(fh_nmea != NULL) fprintf(fh_nmea, "%s\n", nmeasentence);
+			nmeacount++;
+			}
+		}
 	optr += option->option_length +padding +OH_SIZE;
 	restlen -= option->option_length +padding +OH_SIZE;
 	}
@@ -2551,6 +2609,11 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--max-essids=<digit>               : maximum allowed ESSIDs\n"
 	"                                     default: %d ESSID\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
+	"--nmea=<file>                      : output GPS data in NMEA format\n"
+	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
+	"                                     to convert it to gpx, use GPSBabel:\n"
+	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx -F file.gpx\n"
+	"                                     to display the track, open file.gpx with viking\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file (delimter *)\n"
@@ -2590,11 +2653,12 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static char *pmkideapoloutname;
+static char *essidoutname;
+static char *nmeaoutname;
 static char *pmkideapoljtroutnamedeprecated;
 static char *pmkidoutnamedeprecated;
 static char *hccapxoutnamedeprecated;
 static char *hccapoutnamedeprecated;
-static char *essidoutname;
 
 struct timeval tv;
 static struct stat statinfo;
@@ -2607,6 +2671,7 @@ static const struct option long_options[] =
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"do-not-clean",		no_argument,		NULL,	HCX_NOT_CLEAN},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
+	{"nmea",			required_argument,	NULL,	HCX_NMEA_OUT},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
 	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT_DEPRECATED},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT_DEPRECATED},
@@ -2627,11 +2692,12 @@ ncvalue = NONCEERRORCORRECTION;
 essidsvalue = ESSIDSMAX;
 
 pmkideapoloutname = NULL;
+essidoutname = NULL;
+nmeaoutname = NULL;
 pmkideapoljtroutnamedeprecated = NULL;
 pmkidoutnamedeprecated = NULL;
 hccapxoutnamedeprecated = NULL;
 hccapoutnamedeprecated = NULL;
-essidoutname = NULL;
 
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
@@ -2667,6 +2733,14 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		pmkideapoloutname = optarg;
 		break;
 
+		case HCX_ESSID_OUT:
+		essidoutname = optarg;
+		break;
+
+		case HCX_NMEA_OUT:
+		nmeaoutname = optarg;
+		break;
+
 		case HCX_PMKIDEAPOLJTR_OUT_DEPRECATED:
 		pmkideapoljtroutnamedeprecated = optarg;
 		break;
@@ -2681,10 +2755,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_HCCAP_OUT_DEPRECATED:
 		hccapoutnamedeprecated = optarg;
-		break;
-
-		case HCX_ESSID_OUT:
-		essidoutname = optarg;
 		break;
 
 		case HCX_HELP:
@@ -2733,6 +2803,15 @@ if(essidoutname != NULL)
 		}
 	}
 
+if(nmeaoutname != NULL)
+	{
+	if((fh_nmea = fopen(nmeaoutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", nmeaoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
 if(pmkideapoljtroutnamedeprecated != NULL)
 	{
 	if((fh_pmkideapoljtrdeprecated = fopen(pmkideapoljtroutnamedeprecated, "a+")) == NULL)
@@ -2773,6 +2852,7 @@ for(index = optind; index < argc; index++)
 
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 if(fh_essid != NULL) fclose(fh_essid);
+if(fh_nmea != NULL) fclose(fh_nmea);
 if(fh_pmkideapoljtrdeprecated != NULL) fclose(fh_pmkideapoljtrdeprecated);
 if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
 if(fh_hccapxdeprecated != NULL) fclose(fh_hccapxdeprecated);
@@ -2791,6 +2871,13 @@ if(essidoutname != NULL)
 	if(stat(essidoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(essidoutname);
+		}
+	}
+if(nmeaoutname != NULL)
+	{
+	if(stat(nmeaoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(nmeaoutname);
 		}
 	}
 
