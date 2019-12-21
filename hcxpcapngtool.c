@@ -346,6 +346,17 @@ if(eapolm34e4count > 0)			printf("EAPOL M34E4...........................: %ld\n"
 return;
 }
 /*===========================================================================*/
+static void printlinklayerinfo()
+{
+if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
+if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type................: DLT_IEEE802_11 (%d)\n", dltlinktype);
+if(dltlinktype == DLT_PPI)			printf("link layer header type................: DLT_PPI (%d)\n", dltlinktype);
+if(dltlinktype == DLT_PRISM_HEADER)		printf("link layer header type................: DLT_PRISM_HEADER (%d)\n", dltlinktype);
+if(dltlinktype == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype);
+if(dltlinktype == DLT_EN10MB)			printf("link layer header type................: DLT_EN10MB (%d)\n", dltlinktype);
+return;
+}
+/*===========================================================================*/
 static void outputwordlists()
 {
 static int wecl;
@@ -2001,12 +2012,8 @@ printf("\nsummary capture file\n"
 	"version (pcap/cap)....................: %d.%d (very basic format without any additional information)\n"  
 	, basename(pcaporgname), versionmajor, versionminor
 	);
-if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
-if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type................: DLT_IEEE802_11 (%d)\n", dltlinktype);
-if(dltlinktype == DLT_PPI)			printf("link layer header type................: DLT_PPI (%d)\n", dltlinktype);
-if(dltlinktype == DLT_PRISM_HEADER)		printf("link layer header type................: DLT_PRISM_HEADER (%d)\n", dltlinktype);
-if(dltlinktype == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype);
 
+printlinklayerinfo();
 cleanupmac();
 cleanuphandshake();
 cleanuppmkid();
@@ -2430,12 +2437,8 @@ printf("\nsummary capture file\n"
 	myaktsnonce[16], myaktsnonce[17], myaktsnonce[18], myaktsnonce[19], myaktsnonce[20], myaktsnonce[21], myaktsnonce[22], myaktsnonce[23],
 	myaktsnonce[24], myaktsnonce[25], myaktsnonce[26], myaktsnonce[27], myaktsnonce[28], myaktsnonce[29], myaktsnonce[30], myaktsnonce[31]
 	);
-if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
-if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type................: DLT_IEEE802_11 (%d)\n", dltlinktype);
-if(dltlinktype == DLT_PPI)			printf("link layer header type................: DLT_PPI (%d)\n", dltlinktype);
-if(dltlinktype == DLT_PRISM_HEADER)		printf("link layer header type................: DLT_PRISM_HEADER (%d)\n", dltlinktype);
-if(dltlinktype == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype);
 
+printlinklayerinfo();
 cleanupmac();
 cleanuppmkid();
 cleanuphandshake();
@@ -2629,7 +2632,6 @@ pmkidoutnamedeprecated = NULL;
 hccapxoutnamedeprecated = NULL;
 hccapoutnamedeprecated = NULL;
 essidoutname = NULL;
-
 
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
