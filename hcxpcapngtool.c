@@ -139,6 +139,12 @@ static long int eapolaplesscount;
 static long int eapolwrittenjcountdeprecated;
 static long int eapolwrittenhcpxcountdeprecated;
 static long int eapolwrittenhcpcountdeprecated;
+static long int eapolm12e2count;
+static long int eapolm14e4count;
+static long int eapolm32e2count;
+static long int eapolm32e3count;
+static long int eapolm34e3count;
+static long int eapolm34e4count;
 
 static uint64_t timestampstart;
 static uint32_t eapoltimeoutvalue;
@@ -267,6 +273,13 @@ eapolaplesscount = 0;
 eapolwrittenjcountdeprecated = 0;
 eapolwrittenhcpxcountdeprecated = 0;
 eapolwrittenhcpcountdeprecated = 0;
+eapolm12e2count = 0;
+eapolm14e4count = 0;
+eapolm32e2count = 0;
+eapolm32e3count = 0;
+eapolm34e3count = 0;
+eapolm34e4count = 0;
+
 return true;
 }
 /*===========================================================================*/
@@ -305,10 +318,16 @@ if(eapolm3count > 0)			printf("EAPOL M3 messages.....................: %ld\n", e
 if(eapolm4count > 0)			printf("EAPOL M4 messages.....................: %ld\n", eapolm4count);
 if(eapolmpcount > 0)			printf("EAPOL pairs...........................: %ld\n", eapolmpcount);
 if(eapolaplesscount > 0)		printf("EAPOL pairs (AP-LESS).................: %ld\n", eapolaplesscount);
-if(eapolwrittencount > 0)		printf("EAPOL pairs written  to combi hashline: %ld\n", eapolwrittencount);
+if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hashline.: %ld\n", eapolwrittencount);
 if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format.: %ld\n", eapolwrittenjcountdeprecated);
 if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx.........: %ld\n", eapolwrittenhcpxcountdeprecated);
 if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap..........: %ld\n", eapolwrittenhcpcountdeprecated);
+if(eapolm12e2count > 0)			printf("EAPOL M12E2...........................: %ld\n", eapolm12e2count);
+if(eapolm14e4count > 0)			printf("EAPOL M14E4...........................: %ld\n", eapolm14e4count);
+if(eapolm32e2count > 0)			printf("EAPOL M32E2...........................: %ld\n", eapolm32e2count);
+if(eapolm32e3count > 0)			printf("EAPOL M32E3...........................: %ld\n", eapolm32e3count);
+if(eapolm34e3count > 0)			printf("EAPOL M34E3...........................: %ld\n", eapolm34e3count);
+if(eapolm34e4count > 0)			printf("EAPOL M34E4...........................: %ld\n", eapolm34e4count);
 return;
 }
 /*===========================================================================*/
@@ -369,7 +388,13 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	{
 	if(memcmp(zeigermac->addr, zeigerhs->ap, 6) == 0)
 		{
-		if((zeigerhs->status & ST_APLESS) == ST_APLESS) eapolaplesscount++;
+		if((zeigerhs->status &ST_APLESS) == ST_APLESS) eapolaplesscount++;
+		if((zeigerhs->status &7) == ST_M12E2) eapolm12e2count++; 
+		if((zeigerhs->status &7) == ST_M14E4) eapolm14e4count++; 
+		if((zeigerhs->status &7) == ST_M32E2) eapolm32e2count++; 
+		if((zeigerhs->status &7) == ST_M32E3) eapolm32e3count++; 
+		if((zeigerhs->status &7) == ST_M34E3) eapolm34e3count++; 
+		if((zeigerhs->status &7) == ST_M34E4) eapolm34e4count++; 
 		if((ncvalue > 0) && (zeigerhs->status & ST_APLESS) != ST_APLESS) zeigerhs->status |= ST_NC;
 		wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 		keyvertemp = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -682,7 +707,7 @@ if(handshakelistptr >= handshakelist +handshakelistmax)
 	}
 memset(handshakelistptr, 0, HANDSHAKELIST_SIZE);
 handshakelistptr->timestampgap = eaptimegap;
-handshakelistptr->status = mpfield | msgap->status | msgclient->status;
+handshakelistptr->status = mpfield;
 handshakelistptr->rcgap = rcgap;
 handshakelistptr->messageap = msgap->message;
 handshakelistptr->messageclient = msgclient->message;
