@@ -537,8 +537,8 @@ struct exteap_frame
 #define EAP_CODE_FINISH		6
  uint8_t			id;
 #define EAP_TYPE_ID		1
- uint16_t			extlen;
- uint8_t			exttype;
+ uint16_t			len;
+ uint8_t			type;
 #define EAP_TYPE_EAP		0
 #define EAP_TYPE_ID		1
 #define EAP_TYPE_NOTIFY		2
