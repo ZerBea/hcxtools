@@ -113,6 +113,27 @@ else
 return;
 }
 /*===========================================================================*/
+void fwritestring(uint8_t len, unsigned char *essidstr, FILE *fhd)
+{
+int p;
+
+if(isasciistring(len, essidstr) != false)
+	{
+	fwrite(essidstr, len, 1, fhd);
+	fprintf(fhd, "\n");
+	}
+else
+	{
+	fprintf(fhd, "$HEX[");
+	for(p = 0; p < len; p++)
+		{
+		fprintf(fhd, "%02x", essidstr[p]);
+		}
+	fprintf(fhd, "]\n");
+	}
+return;
+}
+/*===========================================================================*/
 void fwritehexbuffraw(uint8_t bufflen, uint8_t *buff, FILE *fhd)
 {
 int p;

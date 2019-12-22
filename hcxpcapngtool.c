@@ -89,6 +89,7 @@ static char *jtrbasenamedeprecated;
 static FILE *fh_nmea;
 static FILE *fh_pmkideapol;
 static FILE *fh_essid;
+static FILE *fh_identity;
 static FILE *fh_pmkideapoljtrdeprecated;
 static FILE *fh_pmkiddeprecated;
 static FILE *fh_hccapxdeprecated;
@@ -131,6 +132,8 @@ static long int ipv6count;
 static long int wepenccount;
 static long int wpaenccount;
 static long int eapcount;
+static long int eapreqidcount;
+static long int eaprespidcount;
 static long int pmkidcount;
 static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
@@ -281,6 +284,8 @@ ipv6count = 0;
 wepenccount = 0;
 wpaenccount = 0;
 eapcount = 0;
+eapreqidcount = 0;
+eaprespidcount = 0;
 pmkidcount = 0;
 pmkiduselesscount = 0;
 pmkidwrittenhcount = 0;
@@ -337,6 +342,8 @@ if(ipv6count > 0)			printf("IPv6..................................: %ld\n", ipv6
 if(wepenccount > 0)			printf("WEP encrypted.........................: %ld\n", wepenccount);
 if(wpaenccount > 0)			printf("WPA encrypted.........................: %ld\n", wpaenccount);
 if(eapcount > 0)			printf("EAP...................................: %ld\n", eapcount);
+if(eapreqidcount > 0)			printf("EAP REQUEST ID........................: %ld\n", eapreqidcount);
+if(eaprespidcount > 0)			printf("EAP RESPONSE ID.......................: %ld\n", eaprespidcount);
 if(pmkidcount > 0)			printf("PMKID.................................: %ld\n", pmkidcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless).......................: %ld\n", pmkiduselesscount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hashline.......: %ld\n", pmkidwrittenhcount);
@@ -870,15 +877,50 @@ static void process80211exteap(uint32_t eapauthlen, uint8_t *eapptr)
 {
 static eapauth_t *eapauth;
 static uint32_t authlen;
+static exteap_t *exteap;
+static uint32_t exteaplen;
+static uint32_t idstrlen;
 
 eapcount++;
 if(eapauthlen < (int)EAPAUTH_SIZE) return; 
 eapauth = (eapauth_t*)eapptr;
 authlen = ntohs(eapauth->len);
 if(authlen > eapauthlen) return;
+exteap = (exteap_t*)(eapptr +EAPAUTH_SIZE);
+exteaplen = ntohs(exteap->len);
+if(exteaplen > authlen) return;
+idstrlen = exteaplen -EXTEAP_SIZE;
 
-
-
+if(exteap->code == EAP_CODE_REQ)
+	{
+	if(exteap->type == EAP_TYPE_ID)
+		{
+		if(fh_identity != NULL)
+			{
+			if(idstrlen > 1)
+				{
+				if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0) fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
+				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0) fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
+				}
+			}
+		eapreqidcount++;
+		}
+	}
+else if(exteap->code == EAP_CODE_RESP)
+	{
+	if(exteap->type == EAP_TYPE_ID)
+		{
+		if(fh_identity != NULL)
+			{
+			if(idstrlen > 1)
+				{
+				if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0) fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
+				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0) fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
+				}
+			}
+	eaprespidcount++;
+		}
+	}
 return;
 }
 /*===========================================================================*/
@@ -2643,6 +2685,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <file> : output PMKID/EAPOL hash file\n"
 	"            hashcat -m 22000/22001 and JtR wpapsk-opencl/wpapsk-pmk-opencl\n"
 	"-E <file> : output wordlist (autohex enabled) to use as input wordlist for cracker\n"
+	"-I <file> : output unsorted identity list to use as input wordlist for cracker\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
@@ -2706,6 +2749,7 @@ static int auswahl;
 static int index;
 static char *pmkideapoloutname;
 static char *essidoutname;
+static char *identityoutname;
 static char *nmeaoutname;
 static char *pmkideapoljtroutnamedeprecated;
 static char *pmkidoutnamedeprecated;
@@ -2715,7 +2759,7 @@ static char *hccapoutnamedeprecated;
 struct timeval tv;
 static struct stat statinfo;
 
-static const char *short_options = "o:E:hv";
+static const char *short_options = "o:E:I:hv";
 static const struct option long_options[] =
 {
 	{"eapoltimeout",		required_argument,	NULL,	HCX_EAPOL_TIMEOUT},
@@ -2745,6 +2789,7 @@ essidsvalue = ESSIDSMAX;
 
 pmkideapoloutname = NULL;
 essidoutname = NULL;
+identityoutname = NULL;
 nmeaoutname = NULL;
 pmkideapoljtroutnamedeprecated = NULL;
 pmkidoutnamedeprecated = NULL;
@@ -2787,6 +2832,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_ESSID_OUT:
 		essidoutname = optarg;
+		break;
+
+		case HCX_IDENTITY_OUT:
+		identityoutname = optarg;
 		break;
 
 		case HCX_NMEA_OUT:
@@ -2854,7 +2903,14 @@ if(essidoutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
-
+if(identityoutname != NULL)
+	{
+	if((fh_identity = fopen(identityoutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", identityoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
 if(nmeaoutname != NULL)
 	{
 	if((fh_nmea = fopen(nmeaoutname, "a+")) == NULL)
@@ -2904,6 +2960,7 @@ for(index = optind; index < argc; index++)
 
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 if(fh_essid != NULL) fclose(fh_essid);
+if(fh_identity != NULL) fclose(fh_identity);
 if(fh_nmea != NULL) fclose(fh_nmea);
 if(fh_pmkideapoljtrdeprecated != NULL) fclose(fh_pmkideapoljtrdeprecated);
 if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
@@ -2923,6 +2980,13 @@ if(essidoutname != NULL)
 	if(stat(essidoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(essidoutname);
+		}
+	}
+if(identityoutname != NULL)
+	{
+	if(stat(identityoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(identityoutname);
 		}
 	}
 if(nmeaoutname != NULL)

@@ -10,6 +10,7 @@
 #define HCX_PMKIDEAPOLJTR_OUT_DEPRECATED	11
 #define HCX_PMKIDEAPOL_OUT			'o'
 #define HCX_ESSID_OUT				'E'
+#define HCX_IDENTITY_OUT			'I'
 #define HCX_HELP				'h'
 #define HCX_VERSION				'v'
 
