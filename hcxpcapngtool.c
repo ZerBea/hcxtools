@@ -106,10 +106,11 @@ static uint16_t versionmajor;
 static uint16_t versionminor;
 static uint16_t dltlinktype;
 
+static long int nmeacount;
 static long int rawpacketcount;
 static long int pcapreaderrors;
-static long int nmeacount;
 static long int skippedpacketcount;
+static long int zeroedtimestampcount;
 static long int fcsframecount;
 static long int wdscount;
 static long int beaconcount;
@@ -260,11 +261,12 @@ memcpy(&pcapngapplinfo, nastring, 3);
 memcpy(&pcapngoptioninfo, nastring, 3);
 memcpy(&pcapngweakcandidate, nastring, 3);
 
+nmeacount = 0;
 endianess = 0;
 rawpacketcount = 0;
 pcapreaderrors = 0;
-nmeacount = 0;
 skippedpacketcount = 0;
+zeroedtimestampcount = 0;
 fcsframecount = 0;
 wdscount = 0;
 beaconcount = 0;
@@ -320,11 +322,12 @@ return true;
 /*===========================================================================*/
 static void printcontentinfo()
 {
+if(nmeacount > 0)			printf("NMEA sentence .........................: %ld\n", nmeacount);
 if(endianess == 0)			printf("endianess..............................: little endian\n");
 else					printf("endianess..............................: big endian\n");
 if(rawpacketcount > 0)			printf("packets inside.........................: %ld\n", rawpacketcount);
 if(pcapreaderrors > 0)			printf("read errors............................: %ld\n", pcapreaderrors);
-if(nmeacount > 0)			printf("NMEA sentence .........................: %ld\n", nmeacount);
+if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
 if(skippedpacketcount > 0)		printf("skipped packets........................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			printf("frames with correct FCS................: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM...........: %ld\n", wdscount);
@@ -375,6 +378,7 @@ if(pmkiduselesscount > 0)		printf("PMKID (useless)........................: %ld\
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld\n", pmkidwrittenhcount);
 if(eapolwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", eapolwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
+printf("\n");
 return;
 }
 /*===========================================================================*/
@@ -1899,6 +1903,7 @@ if(captimestamp == 0)
 	{
 	captimestamp = timestampstart;
 	timestampstart += (eapoltimeoutvalue -2);
+	zeroedtimestampcount++;
 	}
 if(linktype == DLT_IEEE802_11_RADIO)
 	{
