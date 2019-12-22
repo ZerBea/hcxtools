@@ -37,30 +37,32 @@ Read this post: New attack on WPA/WPA2 using PMKID (https://hashcat.net/forum/th
 Detailed description
 --------------
 
-| Tool           | Description                                                                                                       |
-| -------------- | ----------------------------------------------------------------------------------------------------------------- |
-| hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper        |
-| hcxpcapngtool  | Provide new hashcat format 22000 - highly experimental - format may change until final release (see changelog)    |
-| hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcaptool output (-o, -z- -U) or commandline input |
-| hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E, -I- -U)                               |
-| hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                   |
-| hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files                                                     |
-| hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                 |
-| hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                         |
-| whoismac       | Show vendor information and/or download oui reference list                                                        |
-| wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                        |
-| -------------- | ----------------------------------------------------------------------------------------------------------------- |
-| hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                         |
-| wlanhc2hcx     | Converts hccap to hccapx                                                                                          |
-| wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                              |
-| wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                                          |
-| wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                                   |
-| wlanhcxmnc     | Help to calculate hashcat's nonce-error-corrections value on byte number xx of an anonce                          |
-| wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 SHA256 AES-128-CMAC (hash-modes 2500, 2501)                       |
-| wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000 or john PBKDF2-HMAC-SHA1                   |
-| wlanjohn2hcx   | Converts john wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                                         |
-| wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                                      |
-| wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                             |
+| Tool           | Description                                                                                                          |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- |
+| hcxpcapngtool  | Provide new hashcat format 22000 - highly experimental - format may change until final release (see changelog)       |
+| hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcaptool output (-c -o, -z- -U) or commandline input |
+| hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E, -I- -U)                                  |
+| hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                            |
+| whoismac       | Show vendor information and/or download oui reference list                                                           |
+| wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                           |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- |
+| deprecated     | obsolete when hashcat and JtR moved to new hashline                                                                  |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- |
+| hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format   |
+| hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper           |
+| hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                    |
+| hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                      |
+| hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                            |
+| wlanhc2hcx     | Converts hccap to hccapx                                                                                             |
+| wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                                 |
+| wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                                             |
+| wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                                      |
+| wlanhcxmnc     | Help to calculate hashcat's nonce-error-corrections value on byte number xx of an anonce                             |
+| wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 SHA256 AES-128-CMAC (hash-modes 2500, 2501)                          |
+| wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000 or john PBKDF2-HMAC-SHA1                      |
+| wlanjohn2hcx   | Converts john wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                                            |
+| wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                                         |
+| wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                                |
 
 
 Compile
