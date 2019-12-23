@@ -470,18 +470,137 @@ return;
 /*===========================================================================*/
 static bool testzeroedpmkid(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
-char *pmkname = "PMK Name";
+static char *pmkname = "PMK Name";
 
-uint8_t salt[32];
-uint8_t testpmkid[32];
+static uint8_t salt[32];
+static uint8_t testpmkid[32];
 
 memcpy(&salt, pmkname, 8);
 memcpy(&salt[8], macap, 6);
 memcpy(&salt[14], macsta, 6);
-
 HMAC(EVP_sha1(), zeroed32, 32, salt, 20, testpmkid, NULL);
-
 if(memcmp(&testpmkid, pmkid, 16) == 0) return true;
+return false;
+}
+/*===========================================================================*/
+int omac1_aes_128_vector(const uint8_t *key, size_t num_elem, const uint8_t *addr[], const size_t *len, uint8_t *mac)
+{
+static CMAC_CTX *ctx;
+static int ret = -1;
+static size_t outlen, i;
+
+ctx = CMAC_CTX_new();
+if(ctx == NULL) return -1;
+if(!CMAC_Init(ctx, key, 16, EVP_aes_128_cbc(), NULL)) goto fail;
+for(i = 0; i < num_elem; i++)
+	{
+	if(!CMAC_Update(ctx, addr[i], len[i])) goto fail;
+	}
+if(!CMAC_Final(ctx, mac, &outlen) || outlen != 16) goto fail;
+ret = 0;
+fail:
+CMAC_CTX_free(ctx);
+return ret;
+}
+/*===========================================================================*/
+int omac1_aes_128(const uint8_t *key, const uint8_t *data, size_t data_len, uint8_t *mac)
+{
+return omac1_aes_128_vector(key, 1, &data, &data_len, mac);
+}
+/*===========================================================================*/
+static bool testeapolzeropmk(uint8_t keyver, uint8_t *macsta, uint8_t *macap, uint8_t *nonceap, uint8_t eapollen, uint8_t *eapolmessage)
+{
+static int p;
+static uint8_t *pkeptr;
+static wpakey_t *wpakzero, *wpak;
+
+static uint8_t pkedata[102];
+static uint8_t pkedata_prf[2 + 98 + 2];
+static uint8_t ptk[128];
+static uint8_t eapoldata[0xff];
+static uint8_t miczero[16];
+
+memcpy(&eapoldata, eapolmessage, eapollen);
+wpakzero = (wpakey_t*)(eapoldata +EAPAUTH_SIZE);
+memset(wpakzero->keymic, 0, 16);
+wpak = (wpakey_t*)(eapolmessage +EAPAUTH_SIZE);
+memset(&pkedata, 0, sizeof(pkedata));
+memset(&pkedata_prf, 0, sizeof(pkedata_prf));
+memset(&ptk, 0, sizeof(ptk));
+pkeptr = pkedata;
+if((keyver == 1) || (keyver == 2))
+	{
+	memcpy(pkeptr, "Pairwise key expansion", 23);
+	if(memcmp(macap, macsta, 6) < 0)
+		{
+		memcpy(pkeptr +23, macap, 6);
+		memcpy(pkeptr +29, macsta, 6);
+		}
+	else
+		{
+		memcpy(pkeptr +23, macsta, 6);
+		memcpy(pkeptr +29, macap, 6);
+		}
+
+	if(memcmp(nonceap, wpak->nonce, 32) < 0)
+		{
+		memcpy (pkeptr +35, nonceap, 32);
+		memcpy (pkeptr +67, wpak->nonce, 32);
+		}
+	else
+		{
+		memcpy (pkeptr +35, wpak->nonce, 32);
+		memcpy (pkeptr +67, nonceap, 32);
+		}
+
+	for (p = 0; p < 4; p++)
+		{
+		pkedata[99] = p;
+		HMAC(EVP_sha1(), zeroed32, 32, pkedata, 100, ptk + p *20, NULL);
+		}
+	if(keyver == 1)
+		{
+		HMAC(EVP_md5(), &ptk, 16, eapoldata, eapollen, miczero, NULL);
+		if(memcmp(&miczero, wpak->keymic, 16) == 0) return true;
+		}
+	else if(keyver == 2)
+		{
+		HMAC(EVP_sha1(), ptk, 16, eapoldata, eapollen, miczero, NULL);
+		if(memcmp(&miczero, wpak->keymic, 16) == 0) return true;
+		}
+	}
+else if(keyver == 3)
+	{
+	memcpy(pkeptr, "Pairwise key expansion", 22);
+	if(memcmp(macap, macsta, 6) < 0)
+		{
+		memcpy(pkeptr +22, macap, 6);
+		memcpy(pkeptr +28, macsta, 6);
+		}
+	else
+		{
+		memcpy(pkeptr +22, macsta, 6);
+		memcpy(pkeptr +28, macap, 6);
+		}
+	if(memcmp(nonceap, wpak->nonce, 32) < 0)
+		{
+		memcpy (pkeptr +34, nonceap, 32);
+		memcpy (pkeptr +66, wpak->nonce, 32);
+		}
+	else
+		{
+		memcpy (pkeptr +34, wpak->nonce, 32);
+		memcpy (pkeptr +66, nonceap, 32);
+		}
+	pkedata_prf[0] = 1;
+	pkedata_prf[1] = 0;
+	memcpy (pkedata_prf + 2, pkedata, 98);
+	pkedata_prf[100] = 0x80;
+	pkedata_prf[101] = 1;
+	HMAC(EVP_sha256(), zeroed32, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
+	omac1_aes_128(ptk, eapoldata, eapollen, miczero);
+	if(memcmp(&miczero, wpak->keymic, 16) == 0) return true;
+	}
 return false;
 }
 /*===========================================================================*/
@@ -722,7 +841,6 @@ if(handshakelistptr == handshakelist) return;
 qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_mac);
 for(zeiger = handshakelist; zeiger < handshakelistptr -1; zeiger++)
 	{
-	if(zeiger->timestampgap == 0) continue;
 	for(zeigernext = zeiger +1; zeigernext < handshakelistptr; zeigernext++)
 		{
 		if(memcmp(zeiger->ap, zeigernext->ap, 6) != 0) break;
@@ -809,36 +927,72 @@ for(c = 0; c < 20; c ++)
 return false;
 }
 /*===========================================================================*/
-static void addhandshake(uint64_t eaptimegap, uint64_t rcgap, messagelist_t *msgclient, messagelist_t *msgap, uint8_t mpfield)
+static void addhandshake(uint64_t eaptimegap, uint64_t rcgap, messagelist_t *msgclient, messagelist_t *msgap, uint8_t keyver, uint8_t mpfield)
 {
 static handshakelist_t *handshakelistnew;
 
 eapolmpcount++;
-if(handshakelistptr >= handshakelist +handshakelistmax)
+
+if(testeapolzeropmk(keyver, msgclient->client ,msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
 	{
-	handshakelistnew = realloc(handshakelist, (handshakelistmax +HANDSHAKELIST_MAX) *HANDSHAKELIST_SIZE);
-	if(handshakelistnew == NULL)
+	if(handshakelistptr >= handshakelist +handshakelistmax)
 		{
-		printf("failed to allocate memory for internal list\n");
-		exit(EXIT_FAILURE);
+		handshakelistnew = realloc(handshakelist, (handshakelistmax +HANDSHAKELIST_MAX) *HANDSHAKELIST_SIZE);
+		if(handshakelistnew == NULL)
+			{
+			printf("failed to allocate memory for internal list\n");
+			exit(EXIT_FAILURE);
+			}
+		handshakelist = handshakelistnew;
+		handshakelistptr = handshakelistnew +maclistmax;
+		handshakelistmax += HANDSHAKELIST_MAX;
 		}
-	handshakelist = handshakelistnew;
-	handshakelistptr = handshakelistnew +maclistmax;
-	handshakelistmax += HANDSHAKELIST_MAX;
+	memset(handshakelistptr, 0, HANDSHAKELIST_SIZE);
+	handshakelistptr->timestampgap = eaptimegap;
+	handshakelistptr->status = mpfield;
+	handshakelistptr->rcgap = rcgap;
+	handshakelistptr->messageap = msgap->message;
+	handshakelistptr->messageclient = msgclient->message;
+	memcpy(handshakelistptr->ap, msgap->ap, 6);
+	memcpy(handshakelistptr->client, msgclient->client, 6);
+	memcpy(handshakelistptr->anonce, msgap->nonce, 32);
+	memcpy(handshakelistptr->pmkid, msgap->pmkid, 32);
+	handshakelistptr->eapauthlen = msgclient->eapauthlen;
+	memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
+	if(cleanbackhandshake() == false) handshakelistptr++;
 	}
-memset(handshakelistptr, 0, HANDSHAKELIST_SIZE);
-handshakelistptr->timestampgap = eaptimegap;
-handshakelistptr->status = mpfield;
-handshakelistptr->rcgap = rcgap;
-handshakelistptr->messageap = msgap->message;
-handshakelistptr->messageclient = msgclient->message;
-memcpy(handshakelistptr->ap, msgap->ap, 6);
-memcpy(handshakelistptr->client, msgclient->client, 6);
-memcpy(handshakelistptr->anonce, msgap->nonce, 32);
-memcpy(handshakelistptr->pmkid, msgap->pmkid, 32);
-handshakelistptr->eapauthlen = msgclient->eapauthlen;
-memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
-if(cleanbackhandshake() == false) handshakelistptr++;
+else
+	{
+	zeroedpmkcount++;
+	if(donotcleanflag == true)
+		{
+		if(handshakelistptr >= handshakelist +handshakelistmax)
+			{
+			handshakelistnew = realloc(handshakelist, (handshakelistmax +HANDSHAKELIST_MAX) *HANDSHAKELIST_SIZE);
+			if(handshakelistnew == NULL)
+				{
+				printf("failed to allocate memory for internal list\n");
+				exit(EXIT_FAILURE);
+				}
+			handshakelist = handshakelistnew;
+			handshakelistptr = handshakelistnew +maclistmax;
+			handshakelistmax += HANDSHAKELIST_MAX;
+			}
+		memset(handshakelistptr, 0, HANDSHAKELIST_SIZE);
+		handshakelistptr->timestampgap = eaptimegap;
+		handshakelistptr->status = mpfield;
+		handshakelistptr->rcgap = rcgap;
+		handshakelistptr->messageap = msgap->message;
+		handshakelistptr->messageclient = msgclient->message;
+		memcpy(handshakelistptr->ap, msgap->ap, 6);
+		memcpy(handshakelistptr->client, msgclient->client, 6);
+		memcpy(handshakelistptr->anonce, msgap->nonce, 32);
+		memcpy(handshakelistptr->pmkid, msgap->pmkid, 32);
+		handshakelistptr->eapauthlen = msgclient->eapauthlen;
+		memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
+		if(cleanbackhandshake() == false) handshakelistptr++;
+		}
+	}
 return;
 }
 /*===========================================================================*/
@@ -991,7 +1145,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
 		mpfield = ST_M34E4;
-		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, mpfield);
+		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 		}
 	if((zeiger->message &HS_M1) != HS_M1) continue;
 	rc -= 1;
@@ -1003,7 +1157,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	mpfield = ST_M14E4;
-	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, mpfield);
+	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epcount);
 return;
@@ -1061,7 +1215,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	mpfield = ST_M32E2;
-	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, mpfield);
+	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
 	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	{
@@ -1135,7 +1289,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			mpfield |= ST_APLESS;
 			}
 		}
-	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, mpfield);
+	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epcount);
 return;
@@ -1179,19 +1333,19 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	if((pmkid->len == 0x14) && (pmkid->type == 0x04) && (memcmp(pmkid->pmkid, &zeroed32, 16) != 0))
 		{
 		zeiger->message |= HS_PMKID;
-		if(donotcleanflag == true)
+		if(testzeroedpmkid(macto, macfm, pmkid->pmkid) == false)
 			{
 			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
 			addpmkid(macto, macfm, pmkid->pmkid);
 			}
-		else 
+		else
 			{
-			if(testzeroedpmkid(macto, macfm, pmkid->pmkid) == false)
+			zeroedpmkcount++;
+			if(donotcleanflag == true)
 				{
 				memcpy(zeiger->pmkid, pmkid->pmkid, 16);
 				addpmkid(macto, macfm, pmkid->pmkid);
 				}
-			else zeroedpmkcount++;
 			}
 		}
 	else pmkiduselesscount++;
