@@ -138,6 +138,7 @@ static long int eapakacount;
 static long int eappeapcount;
 static long int eapreqidcount;
 static long int eaprespidcount;
+static long int zeroedpmkcount;
 static long int pmkidcount;
 static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
@@ -294,6 +295,7 @@ eapakacount = 0;
 eappeapcount = 0;
 eapreqidcount = 0;
 eaprespidcount = 0;
+zeroedpmkcount = 0;
 pmkidcount = 0;
 pmkiduselesscount = 0;
 pmkidwrittenhcount = 0;
@@ -356,6 +358,7 @@ if(eapakacount > 0)			printf("EAP-AKA................................: %ld\n", e
 if(eappeapcount > 0)			printf("EAP-PEAP...............................: %ld\n", eappeapcount);
 if(eapreqidcount > 0)			printf("EAP REQUEST ID.........................: %ld\n", eapreqidcount);
 if(eaprespidcount > 0)			printf("EAP RESPONSE ID........................: %ld\n", eaprespidcount);
+if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
 if(eapolm1count > 0)			printf("EAPOL M1 messages......................: %ld\n", eapolm1count);
 if(eapolm2count > 0)			printf("EAPOL M2 messages......................: %ld\n", eapolm2count);
@@ -464,10 +467,8 @@ if(b)
 else fprintf(fh_pmkideapoljtrdeprecated, "%c", (itoa64[((in[1] & 0x0f) << 2)]));
 return;
 }
-
 /*===========================================================================*/
-/*
-static bool testpmkid(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
+static bool testzeroedpmkid(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
 char *pmkname = "PMK Name";
 
@@ -478,12 +479,11 @@ memcpy(&salt, pmkname, 8);
 memcpy(&salt[8], macap, 6);
 memcpy(&salt[14], macsta, 6);
 
-HMAC(EVP_sha1(), pmk, 32, salt, 20, testpmkid, NULL);
+HMAC(EVP_sha1(), zeroed32, 32, salt, 20, testpmkid, NULL);
 
 if(memcmp(&testpmkid, pmkid, 16) == 0) return true;
 return false;
 }
-*/
 /*===========================================================================*/
 /*
 static bool dopbkdf2(uint8_t psklen, char *psk, uint8_t essidlen, uint8_t *essid)
@@ -1152,7 +1152,6 @@ static pmkid_t *pmkid;
 static uint8_t keyver;
 static uint64_t rc;
 
-
 eapolm1count++;
 eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
@@ -1180,13 +1179,22 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	if((pmkid->len == 0x14) && (pmkid->type == 0x04) && (memcmp(pmkid->pmkid, &zeroed32, 16) != 0))
 		{
 		zeiger->message |= HS_PMKID;
-		memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-		addpmkid(macto, macfm, pmkid->pmkid);
+		if(donotcleanflag == true)
+			{
+			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
+			addpmkid(macto, macfm, pmkid->pmkid);
+			}
+		else 
+			{
+			if(testzeroedpmkid(macto, macfm, pmkid->pmkid) == false)
+				{
+				memcpy(zeiger->pmkid, pmkid->pmkid, 16);
+				addpmkid(macto, macfm, pmkid->pmkid);
+				}
+			else zeroedpmkcount++;
+			}
 		}
-	else
-		{
-		pmkiduselesscount++;
-		}
+	else pmkiduselesscount++;
 	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	{
