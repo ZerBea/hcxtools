@@ -1020,23 +1020,50 @@ static void addpmkid(uint8_t *macclient, uint8_t *macap, uint8_t *pmkid)
 static pmkidlist_t *pmkidlistnew;
 
 pmkidcount++;
-if(pmkidlistptr >= pmkidlist +pmkidlistmax)
+if(testzeroedpmkid(macclient, macap, pmkid) == false)
 	{
-	pmkidlistnew = realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
-	if(pmkidlistnew == NULL)
+	if(pmkidlistptr >= pmkidlist +pmkidlistmax)
 		{
-		printf("failed to allocate memory for internal list\n");
-		exit(EXIT_FAILURE);
+		pmkidlistnew = realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
+		if(pmkidlistnew == NULL)
+			{
+			printf("failed to allocate memory for internal list\n");
+			exit(EXIT_FAILURE);
+			}
+		pmkidlist = pmkidlistnew;
+		pmkidlistptr = pmkidlistnew +maclistmax;
+		pmkidlistmax += PMKIDLIST_MAX;
 		}
-	pmkidlist = pmkidlistnew;
-	pmkidlistptr = pmkidlistnew +maclistmax;
-	pmkidlistmax += PMKIDLIST_MAX;
+	memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
+	memcpy(pmkidlistptr->ap, macap, 6);
+	memcpy(pmkidlistptr->client, macclient, 6);
+	memcpy(pmkidlistptr->pmkid, pmkid, 16);
+	if(cleanbackpmkid() == false) pmkidlistptr++;
 	}
-memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
-memcpy(pmkidlistptr->ap, macap, 6);
-memcpy(pmkidlistptr->client, macclient, 6);
-memcpy(pmkidlistptr->pmkid, pmkid, 16);
-if(cleanbackpmkid() == false) pmkidlistptr++;
+else
+	{
+	zeroedpmkcount++;
+	if(donotcleanflag == true)
+		{
+		if(pmkidlistptr >= pmkidlist +pmkidlistmax)
+			{
+			pmkidlistnew = realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
+			if(pmkidlistnew == NULL)
+				{
+				printf("failed to allocate memory for internal list\n");
+				exit(EXIT_FAILURE);
+				}
+			pmkidlist = pmkidlistnew;
+			pmkidlistptr = pmkidlistnew +maclistmax;
+			pmkidlistmax += PMKIDLIST_MAX;
+			}
+		memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
+		memcpy(pmkidlistptr->ap, macap, 6);
+		memcpy(pmkidlistptr->client, macclient, 6);
+		memcpy(pmkidlistptr->pmkid, pmkid, 16);
+		if(cleanbackpmkid() == false) pmkidlistptr++;
+		}
+	}
 return;
 }
 /*===========================================================================*/
@@ -1333,20 +1360,8 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	if((pmkid->len == 0x14) && (pmkid->type == 0x04) && (memcmp(pmkid->pmkid, &zeroed32, 16) != 0))
 		{
 		zeiger->message |= HS_PMKID;
-		if(testzeroedpmkid(macto, macfm, pmkid->pmkid) == false)
-			{
-			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-			addpmkid(macto, macfm, pmkid->pmkid);
-			}
-		else
-			{
-			zeroedpmkcount++;
-			if(donotcleanflag == true)
-				{
-				memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-				addpmkid(macto, macfm, pmkid->pmkid);
-				}
-			}
+		memcpy(zeiger->pmkid, pmkid->pmkid, 16);
+		addpmkid(macto, macfm, pmkid->pmkid);
 		}
 	else pmkiduselesscount++;
 	}
