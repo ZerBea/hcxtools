@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <time.h>
+#include <stddef.h>
 #include <limits.h>
 #include <pwd.h>
 #include <sys/types.h>
@@ -25,6 +26,7 @@
 #include "include/hcxmactool.h"
 #include "include/strings.c"
 #include "include/fileops.c"
+#include "include/ieee80211.c"
 
 /*===========================================================================*/
 /* global var */
@@ -218,6 +220,17 @@ return;
 static int writeeapollinee(FILE *fh_pmkideapol, inthccapx_t *hccapx, int written)
 {
 static int p;
+static wpakey_t *wpak;
+static uint8_t anoncetemp[32];
+
+wpak = (wpakey_t*)(hccapx->eapol +EAPAUTH_SIZE);
+if(memcmp(hccapx->nonceap, hccapx->noncesta, 32) == 0) return written;
+if(memcmp(hccapx->nonceap, wpak->nonce, 32) == 0)
+	{
+	memcpy(&anoncetemp, wpak->nonce, 32);
+	memcpy(wpak->nonce, hccapx->noncesta, 32);
+	memcpy(hccapx->noncesta, &anoncetemp, 32);
+	}
 
 //WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*ZUSATZINFO
 fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
