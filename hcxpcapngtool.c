@@ -162,10 +162,15 @@ static long int eapolm32e3count;
 static long int eapolm34e3count;
 static long int eapolm34e4count;
 
+
 static uint64_t timestampstart;
+static uint64_t timestampmin;
+static uint64_t timestampmax;
+
 static uint32_t eapoltimeoutvalue;
 static uint64_t ncvalue;
 static int essidsvalue;
+
 
 static int nmealen;
 
@@ -324,7 +329,7 @@ return true;
 /*===========================================================================*/
 static void printcontentinfo()
 {
-if(nmeacount > 0)			printf("NMEA sentence .........................: %ld\n", nmeacount);
+if(nmeacount > 0)			printf("NMEA sentence..........................: %ld\n", nmeacount);
 if(endianess == 0)			printf("endianess..............................: little endian\n");
 else					printf("endianess..............................: big endian\n");
 if(rawpacketcount > 0)			printf("packets inside.........................: %ld\n", rawpacketcount);
@@ -387,6 +392,19 @@ return;
 /*===========================================================================*/
 static void printlinklayerinfo()
 {
+static struct timeval tvmin;
+static struct timeval tvmax;
+static char timestringmin[32];
+static char timestringmax[32];
+
+tvmin.tv_sec = timestampmin /1000000;
+tvmin.tv_usec = timestampmin %1000000;
+strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmin.tv_sec));
+tvmax.tv_sec = timestampmax /1000000;
+tvmax.tv_usec = timestampmax %1000000;
+strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmax.tv_sec));
+printf("timestamp minimum .....................: %s\n", timestringmin);
+printf("timestamp maximum .....................: %s\n", timestringmax);
 if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type.................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
 if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type.................: DLT_IEEE802_11 (%d)\n", dltlinktype);
 if(dltlinktype == DLT_PPI)			printf("link layer header type.................: DLT_PPI (%d)\n", dltlinktype);
@@ -2076,6 +2094,9 @@ static avs_t *avs;
 static fcs_t *fcs;
 static uint32_t crc;
 
+if(timestampmin == 0) timestampmin = captimestamp;
+if(timestampmin > captimestamp) timestampmin = captimestamp;
+if(timestampmax < captimestamp) timestampmax = captimestamp;
 if(captimestamp == 0)
 	{
 	captimestamp = timestampstart;
