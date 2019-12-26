@@ -332,8 +332,8 @@ return true;
 static void printcontentinfo()
 {
 if(nmeacount > 0)			printf("NMEA sentence..........................: %ld\n", nmeacount);
-if(endianess == 0)			printf("endianess..............................: little endian\n");
-else					printf("endianess..............................: big endian\n");
+if(endianess == 0)			printf("endianess (capture system).............: little endian\n");
+else					printf("endianess (capture system).............: big endian\n");
 if(rawpacketcount > 0)			printf("packets inside.........................: %ld\n", rawpacketcount);
 if(pcapreaderrors > 0)			printf("read errors............................: %ld\n", pcapreaderrors);
 if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
@@ -406,8 +406,8 @@ strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmin.tv_sec));
 tvmax.tv_sec = timestampmax /1000000;
 tvmax.tv_usec = timestampmax %1000000;
 strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmax.tv_sec));
-printf("timestamp minimum .....................: %s\n", timestringmin);
-printf("timestamp maximum .....................: %s\n", timestringmax);
+printf("timestamp minimum......................: %s\n", timestringmin);
+printf("timestamp maximum......................: %s\n", timestringmax);
 if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type.................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
 if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type.................: DLT_IEEE802_11 (%d)\n", dltlinktype);
 if(dltlinktype == DLT_PPI)			printf("link layer header type.................: DLT_PPI (%d)\n", dltlinktype);
