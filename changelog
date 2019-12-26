@@ -1,5 +1,12 @@
 19.12.2019
 ==========
+hacxhashtool: added new tool initial 
+this tool will work on new PMKID EAPOL hash line and replace all older hcxtools
+when all functions implemented.
+
+
+19.12.2019
+==========
 hcxpcapngtool: move -j to --john because format is deprecated and JtR will move to new format, too
 https://github.com/hashcat/hashcat/issues/1816#issuecomment-567423392
 
