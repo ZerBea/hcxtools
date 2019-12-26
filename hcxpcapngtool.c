@@ -166,6 +166,7 @@ static long int eapolm34e4count;
 static uint64_t timestampstart;
 static uint64_t timestampmin;
 static uint64_t timestampmax;
+static uint64_t eaptimegapmax;
 
 static uint32_t eapoltimeoutvalue;
 static uint64_t ncvalue;
@@ -324,6 +325,7 @@ eapolm32e3count = 0;
 eapolm34e3count = 0;
 eapolm34e4count = 0;
 
+eaptimegapmax = 0;
 return true;
 }
 /*===========================================================================*/
@@ -365,6 +367,7 @@ if(eapreqidcount > 0)			printf("EAP REQUEST ID.........................: %ld\n",
 if(eaprespidcount > 0)			printf("EAP RESPONSE ID........................: %ld\n", eaprespidcount);
 if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
+if(eaptimegapmax > 0)			printf("EAPOLTIME (measured maximum usec)......: %" PRId64 "\n", eaptimegapmax);
 if(eapolm1count > 0)			printf("EAPOL M1 messages......................: %ld\n", eapolm1count);
 if(eapolm2count > 0)			printf("EAPOL M2 messages......................: %ld\n", eapolm2count);
 if(eapolm3count > 0)			printf("EAPOL M3 messages......................: %ld\n", eapolm3count);
@@ -951,7 +954,7 @@ static handshakelist_t *handshakelistnew;
 
 eapolmpcount++;
 
-if(testeapolzeropmk(keyver, msgclient->client ,msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
+if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
 	{
 	if(handshakelistptr >= handshakelist +handshakelistmax)
 		{
@@ -1190,6 +1193,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
 		mpfield = ST_M34E4;
+		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 		}
 	if((zeiger->message &HS_M1) != HS_M1) continue;
@@ -1202,6 +1206,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	mpfield = ST_M14E4;
+	if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epcount);
@@ -1260,6 +1265,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	mpfield = ST_M32E2;
+	if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
 	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
@@ -1334,6 +1340,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			mpfield |= ST_APLESS;
 			}
 		}
+	if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epcount);
