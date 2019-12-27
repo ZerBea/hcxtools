@@ -24,8 +24,7 @@ pcap_hdr.version_minor = PCAP_MINOR_VER;
 pcap_hdr.snaplen = PCAP_SNAPLEN;
 pcap_hdr.network = linklayer;
 written = write(fd, &pcap_hdr, PCAPHDR_SIZE);
-if(written != PCAPHDR_SIZE)
-	return false;
+if(written != PCAPHDR_SIZE) return false;
 return true;
 }
 /*===========================================================================*/
@@ -46,11 +45,7 @@ while(stat(newcapdumpname, &statinfo) == 0)
 
 umask(0);
 fd = open(newcapdumpname, O_WRONLY | O_CREAT, 0644);
-if(fd == -1)
-	{
-	return -1;
-	}
-
+if(fd == -1) return -1;
 if(pcapwritehdr(fd, DLT_IEEE802_11) == false)
 	{
 	close(fd);
