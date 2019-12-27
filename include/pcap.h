@@ -406,7 +406,7 @@ struct custom_block_s
  uint32_t	block_type;		/* block type */
 #define CBID	0x00000bad
  uint32_t	total_length;		/* block length */
- uint32_t	pen[4];			/* Private Enterprise Number */
+ uint8_t	pen[4];			/* Private Enterprise Number */
  uint8_t	hcxm[32];		/* hcxdumptool magic number */
  uint8_t	data[1];
 } __attribute__((__packed__));
