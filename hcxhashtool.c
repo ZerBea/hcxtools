@@ -36,7 +36,12 @@ static long int readerrorcount;
 static long int pmkideapolcount;
 static long int pmkidcount;
 static long int eapolcount;
+static long int pmkidwrittencount;
+static long int eapolwrittencount;
 static long int essidwrittencount;
+
+static int essidlenmin;
+static int essidlenmax;
 
 /*===========================================================================*/
 static void closelists()
@@ -54,6 +59,8 @@ readerrorcount = 0;
 pmkideapolcount = 0;
 pmkidcount = 0;
 eapolcount = 0;
+pmkidwrittencount = 0;
+eapolwrittencount = 0;
 essidwrittencount = 0;
 
 if((hashlist = (hashlist_t*)calloc((hashlistcount), HASHLIST_SIZE)) == NULL) return false;
@@ -68,6 +75,8 @@ if(readerrorcount > 0)		printf("read errors............: %ld\n", readerrorcount)
 if(pmkideapolcount > 0)		printf("valid hash lines.......: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)		printf("PMKID hash lines.......: %ld\n", pmkidcount);
 if(eapolcount > 0)		printf("EAPOL hash lines.......: %ld\n", eapolcount);
+if(pmkidwrittencount > 0)	printf("PMKID written..........: %ld\n", pmkidwrittencount);
+if(eapolwrittencount > 0)	printf("ESSID (unique) written.: %ld\n", eapolwrittencount);
 if(essidwrittencount > 0)	printf("ESSID (unique) written.: %ld\n", essidwrittencount);
 printf("\n");
 return;
@@ -106,13 +115,97 @@ if(stat(essidoutname, &statinfo) == 0)
 return;
 }
 /*===========================================================================*/
+static void writepmkideapolhashline(FILE *fh_pmkideapol, hashlist_t *zeiger)
+{
+static int p;
+
+if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
+
+
+
+
+if(zeiger->type == HCX_TYPE_PMKID)
+	{
+	fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+		zeiger->type,
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15],
+		zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5],
+		zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5]);
+	for(p = 0; p < zeiger->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeiger->essid[p]);
+	fprintf(fh_pmkideapol, "***\n");
+	pmkidwrittencount++;
+	return;
+	}
+if(zeiger->type == HCX_TYPE_EAPOL)
+	{
+	fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+		zeiger->type,
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15],
+		zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5],
+		zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5]);
+	for(p = 0; p < zeiger->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeiger->essid[p]);
+	fprintf(fh_pmkideapol, "*");
+	fprintf(fh_pmkideapol, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*",
+		zeiger->nonce[0], zeiger->nonce[1], zeiger->nonce[2], zeiger->nonce[3], zeiger->nonce[4], zeiger->nonce[5], zeiger->nonce[6], zeiger->nonce[7],
+		zeiger->nonce[8], zeiger->nonce[9], zeiger->nonce[10], zeiger->nonce[11], zeiger->nonce[12], zeiger->nonce[13], zeiger->nonce[14], zeiger->nonce[15],
+		zeiger->nonce[16], zeiger->nonce[17], zeiger->nonce[18], zeiger->nonce[19], zeiger->nonce[20], zeiger->nonce[21], zeiger->nonce[22], zeiger->nonce[23],
+		zeiger->nonce[24], zeiger->nonce[25], zeiger->nonce[26], zeiger->nonce[27], zeiger->nonce[28], zeiger->nonce[29], zeiger->nonce[30], zeiger->nonce[31]);
+	for(p = 0; p < zeiger->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", zeiger->eapol[p]);
+	fprintf(fh_pmkideapol, "*%02x\n", zeiger->mp);
+	eapolwrittencount++;
+	}
+return;
+}
+/*===========================================================================*/
+static void processhashes(FILE *fh_pmkideapol)
+{
+static hashlist_t *zeiger;
+
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+	writepmkideapolhashline(fh_pmkideapol, zeiger);
+	}
+
+return;
+}
+/*===========================================================================*/
+static void writeeapolpmkidfile(char *pmkideapoloutname)
+{
+static FILE *fh_pmkideapol;
+static struct stat statinfo;
+
+if(pmkideapoloutname != NULL)
+	{
+	if((fh_pmkideapol = fopen(pmkideapoloutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+		return;
+		}
+	}
+
+processhashes(fh_pmkideapol);
+
+if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+
+if(pmkideapoloutname != NULL)
+	{
+	if(stat(pmkideapoloutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(pmkideapoloutname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static uint16_t getfield(char *lineptr, uint8_t *buff)
 {
-size_t p;
-uint8_t idx0;
-uint8_t idx1;
+static size_t p;
+static uint8_t idx0;
+static uint8_t idx1;
 
-uint8_t hashmap[] =
+static const uint8_t hashmap[] =
 {
 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 89:;<=>?
@@ -134,14 +227,11 @@ while((lineptr[p] != '*') && (lineptr[p] != 0))
 	idx0 = ((uint8_t)lineptr[p +0] &0x1F) ^0x10;
 	idx1 = ((uint8_t)lineptr[p +1] &0x1F) ^0x10;
 	buff[p /2] = (uint8_t)(hashmap[idx0] <<4) | hashmap[idx1];
-	p +=2;
+	p += 2;
 	if((p /2) > PMKIDEAPOL_BUFFER_LEN) return 0;
 	}
 return p /2;
 }
-/*===========================================================================*/
-
-
 /*===========================================================================*/
 static size_t chop(char *buffer, size_t len)
 {
@@ -312,13 +402,20 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-i <file>   : input PMKID/EAPOL hash file\n"
+	"-o <file>   : output PMKID/EAPOL hash file\n"
 	"-E <file>   : output ESSID list (autohex enabled)\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
+	"--essid-len            : filter by ESSID length\n"
+	"                       : default ESSID length: %d...%d\n"
+	"--essid-min            : filter by ESSID minimum length\n"
+	"                       : default ESSID minimum length: %d\n"
+	"--essid-max            : filter by ESSID maximum length\n"
+	"                       : default ESSID maximum length: %d\n"
 	"--help                 : show this help\n"
 	"--version              : show version\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, ESSID_LEN_MIN, ESSID_LEN_MAX, ESSID_LEN_MIN, ESSID_LEN_MAX);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -334,13 +431,18 @@ int main(int argc, char *argv[])
 {
 static int auswahl;
 static int index;
+static int essidlen;
 static FILE *fh_pmkideapol;
 static char *pmkideapolinname;
+static char *pmkideapoloutname;
 static char *essidoutname;
 
-static const char *short_options = "i:E:hv";
+static const char *short_options = "i:o:E:hv";
 static const struct option long_options[] =
 {
+	{"essid-len",			required_argument,	NULL,	HCX_ESSID_LEN},
+	{"essid-min",			required_argument,	NULL,	HCX_ESSID_MIN},
+	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
 	{NULL,				0,			NULL,	0}
@@ -352,7 +454,12 @@ optind = 1;
 optopt = 0;
 fh_pmkideapol = NULL;
 pmkideapolinname = NULL;
+pmkideapoloutname = NULL;
 essidoutname = NULL;
+essidlen = ESSID_LEN_MAX;
+essidlenmin = ESSID_LEN_MIN;
+essidlenmax = ESSID_LEN_MAX;
+
 
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
@@ -362,8 +469,41 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		pmkideapolinname = optarg;
 		break;
 
+		case HCX_PMKIDEAPOL_OUT:
+		pmkideapoloutname = optarg;
+		break;
+
 		case HCX_ESSID_OUT:
 		essidoutname = optarg;
+		break;
+
+		case HCX_ESSID_LEN:
+		essidlen = strtol(optarg, NULL, 10);
+		if((essidlenmin < 0) || (essidlenmin > ESSID_LEN_MAX))
+			{
+			fprintf(stderr, "only values 0...32 allowed\n");
+			exit(EXIT_FAILURE);
+			}
+		essidlenmin = essidlen;
+		essidlenmax = essidlen;
+		break;
+
+		case HCX_ESSID_MIN:
+		essidlenmin = strtol(optarg, NULL, 10);
+		if((essidlenmin < 0) || (essidlenmin > ESSID_LEN_MAX))
+			{
+			fprintf(stderr, "only values 0...32 allowed\n");
+			exit(EXIT_FAILURE);
+			}
+		break;
+
+		case HCX_ESSID_MAX:
+		essidlenmax = strtol(optarg, NULL, 10);
+		if((essidlenmax < 0) || (essidlenmax > ESSID_LEN_MAX))
+			{
+			fprintf(stderr, "only values 0...32 allowed\n");
+			exit(EXIT_FAILURE);
+			}
 		break;
 
 		case HCX_HELP:
@@ -400,6 +540,7 @@ if(pmkideapolinname != NULL)
 
 if(fh_pmkideapol != NULL) readpmkideapolfile(fh_pmkideapol);
 if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
+if((pmkideapolcount > 0) && (pmkideapoloutname != NULL)) writeeapolpmkidfile(pmkideapoloutname);
 
 printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);

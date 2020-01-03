@@ -1,6 +1,7 @@
 #define HCX_TYPE_PMKID		1
 #define HCX_TYPE_EAPOL		2
 
+#define ESSID_LEN_MIN 		0
 #define ESSID_LEN_MAX 		32
 #define EAPOL_AUTHLEN_MAX	256
 
@@ -8,10 +9,14 @@
 #define PMKIDEAPOL_BUFFER_LEN	1024
 #define HASHLIST_MAX		10
 
+#define HCX_ESSID_LEN		1
+#define HCX_ESSID_MIN		2
+#define HCX_ESSID_MAX		3
+
 
 #define HCX_PMKIDEAPOL_IN	'i'
+#define HCX_PMKIDEAPOL_OUT	'o'
 #define HCX_ESSID_OUT		'E'
-
 #define HCX_HELP		'h'
 #define HCX_VERSION		'v'
 /*===========================================================================*/
