@@ -9,9 +9,10 @@
 #define PMKIDEAPOL_BUFFER_LEN	1024
 #define HASHLIST_MAX		10
 
-#define HCX_ESSID_LEN		1
-#define HCX_ESSID_MIN		2
-#define HCX_ESSID_MAX		3
+#define HCX_HASH_TYPE		1
+#define HCX_ESSID_LEN		2
+#define HCX_ESSID_MIN		3
+#define HCX_ESSID_MAX		4
 
 
 #define HCX_PMKIDEAPOL_IN	'i'
