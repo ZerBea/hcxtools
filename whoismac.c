@@ -453,6 +453,9 @@ static char *confdirname = ".hcxtools";
 static char *ouinameuser = ".hcxtools/oui.txt";
 static char *ouinamesystemwide = "/usr/share/ieee-data/oui.txt";
 
+static char pmkidtype[] = {"WPA*01*" };
+static char pmkidtypeend[] = {"***" };
+
 while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 	{
 	switch (auswahl)
@@ -487,6 +490,12 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 			{
 			fprintf(stderr, "error hashline too short %s\n", optarg);
 			exit(EXIT_FAILURE);
+			}
+		if(memcmp(&pmkidtype, hash16800line, 7) == 0)
+			{
+			hash16800line += 7;
+			l -=7;
+			if(memcmp(&pmkidtypeend, &hash16800line[l -3], 3) == 0) hash16800line[l -3] = 0;
 			}
 		if(((hash16800line[32] != ':') && (hash16800line[45] != ':') && (hash16800line[58] != ':')) && ((hash16800line[32] != '*') && (hash16800line[45] != '*') && (hash16800line[58] != '*')))
 			{
