@@ -10,9 +10,10 @@
 #define HASHLIST_MAX		10
 
 #define HCX_HASH_TYPE		1
-#define HCX_ESSID_LEN		2
-#define HCX_ESSID_MIN		3
-#define HCX_ESSID_MAX		4
+#define HCX_ESSID_GROUP		2
+#define HCX_ESSID_LEN		3
+#define HCX_ESSID_MIN		4
+#define HCX_ESSID_MAX		5
 
 
 #define HCX_PMKIDEAPOL_IN	'i'

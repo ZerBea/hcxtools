@@ -41,8 +41,11 @@ static long int eapolwrittencount;
 static long int essidwrittencount;
 
 static int hashtype;
+static int essidlen;
 static int essidlenmin;
 static int essidlenmax;
+
+static bool essidgroupflag;
 
 /*===========================================================================*/
 static void closelists()
@@ -193,6 +196,50 @@ if(pmkideapoloutname != NULL)
 	if(stat(pmkideapoloutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(pmkideapoloutname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void writeeapolpmkidgroups()
+{
+static int cei;
+static int ceo;
+static hashlist_t *zeiger;
+static FILE *fh_pmkideapol;
+static struct stat statinfo;
+
+static const char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+
+static char groupoutname[PATH_MAX];
+
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+	if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) continue;
+	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) continue;
+	ceo = 0;
+	for (cei = 0; cei < zeiger->essidlen; cei++)
+		{
+		groupoutname[ceo] = digit[(zeiger->essid[cei] & 0xff) >> 4];
+		ceo++;
+		groupoutname[ceo] = digit[zeiger->essid[cei] & 0x0f];
+		ceo++;
+		}
+	groupoutname[ceo] = 0;
+	strcat(&groupoutname[ceo], ".22000");
+	if((fh_pmkideapol = fopen(groupoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", groupoutname, strerror(errno));
+		return;
+		}
+	writepmkideapolhashline(fh_pmkideapol, zeiger);
+	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+	if(groupoutname != NULL)
+		{
+		if(stat(groupoutname, &statinfo) == 0)
+			{
+			if(statinfo.st_size == 0) remove(groupoutname);
+			}
 		}
 	}
 return;
@@ -409,6 +456,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"--type                 : filter by hash type\n"
 	"                       : default PMKID (1) and EAPOL (2)\n"
+	"--essid-group          : convert to ESSID groups\n"
+	"                         full advantage of reuse of PBKDF2\n"
 	"--essid-len            : filter by ESSID length\n"
 	"                       : default ESSID length: %d...%d\n"
 	"--essid-min            : filter by ESSID minimum length\n"
@@ -434,7 +483,7 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static int hashtypein;
-static int essidlen;
+static int essidlenin;
 static FILE *fh_pmkideapol;
 static char *pmkideapolinname;
 static char *pmkideapoloutname;
@@ -444,6 +493,7 @@ static const char *short_options = "i:o:E:hv";
 static const struct option long_options[] =
 {
 	{"type",			required_argument,	NULL,	HCX_HASH_TYPE},
+	{"essid-group",			no_argument,		NULL,	HCX_ESSID_GROUP},
 	{"essid-len",			required_argument,	NULL,	HCX_ESSID_LEN},
 	{"essid-min",			required_argument,	NULL,	HCX_ESSID_MIN},
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
@@ -460,12 +510,13 @@ fh_pmkideapol = NULL;
 pmkideapolinname = NULL;
 pmkideapoloutname = NULL;
 essidoutname = NULL;
+essidgroupflag = false;
 hashtypein = 0;
 hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL;
+essidlenin = ESSID_LEN_MAX;
 essidlen = ESSID_LEN_MAX;
 essidlenmin = ESSID_LEN_MIN;
 essidlenmax = ESSID_LEN_MAX;
-
 
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
@@ -483,6 +534,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		essidoutname = optarg;
 		break;
 
+		case HCX_ESSID_GROUP:
+		essidgroupflag = true;
+		break;
+
 		case HCX_HASH_TYPE:
 		hashtypein |= strtol(optarg, NULL, 10);
 		if((hashtypein < HCX_TYPE_PMKID) || (hashtype < HCX_TYPE_EAPOL))
@@ -493,32 +548,34 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_ESSID_LEN:
-		essidlen = strtol(optarg, NULL, 10);
-		if((essidlenmin < 0) || (essidlenmin > ESSID_LEN_MAX))
+		essidlenin = strtol(optarg, NULL, 10);
+		if((essidlenin < 0) || (essidlenin > ESSID_LEN_MAX))
 			{
 			fprintf(stderr, "only values 0...32 allowed\n");
 			exit(EXIT_FAILURE);
 			}
-		essidlenmin = essidlen;
-		essidlenmax = essidlen;
+		essidlenmin = essidlenin;
+		essidlenmax = essidlenin;
 		break;
 
 		case HCX_ESSID_MIN:
-		essidlenmin = strtol(optarg, NULL, 10);
-		if((essidlenmin < 0) || (essidlenmin > ESSID_LEN_MAX))
+		essidlenin = strtol(optarg, NULL, 10);
+		if((essidlenin < 0) || (essidlenin > ESSID_LEN_MAX))
 			{
 			fprintf(stderr, "only values 0...32 allowed\n");
 			exit(EXIT_FAILURE);
 			}
+		essidlenmin = essidlenin;
 		break;
 
 		case HCX_ESSID_MAX:
-		essidlenmax = strtol(optarg, NULL, 10);
-		if((essidlenmax < 0) || (essidlenmax > ESSID_LEN_MAX))
+		essidlenin = strtol(optarg, NULL, 10);
+		if((essidlenin < 0) || (essidlenin > ESSID_LEN_MAX))
 			{
 			fprintf(stderr, "only values 0...32 allowed\n");
 			exit(EXIT_FAILURE);
 			}
+		essidlenmax = essidlenin;
 		break;
 
 		case HCX_HELP:
@@ -533,6 +590,12 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		usageerror(basename(argv[0]));
 		break;
 		}
+	}
+
+if(essidlenmin > essidlenmax)
+	{
+	fprintf(stderr, "minimum ESSID length is > maximum ESSID length\n");
+	exit(EXIT_FAILURE);
 	}
 
 if(argc < 2)
@@ -558,6 +621,8 @@ if(hashtypein > 0) hashtype = hashtypein;
 
 if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
 if((pmkideapolcount > 0) && (pmkideapoloutname != NULL)) writeeapolpmkidfile(pmkideapoloutname);
+if((pmkideapolcount > 0) && (essidgroupflag == true)) writeeapolpmkidgroups();
+
 
 printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
