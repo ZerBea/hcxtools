@@ -195,9 +195,9 @@ static char groupoutname[PATH_MAX];
 
 for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
+	groupoutname[0] = 0;
 	if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) continue;
 	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) continue;
-
 	ceo = 0;
 	for (cei = 0; cei < zeiger->essidlen; cei++)
 		{
@@ -215,7 +215,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 		}
 	writepmkideapolhashline(fh_pmkideapol, zeiger);
 	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
-	if(groupoutname != NULL)
+	if(groupoutname[0] != 0)
 		{
 		if(stat(groupoutname, &statinfo) == 0)
 			{
