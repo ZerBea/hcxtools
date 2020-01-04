@@ -439,6 +439,7 @@ static int mode = 0;
 static int ret;
 static int l;
 static unsigned long long int oui = 0;
+static char *hashlineend;
 
 static uid_t uid;
 static struct passwd *pwd;
@@ -454,6 +455,7 @@ static char *ouinameuser = ".hcxtools/oui.txt";
 static char *ouinamesystemwide = "/usr/share/ieee-data/oui.txt";
 
 static char pmkidtype[] = {"WPA*01*" };
+static char eapoltype[] = {"WPA*02*" };
 static char pmkidtypeend[] = {"***" };
 
 while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
@@ -496,6 +498,12 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 			hash16800line += 7;
 			l -=7;
 			if(memcmp(&pmkidtypeend, &hash16800line[l -3], 3) == 0) hash16800line[l -3] = 0;
+			}
+		if(memcmp(&eapoltype, hash16800line, 7) == 0)
+			{
+			hash16800line += 7;
+			hashlineend = strchr(&hash16800line[59], '*');
+			if(hashlineend != NULL) hashlineend[0] = 0;
 			}
 		if(((hash16800line[32] != ':') && (hash16800line[45] != ':') && (hash16800line[58] != ':')) && ((hash16800line[32] != '*') && (hash16800line[45] != '*') && (hash16800line[58] != '*')))
 			{
