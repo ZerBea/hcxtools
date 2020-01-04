@@ -225,6 +225,7 @@ static char gpwplold[OPTIONLEN_MAX];
 //static unsigned char pmk[64];
 
 /*===========================================================================*/
+/*
 static inline void debugprint(int len, uint8_t *ptr)
 {
 static int p;
@@ -238,6 +239,7 @@ for(p = 0; p < len; p++)
 fprintf(stdout, "\n");
 return;
 }
+*/
 /*===========================================================================*/
 static void closelists()
 {
@@ -245,13 +247,12 @@ if(aplist != NULL) free(aplist);
 if(messagelist != NULL) free(messagelist);
 if(handshakelist != NULL) free(handshakelist);
 if(pmkidlist != NULL) free(pmkidlist);
-
 return;
 }
 /*===========================================================================*/
 static bool initlists()
 {
-static char nastring[] = { "N/A" };
+static const char nastring[] = { "N/A" };
 
 maclistmax = MACLIST_MAX;
 if((aplist = (maclist_t*)calloc((maclistmax +1), MACLIST_SIZE)) == NULL) return false;
@@ -679,7 +680,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		memset(wpak->keymic, 0, 16);
 		if(fh_pmkideapol != 0)
 			{
-			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*ZUSATZINFO
+			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 			fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
 				HCX_TYPE_EAPOL,
 				keymictemp[0], keymictemp[1], keymictemp[2], keymictemp[3], keymictemp[4], keymictemp[5], keymictemp[6], keymictemp[7],
@@ -790,7 +791,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 		{
 		if(fh_pmkideapol != 0)
 			{
-			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*ZUSATZINFO
+			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 			fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
 				HCX_TYPE_PMKID,
 				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
@@ -969,7 +970,6 @@ static void addhandshake(uint64_t eaptimegap, uint64_t rcgap, messagelist_t *msg
 static handshakelist_t *handshakelistnew;
 
 eapolmpcount++;
-
 if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
 	{
 	if(handshakelistptr >= handshakelist +handshakelistmax)
@@ -1153,7 +1153,7 @@ else if(exteap->code == EAP_CODE_RESP)
 				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0) fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
 				}
 			}
-	eaprespidcount++;
+		eaprespidcount++;
 		}
 	}
 return;
@@ -1476,8 +1476,8 @@ static bool cleanbackmac()
 {
 static int c;
 static maclist_t *zeiger;
-zeiger = aplistptr;
 
+zeiger = aplistptr;
 for(c = 0; c < 20; c ++)
 	{
 	zeiger--;
@@ -1698,8 +1698,8 @@ static void process80211reassociation_req(uint64_t reassociationrequesttimestamp
 static int clientinfolen;
 static uint8_t *clientinfoptr;
 static maclist_t *aplistnew;
-
 static tags_t tags;
+
 reassociationrequestcount++;
 clientinfoptr = reassociationrequestptr +CAPABILITIESREQSTA_SIZE;
 clientinfolen = reassociationrequestlen -CAPABILITIESREQSTA_SIZE;
@@ -2378,7 +2378,6 @@ while(1)
 			}
 		continue;
 		}
-
 	if(pcaprhdr.incl_len > 0)
 		{
 		timestampcap = ((uint64_t)pcaprhdr.ts_sec *1000000) + pcaprhdr.ts_usec;
@@ -2846,7 +2845,6 @@ static int resseek;
 static uint32_t magicnumber;
 static char *pcapnameptr;
 static char *pcaptempnameptr;
-
 static char tmpoutname[PATH_MAX +1];
 
 pcaptempnameptr = NULL;
