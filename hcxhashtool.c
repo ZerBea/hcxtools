@@ -54,6 +54,7 @@ static bool essidgroupflag;
 static void closelists()
 {
 if(hashlist != NULL) free(hashlist);
+if(ouilist != NULL) free(ouilist);
 
 return;
 }
@@ -584,7 +585,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		hashtypein |= strtol(optarg, NULL, 10);
 		if((hashtypein < HCX_TYPE_PMKID) || (hashtype < HCX_TYPE_EAPOL))
 			{
-			fprintf(stderr, "only hasht types 1 and 2 allowed\n");
+			fprintf(stderr, "only hash types 1 and 2 allowed\n");
 			exit(EXIT_FAILURE);
 			}
 		break;
