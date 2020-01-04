@@ -29,6 +29,9 @@
 /*===========================================================================*/
 /* global var */
 
+static const char *usedoui;
+static int ouilistcount;
+static ouilist_t *ouilist;
 static hashlist_t *hashlist;
 static long int hashlistcount;
 static long int readcount;
@@ -57,6 +60,7 @@ return;
 /*===========================================================================*/
 static bool initlists()
 {
+ouilistcount = OUILIST_MAX;
 hashlistcount = HASHLIST_MAX;
 readcount = 0;
 readerrorcount = 0;
@@ -67,14 +71,17 @@ pmkidwrittencount = 0;
 eapolwrittencount = 0;
 essidwrittencount = 0;
 
-if((hashlist = (hashlist_t*)calloc((hashlistcount), HASHLIST_SIZE)) == NULL) return false;
+if((hashlist = (hashlist_t*)calloc(hashlistcount, HASHLIST_SIZE)) == NULL) return false;
+if((ouilist = (ouilist_t*)calloc(ouilistcount, OUILIST_SIZE)) == NULL) return false;
 
 return true;
 }
 /*===========================================================================*/
 static void printstatus()
 {
-printf("\ntotal lines............: %ld\n", readcount);
+
+printf("\nOUI information file...: %s\n", usedoui);
+printf("total lines read.......: %ld\n", readcount);
 if(readerrorcount > 0)		printf("read errors............: %ld\n", readerrorcount);
 if(pmkideapolcount > 0)		printf("valid hash lines.......: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)		printf("PMKID hash lines.......: %ld\n", pmkidcount);
@@ -173,34 +180,6 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidfile(char *pmkideapoloutname)
-{
-static FILE *fh_pmkideapol;
-static struct stat statinfo;
-
-if(pmkideapoloutname != NULL)
-	{
-	if((fh_pmkideapol = fopen(pmkideapoloutname, "a+")) == NULL)
-		{
-		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
-		return;
-		}
-	}
-
-processhashes(fh_pmkideapol);
-
-if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
-
-if(pmkideapoloutname != NULL)
-	{
-	if(stat(pmkideapoloutname, &statinfo) == 0)
-		{
-		if(statinfo.st_size == 0) remove(pmkideapoloutname);
-		}
-	}
-return;
-}
-/*===========================================================================*/
 static void writeeapolpmkidgroups()
 {
 static int cei;
@@ -217,6 +196,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
 	if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) continue;
 	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) continue;
+
 	ceo = 0;
 	for (cei = 0; cei < zeiger->essidlen; cei++)
 		{
@@ -240,6 +220,34 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 			{
 			if(statinfo.st_size == 0) remove(groupoutname);
 			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void writeeapolpmkidfile(char *pmkideapoloutname)
+{
+static FILE *fh_pmkideapol;
+static struct stat statinfo;
+
+if(pmkideapoloutname != NULL)
+	{
+	if((fh_pmkideapol = fopen(pmkideapoloutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+		return;
+		}
+	}
+
+processhashes(fh_pmkideapol);
+
+if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+
+if(pmkideapoloutname != NULL)
+	{
+	if(stat(pmkideapoloutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(pmkideapoloutname);
 		}
 	}
 return;
@@ -433,6 +441,40 @@ while(1)
 return true;
 }
 /*===========================================================================*/
+static void readoui()
+{
+static uid_t uid;
+static struct passwd *pwd;
+static struct stat statinfo;
+
+static const char *ouinameuser = "/.hcxtools/oui.txt";
+static const char *ouinamesystemwide = "/usr/share/ieee-data/oui.txt";
+static const char *ouina = "N/A";
+
+static char ouinameuserpath[PATH_MAX];
+
+usedoui = ouina;
+uid = getuid();
+pwd = getpwuid(uid);
+if(pwd == NULL) return;
+strncpy(ouinameuserpath, pwd->pw_dir, PATH_MAX -1);
+strncat(ouinameuserpath, ouinameuser, PATH_MAX -1);
+
+if(stat(ouinameuserpath, &statinfo) == 0)
+	{
+	usedoui = ouinameuserpath;
+	}
+else if(stat(ouinameuser, &statinfo) == 0)
+	{
+	usedoui = ouinamesystemwide;
+	}
+else return;
+
+
+
+return;
+}
+/*===========================================================================*/
 __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
@@ -606,6 +648,7 @@ if(argc < 2)
 
 if(initlists() == false) exit(EXIT_FAILURE);
 
+readoui();
 if(pmkideapolinname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapolinname, "a+")) == NULL)
@@ -622,7 +665,6 @@ if(hashtypein > 0) hashtype = hashtypein;
 if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
 if((pmkideapolcount > 0) && (pmkideapoloutname != NULL)) writeeapolpmkidfile(pmkideapoloutname);
 if((pmkideapolcount > 0) && (essidgroupflag == true)) writeeapolpmkidgroups();
-
 
 printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);

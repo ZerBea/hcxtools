@@ -1,3 +1,5 @@
+#define OUILIST_MAX		50000
+
 #define HCX_TYPE_PMKID		1
 #define HCX_TYPE_EAPOL		2
 
@@ -7,7 +9,7 @@
 
 #define PMKIDEAPOL_LINE_LEN	1024
 #define PMKIDEAPOL_BUFFER_LEN	1024
-#define HASHLIST_MAX		10
+#define HASHLIST_MAX		50000
 
 #define HCX_HASH_TYPE		1
 #define HCX_ESSID_GROUP		2
@@ -49,6 +51,14 @@ if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) > 0) return 1;
 else if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) < 0) return -1;
 return 0;
 }
+/*===========================================================================*/
+struct ouilist_s
+{
+ uint8_t		oui[3];
+ char			vendor[128];
+};
+typedef struct ouilist_s ouilist_t;
+#define	OUILIST_SIZE (sizeof(ouilist_t))
 
 /*===========================================================================*/
 
