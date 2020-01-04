@@ -21,7 +21,7 @@
 #define MACLIST_MAX		100000
 #define HANDSHAKELIST_MAX	100000
 #define PMKIDLIST_MAX		100000
-#define MESSAGELIST_MAX		128
+#define MESSAGELIST_MAX		24
 
 #define ESSIDSMAX		1
 
@@ -93,21 +93,6 @@ struct maclist_s
 };
 typedef struct maclist_s maclist_t;
 #define	MACLIST_SIZE (sizeof(maclist_t))
-
-static int sort_maclist_by_mac(const void *a, const void *b)
-{
-const maclist_t *ia = (const maclist_t *)a;
-const maclist_t *ib = (const maclist_t *)b;
-if(ia->type > ib->type) return 1;
-else if(ia->type < ib->type) return -1;
-if(memcmp(ia->addr, ib->addr, 6) > 0) return 1;
-else if(memcmp(ia->addr, ib->addr, 6) < 0) return -1;
-if(ia->essidlen < ib->essidlen) return 1;
-else if(ia->essidlen > ib->essidlen) return -1;
-if(memcmp(ia->essid, ib->essid, ib->essidlen) < 0) return 1;
-else if(memcmp(ia->essid, ib->essid, ib->essidlen) > 0) return -1;
-return 0;
-}
 
 static int sort_maclist_by_mac_count(const void *a, const void *b)
 {
@@ -195,27 +180,6 @@ struct handshakelist_s
 typedef struct handshakelist_s handshakelist_t;
 #define	HANDSHAKELIST_SIZE (sizeof(handshakelist_t))
 
-static int sort_handshakelist_by_mac(const void *a, const void *b)
-{
-const handshakelist_t *ia = (const handshakelist_t *)a;
-const handshakelist_t *ib = (const handshakelist_t *)b;
-
-if(memcmp(ia->ap, ib->ap, 6) > 0) return 1;
-else if(memcmp(ia->ap, ib->ap, 6) < 0) return -1;
-if(memcmp(ia->client, ib->client, 6) > 0) return 1;
-else if(memcmp(ia->client, ib->client, 6) < 0) return -1;
-if(memcmp(ia->anonce, ib->anonce, 32) > 0) return 1;
-else if(memcmp(ia->anonce, ib->anonce, 6) < 0) return -1;
-if(ia->eapauthlen > ib->eapauthlen) return 1;
-else if(ia->eapauthlen < ib->eapauthlen) return -1;
-if(memcmp(ia->eapol, ib->eapol, ib->eapauthlen) > 0) return 1;
-else if(memcmp(ia->eapol, ib->eapol, ib->eapauthlen) < 0) return -1;
-if(ia->timestampgap > ib->timestampgap) return 1;
-else if(ia->timestampgap < ib->timestampgap) return -1;
-if(ia->rcgap > ib->rcgap) return 1;
-else if(ia->rcgap < ib->rcgap) return -1;
-return 0;
-}
 static int sort_handshakelist_by_timegap(const void *a, const void *b)
 {
 const handshakelist_t *ia = (const handshakelist_t *)a;

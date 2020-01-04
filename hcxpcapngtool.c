@@ -653,7 +653,7 @@ return true;
 static handshakelist_t *gethandshake(maclist_t *zeigermac, handshakelist_t *zeigerhsakt)
 {
 static int p;
-static handshakelist_t *zeigerhs;
+static handshakelist_t *zeigerhs, *zeigerhsold;
 static wpakey_t *wpak;
 static int i;
 static unsigned char *hcpos;
@@ -662,8 +662,16 @@ static uint8_t keymictemp[16];
 static hccapx_t hccapx;
 static hccap_t hccap;
 
+zeigerhsold = NULL;
 for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	{
+	if(donotcleanflag == false)
+		{
+		if(zeigerhsold != NULL)
+			{
+			if((memcmp(zeigerhs->ap, zeigerhsold->ap, 6) == 0) && (memcmp(zeigerhs->client, zeigerhsold->client, 6) == 0)) continue;
+			}
+		}
 	if(memcmp(zeigermac->addr, zeigerhs->ap, 6) == 0)
 		{
 		if((zeigerhs->status &ST_APLESS) == ST_APLESS) eapolaplesscount++;
@@ -776,6 +784,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		zeigerhsakt = zeigerhs;
 		return zeigerhsakt;
 		}
+	zeigerhsold = zeigerhs;
 	}
 return zeigerhsakt;
 }
@@ -783,10 +792,18 @@ return zeigerhsakt;
 static pmkidlist_t *getpmkid(maclist_t *zeigermac, pmkidlist_t *zeigerpmkidakt)
 {
 static int p;
-static pmkidlist_t *zeigerpmkid;
+static pmkidlist_t *zeigerpmkid, *zeigerpmkidold;
 
+zeigerpmkidold = NULL;
 for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 	{
+	if(donotcleanflag == false)
+		{
+		if(zeigerpmkidold != NULL)
+			{
+			if((memcmp(zeigerpmkid->ap, zeigerpmkidold->ap, 6) == 0) && (memcmp(zeigerpmkid->client, zeigerpmkidold->client, 6) == 0)) continue;
+			}
+		}
 	if(memcmp(zeigermac->addr, zeigerpmkid->ap, 6) == 0)
 		{
 		if(fh_pmkideapol != 0)
@@ -830,6 +847,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 		zeigerpmkidakt = zeigerpmkid;
 		return zeigerpmkidakt;
 		}
+	zeigerpmkidold = zeigerpmkid;
 	}
 return zeigerpmkidakt;
 }
@@ -866,77 +884,6 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		gethandshake(zeigermac, zeigerhsakt);
 		}
 	}
-return;
-}
-/*===========================================================================*/
-static void cleanuphandshake()
-{
-static handshakelist_t *zeiger;
-static handshakelist_t *zeigernext;
-
-if(donotcleanflag == true) return;
-if(handshakelistptr == handshakelist) return;
-qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_mac);
-for(zeiger = handshakelist; zeiger < handshakelistptr -1; zeiger++)
-	{
-	for(zeigernext = zeiger +1; zeigernext < handshakelistptr; zeigernext++)
-		{
-		if(memcmp(zeiger->ap, zeigernext->ap, 6) != 0) break;
-		if(memcmp(zeiger->client, zeigernext->client, 6) != 0) break;
-		if(zeiger->timestampgap > zeigernext->timestampgap) zeiger->timestampgap =zeigernext->timestampgap;
-		if(zeiger->rcgap > zeigernext->rcgap) zeiger->rcgap = zeigernext->rcgap;
-		zeiger->messageap |= zeigernext->messageap;
-		zeiger->messageclient |= zeigernext->messageclient;
-		memset(zeigernext, 0xff, HANDSHAKELIST_SIZE);
-		}
-	}
-return;
-}
-/*===========================================================================*/
-static void cleanuppmkid()
-{
-static pmkidlist_t *zeiger;
-static pmkidlist_t *zeigernext;
-
-if(donotcleanflag == true) return;
-if(pmkidlistptr == pmkidlist) return;
-qsort(pmkidlist, pmkidlistptr -pmkidlist, PMKIDLIST_SIZE, sort_pmkidlist_by_mac);
-for(zeiger = pmkidlist; zeiger < pmkidlistptr -1; zeiger++)
-	{
-	for(zeigernext = zeiger +1; zeigernext < pmkidlistptr; zeigernext++)
-		{
-		if(memcmp(zeiger->ap, zeigernext->ap, 6) != 0) break;
-		if(memcmp(zeiger->client, zeigernext->client, 6) != 0) break;
-		if(memcmp(zeiger->pmkid, zeigernext->pmkid, 16) != 0) break;
-		memset(zeigernext, 0xff, PMKIDLIST_SIZE);
-		}
-	}
-return;
-}
-/*===========================================================================*/
-static void cleanupmac()
-{
-static maclist_t *zeiger;
-static maclist_t *zeigernext;
-
-if(aplistptr == aplist) return;
-qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_mac);
-for(zeiger = aplist; zeiger < aplistptr -1; zeiger++)
-	{
-	if(zeiger->timestamp == 0) continue;
-	for(zeigernext = zeiger +1; zeigernext < aplistptr; zeigernext++)
-		{
-		if(memcmp(zeiger->addr, zeigernext->addr, 6) != 0) break;
-		if(zeiger->essidlen != zeigernext->essidlen) break;
-		if(memcmp(zeiger->essid, zeigernext->essid, zeigernext->essidlen) != 0) break;
-		zeiger->timestamp = zeigernext->timestamp;
-		zeiger->type |= zeigernext->type;
-		zeiger->status |= zeigernext->status;
-		zeiger->count += 1;
-		memset(zeigernext, 0xff, MACLIST_SIZE);
-		}
-	}
-qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_mac);
 return;
 }
 /*===========================================================================*/
@@ -2393,9 +2340,6 @@ printf("\nsummary capture file\n"
 	);
 
 printlinklayerinfo();
-cleanupmac();
-cleanuphandshake();
-cleanuppmkid();
 outputwpalists();
 outputwordlists();
 printcontentinfo();
@@ -2829,9 +2773,6 @@ printf("\nsummary capture file\n"
 	);
 
 printlinklayerinfo();
-cleanupmac();
-cleanuppmkid();
-cleanuphandshake();
 outputwpalists();
 outputwordlists();
 printcontentinfo();
