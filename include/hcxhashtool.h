@@ -1,4 +1,5 @@
 #define OUILIST_MAX		50000
+#define OUI_LINE_LEN		50000
 
 #define HCX_TYPE_PMKID		1
 #define HCX_TYPE_EAPOL		2
@@ -55,7 +56,8 @@ return 0;
 struct ouilist_s
 {
  uint8_t		oui[3];
- char			vendor[128];
+#define VENDOR_LEN_MAX	128
+ char			vendor[VENDOR_LEN_MAX];
 };
 typedef struct ouilist_s ouilist_t;
 #define	OUILIST_SIZE (sizeof(ouilist_t))

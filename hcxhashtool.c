@@ -30,6 +30,7 @@
 /* global var */
 
 static const char *usedoui;
+static int ouicount;
 static int ouilistcount;
 static ouilist_t *ouilist;
 static hashlist_t *hashlist;
@@ -61,6 +62,7 @@ return;
 /*===========================================================================*/
 static bool initlists()
 {
+ouicount = 0;
 ouilistcount = OUILIST_MAX;
 hashlistcount = HASHLIST_MAX;
 readcount = 0;
@@ -80,8 +82,8 @@ return true;
 /*===========================================================================*/
 static void printstatus()
 {
-
 printf("\nOUI information file...: %s\n", usedoui);
+if(ouicount > 0)		printf("OUI entires............: %d\n", ouicount);
 printf("total lines read.......: %ld\n", readcount);
 if(readerrorcount > 0)		printf("read errors............: %ld\n", readerrorcount);
 if(pmkideapolcount > 0)		printf("valid hash lines.......: %ld\n", pmkideapolcount);
@@ -429,7 +431,7 @@ while(1)
 	if(pmkideapolcount >= hashlistcount)
 		{
 		hashlistcount += HASHLIST_MAX;
-		hashlistnew = realloc(hashlist, (hashlistcount) *HASHLIST_SIZE);
+		hashlistnew = realloc(hashlist, hashlistcount *HASHLIST_SIZE);
 		if(hashlistnew == NULL)
 			{
 			printf("failed to allocate memory for internal list\n");
@@ -444,15 +446,20 @@ return true;
 /*===========================================================================*/
 static void readoui()
 {
+static int len;
 static uid_t uid;
 static struct passwd *pwd;
 static struct stat statinfo;
-
+static ouilist_t *zeiger, *ouilistnew;
+static FILE *fh_oui;
+static char *vendorptr;
 static const char *ouinameuser = "/.hcxtools/oui.txt";
 static const char *ouinamesystemwide = "/usr/share/ieee-data/oui.txt";
 static const char *ouina = "N/A";
 
 static char ouinameuserpath[PATH_MAX];
+static char linein[OUI_LINE_LEN];
+
 
 usedoui = ouina;
 uid = getuid();
@@ -471,8 +478,36 @@ else if(stat(ouinameuser, &statinfo) == 0)
 	}
 else return;
 
+if((fh_oui = fopen(usedoui, "r")) == NULL) return;
+zeiger = ouilist;
+while(1)
+	{
+	if((len = fgetline(fh_oui, OUI_LINE_LEN, linein)) == -1) break;
+	if(len < 20) continue;
+	if(strstr(linein, "(base 16)") == NULL) continue;
+	vendorptr = strrchr(linein, '\t');
+	if(vendorptr == NULL) continue;
+	if(vendorptr++ == 0) continue;
+	strncpy(zeiger->vendor, vendorptr, VENDOR_LEN_MAX -1);
+	linein[6] = 0;
+	if(getfield(linein, zeiger->oui) != 3) continue;
+	ouicount++;
 
+	if(ouicount >= ouilistcount)
+		{
+		ouilistcount += OUILIST_MAX;
+		ouilistnew = realloc(ouilist, ouilistcount *OUILIST_SIZE);
+		if(ouilistnew == NULL)
+			{
+			printf("failed to allocate memory for internal list\n");
+			exit(EXIT_FAILURE);
+			}
+		ouilist = ouilistnew;
+		}
+	zeiger = ouilist +ouicount;
+	}
 
+fclose(fh_oui);
 return;
 }
 /*===========================================================================*/
