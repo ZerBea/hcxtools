@@ -1817,7 +1817,7 @@ if(fh_nmea != NULL) writegpwpl(macfm);
 return;
 }
 /*===========================================================================*/
-static void process80211probe_req_direct(uint64_t proberequesttimestamp, uint8_t *macap, uint8_t *macclient, uint32_t proberequestlen, uint8_t *proberequestptr)
+static void process80211probe_req_direct(uint64_t proberequesttimestamp, uint8_t *macclient, uint8_t *macap, uint32_t proberequestlen, uint8_t *proberequestptr)
 {
 static maclist_t *aplistnew;
 static tags_t tags;
@@ -2018,7 +2018,7 @@ if(macfrx->type == IEEE80211_FTYPE_MGMT)
 	else if(macfrx->subtype == IEEE80211_STYPE_PROBE_REQ)
 		{
 		if(memcmp(&mac_broadcast, macfrx->addr1, 6) == 0) process80211probe_req(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
-		else process80211probe_req_direct(packetimestamp, macfrx->addr1, macfrx->addr2, payloadlen, payloadptr);
+		else process80211probe_req_direct(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
 		}
 	}
 else if(macfrx->type == IEEE80211_FTYPE_DATA)
