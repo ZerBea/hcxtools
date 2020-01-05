@@ -21,6 +21,7 @@
 #define HCX_PMKIDEAPOL_IN	'i'
 #define HCX_PMKIDEAPOL_OUT	'o'
 #define HCX_ESSID_OUT		'E'
+#define HCX_DOWNLOAD_OUI	'd'
 #define HCX_HELP		'h'
 #define HCX_VERSION		'v'
 /*===========================================================================*/

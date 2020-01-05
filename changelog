@@ -1,3 +1,14 @@
+05.01.2020
+==========
+hcxhashtool: added new options
+-d          : download http://standards-oui.ieee.org/oui.txt
+            : and save to ~/.hcxtools/oui.txt
+            : internet connection required
+
+--info=<file>          : output detailed information about content of hash file
+--info=stdout          : stdout output detailed information about content of hash file
+
+
 03.01.2020
 ==========
 started to remove deprecated tools

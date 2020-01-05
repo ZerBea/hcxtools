@@ -15,6 +15,7 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <curl/curl.h>
 
 #if defined(__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
@@ -531,24 +532,15 @@ static const char *ouina = "N/A";
 static char ouinameuserpath[PATH_MAX];
 static char linein[OUI_LINE_LEN];
 
-
 usedoui = ouina;
 uid = getuid();
 pwd = getpwuid(uid);
 if(pwd == NULL) return;
 strncpy(ouinameuserpath, pwd->pw_dir, PATH_MAX -1);
 strncat(ouinameuserpath, ouinameuser, PATH_MAX -1);
-
-if(stat(ouinameuserpath, &statinfo) == 0)
-	{
-	usedoui = ouinameuserpath;
-	}
-else if(stat(ouinameuser, &statinfo) == 0)
-	{
-	usedoui = ouinamesystemwide;
-	}
+if(stat(ouinameuserpath, &statinfo) == 0) usedoui = ouinameuserpath;
+else if(stat(ouinameuser, &statinfo) == 0) usedoui = ouinamesystemwide;
 else return;
-
 if((fh_oui = fopen(usedoui, "r")) == NULL) return;
 zeiger = ouilist;
 while(1)
@@ -581,6 +573,55 @@ qsort(ouilist, ouicount, OUILIST_SIZE, sort_ouilist_by_oui);
 return;
 }
 /*===========================================================================*/
+static void downloadoui()
+{
+static uid_t uid;
+static struct passwd *pwd;
+static CURLcode ret;
+static CURL *hnd;
+static FILE* fhoui;
+static struct stat statinfo;
+static const char *ouipath = "/.hcxtools";
+static const char *ouiname = "/oui.txt";
+static char ouinameuserpath[PATH_MAX];
+
+uid = getuid();
+pwd = getpwuid(uid);
+if(pwd == NULL) return;
+strncpy(ouinameuserpath, pwd->pw_dir, PATH_MAX -1);
+strncat(ouinameuserpath, ouipath, PATH_MAX -1);
+if(stat(ouinameuserpath, &statinfo) == -1)
+	{
+	if(mkdir(ouinameuserpath, 0755) == -1)
+		{
+		fprintf(stderr, "failed to create conf dir\n");
+		return;
+		}
+	}
+strncat(ouinameuserpath, ouiname, PATH_MAX -1);
+printf("start downloading oui from http://standards-oui.ieee.org to: %s\n", ouinameuserpath);
+if((fhoui = fopen(ouinameuserpath, "w")) == NULL)
+	{
+	fprintf(stderr, "error creating file %s", ouiname);
+	return;
+	}
+hnd = curl_easy_init ();
+curl_easy_setopt(hnd, CURLOPT_URL, "http://standards-oui.ieee.org/oui.txt");
+curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
+curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
+curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhoui) ;
+ret = curl_easy_perform(hnd);
+curl_easy_cleanup(hnd);
+fclose(fhoui);
+if(ret != 0)
+	{
+	fprintf(stderr, "download not successful");
+	return;
+	}
+printf("download finished\n");
+return;
+}
+/*===========================================================================*/
 __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
@@ -599,6 +640,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-i <file>   : input PMKID/EAPOL hash file\n"
 	"-o <file>   : output PMKID/EAPOL hash file\n"
 	"-E <file>   : output ESSID list (autohex enabled)\n"
+	"-d          : download http://standards-oui.ieee.org/oui.txt\n"
+	"            : and save to ~/.hcxtools/oui.txt\n"
+	"            : internet connection required\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
@@ -640,7 +684,7 @@ static char *pmkideapoloutname;
 static char *essidoutname;
 static char *infooutname;
 
-static const char *short_options = "i:o:E:hv";
+static const char *short_options = "i:o:E:dhv";
 static const struct option long_options[] =
 {
 	{"type",			required_argument,	NULL,	HCX_HASH_TYPE},
@@ -733,6 +777,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			exit(EXIT_FAILURE);
 			}
 		essidlenmax = essidlenin;
+		break;
+
+		case HCX_DOWNLOAD_OUI:
+		downloadoui();
 		break;
 
 		case HCX_HELP:
