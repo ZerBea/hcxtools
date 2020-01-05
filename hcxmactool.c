@@ -120,7 +120,6 @@ if(ouicount == 0)
 	{
 	return false;
 	}
-
 zeiger = ouilist;
 for(zeiger = ouilist; zeiger < (ouilist +ouicount); zeiger++)
 	{
@@ -414,7 +413,6 @@ if((fh_file = fopen(pmkidoutname, "a")) == NULL)
 	fprintf(stderr, "failed to open PMKID file %s\n", pmkidoutname);
 	return;
 	}
-
 written = 0;
 zeiger = pmkidlist;
 for(zeiger = pmkidlist; zeiger < (pmkidlist +pmkidcount); zeiger++)
@@ -454,7 +452,7 @@ for(zeiger = pmkidlist; zeiger < (pmkidlist +pmkidcount); zeiger++)
 		written = writepmkidline(fh_file, zeiger, written);
 		continue;
 		}
-	if((vendorapflag == true) && (isvendorsta(zeiger->macsta) == true))
+	if((vendorstaflag == true) && (isvendorsta(zeiger->macsta) == true))
 		{
 		written = writepmkidline(fh_file, zeiger, written);
 		continue;
