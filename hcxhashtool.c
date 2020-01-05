@@ -168,6 +168,46 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 return;
 }
 /*===========================================================================*/
+static char *getvendor(uint8_t *mac)
+{
+static ouilist_t * zeiger;
+static char *unknown = "unknown";
+
+for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
+	{
+	if(memcmp(zeiger->oui, mac, 3) == 0) return zeiger->vendor;
+	if(memcmp(zeiger->oui, mac, 3) > 0) return unknown;
+	}
+return unknown;
+}
+/*===========================================================================*/
+static void writepmkideapolhashlineinfo(FILE *fh_pmkideapol, hashlist_t *zeiger)
+{
+static char *vendor;
+
+fprintf(fh_pmkideapol, "SSID......: %.*s\n", zeiger->essidlen, zeiger->essid);
+vendor = getvendor(zeiger->ap);
+fprintf(fh_pmkideapol, "MAC_AP....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], vendor);
+vendor = getvendor(zeiger->client);
+fprintf(fh_pmkideapol, "MAC_CLIENT: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5], vendor);
+if(zeiger->type == HCX_TYPE_PMKID)
+	{
+	fprintf(fh_pmkideapol, "PMKID.....: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
+	}
+if(zeiger->type == HCX_TYPE_EAPOL)
+	{
+	fprintf(fh_pmkideapol, "MIC.......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
+	}
+fprintf(fh_pmkideapol, "HASHLINE..: ");
+writepmkideapolhashline(fh_pmkideapol, zeiger);
+fprintf(fh_pmkideapol, "\n");
+return;
+}
+/*===========================================================================*/
 static void processhashes(FILE *fh_pmkideapol)
 {
 static hashlist_t *zeiger;
@@ -179,7 +219,6 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 
 	writepmkideapolhashline(fh_pmkideapol, zeiger);
 	}
-
 return;
 }
 /*===========================================================================*/
@@ -195,6 +234,7 @@ static const char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','
 
 static char groupoutname[PATH_MAX];
 
+qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_essid);
 for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
 	groupoutname[0] = 0;
@@ -225,6 +265,37 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 			}
 		}
 	}
+return;
+}
+/*===========================================================================*/
+static void writeinfofile(char *infooutname)
+{
+static hashlist_t *zeiger;
+static FILE *fh;
+
+if(strcmp(infooutname, "stdout") == 0) fh = stdout;
+else
+	{
+	if(infooutname != NULL)
+		{
+		if((fh = fopen(infooutname, "a+")) == NULL)
+			{
+			printf("error opening file %s: %s\n", infooutname, strerror(errno));
+			return;
+			}
+		}
+	}
+
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+	if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) continue;
+	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) continue;
+
+	writepmkideapolhashlineinfo(fh, zeiger);
+	}
+
+if(fh != stdout) fclose(fh);
+
 return;
 }
 /*===========================================================================*/
@@ -484,15 +555,14 @@ while(1)
 	{
 	if((len = fgetline(fh_oui, OUI_LINE_LEN, linein)) == -1) break;
 	if(len < 20) continue;
-	if(strstr(linein, "(base 16)") == NULL) continue;
-	vendorptr = strrchr(linein, '\t');
+	linein[6] = 0;
+	if(getfield(linein, zeiger->oui) != 3) continue;
+	if(strstr(&linein[7], "(base 16)") == NULL) continue;
+	vendorptr = strrchr(&linein[7], '\t');
 	if(vendorptr == NULL) continue;
 	if(vendorptr++ == 0) continue;
 	strncpy(zeiger->vendor, vendorptr, VENDOR_LEN_MAX -1);
-	linein[6] = 0;
-	if(getfield(linein, zeiger->oui) != 3) continue;
 	ouicount++;
-
 	if(ouicount >= ouilistcount)
 		{
 		ouilistcount += OUILIST_MAX;
@@ -506,8 +576,8 @@ while(1)
 		}
 	zeiger = ouilist +ouicount;
 	}
-
 fclose(fh_oui);
+qsort(ouilist, ouicount, OUILIST_SIZE, sort_ouilist_by_oui);
 return;
 }
 /*===========================================================================*/
@@ -542,6 +612,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                       : default ESSID minimum length: %d\n"
 	"--essid-max            : filter by ESSID maximum length\n"
 	"                       : default ESSID maximum length: %d\n"
+	"--info=<file>          : output detailed information about content of hash file\n"
+	"--info=stdout          : stdout output detailed information about content of hash file\n"
 	"--help                 : show this help\n"
 	"--version              : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, ESSID_LEN_MIN, ESSID_LEN_MAX, ESSID_LEN_MIN, ESSID_LEN_MAX);
@@ -566,6 +638,7 @@ static FILE *fh_pmkideapol;
 static char *pmkideapolinname;
 static char *pmkideapoloutname;
 static char *essidoutname;
+static char *infooutname;
 
 static const char *short_options = "i:o:E:hv";
 static const struct option long_options[] =
@@ -575,6 +648,7 @@ static const struct option long_options[] =
 	{"essid-len",			required_argument,	NULL,	HCX_ESSID_LEN},
 	{"essid-min",			required_argument,	NULL,	HCX_ESSID_MIN},
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
+	{"info",			required_argument,	NULL,	HCX_INFO_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
 	{NULL,				0,			NULL,	0}
@@ -588,6 +662,7 @@ fh_pmkideapol = NULL;
 pmkideapolinname = NULL;
 pmkideapoloutname = NULL;
 essidoutname = NULL;
+infooutname = NULL;
 essidgroupflag = false;
 hashtypein = 0;
 hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL;
@@ -610,6 +685,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_ESSID_OUT:
 		essidoutname = optarg;
+		break;
+
+		case HCX_INFO_OUT:
+		infooutname = optarg;
 		break;
 
 		case HCX_ESSID_GROUP:
@@ -700,6 +779,7 @@ if(hashtypein > 0) hashtype = hashtypein;
 
 if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
 if((pmkideapolcount > 0) && (pmkideapoloutname != NULL)) writeeapolpmkidfile(pmkideapoloutname);
+if((pmkideapolcount > 0) && (infooutname != NULL)) writeinfofile(infooutname);
 if((pmkideapolcount > 0) && (essidgroupflag == true)) writeeapolpmkidgroups();
 
 printstatus();

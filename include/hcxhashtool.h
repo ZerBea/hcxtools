@@ -17,8 +17,7 @@
 #define HCX_ESSID_LEN		3
 #define HCX_ESSID_MIN		4
 #define HCX_ESSID_MAX		5
-
-
+#define HCX_INFO_OUT		6
 #define HCX_PMKIDEAPOL_IN	'i'
 #define HCX_PMKIDEAPOL_OUT	'o'
 #define HCX_ESSID_OUT		'E'
@@ -62,6 +61,14 @@ struct ouilist_s
 typedef struct ouilist_s ouilist_t;
 #define	OUILIST_SIZE (sizeof(ouilist_t))
 
+static int sort_ouilist_by_oui(const void *a, const void *b)
+{
+const ouilist_t *ia = (const ouilist_t *)a;
+const ouilist_t *ib = (const ouilist_t *)b;
+if(memcmp(ia->oui, ib->oui, 3) > 0) return 1;
+else if(memcmp(ia->oui, ib->oui, 3) < 0) return -1;
+return 0;
+}
 /*===========================================================================*/
 
 
