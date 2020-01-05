@@ -71,6 +71,7 @@ struct maclist_s
  uint64_t		timestamp;
  int			count;
  uint8_t		type;
+#define	REMOVED		0
 #define	CLIENT		1
 #define	AP		2
  uint8_t		status;
@@ -94,12 +95,23 @@ struct maclist_s
 typedef struct maclist_s maclist_t;
 #define	MACLIST_SIZE (sizeof(maclist_t))
 
+static int sort_maclist_by_mac(const void *a, const void *b)
+{
+const maclist_t *ia = (const maclist_t *)a;
+const maclist_t *ib = (const maclist_t *)b;
+if(memcmp(ia->addr, ib->addr, 6) > 0) return 1;
+else if(memcmp(ia->addr, ib->addr, 6) < 0) return -1;
+if(ia->essidlen < ib->essidlen) return 1;
+else if(ia->essidlen > ib->essidlen) return -1;
+if(memcmp(ia->essid, ib->essid, ib->essidlen) < 0) return 1;
+else if(memcmp(ia->essid, ib->essid, ib->essidlen) > 0) return -1;
+return 0;
+}
+
 static int sort_maclist_by_mac_count(const void *a, const void *b)
 {
 const maclist_t *ia = (const maclist_t *)a;
 const maclist_t *ib = (const maclist_t *)b;
-if(ia->type > ib->type) return 1;
-else if(ia->type < ib->type) return -1;
 if(memcmp(ia->addr, ib->addr, 6) > 0) return 1;
 else if(memcmp(ia->addr, ib->addr, 6) < 0) return -1;
 if(ia->count < ib->count) return 1;

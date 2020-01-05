@@ -866,7 +866,7 @@ zeigerhsakt = handshakelist;
 zeigerpmkidakt = pmkidlist;
 for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	{
-	if(zeigermac->type != AP) continue;
+	if((zeigermac->type &AP) != AP) continue;
 	zeigermacold = zeigermac -essidsvalue;
 	if(zeigermacold >= aplist)
 		{
@@ -877,12 +877,41 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		getpmkid(zeigermac, zeigerpmkidakt);
 		gethandshake(zeigermac, zeigerhsakt);
 		}
-	else if
-	(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+	else if (((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 		{
 		getpmkid(zeigermac, zeigerpmkidakt);
 		gethandshake(zeigermac, zeigerhsakt);
 		}
+	}
+return;
+}
+/*===========================================================================*/
+static void cleanupmac()
+{
+static maclist_t *zeiger;
+static maclist_t *zeigerold;
+
+if(aplistptr == aplist) return;
+qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_mac);
+zeigerold = aplist;
+for(zeiger = aplist +1; zeiger < aplistptr; zeiger++)
+	{
+	if(memcmp(zeigerold->addr, zeiger->addr, 6) == 0)
+		{
+		if(zeigerold->essidlen == zeiger->essidlen)
+			{
+			if(memcmp(zeigerold->essid, zeiger->essid, zeigerold->essidlen) == 0)
+				{
+				zeigerold->timestamp = zeiger->timestamp;
+				zeigerold->type |= zeiger->type;
+				zeigerold->status |= zeiger->status;
+				zeigerold->count += 1;
+				zeiger->type = REMOVED;
+				continue;
+				}
+			}
+		}
+	zeigerold = zeiger;
 	}
 return;
 }
@@ -2340,6 +2369,7 @@ printf("\nsummary capture file\n"
 	);
 
 printlinklayerinfo();
+cleanupmac();
 outputwpalists();
 outputwordlists();
 printcontentinfo();
@@ -2773,6 +2803,7 @@ printf("\nsummary capture file\n"
 	);
 
 printlinklayerinfo();
+cleanupmac();
 outputwpalists();
 outputwordlists();
 printcontentinfo();
