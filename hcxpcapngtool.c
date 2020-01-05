@@ -23,22 +23,6 @@
 #include <libgen.h>
 #include <sys/socket.h>
 #include <inttypes.h>
-#include <libkern/OSByteOrder.h>
-#define htobe16(x) OSSwapHostToBigInt16(x)
-#define htobe32(x) OSSwapHostToBigInt32(x)
-#include <libkern/OSByteOrder.h>
-#define htobe16(x) OSSwapHostToBigInt16(x)
-#define htole16(x) OSSwapHostToLittleInt16(x)
-#define be16toh(x) OSSwapBigToHostInt16(x)
-#define le16toh(x) OSSwapLittleToHostInt16(x)
-#define htobe32(x) OSSwapHostToBigInt32(x)
-#define htole32(x) OSSwapHostToLittleInt32(x)
-#define be32toh(x) OSSwapBigToHostInt32(x)
-#define le32toh(x) OSSwapLittleToHostInt32(x)
-#define htobe64(x) OSSwapHostToBigInt64(x)
-#define htole64(x) OSSwapHostToLittleInt64(x)
-#define be64toh(x) OSSwapBigToHostInt64(x)
-#define le64toh(x) OSSwapLittleToHostInt64(x)
 #else
 #include <stdio_ext.h>
 #endif
@@ -1158,7 +1142,11 @@ wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((ignoreieflag == false) && (keyver == 0)) return;
-rc = be64toh(wpak->replaycount);
+#ifndef BIG_ENDIAN_HOST
+rc = byte_swap_64(wpak->replaycount);
+#else
+rc = wpak->replaycount;
+#endif
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
@@ -1229,7 +1217,11 @@ wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((ignoreieflag == false) && (keyver == 0)) return;
-rc = be64toh(wpak->replaycount);
+#ifndef BIG_ENDIAN_HOST
+rc = byte_swap_64(wpak->replaycount);
+#else
+rc = wpak->replaycount;
+#endif
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 memset(zeigerakt, 0, MESSAGELIST_SIZE);
@@ -1298,7 +1290,11 @@ wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((ignoreieflag == false) && (keyver == 0)) return;
-rc = be64toh(wpak->replaycount);
+#ifndef BIG_ENDIAN_HOST
+rc = byte_swap_64(wpak->replaycount);
+#else
+rc = wpak->replaycount;
+#endif
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
@@ -1359,7 +1355,11 @@ wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((ignoreieflag == false) && (keyver == 0)) return;
-rc = be64toh(wpak->replaycount);
+#ifndef BIG_ENDIAN_HOST
+rc = byte_swap_64(wpak->replaycount);
+#else
+rc = wpak->replaycount;
+#endif
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 zeiger = messagelist +MESSAGELIST_MAX;
@@ -2083,7 +2083,6 @@ return;
 /*===========================================================================*/
 static void processlinktype(uint64_t captimestamp, int linktype, uint32_t caplen, uint8_t *capptr)
 {
-static uint16_t rthlen;
 static rth_t *rth;
 static uint32_t packetlen;
 static uint8_t *packetptr;
@@ -2111,15 +2110,18 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		return;
 		}
 	rth = (rth_t*)capptr;
-	rthlen = le16toh(rth->it_len);
-	if(rthlen > caplen)
+	#ifdef BIG_ENDIAN_HOST
+	rth->it_len = byte_swap_16(rth->it_len);
+	rth->it_present = byte_swap_32(rth->it_present);
+	#endif
+	if(rth->it_len > caplen)
 		{
 		pcapreaderrors++;
 		printf("failed to read radiotap header\n");
 		return;
 		}
-	packetlen = caplen -rthlen;
-	packetptr = capptr +rthlen;
+	packetlen = caplen -rth->it_len;
+	packetptr = capptr +rth->it_len;
 	}
 else if(linktype == DLT_IEEE802_11)
 	{
@@ -2136,7 +2138,7 @@ else if(linktype == DLT_PPI)
 		}
 	ppi = (ppi_t*)capptr;
 	#ifdef BIG_ENDIAN_HOST
-	ppi->pph_len	= byte_swap_16(ppi->pph_len);
+	ppi->pph_len = byte_swap_16(ppi->pph_len);
 	#endif
 	if(ppi->pph_len > caplen)
 		{
