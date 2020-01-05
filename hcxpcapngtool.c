@@ -444,7 +444,7 @@ qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_essidlen);
 wecl = strlen(pcapngweakcandidate);
 if(fh_essid != NULL)
 	{
-	if((wecl > 0) && (wecl < 64)) fprintf(fh_essid, "%s\n", pcapngweakcandidate); 
+	if((wecl > 0) && (wecl < 64) && (strcmp(pcapngweakcandidate, "N/A") != 0)) fprintf(fh_essid, "%s\n", pcapngweakcandidate); 
 	for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		{
 		if((zeigermacold != NULL) && (zeigermac->essidlen == zeigermacold->essidlen))
