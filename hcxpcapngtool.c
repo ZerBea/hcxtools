@@ -1817,7 +1817,7 @@ if(fh_nmea != NULL) writegpwpl(macfm);
 return;
 }
 /*===========================================================================*/
-static void process80211probe_req_direct(uint64_t proberequesttimestamp, uint8_t *macclient, uint8_t *macap, uint32_t proberequestlen, uint8_t *proberequestptr)
+static void process80211probe_req_direct(uint64_t proberequesttimestamp, uint8_t *macap, uint8_t *macclient, uint32_t proberequestlen, uint8_t *proberequestptr)
 {
 static maclist_t *aplistnew;
 static tags_t tags;
