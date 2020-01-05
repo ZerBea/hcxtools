@@ -54,7 +54,6 @@ struct hccap_s
 };
 typedef struct hccap_s hccap_t;
 #define	HCCAP_SIZE (sizeof(hccap_t))
-
 /*===========================================================================*/
 struct hccapx_s
 {
@@ -162,7 +161,6 @@ static long int eapolm32e3count;
 static long int eapolm34e3count;
 static long int eapolm34e4count;
 
-
 static uint64_t timestampstart;
 static uint64_t timestampmin;
 static uint64_t timestampmax;
@@ -171,7 +169,6 @@ static uint64_t eaptimegapmax;
 static uint32_t eapoltimeoutvalue;
 static uint64_t ncvalue;
 static int essidsvalue;
-
 
 static int nmealen;
 
@@ -735,7 +732,6 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			memcpy(&hccapx.eapol, zeigerhs->eapol, zeigerhs->eapauthlen);
 			hccapx.keyver = keyvertemp;
 			memcpy(&hccapx.keymic, &keymictemp, 16);
-
 			#ifdef BIG_ENDIAN_HOST
 			hccapx.signature = byte_swap_32(hccapx.signature);
 			hccapx.version = byte_swap_32(hccapx.version);
@@ -2159,9 +2155,9 @@ else if(linktype == DLT_PRISM_HEADER)
 		}
 	prism = (prism_t*)capptr;
 	#ifdef BIG_ENDIAN_HOST
-	prism->msgcode		= byte_swap_32(prism->msgcode);
-	prism->msglen		= byte_swap_32(prism->msglen);
-	prism->frmlen.data	= byte_swap_32(prism->frmlen.data);
+	prism->msgcode = byte_swap_32(prism->msgcode);
+	prism->msglen = byte_swap_32(prism->msglen);
+	prism->frmlen.data = byte_swap_32(prism->frmlen.data);
 	#endif
 	if(prism->msglen > caplen)
 		{
@@ -2186,7 +2182,7 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 		}
 	avs = (avs_t*)capptr;
 	#ifdef BIG_ENDIAN_HOST
-	avs->len		= byte_swap_32(avs->len);
+	avs->len = byte_swap_32(avs->len);
 	#endif
 	if(avs->len > caplen)
 		{
@@ -2225,12 +2221,9 @@ if(packetlen < 4)
 fcs = (fcs_t*)(packetptr +packetlen -4);
 crc = fcscrc32check(packetptr, packetlen -4);
 #ifdef BIG_ENDIAN_HOST
-crc	= byte_swap_32(crc);
+crc = byte_swap_32(crc);
 #endif
-if(endianess == 1)
-	{
-	crc	= byte_swap_32(crc);
-	}
+if(endianess == 1) crc = byte_swap_32(crc);
 if(crc == fcs->fcs)
 	{
 	fcsframecount++;
