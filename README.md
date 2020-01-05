@@ -43,11 +43,11 @@ Detailed description
 | hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcaptool output (-c -o, -z- -U) or commandline input |
 | hcxhashtool    | Provide various filter operations on new PMKID/EAPOL hash line - highly experimental - only limited functions        |
 | hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E, -I- -U)                                  |
-| whoismac       | Show vendor information and/or download oui reference list                                                           |
 | wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                           |
 | -------------- | -------------------------------------------------------------------------------------------------------------------- |
 | deprecated     | obsolete when hashcat and JtR moved to new PMKID/EAPOL hash line - no longer under maintenance                       |
 | -------------- | -------------------------------------------------------------------------------------------------------------------- |
+| whoismac       | Show vendor information and/or download oui reference list                                                           |
 | hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format   |
 | hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                            |
 | hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper           |
