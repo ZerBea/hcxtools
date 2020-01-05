@@ -866,7 +866,7 @@ zeigerhsakt = handshakelist;
 zeigerpmkidakt = pmkidlist;
 for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	{
-	if((zeigermac->type &AP) != AP) continue;
+	if(zeigermac->type != AP) continue;
 	zeigermacold = zeigermac -essidsvalue;
 	if(zeigermacold >= aplist)
 		{
@@ -2755,12 +2755,12 @@ while(1)
 			skippedpacketcount++;
 			continue;
 			}
-		if(memcmp(pcapngcb->pen, & hcxmagic, 4) != 0)
+		if(memcmp(pcapngcb->pen, &hcxmagic, 4) != 0)
 			{
 			skippedpacketcount++;
 			continue;
 			}
-		if(memcmp(pcapngcb->hcxm, & hcxmagic, 32) != 0)
+		if(memcmp(pcapngcb->hcxm, &hcxmagic, 32) != 0)
 			{
 			skippedpacketcount++;
 			continue;
