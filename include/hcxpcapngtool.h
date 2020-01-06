@@ -172,8 +172,8 @@ static int sort_messagelist_by_epcount(const void *a, const void *b)
 const messagelist_t *ia = (const messagelist_t *)a;
 const messagelist_t *ib = (const messagelist_t *)b;
 
-if(ia->eapolmsgcount > ib->eapolmsgcount) return -1;
-else if(ia->eapolmsgcount < ib->eapolmsgcount) return 1;
+if(ia->eapolmsgcount < ib->eapolmsgcount) return 1;
+else if(ia->eapolmsgcount > ib->eapolmsgcount) return -1;
 return 0;
 }
 /*===========================================================================*/

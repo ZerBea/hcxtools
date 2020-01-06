@@ -52,6 +52,7 @@ static int sort_maclist_by_essid(const void *a, const void *b)
 {
 const hashlist_t *ia = (const hashlist_t *)a;
 const hashlist_t *ib = (const hashlist_t *)b;
+
 if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) > 0) return 1;
 else if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) < 0) return -1;
 return 0;
@@ -70,6 +71,7 @@ static int sort_ouilist_by_oui(const void *a, const void *b)
 {
 const ouilist_t *ia = (const ouilist_t *)a;
 const ouilist_t *ib = (const ouilist_t *)b;
+
 if(memcmp(ia->oui, ib->oui, 3) > 0) return 1;
 else if(memcmp(ia->oui, ib->oui, 3) < 0) return -1;
 return 0;
