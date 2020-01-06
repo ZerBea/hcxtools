@@ -96,6 +96,8 @@ if(readerrorcount > 0)		printf("read errors............: %ld\n", readerrorcount)
 if(pmkideapolcount > 0)		printf("valid hash lines.......: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)		printf("PMKID hash lines.......: %ld\n", pmkidcount);
 if(eapolcount > 0)		printf("EAPOL hash lines.......: %ld\n", eapolcount);
+printf("filter by ESSID LEN MIN: %d\n", essidlenmin);
+printf("filter by ESSID LEN MAX: %d\n", essidlenmax);
 if(flagfilterouiap == true)	printf("filter AP by OUI.......: %02x%02x%02x\n", filterouiap[0], filterouiap[1], filterouiap[2]);
 if(flagfilterouiclient == true)	printf("filter CLIENT by OUI...: %02x%02x%02x\n", filterouiclient[0], filterouiclient[1], filterouiclient[2]);
 if(pmkidwrittencount > 0)	printf("PMKID written..........: %ld\n", pmkidwrittencount);
@@ -141,6 +143,11 @@ return;
 static void writepmkideapolhashline(FILE *fh_pmkideapol, hashlist_t *zeiger)
 {
 static int p;
+
+if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
+if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
+if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
+if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
 
 if(zeiger->type == HCX_TYPE_PMKID)
 	{
@@ -194,6 +201,11 @@ static void writepmkideapolhashlineinfo(FILE *fh_pmkideapol, hashlist_t *zeiger)
 {
 static char *vendor;
 
+if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
+if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
+if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
+if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
+
 fprintf(fh_pmkideapol, "SSID......: %.*s\n", zeiger->essidlen, zeiger->essid);
 vendor = getvendor(zeiger->ap);
 fprintf(fh_pmkideapol, "MAC_AP....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], vendor);
@@ -214,22 +226,6 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 fprintf(fh_pmkideapol, "HASHLINE..: ");
 writepmkideapolhashline(fh_pmkideapol, zeiger);
 fprintf(fh_pmkideapol, "\n");
-return;
-}
-/*===========================================================================*/
-static void processhashes(FILE *fh_pmkideapol)
-{
-static hashlist_t *zeiger;
-
-for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
-	{
-	if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) continue;
-	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) continue;
-	if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) continue;
-	if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) continue;
-
-	writepmkideapolhashline(fh_pmkideapol, zeiger);
-	}
 return;
 }
 /*===========================================================================*/
@@ -296,25 +292,15 @@ else
 			}
 		}
 	}
-
-for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
-	{
-	if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) continue;
-	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) continue;
-	if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) continue;
-	if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) continue;
-
-	writepmkideapolhashlineinfo(fh, zeiger);
-	}
-
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashlineinfo(fh, zeiger);
 if(fh != stdout) fclose(fh);
-
 return;
 }
 /*===========================================================================*/
 static void writeeapolpmkidfile(char *pmkideapoloutname)
 {
 static FILE *fh_pmkideapol;
+static hashlist_t *zeiger;
 static struct stat statinfo;
 
 if(pmkideapoloutname != NULL)
@@ -325,11 +311,8 @@ if(pmkideapoloutname != NULL)
 		return;
 		}
 	}
-
-processhashes(fh_pmkideapol);
-
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashline(fh_pmkideapol, zeiger);
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
-
 if(pmkideapoloutname != NULL)
 	{
 	if(stat(pmkideapoloutname, &statinfo) == 0)
