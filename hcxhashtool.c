@@ -128,7 +128,6 @@ memcpy(&salt, pmkname, 8);
 memcpy(&salt[8], zeiger->ap, 6);
 memcpy(&salt[14], zeiger->client, 6);
 HMAC(EVP_sha1(), &pmk, 32, salt, 20, pmkidcalc, NULL);
-
 if(memcmp(&pmkidcalc, zeiger->hash, 16) == 0)
 	{
 	fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
@@ -176,7 +175,6 @@ memcpy(&salt, pmkname, 8);
 memcpy(&salt[8], zeiger->ap, 6);
 memcpy(&salt[14], zeiger->client, 6);
 HMAC(EVP_sha1(), &pmkpbkdf2, 32, salt, 20, pmkidcalc, NULL);
-
 if(memcmp(&pmkidcalc, zeiger->hash, 16) == 0)
 	{
 	fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
@@ -200,16 +198,12 @@ if(dopbkdf2(pskptrlen, pskptr, zeigerold->essidlen, zeigerold->essid) == true)
 	if(zeigerold->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeigerold);
 //	else (zeigerold->type == HCX_TYPE_EAPOL)
 	}
-
 for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
-	if(zeigerold->essidlen == zeiger->essidlen)
+	if((zeigerold->essidlen == zeiger->essidlen) && (memcmp(zeigerold->essid, zeiger->essid, zeigerold->essidlen) == 0))
 		{
-		if(memcmp(zeigerold->essid, zeiger->essid, zeigerold->essidlen) == 0)
-			{
-			if(zeiger->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeigerold);
-//			else (zeiger->type == HCX_TYPE_EAPOL)
-			}
+		if(zeiger->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeigerold);
+//		else (zeiger->type == HCX_TYPE_EAPOL)
 		}
 	else
 		{
