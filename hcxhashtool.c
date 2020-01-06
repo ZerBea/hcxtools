@@ -117,24 +117,56 @@ printf("\n");
 return;
 }
 /*===========================================================================*/
+static void testpmkidpmk(hashlist_t *zeiger)
+{
+static int p;
+static const char *pmkname = "PMK Name";
+static uint8_t salt[32];
+static uint8_t pmkidcalc[32];
+
+memcpy(&salt, pmkname, 8);
+memcpy(&salt[8], zeiger->ap, 6);
+memcpy(&salt[14], zeiger->client, 6);
+HMAC(EVP_sha1(), &pmk, 32, salt, 20, pmkidcalc, NULL);
+
+if(memcmp(&pmkidcalc, zeiger->hash, 16) == 0)
+	{
+	fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
+		pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
+		pmk[8], pmk[9], pmk[10], pmk[11], pmk[12], pmk[13], pmk[14], pmk[15],
+		pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
+		pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
+	for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+	fprintf(stdout, "\n");
+	}
+return;
+}
+/*===========================================================================*/
+static void testhashfilepmk()
+{
+static hashlist_t *zeiger, *zeigerold;
+
+zeigerold = hashlist;
+if(zeigerold->type == HCX_TYPE_PMKID) testpmkidpmk(zeigerold);
+//	else (zeigerold->type == HCX_TYPE_EAPOL)
+
+for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+	if(zeiger->type == HCX_TYPE_PMKID) testpmkidpmk(zeigerold);
+//	else (zeiger->type == HCX_TYPE_EAPOL)
+	zeigerold = zeiger;
+	}
+
+return;
+}
+/*===========================================================================*/
 static bool dopbkdf2(int psklen, char *psk, int essidlen, uint8_t *essid)
 {
 if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmkpbkdf2) == 0) return false;
 return true;
 }
 /*===========================================================================*/
-static void testhashfilepmk()
-{
-static hashlist_t *zeiger;
-
-for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
-	{
-
-	}
-return;
-}
-/*===========================================================================*/
-static void testpmkid(hashlist_t *zeiger)
+static void testpmkidpbkdf2(hashlist_t *zeiger)
 {
 static int p;
 static const char *pmkname = "PMK Name";
@@ -163,12 +195,10 @@ static void testhashfilepsk()
 {
 static hashlist_t *zeiger, *zeigerold;
 
-	printf("hallo \n");
-
 zeigerold = hashlist;
 if(dopbkdf2(pskptrlen, pskptr, zeigerold->essidlen, zeigerold->essid) == true)
 	{
-	if(zeigerold->type == HCX_TYPE_PMKID) testpmkid(zeigerold);
+	if(zeigerold->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeigerold);
 //	else (zeigerold->type == HCX_TYPE_EAPOL)
 	}
 
@@ -178,7 +208,7 @@ for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 		{
 		if(memcmp(zeigerold->essid, zeiger->essid, zeigerold->essidlen) == 0)
 			{
-			if(zeiger->type == HCX_TYPE_PMKID) testpmkid(zeigerold);
+			if(zeiger->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeigerold);
 //			else (zeiger->type == HCX_TYPE_EAPOL)
 			}
 		}
@@ -186,7 +216,7 @@ for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 		{
 		if(dopbkdf2(pskptrlen, pskptr, zeigerold->essidlen, zeigerold->essid) == true)
 			{
-			if(zeigerold->type == HCX_TYPE_PMKID) testpmkid(zeigerold);
+			if(zeigerold->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeigerold);
 //			else (zeigerold->type == HCX_TYPE_EAPOL)
 			}
 		}
