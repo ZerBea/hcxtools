@@ -617,20 +617,20 @@ static void writeinfofile(char *infooutname)
 static hashlist_t *zeiger;
 static FILE *fh;
 
-if(strcmp(infooutname, "stdout") == 0) fh = stdout;
+if(strcmp(infooutname, "stdout") != 0)
+	{
+	if((fh = fopen(infooutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", infooutname, strerror(errno));
+		return;
+		}
+	for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashlineinfo(fh, zeiger);
+	fclose(fh);
+	}
 else
 	{
-	if(infooutname != NULL)
-		{
-		if((fh = fopen(infooutname, "a+")) == NULL)
-			{
-			printf("error opening file %s: %s\n", infooutname, strerror(errno));
-			return;
-			}
-		}
+	for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashlineinfo(stdout, zeiger);
 	}
-for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashlineinfo(fh, zeiger);
-if(fh != stdout) fclose(fh);
 return;
 }
 /*===========================================================================*/
