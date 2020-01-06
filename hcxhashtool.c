@@ -156,7 +156,6 @@ for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 //	else (zeiger->type == HCX_TYPE_EAPOL)
 	zeigerold = zeiger;
 	}
-
 return;
 }
 /*===========================================================================*/
