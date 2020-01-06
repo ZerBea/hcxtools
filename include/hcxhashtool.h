@@ -17,8 +17,9 @@
 #define HCX_ESSID_LEN		3
 #define HCX_ESSID_MIN		4
 #define HCX_ESSID_MAX		5
-#define HCX_FILTER_OUI		6
-#define HCX_INFO_OUT		7
+#define HCX_FILTER_OUI_AP	6
+#define HCX_FILTER_OUI_CLIENT	7
+#define HCX_INFO_OUT		8
 #define HCX_PMKIDEAPOL_IN	'i'
 #define HCX_PMKIDEAPOL_OUT	'o'
 #define HCX_ESSID_OUT		'E'
