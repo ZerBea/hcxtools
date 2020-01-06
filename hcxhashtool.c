@@ -52,6 +52,9 @@ static int essidlenmax;
 
 static bool essidgroupflag;
 
+static bool flagfilteroui;
+static uint8_t filteroui[3];
+
 /*===========================================================================*/
 static void closelists()
 {
@@ -90,8 +93,9 @@ if(readerrorcount > 0)		printf("read errors............: %ld\n", readerrorcount)
 if(pmkideapolcount > 0)		printf("valid hash lines.......: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)		printf("PMKID hash lines.......: %ld\n", pmkidcount);
 if(eapolcount > 0)		printf("EAPOL hash lines.......: %ld\n", eapolcount);
+if(flagfilteroui == true)	printf("filter by OUI..........: %02x%02x%02x\n", filteroui[0], filteroui[1], filteroui[2]);
 if(pmkidwrittencount > 0)	printf("PMKID written..........: %ld\n", pmkidwrittencount);
-if(eapolwrittencount > 0)	printf("ESSID (unique) written.: %ld\n", eapolwrittencount);
+if(eapolwrittencount > 0)	printf("EAPOL written..........: %ld\n", eapolwrittencount);
 if(essidwrittencount > 0)	printf("ESSID (unique) written.: %ld\n", essidwrittencount);
 printf("\n");
 return;
@@ -217,6 +221,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
 	if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) continue;
 	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) continue;
+	if(flagfilteroui == true) if(memcmp(&filteroui, zeiger->ap, 3) != 0) continue;
 
 	writepmkideapolhashline(fh_pmkideapol, zeiger);
 	}
@@ -291,6 +296,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
 	if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) continue;
 	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) continue;
+	if(flagfilteroui == true) if(memcmp(&filteroui, zeiger->ap, 3) != 0) continue;
 
 	writepmkideapolhashlineinfo(fh, zeiger);
 	}
@@ -328,7 +334,7 @@ if(pmkideapoloutname != NULL)
 return;
 }
 /*===========================================================================*/
-static uint16_t getfield(char *lineptr, uint8_t *buff)
+static uint16_t getfield(char *lineptr, size_t bufflen, uint8_t *buff)
 {
 static size_t p;
 static uint8_t idx0;
@@ -346,9 +352,9 @@ static const uint8_t hashmap[] =
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
 };
 
-memset(buff, 0, EAPOL_AUTHLEN_MAX);
+memset(buff, 0, bufflen);
 p = 0;
-while((lineptr[p] != '*') && (lineptr[p] != 0))
+while((lineptr[p] != '*') && (lineptr[p] != 0) && (p /2 <= bufflen))
 	{
 	if(! isxdigit(lineptr[p +0])) return 0;
 	if(! isxdigit(lineptr[p +1])) return 0;
@@ -431,27 +437,27 @@ while(1)
 		readerrorcount++;
 		continue;
 		}
-	if(getfield(&linein[7], buffer) != 16)
+	if(getfield(&linein[7], PMKIDEAPOL_LINE_LEN, buffer) != 16)
 		{
 		readerrorcount++;
 		continue;
 		}
 	memcpy(zeiger->hash, &buffer, 16);
 
-	if(getfield(&linein[40], buffer) != 6)
+	if(getfield(&linein[40], PMKIDEAPOL_LINE_LEN, buffer) != 6)
 		{
 		readerrorcount++;
 		continue;
 		}
 	memcpy(zeiger->ap, &buffer, 6);
 
-	if(getfield(&linein[53], buffer) != 6)
+	if(getfield(&linein[53], PMKIDEAPOL_LINE_LEN, buffer) != 6)
 		{
 		readerrorcount++;
 		continue;
 		}
 	memcpy(zeiger->client, &buffer, 6);
-	essidlen = getfield(&linein[66], buffer);
+	essidlen = getfield(&linein[66], PMKIDEAPOL_LINE_LEN, buffer);
 	if(essidlen > 32)
 		{
 		readerrorcount++;
@@ -467,7 +473,7 @@ while(1)
 	else if(memcmp(&linein, &wpa02, 7) == 0)
 		{
 		oflen = 66 +essidlen *2 +1;
-		noncelen = getfield(&linein[oflen], buffer);
+		noncelen = getfield(&linein[oflen], PMKIDEAPOL_LINE_LEN, buffer);
 		if(noncelen > 32)
 			{
 			readerrorcount++;
@@ -475,7 +481,7 @@ while(1)
 			}
 		memcpy(zeiger->nonce, &buffer, 32);
 		oflen += 65;
-		eapauthlen = getfield(&linein[oflen], buffer);
+		eapauthlen = getfield(&linein[oflen], PMKIDEAPOL_LINE_LEN, buffer);
 		if(eapauthlen > EAPOL_AUTHLEN_MAX)
 			{
 			readerrorcount++;
@@ -484,7 +490,7 @@ while(1)
 		memcpy(zeiger->eapol, &buffer, eapauthlen);
 		zeiger->eapauthlen = eapauthlen;
 		oflen += eapauthlen *2 +1;
-		mplen = getfield(&linein[oflen], buffer);
+		mplen = getfield(&linein[oflen], PMKIDEAPOL_LINE_LEN, buffer);
 		if(mplen > 1)
 			{
 			readerrorcount++;
@@ -548,7 +554,7 @@ while(1)
 	if((len = fgetline(fh_oui, OUI_LINE_LEN, linein)) == -1) break;
 	if(len < 20) continue;
 	linein[6] = 0;
-	if(getfield(linein, zeiger->oui) != 3) continue;
+	if(getfield(linein, OUI_LINE_LEN, zeiger->oui) != 3) continue;
 	if(strstr(&linein[7], "(base 16)") == NULL) continue;
 	vendorptr = strrchr(&linein[7], '\t');
 	if(vendorptr == NULL) continue;
@@ -656,6 +662,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                       : default ESSID minimum length: %d\n"
 	"--essid-max            : filter by ESSID maximum length\n"
 	"                       : default ESSID maximum length: %d\n"
+	"--oui                  : filter AP by OUI\n"
+	"                       : format: 001122 (hex)\n"
 	"--info=<file>          : output detailed information about content of hash file\n"
 	"--info=stdout          : stdout output detailed information about content of hash file\n"
 	"--help                 : show this help\n"
@@ -683,6 +691,7 @@ static char *pmkideapolinname;
 static char *pmkideapoloutname;
 static char *essidoutname;
 static char *infooutname;
+static char *ouistring;
 
 static const char *short_options = "i:o:E:dhv";
 static const struct option long_options[] =
@@ -692,6 +701,7 @@ static const struct option long_options[] =
 	{"essid-len",			required_argument,	NULL,	HCX_ESSID_LEN},
 	{"essid-min",			required_argument,	NULL,	HCX_ESSID_MIN},
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
+	{"oui",				required_argument,	NULL,	HCX_FILTER_OUI},
 	{"info",			required_argument,	NULL,	HCX_INFO_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
@@ -707,6 +717,8 @@ pmkideapolinname = NULL;
 pmkideapoloutname = NULL;
 essidoutname = NULL;
 infooutname = NULL;
+ouistring = NULL;
+flagfilteroui = false;
 essidgroupflag = false;
 hashtypein = 0;
 hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL;
@@ -741,7 +753,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_HASH_TYPE:
 		hashtypein |= strtol(optarg, NULL, 10);
-		if((hashtypein < HCX_TYPE_PMKID) || (hashtype < HCX_TYPE_EAPOL))
+		if((hashtypein < HCX_TYPE_PMKID) || (hashtypein < HCX_TYPE_EAPOL))
 			{
 			fprintf(stderr, "only hash types 1 and 2 allowed\n");
 			exit(EXIT_FAILURE);
@@ -779,8 +791,19 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		essidlenmax = essidlenin;
 		break;
 
+		case HCX_FILTER_OUI:
+		ouistring = optarg;
+		if(getfield(ouistring, 3, filteroui) != 3)
+			{
+			fprintf(stderr, "wrong OUI format\n");
+			exit(EXIT_FAILURE);
+			}
+		flagfilteroui = true;
+		break;
+
 		case HCX_DOWNLOAD_OUI:
 		downloadoui();
+
 		break;
 
 		case HCX_HELP:
@@ -821,6 +844,7 @@ if(pmkideapolinname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
+
 
 if(fh_pmkideapol != NULL) readpmkideapolfile(fh_pmkideapol);
 if(hashtypein > 0) hashtype = hashtypein;
