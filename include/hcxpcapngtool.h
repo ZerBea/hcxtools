@@ -127,13 +127,13 @@ static int sort_maclist_by_essidlen(const void *a, const void *b)
 {
 const maclist_t *ia = (const maclist_t *)a;
 const maclist_t *ib = (const maclist_t *)b;
+
 if(memcmp(ia->essid, ib->essid, ib->essidlen) > 0) return 1;
 else if(memcmp(ia->essid, ib->essid, ib->essidlen) < 0) return -1;
 if(ia->essidlen > ib->essidlen) return 1;
 else if(ia->essidlen < ib->essidlen) return -1;
 return 0;
 }
-
 /*===========================================================================*/
 struct messagelist_s
 {
@@ -171,7 +171,10 @@ static int sort_messagelist_by_epcount(const void *a, const void *b)
 {
 const messagelist_t *ia = (const messagelist_t *)a;
 const messagelist_t *ib = (const messagelist_t *)b;
-return (ia->eapolmsgcount < ib->eapolmsgcount);
+
+if(ia->eapolmsgcount > ib->eapolmsgcount) return -1;
+else if(ia->eapolmsgcount < ib->eapolmsgcount) return 1;
+return 0;
 }
 /*===========================================================================*/
 struct handshakelist_s
@@ -207,8 +210,6 @@ if(ia->rcgap > ib->rcgap) return 1;
 else if(ia->rcgap < ib->rcgap) return -1;
 return 0;
 }
-
-/*===========================================================================*/
 /*===========================================================================*/
 struct pmkidlist_s
 {
@@ -232,7 +233,6 @@ if(memcmp(ia->client, ib->client, 6) > 0) return 1;
 else if(memcmp(ia->client, ib->client, 6) < 0) return -1;
 if(memcmp(ia->pmkid, ib->pmkid, 6) < 0) return 1;
 else if(memcmp(ia->pmkid, ib->pmkid, 6) > 0) return -1;
-
 return 0;
 }
 /*===========================================================================*/

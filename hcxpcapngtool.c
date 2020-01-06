@@ -1278,7 +1278,6 @@ static uint8_t mpfield;
 
 eapolm2count++;
 eapolmsgcount++;
-
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen +EAPAUTH_SIZE > restlen) return;
