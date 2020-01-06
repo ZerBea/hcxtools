@@ -148,7 +148,6 @@ static void testeapolpmk(hashlist_t *zeiger)
 {
 static int keyver;
 static int p;
-
 static wpakey_t *wpak;
 static uint8_t *pkeptr;
 
@@ -241,7 +240,7 @@ else if(keyver == 3)
 			pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
 			pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
 		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
-		fprintf(stdout, "\n");
+		fprintf(stdout, "xxxx  \n");
 		}
 	}
 return;
@@ -293,7 +292,6 @@ static void testeapolpbkdf2(hashlist_t *zeiger)
 {
 static int keyver;
 static int p;
-
 static wpakey_t *wpak;
 static uint8_t *pkeptr;
 
@@ -424,21 +422,21 @@ zeigerold = hashlist;
 if(dopbkdf2(pskptrlen, pskptr, zeigerold->essidlen, zeigerold->essid) == true)
 	{
 	if(zeigerold->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeigerold);
-	else if (zeigerold->type == HCX_TYPE_EAPOL) testeapolpbkdf2(zeigerold);
+	if(zeigerold->type == HCX_TYPE_EAPOL) testeapolpbkdf2(zeigerold);
 	}
 for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
 	if((zeigerold->essidlen == zeiger->essidlen) && (memcmp(zeigerold->essid, zeiger->essid, zeigerold->essidlen) == 0))
 		{
 		if(zeiger->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeiger);
-		else if (zeiger->type == HCX_TYPE_EAPOL) testeapolpbkdf2(zeiger);
+		if(zeiger->type == HCX_TYPE_EAPOL) testeapolpbkdf2(zeiger);
 		}
 	else
 		{
-		if(dopbkdf2(pskptrlen, pskptr, zeiger->essidlen, zeigerold->essid) == true)
+		if(dopbkdf2(pskptrlen, pskptr, zeiger->essidlen, zeiger->essid) == true)
 			{
 			if(zeiger->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeiger);
-			else if (zeiger->type == HCX_TYPE_EAPOL) testeapolpbkdf2(zeiger);
+			if(zeiger->type == HCX_TYPE_EAPOL) testeapolpbkdf2(zeiger);
 			}
 		}
 	zeigerold = zeiger;
