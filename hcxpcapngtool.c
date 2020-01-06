@@ -837,31 +837,58 @@ static void outputwpalists()
 static maclist_t *zeigermac, *zeigermacold;
 static handshakelist_t *zeigerhsakt;
 static pmkidlist_t *zeigerpmkidakt;
+static int essiddupecount;
 
 qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_mac_count);
 qsort(pmkidlist, pmkidlistptr -pmkidlist, PMKIDLIST_SIZE, sort_pmkidlist_by_mac);
 qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_timegap);
 
+
 zeigerhsakt = handshakelist;
 zeigerpmkidakt = pmkidlist;
+zeigermacold = aplist;
+
+if(zeigermacold->type == AP)
+	{
+	if(ignoreieflag == true)
+		{
+		getpmkid(zeigermacold, zeigerpmkidakt);
+		gethandshake(zeigermacold, zeigerhsakt);
+		}
+	else if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+		{
+		getpmkid(zeigermacold, zeigerpmkidakt);
+		gethandshake(zeigermacold, zeigerhsakt);
+		}
+	}
+essiddupecount = 0;
 for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	{
-	if(zeigermac->type != AP) continue;
-	zeigermacold = zeigermac -essidsvalue;
-	if(zeigermacold >= aplist)
+	if(zeigermac->type != AP)
 		{
-		if(memcmp(zeigermacold->addr, zeigermac->addr, 6) == 0) continue;
+		essiddupecount = 0;
+		continue;
+		}
+	if(zeigermacold->type == AP)
+		{
+		if(memcmp(zeigermacold->addr, zeigermac->addr, 6) == 0)
+			{
+			essiddupecount++;
+			if(essiddupecount > essidsvalue) continue;
+			}
+		else essiddupecount = 0;
 		}
 	if(ignoreieflag == true)
 		{
 		getpmkid(zeigermac, zeigerpmkidakt);
 		gethandshake(zeigermac, zeigerhsakt);
 		}
-	else if (((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+	else if(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 		{
 		getpmkid(zeigermac, zeigerpmkidakt);
 		gethandshake(zeigermac, zeigerhsakt);
 		}
+	zeigermacold = zeigermac;
 	}
 return;
 }
