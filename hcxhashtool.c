@@ -16,6 +16,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <curl/curl.h>
+#include <openssl/sha.h>
+#include <openssl/evp.h>
+#include <openssl/hmac.h>
+#include <openssl/cmac.h>
 
 #if defined(__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
@@ -50,7 +54,9 @@ static int essidlen;
 static int essidlenmin;
 static int essidlenmax;
 
-static bool essidgroupflag;
+static bool flagessidgroup;
+static bool flagpsk;
+static bool flagpmk;
 
 static bool flagfilterouiap;
 static uint8_t filterouiap[3];
@@ -58,6 +64,10 @@ static uint8_t filterouiap[3];
 static bool flagfilterouiclient;
 static uint8_t filterouiclient[3];
 
+static int pskptrlen;
+static char *pskptr;
+static uint8_t pmkpbkdf2[32];
+static uint8_t pmk[32];
 /*===========================================================================*/
 static void closelists()
 {
@@ -96,14 +106,92 @@ if(readerrorcount > 0)		printf("read errors............: %ld\n", readerrorcount)
 if(pmkideapolcount > 0)		printf("valid hash lines.......: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)		printf("PMKID hash lines.......: %ld\n", pmkidcount);
 if(eapolcount > 0)		printf("EAPOL hash lines.......: %ld\n", eapolcount);
-printf("filter by ESSID LEN MIN: %d\n", essidlenmin);
-printf("filter by ESSID LEN MAX: %d\n", essidlenmax);
+printf("filter by ESSID len min: %d\n", essidlenmin);
+printf("filter by ESSID len max: %d\n", essidlenmax);
 if(flagfilterouiap == true)	printf("filter AP by OUI.......: %02x%02x%02x\n", filterouiap[0], filterouiap[1], filterouiap[2]);
 if(flagfilterouiclient == true)	printf("filter CLIENT by OUI...: %02x%02x%02x\n", filterouiclient[0], filterouiclient[1], filterouiclient[2]);
 if(pmkidwrittencount > 0)	printf("PMKID written..........: %ld\n", pmkidwrittencount);
 if(eapolwrittencount > 0)	printf("EAPOL written..........: %ld\n", eapolwrittencount);
 if(essidwrittencount > 0)	printf("ESSID (unique) written.: %ld\n", essidwrittencount);
 printf("\n");
+return;
+}
+/*===========================================================================*/
+static bool dopbkdf2(int psklen, char *psk, int essidlen, uint8_t *essid)
+{
+if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmkpbkdf2) == 0) return false;
+return true;
+}
+/*===========================================================================*/
+static void testhashfilepmk()
+{
+static hashlist_t *zeiger;
+
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+
+	}
+return;
+}
+/*===========================================================================*/
+static void testpmkid(hashlist_t *zeiger)
+{
+static int p;
+static const char *pmkname = "PMK Name";
+static uint8_t salt[32];
+static uint8_t pmkidcalc[32];
+
+memcpy(&salt, pmkname, 8);
+memcpy(&salt[8], zeiger->ap, 6);
+memcpy(&salt[14], zeiger->client, 6);
+HMAC(EVP_sha1(), &pmkpbkdf2, 32, salt, 20, pmkidcalc, NULL);
+
+if(memcmp(&pmkidcalc, zeiger->hash, 16) == 0)
+	{
+	fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
+		pmkpbkdf2[0], pmkpbkdf2[1], pmkpbkdf2[2], pmkpbkdf2[3], pmkpbkdf2[4], pmkpbkdf2[5], pmkpbkdf2[6], pmkpbkdf2[7],
+		pmkpbkdf2[8], pmkpbkdf2[9], pmkpbkdf2[10], pmkpbkdf2[11], pmkpbkdf2[12], pmkpbkdf2[13], pmkpbkdf2[14], pmkpbkdf2[15],
+		pmkpbkdf2[16], pmkpbkdf2[17], pmkpbkdf2[18], pmkpbkdf2[19], pmkpbkdf2[20], pmkpbkdf2[21], pmkpbkdf2[22], pmkpbkdf2[23],
+		pmkpbkdf2[24], pmkpbkdf2[25], pmkpbkdf2[26], pmkpbkdf2[27], pmkpbkdf2[28], pmkpbkdf2[29], pmkpbkdf2[30], pmkpbkdf2[31]);
+	for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+	fprintf(stdout, ":%s\n" , pskptr);
+	}
+return;
+}
+/*===========================================================================*/
+static void testhashfilepsk()
+{
+static hashlist_t *zeiger, *zeigerold;
+
+	printf("hallo \n");
+
+zeigerold = hashlist;
+if(dopbkdf2(pskptrlen, pskptr, zeigerold->essidlen, zeigerold->essid) == true)
+	{
+	if(zeigerold->type == HCX_TYPE_PMKID) testpmkid(zeigerold);
+//	else (zeigerold->type == HCX_TYPE_EAPOL)
+	}
+
+for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+	if(zeigerold->essidlen == zeiger->essidlen)
+		{
+		if(memcmp(zeigerold->essid, zeiger->essid, zeigerold->essidlen) == 0)
+			{
+			if(zeiger->type == HCX_TYPE_PMKID) testpmkid(zeigerold);
+//			else (zeiger->type == HCX_TYPE_EAPOL)
+			}
+		}
+	else
+		{
+		if(dopbkdf2(pskptrlen, pskptr, zeigerold->essidlen, zeigerold->essid) == true)
+			{
+			if(zeigerold->type == HCX_TYPE_PMKID) testpmkid(zeigerold);
+//			else (zeigerold->type == HCX_TYPE_EAPOL)
+			}
+		}
+	zeigerold = zeiger;
+	}
 return;
 }
 /*===========================================================================*/
@@ -403,8 +491,8 @@ static hashlist_t *zeiger, *hashlistnew;
 static const char wpa01[] = { "WPA*01*" };
 static const char wpa02[] = { "WPA*02*" };
 
-static char linein[PMKIDEAPOL_LINE_LEN];
-static uint8_t buffer[PMKIDEAPOL_LINE_LEN];
+static char linein[PMKIDEAPOL_LINE_LEN +1];
+static uint8_t buffer[PMKIDEAPOL_LINE_LEN +1];
 
 zeiger = hashlist;
 while(1)
@@ -524,8 +612,8 @@ static const char *ouinameuser = "/.hcxtools/oui.txt";
 static const char *ouinamesystemwide = "/usr/share/ieee-data/oui.txt";
 static const char *ouina = "N/A";
 
-static char ouinameuserpath[PATH_MAX];
-static char linein[OUI_LINE_LEN];
+static char ouinameuserpath[PATH_MAX +1];
+static char linein[OUI_LINE_LEN +1];
 
 usedoui = ouina;
 uid = getuid();
@@ -657,6 +745,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                       : format: 001122 (hex)\n"
 	"--info=<file>          : output detailed information about content of hash file\n"
 	"--info=stdout          : stdout output detailed information about content of hash file\n"
+	"--psk=<PSK>            : pre-shared key to test\n"
+	"                       : due to PBKDF2 calculation this is a very slow process\n"
+	"--pmk=<PMK>            : plain master key to test\n"
 	"--help                 : show this help\n"
 	"--version              : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, ESSID_LEN_MIN, ESSID_LEN_MAX, ESSID_LEN_MIN, ESSID_LEN_MAX);
@@ -682,7 +773,8 @@ static char *pmkideapolinname;
 static char *pmkideapoloutname;
 static char *essidoutname;
 static char *infooutname;
-static char *ouistring;
+static char *ouiinstring;
+static char *pmkinstring;
 
 static const char *short_options = "i:o:E:dhv";
 static const struct option long_options[] =
@@ -694,6 +786,8 @@ static const struct option long_options[] =
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
 	{"oui-client",			required_argument,	NULL,	HCX_FILTER_OUI_CLIENT},
+	{"psk",				required_argument,	NULL,	HCX_PSK},
+	{"pmk",				required_argument,	NULL,	HCX_PMK},
 	{"info",			required_argument,	NULL,	HCX_INFO_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
@@ -709,10 +803,13 @@ pmkideapolinname = NULL;
 pmkideapoloutname = NULL;
 essidoutname = NULL;
 infooutname = NULL;
-ouistring = NULL;
+ouiinstring = NULL;
+pmkinstring = NULL;
 flagfilterouiap = false;
 flagfilterouiclient = false;
-essidgroupflag = false;
+flagpsk = false;
+flagpmk = false;
+flagessidgroup = false;
 hashtypein = 0;
 hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL;
 essidlenin = ESSID_LEN_MAX;
@@ -741,7 +838,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_ESSID_GROUP:
-		essidgroupflag = true;
+		flagessidgroup = true;
 		break;
 
 		case HCX_HASH_TYPE:
@@ -785,8 +882,8 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_FILTER_OUI_AP:
-		ouistring = optarg;
-		if(getfield(ouistring, 3, filterouiap) != 3)
+		ouiinstring = optarg;
+		if(getfield(ouiinstring, 3, filterouiap) != 3)
 			{
 			fprintf(stderr, "wrong OUI format\n");
 			exit(EXIT_FAILURE);
@@ -795,8 +892,8 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_FILTER_OUI_CLIENT:
-		ouistring = optarg;
-		if(getfield(ouistring, 3, filterouiclient) != 3)
+		ouiinstring = optarg;
+		if(getfield(ouiinstring, 3, filterouiclient) != 3)
 			{
 			fprintf(stderr, "wrong OUI format\n");
 			exit(EXIT_FAILURE);
@@ -804,9 +901,29 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		flagfilterouiclient = true;
 		break;
 
+		case HCX_PSK:
+		pskptr = optarg;
+		pskptrlen = strlen(pskptr);
+		if((pskptrlen < 0) || (pskptrlen > 63))
+			{
+			fprintf(stderr, "only 0...63 characters allowed\n");
+			exit(EXIT_FAILURE);
+			}
+		flagpsk = true;
+		break;
+
+		case HCX_PMK:
+		pmkinstring = optarg;
+		if(getfield(pmkinstring, 32, pmk) != 32)
+			{
+			fprintf(stderr, "wrong PMK length \n");
+			exit(EXIT_FAILURE);
+			}
+		flagpmk = true;
+		break;
+
 		case HCX_DOWNLOAD_OUI:
 		downloadoui();
-
 		break;
 
 		case HCX_HELP:
@@ -848,14 +965,15 @@ if(pmkideapolinname != NULL)
 		}
 	}
 
-
 if(fh_pmkideapol != NULL) readpmkideapolfile(fh_pmkideapol);
 if(hashtypein > 0) hashtype = hashtypein;
 
 if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
 if((pmkideapolcount > 0) && (pmkideapoloutname != NULL)) writeeapolpmkidfile(pmkideapoloutname);
 if((pmkideapolcount > 0) && (infooutname != NULL)) writeinfofile(infooutname);
-if((pmkideapolcount > 0) && (essidgroupflag == true)) writeeapolpmkidgroups();
+if((pmkideapolcount > 0) && (flagessidgroup == true)) writeeapolpmkidgroups();
+if((pmkideapolcount > 0) && (flagpsk == true)) testhashfilepsk();
+if((pmkideapolcount > 0) && (flagpmk == true)) testhashfilepmk();
 
 printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
