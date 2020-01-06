@@ -1060,7 +1060,7 @@ else
 return;
 }
 /*===========================================================================*/
-static void process80211exteap(uint32_t eapauthlen, uint8_t *eapptr)
+static void process80211exteap(uint32_t restlen, uint8_t *eapptr)
 {
 static eapauth_t *eapauth;
 static uint32_t authlen;
@@ -1069,10 +1069,10 @@ static uint32_t exteaplen;
 static uint32_t idstrlen;
 
 eapcount++;
-if(eapauthlen < (int)EAPAUTH_SIZE) return; 
+if(restlen < (int)EAPAUTH_SIZE) return; 
 eapauth = (eapauth_t*)eapptr;
 authlen = ntohs(eapauth->len);
-if(authlen > eapauthlen) return;
+if(authlen > restlen) return;
 exteap = (exteap_t*)(eapptr +EAPAUTH_SIZE);
 exteaplen = ntohs(exteap->len);
 if(exteaplen > authlen) return;
@@ -1115,7 +1115,7 @@ else if(exteap->code == EAP_CODE_RESP)
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t eapauthlen, uint8_t *eapauthptr)
+static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapauthptr)
 {
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
@@ -1130,10 +1130,10 @@ static uint8_t mpfield;
 
 eapolm4count++;
 eapolmsgcount++;
-if(eapauthlen > 255) return;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
-if(authlen > eapauthlen) return;
+if(authlen +EAPAUTH_SIZE > restlen) return;
+if(authlen +EAPAUTH_SIZE > 256) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -1155,8 +1155,8 @@ memcpy(zeiger->ap, macto, 6);
 zeiger->message = HS_M4;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
-zeiger->eapauthlen = eapauthlen;
-memcpy(zeiger->eapol, eapauthptr, eapauthlen);
+zeiger->eapauthlen = authlen +EAPAUTH_SIZE;
+memcpy(zeiger->eapol, eapauthptr, zeiger->eapauthlen);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if(zeiger->message == HS_M3)
@@ -1189,7 +1189,7 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epc
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m3(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t eapauthlen, uint8_t *eapauthptr)
+static void process80211eapol_m3(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapauthptr)
 {
 static messagelist_t *zeiger;
 static messagelist_t *zeigerakt;
@@ -1208,7 +1208,7 @@ eapolmsgcount++;
 zeigerakt = messagelist +MESSAGELIST_MAX;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
-if(authlen > eapauthlen) return;
+if(authlen > restlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -1263,7 +1263,7 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epc
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m2(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t eapauthlen, uint8_t *eapauthptr)
+static void process80211eapol_m2(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapauthptr)
 {
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
@@ -1278,10 +1278,11 @@ static uint8_t mpfield;
 
 eapolm2count++;
 eapolmsgcount++;
-if(eapauthlen > 256) return;
+
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
-if(authlen > eapauthlen) return;
+if(authlen +EAPAUTH_SIZE > restlen) return;
+if(authlen +EAPAUTH_SIZE > 256) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -1303,8 +1304,8 @@ memcpy(zeiger->ap, macto, 6);
 zeiger->message = HS_M2;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
-zeiger->eapauthlen = eapauthlen;
-memcpy(zeiger->eapol, eapauthptr, eapauthlen);
+zeiger->eapauthlen = authlen +EAPAUTH_SIZE;
+memcpy(zeiger->eapol, eapauthptr, zeiger->eapauthlen);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if((zeiger->message &HS_M1) != HS_M1) continue;
@@ -1331,7 +1332,7 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epc
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m1(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t eapauthlen, uint8_t *eapauthptr)
+static void process80211eapol_m1(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapauthptr)
 {
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
@@ -1346,7 +1347,7 @@ eapolm1count++;
 eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
-if(authlen > eapauthlen) return;
+if(authlen > restlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -1418,17 +1419,17 @@ else if(keyinfo == 4) process80211eapol_m4(eaptimestamp, macto, macfm, eapauthle
 return;
 }
 /*===========================================================================*/
-static void process80211eap(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t eaplen, uint8_t *eapptr)
+static void process80211eap(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapptr)
 {
 static eapauth_t *eapauth;
 
 eapauth = (eapauth_t*)eapptr;
-if(eaplen < (int)EAPAUTH_SIZE) return; 
+if(restlen < (int)EAPAUTH_SIZE) return; 
 if(eapauth->type == EAPOL_KEY)
 	{
-	process80211eapol(eaptimestamp, macto, macfm, eaplen, eapptr);
+	process80211eapol(eaptimestamp, macto, macfm, restlen, eapptr);
 	}
-else if(eapauth->type == EAP_PACKET) process80211exteap(eaplen, eapptr);
+else if(eapauth->type == EAP_PACKET) process80211exteap(restlen, eapptr);
 //else if(eapauth->type == EAPOL_ASF) process80211exteap_asf();
 //else if(eapauth->type == EAPOL_MKA) process80211exteap_mka();
 else if(eapauth->type == EAPOL_START)
