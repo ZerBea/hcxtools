@@ -1,7 +1,7 @@
 #define HCX_EAPOL_TIMEOUT			1
 #define HCX_NC					2
 #define HCX_IE					3
-#define HCX_NOT_CLEAN				4
+#define HCX_CONVERT_ALL				4
 #define HCX_ESSIDS				5
 #define HCX_NMEA_OUT				7
 #define HCX_PMKID_OUT_DEPRECATED		8
@@ -30,6 +30,13 @@
 
 #define HCX_TYPE_PMKID		1
 #define HCX_TYPE_EAPOL		2
+
+#define	MESSAGE_PAIR_M12E2	0
+#define	MESSAGE_PAIR_M14E4	1
+#define	MESSAGE_PAIR_M32E2	2
+#define	MESSAGE_PAIR_M32E3	3
+#define	MESSAGE_PAIR_M34E3	4
+#define	MESSAGE_PAIR_M34E4	5
 
 /*===========================================================================*/
 /*===========================================================================*/

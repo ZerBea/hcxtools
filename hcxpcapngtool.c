@@ -2915,6 +2915,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-v        : show version\n"
 	"\n"
 	"long options:\n"
+	"--all                              : convert all possible hashes instead of only the best one\n"
+	"                                     that can lead to much overhead hashes\n"
+	"                                     use hcxhashtool to filter hashes\n"
 	"--eapoltimeout=<digit>             : set EAPOL TIMEOUT (milliseconds)\n"
 	"                                   : default: %d ms\n"
 	"--nonce-error-corrections=<digit>  : set nonce error correction\n"
@@ -2924,8 +2927,6 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     this will convert all frames regadless of\n"
 	"                                     CIPHER and/OR AKM information,\n"
 	"                                     and can lead to uncrackable hashes\n"
-	"--do-not-clean                     : convert all possible hashes\n"
-	"                                     that can lead to much overhead hashes\n"
 	"--max-essids=<digit>               : maximum allowed ESSIDs\n"
 	"                                     default: %d ESSID\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
@@ -2987,10 +2988,10 @@ static struct stat statinfo;
 static const char *short_options = "o:E:I:hv";
 static const struct option long_options[] =
 {
+	{"all",				no_argument,		NULL,	HCX_CONVERT_ALL},
 	{"eapoltimeout",		required_argument,	NULL,	HCX_EAPOL_TIMEOUT},
 	{"nonce-error-corrections",	required_argument,	NULL,	HCX_NC},
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
-	{"do-not-clean",		no_argument,		NULL,	HCX_NOT_CLEAN},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"nmea",			required_argument,	NULL,	HCX_NMEA_OUT},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
@@ -3043,7 +3044,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		ignoreieflag = true;
 		break;
 
-		case HCX_NOT_CLEAN:
+		case HCX_CONVERT_ALL:
 		donotcleanflag = true;
 		break;
 
