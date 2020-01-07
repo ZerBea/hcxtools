@@ -67,6 +67,10 @@ static bool flagpmk;
 static bool flagessidgroup;
 static bool flagvendorout;
 
+static bool flagfiltermac;
+static uint8_t filtermac[6];
+
+
 static bool flagfilterouiap;
 static uint8_t filterouiap[3];
 
@@ -523,6 +527,7 @@ static int p;
 
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
+if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
 if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
 if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
 if(filteressidptr != NULL)
@@ -595,6 +600,7 @@ static char *vendor;
 
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
+if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
 if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
 if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
 if(filteressidptr != NULL)
@@ -1074,6 +1080,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                             : default ESSID maximum length: %d\n"
 	"--essid=<ESSID>              : filter by ESSID\n"
 	"--essid_part=<part of ESSID> : filter by part of ESSID\n"
+	"--mac=<MAC>                  : filter by MAC\n"
+	"                             : format: 001122334455 (hex)\n"
 	"--oui-ap                     : filter AP by OUI\n"
 	"                             : format: 001122 (hex)\n"
 	"--oui-client                 : filter CLIENT by OUI\n"
@@ -1113,6 +1121,7 @@ static char *pmkideapoloutname;
 static char *essidoutname;
 static char *infooutname;
 static char *ouiinstring;
+static char *macinstring;
 static char *pmkinstring;
 
 static const char *short_options = "i:o:E:dhv";
@@ -1125,6 +1134,7 @@ static const struct option long_options[] =
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
 	{"essid",			required_argument,	NULL,	HCX_FILTER_ESSID},
 	{"essid-part",			required_argument,	NULL,	HCX_FILTER_ESSID_PART},
+	{"mac",				required_argument,	NULL,	HCX_FILTER_MAC},
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
 	{"vendor",			required_argument,	NULL,	HCX_FILTER_VENDOR},
 	{"oui-client",			required_argument,	NULL,	HCX_FILTER_OUI_CLIENT},
@@ -1147,10 +1157,12 @@ pmkideapoloutname = NULL;
 essidoutname = NULL;
 infooutname = NULL;
 ouiinstring = NULL;
+macinstring = NULL;
 pmkinstring = NULL;
 filteressidptr = NULL;
 filteressidpartptr = NULL;
 filtervendorptr = NULL;
+flagfiltermac = false;
 flagfilterouiap = false;
 flagfilterouiclient = false;
 flagpsk = false;
@@ -1260,6 +1272,16 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			exit(EXIT_FAILURE);
 			}
 		flagfilterouiap = true;
+		break;
+
+		case HCX_FILTER_MAC:
+		macinstring = optarg;
+		if(getfield(macinstring, 6, filtermac) != 6)
+			{
+			fprintf(stderr, "wrong MAC format\n");
+			exit(EXIT_FAILURE);
+			}
+		flagfiltermac = true;
 		break;
 
 		case HCX_FILTER_VENDOR:
