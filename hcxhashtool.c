@@ -105,6 +105,11 @@ static void printstatus()
 printf("\nOUI information file...: %s\n", usedoui);
 if(ouicount > 0)		printf("OUI entires............: %d\n", ouicount);
 if(readcount > 0)		printf("total lines read.......: %ld\n", readcount);
+if(flagvendorout == true)
+	{
+	printf("\n");
+	return;
+	}
 if(readerrorcount > 0)		printf("read errors............: %ld\n", readerrorcount);
 if(pmkideapolcount > 0)		printf("valid hash lines.......: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)		printf("PMKID hash lines.......: %ld\n", pmkidcount);
@@ -1004,6 +1009,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                       : format: 001122 (hex)\n"
 	"--info=<file>          : output detailed information about content of hash file\n"
 	"--info=stdout          : stdout output detailed information about content of hash file\n"
+	"--vendorlist           : stdout output VENDOR list sorted by OUI\n"
 	"--psk=<PSK>            : pre-shared key to test\n"
 	"                       : due to PBKDF2 calculation this is a very slow process\n"
 	"                       : no nonce error corrections\n"
