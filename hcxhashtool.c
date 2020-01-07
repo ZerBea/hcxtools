@@ -1061,7 +1061,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                            : format: 001122 (hex)\n"
 	"--oui-client                : filter CLIENT by OUI\n"
 	"                            : format: 001122 (hex)\n"
-	"--vendor-ap=<VENDOR>        : filter AP by (part of) VENDOR name\n"
+	"--vendor=<VENDOR>           : filter by (part of) VENDOR name\n"
 	"--info=<file>               : output detailed information about content of hash file\n"
 	"--info=stdout               : stdout output detailed information about content of hash file\n"
 	"--vendorlist                : stdout output VENDOR list sorted by OUI\n"
@@ -1109,7 +1109,7 @@ static const struct option long_options[] =
 	{"essid",			required_argument,	NULL,	HCX_FILTER_ESSID},
 	{"essid-part",			required_argument,	NULL,	HCX_FILTER_ESSID_PART},
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
-	{"vendor-ap",			required_argument,	NULL,	HCX_FILTER_VENDOR},
+	{"vendor",			required_argument,	NULL,	HCX_FILTER_VENDOR},
 	{"oui-client",			required_argument,	NULL,	HCX_FILTER_OUI_CLIENT},
 	{"psk",				required_argument,	NULL,	HCX_PSK},
 	{"pmk",				required_argument,	NULL,	HCX_PMK},
