@@ -618,10 +618,6 @@ if(filtervendorptr != 0)
 	if(isoui(zeiger->ap) == false) return;
 	}
 
-
-
-
-
 fprintf(fh_pmkideapol, "SSID......: %.*s\n", zeiger->essidlen, zeiger->essid);
 vendor = getvendor(zeiger->ap);
 fprintf(fh_pmkideapol, "MAC_AP....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], vendor);
@@ -635,6 +631,17 @@ if(zeiger->type == HCX_TYPE_PMKID)
 	}
 if(zeiger->type == HCX_TYPE_EAPOL)
 	{
+	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2: not authorized\n");
+	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4: authorized\n");
+	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2: authorized\n");
+	if((zeiger->mp & 0x07) == 0x03) fprintf(fh_pmkideapol, "MP M2M3 E3: authorized\n");
+	if((zeiger->mp & 0x07) == 0x04) fprintf(fh_pmkideapol, "MP M3M4 E3: authorized\n");
+	if((zeiger->mp & 0x07) == 0x05) fprintf(fh_pmkideapol, "MP M3M4 E4: authorized\n");
+	if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO...: replycount checked\n");
+	if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO...: not replycount checked / nc required\n");
+	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO...: AP-LESS attack / nc not reqired\n");
+	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO...: little endian router / nc LE required\n");
+	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO...: big endian router / nc BE required\n");
 	fprintf(fh_pmkideapol, "MIC.......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
 		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
 		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
