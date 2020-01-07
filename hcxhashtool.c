@@ -55,6 +55,12 @@ static int hashtype;
 static int essidlen;
 static int essidlenmin;
 static int essidlenmax;
+static int filteressidlen;
+static char *filteressidptr;
+static int filteressidpartlen;
+static char *filteressidpartptr;
+
+static char *filtervendorptr;
 
 static bool flagpsk;
 static bool flagpmk;
@@ -116,7 +122,10 @@ if(pmkidcount > 0)		printf("PMKID hash lines.......: %ld\n", pmkidcount);
 if(eapolcount > 0)		printf("EAPOL hash lines.......: %ld\n", eapolcount);
 printf("filter by ESSID len min: %d\n", essidlenmin);
 printf("filter by ESSID len max: %d\n", essidlenmax);
+if(filteressidptr != NULL)	printf("filter by ESSID........: %s\n", filteressidptr);
+if(filteressidpartptr != NULL)	printf("filter by part of ESSID: %s\n", filteressidpartptr);
 if(flagfilterouiap == true)	printf("filter AP by OUI.......: %02x%02x%02x\n", filterouiap[0], filterouiap[1], filterouiap[2]);
+if(filtervendorptr != NULL)	printf("filter AP by VENDOR....: %s\n", filtervendorptr);
 if(flagfilterouiclient == true)	printf("filter CLIENT by OUI...: %02x%02x%02x\n", filterouiclient[0], filterouiclient[1], filterouiclient[2]);
 if(pmkidwrittencount > 0)	printf("PMKID written..........: %ld\n", pmkidwrittencount);
 if(eapolwrittencount > 0)	printf("EAPOL written..........: %ld\n", eapolwrittencount);
@@ -483,6 +492,21 @@ if(stat(essidoutname, &statinfo) == 0)
 return;
 }
 /*===========================================================================*/
+/*===========================================================================*/
+static bool ispartof(int plen, uint8_t *pbuff, int slen, uint8_t *sbuff)
+{
+static int p;
+if(plen > slen) return false;
+
+for(p = 0; p <= slen -plen; p++)
+	{
+	if(memcmp(&sbuff[p], pbuff, plen) == 0) return true;
+	}
+printf("hallo\n");
+return false;
+}
+/*===========================================================================*/
+/*===========================================================================*/
 static void writepmkideapolhashline(FILE *fh_pmkideapol, hashlist_t *zeiger)
 {
 static int p;
@@ -491,6 +515,18 @@ if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
 if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
 if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
+if(filteressidptr != NULL)
+	{
+	if(zeiger->essidlen != filteressidlen) return;
+	if(memcmp(zeiger->essid, filteressidptr, zeiger->essidlen) != 0) return;
+	}
+if(filteressidpartptr != NULL)
+	{
+	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	}
+
+
+
 
 if(zeiger->type == HCX_TYPE_PMKID)
 	{
@@ -548,6 +584,19 @@ if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
 if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
 if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
+if(filteressidptr != NULL)
+	{
+	if(zeiger->essidlen != filteressidlen) return;
+	if(memcmp(zeiger->essid, filteressidptr, zeiger->essidlen) != 0) return;
+	}
+if(filteressidpartptr != NULL)
+	{
+	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	}
+
+
+
+
 
 fprintf(fh_pmkideapol, "SSID......: %.*s\n", zeiger->essidlen, zeiger->essid);
 vendor = getvendor(zeiger->ap);
@@ -857,9 +906,8 @@ return true;
 static void showvendorlist()
 {
 static ouilist_t *zeiger;
-
+fprintf(stdout, "\n");
 for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++) fprintf(stdout, "%02x%02x%02x %s\n", zeiger->oui[0], zeiger->oui[1], zeiger->oui[2], zeiger->vendor); 
-
 return;
 }
 /*===========================================================================*/
@@ -897,6 +945,10 @@ while(1)
 	linein[6] = 0;
 	if(getfield(linein, OUI_LINE_LEN, zeiger->oui) != 3) continue;
 	if(strstr(&linein[7], "(base 16)") == NULL) continue;
+	if(filtervendorptr != NULL)
+		{
+		if(strstr(&linein[7], filtervendorptr) == NULL) continue;
+		}
 	vendorptr = strrchr(&linein[7], '\t');
 	if(vendorptr == NULL) continue;
 	if(vendorptr++ == 0) continue;
@@ -993,30 +1045,33 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
-	"--type                 : filter by hash type\n"
-	"                       : default PMKID (1) and EAPOL (2)\n"
-	"--essid-group          : convert to ESSID groups\n"
-	"                         full advantage of reuse of PBKDF2\n"
-	"--essid-len            : filter by ESSID length\n"
-	"                       : default ESSID length: %d...%d\n"
-	"--essid-min            : filter by ESSID minimum length\n"
-	"                       : default ESSID minimum length: %d\n"
-	"--essid-max            : filter by ESSID maximum length\n"
-	"                       : default ESSID maximum length: %d\n"
-	"--oui-ap               : filter AP by OUI\n"
-	"                       : format: 001122 (hex)\n"
-	"--oui-client           : filter CLIENT by OUI\n"
-	"                       : format: 001122 (hex)\n"
-	"--info=<file>          : output detailed information about content of hash file\n"
-	"--info=stdout          : stdout output detailed information about content of hash file\n"
-	"--vendorlist           : stdout output VENDOR list sorted by OUI\n"
-	"--psk=<PSK>            : pre-shared key to test\n"
-	"                       : due to PBKDF2 calculation this is a very slow process\n"
-	"                       : no nonce error corrections\n"
-	"--pmk=<PMK>            : plain master key to test\n"
-	"                       : no nonce error corrections\n"
-	"--help                 : show this help\n"
-	"--version              : show version\n"
+	"--type                      : filter by hash type\n"
+	"                            : default PMKID (1) and EAPOL (2)\n"
+	"--essid-group               : convert to ESSID groups\n"
+	"                              full advantage of reuse of PBKDF2\n"
+	"--essid-len                 : filter by ESSID length\n"
+	"                            : default ESSID length: %d...%d\n"
+	"--essid-min                 : filter by ESSID minimum length\n"
+	"                            : default ESSID minimum length: %d\n"
+	"--essid-max                 : filter by ESSID maximum length\n"
+	"                            : default ESSID maximum length: %d\n"
+	"--essid=<ESSID>             : filter by ESSID\n"
+	"--essid_part=<part ofESSID> : filter by part of ESSID\n"
+	"--oui-ap                    : filter AP by OUI\n"
+	"                            : format: 001122 (hex)\n"
+	"--oui-client                : filter CLIENT by OUI\n"
+	"                            : format: 001122 (hex)\n"
+	"--vendor-ap=<VENDOR>        : filter AP by (part of) VENDOR name\n"
+	"--info=<file>               : output detailed information about content of hash file\n"
+	"--info=stdout               : stdout output detailed information about content of hash file\n"
+	"--vendorlist                : stdout output VENDOR list sorted by OUI\n"
+	"--psk=<PSK>                 : pre-shared key to test\n"
+	"                            : due to PBKDF2 calculation this is a very slow process\n"
+	"                            : no nonce error corrections\n"
+	"--pmk=<PMK>                 : plain master key to test\n"
+	"                            : no nonce error corrections\n"
+	"--help                      : show this help\n"
+	"--version                   : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, ESSID_LEN_MIN, ESSID_LEN_MAX, ESSID_LEN_MIN, ESSID_LEN_MAX);
 exit(EXIT_SUCCESS);
 }
@@ -1051,7 +1106,10 @@ static const struct option long_options[] =
 	{"essid-len",			required_argument,	NULL,	HCX_ESSID_LEN},
 	{"essid-min",			required_argument,	NULL,	HCX_ESSID_MIN},
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
+	{"essid",			required_argument,	NULL,	HCX_FILTER_ESSID},
+	{"essid-part",			required_argument,	NULL,	HCX_FILTER_ESSID_PART},
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
+	{"vendor-ap",			required_argument,	NULL,	HCX_FILTER_VENDOR},
 	{"oui-client",			required_argument,	NULL,	HCX_FILTER_OUI_CLIENT},
 	{"psk",				required_argument,	NULL,	HCX_PSK},
 	{"pmk",				required_argument,	NULL,	HCX_PMK},
@@ -1073,6 +1131,9 @@ essidoutname = NULL;
 infooutname = NULL;
 ouiinstring = NULL;
 pmkinstring = NULL;
+filteressidptr = NULL;
+filteressidpartptr = NULL;
+filtervendorptr = NULL;
 flagfilterouiap = false;
 flagfilterouiclient = false;
 flagpsk = false;
@@ -1154,6 +1215,26 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		essidlenmax = essidlenin;
 		break;
 
+		case HCX_FILTER_ESSID:
+		filteressidptr = optarg;
+		filteressidlen = strlen(filteressidptr);
+		if((filteressidlen  < 1) || (filteressidlen > ESSID_LEN_MAX))
+			{
+			fprintf(stderr, "only values 0...32 allowed\n");
+			exit(EXIT_FAILURE);
+			}
+		break;
+
+		case HCX_FILTER_ESSID_PART:
+		filteressidpartptr = optarg;
+		filteressidpartlen = strlen(filteressidpartptr);
+		if((filteressidpartlen  < 1) || (filteressidpartlen > ESSID_LEN_MAX))
+			{
+			fprintf(stderr, "only values 0...32 allowed\n");
+			exit(EXIT_FAILURE);
+			}
+		break;
+
 		case HCX_FILTER_OUI_AP:
 		ouiinstring = optarg;
 		if(getfield(ouiinstring, 3, filterouiap) != 3)
@@ -1162,6 +1243,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			exit(EXIT_FAILURE);
 			}
 		flagfilterouiap = true;
+		break;
+
+		case HCX_FILTER_VENDOR:
+		filtervendorptr = optarg;
 		break;
 
 		case HCX_FILTER_OUI_CLIENT:
