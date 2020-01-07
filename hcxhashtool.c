@@ -56,9 +56,10 @@ static int essidlen;
 static int essidlenmin;
 static int essidlenmax;
 
-static bool flagessidgroup;
 static bool flagpsk;
 static bool flagpmk;
+static bool flagessidgroup;
+static bool flagvendorout;
 
 static bool flagfilterouiap;
 static uint8_t filterouiap[3];
@@ -848,6 +849,15 @@ while(1)
 return true;
 }
 /*===========================================================================*/
+static void showvendorlist()
+{
+static ouilist_t *zeiger;
+
+for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++) fprintf(stdout, "%02x%02x%02x %s\n", zeiger->oui[0], zeiger->oui[1], zeiger->oui[2], zeiger->vendor); 
+
+return;
+}
+/*===========================================================================*/
 static void readoui()
 {
 static int len;
@@ -1039,6 +1049,7 @@ static const struct option long_options[] =
 	{"oui-client",			required_argument,	NULL,	HCX_FILTER_OUI_CLIENT},
 	{"psk",				required_argument,	NULL,	HCX_PSK},
 	{"pmk",				required_argument,	NULL,	HCX_PMK},
+	{"vendorlist",			no_argument,		NULL,	HCX_VENDOR_OUT},
 	{"info",			required_argument,	NULL,	HCX_INFO_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
@@ -1061,6 +1072,7 @@ flagfilterouiclient = false;
 flagpsk = false;
 flagpmk = false;
 flagessidgroup = false;
+flagvendorout = false;
 hashtypein = 0;
 hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL;
 essidlenin = ESSID_LEN_MAX;
@@ -1082,6 +1094,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_ESSID_OUT:
 		essidoutname = optarg;
+		break;
+
+		case HCX_VENDOR_OUT:
+		flagvendorout = true;
 		break;
 
 		case HCX_INFO_OUT:
@@ -1206,6 +1222,14 @@ if(argc < 2)
 if(initlists() == false) exit(EXIT_FAILURE);
 
 readoui();
+if((ouicount > 0) && (flagvendorout == true))
+	{
+	showvendorlist();
+	printstatus();
+	closelists();
+	return EXIT_SUCCESS;
+	}
+
 if(pmkideapolinname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapolinname, "a+")) == NULL)

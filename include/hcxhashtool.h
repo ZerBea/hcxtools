@@ -21,7 +21,8 @@
 #define HCX_FILTER_OUI_CLIENT	7
 #define HCX_PSK			8
 #define HCX_PMK			9
-#define HCX_INFO_OUT		10
+#define HCX_VENDOR_OUT		10
+#define HCX_INFO_OUT		11
 #define HCX_PMKIDEAPOL_IN	'i'
 #define HCX_PMKIDEAPOL_OUT	'o'
 #define HCX_ESSID_OUT		'E'
