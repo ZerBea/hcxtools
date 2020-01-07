@@ -862,7 +862,7 @@ if(zeigermacold->type == AP)
 		}
 	}
 essiddupecount = 0;
-for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
+for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 	{
 	if(zeigermac->type != AP)
 		{
