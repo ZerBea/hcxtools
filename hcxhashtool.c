@@ -493,6 +493,17 @@ return;
 }
 /*===========================================================================*/
 /*===========================================================================*/
+static bool isoui(uint8_t *mac)
+{
+static ouilist_t *zeiger;
+
+for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
+	{
+	if(memcmp(mac, zeiger->oui, 3) == 0) return true;
+	}
+return false;
+}
+/*===========================================================================*/
 static bool ispartof(int plen, uint8_t *pbuff, int slen, uint8_t *sbuff)
 {
 static int p;
@@ -502,7 +513,6 @@ for(p = 0; p <= slen -plen; p++)
 	{
 	if(memcmp(&sbuff[p], pbuff, plen) == 0) return true;
 	}
-printf("hallo\n");
 return false;
 }
 /*===========================================================================*/
@@ -524,7 +534,10 @@ if(filteressidpartptr != NULL)
 	{
 	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
-
+if(filtervendorptr != 0)
+	{
+	if(isoui(zeiger->ap) == false) return;
+	}
 
 
 
@@ -592,6 +605,10 @@ if(filteressidptr != NULL)
 if(filteressidpartptr != NULL)
 	{
 	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	}
+if(filtervendorptr != 0)
+	{
+	if(isoui(zeiger->ap) == false) return;
 	}
 
 
