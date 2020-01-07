@@ -128,6 +128,7 @@ printf("filter by ESSID len min: %d\n", essidlenmin);
 printf("filter by ESSID len max: %d\n", essidlenmax);
 if(filteressidptr != NULL)	printf("filter by ESSID........: %s\n", filteressidptr);
 if(filteressidpartptr != NULL)	printf("filter by part of ESSID: %s\n", filteressidpartptr);
+if(flagfiltermac == true)	printf("filter by MAC..........: %02x%02x%02x%02x%02x%02x\n", filtermac[0], filtermac[1], filtermac[2], filtermac[3], filtermac[4], filtermac[5]);
 if(flagfilterouiap == true)	printf("filter AP by OUI.......: %02x%02x%02x\n", filterouiap[0], filterouiap[1], filterouiap[2]);
 if(filtervendorptr != NULL)	printf("filter AP by VENDOR....: %s\n", filtervendorptr);
 if(flagfilterouiclient == true)	printf("filter CLIENT by OUI...: %02x%02x%02x\n", filterouiclient[0], filterouiclient[1], filterouiclient[2]);
