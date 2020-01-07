@@ -842,12 +842,9 @@ static int essiddupecount;
 qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_mac_count);
 qsort(pmkidlist, pmkidlistptr -pmkidlist, PMKIDLIST_SIZE, sort_pmkidlist_by_mac);
 qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_timegap);
-
-
 zeigerhsakt = handshakelist;
 zeigerpmkidakt = pmkidlist;
 zeigermacold = aplist;
-
 if(zeigermacold->type == AP)
 	{
 	if(ignoreieflag == true)
@@ -1104,11 +1101,9 @@ exteap = (exteap_t*)(eapptr +EAPAUTH_SIZE);
 exteaplen = ntohs(exteap->len);
 if(exteaplen > authlen) return;
 idstrlen = exteaplen -EXTEAP_SIZE;
-
 if(exteap->type == EAP_TYPE_SIM) eapsimcount++;
 else if(exteap->type == EAP_TYPE_AKA) eapakacount++;
 else if(exteap->type == EAP_TYPE_PEAP) eappeapcount++;
-
 if(exteap->code == EAP_CODE_REQ)
 	{
 	if(exteap->type == EAP_TYPE_ID)
@@ -1643,7 +1638,6 @@ for(c = 0; c < asuitecountptr->count; c++)
 	ieptr += SUITE_SIZE;
 	if(rsnlen <= 0) return;
 	}
-
 rsnlen -= RSNCAPABILITIES_SIZE;
 ieptr += RSNCAPABILITIES_SIZE;
 if(rsnlen <= 0) return;
