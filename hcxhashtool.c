@@ -79,6 +79,11 @@ static uint8_t filterouiap[3];
 static bool flagfilterouiclient;
 static uint8_t filterouiclient[3];
 
+static bool flagfilterauthorized;
+static bool flagfilternotauthorized;
+static bool flagfilterrcchecked;
+static bool flagfilterapless;
+
 static int pskptrlen;
 static char *pskptr;
 static uint8_t pmkpbkdf2[32];
@@ -564,9 +569,12 @@ if(filtervendorptr != 0)
 	{
 	if(isoui(zeiger->ap) == false) return;
 	}
+if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
+if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
+if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
-
 memset(&hccap, 0, sizeof(hccap_t));
 memcpy(&hccap.essid, zeiger->essid, zeiger->essidlen);
 memcpy(&hccap.ap, zeiger->ap, 6);
@@ -663,9 +671,12 @@ if(filtervendorptr != 0)
 	{
 	if(isoui(zeiger->ap) == false) return;
 	}
+if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
+if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
+if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
-
 memset(&hccap, 0, sizeof(hccap_t));
 memcpy(&hccap.essid, zeiger->essid, zeiger->essidlen);
 memcpy(&hccap.ap, zeiger->ap, 6);
@@ -755,6 +766,10 @@ if(filtervendorptr != 0)
 	{
 	if(isoui(zeiger->ap) == false) return;
 	}
+if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
+if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
+if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 memset (&hccapx, 0, sizeof(hccapx_t));
@@ -863,8 +878,10 @@ if(filtervendorptr != 0)
 	{
 	if(isoui(zeiger->ap) == false) return;
 	}
-
-
+if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
+if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
+if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 if(zeiger->type == HCX_TYPE_PMKID)
 	{
@@ -995,8 +1012,10 @@ if(filtervendorptr != 0)
 	{
 	if(isoui(zeiger->ap) == false) return;
 	}
-
-
+if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
+if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
+if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 fprintf(fh_pmkideapol, "SSID......: %.*s\n", zeiger->essidlen, zeiger->essid);
 vendor = getvendor(zeiger->ap);
@@ -1404,6 +1423,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--oui-client                 : filter CLIENT by OUI\n"
 	"                             : format: 001122 (hex)\n"
 	"--vendor=<VENDOR>            : filter by (part of) VENDOR name\n"
+	"--authorized                 : filter EAPOL pairs by status authorized\n"
+	"--notauthorized              : filter EAPOL pairs by status not authorized\n"
+	"--rc                         : filter EAPOL pairs by replaycount status checked\n"
+	"--apless                     : filter EAPOL pairs by status M2 requested from client\n"
 	"--info=<file>                : output detailed information about content of hash file\n"
 	"--info=stdout                : stdout output detailed information about content of hash file\n"
 	"--vendorlist                 : stdout output VENDOR list sorted by OUI\n"
@@ -1461,6 +1484,10 @@ static const struct option long_options[] =
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
 	{"vendor",			required_argument,	NULL,	HCX_FILTER_VENDOR},
 	{"oui-client",			required_argument,	NULL,	HCX_FILTER_OUI_CLIENT},
+	{"rc",				no_argument,		NULL,	HCX_FILTER_RC},
+	{"authorized",			no_argument,		NULL,	HCX_FILTER_M12},
+	{"notauthorized",		no_argument,		NULL,	HCX_FILTER_M1234},
+	{"apless",			no_argument,		NULL,	HCX_FILTER_APLESS},
 	{"psk",				required_argument,	NULL,	HCX_PSK},
 	{"pmk",				required_argument,	NULL,	HCX_PMK},
 	{"vendorlist",			no_argument,		NULL,	HCX_VENDOR_OUT},
@@ -1494,6 +1521,10 @@ filtervendorptr = NULL;
 flagfiltermac = false;
 flagfilterouiap = false;
 flagfilterouiclient = false;
+flagfilterauthorized = false;
+flagfilternotauthorized = false;
+flagfilterrcchecked = false;
+flagfilterapless = false;
 flagpsk = false;
 flagpmk = false;
 flagessidgroup = false;
@@ -1625,6 +1656,22 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			exit(EXIT_FAILURE);
 			}
 		flagfilterouiclient = true;
+		break;
+
+		case HCX_FILTER_RC:
+		flagfilterrcchecked = true;
+		break;
+
+		case HCX_FILTER_M12:
+		flagfilterauthorized = true;
+		break;
+
+		case HCX_FILTER_M1234:
+		flagfilternotauthorized = true;
+		break;
+
+		case HCX_FILTER_APLESS:
+		flagfilterapless = true;
 		break;
 
 		case HCX_PSK:
