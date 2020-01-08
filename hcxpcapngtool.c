@@ -152,6 +152,7 @@ static long int eapolm4count;
 static long int eapolwrittencount;
 static long int eapolaplesscount;
 static long int eapolwrittenjcountdeprecated;
+static long int pmkidwrittenjcountdeprecated;
 static long int eapolwrittenhcpxcountdeprecated;
 static long int eapolwrittenhcpcountdeprecated;
 static long int eapolm12e2count;
@@ -304,6 +305,7 @@ pmkidcount = 0;
 pmkiduselesscount = 0;
 pmkidwrittenhcount = 0;
 eapolwrittenjcountdeprecated = 0;
+pmkidwrittenjcountdeprecated = 0;
 pmkidwrittencountdeprecated = 0;
 eapolmsgcount = 0;
 eapolmpcount = 0;
@@ -373,9 +375,9 @@ if(eapolm4count > 0)			printf("EAPOL M4 messages......................: %ld\n", 
 if(eapolmpcount > 0)			printf("EAPOL pairs............................: %ld\n", eapolmpcount);
 if(eapolaplesscount > 0)		printf("EAPOL pairs (AP-LESS)..................: %ld\n", eapolaplesscount);
 if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file.: %ld\n", eapolwrittencount);
-if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format..: %ld\n", eapolwrittenjcountdeprecated);
 if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx..........: %ld\n", eapolwrittenhcpxcountdeprecated);
 if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap...........: %ld\n", eapolwrittenhcpcountdeprecated);
+if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format..: %ld\n", eapolwrittenjcountdeprecated);
 if(eapolm12e2count > 0)			printf("EAPOL M12E2............................: %ld\n", eapolm12e2count);
 if(eapolm14e4count > 0)			printf("EAPOL M14E4............................: %ld\n", eapolm14e4count);
 if(eapolm32e2count > 0)			printf("EAPOL M32E2............................: %ld\n", eapolm32e2count);
@@ -385,7 +387,7 @@ if(eapolm34e4count > 0)			printf("EAPOL M34E4............................: %ld\n
 if(pmkidcount > 0)			printf("PMKID..................................: %ld\n", pmkidcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless)........................: %ld\n", pmkiduselesscount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld\n", pmkidwrittenhcount);
-if(eapolwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", eapolwrittenjcountdeprecated);
+if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
 printf("\n");
 return;
@@ -808,7 +810,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapoljtrdeprecated, "%02x", zeigermac->essid[p]);
 			fprintf(fh_pmkideapoljtrdeprecated, "\n");
-			eapolwrittenjcountdeprecated++;
+			pmkidwrittenjcountdeprecated++;
 			}
 		if(fh_pmkiddeprecated != 0)
 			{
