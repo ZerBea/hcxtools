@@ -50,6 +50,7 @@ static long int eapolcount;
 static long int pmkidwrittencount;
 static long int eapolwrittencount;
 static long int essidwrittencount;
+static long int hccapxwrittencount;
 static long int hccapwrittencount;
 
 static int hashtype;
@@ -104,6 +105,7 @@ eapolcount = 0;
 pmkidwrittencount = 0;
 eapolwrittencount = 0;
 essidwrittencount = 0;
+hccapxwrittencount = 0;
 hccapwrittencount = 0;
 
 if((hashlist = (hashlist_t*)calloc(hashlistcount, HASHLIST_SIZE)) == NULL) return false;
@@ -136,6 +138,7 @@ if(filtervendorptr != NULL)	printf("filter AP by VENDOR....: %s\n", filtervendor
 if(flagfilterouiclient == true)	printf("filter CLIENT by OUI...: %02x%02x%02x\n", filterouiclient[0], filterouiclient[1], filterouiclient[2]);
 if(pmkidwrittencount > 0)	printf("PMKID written..........: %ld\n", pmkidwrittencount);
 if(eapolwrittencount > 0)	printf("EAPOL written..........: %ld\n", eapolwrittencount);
+if(hccapxwrittencount > 0)	printf("EAPOL written to hccapx: %ld\n", hccapxwrittencount);
 if(hccapwrittencount > 0)	printf("EAPOL written to hccap.: %ld\n", hccapwrittencount);
 if(essidwrittencount > 0)	printf("ESSID (unique) written.: %ld\n", essidwrittencount);
 printf("\n");
@@ -525,8 +528,6 @@ typedef struct hccap_s hccap_t;
 static wpakey_t *wpak;
 static hccap_t hccap;
 
-
-
 if(zeiger->type == HCX_TYPE_PMKID) return;
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
@@ -588,6 +589,104 @@ if(hccapoutname != NULL)
 	if(stat(hccapoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(hccapoutname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void writehccapxrecord(FILE *fh_hccapx, hashlist_t *zeiger)
+{
+/*===========================================================================*/
+struct hccapx_s
+{
+ uint32_t	signature;
+#define HCCAPX_SIGNATURE 0x58504348
+ uint32_t	version;
+#define HCCAPX_VERSION 4
+ uint8_t	message_pair;
+ uint8_t	essid_len;
+ uint8_t	essid[32];
+ uint8_t	keyver;
+ uint8_t	keymic[16];
+ uint8_t	ap[6];
+ uint8_t	anonce[32];
+ uint8_t	client[6];
+ uint8_t	snonce[32];
+ uint16_t	eapol_len;
+ uint8_t	eapol[256];
+} __attribute__((packed));
+typedef struct hccapx_s hccapx_t;
+#define	HCCAPX_SIZE (sizeof(hccapx_t))
+
+static wpakey_t *wpak;
+static hccapx_t hccapx;
+
+if(zeiger->type == HCX_TYPE_PMKID) return;
+if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
+if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
+if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
+if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
+if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
+if(filteressidptr != NULL)
+	{
+	if(zeiger->essidlen != filteressidlen) return;
+	if(memcmp(zeiger->essid, filteressidptr, zeiger->essidlen) != 0) return;
+	}
+if(filteressidpartptr != NULL)
+	{
+	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	}
+if(filtervendorptr != 0)
+	{
+	if(isoui(zeiger->ap) == false) return;
+	}
+
+wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
+memset (&hccapx, 0, sizeof(hccapx_t));
+hccapx.signature = HCCAPX_SIGNATURE;
+hccapx.version = HCCAPX_VERSION;
+hccapx.message_pair = zeiger->mp;
+hccapx.essid_len = zeiger->essidlen;
+memcpy(&hccapx.essid, zeiger->essid, zeiger->essidlen);
+memcpy(&hccapx.ap, zeiger->ap, 6);
+memcpy(&hccapx.client, zeiger->client, 6);
+memcpy(&hccapx.anonce, zeiger->nonce, 32);
+memcpy(&hccapx.snonce, wpak->nonce, 32);
+hccapx.eapol_len = zeiger->eapauthlen;
+memcpy(&hccapx.eapol, zeiger->eapol, zeiger->eapauthlen);
+hccapx.keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+memcpy(&hccapx.keymic, zeiger->hash, 16);
+#ifdef BIG_ENDIAN_HOST
+hccapx.signature = byte_swap_32(hccapx.signature);
+hccapx.version = byte_swap_32(hccapx.version);
+hccapx.eapol_len = byte_swap_16(hccapx.eapol_len);
+#endif
+fwrite (&hccapx, sizeof(hccapx_t), 1, fh_hccapx);
+hccapxwrittencount++;
+return;
+}
+/*===========================================================================*/
+static void writehccapxfile(char *hccapxoutname)
+{
+static FILE *fh_hccapx;
+static hashlist_t *zeiger;
+static struct stat statinfo;
+
+if(hccapxoutname != NULL)
+	{
+	if((fh_hccapx = fopen(hccapxoutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", hccapxoutname, strerror(errno));
+		return;
+		}
+	}
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writehccapxrecord(fh_hccapx, zeiger);
+if(fh_hccapx != NULL) fclose(fh_hccapx);
+if(hccapxoutname != NULL)
+	{
+	if(stat(hccapxoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(hccapxoutname);
 		}
 	}
 return;
@@ -1174,6 +1273,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                             : default PMKID (1) and EAPOL (2)\n"
 	"--essid-group                : convert to ESSID groups\n"
 	"                               full advantage of reuse of PBKDF2\n"
+	"                               not on hccap/hccapx\n"
 	"--essid-len                  : filter by ESSID length\n"
 	"                             : default ESSID length: %d...%d\n"
 	"--essid-min                  : filter by ESSID minimum length\n"
@@ -1197,6 +1297,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                             : no nonce error corrections\n"
 	"--pmk=<PMK>                  : plain master key to test\n"
 	"                             : no nonce error corrections\n"
+	"--hccapx=<file>              : output to deprecated hccapx file\n"
 	"--hccap=<file>               : output to ancient hccap file\n"
 	"--help                       : show this help\n"
 	"--version                    : show version\n"
@@ -1222,6 +1323,7 @@ static FILE *fh_pmkideapol;
 static char *pmkideapolinname;
 static char *pmkideapoloutname;
 static char *essidoutname;
+static char *hccapxoutname;
 static char *hccapoutname;
 static char *infooutname;
 static char *ouiinstring;
@@ -1246,6 +1348,7 @@ static const struct option long_options[] =
 	{"pmk",				required_argument,	NULL,	HCX_PMK},
 	{"vendorlist",			no_argument,		NULL,	HCX_VENDOR_OUT},
 	{"info",			required_argument,	NULL,	HCX_INFO_OUT},
+	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
@@ -1261,6 +1364,7 @@ pmkideapolinname = NULL;
 pmkideapoloutname = NULL;
 essidoutname = NULL;
 infooutname = NULL;
+hccapxoutname = NULL;
 hccapoutname = NULL;
 ouiinstring = NULL;
 macinstring = NULL;
@@ -1429,8 +1533,12 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		downloadoui();
 		break;
 
+		case HCX_HCCAPX_OUT:
+		hccapxoutname = optarg;
+		break;
+
 		case HCX_HCCAP_OUT:
-		hccapoutname = optarg;
+		hccapxoutname = optarg;
 		break;
 
 		case HCX_HELP:
@@ -1490,6 +1598,7 @@ if((pmkideapolcount > 0) && (flagessidgroup == true)) writeeapolpmkidgroups();
 if((pmkideapolcount > 0) && (flagpsk == true)) testhashfilepsk();
 if((pmkideapolcount > 0) && (flagpmk == true)) testhashfilepmk();
 
+if((pmkideapolcount > 0) && (hccapxoutname != NULL)) writehccapxfile(hccapxoutname);
 if((pmkideapolcount > 0) && (hccapoutname != NULL)) writehccapfile(hccapoutname);
 
 printstatus();
