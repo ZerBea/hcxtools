@@ -68,6 +68,7 @@ static char *filtervendorptr;
 static bool flagpsk;
 static bool flagpmk;
 static bool flagessidgroup;
+static bool flagouigroup;
 static bool flagvendorout;
 
 static bool flagfiltermac;
@@ -922,7 +923,7 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidgroups()
+static void writeeapolpmkidessidgroups()
 {
 static int cei;
 static int ceo;
@@ -950,6 +951,36 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 		}
 	groupoutname[ceo] = 0;
 	strcat(&groupoutname[ceo], ".22000");
+	if((fh_pmkideapol = fopen(groupoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", groupoutname, strerror(errno));
+		return;
+		}
+	writepmkideapolhashline(fh_pmkideapol, zeiger);
+	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+	if(groupoutname[0] != 0)
+		{
+		if(stat(groupoutname, &statinfo) == 0)
+			{
+			if(statinfo.st_size == 0) remove(groupoutname);
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void writeeapolpmkidouigroups()
+{
+static hashlist_t *zeiger;
+static FILE *fh_pmkideapol;
+static struct stat statinfo;
+
+static char groupoutname[PATH_MAX];
+
+qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_essid);
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+	snprintf(groupoutname, PATH_MAX -1, "%02x%02x%02x.22000", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2]);
 	if((fh_pmkideapol = fopen(groupoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", groupoutname, strerror(errno));
@@ -1485,6 +1516,7 @@ static const struct option long_options[] =
 	{"essid",			required_argument,	NULL,	HCX_FILTER_ESSID},
 	{"essid-part",			required_argument,	NULL,	HCX_FILTER_ESSID_PART},
 	{"mac",				required_argument,	NULL,	HCX_FILTER_MAC},
+	{"oui-group",			no_argument,		NULL,	HCX_OUI_GROUP},
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
 	{"vendor",			required_argument,	NULL,	HCX_FILTER_VENDOR},
 	{"oui-client",			required_argument,	NULL,	HCX_FILTER_OUI_CLIENT},
@@ -1532,6 +1564,7 @@ flagfilterapless = false;
 flagpsk = false;
 flagpmk = false;
 flagessidgroup = false;
+flagouigroup = false;
 flagvendorout = false;
 hashtypein = 0;
 hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL;
@@ -1626,6 +1659,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			fprintf(stderr, "only values 0...32 allowed\n");
 			exit(EXIT_FAILURE);
 			}
+		break;
+
+		case HCX_OUI_GROUP:
+		flagouigroup = true;
 		break;
 
 		case HCX_FILTER_OUI_AP:
@@ -1768,7 +1805,8 @@ if(hashtypein > 0) hashtype = hashtypein;
 if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
 if((pmkideapolcount > 0) && (pmkideapoloutname != NULL)) writeeapolpmkidfile(pmkideapoloutname);
 if((pmkideapolcount > 0) && (infooutname != NULL)) writeinfofile(infooutname);
-if((pmkideapolcount > 0) && (flagessidgroup == true)) writeeapolpmkidgroups();
+if((pmkideapolcount > 0) && (flagessidgroup == true)) writeeapolpmkidessidgroups();
+if((pmkideapolcount > 0) && (flagouigroup == true)) writeeapolpmkidouigroups();
 if((pmkideapolcount > 0) && (flagpsk == true)) testhashfilepsk();
 if((pmkideapolcount > 0) && (flagpmk == true)) testhashfilepmk();
 
