@@ -71,8 +71,11 @@ static bool flagessidgroup;
 static bool flagouigroup;
 static bool flagvendorout;
 
-static bool flagfiltermac;
-static uint8_t filtermac[6];
+static bool flagfiltermacap;
+static uint8_t filtermacap[6];
+
+static bool flagfiltermacclient;
+static uint8_t filtermacclient[6];
 
 static bool flagfilterouiap;
 static uint8_t filterouiap[3];
@@ -154,11 +157,17 @@ if(essidlenmin != 0)			printf("filter by ESSID len min: %d\n", essidlenmin);
 if(essidlenmax != 32)			printf("filter by ESSID len max: %d\n", essidlenmax);
 if(filteressidptr != NULL)		printf("filter by ESSID........: %s\n", filteressidptr);
 if(filteressidpartptr != NULL)		printf("filter by part of ESSID: %s\n", filteressidpartptr);
-if(flagfiltermac == true)
+if(flagfiltermacap == true)
 	{
-	vendor = getvendor(filtermac);
-	printf("filter by MAC..........: %02x%02x%02x%02x%02x%02x (%s)\n", filtermac[0], filtermac[1], filtermac[2], filtermac[3], filtermac[4], filtermac[5], vendor);
+	vendor = getvendor(filtermacap);
+	printf("filter by MAC..........: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacap[0], filtermacap[1], filtermacap[2], filtermacap[3], filtermacap[4], filtermacap[5], vendor);
 	}
+if(flagfiltermacclient == true)
+	{
+	vendor = getvendor(filtermacclient);
+	printf("filter by MAC..........: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacclient[0], filtermacclient[1], filtermacclient[2], filtermacclient[3], filtermacclient[4], filtermacclient[5], vendor);
+	}
+
 if(flagfilterouiap == true)
 	{
 	vendor = getvendor(filterouiap);
@@ -572,7 +581,8 @@ static hccap_t hccap;
 if(zeiger->type == HCX_TYPE_PMKID) return;
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
-if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
+if(flagfiltermacap == true) if(memcmp(&filtermacap, zeiger->ap, 6) != 0) return;
+if(flagfiltermacclient == true) if(memcmp(&filtermacclient, zeiger->client, 6) != 0) return;
 if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
 if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
 if(filteressidptr != NULL)
@@ -674,7 +684,8 @@ static hccap_t hccap;
 if(zeiger->type == HCX_TYPE_PMKID) return;
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
-if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
+if(flagfiltermacap == true) if(memcmp(&filtermacap, zeiger->ap, 6) != 0) return;
+if(flagfiltermacclient == true) if(memcmp(&filtermacclient, zeiger->client, 6) != 0) return;
 if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
 if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
 if(filteressidptr != NULL)
@@ -769,7 +780,8 @@ static hccapx_t hccapx;
 if(zeiger->type == HCX_TYPE_PMKID) return;
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
-if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
+if(flagfiltermacap == true) if(memcmp(&filtermacap, zeiger->ap, 6) != 0) return;
+if(flagfiltermacclient == true) if(memcmp(&filtermacclient, zeiger->client, 6) != 0) return;
 if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
 if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
 if(filteressidptr != NULL)
@@ -881,7 +893,8 @@ static int p;
 
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
-if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
+if(flagfiltermacap == true) if(memcmp(&filtermacap, zeiger->ap, 6) != 0) return;
+if(flagfiltermacclient == true) if(memcmp(&filtermacclient, zeiger->client, 6) != 0) return;
 if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
 if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
 if(filteressidptr != NULL)
@@ -1045,7 +1058,8 @@ static char *vendor;
 
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
-if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
+if(flagfiltermacap == true) if(memcmp(&filtermacap, zeiger->ap, 6) != 0) return;
+if(flagfiltermacclient == true) if(memcmp(&filtermacclient, zeiger->client, 6) != 0) return;
 if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
 if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
 if(filteressidptr != NULL)
@@ -1530,7 +1544,8 @@ static const struct option long_options[] =
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
 	{"essid",			required_argument,	NULL,	HCX_FILTER_ESSID},
 	{"essid-part",			required_argument,	NULL,	HCX_FILTER_ESSID_PART},
-	{"mac",				required_argument,	NULL,	HCX_FILTER_MAC},
+	{"macap",			required_argument,	NULL,	HCX_FILTER_MAC_AP},
+	{"macclient",			required_argument,	NULL,	HCX_FILTER_MAC_CLIENT},
 	{"oui-group",			no_argument,		NULL,	HCX_OUI_GROUP},
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
 	{"vendor",			required_argument,	NULL,	HCX_FILTER_VENDOR},
@@ -1569,7 +1584,8 @@ pmkinstring = NULL;
 filteressidptr = NULL;
 filteressidpartptr = NULL;
 filtervendorptr = NULL;
-flagfiltermac = false;
+flagfiltermacap = false;
+flagfiltermacclient = false;
 flagfilterouiap = false;
 flagfilterouiclient = false;
 flagfilterauthorized = false;
@@ -1690,14 +1706,24 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		flagfilterouiap = true;
 		break;
 
-		case HCX_FILTER_MAC:
+		case HCX_FILTER_MAC_AP:
 		macinstring = optarg;
-		if(getfield(macinstring, 6, filtermac) != 6)
+		if(getfield(macinstring, 6, filtermacap) != 6)
 			{
 			fprintf(stderr, "wrong MAC format\n");
 			exit(EXIT_FAILURE);
 			}
-		flagfiltermac = true;
+		flagfiltermacap = true;
+		break;
+
+		case HCX_FILTER_MAC_CLIENT:
+		macinstring = optarg;
+		if(getfield(macinstring, 6, filtermacclient) != 6)
+			{
+			fprintf(stderr, "wrong MAC format\n");
+			exit(EXIT_FAILURE);
+			}
+		flagfiltermacclient = true;
 		break;
 
 		case HCX_FILTER_VENDOR:
