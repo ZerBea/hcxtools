@@ -120,8 +120,24 @@ if((ouilist = (ouilist_t*)calloc(ouilistcount, OUILIST_SIZE)) == NULL) return fa
 return true;
 }
 /*===========================================================================*/
+static char *getvendor(uint8_t *mac)
+{
+static ouilist_t * zeiger;
+static char *unknown = "unknown";
+
+for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
+	{
+	if(memcmp(zeiger->oui, mac, 3) == 0) return zeiger->vendor;
+	if(memcmp(zeiger->oui, mac, 3) > 0) return unknown;
+	}
+return unknown;
+}
+/*===========================================================================*/
 static void printstatus()
 {
+static char *vendor;
+
+
 printf("\nOUI information file...: %s\n", usedoui);
 if(ouicount > 0)		printf("OUI entires............: %d\n", ouicount);
 if(readcount > 0)		printf("total lines read.......: %ld\n", readcount);
@@ -138,10 +154,22 @@ if(essidlenmin != 0)			printf("filter by ESSID len min: %d\n", essidlenmin);
 if(essidlenmax != 32)			printf("filter by ESSID len max: %d\n", essidlenmax);
 if(filteressidptr != NULL)		printf("filter by ESSID........: %s\n", filteressidptr);
 if(filteressidpartptr != NULL)		printf("filter by part of ESSID: %s\n", filteressidpartptr);
-if(flagfiltermac == true)		printf("filter by MAC..........: %02x%02x%02x%02x%02x%02x\n", filtermac[0], filtermac[1], filtermac[2], filtermac[3], filtermac[4], filtermac[5]);
-if(flagfilterouiap == true)		printf("filter AP by OUI.......: %02x%02x%02x\n", filterouiap[0], filterouiap[1], filterouiap[2]);
+if(flagfiltermac == true)
+	{
+	vendor = getvendor(filtermac);
+	printf("filter by MAC..........: %02x%02x%02x%02x%02x%02x (%s)\n", filtermac[0], filtermac[1], filtermac[2], filtermac[3], filtermac[4], filtermac[5], vendor);
+	}
+if(flagfilterouiap == true)
+	{
+	vendor = getvendor(filterouiap);
+	printf("filter AP by OUI.......: %02x%02x%02x (%s)\n", filterouiap[0], filterouiap[1], filterouiap[2], vendor);
+	}
 if(filtervendorptr != NULL)		printf("filter AP by VENDOR....: %s\n", filtervendorptr);
-if(flagfilterouiclient == true)		printf("filter CLIENT by OUI...: %02x%02x%02x\n", filterouiclient[0], filterouiclient[1], filterouiclient[2]);
+if(flagfilterouiclient == true)
+	{
+	vendor = getvendor(filterouiclient);
+	printf("filter CLIENT by OUI...: %02x%02x%02x (%s)\n", filterouiclient[0], filterouiclient[1], filterouiclient[2], vendor);
+	}
 if(flagfilterapless == true)		printf("filter by M2...........: requested from client (AP-LESS)\n");
 if(flagfilterrcchecked == true)		printf("filter by replaycount..: checked\n");
 if(flagfilterauthorized == true)	printf("filter by status.......: authorized\n");
@@ -503,20 +531,6 @@ for(p = 0; p <= slen -plen; p++)
 	}
 return false;
 }
-/*===========================================================================*/
-static char *getvendor(uint8_t *mac)
-{
-static ouilist_t * zeiger;
-static char *unknown = "unknown";
-
-for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
-	{
-	if(memcmp(zeiger->oui, mac, 3) == 0) return zeiger->vendor;
-	if(memcmp(zeiger->oui, mac, 3) > 0) return unknown;
-	}
-return unknown;
-}
-/*===========================================================================*/
 /*===========================================================================*/
 static void hccap2base(unsigned char *in, unsigned char b, FILE *fh_john)
 {
@@ -1438,11 +1452,13 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
+	"--essid-group                : convert to ESSID groups in working directory\n"
+	"                               full advantage of reuse of PBKDF2\n"
+	"                               not on old hash formats\n"
+	"--oui-group                  : convert to OUI groups in working directory\n"
+	"                               not on old hash formats\n"
 	"--type                       : filter by hash type\n"
 	"                             : default PMKID (1) and EAPOL (2)\n"
-	"--essid-group                : convert to ESSID groups\n"
-	"                               full advantage of reuse of PBKDF2\n"
-	"                               not on hccap/hccapx\n"
 	"--essid-len                  : filter by ESSID length\n"
 	"                             : default ESSID length: %d...%d\n"
 	"--essid-min                  : filter by ESSID minimum length\n"
@@ -1452,7 +1468,6 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--essid=<ESSID>              : filter by ESSID\n"
 	"--essid_part=<part of ESSID> : filter by part of ESSID\n"
 	"--mac=<MAC>                  : filter by MAC\n"
-	"                             : format: 001122334455 (hex)\n"
 	"--oui-ap                     : filter AP by OUI\n"
 	"                             : format: 001122 (hex)\n"
 	"--oui-client                 : filter CLIENT by OUI\n"
