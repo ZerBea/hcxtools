@@ -1481,7 +1481,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                             : default ESSID maximum length: %d\n"
 	"--essid=<ESSID>              : filter by ESSID\n"
 	"--essid_part=<part of ESSID> : filter by part of ESSID\n"
-	"--mac=<MAC>                  : filter by MAC\n"
+	"--mac-ap=<MAC>               : filter by AP MAC\n"
+	"--mac-client=<MAC>           : filter by CLIENT MAC\n"
 	"--oui-ap                     : filter AP by OUI\n"
 	"                             : format: 001122 (hex)\n"
 	"--oui-client                 : filter CLIENT by OUI\n"
@@ -1544,8 +1545,8 @@ static const struct option long_options[] =
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
 	{"essid",			required_argument,	NULL,	HCX_FILTER_ESSID},
 	{"essid-part",			required_argument,	NULL,	HCX_FILTER_ESSID_PART},
-	{"macap",			required_argument,	NULL,	HCX_FILTER_MAC_AP},
-	{"macclient",			required_argument,	NULL,	HCX_FILTER_MAC_CLIENT},
+	{"mac-ap",			required_argument,	NULL,	HCX_FILTER_MAC_AP},
+	{"mac-client",			required_argument,	NULL,	HCX_FILTER_MAC_CLIENT},
 	{"oui-group",			no_argument,		NULL,	HCX_OUI_GROUP},
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
 	{"vendor",			required_argument,	NULL,	HCX_FILTER_VENDOR},
