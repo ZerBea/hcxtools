@@ -27,6 +27,7 @@
 #define HCX_PMK			13
 #define HCX_VENDOR_OUT		14
 #define HCX_INFO_OUT		15
+#define HCX_HCCAP_OUT		16
 #define HCX_PMKIDEAPOL_IN	'i'
 #define HCX_PMKIDEAPOL_OUT	'o'
 #define HCX_ESSID_OUT		'E'
