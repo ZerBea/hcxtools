@@ -464,6 +464,43 @@ for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
+static bool isoui(uint8_t *mac)
+{
+static ouilist_t *zeiger;
+
+for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
+	{
+	if(memcmp(mac, zeiger->oui, 3) == 0) return true;
+	}
+return false;
+}
+/*===========================================================================*/
+static bool ispartof(int plen, uint8_t *pbuff, int slen, uint8_t *sbuff)
+{
+static int p;
+if(plen > slen) return false;
+
+for(p = 0; p <= slen -plen; p++)
+	{
+	if(memcmp(&sbuff[p], pbuff, plen) == 0) return true;
+	}
+return false;
+}
+/*===========================================================================*/
+static char *getvendor(uint8_t *mac)
+{
+static ouilist_t * zeiger;
+static char *unknown = "unknown";
+
+for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
+	{
+	if(memcmp(zeiger->oui, mac, 3) == 0) return zeiger->vendor;
+	if(memcmp(zeiger->oui, mac, 3) > 0) return unknown;
+	}
+return unknown;
+}
+/*===========================================================================*/
+/*===========================================================================*/
 static void processessid(char *essidoutname)
 {
 static long int pc;
@@ -496,31 +533,6 @@ if(stat(essidoutname, &statinfo) == 0)
 	}
 return;
 }
-/*===========================================================================*/
-/*===========================================================================*/
-static bool isoui(uint8_t *mac)
-{
-static ouilist_t *zeiger;
-
-for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
-	{
-	if(memcmp(mac, zeiger->oui, 3) == 0) return true;
-	}
-return false;
-}
-/*===========================================================================*/
-static bool ispartof(int plen, uint8_t *pbuff, int slen, uint8_t *sbuff)
-{
-static int p;
-if(plen > slen) return false;
-
-for(p = 0; p <= slen -plen; p++)
-	{
-	if(memcmp(&sbuff[p], pbuff, plen) == 0) return true;
-	}
-return false;
-}
-/*===========================================================================*/
 /*===========================================================================*/
 static void writepmkideapolhashline(FILE *fh_pmkideapol, hashlist_t *zeiger)
 {
@@ -582,76 +594,6 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 return;
 }
 /*===========================================================================*/
-static char *getvendor(uint8_t *mac)
-{
-static ouilist_t * zeiger;
-static char *unknown = "unknown";
-
-for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
-	{
-	if(memcmp(zeiger->oui, mac, 3) == 0) return zeiger->vendor;
-	if(memcmp(zeiger->oui, mac, 3) > 0) return unknown;
-	}
-return unknown;
-}
-/*===========================================================================*/
-static void writepmkideapolhashlineinfo(FILE *fh_pmkideapol, hashlist_t *zeiger)
-{
-static char *vendor;
-
-if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
-if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
-if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
-if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
-if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
-if(filteressidptr != NULL)
-	{
-	if(zeiger->essidlen != filteressidlen) return;
-	if(memcmp(zeiger->essid, filteressidptr, zeiger->essidlen) != 0) return;
-	}
-if(filteressidpartptr != NULL)
-	{
-	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
-	}
-if(filtervendorptr != 0)
-	{
-	if(isoui(zeiger->ap) == false) return;
-	}
-
-fprintf(fh_pmkideapol, "SSID......: %.*s\n", zeiger->essidlen, zeiger->essid);
-vendor = getvendor(zeiger->ap);
-fprintf(fh_pmkideapol, "MAC_AP....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], vendor);
-vendor = getvendor(zeiger->client);
-fprintf(fh_pmkideapol, "MAC_CLIENT: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5], vendor);
-if(zeiger->type == HCX_TYPE_PMKID)
-	{
-	fprintf(fh_pmkideapol, "PMKID.....: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
-		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
-		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
-	}
-if(zeiger->type == HCX_TYPE_EAPOL)
-	{
-	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2: not authorized\n");
-	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4: authorized\n");
-	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2: authorized\n");
-	if((zeiger->mp & 0x07) == 0x03) fprintf(fh_pmkideapol, "MP M2M3 E3: authorized\n");
-	if((zeiger->mp & 0x07) == 0x04) fprintf(fh_pmkideapol, "MP M3M4 E3: authorized\n");
-	if((zeiger->mp & 0x07) == 0x05) fprintf(fh_pmkideapol, "MP M3M4 E4: authorized\n");
-	if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO...: replycount checked\n");
-	if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO...: not replycount checked / nc required\n");
-	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO...: AP-LESS attack / nc not reqired\n");
-	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO...: little endian router / nc LE required\n");
-	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO...: big endian router / nc BE required\n");
-	fprintf(fh_pmkideapol, "MIC.......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
-		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
-		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
-	}
-fprintf(fh_pmkideapol, "HASHLINE..: ");
-writepmkideapolhashline(fh_pmkideapol, zeiger);
-fprintf(fh_pmkideapol, "\n");
-return;
-}
-/*===========================================================================*/
 static void writeeapolpmkidgroups()
 {
 static int cei;
@@ -698,28 +640,6 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static void writeinfofile(char *infooutname)
-{
-static hashlist_t *zeiger;
-static FILE *fh_info;
-
-if(strcmp(infooutname, "stdout") != 0)
-	{
-	if((fh_info = fopen(infooutname, "a+")) == NULL)
-		{
-		printf("error opening file %s: %s\n", infooutname, strerror(errno));
-		return;
-		}
-	for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashlineinfo(fh_info, zeiger);
-	fclose(fh_info);
-	}
-else
-	{
-	for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashlineinfo(stdout, zeiger);
-	}
-return;
-}
-/*===========================================================================*/
 static void writeeapolpmkidfile(char *pmkideapoloutname)
 {
 static FILE *fh_pmkideapol;
@@ -742,6 +662,87 @@ if(pmkideapoloutname != NULL)
 		{
 		if(statinfo.st_size == 0) remove(pmkideapoloutname);
 		}
+	}
+return;
+}
+/*===========================================================================*/
+static void writepmkideapolhashlineinfo(FILE *fh_pmkideapol, hashlist_t *zeiger)
+{
+static char *vendor;
+
+if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
+if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
+if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
+if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
+if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
+if(filteressidptr != NULL)
+	{
+	if(zeiger->essidlen != filteressidlen) return;
+	if(memcmp(zeiger->essid, filteressidptr, zeiger->essidlen) != 0) return;
+	}
+if(filteressidpartptr != NULL)
+	{
+	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	}
+if(filtervendorptr != 0)
+	{
+	if(isoui(zeiger->ap) == false) return;
+	}
+
+
+
+fprintf(fh_pmkideapol, "SSID......: %.*s\n", zeiger->essidlen, zeiger->essid);
+vendor = getvendor(zeiger->ap);
+fprintf(fh_pmkideapol, "MAC_AP....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], vendor);
+vendor = getvendor(zeiger->client);
+fprintf(fh_pmkideapol, "MAC_CLIENT: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5], vendor);
+if(zeiger->type == HCX_TYPE_PMKID)
+	{
+	fprintf(fh_pmkideapol, "PMKID.....: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
+	}
+if(zeiger->type == HCX_TYPE_EAPOL)
+	{
+	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2: not authorized\n");
+	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4: authorized\n");
+	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2: authorized\n");
+	if((zeiger->mp & 0x07) == 0x03) fprintf(fh_pmkideapol, "MP M2M3 E3: authorized\n");
+	if((zeiger->mp & 0x07) == 0x04) fprintf(fh_pmkideapol, "MP M3M4 E3: authorized\n");
+	if((zeiger->mp & 0x07) == 0x05) fprintf(fh_pmkideapol, "MP M3M4 E4: authorized\n");
+	if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO...: replycount checked\n");
+	if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO...: not replycount checked / nc required\n");
+	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO...: AP-LESS attack / nc not reqired\n");
+	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO...: little endian router / nc LE required\n");
+	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO...: big endian router / nc BE required\n");
+	fprintf(fh_pmkideapol, "MIC.......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
+	}
+fprintf(fh_pmkideapol, "HASHLINE..: ");
+writepmkideapolhashline(fh_pmkideapol, zeiger);
+fprintf(fh_pmkideapol, "\n");
+return;
+}
+/*===========================================================================*/
+static void writeinfofile(char *infooutname)
+{
+static hashlist_t *zeiger;
+static FILE *fh_info;
+
+if(strcmp(infooutname, "stdout") != 0)
+	{
+	if((fh_info = fopen(infooutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", infooutname, strerror(errno));
+		return;
+		}
+	for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashlineinfo(fh_info, zeiger);
+	fclose(fh_info);
+	}
+else
+	{
+	for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashlineinfo(stdout, zeiger);
 	}
 return;
 }
