@@ -52,6 +52,7 @@ static long int eapolwrittencount;
 static long int essidwrittencount;
 static long int hccapxwrittencount;
 static long int hccapwrittencount;
+static long int johnwrittencount;
 
 static int hashtype;
 static int essidlen;
@@ -71,7 +72,6 @@ static bool flagvendorout;
 
 static bool flagfiltermac;
 static uint8_t filtermac[6];
-
 
 static bool flagfilterouiap;
 static uint8_t filterouiap[3];
@@ -140,6 +140,7 @@ if(pmkidwrittencount > 0)	printf("PMKID written..........: %ld\n", pmkidwrittenc
 if(eapolwrittencount > 0)	printf("EAPOL written..........: %ld\n", eapolwrittencount);
 if(hccapxwrittencount > 0)	printf("EAPOL written to hccapx: %ld\n", hccapxwrittencount);
 if(hccapwrittencount > 0)	printf("EAPOL written to hccap.: %ld\n", hccapwrittencount);
+if(johnwrittencount > 0)	printf("EAPOL written to john..: %ld\n", johnwrittencount);
 if(essidwrittencount > 0)	printf("ESSID (unique) written.: %ld\n", essidwrittencount);
 printf("\n");
 return;
@@ -507,6 +508,121 @@ return unknown;
 }
 /*===========================================================================*/
 /*===========================================================================*/
+static void hccap2base(unsigned char *in, unsigned char b, FILE *fh_john)
+{
+static const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+fprintf(fh_john, "%c", (itoa64[in[0] >> 2]));
+fprintf(fh_john, "%c", (itoa64[((in[0] & 0x03) << 4) | (in[1] >> 4)]));
+if(b)
+	{
+	fprintf(fh_john, "%c", (itoa64[((in[1] & 0x0f) << 2) | (in[2] >> 6)]));
+	fprintf(fh_john, "%c", (itoa64[in[2] & 0x3f]));
+	}
+else fprintf(fh_john, "%c", (itoa64[((in[1] & 0x0f) << 2)]));
+return;
+}
+/*===========================================================================*/
+static void writejohnrecord(FILE *fh_john, hashlist_t *zeiger)
+{
+struct hccap_s
+{
+  char essid[36];
+  unsigned char ap[6];
+  unsigned char client[6];
+  unsigned char snonce[32];
+  unsigned char anonce[32];
+  unsigned char eapol[256];
+  int eapol_size;
+  int keyver;
+  unsigned char keymic[16];
+};
+typedef struct hccap_s hccap_t;
+#define	HCCAP_SIZE (sizeof(hccap_t))
+
+static wpakey_t *wpak;
+static int i;
+static unsigned char *hcpos;
+static hccap_t hccap;
+
+if(zeiger->type == HCX_TYPE_PMKID) return;
+if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
+if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
+if(flagfiltermac == true) if(memcmp(&filtermac, zeiger->ap, 6) != 0) return;
+if(flagfilterouiap == true) if(memcmp(&filterouiap, zeiger->ap, 3) != 0) return;
+if(flagfilterouiclient == true) if(memcmp(&filterouiclient, zeiger->client, 3) != 0) return;
+if(filteressidptr != NULL)
+	{
+	if(zeiger->essidlen != filteressidlen) return;
+	if(memcmp(zeiger->essid, filteressidptr, zeiger->essidlen) != 0) return;
+	}
+if(filteressidpartptr != NULL)
+	{
+	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	}
+if(filtervendorptr != 0)
+	{
+	if(isoui(zeiger->ap) == false) return;
+	}
+
+wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
+
+memset(&hccap, 0, sizeof(hccap_t));
+memcpy(&hccap.essid, zeiger->essid, zeiger->essidlen);
+memcpy(&hccap.ap, zeiger->ap, 6);
+memcpy(&hccap.client, zeiger->client, 6);
+memcpy(&hccap.anonce, zeiger->nonce, 32);
+memcpy(&hccap.snonce, wpak->nonce, 32);
+memcpy(&hccap.keymic, zeiger->hash, 16);
+hccap.keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+hccap.eapol_size = zeiger->eapauthlen;
+memcpy(&hccap.eapol, zeiger->eapol, zeiger->eapauthlen);
+#ifdef BIG_ENDIAN_HOST
+hccap.eapol_size = byte_swap_16(hccap.eapol_size);
+#endif
+
+fprintf(fh_john, "%.*s:$WPAPSK$%.*s#", zeiger->essidlen, zeiger->essid, zeiger->essidlen, zeiger->essid);
+hcpos = (unsigned char*)&hccap;
+for (i = 36; i + 3 < (int)HCCAP_SIZE; i += 3) hccap2base(&hcpos[i], 1, fh_john);
+hccap2base(&hcpos[i], 0, fh_john);
+fprintf(fh_john, ":%02x-%02x-%02x-%02x-%02x-%02x:%02x-%02x-%02x-%02x-%02x-%02x:%02x%02x%02x%02x%02x%02x",
+zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5],
+zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5],
+zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5]);
+if(hccap.keyver == 1) fprintf(fh_john, "::WPA");
+else fprintf(fh_john, "::WPA2");
+if((zeiger->mp &0x7) == 0) fprintf(fh_john, ":not verified");
+else fprintf(fh_john, ":verified");
+fprintf(fh_john, ":converted by hcxhastool\n");
+johnwrittencount++;
+return;
+}
+/*===========================================================================*/
+static void writejohnfile(char *johnoutname)
+{
+static FILE *fh_john;
+static hashlist_t *zeiger;
+static struct stat statinfo;
+
+if(johnoutname != NULL)
+	{
+	if((fh_john = fopen(johnoutname, "a+")) == NULL)
+		{
+		printf("error opening file %s: %s\n", johnoutname, strerror(errno));
+		return;
+		}
+	}
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writejohnrecord(fh_john, zeiger);
+if(fh_john != NULL) fclose(fh_john);
+if(johnoutname != NULL)
+	{
+	if(stat(johnoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(johnoutname);
+		}
+	}
+return;
+}
 /*===========================================================================*/
 static void writehccaprecord(FILE *fh_hccap, hashlist_t *zeiger)
 {
@@ -596,7 +712,6 @@ return;
 /*===========================================================================*/
 static void writehccapxrecord(FILE *fh_hccapx, hashlist_t *zeiger)
 {
-/*===========================================================================*/
 struct hccapx_s
 {
  uint32_t	signature;
@@ -1299,6 +1414,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                             : no nonce error corrections\n"
 	"--hccapx=<file>              : output to deprecated hccapx file\n"
 	"--hccap=<file>               : output to ancient hccap file\n"
+	"--john=<file>                : output to deprecated john file\n"
 	"--help                       : show this help\n"
 	"--version                    : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, ESSID_LEN_MIN, ESSID_LEN_MAX, ESSID_LEN_MIN, ESSID_LEN_MAX);
@@ -1325,6 +1441,7 @@ static char *pmkideapoloutname;
 static char *essidoutname;
 static char *hccapxoutname;
 static char *hccapoutname;
+static char *johnoutname;
 static char *infooutname;
 static char *ouiinstring;
 static char *macinstring;
@@ -1350,6 +1467,7 @@ static const struct option long_options[] =
 	{"info",			required_argument,	NULL,	HCX_INFO_OUT},
 	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT},
+	{"john",			required_argument,	NULL,	HCX_JOHN_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
 	{NULL,				0,			NULL,	0}
@@ -1366,6 +1484,7 @@ essidoutname = NULL;
 infooutname = NULL;
 hccapxoutname = NULL;
 hccapoutname = NULL;
+johnoutname = NULL;
 ouiinstring = NULL;
 macinstring = NULL;
 pmkinstring = NULL;
@@ -1541,6 +1660,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		hccapxoutname = optarg;
 		break;
 
+		case HCX_JOHN_OUT:
+		johnoutname = optarg;
+		break;
+
 		case HCX_HELP:
 		usage(basename(argv[0]));
 		break;
@@ -1600,6 +1723,7 @@ if((pmkideapolcount > 0) && (flagpmk == true)) testhashfilepmk();
 
 if((pmkideapolcount > 0) && (hccapxoutname != NULL)) writehccapxfile(hccapxoutname);
 if((pmkideapolcount > 0) && (hccapoutname != NULL)) writehccapfile(hccapoutname);
+if((pmkideapolcount > 0) && (johnoutname != NULL)) writejohnfile(johnoutname);
 
 printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
