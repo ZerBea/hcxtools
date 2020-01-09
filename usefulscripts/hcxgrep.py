@@ -2,7 +2,7 @@
 '''
 greps inside hccapx/pmkid structs by essid, mac_ap or mac_sta
 
-This software is Copyright (c) 2019, Alex Stanev <alex at stanev.org> and it is
+This software is Copyright (c) 2019-2020, Alex Stanev <alex at stanev.org> and it is
 hereby released to the general public under the following terms:
 
 Redistribution and use in source and binary forms, with or without
@@ -16,6 +16,7 @@ import sys
 import binascii
 import struct
 import re
+import sre_constants
 
 try:
     from string import maketrans
@@ -91,9 +92,32 @@ def parse_pmkid(pmkid):
 
     return res
 
+def parse_combined(hashline):
+    '''m22000 hashline decompose
+
+    format:
+        SIGNATURE*TYPE*PMKID/MIC*MACAP*MACSTA*ESSID*ANONCE*EAPOL*MESSAGEPAIR
+    '''
+
+    arr = hashline.split(b'*', 9)
+    res = ''
+    if len(arr) == 9:
+        try:
+            if args.t == 'essid':
+                res = binascii.unhexlify(arr[5].strip())
+            elif args.t == 'mac_ap':
+                res = arr[3]
+            elif args.t == 'mac_sta':
+                res = arr[4]
+        except TypeError as ex:
+            sys.stderr.write(str(ex + '\n'))
+            exit(1)
+
+    return res
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Extract records from hccapx/pmkid file based on regexp')
+        description='Extract records from wpa combined hashline/hccapx/pmkid file based on regexp')
     #group = parser.add_mutually_exclusive_group(required=True)
     parser.add_argument(
         '-f', '--file', type=argparse.FileType('r'),
@@ -137,7 +161,11 @@ if __name__ == "__main__":
     if args.PATTERNS is None:
         args.PATTERNS = '|'.join('(?:{0})'.format(x.strip()) for x in args.file)
 
-    regexp = re.compile(args.PATTERNS)
+    try:
+        regexp = re.compile(args.PATTERNS)
+    except sre_constants.error as e:
+        sys.stderr.write('Wrong regexp {0}: {1} \n'.format(args.PATTERNS, e))
+        exit(1)
 
     if args.infile is not None and os.path.isfile(args.infile):
         fd = open(args.infile, 'rb')
@@ -147,7 +175,10 @@ if __name__ == "__main__":
     structformat = ''
     while True:
         buf = fd.read(4)
-        if buf == 'HCPX':
+        if buf == 'WPA*':
+            buf = buf + fd.readline()
+            structformat = 'combined'
+        elif buf == 'HCPX':
             buf = buf + fd.read(393 - 4)
             structformat = 'hccapx'
         else:
@@ -157,7 +188,9 @@ if __name__ == "__main__":
         if not buf:
             break
 
-        if structformat == 'hccapx':
+        if structformat == 'combined':
+            target = parse_combined(buf)
+        elif structformat == 'hccapx':
             target = parse_hccapx(buf)
         elif structformat == 'pmkid':
             target = parse_pmkid(buf)
