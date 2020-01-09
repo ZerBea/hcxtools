@@ -1486,9 +1486,9 @@ for(c = 0; c < 20; c ++)
 	zeiger->count += 1;
 	zeiger->status |= aplistptr->status;
 	zeiger->type |= aplistptr->type;
-	if(aplistptr->groupcipher != 0) zeiger->groupcipher = aplistptr->groupcipher;
-	if(aplistptr->cipher != 0) zeiger->cipher = aplistptr->cipher;
-	if(aplistptr->akm != 0) zeiger->akm = aplistptr->akm;
+	if(aplistptr->groupcipher != 0) zeiger->groupcipher |= aplistptr->groupcipher;
+	if(aplistptr->cipher != 0) zeiger->cipher |= aplistptr->cipher;
+	if(aplistptr->akm != 0) zeiger->akm |= aplistptr->akm;
 	return true;
 	}
 return false;
@@ -2958,7 +2958,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
 	"It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcaptool will understand this.\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, eigenname, eigenname,
-	EAPOLTIMEOUT /10000, NONCEERRORCORRECTION, ESSIDSMAX,
+	EAPOLTIMEOUT /1000, NONCEERRORCORRECTION, ESSIDSMAX,
 	eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -3035,7 +3035,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			fprintf(stderr, "EAPOL TIMEOUT must be > 0\n");
 			exit(EXIT_FAILURE);
 			}
-		eapoltimeoutvalue *= 10000;
+		eapoltimeoutvalue *= 1000;
 		break;
 
 		case HCX_NC:
