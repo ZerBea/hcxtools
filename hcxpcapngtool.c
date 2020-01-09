@@ -1529,11 +1529,12 @@ infolen = ntohs(wpak->wpadatalen);
 if(infolen >= RSNIE_LEN_MIN)
 	{
 	gettags(infolen, wpakptr +WPAKEY_SIZE, &tags);
-	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256))
 		{
-		return;
+		if(ignoreieflag == false) return;
 		}
 	}
+printf("debug\n");
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if((zeiger->message &HS_M1) != HS_M1) continue;
