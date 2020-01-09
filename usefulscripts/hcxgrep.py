@@ -16,6 +16,7 @@ import sys
 import binascii
 import struct
 import re
+import sre_constants
 
 try:
     from string import maketrans
@@ -160,7 +161,11 @@ if __name__ == "__main__":
     if args.PATTERNS is None:
         args.PATTERNS = '|'.join('(?:{0})'.format(x.strip()) for x in args.file)
 
-    regexp = re.compile(args.PATTERNS)
+    try:
+        regexp = re.compile(args.PATTERNS)
+    except sre_constants.error as e:
+        sys.stderr.write('Wrong regexp {0}: {1} \n'.format(args.PATTERNS, e))
+        exit(1)
 
     if args.infile is not None and os.path.isfile(args.infile):
         fd = open(args.infile, 'rb')
