@@ -2,7 +2,7 @@
 '''
 greps inside hccapx/pmkid structs by essid, mac_ap or mac_sta
 
-This software is Copyright (c) 2019, Alex Stanev <alex at stanev.org> and it is
+This software is Copyright (c) 2019-2020, Alex Stanev <alex at stanev.org> and it is
 hereby released to the general public under the following terms:
 
 Redistribution and use in source and binary forms, with or without
