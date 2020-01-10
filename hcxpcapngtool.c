@@ -912,6 +912,9 @@ for(zeiger = aplist +1; zeiger < aplistptr; zeiger++)
 				zeigerold->type |= zeiger->type;
 				zeigerold->status |= zeiger->status;
 				zeigerold->count += 1;
+				zeigerold->groupcipher |= zeiger->groupcipher;
+				zeigerold->cipher |= zeiger->cipher;
+				zeigerold->akm |= zeiger->akm;
 				zeiger->type = REMOVED;
 				continue;
 				}
@@ -1691,9 +1694,9 @@ for(c = 0; c < 20; c ++)
 	zeiger->count += 1;
 	zeiger->status |= aplistptr->status;
 	zeiger->type |= aplistptr->type;
-	if(aplistptr->groupcipher != 0) zeiger->groupcipher |= aplistptr->groupcipher;
-	if(aplistptr->cipher != 0) zeiger->cipher |= aplistptr->cipher;
-	if(aplistptr->akm != 0) zeiger->akm |= aplistptr->akm;
+	zeiger->groupcipher |= aplistptr->groupcipher;
+	zeiger->cipher |= aplistptr->cipher;
+	zeiger->akm |= aplistptr->akm;
 	return true;
 	}
 return false;
