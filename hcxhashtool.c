@@ -643,7 +643,7 @@ static struct stat statinfo;
 
 if(johnoutname != NULL)
 	{
-	if((fh_john = fopen(johnoutname, "a+")) == NULL)
+	if((fh_john = fopen(johnoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", johnoutname, strerror(errno));
 		return;
@@ -733,7 +733,7 @@ static struct stat statinfo;
 
 if(hccapoutname != NULL)
 	{
-	if((fh_hccap = fopen(hccapoutname, "a+")) == NULL)
+	if((fh_hccap = fopen(hccapoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", hccapoutname, strerror(errno));
 		return;
@@ -835,7 +835,7 @@ static struct stat statinfo;
 
 if(hccapxoutname != NULL)
 	{
-	if((fh_hccapx = fopen(hccapxoutname, "a+")) == NULL)
+	if((fh_hccapx = fopen(hccapxoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", hccapxoutname, strerror(errno));
 		return;
@@ -861,7 +861,7 @@ static hashlist_t *zeiger, *zeigerold;
 static FILE *fh_essid;
 static struct stat statinfo;
 
-if((fh_essid = fopen(essidoutname, "a+")) == NULL)
+if((fh_essid = fopen(essidoutname, "a")) == NULL)
 	{
 	printf("error opening file %s: %s\n", essidoutname, strerror(errno));
 	return;
@@ -1034,7 +1034,7 @@ static struct stat statinfo;
 
 if(pmkideapoloutname != NULL)
 	{
-	if((fh_pmkideapol = fopen(pmkideapoloutname, "a+")) == NULL)
+	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
 		return;
@@ -1121,7 +1121,7 @@ static FILE *fh_info;
 
 if(strcmp(infooutname, "stdout") != 0)
 	{
-	if((fh_info = fopen(infooutname, "a+")) == NULL)
+	if((fh_info = fopen(infooutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", infooutname, strerror(errno));
 		return;
@@ -1835,7 +1835,7 @@ if((ouicount > 0) && (flagvendorout == true))
 
 if(pmkideapolinname != NULL)
 	{
-	if((fh_pmkideapol = fopen(pmkideapolinname, "a+")) == NULL)
+	if((fh_pmkideapol = fopen(pmkideapolinname, "r")) == NULL)
 		{
 		printf("error opening file %s: %s\n", pmkideapolinname, strerror(errno));
 		closelists();
