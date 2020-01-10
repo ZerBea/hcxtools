@@ -1381,7 +1381,8 @@ rc = wpak->replaycount;
 #endif
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
+if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
+if(memcmp(&zeroed32, wpak->keymic, 16) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
@@ -1531,7 +1532,8 @@ rc = wpak->replaycount;
 #endif
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if(memcmp(wpak->nonce, &zeroed32, 32) == 0) return;
+if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
+if(memcmp(&zeroed32, wpak->keymic, 16) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
