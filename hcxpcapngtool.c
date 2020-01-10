@@ -135,6 +135,7 @@ static long int eapcount;
 static long int eapsimcount;
 static long int eapakacount;
 static long int eappeapcount;
+static long int eapexpandedcount;
 static long int eapreqidcount;
 static long int eaprespidcount;
 static long int zeroedpmkcount;
@@ -298,6 +299,7 @@ eapcount = 0;
 eapsimcount = 0;
 eapakacount = 0;
 eappeapcount = 0;
+eapexpandedcount = 0;
 eapreqidcount = 0;
 eaprespidcount = 0;
 zeroedpmkcount = 0;
@@ -363,6 +365,7 @@ if(eapcount > 0)			printf("EAP (total)............................: %ld\n", eapc
 if(eapsimcount > 0)			printf("EAP-SIM................................: %ld\n", eapsimcount);
 if(eapakacount > 0)			printf("EAP-AKA................................: %ld\n", eapakacount);
 if(eappeapcount > 0)			printf("EAP-PEAP...............................: %ld\n", eappeapcount);
+if(eapexpandedcount > 0)		printf("EAP-EXPANDED...........................: %ld\n", eapexpandedcount);
 if(eapreqidcount > 0)			printf("EAP REQUEST ID.........................: %ld\n", eapreqidcount);
 if(eaprespidcount > 0)			printf("EAP RESPONSE ID........................: %ld\n", eaprespidcount);
 if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
@@ -1109,6 +1112,8 @@ idstrlen = exteaplen -EXTEAP_SIZE;
 if(exteap->type == EAP_TYPE_SIM) eapsimcount++;
 else if(exteap->type == EAP_TYPE_AKA) eapakacount++;
 else if(exteap->type == EAP_TYPE_PEAP) eappeapcount++;
+else if(exteap->type == EAP_TYPE_EXPAND) eapexpandedcount++;
+
 if(exteap->code == EAP_CODE_REQ)
 	{
 	if(exteap->type == EAP_TYPE_ID)
