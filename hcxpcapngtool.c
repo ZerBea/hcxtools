@@ -640,11 +640,11 @@ static handshakelist_t *gethandshake(maclist_t *zeigermac, handshakelist_t *zeig
 {
 static int p;
 static handshakelist_t *zeigerhs, *zeigerhsold;
-static wpakey_t *wpak;
+static wpakey_t *wpak, *wpaktemp;
 static int i;
 static unsigned char *hcpos;
 static uint8_t keyvertemp;
-static uint8_t keymictemp[16];
+static uint8_t eapoltemp[EAPOL_AUTHLEN_MAX];
 static hccapx_t hccapx;
 static hccap_t hccap;
 
@@ -670,15 +670,16 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		if((ncvalue > 0) && (zeigerhs->status & ST_APLESS) != ST_APLESS) zeigerhs->status |= ST_NC;
 		wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 		keyvertemp = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-		memcpy(&keymictemp, wpak->keymic, 16);
-		memset(wpak->keymic, 0, 16);
+		memcpy(&eapoltemp, zeigerhs->eapol, zeigerhs->eapauthlen);
+		wpaktemp = (wpakey_t*)(eapoltemp +EAPAUTH_SIZE);
+		memset(wpaktemp->keymic, 0, 16);
 		if(fh_pmkideapol != 0)
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 			fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
 				HCX_TYPE_EAPOL,
-				keymictemp[0], keymictemp[1], keymictemp[2], keymictemp[3], keymictemp[4], keymictemp[5], keymictemp[6], keymictemp[7],
-				keymictemp[8], keymictemp[9], keymictemp[10], keymictemp[11], keymictemp[12], keymictemp[13], keymictemp[14], keymictemp[15],
+				wpak->keymic[0], wpak->keymic[1], wpak->keymic[2], wpak->keymic[3], wpak->keymic[4], wpak->keymic[5], wpak->keymic[6], wpak->keymic[7],
+				wpak->keymic[8], wpak->keymic[9], wpak->keymic[10], wpak->keymic[11], wpak->keymic[12], wpak->keymic[13], wpak->keymic[14], wpak->keymic[15],
 				zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
 				zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
@@ -688,7 +689,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 				zeigerhs->anonce[8], zeigerhs->anonce[9], zeigerhs->anonce[10], zeigerhs->anonce[11], zeigerhs->anonce[12], zeigerhs->anonce[13], zeigerhs->anonce[14], zeigerhs->anonce[15],
 				zeigerhs->anonce[16], zeigerhs->anonce[17], zeigerhs->anonce[18], zeigerhs->anonce[19], zeigerhs->anonce[20], zeigerhs->anonce[21], zeigerhs->anonce[22], zeigerhs->anonce[23],
 				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
-			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", zeigerhs->eapol[p]);
+			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", eapoltemp[p]);
 			fprintf(fh_pmkideapol, "*%02x\n", zeigerhs->status);
 			eapolwrittencount++;
 			}
@@ -699,10 +700,10 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			memcpy(&hccap.client, zeigerhs->client, 6);
 			memcpy(&hccap.anonce, zeigerhs->anonce, 32);
 			memcpy(&hccap.snonce, wpak->nonce, 32);
-			memcpy(&hccap.keymic, &keymictemp, 16);
+			memcpy(&hccap.keymic, &wpak->keymic, 16);
 			hccap.keyver = keyvertemp;
 			hccap.eapol_size = zeigerhs->eapauthlen;
-			memcpy(&hccap.eapol, zeigerhs->eapol, zeigerhs->eapauthlen);
+			memcpy(&hccap.eapol, &eapoltemp, zeigerhs->eapauthlen);
 			#ifdef BIG_ENDIAN_HOST
 			hccap.eapol_size = byte_swap_16(hccap.eapol_size);
 			#endif
@@ -734,9 +735,9 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			memcpy(&hccapx.anonce, zeigerhs->anonce, 32);
 			memcpy(&hccapx.snonce, wpak->nonce, 32);
 			hccapx.eapol_len = zeigerhs->eapauthlen;
-			memcpy(&hccapx.eapol, zeigerhs->eapol, zeigerhs->eapauthlen);
+			memcpy(&hccapx.eapol, &eapoltemp, zeigerhs->eapauthlen);
 			hccapx.keyver = keyvertemp;
-			memcpy(&hccapx.keymic, &keymictemp, 16);
+			memcpy(&hccapx.keymic, wpak->keymic, 16);
 			#ifdef BIG_ENDIAN_HOST
 			hccapx.signature = byte_swap_32(hccapx.signature);
 			hccapx.version = byte_swap_32(hccapx.version);
@@ -753,10 +754,10 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			memcpy(&hccap.client, zeigerhs->client, 6);
 			memcpy(&hccap.anonce, zeigerhs->anonce, 32);
 			memcpy(&hccap.snonce, wpak->nonce, 32);
-			memcpy(&hccap.keymic, &keymictemp, 16);
+			memcpy(&hccap.keymic, wpak->keymic, 16);
 			hccap.keyver = keyvertemp;
 			hccap.eapol_size = zeigerhs->eapauthlen;
-			memcpy(&hccap.eapol, zeigerhs->eapol, zeigerhs->eapauthlen);
+			memcpy(&hccap.eapol, &eapoltemp, zeigerhs->eapauthlen);
 			#ifdef BIG_ENDIAN_HOST
 			hccap.eapol_size = byte_swap_16(hccap.eapol_size);
 			#endif
@@ -1369,7 +1370,7 @@ eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen +EAPAUTH_SIZE > restlen) return;
-if(authlen +EAPAUTH_SIZE > 256) return;
+if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -1382,7 +1383,6 @@ rc = wpak->replaycount;
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
-if(memcmp(&zeroed32, wpak->keymic, 16) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
@@ -1520,7 +1520,7 @@ eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen +EAPAUTH_SIZE > restlen) return;
-if(authlen +EAPAUTH_SIZE > 256) return;
+if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -1533,7 +1533,6 @@ rc = wpak->replaycount;
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
-if(memcmp(&zeroed32, wpak->keymic, 16) == 0) return;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
