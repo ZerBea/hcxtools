@@ -3147,7 +3147,7 @@ if(optind == argc)
 
 if(pmkideapoloutname != NULL)
 	{
-	if((fh_pmkideapol = fopen(pmkideapoloutname, "a+")) == NULL)
+	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -3155,7 +3155,7 @@ if(pmkideapoloutname != NULL)
 	}
 if(essidoutname != NULL)
 	{
-	if((fh_essid = fopen(essidoutname, "a+")) == NULL)
+	if((fh_essid = fopen(essidoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", essidoutname, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -3163,7 +3163,7 @@ if(essidoutname != NULL)
 	}
 if(identityoutname != NULL)
 	{
-	if((fh_identity = fopen(identityoutname, "a+")) == NULL)
+	if((fh_identity = fopen(identityoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", identityoutname, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -3171,7 +3171,7 @@ if(identityoutname != NULL)
 	}
 if(nmeaoutname != NULL)
 	{
-	if((fh_nmea = fopen(nmeaoutname, "a+")) == NULL)
+	if((fh_nmea = fopen(nmeaoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", nmeaoutname, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -3180,7 +3180,7 @@ if(nmeaoutname != NULL)
 
 if(pmkideapoljtroutnamedeprecated != NULL)
 	{
-	if((fh_pmkideapoljtrdeprecated = fopen(pmkideapoljtroutnamedeprecated, "a+")) == NULL)
+	if((fh_pmkideapoljtrdeprecated = fopen(pmkideapoljtroutnamedeprecated, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", pmkideapoljtroutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -3188,7 +3188,7 @@ if(pmkideapoljtroutnamedeprecated != NULL)
 	}
 if(pmkidoutnamedeprecated != NULL)
 	{
-	if((fh_pmkiddeprecated = fopen(pmkidoutnamedeprecated, "a+")) == NULL)
+	if((fh_pmkiddeprecated = fopen(pmkidoutnamedeprecated, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", pmkidoutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -3196,7 +3196,7 @@ if(pmkidoutnamedeprecated != NULL)
 	}
 if(hccapxoutnamedeprecated != NULL)
 	{
-	if((fh_hccapxdeprecated = fopen(hccapxoutnamedeprecated, "a+")) == NULL)
+	if((fh_hccapxdeprecated = fopen(hccapxoutnamedeprecated, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", hccapxoutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -3204,7 +3204,7 @@ if(hccapxoutnamedeprecated != NULL)
 	}
 if(hccapoutnamedeprecated != NULL)
 	{
-	if((fh_hccapdeprecated = fopen(hccapoutnamedeprecated, "a+")) == NULL)
+	if((fh_hccapdeprecated = fopen(hccapoutnamedeprecated, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", hccapoutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
