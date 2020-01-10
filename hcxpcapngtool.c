@@ -1344,8 +1344,6 @@ while(0 < infolen)
 	else if(tagptr->id == TAG_VENDOR)
 		{
 		if(tagptr->len >= VENDORIE_SIZE) gettagvendor(tagptr->len, tagptr->data, zeiger);
-
-
 		}
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
