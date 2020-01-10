@@ -1156,7 +1156,7 @@ wpaptr = (wpaie_t*)ieptr;
 wpalen -= WPAIE_SIZE;
 ieptr += WPAIE_SIZE;
 if(memcmp(wpaptr->oui, &mscorp, 3) != 0) return;
-if(wpaptr->ouitype != 1) return;
+if(wpaptr->ouitype != VT_WPA_IE) return;
 if(wpaptr->type != VT_WPA_IE) return;
 zeiger->kdversion |= KV_WPAIE;
 gsuiteptr = (suite_t*)ieptr; 
@@ -1214,6 +1214,16 @@ for(c = 0; c < asuitecountptr->count; c++)
 	ieptr += SUITE_SIZE;
 	if(wpalen <= 0) return;
 	}
+return;
+}
+/*===========================================================================*/
+static inline void gettagvendor(int vendorlen, uint8_t *ieptr, tags_t *zeiger)
+{
+static wpaie_t *wpaptr;
+
+wpaptr = (wpaie_t*)ieptr;
+if(memcmp(wpaptr->oui, &mscorp, 3) != 0) return;
+if((wpaptr->ouitype == VT_WPA_IE) && (vendorlen >= WPAIE_LEN_MIN)) gettagwpa(vendorlen, ieptr, zeiger);
 return;
 }
 /*===========================================================================*/
@@ -1328,7 +1338,9 @@ while(0 < infolen)
 		}
 	else if(tagptr->id == TAG_VENDOR)
 		{
-		if(tagptr->len >= WPAIE_LEN_MIN) gettagwpa(tagptr->len, tagptr->data, zeiger);
+		if(tagptr->len >= VENDORIE_SIZE) gettagvendor(tagptr->len, tagptr->data, zeiger);
+
+
 		}
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;

@@ -325,6 +325,23 @@ struct ie_tag
 typedef struct ie_tag ietag_t;
 #define	IETAG_SIZE offsetof(ietag_t, data)
 /*===========================================================================*/
+struct vendorie_tag
+{
+ uint8_t		oui[3];
+ uint8_t		ouitype;
+#define	VT_WPA_IE	1
+#define	VT_WMM_IE	2
+#define	VT_WPS_IE	4
+ uint8_t		data[1];
+} __attribute__ ((packed));
+typedef struct vendorie_tag vendorie_t;
+#define	VENDORIE_SIZE offsetof(vendorie_t, data)
+
+static const uint8_t mscorp[3] =
+{
+0x00, 0x50, 0xf2
+};
+/*===========================================================================*/
 struct rsnie_tag
 {
 #define	VT_RSN_IE	2
@@ -334,7 +351,6 @@ struct rsnie_tag
 typedef struct rsnie_tag rsnie_t;
 #define	RSNIE_SIZE offsetof(rsnie_t, data)
 #define RSNIE_LEN_MIN	20
-
 /*===========================================================================*/
 struct wpaie_tag
 {
@@ -348,11 +364,6 @@ typedef struct wpaie_tag wpaie_t;
 #define	WPAIE_SIZE offsetof(wpaie_t, data)
 #define WPAIE_LEN_MIN	22
 #define OUI_SIZE	3
-
-static const uint8_t mscorp[3] =
-{
-0x00, 0x50, 0xf2
-};
 /*===========================================================================*/
 struct suitecount_s
 {
