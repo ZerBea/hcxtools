@@ -23,6 +23,8 @@
 #define PMKIDLIST_MAX		100000
 #define MESSAGELIST_MAX		64
 
+#define EAPOL_AUTHLEN_MAX	256
+
 #define ESSIDSMAX		1
 
 #define EAPOLTIMEOUT		5000000
@@ -169,7 +171,7 @@ struct messagelist_s
  uint8_t		nonce[32];
  uint8_t		pmkid[16];
  uint16_t		eapauthlen;
- uint8_t		eapol[256];
+ uint8_t		eapol[EAPOL_AUTHLEN_MAX];
 };
 typedef struct messagelist_s messagelist_t;
 #define	MESSAGELIST_SIZE (sizeof(messagelist_t))
