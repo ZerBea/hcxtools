@@ -365,6 +365,15 @@ typedef struct wpaie_tag wpaie_t;
 #define WPAIE_LEN_MIN	22
 #define OUI_SIZE	3
 /*===========================================================================*/
+struct wpsie_tag
+{
+ uint16_t		type;
+ uint16_t		len;
+ uint8_t		data[1];
+} __attribute__ ((packed));
+typedef struct wpsie_tag wpsie_t;
+#define	WPSIE_SIZE offsetof(wpsie_t, data)
+/*===========================================================================*/
 struct suitecount_s
 {
  uint16_t	count;

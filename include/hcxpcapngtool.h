@@ -68,6 +68,7 @@ struct tags_s
 #define	TAK_SAE_SHA256	0b0000000010000000
 #define TAK_FT_SAE	0b0000000100000000
  uint8_t	pmkid[16];
+ uint8_t	wpsinfo;
  uint8_t	essidlen;
  uint8_t	essid[ESSID_LEN_MAX];
 };

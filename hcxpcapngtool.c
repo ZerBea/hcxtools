@@ -1154,6 +1154,16 @@ else if(exteap->code == EAP_CODE_RESP)
 return;
 }
 /*===========================================================================*/
+static inline void gettagwps(int wpslen, uint8_t *ieptr, tags_t *zeiger)
+{
+wpslen -= VENDORIE_SIZE;
+ieptr += VENDORIE_SIZE;
+
+if(wpslen == 0) return;
+zeiger->wpsinfo = 1;
+return;
+}
+/*===========================================================================*/
 static inline void gettagwpa(int wpalen, uint8_t *ieptr, tags_t *zeiger)
 {
 static int c;
@@ -1167,8 +1177,6 @@ static suite_t *asuiteptr;
 wpaptr = (wpaie_t*)ieptr;
 wpalen -= WPAIE_SIZE;
 ieptr += WPAIE_SIZE;
-if(memcmp(wpaptr->oui, &mscorp, 3) != 0) return;
-if(wpaptr->ouitype != VT_WPA_IE) return;
 if(wpaptr->type != VT_WPA_IE) return;
 zeiger->kdversion |= KV_WPAIE;
 gsuiteptr = (suite_t*)ieptr; 
@@ -1236,6 +1244,7 @@ static wpaie_t *wpaptr;
 wpaptr = (wpaie_t*)ieptr;
 if(memcmp(wpaptr->oui, &mscorp, 3) != 0) return;
 if((wpaptr->ouitype == VT_WPA_IE) && (vendorlen >= WPAIE_LEN_MIN)) gettagwpa(vendorlen, ieptr, zeiger);
+if((wpaptr->ouitype == VT_WPS_IE) && (vendorlen >= (int)WPSIE_SIZE)) gettagwps(vendorlen, ieptr, zeiger);
 return;
 }
 /*===========================================================================*/
