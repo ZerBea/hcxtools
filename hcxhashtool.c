@@ -68,7 +68,8 @@ static char *filtervendorptr;
 static bool flagpsk;
 static bool flagpmk;
 static bool flagessidgroup;
-static bool flagmacgroup;
+static bool flagmacapgroup;
+static bool flagmacclientgroup;
 static bool flagouigroup;
 static bool flagvendorout;
 
@@ -1027,7 +1028,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidmacgroups()
+static void writeeapolpmkidmacapgroups()
 {
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
@@ -1039,6 +1040,36 @@ qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_essid);
 for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
 	snprintf(groupoutname, PATH_MAX -1, "%02x%02x%02x%02x%02x%02x.22000", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5]);
+	if((fh_pmkideapol = fopen(groupoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", groupoutname, strerror(errno));
+		return;
+		}
+	writepmkideapolhashline(fh_pmkideapol, zeiger);
+	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+	if(groupoutname[0] != 0)
+		{
+		if(stat(groupoutname, &statinfo) == 0)
+			{
+			if(statinfo.st_size == 0) remove(groupoutname);
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void writeeapolpmkidmacclientgroups()
+{
+static hashlist_t *zeiger;
+static FILE *fh_pmkideapol;
+static struct stat statinfo;
+
+static char groupoutname[PATH_MAX];
+
+qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_essid);
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+	snprintf(groupoutname, PATH_MAX -1, "%02x%02x%02x%02x%02x%02x.22000", zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5]);
 	if((fh_pmkideapol = fopen(groupoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", groupoutname, strerror(errno));
@@ -1502,7 +1533,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                               not on old hash formats\n"
 	"--oui-group                  : convert to OUI groups in working directory\n"
 	"                               not on old hash formats\n"
-	"--mac-group                  : convert to MAC groups in working directory\n"
+	"--mac-group-ap               : convert APs to MAC groups in working directory\n"
+	"                               not on old hash formats\n"
+	"--mac-group-client           : convert CLIENTs to MAC groups in working directory\n"
 	"                               not on old hash formats\n"
 	"--type                       : filter by hash type\n"
 	"                             : default PMKID (1) and EAPOL (2)\n"
@@ -1582,7 +1615,8 @@ static const struct option long_options[] =
 	{"essid-part",			required_argument,	NULL,	HCX_FILTER_ESSID_PART},
 	{"mac-ap",			required_argument,	NULL,	HCX_FILTER_MAC_AP},
 	{"mac-client",			required_argument,	NULL,	HCX_FILTER_MAC_CLIENT},
-	{"mac-group",			no_argument,		NULL,	HCX_MAC_GROUP},
+	{"mac-group-ap",		no_argument,		NULL,	HCX_MAC_GROUP_AP},
+	{"mac-group-client",		no_argument,		NULL,	HCX_MAC_GROUP_CLIENT},
 	{"oui-group",			no_argument,		NULL,	HCX_OUI_GROUP},
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
 	{"vendor",			required_argument,	NULL,	HCX_FILTER_VENDOR},
@@ -1632,7 +1666,8 @@ flagfilterapless = false;
 flagpsk = false;
 flagpmk = false;
 flagessidgroup = false;
-flagmacgroup = false;
+flagmacapgroup = false;
+flagmacclientgroup = false;
 flagouigroup = false;
 flagvendorout = false;
 hashtypein = 0;
@@ -1730,8 +1765,12 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			}
 		break;
 
-		case HCX_MAC_GROUP:
-		flagmacgroup = true;
+		case HCX_MAC_GROUP_AP:
+		flagmacapgroup = true;
+		break;
+
+		case HCX_MAC_GROUP_CLIENT:
+		flagmacclientgroup = true;
 		break;
 
 		case HCX_OUI_GROUP:
@@ -1889,11 +1928,11 @@ if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
 if((pmkideapolcount > 0) && (pmkideapoloutname != NULL)) writeeapolpmkidfile(pmkideapoloutname);
 if((pmkideapolcount > 0) && (infooutname != NULL)) writeinfofile(infooutname);
 if((pmkideapolcount > 0) && (flagessidgroup == true)) writeeapolpmkidessidgroups();
-if((pmkideapolcount > 0) && (flagmacgroup == true)) writeeapolpmkidmacgroups();
+if((pmkideapolcount > 0) && (flagmacapgroup == true)) writeeapolpmkidmacapgroups();
+if((pmkideapolcount > 0) && (flagmacclientgroup == true)) writeeapolpmkidmacclientgroups();
 if((pmkideapolcount > 0) && (flagouigroup == true)) writeeapolpmkidouigroups();
 if((pmkideapolcount > 0) && (flagpsk == true)) testhashfilepsk();
 if((pmkideapolcount > 0) && (flagpmk == true)) testhashfilepmk();
-
 if((pmkideapolcount > 0) && (hccapxoutname != NULL)) writehccapxfile(hccapxoutname);
 if((pmkideapolcount > 0) && (hccapoutname != NULL)) writehccapfile(hccapoutname);
 if((pmkideapolcount > 0) && (johnoutname != NULL)) writejohnfile(johnoutname);
