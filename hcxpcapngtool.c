@@ -1552,7 +1552,7 @@ if(infolen >= RSNIE_LEN_MIN)
 		{
 		if(ignoreieflag == false) return;
 		}
-	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0)
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0)
 		{
 		zeiger->message |= HS_PMKID;
 		memcpy(zeiger->pmkid, tags.pmkid, 16);
@@ -1624,11 +1624,14 @@ memcpy(zeiger->nonce, wpak->nonce, 32);
 if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	{
 	pmkid = (pmkid_t*)(wpakptr +WPAKEY_SIZE);
-	if((pmkid->len == 0x14) && (pmkid->type == 0x04) && (memcmp(&zeroed32, pmkid->pmkid, 16) != 0))
+	if((pmkid->len == 0x14) && (pmkid->type == 0x04))
 		{
 		zeiger->message |= HS_PMKID;
-		memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-		addpmkid(macclient, macap, pmkid->pmkid);
+		if(memcmp(&zeroed32, pmkid->pmkid, 16) != 0)
+			{
+			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
+			addpmkid(macclient, macap, pmkid->pmkid);
+			}
 		}
 	else pmkiduselesscount++;
 	}
@@ -1736,7 +1739,6 @@ clientinfoptr = reassociationrequestptr +CAPABILITIESREQSTA_SIZE;
 clientinfolen = reassociationrequestlen -CAPABILITIESREQSTA_SIZE;
 if(clientinfolen < (int)IETAG_SIZE) return;
 gettags(clientinfolen, clientinfoptr, &tags);
-if(memcmp(&tags.pmkid, &zeroed32, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -1762,13 +1764,12 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(ignoreieflag == true)
 	{
-	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
 else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
-	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
-addpmkid(macclient, macap, tags.pmkid);
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
@@ -1835,11 +1836,11 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(ignoreieflag == true)
 	{
-	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
 else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
-	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
