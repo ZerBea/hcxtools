@@ -981,6 +981,7 @@ if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclien
 	handshakelistptr->timestampgap = eaptimegap;
 	handshakelistptr->status = mpfield;
 	handshakelistptr->rcgap = rcgap;
+	if(handshakelistptr->rcgap > 0) handshakelistptr->status |= ST_NC;
 	handshakelistptr->messageap = msgap->message;
 	handshakelistptr->messageclient = msgclient->message;
 	memcpy(handshakelistptr->ap, msgap->ap, 6);
@@ -1012,6 +1013,7 @@ else
 		handshakelistptr->timestampgap = eaptimegap;
 		handshakelistptr->status = mpfield;
 		handshakelistptr->rcgap = rcgap;
+		if(handshakelistptr->rcgap > 0) handshakelistptr->status |= ST_NC;
 		handshakelistptr->messageap = msgap->message;
 		handshakelistptr->messageclient = msgclient->message;
 		memcpy(handshakelistptr->ap, msgap->ap, 6);
