@@ -480,6 +480,32 @@ memcpy(&gpwplold, &gpwpl, gpwpllen);
 return;
 }
 /*===========================================================================*/
+static void processipv4(uint64_t timestamp, uint16_t ipv4len, uint8_t *ipv4ptr)
+{
+
+ipv4count++;
+
+
+//dummy code to satisfy gcc untill full code is implemented
+timestamp = timestamp;
+ipv4len = ipv4len;
+if(ipv4ptr == NULL) return;
+return;
+}
+/*===========================================================================*/
+static void processipv6(uint64_t timestamp, uint16_t ipv6len, uint8_t *ipv6ptr)
+{
+
+ipv6count++;
+
+
+//dummy code to satisfy gcc untill full code is implemented
+if(ipv6ptr == NULL) return;
+timestamp = timestamp;
+ipv6len = ipv6len;
+return;
+}
+/*===========================================================================*/
 static void hccap2base(unsigned char *in, unsigned char b)
 {
 static const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -2074,7 +2100,6 @@ return;
 /*===========================================================================*/
 static void process80211packet(uint64_t packetimestamp, uint32_t packetlen, uint8_t *packetptr)
 {
-//static uint32_t wdsoffset = 0;
 static mac_t *macfrx;
 static uint32_t payloadlen;
 static uint8_t *payloadptr;
@@ -2125,13 +2150,11 @@ else if(macfrx->type == IEEE80211_FTYPE_DATA)
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
-//		process80211ipv4();
-		ipv4count++;
+		processipv4(packetimestamp, payloadlen -LLC_SIZE, payloadptr +LLC_SIZE);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV6) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
-//		process80211ipv6();
-		ipv6count++;
+		processipv6(packetimestamp, payloadlen -LLC_SIZE, payloadptr +LLC_SIZE);
 		}
 	else if(macfrx->prot ==1)
 		{
@@ -2144,7 +2167,7 @@ else if(macfrx->type == IEEE80211_FTYPE_DATA)
 return;
 }
 /*===========================================================================*/
-void processethernetpacket(uint32_t caplen, uint8_t *packetptr)
+void processethernetpacket(uint64_t timestamp, uint32_t caplen, uint8_t *packetptr)
 {
 static eth2_t *eth2;
 
@@ -2152,13 +2175,11 @@ if(caplen < (int)LLC_SIZE) return;
 eth2 = (eth2_t*)packetptr;
 if(ntohs(eth2->ether_type) == LLC_TYPE_IPV4)
 	{
-//	processipv4packet(tv_sec, tv_usec, caplen, packet_ptr);
-	ipv4count++;
+	processipv4(timestamp, caplen, packetptr);
 	}
 else if(ntohs(eth2->ether_type) == LLC_TYPE_IPV6)
 	{
-//	processipv6packet(tv_sec, tv_usec, caplen, packet_ptr);
-	ipv6count++;
+	processipv6(timestamp, caplen, packetptr);
 	}
 /*
 if(ntohs(eth2->ether_type) == LLC_TYPE_AUTH)
@@ -2295,7 +2316,7 @@ else if(linktype == DLT_EN10MB)
 		}
 	packetlen = caplen -ETH2_SIZE;
 	packetptr = capptr +ETH2_SIZE;
-	processethernetpacket(packetlen, packetptr);
+	processethernetpacket(captimestamp, packetlen, packetptr);
 	return;
 	}
 else
