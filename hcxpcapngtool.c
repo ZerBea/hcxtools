@@ -1352,7 +1352,7 @@ while(0 < infolen)
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint32_t restlen, uint8_t *eapauthptr)
 {
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
@@ -1387,8 +1387,8 @@ zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
 zeiger->eapolmsgcount = eapolmsgcount;
-memcpy(zeiger->client, macfm, 6);
-memcpy(zeiger->ap, macto, 6);
+memcpy(zeiger->client, macclient, 6);
+memcpy(zeiger->ap, macap, 6);
 zeiger->message = HS_M4;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
@@ -1401,8 +1401,8 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		if(zeiger->rc > rc) rcgap = zeiger->rc -rc;
 		else rcgap = rc -zeiger->rc;
 		if(rcgap > ncvalue) continue;
-		if(memcmp(zeiger->client, macfm, 6) != 0) continue;
-		if(memcmp(zeiger->ap, macto, 6) != 0) continue;
+		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
+		if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 		if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
 		mpfield = ST_M34E4;
@@ -1414,8 +1414,8 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	if(zeiger->rc > rc) rcgap = zeiger->rc -rc;
 	else rcgap = rc -zeiger->rc;
 	if(rcgap > ncvalue) continue;
-	if(memcmp(zeiger->client, macfm, 6) != 0) continue;
-	if(memcmp(zeiger->ap, macto, 6) != 0) continue;
+	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
+	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	mpfield = ST_M14E4;
@@ -1426,7 +1426,7 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epc
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m3(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m3(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint32_t restlen, uint8_t *eapauthptr)
 {
 static messagelist_t *zeiger;
 static messagelist_t *zeigerakt;
@@ -1460,15 +1460,15 @@ if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return;
 memset(zeigerakt, 0, MESSAGELIST_SIZE);
 zeigerakt->timestamp = eaptimestamp;
 zeigerakt->eapolmsgcount = eapolmsgcount;
-memcpy(zeigerakt->client, macto, 6);
-memcpy(zeigerakt->ap, macfm, 6);
+memcpy(zeigerakt->client, macclient, 6);
+memcpy(zeigerakt->ap, macap, 6);
 zeigerakt->message = HS_M3;
 zeigerakt->rc = rc;
 memcpy(zeigerakt->nonce, wpak->nonce, 32);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
-	if(memcmp(zeiger->ap, macfm, 6) != 0) continue;
-	if(memcmp(zeiger->client, macto, 6) != 0) continue;
+	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
+	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[29], &wpak->nonce[29], 4) != 0))
 		{
 		zeiger->status |= ST_NC;
@@ -1488,7 +1488,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	{
 	if(((zeiger->message &HS_M1) != HS_M1) && ((zeiger->message &HS_M3) != HS_M3)) continue;
-	if(memcmp(zeiger->ap, macfm, 6) != 0) continue;
+	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0))
 		{
 		zeiger->status |= ST_NC;
@@ -1500,7 +1500,7 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epc
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m2(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m2(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint32_t restlen, uint8_t *eapauthptr)
 {
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
@@ -1537,8 +1537,8 @@ zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
 zeiger->eapolmsgcount = eapolmsgcount;
-memcpy(zeiger->client, macfm, 6);
-memcpy(zeiger->ap, macto, 6);
+memcpy(zeiger->client, macclient, 6);
+memcpy(zeiger->ap, macap, 6);
 zeiger->message = HS_M2;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
@@ -1552,6 +1552,12 @@ if(infolen >= RSNIE_LEN_MIN)
 		{
 		if(ignoreieflag == false) return;
 		}
+	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0)
+		{
+		zeiger->message |= HS_PMKID;
+		memcpy(zeiger->pmkid, tags.pmkid, 16);
+		addpmkid(macclient, macap, tags.pmkid);
+		}
 	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
@@ -1559,8 +1565,8 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	if(zeiger->rc > rc) rcgap = zeiger->rc -rc;
 	else rcgap = rc -zeiger->rc;
 	if(rcgap > ncvalue) continue;
-	if(memcmp(zeiger->client, macfm, 6) != 0) continue;
-	if(memcmp(zeiger->ap, macto, 6) != 0) continue;
+	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
+	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	mpfield = ST_M12E2;
@@ -1579,7 +1585,7 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epc
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m1(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m1(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint32_t restlen, uint8_t *eapauthptr)
 {
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
@@ -1610,26 +1616,26 @@ zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
 zeiger->eapolmsgcount = eapolmsgcount;
-memcpy(zeiger->client, macto, 6);
-memcpy(zeiger->ap, macfm, 6);
+memcpy(zeiger->client, macclient, 6);
+memcpy(zeiger->ap, macap, 6);
 zeiger->message = HS_M1;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
 if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	{
 	pmkid = (pmkid_t*)(wpakptr +WPAKEY_SIZE);
-	if((pmkid->len == 0x14) && (pmkid->type == 0x04) && (memcmp(pmkid->pmkid, &zeroed32, 16) != 0))
+	if((pmkid->len == 0x14) && (pmkid->type == 0x04) && (memcmp(&zeroed32, pmkid->pmkid, 16) != 0))
 		{
 		zeiger->message |= HS_PMKID;
 		memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-		addpmkid(macto, macfm, pmkid->pmkid);
+		addpmkid(macclient, macap, pmkid->pmkid);
 		}
 	else pmkiduselesscount++;
 	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	{
 	if(((zeiger->message &HS_M1) != HS_M1) && ((zeiger->message &HS_M3) != HS_M3)) continue;
-	if(memcmp(zeiger->ap, macfm, 6) != 0) continue;
+	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0))
 		{
 		zeiger->status |= ST_NC;
@@ -1754,6 +1760,15 @@ memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
+if(ignoreieflag == true)
+	{
+	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	}
+else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+	{
+	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	}
+addpmkid(macclient, macap, tags.pmkid);
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
@@ -1818,6 +1833,14 @@ memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
+if(ignoreieflag == true)
+	{
+	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	}
+else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+	{
+	if(memcmp(&zeroed32,  tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	}
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
