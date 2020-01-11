@@ -142,7 +142,7 @@ static long int zeroedpmkcount;
 static long int pmkidcount;
 static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
-static long int eapolwrittenjcountdeprecated;
+static long int pmkidwrittenjcountdeprecated;
 static long int pmkidwrittencountdeprecated;
 static long int eapolmsgcount;
 static long int eapolmpcount;
@@ -151,10 +151,11 @@ static long int eapolm2count;
 static long int eapolm3count;
 static long int eapolm4count;
 static long int eapolwrittencount;
+static long int eapolncwrittencount;
 static long int eapolaplesscount;
 static long int eapolwrittenjcountdeprecated;
-static long int pmkidwrittenjcountdeprecated;
 static long int eapolwrittenhcpxcountdeprecated;
+static long int eapolncwrittenhcpxcountdeprecated;
 static long int eapolwrittenhcpcountdeprecated;
 static long int eapolm12e2count;
 static long int eapolm14e4count;
@@ -377,10 +378,12 @@ if(eapolm3count > 0)			printf("EAPOL M3 messages......................: %ld\n", 
 if(eapolm4count > 0)			printf("EAPOL M4 messages......................: %ld\n", eapolm4count);
 if(eapolmpcount > 0)			printf("EAPOL pairs............................: %ld\n", eapolmpcount);
 if(eapolaplesscount > 0)		printf("EAPOL pairs (AP-LESS)..................: %ld\n", eapolaplesscount);
-if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file.: %ld\n", eapolwrittencount);
-if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx..........: %ld\n", eapolwrittenhcpxcountdeprecated);
-if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap...........: %ld\n", eapolwrittenhcpcountdeprecated);
-if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format..: %ld\n", eapolwrittenjcountdeprecated);
+if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file.: %ld (RC checked)\n", eapolwrittencount);
+if(eapolncwrittencount > 0)		printf("EAPOL pairs written to combi hash file.: %ld (RC not checked)\n", eapolncwrittencount);
+if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx..........: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
+if(eapolncwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx..........: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
+if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap...........: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
+if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format..: %ld (RC checked)\n", eapolwrittenjcountdeprecated);
 if(eapolm12e2count > 0)			printf("EAPOL M12E2............................: %ld\n", eapolm12e2count);
 if(eapolm14e4count > 0)			printf("EAPOL M14E4............................: %ld\n", eapolm14e4count);
 if(eapolm32e2count > 0)			printf("EAPOL M32E2............................: %ld\n", eapolm32e2count);
@@ -667,7 +670,6 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		if((zeigerhs->status &7) == ST_M32E3) eapolm32e3count++; 
 		if((zeigerhs->status &7) == ST_M34E3) eapolm34e3count++; 
 		if((zeigerhs->status &7) == ST_M34E4) eapolm34e4count++; 
-		if((ncvalue > 0) && (zeigerhs->status & ST_APLESS) != ST_APLESS) zeigerhs->status |= ST_NC;
 		wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 		keyvertemp = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 		memcpy(&eapoltemp, zeigerhs->eapol, zeigerhs->eapauthlen);
@@ -691,9 +693,10 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
 			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", eapoltemp[p]);
 			fprintf(fh_pmkideapol, "*%02x\n", zeigerhs->status);
-			eapolwrittencount++;
+			if(zeigerhs->rcgap == 0) eapolwrittencount++;
+			else  eapolncwrittencount++;
 			}
-		if(fh_pmkideapoljtrdeprecated != 0)
+		if((fh_pmkideapoljtrdeprecated != 0) && (zeigerhs->rcgap == 0))
 			{
 			memset (&hccap, 0, sizeof(hccap_t));
 			memcpy(&hccap.ap, zeigerhs->ap, 6);
@@ -744,9 +747,10 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			hccapx.eapol_len = byte_swap_16(hccapx.eapol_len);
 			#endif
 			fwrite (&hccapx, sizeof(hccapx_t), 1, fh_hccapxdeprecated);
-			eapolwrittenhcpxcountdeprecated++;
+			if(zeigerhs->rcgap == 0) eapolwrittenhcpxcountdeprecated++;
+			else eapolncwrittenhcpxcountdeprecated++;
 			}
-		if(fh_hccapdeprecated != 0)
+		if((fh_hccapdeprecated != 0) && (zeigerhs->rcgap == 0))
 			{
 			memset(&hccap, 0, sizeof(hccap_t));
 			memcpy(&hccap.essid, zeigermac->essid, zeigermac->essidlen);
