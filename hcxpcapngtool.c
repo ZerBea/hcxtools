@@ -329,6 +329,10 @@ eapolm34e3count = 0;
 eapolm34e4count = 0;
 
 eaptimegapmax = 0;
+
+timestampmin = 0;
+timestampmax = 0;
+timestampstart = 0;
 return true;
 }
 /*===========================================================================*/
