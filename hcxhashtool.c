@@ -1116,6 +1116,9 @@ return;
 /*===========================================================================*/
 static void writepmkideapolhashlineinfo(FILE *fh_pmkideapol, hashlist_t *zeiger)
 {
+static eapauth_t *eapa;
+static wpakey_t *wpak;
+static uint8_t keyver;
 static char *vendor;
 
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
@@ -1155,6 +1158,14 @@ if(zeiger->type == HCX_TYPE_PMKID)
 	}
 if(zeiger->type == HCX_TYPE_EAPOL)
 	{
+	eapa = (eapauth_t*)zeiger->eapol;
+	wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
+	if(eapa->version == 1) fprintf(fh_pmkideapol, "Version:... 802.1X-2001 (1)\n");
+	if(eapa->version == 2) fprintf(fh_pmkideapol, "Version...: 802.1X-2004 (2)\n");
+	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+	if(keyver == 1) fprintf(fh_pmkideapol, "KeyVersion: WPA1\n");
+	if(keyver == 2) fprintf(fh_pmkideapol, "KeyVersion: WPA2\n");
+	if(keyver == 3) fprintf(fh_pmkideapol, "KeyVersion: WPA2 key version 3\n");
 	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2: not authorized\n");
 	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4: authorized\n");
 	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2: authorized\n");
