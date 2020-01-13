@@ -430,7 +430,7 @@ if((keyver == 1 || keyver == 2))
 			{
 			fprintf(stdout, ":$HEX[");
 			for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
-			fprintf(stdout, "\n");
+			fprintf(stdout, "]\n");
 			}
 		}
 	return;
@@ -476,7 +476,7 @@ else if(keyver == 3)
 			{
 			fprintf(stdout, ":$HEX[");
 			for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
-			fprintf(stdout, "\n");
+			fprintf(stdout, "]\n");
 			}
 		}
 	}
@@ -507,7 +507,7 @@ if(memcmp(&pmkidcalc, zeiger->hash, 16) == 0)
 		{
 		fprintf(stdout, ":$HEX[");
 		for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
-		fprintf(stdout, "\n");
+		fprintf(stdout, "]\n");
 		}
 	}
 return;
