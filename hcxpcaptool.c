@@ -150,6 +150,7 @@ unsigned long long int tacacspcount;
 tacacspl_t *tacacspliste;
 
 unsigned long long int gpsdframecount;
+unsigned long long int gpsnmeaframecount;
 unsigned long long int fcsframecount;
 unsigned long long int wdsframecount;
 unsigned long long int beaconframecount;
@@ -582,9 +583,10 @@ printf( "                                                \n"
 	"maximum time stamp...............: %s (GMT)\n"
 	"packets inside...................: %llu\n"
 	"skipped damaged packets..........: %llu\n"
-	"packets with GPS data............: %llu\n"
+	"packets with GPS NMEA data.......: %llu\n"
+	"packets with GPS data (JSON old).: %llu\n"
 	"packets with FCS.................: %llu\n"
-	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngosinfo, pcapngapplinfo, hcxsignedptr, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, gpsdframecount, fcsframecount);
+	, basename(pcapinname), pcaptype, version_major, version_minor, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngosinfo, pcapngapplinfo, hcxsignedptr, getdltstring(networktype), networktype, getendianessstring(endianess), geterrorstat(pcapreaderrors), mintimestring, maxtimestring, rawpacketcount, skippedpacketcount, gpsnmeaframecount, gpsdframecount, fcsframecount);
 if(tscleanflag == true)
 	{
 	printf("warning..........................: zero value time stamps detected\n"
@@ -6276,7 +6278,7 @@ while(0 < restlen)
 			memset(&nmeasentence, 0, NMEA_MAX);
 			memcpy(&nmeasentence, &option->data, option->option_length);
 			if(fhnmea != NULL) fprintf(fhnmea, "%s\n", nmeasentence);
-			gpsdframecount++;
+			gpsnmeaframecount++;
 			}
 		}
 	optr += option->option_length +padding +OH_SIZE;
@@ -6862,6 +6864,7 @@ apstaessidcount = 0;
 apstaessidcountcleaned = 0;
 eapolcount = 0;
 gpsdframecount = 0;
+gpsnmeaframecount = 0;
 fcsframecount = 0;
 wdsframecount = 0;
 beaconframecount = 0;
@@ -7112,6 +7115,14 @@ if(gpxflag == true)
 	else if(gpsdframecount > 1)
 		{
 		printf("%llu track points written to %s\n", gpsdframecount, gpxoutname);
+		}
+	if(gpsnmeaframecount == 1)
+		{
+		printf("%llu track point written to %s\n", gpsnmeaframecount, nmeaoutname);
+		}
+	else if(gpsnmeaframecount > 1)
+		{
+		printf("%llu track points written to %s\n", gpsnmeaframecount, nmeaoutname);
 		}
 	}
 
