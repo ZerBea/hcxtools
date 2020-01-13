@@ -138,8 +138,9 @@ static long int eappeapcount;
 static long int eapmd5count;
 static long int eapleapcount;
 static long int eapexpandedcount;
-static long int eapreqidcount;
-static long int eaprespidcount;
+static long int eapidcount;
+static long int eapcodereqcount;
+static long int eapcoderespcount;
 static long int zeroedpmkcount;
 static long int pmkidcount;
 static long int pmkiduselesscount;
@@ -305,8 +306,9 @@ eappeapcount = 0;
 eapmd5count = 0;
 eapleapcount = 0;
 eapexpandedcount = 0;
-eapreqidcount = 0;
-eaprespidcount = 0;
+eapidcount = 0;
+eapcodereqcount = 0;
+eapcoderespcount = 0;
 zeroedpmkcount = 0;
 pmkidcount = 0;
 pmkiduselesscount = 0;
@@ -371,14 +373,15 @@ if(ipv6count > 0)			printf("IPv6...................................: %ld\n", ipv
 if(wepenccount > 0)			printf("WEP encrypted..........................: %ld\n", wepenccount);
 if(wpaenccount > 0)			printf("WPA encrypted..........................: %ld\n", wpaenccount);
 if(eapcount > 0)			printf("EAP (total)............................: %ld\n", eapcount);
+if(eapcodereqcount > 0)			printf("EAP CODE REQUEST.......................: %ld\n", eapcodereqcount);
+if(eapcoderespcount > 0)		printf("EAP CODE RESPONSE......................: %ld\n", eapcoderespcount);
+if(eapidcount > 0)			printf("EAP ID.................................: %ld\n", eapidcount);
 if(eapsimcount > 0)			printf("EAP-SIM................................: %ld\n", eapsimcount);
 if(eapakacount > 0)			printf("EAP-AKA................................: %ld\n", eapakacount);
 if(eappeapcount > 0)			printf("EAP-PEAP...............................: %ld\n", eappeapcount);
 if(eapmd5count > 0)			printf("EAP-MD5................................: %ld\n", eapmd5count);
 if(eapleapcount > 0)			printf("EAP-LEAP...............................: %ld\n", eapleapcount);
 if(eapexpandedcount > 0)		printf("EAP-EXPANDED...........................: %ld\n", eapexpandedcount);
-if(eapreqidcount > 0)			printf("EAP REQUEST ID.........................: %ld\n", eapreqidcount);
-if(eaprespidcount > 0)			printf("EAP RESPONSE ID........................: %ld\n", eaprespidcount);
 if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
 if(eaptimegapmax > 0)			printf("EAPOLTIME (measured maximum usec)......: %" PRId64 "\n", eaptimegapmax);
@@ -1196,6 +1199,7 @@ else if(exteap->type == EAP_TYPE_LEAP) processexteapleap(exteap->code, exteaplen
 
 if(exteap->code == EAP_CODE_REQ)
 	{
+	eapcodereqcount++;
 	if(exteap->type == EAP_TYPE_ID)
 		{
 		if(fh_identity != NULL)
@@ -1206,11 +1210,12 @@ if(exteap->code == EAP_CODE_REQ)
 				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0) fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
 				}
 			}
-		eapreqidcount++;
+		eapidcount++;
 		}
 	}
 else if(exteap->code == EAP_CODE_RESP)
 	{
+	eapcoderespcount++;
 	if(exteap->type == EAP_TYPE_ID)
 		{
 		if(fh_identity != NULL)
@@ -1221,7 +1226,7 @@ else if(exteap->code == EAP_CODE_RESP)
 				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0) fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
 				}
 			}
-		eaprespidcount++;
+		eapidcount++;
 		}
 	}
 return;
