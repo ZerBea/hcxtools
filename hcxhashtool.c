@@ -21,17 +21,22 @@
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/cmac.h>
-
-#if defined(__APPLE__) || defined(__OpenBSD__)
+#if defined (__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
+#include <sys/socket.h>
+#include <inttypes.h>
 #else
 #include <stdio_ext.h>
+#endif
+#ifdef __linux__
+#include <linux/limits.h>
 #endif
 #include "include/version.h"
 #include "include/hcxhashtool.h"
 #include "include/strings.c"
 #include "include/fileops.c"
 #include "include/ieee80211.h"
+#include "include/byteops.c"
 
 /*===========================================================================*/
 /* global var */
@@ -1119,6 +1124,7 @@ static void writepmkideapolhashlineinfo(FILE *fh_pmkideapol, hashlist_t *zeiger)
 static eapauth_t *eapa;
 static wpakey_t *wpak;
 static uint8_t keyver;
+static uint64_t rc;
 static char *vendor;
 
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
@@ -1145,14 +1151,14 @@ if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
 if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
-fprintf(fh_pmkideapol, "SSID......: %.*s\n", zeiger->essidlen, zeiger->essid);
+fprintf(fh_pmkideapol, "SSID.......: %.*s\n", zeiger->essidlen, zeiger->essid);
 vendor = getvendor(zeiger->ap);
-fprintf(fh_pmkideapol, "MAC_AP....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], vendor);
+fprintf(fh_pmkideapol, "MAC_AP.....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], vendor);
 vendor = getvendor(zeiger->client);
-fprintf(fh_pmkideapol, "MAC_CLIENT: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5], vendor);
+fprintf(fh_pmkideapol, "MAC_CLIENT.: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5], vendor);
 if(zeiger->type == HCX_TYPE_PMKID)
 	{
-	fprintf(fh_pmkideapol, "PMKID.....: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+	fprintf(fh_pmkideapol, "PMKID......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
 		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
 		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
 	}
@@ -1160,28 +1166,34 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 	{
 	eapa = (eapauth_t*)zeiger->eapol;
 	wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
-	if(eapa->version == 1) fprintf(fh_pmkideapol, "Version:... 802.1X-2001 (1)\n");
-	if(eapa->version == 2) fprintf(fh_pmkideapol, "Version...: 802.1X-2004 (2)\n");
+	if(eapa->version == 1) fprintf(fh_pmkideapol, "VERSION....: 802.1X-2001 (1)\n");
+	if(eapa->version == 2) fprintf(fh_pmkideapol, "VERSION....: 802.1X-2004 (2)\n");
 	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-	if(keyver == 1) fprintf(fh_pmkideapol, "KeyVersion: WPA1\n");
-	if(keyver == 2) fprintf(fh_pmkideapol, "KeyVersion: WPA2\n");
-	if(keyver == 3) fprintf(fh_pmkideapol, "KeyVersion: WPA2 key version 3\n");
-	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2: not authorized\n");
-	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4: authorized\n");
-	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2: authorized\n");
-	if((zeiger->mp & 0x07) == 0x03) fprintf(fh_pmkideapol, "MP M2M3 E3: authorized\n");
-	if((zeiger->mp & 0x07) == 0x04) fprintf(fh_pmkideapol, "MP M3M4 E3: authorized\n");
-	if((zeiger->mp & 0x07) == 0x05) fprintf(fh_pmkideapol, "MP M3M4 E4: authorized\n");
-	if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO...: replycount checked\n");
-	if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO...: not replycount checked / nc required\n");
-	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO...: AP-LESS attack / nc not reqired\n");
-	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO...: little endian router / nc LE required\n");
-	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO...: big endian router / nc BE required\n");
-	fprintf(fh_pmkideapol, "MIC.......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+	if(keyver == 1) fprintf(fh_pmkideapol, "KEY VERSION: WPA1\n");
+	if(keyver == 2) fprintf(fh_pmkideapol, "KEY VERSION: WPA2\n");
+	if(keyver == 3) fprintf(fh_pmkideapol, "KEY VERSION: WPA2 key version 3\n");
+	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2.: not authorized\n");
+	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4.: authorized\n");
+	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2.: authorized\n");
+	if((zeiger->mp & 0x07) == 0x03) fprintf(fh_pmkideapol, "MP M2M3 E3.: authorized\n");
+	if((zeiger->mp & 0x07) == 0x04) fprintf(fh_pmkideapol, "MP M3M4 E3.: authorized\n");
+	if((zeiger->mp & 0x07) == 0x05) fprintf(fh_pmkideapol, "MP M3M4 E4.: authorized\n");
+	#ifndef BIG_ENDIAN_HOST
+	rc = byte_swap_64(wpak->replaycount);
+	#else
+	rc = wpak->replaycount;
+	#endif
+	fprintf(fh_pmkideapol, "PEPLAYCOUNT: %" PRIu64 "\n", rc);
+	if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO....: replycount checked\n");
+	if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO....: not replycount checked / nc required\n");
+	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO....: AP-LESS attack / nc not reqired\n");
+	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO....: little endian router / nc LE required\n");
+	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO....: big endian router / nc BE required\n");
+	fprintf(fh_pmkideapol, "MIC........: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
 		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
 		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
 	}
-fprintf(fh_pmkideapol, "HASHLINE..: ");
+fprintf(fh_pmkideapol, "HASHLINE...: ");
 writepmkideapolhashline(fh_pmkideapol, zeiger);
 fprintf(fh_pmkideapol, "\n");
 return;
