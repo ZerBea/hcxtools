@@ -321,7 +321,7 @@ else if(keyver == 3)
 			pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
 			pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
 		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
-		fprintf(stdout, "xxxx  \n");
+		fprintf(stdout, "\n");
 		}
 	}
 return;
