@@ -136,6 +136,7 @@ static long int eapsimcount;
 static long int eapakacount;
 static long int eappeapcount;
 static long int eapmd5count;
+static long int eapleapcount;
 static long int eapexpandedcount;
 static long int eapreqidcount;
 static long int eaprespidcount;
@@ -302,6 +303,7 @@ eapsimcount = 0;
 eapakacount = 0;
 eappeapcount = 0;
 eapmd5count = 0;
+eapleapcount = 0;
 eapexpandedcount = 0;
 eapreqidcount = 0;
 eaprespidcount = 0;
@@ -373,6 +375,7 @@ if(eapsimcount > 0)			printf("EAP-SIM................................: %ld\n", e
 if(eapakacount > 0)			printf("EAP-AKA................................: %ld\n", eapakacount);
 if(eappeapcount > 0)			printf("EAP-PEAP...............................: %ld\n", eappeapcount);
 if(eapmd5count > 0)			printf("EAP-MD5................................: %ld\n", eapmd5count);
+if(eapleapcount > 0)			printf("EAP-LEAP...............................: %ld\n", eapleapcount);
 if(eapexpandedcount > 0)		printf("EAP-EXPANDED...........................: %ld\n", eapexpandedcount);
 if(eapreqidcount > 0)			printf("EAP REQUEST ID.........................: %ld\n", eapreqidcount);
 if(eaprespidcount > 0)			printf("EAP RESPONSE ID........................: %ld\n", eaprespidcount);
@@ -513,7 +516,26 @@ ipv6len = ipv6len;
 return;
 }
 /*===========================================================================*/
-static void processeapmd5(uint8_t eapcode, uint32_t restlen, uint8_t *md5ptr)
+static void processexteapleap(uint8_t eapcode, uint32_t restlen, uint8_t *leapptr)
+{
+static eapleap_t *leap;
+static uint32_t leaplen;
+
+eapleapcount++;
+leap = (eapleap_t*)leapptr;
+leaplen = ntohs(leap->len);
+
+
+if(leaplen > restlen) return;
+if(eapcode == EAP_CODE_REQ) return;
+
+
+if(eapcode == EAP_CODE_RESP) return;
+return;
+}
+
+/*===========================================================================*/
+static void processexteapmd5(uint8_t eapcode, uint32_t restlen, uint8_t *md5ptr)
 {
 static md5_t *md5;
 static uint32_t md5len;
@@ -1169,7 +1191,8 @@ if(exteap->type == EAP_TYPE_SIM) eapsimcount++;
 else if(exteap->type == EAP_TYPE_AKA) eapakacount++;
 else if(exteap->type == EAP_TYPE_PEAP) eappeapcount++;
 else if(exteap->type == EAP_TYPE_EXPAND) eapexpandedcount++;
-else if(exteap->type == EAP_TYPE_MD5) processeapmd5(exteap->code, exteaplen, eapptr +EAPAUTH_SIZE);
+else if(exteap->type == EAP_TYPE_MD5) processexteapmd5(exteap->code, exteaplen, eapptr +EAPAUTH_SIZE);
+else if(exteap->type == EAP_TYPE_LEAP) processexteapleap(exteap->code, exteaplen, eapptr +EAPAUTH_SIZE);
 
 if(exteap->code == EAP_CODE_REQ)
 	{
