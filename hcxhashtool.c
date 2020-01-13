@@ -1183,7 +1183,7 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 	#else
 	rc = wpak->replaycount;
 	#endif
-	fprintf(fh_pmkideapol, "PEPLAYCOUNT: %" PRIu64 "\n", rc);
+	fprintf(fh_pmkideapol, "REPLAYCOUNT: %" PRIu64 "\n", rc);
 	if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO....: replycount checked\n");
 	if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO....: not replycount checked / nc required\n");
 	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO....: AP-LESS attack / nc not reqired\n");
