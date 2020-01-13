@@ -425,7 +425,13 @@ if((keyver == 1 || keyver == 2))
 			pmkpbkdf2[16], pmkpbkdf2[17], pmkpbkdf2[18], pmkpbkdf2[19], pmkpbkdf2[20], pmkpbkdf2[21], pmkpbkdf2[22], pmkpbkdf2[23],
 			pmkpbkdf2[24], pmkpbkdf2[25], pmkpbkdf2[26], pmkpbkdf2[27], pmkpbkdf2[28], pmkpbkdf2[29], pmkpbkdf2[30], pmkpbkdf2[31]);
 		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
-		fprintf(stdout, ":%s\n", pskptr);
+		if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s\n", pskptr);
+		else
+			{
+			fprintf(stdout, ":$HEX[");
+			for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
+			fprintf(stdout, "\n");
+			}
 		}
 	return;
 	}
@@ -465,7 +471,13 @@ else if(keyver == 3)
 			pmkpbkdf2[16], pmkpbkdf2[17], pmkpbkdf2[18], pmkpbkdf2[19], pmkpbkdf2[20], pmkpbkdf2[21], pmkpbkdf2[22], pmkpbkdf2[23],
 			pmkpbkdf2[24], pmkpbkdf2[25], pmkpbkdf2[26], pmkpbkdf2[27], pmkpbkdf2[28], pmkpbkdf2[29], pmkpbkdf2[30], pmkpbkdf2[31]);
 		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
-		fprintf(stdout, ":%s\n", pskptr);
+		if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s\n", pskptr);
+		else
+			{
+			fprintf(stdout, ":$HEX[");
+			for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
+			fprintf(stdout, "\n");
+			}
 		}
 	}
 return;
@@ -490,7 +502,13 @@ if(memcmp(&pmkidcalc, zeiger->hash, 16) == 0)
 		pmkpbkdf2[16], pmkpbkdf2[17], pmkpbkdf2[18], pmkpbkdf2[19], pmkpbkdf2[20], pmkpbkdf2[21], pmkpbkdf2[22], pmkpbkdf2[23],
 		pmkpbkdf2[24], pmkpbkdf2[25], pmkpbkdf2[26], pmkpbkdf2[27], pmkpbkdf2[28], pmkpbkdf2[29], pmkpbkdf2[30], pmkpbkdf2[31]);
 	for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
-	fprintf(stdout, ":%s\n" , pskptr);
+	if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s\n", pskptr);
+	else
+		{
+		fprintf(stdout, ":$HEX[");
+		for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
+		fprintf(stdout, "\n");
+		}
 	}
 return;
 }

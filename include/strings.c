@@ -1,13 +1,20 @@
 /*===========================================================================*/
+bool ispotfilestring(int len, char *buffer)
+{
+uint8_t p;
+for(p = 0; p < len; p++)
+	{
+	if((buffer[p] < 0x20) || (buffer[p] > 0x7e) || (buffer[p] == ':')) return false;
+	}
+return true;
+}
+/*===========================================================================*/
 bool isasciistring(int len, uint8_t *buffer)
 {
 uint8_t p;
 for(p = 0; p < len; p++)
 	{
-	if((buffer[p] < 0x20) || (buffer[p] > 0x7e))
-		{
-		return false;
-		}
+	if((buffer[p] < 0x20) || (buffer[p] > 0x7e) || (buffer[p] == ':')) return false;
 	}
 return true;
 }
@@ -18,22 +25,10 @@ size_t c;
 
 for(c = 0; c < len; c++)
 	{
-	if(str[c] < '0')
-		{
-		return false;
-		}
-	if(str[c] > 'f')
-		{
-		return false;
-		}
-	if((str[c] > '9') && (str[c] < 'A'))
-		{
-		return false;
-		}
-	if((str[c] > 'F') && (str[c] < 'a'))
-		{
-		return false;
-		}
+	if(str[c] < '0') return false;
+	if(str[c] > 'f') return false;
+	if((str[c] > '9') && (str[c] < 'A')) return false;
+	if((str[c] > 'F') && (str[c] < 'a')) return false;
 	}
 return true;
 }
@@ -56,11 +51,7 @@ uint8_t hashmap[] =
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
 };
 
-if(ishexvalue(str, blen) == false)
-	{
-	return false;
-	}
-
+if(ishexvalue(str, blen) == false) return false;
 memset(bytes, 0, blen);
 for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	{
@@ -84,7 +75,6 @@ if (string[2]      != 'E') return 0;
 if (string[3]      != 'X') return 0;
 if (string[4]      != '[') return 0;
 if (string[len -1] != ']') return 0;
-
 return (len -6)/2;
 }
 /*===========================================================================*/
