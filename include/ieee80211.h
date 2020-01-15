@@ -497,16 +497,19 @@ typedef struct action_frame actf_t;
 /*===========================================================================*/
 struct eapauthentication_s
 {
- uint8_t	version;
- uint8_t	type;
-#define EAP_PACKET 0
-#define EAPOL_START 1
-#define EAPOL_LOGOFF 2
-#define EAPOL_KEY 3
-#define EAPOL_ASF 4
-#define EAPOL_MKA 5
- uint16_t	len;
- uint8_t	data[1];
+ uint8_t		version;
+ uint8_t		type;
+#define EAP_PACKET	0
+#define EAPOL_START	1
+#define EAPOL_LOGOFF	2
+#define EAPOL_KEY	3
+#define EAPOL_ASF	4
+#define EAPOL_MKA	5
+ uint16_t		len;
+ uint8_t		data[1];
+#define EAP_KDT_RC4	0x01
+#define EAP_KDT_RSN	0x02
+#define EAP_KDT_WPA	0xfe
 } __attribute__((__packed__));
 typedef struct eapauthentication_s eapauth_t;
 #define	EAPAUTH_SIZE offsetof(eapauth_t, data)

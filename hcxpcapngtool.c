@@ -154,6 +154,9 @@ static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
 static long int pmkidwrittenjcountdeprecated;
 static long int pmkidwrittencountdeprecated;
+static long int eapolrc4count;
+static long int eapolrsncount;
+static long int eapolwpacount;
 static long int eapolmsgcount;
 static long int eapolmpcount;
 static long int eapolm1count;
@@ -338,6 +341,9 @@ pmkidwrittenhcount = 0;
 eapolwrittenjcountdeprecated = 0;
 pmkidwrittenjcountdeprecated = 0;
 pmkidwrittencountdeprecated = 0;
+eapolrc4count = 0;
+eapolrsncount = 0;
+eapolwpacount = 0;
 eapolmsgcount = 0;
 eapolmpcount = 0;
 eapolm1count = 0;
@@ -411,6 +417,9 @@ if(eapmd5johnwrittencount > 0)		printf("EAP-MD5 pairs written to JtR...........:
 if(eapleapcount > 0)			printf("EAP-LEAP messages......................: %ld\n", eapleapcount);
 if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
+if(eapolrc4count > 0)			printf("EAPOL RC4 keys.........................: %ld\n", eapolrc4count);
+if(eapolrsncount > 0)			printf("EAPOL RSN messages.....................: %ld\n", eapolrsncount);
+if(eapolwpacount > 0)			printf("EAPOL WPA messages.....................: %ld\n", eapolwpacount);
 if(eaptimegapmax > 0)			printf("EAPOLTIME (measured maximum usec)......: %" PRId64 "\n", eaptimegapmax);
 if(eapolm1count > 0)			printf("EAPOL M1 messages......................: %ld\n", eapolm1count);
 if(eapolm2count > 0)			printf("EAPOL M2 messages......................: %ld\n", eapolm2count);
@@ -1909,6 +1918,12 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epc
 return;
 }
 /*===========================================================================*/
+static void process80211rc4key()
+{
+eapolrc4count++;
+return;
+}
+/*===========================================================================*/
 static void process80211eapol(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t eapauthlen, uint8_t *eapauthptr)
 {
 static eapauth_t *eapauth;
@@ -1923,6 +1938,15 @@ if(authlen > eapauthlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
+if(wpak->keydescriptor == EAP_KDT_RC4)
+	{
+	process80211rc4key();
+	return;
+	}
+else if(wpak->keydescriptor == EAP_KDT_WPA) eapolwpacount++;
+else if(wpak->keydescriptor == EAP_KDT_RSN) eapolrsncount++;
+else return;
+
 if(keyinfo == 1) process80211eapol_m1(eaptimestamp, macto, macfm, eapauthlen, eapauthptr);
 else if(keyinfo == 2)
 	{
