@@ -461,6 +461,11 @@ else if(keyver == 3)
 		memcpy (pkeptr +34, wpak->nonce, 32);
 		memcpy (pkeptr +66, zeiger->nonce, 32);
 		}
+	pkedata_prf[0] = 1;
+	pkedata_prf[1] = 0;
+	memcpy (pkedata_prf + 2, pkedata, 98);
+	pkedata_prf[100] = 0x80;
+	pkedata_prf[101] = 1;
 	HMAC(EVP_sha256(), &pmkpbkdf2, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
 	omac1_aes_128(ptk, zeiger->eapol, zeiger->eapauthlen, mymic);
 	if(memcmp(zeiger->hash, &mymic, 16) == 0)
