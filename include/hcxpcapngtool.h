@@ -16,39 +16,36 @@
 #define HCX_HELP				'h'
 #define HCX_VERSION				'v'
 
-#define ESSID_LEN_MAX		32
-#define	OPTIONLEN_MAX		1024
-#define NMEA_MAX		256
+#define ESSID_LEN_MAX			32
+#define	OPTIONLEN_MAX			1024
+#define NMEA_MAX			256
 
-#define MACLIST_MAX		100000
-#define HANDSHAKELIST_MAX	100000
-#define PMKIDLIST_MAX		100000
-#define MESSAGELIST_MAX		64
-#define EAPOL_AUTHLEN_MAX	256
+#define MACLIST_MAX			100000
+#define HANDSHAKELIST_MAX		100000
+#define PMKIDLIST_MAX			100000
+#define MESSAGELIST_MAX			64
+#define EAPOL_AUTHLEN_MAX		256
 
-#define EAPMD5HASHLIST_MAX	1000
-#define EAPMD5MSGLIST_MAX	32
-#define	EAPMD5_LEN_MAX		16
+#define EAPMD5HASHLIST_MAX		1000
+#define EAPMD5MSGLIST_MAX		32
+#define	EAPMD5_LEN_MAX			16
 
-#define EAPLEAPMSGLIST_MAX	32
-#define	LEAPREQ_LEN_MAX		8
-#define	LEAPRESP_LEN_MAX	24
+#define EAPLEAPMSGLIST_MAX		32
+#define	LEAPREQ_LEN_MAX			8
+#define	LEAPRESP_LEN_MAX		24
 
-#define ESSIDSMAX		1
+#define ESSIDSMAX			1
+#define EAPOLTIMEOUT			5000000
+#define NONCEERRORCORRECTION		0
 
-#define EAPOLTIMEOUT		5000000
-#define NONCEERRORCORRECTION	0
-
-#define HCX_TYPE_PMKID		1
-#define HCX_TYPE_EAPOL		2
-
-#define	MESSAGE_PAIR_M12E2	0
-#define	MESSAGE_PAIR_M14E4	1
-#define	MESSAGE_PAIR_M32E2	2
-#define	MESSAGE_PAIR_M32E3	3
-#define	MESSAGE_PAIR_M34E3	4
-#define	MESSAGE_PAIR_M34E4	5
-
+#define HCX_TYPE_PMKID			1
+#define HCX_TYPE_EAPOL			2
+#define	MESSAGE_PAIR_M12E2		0
+#define	MESSAGE_PAIR_M14E4		1
+#define	MESSAGE_PAIR_M32E2		2
+#define	MESSAGE_PAIR_M32E3		3
+#define	MESSAGE_PAIR_M34E3		4
+#define	MESSAGE_PAIR_M34E4		5
 /*===========================================================================*/
 /*===========================================================================*/
 struct tags_s

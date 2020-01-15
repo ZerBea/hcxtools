@@ -100,7 +100,6 @@ static FILE *fh_hccapxdeprecated;
 static FILE *fh_hccapdeprecated;
 
 static int maclistmax;
-static int messagelistmax;
 static int handshakelistmax;
 static int pmkidlistmax;
 static int eapmd5hashlistmax;
@@ -259,7 +258,7 @@ static const char nastring[] = { "N/A" };
 maclistmax = MACLIST_MAX;
 if((aplist = (maclist_t*)calloc((maclistmax +1), MACLIST_SIZE)) == NULL) return false;
 aplistptr = aplist;
-messagelistmax = ncvalue;
+
 if((messagelist = (messagelist_t*)calloc((MESSAGELIST_MAX +1), MESSAGELIST_SIZE)) == NULL) return false;
 
 handshakelistmax = HANDSHAKELIST_MAX;
@@ -1223,7 +1222,7 @@ if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclien
 			exit(EXIT_FAILURE);
 			}
 		handshakelist = handshakelistnew;
-		handshakelistptr = handshakelistnew +maclistmax;
+		handshakelistptr = handshakelistnew +handshakelistmax;
 		handshakelistmax += HANDSHAKELIST_MAX;
 		}
 	memset(handshakelistptr, 0, HANDSHAKELIST_SIZE);
@@ -1255,7 +1254,7 @@ else
 				exit(EXIT_FAILURE);
 				}
 			handshakelist = handshakelistnew;
-			handshakelistptr = handshakelistnew +maclistmax;
+			handshakelistptr = handshakelistnew +handshakelistmax;
 			handshakelistmax += HANDSHAKELIST_MAX;
 			}
 		memset(handshakelistptr, 0, HANDSHAKELIST_SIZE);
@@ -3380,7 +3379,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_NC:
-		ncvalue = strtol(optarg, NULL, 10) *4;
+		ncvalue = strtol(optarg, NULL, 10);
 		break;
 
 		case HCX_IE:
