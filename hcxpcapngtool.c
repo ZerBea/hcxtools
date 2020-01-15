@@ -1311,7 +1311,7 @@ if(testzeroedpmkid(macclient, macap, pmkid) == false)
 			exit(EXIT_FAILURE);
 			}
 		pmkidlist = pmkidlistnew;
-		pmkidlistptr = pmkidlistnew +maclistmax;
+		pmkidlistptr = pmkidlistnew +pmkidlistmax;
 		pmkidlistmax += PMKIDLIST_MAX;
 		}
 	memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
