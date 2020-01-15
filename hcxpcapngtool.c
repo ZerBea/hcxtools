@@ -417,7 +417,7 @@ if(eapmd5johnwrittencount > 0)		printf("EAP-MD5 pairs written to JtR...........:
 if(eapleapcount > 0)			printf("EAP-LEAP messages......................: %ld\n", eapleapcount);
 if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
-if(eapolrc4count > 0)			printf("EAPOL RC4 keys.........................: %ld\n", eapolrc4count);
+if(eapolrc4count > 0)			printf("EAPOL RC4 messages.....................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.....................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.....................: %ld\n", eapolwpacount);
 if(eaptimegapmax > 0)			printf("EAPOLTIME (measured maximum usec)......: %" PRId64 "\n", eaptimegapmax);
