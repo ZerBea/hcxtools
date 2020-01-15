@@ -604,7 +604,6 @@ if(eapcode == EAP_CODE_REQ)
 		}
 	qsort(eapleapmsglist, EAPLEAPMSGLIST_MAX +1, EAPLEAPMSGLIST_SIZE, sort_eapleapmsglist_by_timestamp);
 	}
-
 else if(eapcode == EAP_CODE_RESP)
 	{
 	zeiger = eapleapmsglist +EAPLEAPMSGLIST_MAX;
@@ -1398,20 +1397,17 @@ if(exteap->code == EAP_CODE_REQ)
 	eapcodereqcount++;
 	if(exteap->type == EAP_TYPE_ID)
 		{
-		if(fh_identity != NULL)
+		if(idstrlen > 1)
 			{
-			if(idstrlen > 1)
+			if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0)
 				{
-				if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0)
-					{
-					fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
-					identitycount++;
-					}
-				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0)
-					{
-					fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
-					identitycount++;
-					}
+				identitycount++;
+				if(fh_identity != NULL) fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
+				}
+			else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0)
+				{
+				identitycount++;
+				if(fh_identity != NULL) fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
 				}
 			}
 		eapidcount++;
@@ -1422,20 +1418,17 @@ else if(exteap->code == EAP_CODE_RESP)
 	eapcoderespcount++;
 	if(exteap->type == EAP_TYPE_ID)
 		{
-		if(fh_identity != NULL)
+		if(idstrlen > 1)
 			{
-			if(idstrlen > 1)
+			if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0)
 				{
-				if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0)
-					{
-					fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
-					identitycount++;
-					}
-				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0)
-					{
-					fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
-					identitycount++;
-					}
+				identitycount++;
+				if(fh_identity != NULL) fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
+				}
+			else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0)
+				{
+				identitycount++;
+				if(fh_identity != NULL) fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
 				}
 			}
 		eapidcount++;
