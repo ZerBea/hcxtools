@@ -91,8 +91,10 @@ static char *jtrbasenamedeprecated;
 static FILE *fh_pmkideapol;
 static FILE *fh_eapmd5;
 static FILE *fh_eapmd5john;
+static FILE *fh_eapleap;
 static FILE *fh_essid;
 static FILE *fh_identity;
+static FILE *fh_username;
 static FILE *fh_nmea;
 static FILE *fh_pmkideapoljtrdeprecated;
 static FILE *fh_pmkiddeprecated;
@@ -177,6 +179,8 @@ static long int eapolm34e3count;
 static long int eapolm34e4count;
 static long int eapmd5writtencount;
 static long int eapmd5johnwrittencount;
+static long int identitycount;
+static long int usernamecount;
 
 static uint64_t timestampstart;
 static uint64_t timestampmin;
@@ -362,6 +366,8 @@ eapolm34e3count = 0;
 eapolm34e4count = 0;
 eapmd5writtencount = 0;
 eapmd5johnwrittencount = 0;
+identitycount = 0;
+usernamecount = 0;
 
 eaptimegapmax = 0;
 
@@ -397,10 +403,12 @@ if(authnetworkeapcount > 0)		printf("AUTHENTICATION (NETWORK EAP)...........: %l
 if(authunknowncount > 0)		printf("AUTHENTICATION (unknown)...............: %ld\n", authunknowncount);
 if(associationrequestcount > 0)		printf("ASSOCIATIONREQUEST.....................: %ld\n", associationrequestcount);
 if(reassociationrequestcount > 0)	printf("REASSOCIATIONREQUEST...................: %ld\n", reassociationrequestcount);
+if(wpaenccount > 0)			printf("WPA encrypted..........................: %ld\n", wpaenccount);
+if(wepenccount > 0)			printf("WEP encrypted..........................: %ld\n", wepenccount);
 if(ipv4count > 0)			printf("IPv4...................................: %ld\n", ipv4count);
 if(ipv6count > 0)			printf("IPv6...................................: %ld\n", ipv6count);
-if(wepenccount > 0)			printf("WEP encrypted..........................: %ld\n", wepenccount);
-if(wpaenccount > 0)			printf("WPA encrypted..........................: %ld\n", wpaenccount);
+if(identitycount > 0)			printf("IDENTITIES.............................: %ld\n", identitycount);
+if(usernamecount > 0)			printf("USERNAMES..............................: %ld\n", usernamecount);
 if(eapcount > 0)			printf("EAP (total)............................: %ld\n", eapcount);
 if(eapexpandedcount > 0)		printf("EAP-EXPANDED...........................: %ld\n", eapexpandedcount);
 if(eapcodereqcount > 0)			printf("EAP CODE REQUEST.......................: %ld\n", eapcodereqcount);
@@ -559,6 +567,8 @@ static void processexteapleap(uint64_t eaptimestamp, uint8_t *macto, uint8_t *ma
 static eapleap_t *eapleap;
 static uint32_t eapleaplen;
 static eapleapmsglist_t *zeiger;
+static uint32_t leapusernamelen;
+static uint8_t *leapusernameptr;
 
 eapleapcount++;
 eapleap = (eapleap_t*)eapleapptr;
@@ -580,6 +590,18 @@ if(eapcode == EAP_CODE_REQ)
 	zeiger->type = EAP_CODE_REQ;
 	zeiger->id = eapleap->id;
 	memcpy(zeiger->leaprequest, eapleap->leapdata, LEAPREQ_LEN_MAX);
+	leapusernamelen = eapleaplen -EAPLEAP_SIZE -LEAPREQ_LEN_MAX;
+	if(leapusernamelen == 0) return;
+	if(leapusernamelen > LEAPUSERNAME_LEN_MAX) return;
+	if(EAPLEAP_SIZE +LEAPREQ_LEN_MAX +leapusernamelen > restlen) return;
+	leapusernameptr = eapleapptr +EAPLEAP_SIZE +LEAPREQ_LEN_MAX;
+	zeiger->leapusernamelen = leapusernamelen;
+	memcpy(zeiger->leapusername, leapusernameptr, leapusernamelen);
+	if(fh_username != 0)
+		{
+		fwritestring(leapusernamelen, leapusernameptr, fh_username);
+		usernamecount++;
+		}
 	qsort(eapleapmsglist, EAPLEAPMSGLIST_MAX +1, EAPLEAPMSGLIST_SIZE, sort_eapleapmsglist_by_timestamp);
 	}
 
@@ -1380,8 +1402,16 @@ if(exteap->code == EAP_CODE_REQ)
 			{
 			if(idstrlen > 1)
 				{
-				if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0) fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
-				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0) fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
+				if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0)
+					{
+					fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
+					identitycount++;
+					}
+				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0)
+					{
+					fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
+					identitycount++;
+					}
 				}
 			}
 		eapidcount++;
@@ -1396,8 +1426,16 @@ else if(exteap->code == EAP_CODE_RESP)
 			{
 			if(idstrlen > 1)
 				{
-				if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0) fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
-				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0) fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
+				if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE] != 0)
+					{
+					fwritestring(idstrlen, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE], fh_identity);
+					identitycount++;
+					}
+				else if(eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1] != 0)
+					{
+					fwritestring(idstrlen -1, &eapptr[EAPAUTH_SIZE +EXTEAP_SIZE +1], fh_identity);
+					identitycount++;
+					}
 				}
 			}
 		eapidcount++;
@@ -3247,6 +3285,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"            hashcat -m 22000/22001 and JtR wpapsk-opencl/wpapsk-pmk-opencl\n"
 	"-E <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
 	"-I <file> : output unsorted identity list to use as input wordlist for cracker\n"
+	"-U <file> : output unsorted username list to use as input wordlist for cracker\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
@@ -3273,6 +3312,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
 	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx -F file.gpx\n"
 	"                                     to display the track, open file.gpx with viking\n"
+//	"--eapleap=<file>                   : output EAP LEAP CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file (delimter *)\n"
@@ -3312,10 +3352,12 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static char *pmkideapoloutname;
-static char *essidoutname;
-static char *identityoutname;
 static char *eapmd5outname;
 static char *eapmd5johnoutname;
+static char *eapleapoutname;
+static char *essidoutname;
+static char *identityoutname;
+static char *usernameoutname;
 static char *nmeaoutname;
 static char *pmkideapoljtroutnamedeprecated;
 static char *pmkidoutnamedeprecated;
@@ -3325,7 +3367,7 @@ static char *hccapoutnamedeprecated;
 struct timeval tv;
 static struct stat statinfo;
 
-static const char *short_options = "o:E:I:hv";
+static const char *short_options = "o:E:I:U:hv";
 static const struct option long_options[] =
 {
 	{"all",				no_argument,		NULL,	HCX_CONVERT_ALL},
@@ -3337,6 +3379,7 @@ static const struct option long_options[] =
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
 	{"eapmd5",			required_argument,	NULL,	HCX_EAPMD5_OUT},
 	{"eapmd5-john",			required_argument,	NULL,	HCX_EAPMD5_JOHN_OUT},
+	{"eapleap",			required_argument,	NULL,	HCX_EAPLEAP_OUT},
 	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT_DEPRECATED},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT_DEPRECATED},
 	{"john",			required_argument,	NULL,	HCX_PMKIDEAPOLJTR_OUT_DEPRECATED},
@@ -3356,8 +3399,11 @@ ncvalue = NONCEERRORCORRECTION;
 essidsvalue = ESSIDSMAX;
 
 pmkideapoloutname = NULL;
+eapmd5outname = NULL;
+eapmd5johnoutname = NULL;
 essidoutname = NULL;
 identityoutname = NULL;
+usernameoutname = NULL;
 nmeaoutname = NULL;
 pmkideapoljtroutnamedeprecated = NULL;
 pmkidoutnamedeprecated = NULL;
@@ -3406,12 +3452,20 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		eapmd5johnoutname = optarg;
 		break;
 
+		case HCX_EAPLEAP_OUT:
+		eapleapoutname = optarg;
+		break;
+
 		case HCX_ESSID_OUT:
 		essidoutname = optarg;
 		break;
 
 		case HCX_IDENTITY_OUT:
 		identityoutname = optarg;
+		break;
+
+		case HCX_USERNAME_OUT:
+		usernameoutname = optarg;
 		break;
 
 		case HCX_NMEA_OUT:
@@ -3471,7 +3525,6 @@ if(pmkideapoloutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
-
 if(eapmd5outname != NULL)
 	{
 	if((fh_eapmd5 = fopen(eapmd5outname, "a")) == NULL)
@@ -3480,7 +3533,6 @@ if(eapmd5outname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
-
 if(eapmd5johnoutname != NULL)
 	{
 	if((fh_eapmd5john = fopen(eapmd5johnoutname, "a")) == NULL)
@@ -3489,7 +3541,14 @@ if(eapmd5johnoutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
-
+if(eapleapoutname != NULL)
+	{
+	if((fh_eapleap = fopen(eapleapoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", eapleapoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
 if(essidoutname != NULL)
 	{
 	if((fh_essid = fopen(essidoutname, "a")) == NULL)
@@ -3503,6 +3562,14 @@ if(identityoutname != NULL)
 	if((fh_identity = fopen(identityoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", identityoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+if(usernameoutname != NULL)
+	{
+	if((fh_username = fopen(usernameoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", usernameoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -3556,8 +3623,10 @@ for(index = optind; index < argc; index++)
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 if(fh_eapmd5 != NULL) fclose(fh_eapmd5);
 if(fh_eapmd5john != NULL) fclose(fh_eapmd5john);
+if(fh_eapleap != NULL) fclose(fh_eapleap);
 if(fh_essid != NULL) fclose(fh_essid);
 if(fh_identity != NULL) fclose(fh_identity);
+if(fh_username != NULL) fclose(fh_username);
 if(fh_nmea != NULL) fclose(fh_nmea);
 if(fh_pmkideapoljtrdeprecated != NULL) fclose(fh_pmkideapoljtrdeprecated);
 if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
@@ -3585,6 +3654,13 @@ if(eapmd5johnoutname != NULL)
 		if(statinfo.st_size == 0) remove(eapmd5johnoutname);
 		}
 	}
+if(eapleapoutname != NULL)
+	{
+	if(stat(eapleapoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(eapleapoutname);
+		}
+	}
 if(essidoutname != NULL)
 	{
 	if(stat(essidoutname, &statinfo) == 0)
@@ -3597,6 +3673,13 @@ if(identityoutname != NULL)
 	if(stat(identityoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(identityoutname);
+		}
+	}
+if(usernameoutname != NULL)
+	{
+	if(stat(usernameoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(usernameoutname);
 		}
 	}
 if(nmeaoutname != NULL)

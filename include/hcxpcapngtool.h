@@ -4,15 +4,17 @@
 #define HCX_CONVERT_ALL				4
 #define HCX_ESSIDS				5
 #define HCX_EAPMD5_OUT				6
-#define HCX_EAPMD5_JOHN_OUT			7
-#define HCX_NMEA_OUT				8
-#define HCX_PMKID_OUT_DEPRECATED		9
-#define HCX_HCCAPX_OUT_DEPRECATED		10
-#define HCX_HCCAP_OUT_DEPRECATED		11
-#define HCX_PMKIDEAPOLJTR_OUT_DEPRECATED	12
+#define HCX_EAPLEAP_OUT				7
+#define HCX_EAPMD5_JOHN_OUT			8
+#define HCX_NMEA_OUT				9
+#define HCX_PMKID_OUT_DEPRECATED		10
+#define HCX_HCCAPX_OUT_DEPRECATED		11
+#define HCX_HCCAP_OUT_DEPRECATED		12
+#define HCX_PMKIDEAPOLJTR_OUT_DEPRECATED	13
 #define HCX_PMKIDEAPOL_OUT			'o'
 #define HCX_ESSID_OUT				'E'
 #define HCX_IDENTITY_OUT			'I'
+#define HCX_USERNAME_OUT			'U'
 #define HCX_HELP				'h'
 #define HCX_VERSION				'v'
 
@@ -33,6 +35,7 @@
 #define EAPLEAPMSGLIST_MAX		32
 #define	LEAPREQ_LEN_MAX			8
 #define	LEAPRESP_LEN_MAX		24
+#define	LEAPUSERNAME_LEN_MAX		120
 
 #define ESSIDSMAX			1
 #define EAPOLTIMEOUT			5000000
@@ -299,13 +302,15 @@ return 0;
 /*===========================================================================*/
 struct eapleapmsglist_s
 {
- uint64_t		timestamp;
- uint8_t		ap[6];
- uint8_t		client[6];
- uint8_t		type;
- uint8_t		id;
- uint8_t		leaprequest[LEAPREQ_LEN_MAX];
- uint8_t		leapresponse[LEAPRESP_LEN_MAX];
+ uint64_t	timestamp;
+ uint8_t	ap[6];
+ uint8_t	client[6];
+ uint8_t	type;
+ uint8_t	id;
+ uint8_t	leaprequest[LEAPREQ_LEN_MAX];
+ uint8_t	leapresponse[LEAPRESP_LEN_MAX];
+ uint8_t	leapusernamelen;
+ uint8_t	leapusername[LEAPUSERNAME_LEN_MAX];
 };
 typedef struct eapleapmsglist_s eapleapmsglist_t;
 #define	EAPLEAPMSGLIST_SIZE (sizeof(eapleapmsglist_t))
