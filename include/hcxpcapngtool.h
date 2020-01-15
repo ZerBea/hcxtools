@@ -3,11 +3,13 @@
 #define HCX_IE					3
 #define HCX_CONVERT_ALL				4
 #define HCX_ESSIDS				5
-#define HCX_NMEA_OUT				7
-#define HCX_PMKID_OUT_DEPRECATED		8
-#define HCX_HCCAPX_OUT_DEPRECATED		9
-#define HCX_HCCAP_OUT_DEPRECATED		10
-#define HCX_PMKIDEAPOLJTR_OUT_DEPRECATED	11
+#define HCX_EAPMD5_OUT				6
+#define HCX_EAPMD5_JOHN_OUT			7
+#define HCX_NMEA_OUT				8
+#define HCX_PMKID_OUT_DEPRECATED		9
+#define HCX_HCCAPX_OUT_DEPRECATED		10
+#define HCX_HCCAP_OUT_DEPRECATED		11
+#define HCX_PMKIDEAPOLJTR_OUT_DEPRECATED	12
 #define HCX_PMKIDEAPOL_OUT			'o'
 #define HCX_ESSID_OUT				'E'
 #define HCX_IDENTITY_OUT			'I'
@@ -22,8 +24,11 @@
 #define HANDSHAKELIST_MAX	100000
 #define PMKIDLIST_MAX		100000
 #define MESSAGELIST_MAX		64
-
 #define EAPOL_AUTHLEN_MAX	256
+
+#define EAPMD5HASHLIST_MAX	1000
+#define EAPMD5MSGLIST_MAX	32
+#define	EAPMD5_LEN_MAX		16
 
 #define ESSIDSMAX		1
 
@@ -246,6 +251,50 @@ else if(memcmp(ia->pmkid, ib->pmkid, 6) > 0) return -1;
 return 0;
 }
 /*===========================================================================*/
+struct eapmd5msglist_s
+{
+ uint64_t		timestamp;
+ uint8_t		ap[6];
+ uint8_t		client[6];
+ uint8_t		type;
+ uint8_t		id;
+ uint8_t		md5[EAPMD5_LEN_MAX];
+};
+typedef struct eapmd5msglist_s eapmd5msglist_t;
+#define	EAPMD5MSGLIST_SIZE (sizeof(eapmd5msglist_t))
 
+static int sort_eapmd5msglist_by_timestamp(const void *a, const void *b)
+{
+const eapmd5msglist_t *ia = (const eapmd5msglist_t *)a;
+const eapmd5msglist_t *ib = (const eapmd5msglist_t *)b;
+
+if(ia->timestamp < ib->timestamp) return 1;
+else if(ia->timestamp > ib->timestamp) return -1;
+return 0;
+}
+/*===========================================================================*/
+struct eapmd5hashlist_s
+{
+ uint8_t		id;
+ uint8_t		md5challenge[EAPMD5_LEN_MAX];
+ uint8_t		md5response[EAPMD5_LEN_MAX];
+};
+typedef struct eapmd5hashlist_s eapmd5hashlist_t;
+#define	EAPMD5HASHLIST_SIZE (sizeof(eapmd5hashlist_t))
+
+static int sort_eapmd5hashlist_by_id(const void *a, const void *b)
+{
+const eapmd5hashlist_t *ia = (const eapmd5hashlist_t *)a;
+const eapmd5hashlist_t *ib = (const eapmd5hashlist_t *)b;
+
+if(ia->id < ib->id) return 1;
+else if(ia->id > ib->id) return -1;
+if(memcmp(ia->md5challenge, ib->md5challenge, EAPMD5_LEN_MAX) > 0) return 1;
+else if(memcmp(ia->md5challenge, ib->md5challenge, EAPMD5_LEN_MAX) < 0) return -1;
+if(memcmp(ia->md5response, ib->md5challenge, EAPMD5_LEN_MAX) > 0) return 1;
+else if(memcmp(ia->md5response, ib->md5response, EAPMD5_LEN_MAX) < 0) return -1;
+return 0;
+}
+/*===========================================================================*/
 
 

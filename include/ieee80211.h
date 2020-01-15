@@ -646,10 +646,10 @@ struct md5_frame
 {
  uint8_t	code;
  uint8_t	id;
- uint16_t	len;
+ uint16_t	eapmd5len;
  uint8_t	type;
- uint8_t	data_len;
- uint8_t	data[1];
+ uint8_t	md5len;
+ uint8_t	md5data[1];
 } __attribute__((__packed__));
 typedef struct md5_frame md5_t;
 #define	MD5_SIZE offsetof(md5_t, data)

@@ -82,13 +82,16 @@ static maclist_t *aplist, *aplistptr;
 static messagelist_t *messagelist;
 static handshakelist_t *handshakelist, *handshakelistptr;
 static pmkidlist_t *pmkidlist, *pmkidlistptr;
-
+static eapmd5msglist_t *eapmd5msglist;
+static eapmd5hashlist_t *eapmd5hashlist, *eapmd5hashlistptr;
 static char *jtrbasenamedeprecated;
 
-static FILE *fh_nmea;
 static FILE *fh_pmkideapol;
+static FILE *fh_eapmd5;
+static FILE *fh_eapmd5john;
 static FILE *fh_essid;
 static FILE *fh_identity;
+static FILE *fh_nmea;
 static FILE *fh_pmkideapoljtrdeprecated;
 static FILE *fh_pmkiddeprecated;
 static FILE *fh_hccapxdeprecated;
@@ -98,6 +101,7 @@ static int maclistmax;
 static int messagelistmax;
 static int handshakelistmax;
 static int pmkidlistmax;
+static int eapmd5hashlistmax;
 static int fd_pcap;
 
 static int endianess;
@@ -136,6 +140,7 @@ static long int eapsimcount;
 static long int eapakacount;
 static long int eappeapcount;
 static long int eapmd5count;
+static long int eapmd5hashcount;
 static long int eapleapcount;
 static long int eapexpandedcount;
 static long int eapidcount;
@@ -166,6 +171,8 @@ static long int eapolm32e2count;
 static long int eapolm32e3count;
 static long int eapolm34e3count;
 static long int eapolm34e4count;
+static long int eapmd5writtencount;
+static long int eapmd5johnwrittencount;
 
 static uint64_t timestampstart;
 static uint64_t timestampmin;
@@ -234,6 +241,8 @@ if(aplist != NULL) free(aplist);
 if(messagelist != NULL) free(messagelist);
 if(handshakelist != NULL) free(handshakelist);
 if(pmkidlist != NULL) free(pmkidlist);
+if(eapmd5msglist != NULL) free(eapmd5msglist);
+if(eapmd5hashlist != NULL) free(eapmd5hashlist);
 return;
 }
 /*===========================================================================*/
@@ -254,6 +263,13 @@ handshakelistptr = handshakelist;
 pmkidlistmax = PMKIDLIST_MAX;
 if((pmkidlist = (pmkidlist_t*)calloc((pmkidlistmax +1),PMKIDLIST_SIZE)) == NULL) return false;
 pmkidlistptr = pmkidlist;
+
+if((eapmd5msglist = (eapmd5msglist_t*)calloc((EAPMD5MSGLIST_MAX +1), EAPMD5MSGLIST_SIZE)) == NULL) return false;
+
+eapmd5hashlistmax = EAPMD5HASHLIST_MAX;
+if((eapmd5hashlist = (eapmd5hashlist_t*)calloc((eapmd5hashlistmax +1), EAPMD5HASHLIST_SIZE)) == NULL) return false;
+eapmd5hashlistptr = eapmd5hashlist;
+
 
 memset(&pcapnghwinfo, 0, OPTIONLEN_MAX);
 memset(&pcapngosinfo, 0, OPTIONLEN_MAX);
@@ -304,6 +320,7 @@ eapsimcount = 0;
 eapakacount = 0;
 eappeapcount = 0;
 eapmd5count = 0;
+eapmd5hashcount = 0;
 eapleapcount = 0;
 eapexpandedcount = 0;
 eapidcount = 0;
@@ -333,6 +350,8 @@ eapolm32e2count = 0;
 eapolm32e3count = 0;
 eapolm34e3count = 0;
 eapolm34e4count = 0;
+eapmd5writtencount = 0;
+eapmd5johnwrittencount = 0;
 
 eaptimegapmax = 0;
 
@@ -379,9 +398,12 @@ if(eapidcount > 0)			printf("EAP ID.................................: %ld\n", ea
 if(eapsimcount > 0)			printf("EAP-SIM................................: %ld\n", eapsimcount);
 if(eapakacount > 0)			printf("EAP-AKA................................: %ld\n", eapakacount);
 if(eappeapcount > 0)			printf("EAP-PEAP...............................: %ld\n", eappeapcount);
-if(eapmd5count > 0)			printf("EAP-MD5................................: %ld\n", eapmd5count);
 if(eapleapcount > 0)			printf("EAP-LEAP...............................: %ld\n", eapleapcount);
 if(eapexpandedcount > 0)		printf("EAP-EXPANDED...........................: %ld\n", eapexpandedcount);
+if(eapmd5count > 0)			printf("EAP-MD5 messages.......................: %ld\n", eapmd5count);
+if(eapmd5hashcount > 0)			printf("EAP-MD5 pairs..........................: %ld\n", eapmd5hashcount);
+if(eapmd5writtencount > 0)		printf("EAP-MD5 pairs written..................: %ld\n", eapmd5writtencount);
+if(eapmd5johnwrittencount > 0)		printf("EAP-MD5 pairs written to JtR...........: %ld\n", eapmd5johnwrittencount);
 if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
 if(eaptimegapmax > 0)			printf("EAPOLTIME (measured maximum usec)......: %" PRId64 "\n", eaptimegapmax);
@@ -536,21 +558,131 @@ if(eapcode == EAP_CODE_REQ) return;
 if(eapcode == EAP_CODE_RESP) return;
 return;
 }
-
 /*===========================================================================*/
-static void processexteapmd5(uint8_t eapcode, uint32_t restlen, uint8_t *md5ptr)
+static void outputeapmd5hashlist()
 {
-static md5_t *md5;
-static uint32_t md5len;
+static eapmd5hashlist_t *zeiger, *zeigerold;
+
+zeiger = eapmd5hashlist;
+zeigerold = eapmd5hashlist;
+if(memcmp(&zeroed32, zeiger->md5challenge, EAPMD5_LEN_MAX) == 0) return;
+qsort(eapmd5hashlist, eapmd5hashlistptr -eapmd5hashlist, EAPMD5HASHLIST_SIZE, sort_eapmd5hashlist_by_id);
+if(fh_eapmd5 != 0)
+	{
+	fprintf(fh_eapmd5, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x\n",
+			zeiger->md5response[0], zeiger->md5response[1], zeiger->md5response[2], zeiger->md5response[3], zeiger->md5response[4], zeiger->md5response[5], zeiger->md5response[6], zeiger->md5response[7],
+			zeiger->md5response[8], zeiger->md5response[9], zeiger->md5response[10], zeiger->md5response[11], zeiger->md5response[12], zeiger->md5response[13], zeiger->md5response[14], zeiger->md5response[15],
+			zeiger->md5challenge[0], zeiger->md5challenge[1], zeiger->md5challenge[2], zeiger->md5challenge[3], zeiger->md5challenge[4], zeiger->md5challenge[5], zeiger->md5challenge[6], zeiger->md5challenge[7],
+			zeiger->md5challenge[8], zeiger->md5challenge[9], zeiger->md5challenge[10], zeiger->md5challenge[11], zeiger->md5challenge[12], zeiger->md5challenge[13], zeiger->md5challenge[14], zeiger->md5challenge[15],
+			zeiger->id);
+			eapmd5writtencount++;
+	}
+if(fh_eapmd5john != 0)
+	{
+	fprintf(fh_eapmd5john, "$chap$%x*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+			zeiger->id,
+			zeiger->md5challenge[0], zeiger->md5challenge[1], zeiger->md5challenge[2], zeiger->md5challenge[3], zeiger->md5challenge[4], zeiger->md5challenge[5], zeiger->md5challenge[6], zeiger->md5challenge[7],
+			zeiger->md5challenge[8], zeiger->md5challenge[9], zeiger->md5challenge[10], zeiger->md5challenge[11], zeiger->md5challenge[12], zeiger->md5challenge[13], zeiger->md5challenge[14], zeiger->md5challenge[15],
+			zeiger->md5response[0], zeiger->md5response[1], zeiger->md5response[2], zeiger->md5response[3], zeiger->md5response[4], zeiger->md5response[5], zeiger->md5response[6], zeiger->md5response[7],
+			zeiger->md5response[8], zeiger->md5response[9], zeiger->md5response[10], zeiger->md5response[11], zeiger->md5response[12], zeiger->md5response[13], zeiger->md5response[14], zeiger->md5response[15]);
+			eapmd5johnwrittencount++;
+	}
+for(zeiger = eapmd5hashlist +1; zeiger < eapmd5hashlistptr; zeiger++)
+	{
+	if((zeigerold->id == zeiger->id) && (memcmp(zeigerold->md5challenge, zeiger->md5challenge, EAPMD5_LEN_MAX) == 0) && (memcmp(zeigerold->md5response, zeiger->md5response, EAPMD5_LEN_MAX) == 0)) continue;
+	if(fh_eapmd5 != 0)
+		{
+		fprintf(fh_eapmd5, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x\n",
+				zeiger->md5response[0], zeiger->md5response[1], zeiger->md5response[2], zeiger->md5response[3], zeiger->md5response[4], zeiger->md5response[5], zeiger->md5response[6], zeiger->md5response[7],
+				zeiger->md5response[8], zeiger->md5response[9], zeiger->md5response[10], zeiger->md5response[11], zeiger->md5response[12], zeiger->md5response[13], zeiger->md5response[14], zeiger->md5response[15],
+				zeiger->md5challenge[0], zeiger->md5challenge[1], zeiger->md5challenge[2], zeiger->md5challenge[3], zeiger->md5challenge[4], zeiger->md5challenge[5], zeiger->md5challenge[6], zeiger->md5challenge[7],
+				zeiger->md5challenge[8], zeiger->md5challenge[9], zeiger->md5challenge[10], zeiger->md5challenge[11], zeiger->md5challenge[12], zeiger->md5challenge[13], zeiger->md5challenge[14], zeiger->md5challenge[15],
+				zeiger->id);
+		eapmd5writtencount++;
+		}
+	if(fh_eapmd5john != 0)
+		{
+		fprintf(fh_eapmd5john, "$chap$%x*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+				zeiger->id,
+				zeiger->md5challenge[0], zeiger->md5challenge[1], zeiger->md5challenge[2], zeiger->md5challenge[3], zeiger->md5challenge[4], zeiger->md5challenge[5], zeiger->md5challenge[6], zeiger->md5challenge[7],
+				zeiger->md5challenge[8], zeiger->md5challenge[9], zeiger->md5challenge[10], zeiger->md5challenge[11], zeiger->md5challenge[12], zeiger->md5challenge[13], zeiger->md5challenge[14], zeiger->md5challenge[15],
+				zeiger->md5response[0], zeiger->md5response[1], zeiger->md5response[2], zeiger->md5response[3], zeiger->md5response[4], zeiger->md5response[5], zeiger->md5response[6], zeiger->md5response[7],
+				zeiger->md5response[8], zeiger->md5response[9], zeiger->md5response[10], zeiger->md5response[11], zeiger->md5response[12], zeiger->md5response[13], zeiger->md5response[14], zeiger->md5response[15]);
+				eapmd5johnwrittencount++;
+		}
+	zeigerold = zeiger;
+	}
+return;
+}
+/*===========================================================================*/
+static void addeapmd5hash(uint8_t id, uint8_t *challenge, uint8_t *response)
+{
+static eapmd5hashlist_t *eapmd5hashlistnew; 
+
+eapmd5hashcount++;
+if(eapmd5hashlistptr >= eapmd5hashlist +eapmd5hashlistmax)
+	{
+	eapmd5hashlistnew = realloc(eapmd5hashlist, (eapmd5hashlistmax +EAPMD5HASHLIST_MAX) *EAPMD5HASHLIST_SIZE);
+	if(eapmd5hashlistnew == NULL)
+		{
+		printf("failed to allocate memory for internal list\n");
+		exit(EXIT_FAILURE);
+		}
+	eapmd5hashlist = eapmd5hashlistnew;
+	eapmd5hashlistptr = eapmd5hashlistnew +eapmd5hashlistmax;
+	eapmd5hashlistmax += EAPMD5HASHLIST_MAX;
+	}
+memset(eapmd5hashlistptr, 0, EAPMD5HASHLIST_SIZE);
+eapmd5hashlistptr->id = id;
+memcpy(eapmd5hashlistptr->md5challenge, challenge, EAPMD5_LEN_MAX);
+memcpy(eapmd5hashlistptr->md5response, response, EAPMD5_LEN_MAX);
+return;
+}
+/*===========================================================================*/
+static void processexteapmd5(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint8_t eapcode, uint32_t restlen, uint8_t *eapmd5ptr)
+{
+static md5_t *eapmd5;
+static uint32_t eapmd5len;
+static eapmd5msglist_t *zeiger;
 
 eapmd5count++;
-md5 = (md5_t*)md5ptr;
-md5len = ntohs(md5->len);
-if(md5len != restlen) return;
-if(eapcode == EAP_CODE_REQ) return;
-
-
-if(eapcode == EAP_CODE_RESP) return;
+eapmd5 = (md5_t*)eapmd5ptr;
+eapmd5len = ntohs(eapmd5->eapmd5len);
+if(eapmd5len != restlen) return;
+if(eapmd5->md5len != EAPMD5_LEN_MAX) return;
+if(memcmp(&zeroed32, eapmd5->md5data, EAPMD5_LEN_MAX) == 0) return; 
+if(eapcode == EAP_CODE_REQ)
+	{
+	zeiger = eapmd5msglist +EAPMD5MSGLIST_MAX;
+	memset(zeiger, 0, EAPMD5MSGLIST_SIZE );
+	zeiger->timestamp = eaptimestamp;
+	memcpy(zeiger->ap, macfm, 6);
+	memcpy(zeiger->client, macto, 6);
+	zeiger->type = EAP_CODE_REQ;
+	zeiger->id = eapmd5->id;
+	memcpy(zeiger->md5, eapmd5->md5data, EAPMD5_LEN_MAX);
+	qsort(eapmd5msglist, EAPMD5MSGLIST_MAX +1, EAPMD5MSGLIST_SIZE, sort_eapmd5msglist_by_timestamp);
+	}
+else if(eapcode == EAP_CODE_RESP)
+	{
+	zeiger = eapmd5msglist +EAPMD5MSGLIST_MAX;
+	memset(zeiger, 0, EAPMD5MSGLIST_SIZE );
+	zeiger->timestamp = eaptimestamp;
+	memcpy(zeiger->ap, macto, 6);
+	memcpy(zeiger->client, macfm, 6);
+	zeiger->type = EAP_CODE_RESP;
+	zeiger->id = eapmd5->id;
+	memcpy(zeiger->md5, eapmd5->md5data, EAPMD5_LEN_MAX);
+	for(zeiger = eapmd5msglist; zeiger < eapmd5msglist +EAPMD5MSGLIST_MAX; zeiger++)
+		{
+		if((zeiger->type) != EAP_CODE_REQ) continue;
+		if((zeiger->id) != eapmd5->id) continue;
+		if(memcmp(zeiger->ap, macto, 6) != 0) continue;
+		if(memcmp(zeiger->client, macfm, 6) != 0) continue;
+		addeapmd5hash(eapmd5->id, zeiger->md5, eapmd5->md5data); 
+		}
+	qsort(eapmd5msglist, EAPMD5MSGLIST_MAX +1, EAPMD5MSGLIST_SIZE, sort_eapmd5msglist_by_timestamp);
+	}
 return;
 }
 /*===========================================================================*/
@@ -1173,7 +1305,7 @@ else
 return;
 }
 /*===========================================================================*/
-static void process80211exteap(uint32_t restlen, uint8_t *eapptr)
+static void process80211exteap(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint32_t restlen, uint8_t *eapptr)
 {
 static eapauth_t *eapauth;
 static uint32_t authlen;
@@ -1194,7 +1326,7 @@ if(exteap->type == EAP_TYPE_SIM) eapsimcount++;
 else if(exteap->type == EAP_TYPE_AKA) eapakacount++;
 else if(exteap->type == EAP_TYPE_PEAP) eappeapcount++;
 else if(exteap->type == EAP_TYPE_EXPAND) eapexpandedcount++;
-else if(exteap->type == EAP_TYPE_MD5) processexteapmd5(exteap->code, exteaplen, eapptr +EAPAUTH_SIZE);
+else if(exteap->type == EAP_TYPE_MD5) processexteapmd5(eaptimestamp, macto, macfm, exteap->code, exteaplen, eapptr +EAPAUTH_SIZE);
 else if(exteap->type == EAP_TYPE_LEAP) processexteapleap(exteap->code, exteaplen, eapptr +EAPAUTH_SIZE);
 
 if(exteap->code == EAP_CODE_REQ)
@@ -1778,7 +1910,7 @@ if(eapauth->type == EAPOL_KEY)
 	{
 	process80211eapol(eaptimestamp, macto, macfm, restlen, eapptr);
 	}
-else if(eapauth->type == EAP_PACKET) process80211exteap(restlen, eapptr);
+else if(eapauth->type == EAP_PACKET) process80211exteap(eaptimestamp, macto, macfm, restlen, eapptr);
 //else if(eapauth->type == EAPOL_ASF) process80211exteap_asf();
 //else if(eapauth->type == EAPOL_MKA) process80211exteap_mka();
 else if(eapauth->type == EAPOL_START)
@@ -2531,6 +2663,7 @@ printf("\nsummary capture file\n"
 printlinklayerinfo();
 cleanupmac();
 outputwpalists();
+outputeapmd5hashlist();
 outputwordlists();
 printcontentinfo();
 
@@ -2966,6 +3099,7 @@ printlinklayerinfo();
 cleanupmac();
 outputwpalists();
 outputwordlists();
+outputeapmd5hashlist();
 printcontentinfo();
 
 return;
@@ -3074,6 +3208,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--max-essids=<digit>               : maximum allowed ESSIDs\n"
 	"                                     default: %d ESSID\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
+	"--eapmd5=<file>                    : output EAP MD5 CHALLENGE (hashcat -m 4800)\n"
+	"--eapmd5-john=<file>               : output EAP MD5 CHALLENGE (john chap)\n"
 	"--nmea=<file>                      : output GPS data in NMEA format\n"
 	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
@@ -3120,6 +3256,8 @@ static int index;
 static char *pmkideapoloutname;
 static char *essidoutname;
 static char *identityoutname;
+static char *eapmd5outname;
+static char *eapmd5johnoutname;
 static char *nmeaoutname;
 static char *pmkideapoljtroutnamedeprecated;
 static char *pmkidoutnamedeprecated;
@@ -3139,6 +3277,8 @@ static const struct option long_options[] =
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"nmea",			required_argument,	NULL,	HCX_NMEA_OUT},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
+	{"eapmd5",			required_argument,	NULL,	HCX_EAPMD5_OUT},
+	{"eapmd5-john",			required_argument,	NULL,	HCX_EAPMD5_JOHN_OUT},
 	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT_DEPRECATED},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT_DEPRECATED},
 	{"john",			required_argument,	NULL,	HCX_PMKIDEAPOLJTR_OUT_DEPRECATED},
@@ -3198,6 +3338,14 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_PMKIDEAPOL_OUT:
 		pmkideapoloutname = optarg;
+		break;
+
+		case HCX_EAPMD5_OUT:
+		eapmd5outname = optarg;
+		break;
+
+		case HCX_EAPMD5_JOHN_OUT:
+		eapmd5johnoutname = optarg;
 		break;
 
 		case HCX_ESSID_OUT:
@@ -3265,6 +3413,25 @@ if(pmkideapoloutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
+
+if(eapmd5outname != NULL)
+	{
+	if((fh_eapmd5 = fopen(eapmd5outname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", eapmd5outname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
+if(eapmd5johnoutname != NULL)
+	{
+	if((fh_eapmd5john = fopen(eapmd5johnoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", eapmd5johnoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
 if(essidoutname != NULL)
 	{
 	if((fh_essid = fopen(essidoutname, "a")) == NULL)
@@ -3329,6 +3496,8 @@ for(index = optind; index < argc; index++)
 	}
 
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+if(fh_eapmd5 != NULL) fclose(fh_eapmd5);
+if(fh_eapmd5john != NULL) fclose(fh_eapmd5john);
 if(fh_essid != NULL) fclose(fh_essid);
 if(fh_identity != NULL) fclose(fh_identity);
 if(fh_nmea != NULL) fclose(fh_nmea);
@@ -3337,12 +3506,25 @@ if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
 if(fh_hccapxdeprecated != NULL) fclose(fh_hccapxdeprecated);
 if(fh_hccapdeprecated != NULL) fclose(fh_hccapdeprecated);
 
-
 if(pmkideapoloutname != NULL)
 	{
 	if(stat(pmkideapoloutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(pmkideapoloutname);
+		}
+	}
+if(eapmd5outname != NULL)
+	{
+	if(stat(eapmd5outname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(eapmd5outname);
+		}
+	}
+if(eapmd5johnoutname != NULL)
+	{
+	if(stat(eapmd5johnoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(eapmd5johnoutname);
 		}
 	}
 if(essidoutname != NULL)
