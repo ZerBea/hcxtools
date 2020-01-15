@@ -619,20 +619,6 @@ struct exteap_frame
 typedef struct exteap_frame exteap_t;
 #define	EXTEAP_SIZE offsetof(exteap_t, data)
 /*===========================================================================*/
-struct eapleap_frame
-{
- uint8_t	code;
- uint8_t	id;
- uint16_t	len;
- uint8_t	type;
- uint8_t	version;
- uint8_t	reserved;
- uint8_t	count;
- uint8_t	data[1];
-} __attribute__((__packed__));
-typedef struct eapleap_frame eapleap_t;
-#define	EAPLEAP_SIZE offsetof(eapleap_t, data)
-/*===========================================================================*/
 struct mpdu_frame
 {
  uint8_t pn[3];
@@ -642,7 +628,7 @@ struct mpdu_frame
 typedef struct mpdu_frame mpdu_t;
 #define	MPDU_SIZE (sizeof(mpdu_t))
 /*===========================================================================*/
-struct md5_frame
+struct eapmd5_frame
 {
  uint8_t	code;
  uint8_t	id;
@@ -651,8 +637,22 @@ struct md5_frame
  uint8_t	md5len;
  uint8_t	md5data[1];
 } __attribute__((__packed__));
-typedef struct md5_frame md5_t;
-#define	MD5_SIZE offsetof(md5_t, data)
+typedef struct eapmd5_frame eapmd5_t;
+#define	EAPMD5_SIZE offsetof(eapmd5_t, md5data)
+/*===========================================================================*/
+struct eapleap_frame
+{
+ uint8_t	code;
+ uint8_t	id;
+ uint16_t	eapleaplen;
+ uint8_t	type;
+ uint8_t	version;
+ uint8_t	reserved;
+ uint8_t	leaplen;
+ uint8_t	leapdata[1];
+} __attribute__((__packed__));
+typedef struct eapleap_frame eapleap_t;
+#define	EAPLEAP_SIZE offsetof(eapleap_t, leapdata)
 /*===========================================================================*/
 struct ipv4_frame
 {

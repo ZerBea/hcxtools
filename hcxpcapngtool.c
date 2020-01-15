@@ -84,6 +84,8 @@ static handshakelist_t *handshakelist, *handshakelistptr;
 static pmkidlist_t *pmkidlist, *pmkidlistptr;
 static eapmd5msglist_t *eapmd5msglist;
 static eapmd5hashlist_t *eapmd5hashlist, *eapmd5hashlistptr;
+static eapleapmsglist_t *eapleapmsglist;
+
 static char *jtrbasenamedeprecated;
 
 static FILE *fh_pmkideapol;
@@ -243,6 +245,7 @@ if(handshakelist != NULL) free(handshakelist);
 if(pmkidlist != NULL) free(pmkidlist);
 if(eapmd5msglist != NULL) free(eapmd5msglist);
 if(eapmd5hashlist != NULL) free(eapmd5hashlist);
+if(eapleapmsglist != NULL) free(eapleapmsglist);
 return;
 }
 /*===========================================================================*/
@@ -269,6 +272,8 @@ if((eapmd5msglist = (eapmd5msglist_t*)calloc((EAPMD5MSGLIST_MAX +1), EAPMD5MSGLI
 eapmd5hashlistmax = EAPMD5HASHLIST_MAX;
 if((eapmd5hashlist = (eapmd5hashlist_t*)calloc((eapmd5hashlistmax +1), EAPMD5HASHLIST_SIZE)) == NULL) return false;
 eapmd5hashlistptr = eapmd5hashlist;
+
+if((eapleapmsglist = (eapleapmsglist_t*)calloc((EAPLEAPMSGLIST_MAX +1), EAPLEAPMSGLIST_SIZE)) == NULL) return false;
 
 
 memset(&pcapnghwinfo, 0, OPTIONLEN_MAX);
@@ -392,18 +397,18 @@ if(ipv6count > 0)			printf("IPv6...................................: %ld\n", ipv
 if(wepenccount > 0)			printf("WEP encrypted..........................: %ld\n", wepenccount);
 if(wpaenccount > 0)			printf("WPA encrypted..........................: %ld\n", wpaenccount);
 if(eapcount > 0)			printf("EAP (total)............................: %ld\n", eapcount);
+if(eapexpandedcount > 0)		printf("EAP-EXPANDED...........................: %ld\n", eapexpandedcount);
 if(eapcodereqcount > 0)			printf("EAP CODE REQUEST.......................: %ld\n", eapcodereqcount);
 if(eapcoderespcount > 0)		printf("EAP CODE RESPONSE......................: %ld\n", eapcoderespcount);
 if(eapidcount > 0)			printf("EAP ID.................................: %ld\n", eapidcount);
 if(eapsimcount > 0)			printf("EAP-SIM................................: %ld\n", eapsimcount);
 if(eapakacount > 0)			printf("EAP-AKA................................: %ld\n", eapakacount);
 if(eappeapcount > 0)			printf("EAP-PEAP...............................: %ld\n", eappeapcount);
-if(eapleapcount > 0)			printf("EAP-LEAP...............................: %ld\n", eapleapcount);
-if(eapexpandedcount > 0)		printf("EAP-EXPANDED...........................: %ld\n", eapexpandedcount);
 if(eapmd5count > 0)			printf("EAP-MD5 messages.......................: %ld\n", eapmd5count);
 if(eapmd5hashcount > 0)			printf("EAP-MD5 pairs..........................: %ld\n", eapmd5hashcount);
 if(eapmd5writtencount > 0)		printf("EAP-MD5 pairs written..................: %ld\n", eapmd5writtencount);
 if(eapmd5johnwrittencount > 0)		printf("EAP-MD5 pairs written to JtR...........: %ld\n", eapmd5johnwrittencount);
+if(eapleapcount > 0)			printf("EAP-LEAP messages......................: %ld\n", eapleapcount);
 if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
 if(eaptimegapmax > 0)			printf("EAPOLTIME (measured maximum usec)......: %" PRId64 "\n", eaptimegapmax);
@@ -541,21 +546,50 @@ ipv6len = ipv6len;
 return;
 }
 /*===========================================================================*/
-static void processexteapleap(uint8_t eapcode, uint32_t restlen, uint8_t *leapptr)
+static void processexteapleap(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint8_t eapcode, uint32_t restlen, uint8_t *eapleapptr)
 {
-static eapleap_t *leap;
-static uint32_t leaplen;
+static eapleap_t *eapleap;
+static uint32_t eapleaplen;
+static eapleapmsglist_t *zeiger;
 
 eapleapcount++;
-leap = (eapleap_t*)leapptr;
-leaplen = ntohs(leap->len);
+eapleap = (eapleap_t*)eapleapptr;
+eapleaplen = ntohs(eapleap->eapleaplen);
+if(eapleaplen > restlen) return;
+if(eapleap->version != 1) return;
+if(eapleap->reserved != 0) return;
+if(eapcode == EAP_CODE_REQ)
+	{
+	zeiger = eapleapmsglist +EAPLEAPMSGLIST_MAX;
+	if(eapleap->leaplen != LEAPREQ_LEN_MAX) return;
+	if(eapleap->leaplen > eapleaplen -EAPLEAP_SIZE) return;
+	if(eapleap->leaplen == eapleaplen -EAPLEAP_SIZE) return;
+	if(memcmp(&zeroed32, eapleap->leapdata, LEAPREQ_LEN_MAX) == 0) return; 
+	memset(zeiger, 0, EAPLEAPMSGLIST_SIZE);
+	zeiger->timestamp = eaptimestamp;
+	memcpy(zeiger->ap, macto, 6);
+	memcpy(zeiger->client, macfm, 6);
+	zeiger->type = EAP_CODE_REQ;
+	zeiger->id = eapleap->id;
+	memcpy(zeiger->leaprequest, eapleap->leapdata, LEAPREQ_LEN_MAX);
+	qsort(eapleapmsglist, EAPLEAPMSGLIST_MAX +1, EAPLEAPMSGLIST_SIZE, sort_eapleapmsglist_by_timestamp);
+	}
 
-
-if(leaplen > restlen) return;
-if(eapcode == EAP_CODE_REQ) return;
-
-
-if(eapcode == EAP_CODE_RESP) return;
+else if(eapcode == EAP_CODE_RESP)
+	{
+	zeiger = eapleapmsglist +EAPLEAPMSGLIST_MAX;
+	if(eapleap->leaplen != LEAPRESP_LEN_MAX) return;
+	if(eapleap->leaplen > eapleaplen -EAPLEAP_SIZE) return;
+	if(memcmp(&zeroed32, eapleap->leapdata, LEAPRESP_LEN_MAX) == 0) return; 
+	memset(zeiger, 0, EAPLEAPMSGLIST_SIZE);
+	zeiger->timestamp = eaptimestamp;
+	memcpy(zeiger->ap, macfm, 6);
+	memcpy(zeiger->client, macto, 6);
+	zeiger->type = EAP_CODE_RESP;
+	zeiger->id = eapleap->id;
+	memcpy(zeiger->leaprequest, eapleap->leapdata, LEAPRESP_LEN_MAX);
+	qsort(eapleapmsglist, EAPLEAPMSGLIST_MAX +1, EAPLEAPMSGLIST_SIZE, sort_eapleapmsglist_by_timestamp);
+	}
 return;
 }
 /*===========================================================================*/
@@ -641,12 +675,12 @@ return;
 /*===========================================================================*/
 static void processexteapmd5(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint8_t eapcode, uint32_t restlen, uint8_t *eapmd5ptr)
 {
-static md5_t *eapmd5;
+static eapmd5_t *eapmd5;
 static uint32_t eapmd5len;
 static eapmd5msglist_t *zeiger;
 
 eapmd5count++;
-eapmd5 = (md5_t*)eapmd5ptr;
+eapmd5 = (eapmd5_t*)eapmd5ptr;
 eapmd5len = ntohs(eapmd5->eapmd5len);
 if(eapmd5len != restlen) return;
 if(eapmd5->md5len != EAPMD5_LEN_MAX) return;
@@ -1327,7 +1361,7 @@ else if(exteap->type == EAP_TYPE_AKA) eapakacount++;
 else if(exteap->type == EAP_TYPE_PEAP) eappeapcount++;
 else if(exteap->type == EAP_TYPE_EXPAND) eapexpandedcount++;
 else if(exteap->type == EAP_TYPE_MD5) processexteapmd5(eaptimestamp, macto, macfm, exteap->code, exteaplen, eapptr +EAPAUTH_SIZE);
-else if(exteap->type == EAP_TYPE_LEAP) processexteapleap(exteap->code, exteaplen, eapptr +EAPAUTH_SIZE);
+else if(exteap->type == EAP_TYPE_LEAP) processexteapleap(eaptimestamp, macto, macfm, exteap->code, exteaplen, eapptr +EAPAUTH_SIZE);
 
 if(exteap->code == EAP_CODE_REQ)
 	{
@@ -3234,7 +3268,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"Do not edit, merge or convert pcapng files! This will remove optional comment fields!\n"
 	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
-	"It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcaptool will understand this.\n"
+	"It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcapngtool will understand this.\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, eigenname, eigenname,
 	EAPOLTIMEOUT /1000, NONCEERRORCORRECTION, ESSIDSMAX,
 	eigenname);

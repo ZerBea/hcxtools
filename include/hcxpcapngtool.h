@@ -30,6 +30,10 @@
 #define EAPMD5MSGLIST_MAX	32
 #define	EAPMD5_LEN_MAX		16
 
+#define EAPLEAPMSGLIST_MAX	32
+#define	LEAPREQ_LEN_MAX		8
+#define	LEAPRESP_LEN_MAX	24
+
 #define ESSIDSMAX		1
 
 #define EAPOLTIMEOUT		5000000
@@ -293,6 +297,29 @@ if(memcmp(ia->md5challenge, ib->md5challenge, EAPMD5_LEN_MAX) > 0) return 1;
 else if(memcmp(ia->md5challenge, ib->md5challenge, EAPMD5_LEN_MAX) < 0) return -1;
 if(memcmp(ia->md5response, ib->md5challenge, EAPMD5_LEN_MAX) > 0) return 1;
 else if(memcmp(ia->md5response, ib->md5response, EAPMD5_LEN_MAX) < 0) return -1;
+return 0;
+}
+/*===========================================================================*/
+struct eapleapmsglist_s
+{
+ uint64_t		timestamp;
+ uint8_t		ap[6];
+ uint8_t		client[6];
+ uint8_t		type;
+ uint8_t		id;
+ uint8_t		leaprequest[LEAPREQ_LEN_MAX];
+ uint8_t		leapresponse[LEAPRESP_LEN_MAX];
+};
+typedef struct eapleapmsglist_s eapleapmsglist_t;
+#define	EAPLEAPMSGLIST_SIZE (sizeof(eapleapmsglist_t))
+
+static int sort_eapleapmsglist_by_timestamp(const void *a, const void *b)
+{
+const eapleapmsglist_t *ia = (const eapleapmsglist_t *)a;
+const eapleapmsglist_t *ib = (const eapleapmsglist_t *)b;
+
+if(ia->timestamp < ib->timestamp) return 1;
+else if(ia->timestamp > ib->timestamp) return -1;
 return 0;
 }
 /*===========================================================================*/
