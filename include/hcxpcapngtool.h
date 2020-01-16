@@ -32,6 +32,7 @@
 #define EAPMD5MSGLIST_MAX		32
 #define	EAPMD5_LEN_MAX			16
 
+#define EAPLEAPHASHLIST_MAX		1000
 #define EAPLEAPMSGLIST_MAX		32
 #define	LEAPREQ_LEN_MAX			8
 #define	LEAPRESP_LEN_MAX		24
@@ -280,7 +281,7 @@ return 0;
 struct eapmd5hashlist_s
 {
  uint8_t		id;
- uint8_t		md5challenge[EAPMD5_LEN_MAX];
+ uint8_t		md5request[EAPMD5_LEN_MAX];
  uint8_t		md5response[EAPMD5_LEN_MAX];
 };
 typedef struct eapmd5hashlist_s eapmd5hashlist_t;
@@ -293,9 +294,9 @@ const eapmd5hashlist_t *ib = (const eapmd5hashlist_t *)b;
 
 if(ia->id < ib->id) return 1;
 else if(ia->id > ib->id) return -1;
-if(memcmp(ia->md5challenge, ib->md5challenge, EAPMD5_LEN_MAX) > 0) return 1;
-else if(memcmp(ia->md5challenge, ib->md5challenge, EAPMD5_LEN_MAX) < 0) return -1;
-if(memcmp(ia->md5response, ib->md5challenge, EAPMD5_LEN_MAX) > 0) return 1;
+if(memcmp(ia->md5request, ib->md5request, EAPMD5_LEN_MAX) > 0) return 1;
+else if(memcmp(ia->md5request, ib->md5request, EAPMD5_LEN_MAX) < 0) return -1;
+if(memcmp(ia->md5response, ib->md5request, EAPMD5_LEN_MAX) > 0) return 1;
 else if(memcmp(ia->md5response, ib->md5response, EAPMD5_LEN_MAX) < 0) return -1;
 return 0;
 }
@@ -322,6 +323,36 @@ const eapleapmsglist_t *ib = (const eapleapmsglist_t *)b;
 
 if(ia->timestamp < ib->timestamp) return 1;
 else if(ia->timestamp > ib->timestamp) return -1;
+return 0;
+}
+/*===========================================================================*/
+struct eapleaphashlist_s
+{
+ uint8_t	id;
+ uint8_t	leaprequest[LEAPREQ_LEN_MAX];
+ uint8_t	leapresponse[LEAPRESP_LEN_MAX];
+ uint8_t	leapusernamelen;
+ uint8_t	leapusername[LEAPUSERNAME_LEN_MAX];
+};
+typedef struct eapleaphashlist_s eapleaphashlist_t;
+#define	EAPLEAPHASHLIST_SIZE (sizeof(eapleaphashlist_t))
+
+static int sort_eapleaphashlist_by_id(const void *a, const void *b)
+{
+const eapleaphashlist_t *ia = (const eapleaphashlist_t *)a;
+const eapleaphashlist_t *ib = (const eapleaphashlist_t *)b;
+
+if(ia->id < ib->id) return 1;
+else if(ia->id > ib->id) return -1;
+if(ia->leapusernamelen > ib->leapusernamelen) return 1;
+if(ia->leapusernamelen < ib->leapusernamelen) return -1;
+if(memcmp(ia->leaprequest, ib->leaprequest, LEAPREQ_LEN_MAX) > 0) return 1;
+else if(memcmp(ia->leaprequest, ib->leaprequest, LEAPREQ_LEN_MAX) < 0) return -1;
+if(memcmp(ia->leapresponse, ib->leapresponse, LEAPRESP_LEN_MAX) > 0) return 1;
+else if(memcmp(ia->leapresponse, ib->leapresponse, LEAPRESP_LEN_MAX) < 0) return -1;
+else if(memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen) < 0) return -1;
+if(memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen) > 0) return 1;
+else if(memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen) < 0) return -1;
 return 0;
 }
 /*===========================================================================*/
