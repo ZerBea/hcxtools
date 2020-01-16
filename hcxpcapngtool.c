@@ -186,6 +186,8 @@ static long int eapleapwrittencount;
 static long int identitycount;
 static long int usernamecount;
 
+static uint64_t rcgapmax;
+
 static uint64_t timestampstart;
 static uint64_t timestampmin;
 static uint64_t timestampmax;
@@ -379,6 +381,7 @@ eapleapwrittencount = 0;
 identitycount = 0;
 usernamecount = 0;
 
+rcgapmax = 0;
 eaptimegapmax = 0;
 
 timestampmin = 0;
@@ -439,6 +442,7 @@ if(eapolrc4count > 0)			printf("EAPOL RC4 messages.....................: %ld\n",
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.....................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.....................: %ld\n", eapolwpacount);
 if(eaptimegapmax > 0)			printf("EAPOLTIME (measured maximum usec)......: %" PRId64 "\n", eaptimegapmax);
+if(rcgapmax > 0)			printf("REPLAYCOUNT GAP (measured maximum).....: %" PRIu64 "\n", rcgapmax);
 if(eapolm1count > 0)			printf("EAPOL M1 messages......................: %ld\n", eapolm1count);
 if(eapolm2count > 0)			printf("EAPOL M2 messages......................: %ld\n", eapolm2count);
 if(eapolm3count > 0)			printf("EAPOL M3 messages......................: %ld\n", eapolm3count);
@@ -593,8 +597,7 @@ if(fh_eapleap != 0)
 	}
 for(zeiger = eapleaphashlist +1; zeiger < eapleaphashlistptr; zeiger++)
 	{
-	if((zeigerold->id == zeiger->id) && (zeigerold->leapusernamelen == zeiger->leapusernamelen)) return;
-	if((memcmp(zeigerold->leaprequest, zeiger->leaprequest, LEAPREQ_LEN_MAX) == 0) && (memcmp(zeigerold->leapresponse, zeiger->leapresponse, LEAPRESP_LEN_MAX) == 0)) continue;
+	if((zeigerold->id == zeiger->id) && (zeigerold->leapusernamelen == zeiger->leapusernamelen) && (memcmp(zeigerold->leapusername, zeiger->leapusername, zeiger->leapusernamelen) == 0) && (memcmp(zeigerold->leaprequest, zeiger->leaprequest, LEAPREQ_LEN_MAX) == 0) && (memcmp(zeigerold->leapresponse, zeiger->leapresponse, LEAPRESP_LEN_MAX) == 0)) continue;
 	if(fh_eapleap != 0)
 		{
 		fprintf(fh_eapleap, "%.*s::::%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x%02x%02x\n",
@@ -1792,9 +1795,8 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 		}
 	if((zeiger->message &HS_M1) != HS_M1) continue;
-	rc -= 1;
-	if(zeiger->rc > rc) rcgap = zeiger->rc -rc;
-	else rcgap = rc -zeiger->rc;
+	if(zeiger->rc >= rc -1) rcgap = zeiger->rc -rc +1;
+	else rcgap = rc -zeiger->rc +1;
 	if(rcgap > ncvalue) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
@@ -1857,9 +1859,8 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		zeigerakt->status |= ST_NC;
 		}
 	if((zeiger->message) != HS_M2) continue;
-	rc -= 1;
-	if(zeiger->rc > rc) rcgap = zeiger->rc -rc;
-	else rcgap = rc -zeiger->rc;
+	if(zeiger->rc >= rc -1) rcgap = zeiger->rc -rc +1;
+	else rcgap = rc -zeiger->rc +1;
 	if(rcgap > ncvalue) continue;
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
