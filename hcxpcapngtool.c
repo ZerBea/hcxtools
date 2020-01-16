@@ -1783,7 +1783,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if(zeiger->message == HS_M3)
 		{
-		if(zeiger->rc > rc) rcgap = zeiger->rc -rc;
+		if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
 		else rcgap = rc -zeiger->rc;
 		if(rcgap > ncvalue) continue;
 		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
@@ -1945,7 +1945,7 @@ if(infolen >= RSNIE_LEN_MIN)
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if((zeiger->message &HS_M1) != HS_M1) continue;
-	if(zeiger->rc > rc) rcgap = zeiger->rc -rc;
+	if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
 	else rcgap = rc -zeiger->rc;
 	if(rcgap > ncvalue) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
