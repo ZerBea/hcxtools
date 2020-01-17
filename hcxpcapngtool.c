@@ -441,8 +441,8 @@ if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n",
 if(eapolrc4count > 0)			printf("EAPOL RC4 messages.....................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.....................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.....................: %ld\n", eapolwpacount);
-if(eaptimegapmax > 0)			printf("EAPOLTIME (measured maximum usec)......: %" PRId64 "\n", eaptimegapmax);
-if(rcgapmax > 0)			printf("REPLAYCOUNT GAP (measured maximum).....: %" PRIu64 "\n", rcgapmax);
+if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)..: %" PRId64 "\n", eaptimegapmax);
+if(rcgapmax > 0)			printf("REPLAYCOUNT gap (measured maximum).....: %" PRIu64 "\n", rcgapmax);
 if(eapolm1count > 0)			printf("EAPOL M1 messages......................: %ld\n", eapolm1count);
 if(eapolm2count > 0)			printf("EAPOL M2 messages......................: %ld\n", eapolm2count);
 if(eapolm3count > 0)			printf("EAPOL M3 messages......................: %ld\n", eapolm3count);
