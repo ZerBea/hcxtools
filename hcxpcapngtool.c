@@ -188,6 +188,9 @@ static long int usernamecount;
 
 static uint64_t rcgapmax;
 
+static long int essidcount;
+static long int essiddupemax;
+
 static uint64_t timestampstart;
 static uint64_t timestampmin;
 static uint64_t timestampmax;
@@ -380,7 +383,8 @@ eapmd5johnwrittencount = 0;
 eapleapwrittencount = 0;
 identitycount = 0;
 usernamecount = 0;
-
+essidcount = 0;
+essiddupemax = 0;
 rcgapmax = 0;
 eaptimegapmax = 0;
 
@@ -441,6 +445,8 @@ if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n",
 if(eapolrc4count > 0)			printf("EAPOL RC4 messages.....................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.....................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.....................: %ld\n", eapolwpacount);
+if(essidcount > 0)			printf("ESSID (total unique)...................: %ld\n", essidcount);
+if(essiddupemax > 0)			printf("ESSID changes (mesured maximum)........: %ld (warning)\n", essiddupemax);
 if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)..: %" PRId64 "\n", eaptimegapmax);
 if(rcgapmax > 0)			printf("REPLAYCOUNT gap (measured maximum).....: %" PRIu64 "\n", rcgapmax);
 if(eapolm1count > 0)			printf("EAPOL M1 messages......................: %ld\n", eapolm1count);
@@ -502,20 +508,21 @@ static maclist_t *zeigermac, *zeigermacold;
 zeigermacold = NULL;
 qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_essidlen);
 wecl = strlen(pcapngweakcandidate);
-if(fh_essid != NULL)
+if((wecl > 0) && (wecl < 64) && (strcmp(pcapngweakcandidate, "N/A") != 0))
 	{
-	if((wecl > 0) && (wecl < 64) && (strcmp(pcapngweakcandidate, "N/A") != 0)) fprintf(fh_essid, "%s\n", pcapngweakcandidate); 
-	for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
+	if(fh_essid != NULL) fprintf(fh_essid, "%s\n", pcapngweakcandidate); 
+	}
+for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
+	{
+	if((zeigermacold != NULL) && (zeigermac->essidlen == zeigermacold->essidlen))
 		{
-		if((zeigermacold != NULL) && (zeigermac->essidlen == zeigermacold->essidlen))
-			{
-			if(memcmp(zeigermac->essid, zeigermacold->essid, zeigermac->essidlen) == 0) continue;
-			}
-		if(zeigermac->essidlen > ESSID_LEN_MAX) continue;
-		if(zeigermac->essidlen == 0) continue;
-		fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essid);
-		zeigermacold = zeigermac;
+		if(memcmp(zeigermac->essid, zeigermacold->essid, zeigermac->essidlen) == 0) continue;
 		}
+	if(zeigermac->essidlen > ESSID_LEN_MAX) continue;
+	if(zeigermac->essidlen == 0) continue;
+	if(fh_essid != NULL) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essid);
+	essidcount++;
+	zeigermacold = zeigermac;
 	}
 return;
 }
@@ -1237,6 +1244,7 @@ for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 		if(memcmp(zeigermacold->addr, zeigermac->addr, 6) == 0)
 			{
 			essiddupecount++;
+			if(essiddupecount > essiddupemax) essiddupemax = essiddupecount;
 			if(essiddupecount > essidsvalue) continue;
 			}
 		else essiddupecount = 0;
