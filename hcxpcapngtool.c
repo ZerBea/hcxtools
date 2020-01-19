@@ -2084,6 +2084,7 @@ if(wpak->keydescriptor == EAP_KDT_RC4)
 else if(wpak->keydescriptor == EAP_KDT_WPA) eapolwpacount++;
 else if(wpak->keydescriptor == EAP_KDT_RSN) eapolrsncount++;
 else return;
+if(ntohs(wpak->keylen) > 256) return;
 if(keyinfo == 1) process80211eapol_m1(eaptimestamp, macto, macfm, eapauthlen, eapauthptr);
 else if(keyinfo == 2)
 	{
