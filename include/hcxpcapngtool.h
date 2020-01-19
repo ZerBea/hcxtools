@@ -11,12 +11,15 @@
 #define HCX_HCCAPX_OUT_DEPRECATED		11
 #define HCX_HCCAP_OUT_DEPRECATED		12
 #define HCX_PMKIDEAPOLJTR_OUT_DEPRECATED	13
+#define HCX_PREFIX_OUT				14
 #define HCX_PMKIDEAPOL_OUT			'o'
 #define HCX_ESSID_OUT				'E'
 #define HCX_IDENTITY_OUT			'I'
 #define HCX_USERNAME_OUT			'U'
 #define HCX_HELP				'h'
 #define HCX_VERSION				'v'
+
+#define PREFIX_BUFFER_MAX		PATH_MAX -20
 
 #define ESSID_LEN_MAX			32
 #define	OPTIONLEN_MAX			1024

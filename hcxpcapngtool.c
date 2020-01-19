@@ -3409,16 +3409,24 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
 	"--eapmd5=<file>                    : output EAP MD5 CHALLENGE (hashcat -m 4800)\n"
 	"--eapmd5-john=<file>               : output EAP MD5 CHALLENGE (john chap)\n"
+	"--eapleap=<file>                   : output EAP LEAP CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"--nmea=<file>                      : output GPS data in NMEA format\n"
 	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
 	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx -F file.gpx\n"
 	"                                     to display the track, open file.gpx with viking\n"
-	"--eapleap=<file>                   : output EAP LEAP CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file (delimter *)\n"
 	"--john=<file>                      : output deprecated PMKID/EAPOL (JtR wpapsk-opencl/wpapsk-pmk-opencl)\n"
+	"--prefix=<file>                    : convert everything to lists using this prefix (overrides single options):\n"
+	"                                      -o <file.22000>      : output PMKID/EAPOL hash file\n"
+	"                                      -E <file.essid>      : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
+	"                                      -I <file.identitiy>  : output unsorted identity list to use as input wordlist for cracker\n"
+	"                                      -U <file.username>   : output unsorted username list to use as input wordlist for cracker\n"
+	"                                     --eapmd5=<file.4800>  : output EAP MD5 CHALLENGE (hashcat -m 4800)\n"
+	"                                     --eapleap=<file.5500> : output EAP LEAP CHALLENGE (hashcat -m 5500, john netntlm)\n"
+	"                                     --nmea=<file.nmea>    : output GPS data in NMEA format\n"
 	"--help                             : show this help\n"
 	"--version                          : show version\n"
 	"\n"
@@ -3466,6 +3474,23 @@ static char *pmkidoutnamedeprecated;
 static char *hccapxoutnamedeprecated;
 static char *hccapoutnamedeprecated;
 
+static const char *prefixoutname;
+static const char *pmkideapolsuffix = ".22000";
+static const char *eapmd5suffix = ".4800";
+static const char *eapleapsuffix = ".5500";
+static const char *essidsuffix = ".essid";
+static const char *identitysuffix = ".identity";
+static const char *usernamesuffix = ".username";
+static const char *nmeasuffix = ".nmea";
+
+static char pmkideapolprefix[PATH_MAX];
+static char eapmd5prefix[PATH_MAX];
+static char eapleapprefix[PATH_MAX];
+static char essidprefix[PATH_MAX];
+static char identityprefix[PATH_MAX];
+static char usernameprefix[PATH_MAX];
+static char nmeaprefix[PATH_MAX];
+
 struct timeval tv;
 static struct stat statinfo;
 
@@ -3485,6 +3510,7 @@ static const struct option long_options[] =
 	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT_DEPRECATED},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT_DEPRECATED},
 	{"john",			required_argument,	NULL,	HCX_PMKIDEAPOLJTR_OUT_DEPRECATED},
+	{"prefix",			required_argument,	NULL,	HCX_PREFIX_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
 	{NULL,				0,			NULL,	0}
@@ -3507,6 +3533,7 @@ essidoutname = NULL;
 identityoutname = NULL;
 usernameoutname = NULL;
 nmeaoutname = NULL;
+prefixoutname = NULL;
 pmkideapoljtroutnamedeprecated = NULL;
 pmkidoutnamedeprecated = NULL;
 hccapxoutnamedeprecated = NULL;
@@ -3594,6 +3621,15 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		usage(basename(argv[0]));
 		break;
 
+		case HCX_PREFIX_OUT:
+		prefixoutname = optarg;
+		if(strlen(prefixoutname) > PREFIX_BUFFER_MAX)
+			{
+			fprintf(stderr, "prefix must be < %d\n", PATH_MAX -12);
+			exit(EXIT_FAILURE);
+			}
+		break;
+
 		case HCX_VERSION:
 		version(basename(argv[0]));
 		break;
@@ -3617,6 +3653,38 @@ if(optind == argc)
 	{
 	printf("no input file(s) selected\n");
 	exit(EXIT_FAILURE);
+	}
+
+if(prefixoutname != NULL)
+	{
+	strncpy(pmkideapolprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(pmkideapolprefix, pmkideapolsuffix, PREFIX_BUFFER_MAX);
+	pmkideapoloutname = pmkideapolprefix;
+
+	strncpy(essidprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(essidprefix, essidsuffix, PREFIX_BUFFER_MAX);
+	essidoutname = essidprefix;
+
+	strncpy(identityprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(identityprefix, identitysuffix, PREFIX_BUFFER_MAX);
+	identityoutname = identityprefix;
+
+	strncpy(usernameprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(usernameprefix, usernamesuffix, PREFIX_BUFFER_MAX);
+	usernameoutname = usernameprefix;
+
+	strncpy(eapmd5prefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(eapmd5prefix, eapmd5suffix, PREFIX_BUFFER_MAX);
+	eapmd5outname = eapmd5prefix;
+
+	strncpy(eapleapprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(eapleapprefix, eapleapsuffix, PREFIX_BUFFER_MAX);
+	eapleapoutname = eapleapprefix;
+
+	strncpy(nmeaprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(nmeaprefix, nmeasuffix, PREFIX_BUFFER_MAX);
+	nmeaoutname = nmeaprefix;
+
 	}
 
 if(pmkideapoloutname != NULL)
