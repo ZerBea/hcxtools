@@ -154,6 +154,7 @@ static long int eapcodereqcount;
 static long int eapcoderespcount;
 static long int zeroedpmkcount;
 static long int pmkidcount;
+static long int pmkidbestcount;
 static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
 static long int pmkidwrittenjcountdeprecated;
@@ -163,6 +164,7 @@ static long int eapolrsncount;
 static long int eapolwpacount;
 static long int eapolmsgcount;
 static long int eapolmpcount;
+static long int eapolmpbestcount;
 static long int eapolm1count;
 static long int eapolm2count;
 static long int eapolm3count;
@@ -353,6 +355,7 @@ eapcodereqcount = 0;
 eapcoderespcount = 0;
 zeroedpmkcount = 0;
 pmkidcount = 0;
+pmkidbestcount = 0;
 pmkiduselesscount = 0;
 pmkidwrittenhcount = 0;
 eapolwrittenjcountdeprecated = 0;
@@ -362,6 +365,7 @@ eapolrc4count = 0;
 eapolrsncount = 0;
 eapolwpacount = 0;
 eapolmsgcount = 0;
+eapolmpbestcount = 0;
 eapolmpcount = 0;
 eapolm1count = 0;
 eapolm2count = 0;
@@ -453,7 +457,8 @@ if(eapolm1count > 0)			printf("EAPOL M1 messages......................: %ld\n", 
 if(eapolm2count > 0)			printf("EAPOL M2 messages......................: %ld\n", eapolm2count);
 if(eapolm3count > 0)			printf("EAPOL M3 messages......................: %ld\n", eapolm3count);
 if(eapolm4count > 0)			printf("EAPOL M4 messages......................: %ld\n", eapolm4count);
-if(eapolmpcount > 0)			printf("EAPOL pairs............................: %ld\n", eapolmpcount);
+if(eapolmpcount > 0)			printf("EAPOL pairs (total)....................: %ld\n", eapolmpcount);
+if(eapolmpbestcount > 0)		printf("EAPOL pairs (best).....................: %ld\n", eapolmpbestcount);
 if(eapolaplesscount > 0)		printf("EAPOL pairs (AP-LESS)..................: %ld\n", eapolaplesscount);
 if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file.: %ld (RC checked)\n", eapolwrittencount);
 if(eapolncwrittencount > 0)		printf("EAPOL pairs written to combi hash file.: %ld (RC not checked)\n", eapolncwrittencount);
@@ -467,7 +472,8 @@ if(eapolm32e2count > 0)			printf("EAPOL M32E2............................: %ld\n
 if(eapolm32e3count > 0)			printf("EAPOL M32E3............................: %ld\n", eapolm32e3count);
 if(eapolm34e3count > 0)			printf("EAPOL M34E3............................: %ld\n", eapolm34e3count);
 if(eapolm34e4count > 0)			printf("EAPOL M34E4............................: %ld\n", eapolm34e4count);
-if(pmkidcount > 0)			printf("PMKID..................................: %ld\n", pmkidcount);
+if(pmkidcount > 0)			printf("PMKID (total)..........................: %ld\n", pmkidcount);
+if(pmkidbestcount > 0)			printf("PMKID (best)...........................: %ld\n", pmkidbestcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless)........................: %ld\n", pmkiduselesscount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", pmkidwrittenjcountdeprecated);
@@ -1026,6 +1032,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		}
 	if(memcmp(zeigermac->addr, zeigerhs->ap, 6) == 0)
 		{
+		eapolmpbestcount++;
 		if((zeigerhs->status &ST_APLESS) == ST_APLESS) eapolaplesscount++;
 		if((zeigerhs->status &7) == ST_M12E2) eapolm12e2count++; 
 		if((zeigerhs->status &7) == ST_M14E4) eapolm14e4count++; 
@@ -1159,6 +1166,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 		}
 	if(memcmp(zeigermac->addr, zeigerpmkid->ap, 6) == 0)
 		{
+		pmkidbestcount++;
 		if(fh_pmkideapol != 0)
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
