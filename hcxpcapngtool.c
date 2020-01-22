@@ -122,6 +122,7 @@ static long int zeroedtimestampcount;
 static long int fcsframecount;
 static long int wdscount;
 static long int beaconcount;
+static long int beaconerrorcount;
 static long int proberesponsecount;
 static long int proberequestcount;
 static long int proberequestdirectedcount;
@@ -324,6 +325,7 @@ zeroedtimestampcount = 0;
 fcsframecount = 0;
 wdscount = 0;
 beaconcount = 0;
+beaconerrorcount = 0;
 proberesponsecount = 0;
 proberequestcount = 0;
 proberequestdirectedcount = 0;
@@ -411,7 +413,8 @@ if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %
 if(skippedpacketcount > 0)		printf("skipped packets........................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			printf("frames with correct FCS................: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM...........: %ld\n", wdscount);
-if(beaconcount > 0)			printf("BEACON.................................: %ld\n", beaconcount);
+if(beaconcount > 0)			printf("BEACON (total).........................: %ld\n", beaconcount);
+if(beaconerrorcount > 0)		printf("BEACON (damaged MAC BROADCAST).........: %ld (warning)\n", beaconerrorcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST...........................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)................: %ld\n", proberequestdirectedcount);
 if(proberesponsecount > 0)		printf("PROBERESONSE...........................: %ld\n", proberesponsecount);
@@ -2452,7 +2455,7 @@ if(fh_nmea != NULL) writegpwpl(macap);
 return;
 }
 /*===========================================================================*/
-static void process80211beacon(uint64_t beacontimestamp, uint8_t *macap, uint32_t beaconlen, uint8_t *beaconptr)
+static void process80211beacon(uint64_t beacontimestamp, uint8_t *macbc, uint8_t *macap, uint32_t beaconlen, uint8_t *beaconptr)
 {
 static int apinfolen;
 static uint8_t *apinfoptr;
@@ -2460,6 +2463,11 @@ static maclist_t *aplistnew;
 static tags_t tags;
 
 beaconcount++;
+if(memcmp(&mac_broadcast, macbc, 6) != 0)
+	{
+	beaconerrorcount++;
+	return;
+	}
 apinfoptr = beaconptr +CAPABILITIESAP_SIZE;
 apinfolen = beaconlen -CAPABILITIESAP_SIZE;
 if(beaconlen < (int)IETAG_SIZE) return;
@@ -2519,7 +2527,7 @@ else
 	}
 if(macfrx->type == IEEE80211_FTYPE_MGMT)
 	{
-	if(macfrx->subtype == IEEE80211_STYPE_BEACON) process80211beacon(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
+	if(macfrx->subtype == IEEE80211_STYPE_BEACON) process80211beacon(packetimestamp, macfrx->addr1, macfrx->addr2, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_PROBE_RESP) process80211probe_resp(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_AUTH) process80211authentication(macfrx->addr2, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_ASSOC_REQ) process80211association_req(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
