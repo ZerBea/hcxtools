@@ -411,14 +411,10 @@ if(nmeacount > 0)			printf("NMEA sentence..........................: %ld\n", nme
 if(endianess == 0)			printf("endianess (capture system).............: little endian\n");
 else					printf("endianess (capture system).............: big endian\n");
 if(rawpacketcount > 0)			printf("packets inside.........................: %ld\n", rawpacketcount);
-if(pcapreaderrors > 0)			printf("read errors............................: %ld\n", pcapreaderrors);
-if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
 if(skippedpacketcount > 0)		printf("skipped packets........................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			printf("frames with correct FCS................: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM...........: %ld\n", wdscount);
-if(taglenerrorcount > 0)		printf("IE TAG length error (bit error)........: %ld (warning)\n", taglenerrorcount);
 if(beaconcount > 0)			printf("BEACON (total).........................: %ld\n", beaconcount);
-if(beaconerrorcount > 0)		printf("BEACON (bit error).....................: %ld (warning)\n", beaconerrorcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST...........................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)................: %ld\n", proberequestdirectedcount);
 if(proberesponsecount > 0)		printf("PROBERESONSE...........................: %ld\n", proberesponsecount);
@@ -455,7 +451,6 @@ if(eapleapcount > 0)			printf("EAP-LEAP messages......................: %ld\n", 
 if(eapleapwrittencount > 0)		printf("EAP-LEAP pairs written.................: %ld\n", eapleapwrittencount);
 if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
-if(eapolmsgerrorcount > 0)		printf("EAPOL messages (bit error).............: %ld (warning)\n", eapolmsgerrorcount);
 if(eapolrc4count > 0)			printf("EAPOL RC4 messages.....................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.....................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.....................: %ld\n", eapolwpacount);
@@ -488,6 +483,11 @@ if(pmkiduselesscount > 0)		printf("PMKID (useless)........................: %ld\
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
+if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
+if(pcapreaderrors > 0)			printf("packet read error......................: %ld (warning)\n", pcapreaderrors);
+if(taglenerrorcount > 0)		printf("IE TAG length error (bit error)........: %ld (warning)\n", taglenerrorcount);
+if(beaconerrorcount > 0)		printf("BROADCAST MAC error (bit error)........: %ld (warning)\n", beaconerrorcount);
+if(eapolmsgerrorcount > 0)		printf("EAPOL messages (bit error).............: %ld (warning)\n", eapolmsgerrorcount);
 printf("\n");
 if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) > ERROR_WARNING_MAX) printf("Warning: too much bit errors detected - check your device and your driver!\n\n");   
 return;
