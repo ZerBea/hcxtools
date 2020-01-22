@@ -164,6 +164,7 @@ static long int eapolrc4count;
 static long int eapolrsncount;
 static long int eapolwpacount;
 static long int eapolmsgcount;
+static long int eapolmsgerrorcount;
 static long int eapolmpcount;
 static long int eapolmpbestcount;
 static long int eapolm1count;
@@ -191,8 +192,9 @@ static long int usernamecount;
 
 static uint64_t rcgapmax;
 
+static long int taglenerrorcount;
+
 static long int essidcount;
-static long int essidtaglenerrorcount;
 static long int essiddupemax;
 
 static uint64_t timestampstart;
@@ -368,6 +370,7 @@ eapolrc4count = 0;
 eapolrsncount = 0;
 eapolwpacount = 0;
 eapolmsgcount = 0;
+eapolmsgerrorcount = 0;
 eapolmpbestcount = 0;
 eapolmpcount = 0;
 eapolm1count = 0;
@@ -391,7 +394,7 @@ eapleapwrittencount = 0;
 identitycount = 0;
 usernamecount = 0;
 essidcount = 0;
-essidtaglenerrorcount = 0;
+taglenerrorcount = 0;
 essiddupemax = 0;
 rcgapmax = 0;
 eaptimegapmax = 0;
@@ -413,8 +416,9 @@ if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %
 if(skippedpacketcount > 0)		printf("skipped packets........................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			printf("frames with correct FCS................: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM...........: %ld\n", wdscount);
+if(taglenerrorcount > 0)		printf("IE TAG length error (bit error)........: %ld (warning)\n", taglenerrorcount);
 if(beaconcount > 0)			printf("BEACON (total).........................: %ld\n", beaconcount);
-if(beaconerrorcount > 0)		printf("BEACON (damaged MAC BROADCAST).........: %ld (warning)\n", beaconerrorcount);
+if(beaconerrorcount > 0)		printf("BEACON (bit error).....................: %ld (warning)\n", beaconerrorcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST...........................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)................: %ld\n", proberequestdirectedcount);
 if(proberesponsecount > 0)		printf("PROBERESONSE...........................: %ld\n", proberesponsecount);
@@ -451,11 +455,11 @@ if(eapleapcount > 0)			printf("EAP-LEAP messages......................: %ld\n", 
 if(eapleapwrittencount > 0)		printf("EAP-LEAP pairs written.................: %ld\n", eapleapwrittencount);
 if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
+if(eapolmsgerrorcount > 0)		printf("EAPOL messages (bit error).............: %ld (warning)\n", eapolmsgerrorcount);
 if(eapolrc4count > 0)			printf("EAPOL RC4 messages.....................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.....................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.....................: %ld\n", eapolwpacount);
 if(essidcount > 0)			printf("ESSID (total unique)...................: %ld\n", essidcount);
-if(essidtaglenerrorcount > 0)		printf("ESSID (SSID tag length error)..........: %ld (warning)\n", essidtaglenerrorcount);
 if(essiddupemax > 0)			printf("ESSID changes (mesured maximum)........: %ld (warning)\n", essiddupemax);
 if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)..: %" PRId64 "\n", eaptimegapmax);
 if(rcgapmax > 0)			printf("REPLAYCOUNT gap (measured maximum).....: %" PRIu64 "\n", rcgapmax);
@@ -485,7 +489,7 @@ if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
 printf("\n");
-if((beaconerrorcount +essidtaglenerrorcount) > ERROR_WARNING_MAX) printf("Warning: too much bit errors detected - check your device and your driver!\n\n");   
+if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) > ERROR_WARNING_MAX) printf("Warning: too much bit errors detected - check your device and your driver!\n\n");   
 return;
 }
 /*===========================================================================*/
@@ -1673,6 +1677,11 @@ ieptr += SUITE_SIZE;
 csuitecountptr = (suitecount_t*)ieptr;
 rsnlen -= SUITECOUNT_SIZE;
 ieptr += SUITECOUNT_SIZE;
+if(csuitecountptr->count *4 > rsnlen)
+	{
+	taglenerrorcount++;
+	return;
+	}
 for(c = 0; c < csuitecountptr->count; c++)
 	{
 	csuiteptr = (suite_t*)ieptr; 
@@ -1693,6 +1702,11 @@ for(c = 0; c < csuitecountptr->count; c++)
 asuitecountptr = (suitecount_t*)ieptr;
 rsnlen -= SUITECOUNT_SIZE;
 ieptr += SUITECOUNT_SIZE;
+if(asuitecountptr->count *4 > rsnlen)
+	{
+	taglenerrorcount++;
+	return;
+	}
 for(c = 0; c < asuitecountptr->count; c++)
 	{
 	asuiteptr = (suite_t*)ieptr; 
@@ -1738,7 +1752,7 @@ while(0 < infolen)
 		{
 		if(tagptr->len > ESSID_LEN_MAX)
 			{
-			essidtaglenerrorcount++;
+			taglenerrorcount++;
 			return;
 			}
 		if((tagptr->len > 0) && (tagptr->len <= ESSID_LEN_MAX))
@@ -2089,6 +2103,7 @@ static uint32_t authlen;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
 static uint16_t keyinfo;
+static uint16_t keylen;
 
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
@@ -2104,7 +2119,17 @@ if(wpak->keydescriptor == EAP_KDT_RC4)
 else if(wpak->keydescriptor == EAP_KDT_WPA) eapolwpacount++;
 else if(wpak->keydescriptor == EAP_KDT_RSN) eapolrsncount++;
 else return;
-if(ntohs(wpak->keylen) > 256) return;
+keylen = ntohs(wpak->keylen);
+if((keylen != 0) && (keylen != 16) && (keylen != 32))
+	{
+	eapolmsgerrorcount++;
+	return;
+	}
+if(ntohs(wpak->wpadatalen) > (eapauthlen -EAPAUTH_SIZE -WPAKEY_SIZE))
+	{
+	eapolmsgerrorcount++;
+	return;
+	}
 if(keyinfo == 1) process80211eapol_m1(eaptimestamp, macto, macfm, eapauthlen, eapauthptr);
 else if(keyinfo == 2)
 	{
