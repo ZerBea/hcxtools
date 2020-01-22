@@ -437,18 +437,22 @@ typedef struct llc_frame llc_t;
 /*===========================================================================*/
 struct authentication_frame
 {
- uint16_t		algorithm;
-#define	OPEN_SYSTEM	0
-#define	SHARED_KEY	1
-#define	FBT		2
-#define	SAE		3
-#define	FILS		4
-#define	FILSPFS		5
-#define	FILSPK		6
-#define	NETWORKEAP	128
- uint16_t		sequence;
- uint16_t		statuscode;
-#define AUTH_OK		0
+ uint16_t			algorithm;
+#define	OPEN_SYSTEM		0
+#define	SHARED_KEY		1
+#define	FBT			2
+#define	SAE			3
+#define	FILS			4
+#define	FILSPFS			5
+#define	FILSPK			6
+#define	NETWORKEAP		128
+ uint16_t			sequence;
+ uint16_t			statuscode;
+#define AUTH_OK			0
+#define AUTH_FAILURE		1
+#define AUTH_UNSUPPORTED	10
+#define AUTH_REASSOC_DENIED	11
+#define AUTH_UNSECIFIED		12
 } __attribute__((__packed__));
 typedef struct authentication_frame authf_t;
 #define	AUTHENTICATIONFRAME_SIZE (sizeof(authf_t))
