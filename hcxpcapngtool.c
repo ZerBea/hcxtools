@@ -191,6 +191,7 @@ static long int usernamecount;
 static uint64_t rcgapmax;
 
 static long int essidcount;
+static long int essidtaglenerrorcount;
 static long int essiddupemax;
 
 static uint64_t timestampstart;
@@ -388,6 +389,7 @@ eapleapwrittencount = 0;
 identitycount = 0;
 usernamecount = 0;
 essidcount = 0;
+essidtaglenerrorcount = 0;
 essiddupemax = 0;
 rcgapmax = 0;
 eaptimegapmax = 0;
@@ -450,6 +452,7 @@ if(eapolrc4count > 0)			printf("EAPOL RC4 messages.....................: %ld\n",
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.....................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.....................: %ld\n", eapolwpacount);
 if(essidcount > 0)			printf("ESSID (total unique)...................: %ld\n", essidcount);
+if(essidtaglenerrorcount > 0)		printf("ESSID (SSID tag length error)..........: %ld (warning)\n", essidtaglenerrorcount);
 if(essiddupemax > 0)			printf("ESSID changes (mesured maximum)........: %ld (warning)\n", essiddupemax);
 if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)..: %" PRId64 "\n", eaptimegapmax);
 if(rcgapmax > 0)			printf("REPLAYCOUNT gap (measured maximum).....: %" PRIu64 "\n", rcgapmax);
@@ -1729,7 +1732,12 @@ while(0 < infolen)
 	if(tagptr->len > infolen) return;
 	if(tagptr->id == TAG_SSID)
 		{
-		if((tagptr->len > 0) &&  (tagptr->len <= ESSID_LEN_MAX))
+		if(tagptr->len > ESSID_LEN_MAX)
+			{
+			essidtaglenerrorcount++;
+			return;
+			}
+		if((tagptr->len > 0) && (tagptr->len <= ESSID_LEN_MAX))
 			{
 			memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
 			zeiger->essidlen = tagptr->len;
