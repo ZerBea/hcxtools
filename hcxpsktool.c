@@ -70,10 +70,7 @@ char lowerpskstring[PSKSTRING_LEN_MAX] = {};
 char upperpskstring[PSKSTRING_LEN_MAX] = {};
 
 l = strlen(pskstring);
-if((l < 8) || (l > PSKSTRING_LEN_MAX))
-	{
-	return;
-	}
+if((l < 8) || (l > PSKSTRING_LEN_MAX)) return;
 for(p = 0; p < l; p++)
 	{
 	if(islower(pskstring[p]))
@@ -81,31 +78,17 @@ for(p = 0; p < l; p++)
 		upperpskstring[p] = toupper(pskstring[p]);
 		uflag = true;
 		}
-	else
-		{
-		upperpskstring[p] = pskstring[p];
-		}
-
+	else upperpskstring[p] = pskstring[p];
 	if(isupper(pskstring[p]))
 		{
 		lowerpskstring[p] = tolower(pskstring[p]);
 		lflag = true;
 		}
-	else
-		{
-		lowerpskstring[p] = pskstring[p];
-		}
+	else lowerpskstring[p] = pskstring[p];
 	}
-
 fprintf(fhout,"%s\n", pskstring);
-if(uflag == true)
-	{
-	fprintf(fhout,"%s\n", upperpskstring);
-	}
-if(lflag == true)
-	{
-	fprintf(fhout,"%s\n", lowerpskstring);
-	}
+if(uflag == true) fprintf(fhout,"%s\n", upperpskstring);
+if(lflag == true) fprintf(fhout,"%s\n", lowerpskstring);
 if((lowerpskstring[0] >= 'a') && (lowerpskstring[0] <= 'z'))
 	{
 	lowerpskstring[0] = toupper(lowerpskstring[0]);
@@ -561,10 +544,7 @@ qsort(apessidliste, apessidcount, APESSIDLIST_SIZE, sort_apessidlist_by_ap);
 zeiger = apessidliste;
 for(c = 0; c < apessidcount; c++)
 	{
-	if(c == 0)
-		{
-		preparebssidessid(fhout, zeiger->macaddr, zeiger->essidlen, zeiger->essid);
-		}
+	if(c == 0) preparebssidessid(fhout, zeiger->macaddr, zeiger->essidlen, zeiger->essid);
 	else
 		{
 		zeiger1 = zeiger -1;
@@ -807,12 +787,8 @@ for(pi = 0; pi < essidlen; pi++)
 		removeflag = true;
 		}
 	}
-
 writeessidadd(fhout, (char*)essid);
-if(removeflag == true)
-	{
-	writeessidadd(fhout, essidtmp);
-	}
+if(removeflag == true) writeessidadd(fhout, essidtmp);
 return removeflag;
 }
 /*===========================================================================*/
@@ -840,18 +816,9 @@ static char *ali = "Alcatel LINKZONE ";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if(essidlen != 21)
-	{
-	return;
-	}
-if(memcmp(essid, ali, 17) != 0)
-	{
-	return;
-	}
-if((!isdigit(essid[17])) || (!isdigit(essid[18])) || (!isdigit(essid[19])) || (!isdigit(essid[20])))
-	{
-	return;
-	}
+if(essidlen != 21) return;
+if(memcmp(essid, ali, 17) != 0) return;
+if((!isdigit(essid[17])) || (!isdigit(essid[18])) || (!isdigit(essid[19])) || (!isdigit(essid[20]))) return;
 for(k1 = 0; k1 < 10000; k1++)
 	{
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "%04d%c%c%c%c", k1, essid[17], essid[18], essid[19], essid[20]);
@@ -872,64 +839,40 @@ static char *tg1672g = "TG1672G";
 
 if(essidlen >= 8)
 	{
-	if((!isxdigit(essid[6])) || (!isxdigit(essid[7])))
-		{
-		return;
-		}
+	if((!isxdigit(essid[6])) || (!isxdigit(essid[7]))) return;
 	if(memcmp(essid, dg860A, 6) == 0)
 		{
-		for(k1 = 0; k1 < 0x10000; k1++)
-			{
-			fprintf(fhout, "DG860A%04X%c%c\n", k1, essid[6], essid[7]);
-			}
+		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "DG860A%04X%c%c\n", k1, essid[6], essid[7]);
 		return;
 		}
 	if(memcmp(essid, tg852g, 6) == 0)
 		{
-		for(k1 = 0; k1 < 0x10000; k1++)
-			{
-			fprintf(fhout, "TG852G%04X%c%c\n", k1, essid[6], essid[7]);
-			}
+		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "TG852G%04X%c%c\n", k1, essid[6], essid[7]);
 		return;
 		}
 	if(memcmp(essid, tg862g, 6) == 0)
 		{
-		for(k1 = 0; k1 < 0x10000; k1++)
-			{
-			fprintf(fhout, "TG862G%04X%c%c\n", k1, essid[6], essid[7]);
-			}
+		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "TG862G%04X%c%c\n", k1, essid[6], essid[7]);
 		return;
 		}
 	return;
 	}
 if(essidlen >= 9)
 	{
-	if((!isxdigit(essid[7])) || (!isxdigit(essid[8])))
-		{
-		return;
-		}
+	if((!isxdigit(essid[7])) || (!isxdigit(essid[8]))) return;
 	if(memcmp(essid, dg1670A, 7) == 0) 
 		{
-		for(k1 = 0; k1 < 0x10000; k1++)
-			{
-			fprintf(fhout, "DG1670A%04X%c%c\n", k1, essid[7], essid[8]);
-			}
+		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "DG1670A%04X%c%c\n", k1, essid[7], essid[8]);
 		return;
 		}
 	if(memcmp(essid, sbg6580, 7) == 0) 
 		{
-		for(k1 = 0; k1 < 0x10000; k1++)
-			{
-			fprintf(fhout, "SBG6580%04X%c%c\n", k1, essid[7], essid[8]);
-			}
+		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "SBG6580%04X%c%c\n", k1, essid[7], essid[8]);
 		return;
 		}
 	if(memcmp(essid, tg1672g, 7) == 0) 
 		{
-		for(k1 = 0; k1 < 0x10000; k1++)
-			{
-			fprintf(fhout, "TG1672G%04X%c%c\n", k1, essid[7], essid[8]);
-			}
+		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "TG1672G%04X%c%c\n", k1, essid[7], essid[8]);
 		return;
 		}
 	return;
@@ -944,18 +887,9 @@ static char *axtelxtremo = "AXTEL XTREMO-";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if(essidlen != 17)
-	{
-	return;
-	}
-if(memcmp(essid, axtelxtremo, 13) != 0)
-	{
-	return;
-	}
-if((!isxdigit(essid[13])) || (!isxdigit(essid[14])) || (!isxdigit(essid[15])) || (!isxdigit(essid[16])))
-	{
-	return;
-	}
+if(essidlen != 17) return;
+if(memcmp(essid, axtelxtremo, 13) != 0) return;
+if((!isxdigit(essid[13])) || (!isxdigit(essid[14])) || (!isxdigit(essid[15])) || (!isxdigit(essid[16]))) return;
 for(k1 = 0; k1 < 10000; k1++)
 	{
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "%04d%c%c%c%c", k1, essid[13], essid[14], essid[15], essid[16]);
@@ -971,18 +905,9 @@ static char *attwifi = "ATT-WIFI-";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if(essidlen != 13)
-	{
-	return;
-	}
-if(memcmp(essid, attwifi, 9) != 0)
-	{
-	return;
-	}
-if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12])))
-	{
-	return;
-	}
+if(essidlen != 13) return;
+if(memcmp(essid, attwifi, 9) != 0) return;
+if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12]))) return;
 for(k1 = 0; k1 < 10; k1++)
 	for(k2 = 0; k2 < 10; k2++)
 		for(k3 = 0; k3 < 10; k3++)
@@ -1001,19 +926,9 @@ static char *cabovisao = "Cabovisao-";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if(essidlen != 14)
-	{
-	return;
-	}
-if(memcmp(essid, cabovisao, 10) != 0)
-	{
-	return;
-	}
-
-if((!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isxdigit(essid[12])) || (!isxdigit(essid[13])))
-	{
-	return;
-	}
+if(essidlen != 14) return;
+if(memcmp(essid, cabovisao, 10) != 0) return;
+if((!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isxdigit(essid[12])) || (!isxdigit(essid[13]))) return;
 for(k1 = 0; k1 < 0x100; k1++)
 	{
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "2ce412%02x%c%c%c%c", k1, essid[10], essid[11], essid[12], essid[13]);
@@ -1036,22 +951,10 @@ int k1, k2, k3, k4, k5, k6, k7, k8, k9;
 
 static char *easybox = "EasyBox-";
 
-if(easyboxflag == true)
-	{
-	return;
-	}
-if(essidlen != 14)
-	{
-	return;
-	}
-if(memcmp(essid, easybox, 8) != 0)
-	{
-	return;
-	}
-if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])))
-	{
-	return;
-	}
+if(easyboxflag == true) return;
+if(essidlen != 14) return;
+if(memcmp(essid, easybox, 8) != 0) return;
+if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13]))) return;
 for (b = 0; b <= 0xffff; b++)
 	{
 	m12 =  b &0x000f;
@@ -1084,28 +987,14 @@ static void testglocal(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k1, k2, k3, k4;
 static char *glocalme = "GlocalMe_";
 
-if(essidlen != 14)
-	{
-	return;
-	}
-if(memcmp(essid, glocalme , 9) != 0)
-	{
-	return;
-	}
-if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])))
-	{
-	return;
-	}
-
+if(essidlen != 14) return;
+if(memcmp(essid, glocalme , 9) != 0) return;
+if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13]))) return;
 k2 = essid[11];
 k3 = essid[12];
-
 for(k1 = 0; k1 < 100000; k1++)
 	{
-	for(k4 = 0; k4 < 10; k4++)
-		{
-		fprintf(fhout, "%05d%c%c%d\n", k1, k2, k3, k4);
-		}
+	for(k4 = 0; k4 < 10; k4++) fprintf(fhout, "%05d%c%c%d\n", k1, k2, k3, k4);
 	}
 
 return;
@@ -1119,47 +1008,38 @@ static char *hotbox = "HOTBOX-";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if(essidlen != 11)
+if(essidlen != 11) return;
+if(memcmp(essid, hotbox , 7) != 0) return;
+if((!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10]))) return;
+ev = (char*)(essid +7);
+k2 = strtol(ev, NULL, 16);
+for(k1 = 0; k1 < 0x100; k1++)
 	{
-	return;
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "2ce412%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "4c17eb%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "6c2e85%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "7c034c%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "7cb733%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "a0648f%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "b4eeb4%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "c0ac54%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "d86ce9%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "d8fb5e%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "e0cec3%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "fcb4e6%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
 	}
-if(memcmp(essid, hotbox , 7) != 0)
-	{
-	return;
-	}
-if((!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])))
-	{
-	return;
-	}
-	ev = (char*)(essid +7);
-	k2 = strtol(ev, NULL, 16);
-	for(k1 = 0; k1 < 0x100; k1++)
-		{
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "2ce412%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "4c17eb%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "6c2e85%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "7c034c%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "7cb733%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "a0648f%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "b4eeb4%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "c0ac54%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "d86ce9%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "d8fb5e%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "e0cec3%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "fcb4e6%02x%04x", k1, k2);
-		writepsk(fhout, essidtmp);
-		}
 return;
 }
 /*===========================================================================*/
@@ -1187,7 +1067,6 @@ if(essidlen == 7)
 		}
 	return;
 	}
-
 if(essidlen == 10)
 	{
 	if(memcmp(essid, mtel, 6) == 0)
@@ -1195,10 +1074,12 @@ if(essidlen == 10)
 		if((isxdigit(essid[6])) && (isxdigit(essid[7])) && (isxdigit(essid[8])) && (isxdigit(essid[9])))
 			{
 			for(k1 = 0; k1 < 0x100; k1++)
+				{
 				for(k2 = 0; k2 < 0x100; k2++)
 					{
 					snprintf(essidtmp, PSKSTRING_LEN_MAX, "48575443%02X%c%c%c%c%02X", k1, essid[6], essid[7], essid[8], essid[9], k2);
 					writepsk(fhout, essidtmp);
+					}
 				}
 			}
 		}
@@ -1214,14 +1095,8 @@ static char *mywifi = "MY WIFI ";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if(essidlen != 12)
-	{
-	return;
-	}
-if(memcmp(essid, mywifi, 8) != 0)
-	{
-	return;
-	}
+if(essidlen != 12) return;
+if(memcmp(essid, mywifi, 8) != 0) return;
 for(k1 = 0; k1 < 10000; k1++)
 	{
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "MYWIFI%04d", k1);
@@ -1236,37 +1111,19 @@ static int k1, k2, k3;
 static char *ev;
 static char *roamingman =  "Roamingman_";
 
-if(essidlen == 16)
+if(essidlen != 16) return;
+if((!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15]))) return;
+if(memcmp(essid, roamingman, 11) != 0) return;
+ev = (char*)(essid +11);
+k2 = strtol(ev, NULL, 10);
+for(k3 = k2 -10; k3 < k2 +10; k3++)
 	{
-	if((!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15])))
+	for(k1 = 0; k1 < 1000; k1++)
 		{
-		return;
+		if(k3 < 0) fprintf(fhout, "%03d%05d\n", k1, k3 +100000);
+		else if(k3 > 99999) fprintf(fhout, "%03d%05d\n", k1, k3 -100000);
+		else fprintf(fhout, "%03d%05d\n", k1, k3);
 		}
-	if(memcmp(essid, roamingman, 11) != 0)
-		{
-		return;
-		}
-	ev = (char*)(essid +11);
-	k2 = strtol(ev, NULL, 10);
-	for(k3 = k2 -10; k3 < k2 +10; k3++)
-		{
-		for(k1 = 0; k1 < 1000; k1++)
-			{
-			if(k3 < 0)
-				{
-				fprintf(fhout, "%03d%05d\n", k1, k3 +100000);
-				}
-			else if(k3 > 99999)
-				{
-				fprintf(fhout, "%03d%05d\n", k1, k3 -100000);
-				}
-			else
-				{
-				fprintf(fhout, "%03d%05d\n", k1, k3);
-				}
-			}
-		}
-	return;
 	}
 return;
 }
@@ -1305,23 +1162,14 @@ static char *tc8717t =  "TC8717T";
 
 if(essidlen >= 9)
 	{
-	if((!isxdigit(essid[7])) || (!isxdigit(essid[8])))
-		{
-		return;
-		}
+	if((!isxdigit(essid[7])) || (!isxdigit(essid[8]))) return;
 	if(memcmp(essid, tc8715d, 7) == 0)
 		{
-		for(k1 = 0; k1 < 0x10000; k1++)
-			{
-			fprintf(fhout, "TC8715D%04X%c%c\n", k1, essid[7], essid[8]);
-			}
+		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "TC8715D%04X%c%c\n", k1, essid[7], essid[8]);
 		}
 	if(memcmp(essid, tc8717t, 7) == 0)
 		{
-		for(k1 = 0; k1 < 0x10000; k1++)
-			{
-			fprintf(fhout, "TC8717T%04X%c%c\n", k1, essid[7], essid[8]);
-			}
+		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "TC8717T%04X%c%c\n", k1, essid[7], essid[8]);
 		}
 	return;
 	}
@@ -1335,18 +1183,9 @@ static char *ukrtelekom = "UKrtelecom";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if(ukrtelecomflag == true)
-	{
-	return;
-	}
-if(essidlen < 10)
-	{
-	return;
-	}
-if(memcmp(essid, ukrtelekom, 10) != 0)
-	{
-	return;
-	}
+if(ukrtelecomflag == true) return;
+if(essidlen < 10) return;
+if(memcmp(essid, ukrtelekom, 10) != 0) return;
 for(k = 0; k < 10000; k++)
 		{
 		snprintf(essidtmp, PSKSTRING_LEN_MAX, "UKR_%04d", k);
@@ -1363,20 +1202,11 @@ static char *wifirsu = "WiFiRSU_";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if(essidlen < 10)
-	{
-	return;
-	}
-if(memcmp(essid, wifirsu, 8) != 0)
-	{
-	return;
-	}
+if(essidlen < 10) return;
+if(memcmp(essid, wifirsu, 8) != 0) return;
 if(essidlen == 10)
 	{
-	if((!isxdigit(essid[8])) || (!isxdigit(essid[9])))
-		{
-		return;
-		}
+	if((!isxdigit(essid[8])) || (!isxdigit(essid[9]))) return;
 	for(k1 = 0; k1 < 0x10000; k1++)
 		{
 		snprintf(essidtmp, PSKSTRING_LEN_MAX, "88%04x%c%c", k1, essid[8], essid[9]);
@@ -1386,10 +1216,7 @@ if(essidlen == 10)
 	}
 if(essidlen == 13)
 	{
-	if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isxdigit(essid[12])))
-		{
-		return;
-		}
+	if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isxdigit(essid[12]))) return;
 	for(k1 = 0; k1 < 0x10; k1++)
 		{
 		snprintf(essidtmp, PSKSTRING_LEN_MAX, "88%x%c%c%c%c%c", k1, essid[8], essid[9], essid[10], essid[11], essid[12]);
@@ -1407,19 +1234,9 @@ static char *wifirsu = "WLAN-";
 
 static char hextable[] = "0123456789ABCDEF";
 
-if(essidlen != 11)
-	{
-	return;
-	}
-if(memcmp(essid, wifirsu, 5) != 0)
-	{
-	return;
-	}
-if((!isxdigit(essid[5])) || (!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isdigit(essid[9])) || (!isdigit(essid[10])))
-	{
-	return;
-	}
-
+if(essidlen != 11) return;
+if(memcmp(essid, wifirsu, 5) != 0) return;
+if((!isxdigit(essid[5])) || (!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isdigit(essid[9])) || (!isdigit(essid[10]))) return;
 k1 = essid[9];
 k2 = 0;
 k3 = essid[10];
@@ -1429,7 +1246,6 @@ k6 = 0;
 k7 = 0;
 k8 = essid[6];
 k9 = essid[7];
-
 for(k2 = 0; k2 < 10; k2++)
 	{
 	for(k5 = 0; k5 <= 0xffff; k5++)
@@ -1438,7 +1254,6 @@ for(k2 = 0; k2 < 10; k2++)
 		fprintf(fhout, "SP%c%d%c%c%04X%d\n", k1, k2, k3, k4, k5, k2);
 		}
 	}
-
 for(k2 = 0; k2 < 10; k2++)
 	{
 	for(k5 = 0; k5 <= 0x0f; k5++)
@@ -1460,11 +1275,7 @@ static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
-if((essidlen == 0) || (essidlen > 32))
-	{
-	return;
-	}
-
+if((essidlen == 0) || (essidlen > 32)) return;
 testalcatellinkzone(fhout, essidlen, essid);
 testalcatellinkzone(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
@@ -1506,19 +1317,13 @@ zeiger = apessidliste;
 for(c = 0; c < apessidcount; c++)
 	{
 	essidglen = zeiger->essidlen;
-	if(c == 0)
-		{
-		prepareessid(fhout, zeiger->essidlen, zeiger->essid);
-		}
+	if(c == 0) prepareessid(fhout, zeiger->essidlen, zeiger->essid);
 	else
 		{
 		zeiger1 = zeiger -1;
 		if(zeiger->essidlen != zeiger1->essidlen)
 			{
-			if(memcmp(zeiger->essid, zeiger1->essid, zeiger->essidlen) != 0)
-				{
-				prepareessid(fhout, zeiger->essidlen, zeiger->essid);
-				}
+			if(memcmp(zeiger->essid, zeiger1->essid, zeiger->essidlen) != 0) prepareessid(fhout, zeiger->essidlen, zeiger->essid);
 			}
 		}
 	zeiger++;
@@ -1541,12 +1346,8 @@ MD5_Init(&ctxmd5);
 MD5_Update(&ctxmd5, macstring, 12);
 MD5_Final(digestmd5, &ctxmd5);
 
-for (p = 0; p < 10; p++)
-	{
-	fprintf(fhout, "%02x",digestmd5[p]);
-	}
+for (p = 0; p < 10; p++) fprintf(fhout, "%02x",digestmd5[p]);
 fprintf(fhout, "\n");
-
 for (p = 0; p < 8; p++)
 	{
 	k = (digestmd5[p] %26);
@@ -1684,11 +1485,7 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 oui = macaddr &0xffffff000000L;
 nic = (macaddr &0xffffffL) -8;
-for(c = 0; c < 0x10; c++)
-	{
-	writebssid(fhout, oui +nic +c);
-	}
-
+for(c = 0; c < 0x10; c++) writebssid(fhout, oui +nic +c);
 swap = (nic >> 8) & 0xffff;
 	{
 	swap = (swap & 0xf000) >> 12 | (swap & 0x0f00) >> 4 | (swap & 0x00f0) << 4 |  (swap & 0x000f) << 12;
@@ -1709,17 +1506,11 @@ qsort(apessidliste, apessidcount, APESSIDLIST_SIZE, sort_apessidlist_by_ap);
 zeiger = apessidliste;
 for(c = 0; c < apessidcount; c++)
 	{
-	if(c == 0)
-		{
-		preparebssid(fhout, zeiger->macaddr);
-		}
+	if(c == 0) preparebssid(fhout, zeiger->macaddr);
 	else
 		{
 		zeiger1 = zeiger -1;
-		if(zeiger->macaddr != zeiger1->macaddr)
-			{
-			preparebssid(fhout, zeiger->macaddr);
-			}
+		if(zeiger->macaddr != zeiger1->macaddr) preparebssid(fhout, zeiger->macaddr);
 		}
 	zeiger++;
 	}
@@ -1728,39 +1519,18 @@ return;
 /*===========================================================================*/
 static void processadditionals(FILE *fhout)
 {
-if(netgearflag == true)
-	{
-	keywritenetgear(fhout);
-	}
-if(phomeflag == true)
-	{
-	keywritephome(fhout);
-	}
+if(netgearflag == true) keywritenetgear(fhout);
+if(phomeflag == true) keywritephome(fhout);
 if(tendaflag == true)
 	{
 	keywritetenda1(fhout);
 	keywritetenda2(fhout);
 	}
-if(weakpassflag == true)
-	{
-	keywriteweakpass(fhout);
-	}
-if(eudateflag == true)
-	{
-	keywriteeudate(fhout);
-	}
-if(usdateflag == true)
-	{
-	keywriteusdate(fhout);
-	}
-if((eudateflag == true) || (usdateflag == true))
-	{
-	keywriteyearyear(fhout);
-	}
-if(wpskeysflag == true)
-	{
-	writewpsall(fhout);
-	}
+if(weakpassflag == true) keywriteweakpass(fhout);
+if(eudateflag == true) keywriteeudate(fhout);
+if(usdateflag == true) keywriteusdate(fhout);
+if((eudateflag == true) || (usdateflag == true)) keywriteyearyear(fhout);
+if(wpskeysflag == true) writewpsall(fhout);
 return;
 }
 /*===========================================================================*/
@@ -1769,10 +1539,7 @@ static void addapessid(uint64_t macaddr, uint8_t essidlen, uint8_t *essid)
 {
 static apessidl_t *zeiger;
 
-if(essidlen > ESSID_LEN_MAX)
-	{
-	return;
-	}
+if(essidlen > ESSID_LEN_MAX) return;
 if(apessidliste == NULL)
 	{
 	apessidliste = malloc(APESSIDLIST_SIZE);
@@ -1789,10 +1556,7 @@ if(apessidliste == NULL)
 	return;
 	}
 zeiger = apessidliste +apessidcount -1;
-if((zeiger->macaddr == macaddr) && (zeiger->essidlen == essidlen) && (memcmp(zeiger->essid, essid, essidlen) == 0))
-	{
-	return;
-	}
+if((zeiger->macaddr == macaddr) && (zeiger->essidlen == essidlen) && (memcmp(zeiger->essid, essid, essidlen) == 0)) return;
 zeiger = realloc(apessidliste, (apessidcount +1) *APESSIDLIST_SIZE);
 if(zeiger == NULL)
 	{
@@ -1817,15 +1581,13 @@ static char *ptr;
 ptr = buffer +len -1;
 while(len)
 	{
-	if (*ptr != '\n')
-		break;
+	if (*ptr != '\n') break;
 	*ptr-- = 0;
 	len--;
 	}
 while(len)
 	{
-	if (*ptr != '\r')
-		break;
+	if (*ptr != '\r') break;
 	*ptr-- = 0;
 	len--;
 	}
@@ -1837,11 +1599,9 @@ static int fgetline(FILE *inputstream, size_t size, char *buffer)
 static size_t len;
 static char *buffptr;
 
-if(feof(inputstream))
-	return -1;
+if(feof(inputstream)) return -1;
 buffptr = fgets (buffer, size, inputstream);
-if(buffptr == NULL)
-	return -1;
+if(buffptr == NULL) return -1;
 len = strlen(buffptr);
 len = chop(buffptr, len);
 return len;
@@ -1867,10 +1627,7 @@ if((fh_file = fopen(pmkidname, "r")) == NULL)
 
 while(1)
 	{
-	if((len = fgetline(fh_file, PMKID_LINE_LEN, linein)) == -1)
-		{
-		break;
-		}
+	if((len = fgetline(fh_file, PMKID_LINE_LEN, linein)) == -1) break;
 	if((len < 61) || ((len > 59 +(ESSID_LEN_MAX *2))))
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
@@ -1898,10 +1655,7 @@ while(1)
 		aktread++;
 		continue;
 		}
-	if(hex2bin(&linein[59], essid, essidlen/2) == true)
-		{
-		addapessid(macaddr, essidlen/2, essid);
-		}
+	if(hex2bin(&linein[59], essid, essidlen/2) == true) addapessid(macaddr, essidlen/2, essid);
 	aktread++;
 	}
 fclose(fh_file);
@@ -1929,13 +1683,9 @@ if((fh_file = fopen(pmkideapolname, "r")) == NULL)
 	fprintf(stderr, "opening hash file failed %s\n", pmkideapolname);
 	return;
 	}
-
 while(1)
 	{
-	if((len = fgetline(fh_file, PMKIDEAPOL_LINE_LEN, linein)) == -1)
-		{
-		break;
-		}
+	if((len = fgetline(fh_file, PMKIDEAPOL_LINE_LEN, linein)) == -1) break;
 	if(len < 68)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
@@ -1976,10 +1726,7 @@ while(1)
 		aktread++;
 		continue;
 		}
-	if(hex2bin(&linein[66], essid, essidlen/2) == true)
-		{
-		addapessid(macaddr, essidlen/2, essid);
-		}
+	if(hex2bin(&linein[66], essid, essidlen/2) == true) addapessid(macaddr, essidlen/2, essid);
 	aktread++;
 	}
 fclose(fh_file);
@@ -1993,10 +1740,7 @@ static const char *johnformat = "$WPAPSK$";
 
 	for(p = 0; p < lenlinein -8; p++)
 		{
-		if(memcmp(&linein[p], johnformat, 8) == 0)
-			{
-			return p;
-			}
+		if(memcmp(&linein[p], johnformat, 8) == 0) return p;
 		}
 return 0;
 }
@@ -2018,13 +1762,9 @@ if((fh_file = fopen(johnname, "r")) == NULL)
 	fprintf(stderr, "opening hash file failed %s\n", johnname);
 	return;
 	}
-
 while(1)
 	{
-	if((len = fgetline(fh_file, JOHN_LINE_LEN, linein)) == -1)
-		{
-		break;
-		}
+	if((len = fgetline(fh_file, JOHN_LINE_LEN, linein)) == -1) break;
 	if(len < 475)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
@@ -2071,9 +1811,7 @@ while(1)
 		continue;
 		}
 	printf("%llx %.*s\n", macaddr, essidlen,  linein);
-
 	addapessid(macaddr, essidlen, (uint8_t*)linein);
-
 	aktread++;
 	}
 fclose(fh_file);
@@ -2091,37 +1829,25 @@ static uint8_t hcxdata[HCCAPX_SIZE];
 
 if(stat(hccapxname, &statinfo) != 0)
 	{
-	fprintf(stderr, "can't stat %s\n", hccapxname);
+	fprintf(stderr, "can't stat %s\n", hccapxname); 
 	return;
 	}
-
 if((statinfo.st_size %HCCAPX_SIZE) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
 	return;
 	}
-
 if((fhhcx = fopen(hccapxname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hccapxname);
 	return;
 	}
-
 hcxptr = (hccapx_t*)hcxdata;
 while(fread(&hcxdata, HCCAPX_SIZE, 1, fhhcx) == 1)
 	{
-	if(hcxptr->signature != HCCAPX_SIGNATURE)
-		{
-		continue;
-		}
-	if((hcxptr->version != 3) && (hcxptr->version != 4))
-		{
-		continue;
-		}
-	if(hcxptr->essid_len > ESSID_LEN_MAX)
-		{
-		continue;
-		}
+	if(hcxptr->signature != HCCAPX_SIGNATURE) continue;
+	if((hcxptr->version != 3) && (hcxptr->version != 4)) continue;
+	if(hcxptr->essid_len > ESSID_LEN_MAX) continue;
 	macaddr = 0;
 	macaddr = hcxptr->mac_ap[0];
 	macaddr = (macaddr << 8) + hcxptr->mac_ap[1];
@@ -2146,10 +1872,7 @@ static uint8_t essid[ESSID_LEN_MAX];
 if(macapname != NULL)
 	{
 	macaddr = strtoull(macapname, &macaddrstop, 16);
-	if((macaddrstop -macapname) != 12)
-			{
-			fprintf(stderr, "invalid MAC specified\n");
-			}
+	if((macaddrstop -macapname) != 12) fprintf(stderr, "invalid MAC specified\n");
 	}
 
 memset(&essid, 0, ESSID_LEN_MAX);
@@ -2159,17 +1882,11 @@ if(essidname != NULL)
 	essidlenuh = ishexify(essidname);
 	if((essidlenuh > 0) && (essidlenuh <= ESSID_LEN_MAX))
 		{
-		if(hex2bin(&essidname[5], essid, essidlenuh) == true)
-			{
-			addapessid(macaddr, essidlenuh, essid);
-			}
+		if(hex2bin(&essidname[5], essid, essidlenuh) == true) addapessid(macaddr, essidlenuh, essid);
 		return;
 		}
 	memset(&essid, 0, ESSID_LEN_MAX);
-	if(essidlen <= ESSID_LEN_MAX)
-		{
-		memcpy(&essid, essidname, essidlen);
-		}
+	if(essidlen <= ESSID_LEN_MAX) memcpy(&essid, essidname, essidlen);
 	}
 addapessid(macaddr, essidlen, essid);
 return;
