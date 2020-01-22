@@ -485,6 +485,7 @@ if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
 printf("\n");
+if((beaconerrorcount +essidtaglenerrorcount) > ERROR_WARNING_MAX) printf("Warning: too much bit errors detected - check your device and your driver!\n\n");   
 return;
 }
 /*===========================================================================*/

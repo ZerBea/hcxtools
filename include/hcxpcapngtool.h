@@ -19,6 +19,8 @@
 #define HCX_HELP				'h'
 #define HCX_VERSION				'v'
 
+#define ERROR_WARNING_MAX		10
+
 #define PREFIX_BUFFER_MAX		PATH_MAX -20
 
 #define ESSID_LEN_MAX			32
