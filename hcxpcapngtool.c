@@ -1551,17 +1551,17 @@ else if(exteap->code == EAP_CODE_RESP)
 return;
 }
 /*===========================================================================*/
-static inline void gettagwps(int wpslen, uint8_t *ieptr, tags_t *zeiger)
+static bool gettagwps(int wpslen, uint8_t *ieptr, tags_t *zeiger)
 {
 wpslen -= VENDORIE_SIZE;
 ieptr += VENDORIE_SIZE;
 
-if(wpslen == 0) return;
+if(wpslen == 0) return true;
 zeiger->wpsinfo = 1;
-return;
+return true;
 }
 /*===========================================================================*/
-static inline void gettagwpa(int wpalen, uint8_t *ieptr, tags_t *zeiger)
+static bool gettagwpa(int wpalen, uint8_t *ieptr, tags_t *zeiger)
 {
 static int c;
 static wpaie_t *wpaptr;
@@ -1574,7 +1574,7 @@ static suite_t *asuiteptr;
 wpaptr = (wpaie_t*)ieptr;
 wpalen -= WPAIE_SIZE;
 ieptr += WPAIE_SIZE;
-if(wpaptr->type != VT_WPA_IE) return;
+if(wpaptr->type != VT_WPA_IE) return false;
 zeiger->kdversion |= KV_WPAIE;
 gsuiteptr = (suite_t*)ieptr; 
 if(memcmp(gsuiteptr->oui, &mscorp, 3) == 0)
@@ -1592,6 +1592,11 @@ ieptr += SUITE_SIZE;
 csuitecountptr = (suitecount_t*)ieptr;
 wpalen -= SUITECOUNT_SIZE;
 ieptr += SUITECOUNT_SIZE;
+if(csuitecountptr->count *4 > wpalen)
+	{
+	taglenerrorcount++;
+	return false;
+	}
 for(c = 0; c < csuitecountptr->count; c++)
 	{
 	csuiteptr = (suite_t*)ieptr; 
@@ -1607,11 +1612,17 @@ for(c = 0; c < csuitecountptr->count; c++)
 		}
 	wpalen -= SUITE_SIZE;
 	ieptr += SUITE_SIZE;
-	if(wpalen <= 0) return;
+	if(wpalen == 0) return true;
+	if(wpalen < 0) return false;
 	}
 asuitecountptr = (suitecount_t*)ieptr;
 wpalen -= SUITECOUNT_SIZE;
 ieptr += SUITECOUNT_SIZE;
+if(asuitecountptr->count *4 > wpalen)
+	{
+	taglenerrorcount++;
+	return false;
+	}
 for(c = 0; c < asuitecountptr->count; c++)
 	{
 	asuiteptr = (suite_t*)ieptr; 
@@ -1629,23 +1640,30 @@ for(c = 0; c < asuitecountptr->count; c++)
 		}
 	wpalen -= SUITE_SIZE;
 	ieptr += SUITE_SIZE;
-	if(wpalen <= 0) return;
+	if(wpalen == 0) return true;
+	if(wpalen < 0) return false;
 	}
-return;
+return true;
 }
 /*===========================================================================*/
-static inline void gettagvendor(int vendorlen, uint8_t *ieptr, tags_t *zeiger)
+static bool gettagvendor(int vendorlen, uint8_t *ieptr, tags_t *zeiger)
 {
 static wpaie_t *wpaptr;
 
 wpaptr = (wpaie_t*)ieptr;
-if(memcmp(wpaptr->oui, &mscorp, 3) != 0) return;
-if((wpaptr->ouitype == VT_WPA_IE) && (vendorlen >= WPAIE_LEN_MIN)) gettagwpa(vendorlen, ieptr, zeiger);
-if((wpaptr->ouitype == VT_WPS_IE) && (vendorlen >= (int)WPSIE_SIZE)) gettagwps(vendorlen, ieptr, zeiger);
-return;
+if(memcmp(wpaptr->oui, &mscorp, 3) != 0) return true;
+if((wpaptr->ouitype == VT_WPA_IE) && (vendorlen >= WPAIE_LEN_MIN))
+	{
+	if(gettagwpa(vendorlen, ieptr, zeiger) == false) return false;
+	}
+if((wpaptr->ouitype == VT_WPS_IE) && (vendorlen >= (int)WPSIE_SIZE))
+	{
+	if(gettagwps(vendorlen, ieptr, zeiger) == false) return false;
+	}
+return true;
 }
 /*===========================================================================*/
-static inline void gettagrsn(int rsnlen, uint8_t *ieptr, tags_t *zeiger)
+static bool gettagrsn(int rsnlen, uint8_t *ieptr, tags_t *zeiger)
 {
 static int c;
 static rsnie_t *rsnptr;
@@ -1657,7 +1675,7 @@ static suite_t *asuiteptr;
 static rsnpmkidlist_t *rsnpmkidlistptr; 
 
 rsnptr = (rsnie_t*)ieptr;
-if(rsnptr->version != 1) return;
+if(rsnptr->version != 1) return true;
 zeiger->kdversion |= KV_RSNIE;
 rsnlen -= RSNIE_SIZE;
 ieptr += RSNIE_SIZE;
@@ -1680,7 +1698,7 @@ ieptr += SUITECOUNT_SIZE;
 if(csuitecountptr->count *4 > rsnlen)
 	{
 	taglenerrorcount++;
-	return;
+	return false;
 	}
 for(c = 0; c < csuitecountptr->count; c++)
 	{
@@ -1697,7 +1715,8 @@ for(c = 0; c < csuitecountptr->count; c++)
 		}
 	rsnlen -= SUITE_SIZE;
 	ieptr += SUITE_SIZE;
-	if(rsnlen <= 0) return;
+	if(rsnlen < 0) return false;
+	if(rsnlen == 0) return true;
 	}
 asuitecountptr = (suitecount_t*)ieptr;
 rsnlen -= SUITECOUNT_SIZE;
@@ -1705,7 +1724,7 @@ ieptr += SUITECOUNT_SIZE;
 if(asuitecountptr->count *4 > rsnlen)
 	{
 	taglenerrorcount++;
-	return;
+	return false;
 	}
 for(c = 0; c < asuitecountptr->count; c++)
 	{
@@ -1724,36 +1743,41 @@ for(c = 0; c < asuitecountptr->count; c++)
 		}
 	rsnlen -= SUITE_SIZE;
 	ieptr += SUITE_SIZE;
-	if(rsnlen <= 0) return;
+	if(rsnlen < 0) return false;
+	if(rsnlen == 0) return true;
 	}
 rsnlen -= RSNCAPABILITIES_SIZE;
 ieptr += RSNCAPABILITIES_SIZE;
-if(rsnlen <= 0) return;
+if(rsnlen <= 0) return true;
 rsnpmkidlistptr = (rsnpmkidlist_t*)ieptr; 
-if(rsnpmkidlistptr->count == 0) return;
+if(rsnpmkidlistptr->count == 0) return true;
 rsnlen -= RSNPMKIDLIST_SIZE;
 ieptr += RSNPMKIDLIST_SIZE;
-if(rsnlen < 16) return;
+if(rsnlen < 16) return true;
 if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256)) memcpy(zeiger->pmkid, ieptr, 16);
-return;
+return true;
 }
 /*===========================================================================*/
-static void gettags(int infolen, uint8_t *infoptr, tags_t *zeiger)
+static bool gettags(int infolen, uint8_t *infoptr, tags_t *zeiger)
 {
 static ietag_t *tagptr;
-
 memset(zeiger, 0, TAGS_SIZE);
 while(0 < infolen)
 	{
 	tagptr = (ietag_t*)infoptr;
-	if(tagptr->len == 0) return;
-	if(tagptr->len > infolen) return;
+	if(tagptr->len == 0)
+		{
+		infoptr += tagptr->len +IETAG_SIZE;
+		infolen -= tagptr->len +IETAG_SIZE;
+		continue;
+		}
+	if(tagptr->len > infolen) return false;
 	if(tagptr->id == TAG_SSID)
 		{
 		if(tagptr->len > ESSID_LEN_MAX)
 			{
 			taglenerrorcount++;
-			return;
+			return false;
 			}
 		if((tagptr->len > 0) && (tagptr->len <= ESSID_LEN_MAX))
 			{
@@ -1767,16 +1791,23 @@ while(0 < infolen)
 		}
 	else if(tagptr->id == TAG_RSN)
 		{
-		if(tagptr->len >= RSNIE_LEN_MIN) gettagrsn(tagptr->len, tagptr->data, zeiger);
+		if(tagptr->len >= RSNIE_LEN_MIN)
+			{
+			if(gettagrsn(tagptr->len, tagptr->data, zeiger) == false) return false;
+			}
 		}
 	else if(tagptr->id == TAG_VENDOR)
 		{
-		if(tagptr->len >= VENDORIE_SIZE) gettagvendor(tagptr->len, tagptr->data, zeiger);
+		if(tagptr->len >= VENDORIE_SIZE)
+			{
+			if(gettagvendor(tagptr->len, tagptr->data, zeiger) == false) return false;
+			}
 		}
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
 	}
-return;
+//if((infolen != 0) && (infolen != 4)) return false;
+return true;
 }
 /*===========================================================================*/
 static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint32_t restlen, uint8_t *eapauthptr)
@@ -1983,7 +2014,7 @@ memcpy(zeiger->eapol, eapauthptr, zeiger->eapauthlen);
 infolen = ntohs(wpak->wpadatalen);
 if(infolen >= RSNIE_LEN_MIN)
 	{
-	gettags(infolen, wpakptr +WPAKEY_SIZE, &tags);
+	if(gettags(infolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
 	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256))
 		{
 		if(ignoreieflag == false) return;
@@ -2204,7 +2235,7 @@ reassociationrequestcount++;
 clientinfoptr = reassociationrequestptr +CAPABILITIESREQSTA_SIZE;
 clientinfolen = reassociationrequestlen -CAPABILITIESREQSTA_SIZE;
 if(clientinfolen < (int)IETAG_SIZE) return;
-gettags(clientinfolen, clientinfoptr, &tags);
+if(gettags(clientinfolen, clientinfoptr, &tags) == false) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2276,7 +2307,7 @@ associationrequestcount++;
 clientinfoptr = associationrequestptr +CAPABILITIESSTA_SIZE;
 clientinfolen = associationrequestlen -CAPABILITIESSTA_SIZE;
 if(clientinfolen < (int)IETAG_SIZE) return;
-gettags(clientinfolen, clientinfoptr, &tags);
+if(gettags(clientinfolen, clientinfoptr, &tags) == false) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2363,7 +2394,7 @@ static tags_t tags;
 
 proberequestdirectedcount++;
 if(proberequestlen < (int)IETAG_SIZE) return;
-gettags(proberequestlen, proberequestptr, &tags);
+if(gettags(proberequestlen, proberequestptr, &tags) == false) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2416,7 +2447,7 @@ static tags_t tags;
 
 proberequestcount++;
 if(proberequestlen < (int)IETAG_SIZE) return;
-gettags(proberequestlen, proberequestptr, &tags);
+if(gettags(proberequestlen, proberequestptr, &tags) == false) return; 
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2452,7 +2483,7 @@ proberesponsecount++;
 apinfoptr = proberesponseptr +CAPABILITIESAP_SIZE;
 apinfolen = proberesponselen -CAPABILITIESAP_SIZE;
 if(proberesponselen < (int)IETAG_SIZE) return;
-gettags(apinfolen, apinfoptr, &tags);
+if(gettags(apinfolen, apinfoptr, &tags) == false) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2497,7 +2528,7 @@ if(memcmp(&mac_broadcast, macbc, 6) != 0)
 apinfoptr = beaconptr +CAPABILITIESAP_SIZE;
 apinfolen = beaconlen -CAPABILITIESAP_SIZE;
 if(beaconlen < (int)IETAG_SIZE) return;
-gettags(apinfolen, apinfoptr, &tags);
+if(gettags(apinfolen, apinfoptr, &tags) == false) return;
 if(tags.essidlen == 0) return;
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
