@@ -1806,7 +1806,7 @@ while(0 < infolen)
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
 	}
-//if((infolen != 0) && (infolen != 4)) return false;
+if((infolen != 0) && (infolen != 4)) return false;
 return true;
 }
 /*===========================================================================*/
