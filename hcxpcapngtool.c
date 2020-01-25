@@ -489,7 +489,23 @@ if(taglenerrorcount > 0)		printf("IE TAG length error (bit error)........: %ld (
 if(beaconerrorcount > 0)		printf("BROADCAST MAC error (bit error)........: %ld (warning)\n", beaconerrorcount);
 if(eapolmsgerrorcount > 0)		printf("EAPOL messages (bit error).............: %ld (warning)\n", eapolmsgerrorcount);
 printf("\n");
-if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) > ERROR_WARNING_MAX) printf("Warning: too much bit errors detected - check your device and your driver!\n\n");   
+if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) == 0) return;
+if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L1)
+	{
+	printf("Warning: some bit errors detected!\n\n");   
+	return;
+	}
+if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L2)
+	{
+	printf("Warning: many bit errors detected - check your device and your driver!\n\n");   
+	return;
+	}
+if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L3)
+	{
+	printf("Warning: too many errors bit errors detected - expect unrecoverable hashes!\n\n");   
+	return;
+	}
+printf("Warning: too many errors bit errors detected - don't use this dump file!\n\n");   
 return;
 }
 /*===========================================================================*/

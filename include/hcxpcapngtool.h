@@ -19,7 +19,9 @@
 #define HCX_HELP				'h'
 #define HCX_VERSION				'v'
 
-#define ERROR_WARNING_MAX		10
+#define ERROR_WARNING_MAX_L1		10
+#define ERROR_WARNING_MAX_L2		50
+#define ERROR_WARNING_MAX_L3		100
 
 #define PREFIX_BUFFER_MAX		PATH_MAX -20
 
