@@ -3538,6 +3538,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely necessary\n"
 	"\n"
 	"Do not edit, merge or convert pcapng files! This will remove optional comment fields!\n"
+	"Detection of bit errors does not work on cleaned dump files!\n"
 	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
 	"It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcapngtool will understand this.\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, eigenname, eigenname,
