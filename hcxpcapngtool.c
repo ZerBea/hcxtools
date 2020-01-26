@@ -199,6 +199,7 @@ static uint64_t rcgapmax;
 static long int taglenerrorcount;
 
 static long int essidcount;
+static long int essiderrorcount;
 static long int essiddupemax;
 
 static uint64_t timestampstart;
@@ -401,8 +402,9 @@ eapmd5johnwrittencount = 0;
 eapleapwrittencount = 0;
 identitycount = 0;
 usernamecount = 0;
-essidcount = 0;
 taglenerrorcount = 0;
+essidcount = 0;
+essiderrorcount = 0;
 essiddupemax = 0;
 rcgapmax = 0;
 eaptimegapmax = 0;
@@ -491,25 +493,26 @@ if(pmkiduselesscount > 0)		printf("PMKID (useless)........................: %ld\
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
-if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
 if(pcapreaderrors > 0)			printf("packet read error......................: %ld (warning)\n", pcapreaderrors);
+if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
 if(beaconerrorcount > 0)		printf("BROADCAST MAC error (bit error)........: %ld (warning)\n", beaconerrorcount);
 if(taglenerrorcount > 0)		printf("IE TAG length error (bit error)........: %ld (warning)\n", taglenerrorcount);
+if(essiderrorcount > 0)			printf("ESSID error (bit error)................: %ld (warning)\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		printf("EAPOL messages (bit error).............: %ld (warning)\n", eapolmsgerrorcount);
 printf("\n");
-if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) == 0) return;
-if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L1)
+if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) == 0) return;
+if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L1)
 	{
 	printf("Warning: some bit errors detected!\n\n");   
 	return;
 	}
-if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L2)
+if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L2)
 	{
 	printf("Warning: many bit errors detected - check your device and your driver!\n\n");   
 	return;
 	}
-if((beaconerrorcount +taglenerrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L3)
+if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L3)
 	{
 	printf("Warning: too many errors bit errors detected - expect unrecoverable hashes!\n\n");   
 	return;
@@ -560,8 +563,6 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		{
 		if(memcmp(zeigermac->essid, zeigermacold->essid, zeigermac->essidlen) == 0) continue;
 		}
-	if(zeigermac->essidlen > ESSID_LEN_MAX) continue;
-	if(zeigermac->essidlen == 0) continue;
 	if(fh_essid != NULL) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essid);
 	essidcount++;
 	zeigermacold = zeigermac;
@@ -1783,6 +1784,36 @@ if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_P
 return true;
 }
 /*===========================================================================*/
+static bool isessidvalid(int essidlen, uint8_t *essid)
+{
+static int c;
+
+static uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
+
+if(essidlen > ESSID_LEN_MAX) return false;
+if(essidlen == 0) return true;
+if(memcmp(&zeroed32, essid, essidlen) == 0) return true;
+if(essid[essidlen -1] == 0)
+	{
+	essiderrorcount++;
+	return false;
+	}
+for(c = 0; c< essidlen -4; c++)
+	{
+	if(memcmp(&zeroed32, &essid[c], 4) == 0)
+		{
+		essiderrorcount++;
+		return false;
+		}
+	if(memcmp(&foxtrott, &essid[c], 4) == 0)
+		{
+		essiderrorcount++;
+		return false;
+		}
+	}
+return true;
+}
+/*===========================================================================*/
 static bool gettags(int infolen, uint8_t *infoptr, tags_t *zeiger)
 {
 static ietag_t *tagptr;
@@ -1804,7 +1835,7 @@ while(0 < infolen)
 			taglenerrorcount++;
 			return false;
 			}
-		if((tagptr->len > 0) && (tagptr->len <= ESSID_LEN_MAX))
+		if(isessidvalid(tagptr->len, &tagptr->data[0]) == false) return false;
 			{
 			memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
 			zeiger->essidlen = tagptr->len;
@@ -2561,8 +2592,6 @@ apinfoptr = beaconptr +CAPABILITIESAP_SIZE;
 apinfolen = beaconlen -CAPABILITIESAP_SIZE;
 if(beaconlen < (int)IETAG_SIZE) return;
 if(gettags(apinfolen, apinfoptr, &tags) == false) return;
-if(tags.essidlen == 0) return;
-if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
