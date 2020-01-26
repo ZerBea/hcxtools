@@ -488,8 +488,8 @@ if(eapolm32e3count > 0)			printf("EAPOL M32E3............................: %ld\n
 if(eapolm34e3count > 0)			printf("EAPOL M34E3............................: %ld\n", eapolm34e3count);
 if(eapolm34e4count > 0)			printf("EAPOL M34E4............................: %ld\n", eapolm34e4count);
 if(pmkidcount > 0)			printf("PMKID (total)..........................: %ld\n", pmkidcount);
-if(pmkidbestcount > 0)			printf("PMKID (best)...........................: %ld\n", pmkidbestcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless)........................: %ld\n", pmkiduselesscount);
+if(pmkidbestcount > 0)			printf("PMKID (best)...........................: %ld\n", pmkidbestcount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
@@ -2186,8 +2186,6 @@ rc = byte_swap_64(wpak->replaycount);
 #else
 rc = wpak->replaycount;
 #endif
-if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if(wpak->keyrsc != 0)
 	{
 	eapolm1errorcount++;
@@ -2198,6 +2196,8 @@ if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
 	eapolm1errorcount++;
 	return;
 	}
+if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
+if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
@@ -2213,21 +2213,25 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	if((pmkid->len == 0x14) && (pmkid->type == 0x04))
 		{
 		zeiger->message |= HS_PMKID;
-		for(c = 0; c < 12; c++)
+		if(memcmp(&zeroed32, pmkid->pmkid, 16) == 0)
 			{
-			if(memcmp(&zeroed32, &pmkid->pmkid[c], 4) == 0)
-				{
-				eapolm1errorcount++;
-				return;
-				}
-			if(memcmp(&foxtrott, &pmkid->pmkid[c], 4) == 0) return;
-				{
-				eapolm1errorcount++;
-				return;
-				}
+			pmkiduselesscount++;
 			}
-		if(memcmp(&zeroed32, pmkid->pmkid, 16) != 0)
+		else
 			{
+			for(c = 0; c < 12; c++)
+				{
+				if(memcmp(&zeroed32, &pmkid->pmkid[c], 4) == 0)
+					{
+					eapolm1errorcount++;
+					return;
+					}
+				if(memcmp(&foxtrott, &pmkid->pmkid[c], 4) == 0)
+					{
+					eapolm1errorcount++;
+					return;
+					}
+				}
 			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
 			addpmkid(macclient, macap, pmkid->pmkid);
 			}
@@ -2268,7 +2272,16 @@ static uint16_t keylen;
 
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
-if(authlen > eapauthlen) return;
+if(authlen > eapauthlen)
+	{
+	eapolmsgerrorcount++;
+	return;
+	}
+if(authlen < WPAKEY_SIZE)
+	{
+	eapolmsgerrorcount++;
+	return;
+	}
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
