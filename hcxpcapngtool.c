@@ -1787,8 +1787,7 @@ return true;
 static bool isessidvalid(int essidlen, uint8_t *essid)
 {
 static int c;
-
-static uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
+static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 if(essidlen > ESSID_LEN_MAX) return false;
 if(essidlen == 0) return true;
