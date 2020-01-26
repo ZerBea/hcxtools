@@ -493,31 +493,31 @@ if(pmkidbestcount > 0)			printf("PMKID (best)...........................: %ld\n"
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
-if(pcapreaderrors > 0)			printf("packet read error......................: %ld (warning)\n", pcapreaderrors);
+if(pcapreaderrors > 0)			printf("packet read error......................: %ld\n", pcapreaderrors);
 if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
-if(beaconerrorcount > 0)		printf("BROADCAST MAC error (bit error)........: %ld (warning)\n", beaconerrorcount);
-if(taglenerrorcount > 0)		printf("IE TAG length error (bit error)........: %ld (warning)\n", taglenerrorcount);
-if(essiderrorcount > 0)			printf("ESSID error (bit error)................: %ld (warning)\n", essiderrorcount);
+if(beaconerrorcount > 0)		printf("BROADCAST MAC error (malformed packets): %ld\n", beaconerrorcount);
+if(taglenerrorcount > 0)		printf("IE TAG length error (malformed packets): %ld\n", taglenerrorcount);
+if(essiderrorcount > 0)			printf("ESSID error (malformed packets.........: %ld\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
-if(eapolmsgerrorcount > 0)		printf("EAPOL messages (bit error).............: %ld (warning)\n", eapolmsgerrorcount);
+if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).....: %ld\n", eapolmsgerrorcount);
 printf("\n");
 if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) == 0) return;
 if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L1)
 	{
-	printf("Warning: some bit errors detected!\n\n");   
+	printf("Warning: some malformed packets detected!\n\n");   
 	return;
 	}
 if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L2)
 	{
-	printf("Warning: many bit errors detected - check your device and your driver!\n\n");   
+	printf("Warning: many malformed packets detected - check dumpfile with Wireshark!\n\n");   
 	return;
 	}
 if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L3)
 	{
-	printf("Warning: too many errors bit errors detected - expect unrecoverable hashes!\n\n");   
+	printf("Warning: too many malformed packets detected - expect unrecoverable hashes - check dumpfile with Wireshark!\n\n");   
 	return;
 	}
-printf("Warning: too many errors bit errors detected - don't use this dump file!\n\n");   
+printf("Warning: large number of malformed packets detected - don't use this dump file - check dumpfile with Wireshark!\n\n");   
 return;
 }
 /*===========================================================================*/
