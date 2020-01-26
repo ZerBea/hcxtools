@@ -1700,6 +1700,8 @@ static suitecount_t *asuitecountptr;
 static suite_t *asuiteptr;
 static rsnpmkidlist_t *rsnpmkidlistptr; 
 
+static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
+
 rsnptr = (rsnie_t*)ieptr;
 if(rsnptr->version != 1) return true;
 zeiger->kdversion |= KV_RSNIE;
@@ -1780,7 +1782,16 @@ if(rsnpmkidlistptr->count == 0) return true;
 rsnlen -= RSNPMKIDLIST_SIZE;
 ieptr += RSNPMKIDLIST_SIZE;
 if(rsnlen < 16) return true;
-if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256)) memcpy(zeiger->pmkid, ieptr, 16);
+if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+	{
+	if(memcmp(&zeroed32, ieptr, 16) == 0) return true;
+	for(c = 0; c < 12; c++)
+		{
+		if(memcmp(&zeroed32, &ieptr[c], 4) == 0) return false;
+		if(memcmp(&foxtrott, &ieptr[c], 4) == 0) return false;
+		}
+	memcpy(zeiger->pmkid, ieptr, 16);
+	}
 return true;
 }
 /*===========================================================================*/
@@ -1893,10 +1904,19 @@ rc = byte_swap_64(wpak->replaycount);
 #else
 rc = wpak->replaycount;
 #endif
+if(memcmp(&zeroed32, wpak->keymic, 16) == 0)
+	{
+	eapolm4errorcount++;
+	return;
+	}
+if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
+	{
+	eapolm4errorcount++;
+	return;
+	}
+if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
-if(memcmp(&zeroed32, wpak->keyid, 8) != 0) eapolm4errorcount++;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
@@ -1974,9 +1994,16 @@ rc = byte_swap_64(wpak->replaycount);
 #else
 rc = wpak->replaycount;
 #endif
-if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if(memcmp(&zeroed32, wpak->keyid, 8) != 0) eapolm3errorcount++;
+if(memcmp(&zeroed32, wpak->keymic, 16) == 0)
+	{
+	eapolm3errorcount++;
+	return;
+	}
+if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
+	{
+	eapolm3errorcount++;
+	return;
+	}
 memset(zeigerakt, 0, MESSAGELIST_SIZE);
 zeigerakt->timestamp = eaptimestamp;
 zeigerakt->eapolmsgcount = eapolmsgcount;
@@ -2054,12 +2081,29 @@ rc = byte_swap_64(wpak->replaycount);
 #else
 rc = wpak->replaycount;
 #endif
+if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
+if(memcmp(&zeroed32, wpak->keymic, 16) == 0)
+	{
+	eapolm2errorcount++;
+	return;
+	}
+if(memcmp(&zeroed32, wpak->keyiv, 16) != 0)
+	{
+	eapolm2errorcount++;
+	return;
+	}
+if(wpak->keyrsc != 0)
+	{
+	eapolm2errorcount++;
+	return;
+	}
+if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
+	{
+	eapolm2errorcount++;
+	return;
+	}
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
-if(memcmp(&zeroed32, wpak->keyiv, 16) != 0) eapolm2errorcount++;
-if(wpak->keyrsc != 0) eapolm2errorcount++;
-if(memcmp(&zeroed32, wpak->keyid, 8) != 0) eapolm2errorcount++;
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
@@ -2116,6 +2160,7 @@ return;
 /*===========================================================================*/
 static void process80211eapol_m1(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint32_t restlen, uint8_t *eapauthptr)
 {
+static int c;
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
@@ -2124,6 +2169,8 @@ static uint32_t authlen;
 static pmkid_t *pmkid;
 static uint8_t keyver;
 static uint64_t rc;
+
+static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm1count++;
 eapolmsgcount++;
@@ -2141,8 +2188,16 @@ rc = wpak->replaycount;
 #endif
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return; 
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return; 
-if(wpak->keyrsc != 0) eapolm1errorcount++;
-if(memcmp(&zeroed32, wpak->keyid, 8) != 0) eapolm1errorcount++;
+if(wpak->keyrsc != 0)
+	{
+	eapolm1errorcount++;
+	return;
+	}
+if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
+	{
+	eapolm1errorcount++;
+	return;
+	}
 zeiger = messagelist +MESSAGELIST_MAX;
 memset(zeiger, 0, MESSAGELIST_SIZE);
 zeiger->timestamp = eaptimestamp;
@@ -2158,6 +2213,19 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	if((pmkid->len == 0x14) && (pmkid->type == 0x04))
 		{
 		zeiger->message |= HS_PMKID;
+		for(c = 0; c < 12; c++)
+			{
+			if(memcmp(&zeroed32, &pmkid->pmkid[c], 4) == 0)
+				{
+				eapolm1errorcount++;
+				return;
+				}
+			if(memcmp(&foxtrott, &pmkid->pmkid[c], 4) == 0) return;
+				{
+				eapolm1errorcount++;
+				return;
+				}
+			}
 		if(memcmp(&zeroed32, pmkid->pmkid, 16) != 0)
 			{
 			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
