@@ -1,3 +1,179 @@
+xx.xx.2020
+==========
+moved to v 6.0.0
+complete rewrite from scratch
+full support of new hashline PMKID+EAPOL (hashcat -m 22000 and JtR)
+https://github.com/hashcat/hashcat/issues/1816
+https://github.com/magnumripper/JohnTheRipper/issues/4183
+
+support EAP-LEAP
+support EAP-MD5
+several bug fixes
+improved detection of cipher and AKM suites
+improved detection of damaged frames (due to monitor mode driver issues)
+improved summary
+several bug fixes
+
+
+hcxpcapngtool: new tool
+$ hcxpcapngtool -h
+hcxpcapngtool 6.0.0 (C) 2020 ZeroBeat
+usage:
+hcxpcapngtool <options>
+hcxpcapngtool <options> input.pcapng
+hcxpcapngtool <options> *.pcapng
+hcxpcapngtool <options> *.pcap
+hcxpcapngtool <options> *.cap
+hcxpcapngtool <options> *.*
+
+short options:
+-o <file> : output PMKID/EAPOL hash file
+            hashcat -m 22000/22001 and JtR wpapsk-opencl/wpapsk-pmk-opencl
+-E <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker
+-I <file> : output unsorted identity list to use as input wordlist for cracker
+-U <file> : output unsorted username list to use as input wordlist for cracker
+-h        : show this help
+-v        : show version
+
+long options:
+--all                              : convert all possible hashes instead of only the best one
+                                     that can lead to much overhead hashes
+                                     use hcxhashtool to filter hashes
+--eapoltimeout=<digit>             : set EAPOL TIMEOUT (milliseconds)
+                                   : default: 5000 ms
+--nonce-error-corrections=<digit>  : set nonce error correction
+                                     warning: values > 0 can lead to uncrackable handshakes
+                                   : default: 0
+--ignore-ie                        : do not use CIPHER and AKM information
+                                     this will convert all frames regadless of
+                                     CIPHER and/OR AKM information,
+                                     and can lead to uncrackable hashes
+--max-essids=<digit>               : maximum allowed ESSIDs
+                                     default: 1 ESSID
+                                     disregard ESSID changes and take ESSID with highest ranking
+--eapmd5=<file>                    : output EAP MD5 CHALLENGE (hashcat -m 4800)
+--eapmd5-john=<file>               : output EAP MD5 CHALLENGE (john chap)
+--eapleap=<file>                   : output EAP LEAP CHALLENGE (hashcat -m 5500, john netntlm)
+--nmea=<file>                      : output GPS data in NMEA format
+                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL
+                                     to convert it to gpx, use GPSBabel:
+                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx -F file.gpx
+                                     to display the track, open file.gpx with viking
+--pmkid=<file>                     : output deprecated PMKID file (delimter *)
+--hccapx=<file>                    : output deprecated hccapx v4 file
+--hccap=<file>                     : output deprecated hccap file (delimter *)
+--john=<file>                      : output deprecated PMKID/EAPOL (JtR wpapsk-opencl/wpapsk-pmk-opencl)
+--prefix=<file>                    : convert everything to lists using this prefix (overrides single options):
+                                      -o <file.22000>      : output PMKID/EAPOL hash file
+                                      -E <file.essid>      : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker
+                                      -I <file.identitiy>  : output unsorted identity list to use as input wordlist for cracker
+                                      -U <file.username>   : output unsorted username list to use as input wordlist for cracker
+                                     --eapmd5=<file.4800>  : output EAP MD5 CHALLENGE (hashcat -m 4800)
+                                     --eapleap=<file.5500> : output EAP LEAP CHALLENGE (hashcat -m 5500, john netntlm)
+                                     --nmea=<file.nmea>    : output GPS data in NMEA format
+--help                             : show this help
+--version                          : show version
+
+bitmask for message pair field:
+0: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
+1: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
+2: MP info (https://hashcat.net/wiki/doku.php?id=hccapx)
+3: x (unused)
+4: ap-less attack (set to 1) - no nonce-error-corrections necessary
+5: LE router detected (set to 1) - nonce-error-corrections only for LE necessary
+6: BE router detected (set to 1) - nonce-error-corrections only for BE necessary
+7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely necessary
+
+Do not edit, merge or convert pcapng files! This will remove optional comment fields!
+Detection of bit errors does not work on cleaned dump files!
+Do not use hcxpcapngtool in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!
+It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcapngtool will understand this.
+
+
+hcxhashtool: new tool
+$ hcxhashtool --hel
+hcxhashtool 6.0.0 (C) 2020 ZeroBeat
+usage:
+hcxhashtool <options>
+
+options:
+-i <file>   : input PMKID/EAPOL hash file
+-o <file>   : output PMKID/EAPOL hash file
+-E <file>   : output ESSID list (autohex enabled)
+-d          : download http://standards-oui.ieee.org/oui.txt
+            : and save to ~/.hcxtools/oui.txt
+            : internet connection required
+-h          : show this help
+-v          : show version
+
+--essid-group                : convert to ESSID groups in working directory
+                               full advantage of reuse of PBKDF2
+                               not on old hash formats
+--oui-group                  : convert to OUI groups in working directory
+                               not on old hash formats
+--mac-group-ap               : convert APs to MAC groups in working directory
+                               not on old hash formats
+--mac-group-client           : convert CLIENTs to MAC groups in working directory
+                               not on old hash formats
+--type                       : filter by hash type
+                             : default PMKID (1) and EAPOL (2)
+--essid-len                  : filter by ESSID length
+                             : default ESSID length: 0...32
+--essid-min                  : filter by ESSID minimum length
+                             : default ESSID minimum length: 0
+--essid-max                  : filter by ESSID maximum length
+                             : default ESSID maximum length: 32
+--essid=<ESSID>              : filter by ESSID
+--essid-part=<part of ESSID> : filter by part of ESSID
+--mac-ap=<MAC>               : filter AP by MAC
+                             : format: 001122334455 (hex)
+--mac-client=<MAC>           : filter CLIENT by MAC
+                             : format: 001122334455 (hex)
+--oui-ap=<OUI>                     : filter AP by OUI
+                             : format: 001122 (hex)
+--oui-client=<OUI>           : filter CLIENT by OUI
+                             : format: 001122 (hex)
+--vendor=<VENDOR>            : filter by (part of) VENDOR name
+--authorized                 : filter EAPOL pairs by status authorized
+--notauthorized              : filter EAPOL pairs by status not authorized
+--rc                         : filter EAPOL pairs by replaycount status checked
+--apless                     : filter EAPOL pairs by status M2 requested from client
+--info=<file>                : output detailed information about content of hash file
+--info=stdout                : stdout output detailed information about content of hash file
+--vendorlist                 : stdout output VENDOR list sorted by OUI
+--psk=<PSK>                  : pre-shared key to test
+                             : due to PBKDF2 calculation this is a very slow process
+                             : no nonce error corrections
+--pmk=<PMK>                  : plain master key to test
+                             : no nonce error corrections
+--hccapx=<file>              : output to deprecated hccapx file
+--hccap=<file>               : output to ancient hccap file
+--john=<file>                : output to deprecated john file
+--help                       : show this help
+--version                    : show version
+
+
+
+| deprecated     | obsolete when hashcat and JtR moved to new PMKID/EAPOL hash line - no longer under maintenance                       |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- |
+| whoismac       | Show vendor information and/or download oui reference list                                                           |
+| hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format   |
+| hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                            |
+| hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper           |
+| hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                    |
+| hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                      |
+| hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                            |
+| wlanhc2hcx     | Converts hccap to hccapx                                                                                             |
+| wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                                 |
+| wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                                             |
+| wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                                      |
+| wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 SHA256 AES-128-CMAC (hash-modes 2500, 2501)                          |
+| wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000 or john PBKDF2-HMAC-SHA1                      |
+| wlanjohn2hcx   | Converts john wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                                            |
+| wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                                         |
+| wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                                |
+
+
 05.01.2020
 ==========
 hcxhashtool: added new options
