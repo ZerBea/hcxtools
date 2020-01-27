@@ -9,10 +9,13 @@ https://github.com/magnumripper/JohnTheRipper/issues/4183
 support EAP-LEAP
 support EAP-MD5
 several bug fixes
-improved detection of cipher and AKM suites
-improved detection of damaged frames (due to monitor mode driver issues)
 improved summary
-several bug fixes
+improved detection of cipher and AKM suites
+improved detection of malformed frames (caused by device, driver or monitor mode)
+read more about monitor mode caused bit errors here:
+http://www.ict-optimix.eu/images/a/ad/WiFiBitError.pdf
+In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)
+values are correct for packets captured, so some captured packets may be corrupted.
 
 
 hcxpcapngtool: new tool

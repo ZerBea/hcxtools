@@ -202,6 +202,8 @@ static long int essidcount;
 static long int essiderrorcount;
 static long int essiddupemax;
 
+static long int malformedcount;
+
 static uint64_t timestampstart;
 static uint64_t timestampmin;
 static uint64_t timestampmax;
@@ -408,6 +410,7 @@ essiderrorcount = 0;
 essiddupemax = 0;
 rcgapmax = 0;
 eaptimegapmax = 0;
+malformedcount = 0;
 
 timestampmin = 0;
 timestampmax = 0;
@@ -495,29 +498,22 @@ if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format....
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
 if(pcapreaderrors > 0)			printf("packet read error......................: %ld\n", pcapreaderrors);
 if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
+malformedcount = beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount;
+if(malformedcount > 0)			printf("malformed packets (total)..............: %ld\n", malformedcount);
 if(beaconerrorcount > 0)		printf("BROADCAST MAC error (malformed packets): %ld\n", beaconerrorcount);
 if(taglenerrorcount > 0)		printf("IE TAG length error (malformed packets): %ld\n", taglenerrorcount);
 if(essiderrorcount > 0)			printf("ESSID error (malformed packets.........: %ld\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).....: %ld\n", eapolmsgerrorcount);
 printf("\n");
-if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) == 0) return;
-if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L1)
+if(malformedcount > 10)
 	{
-	printf("Warning: some malformed packets detected!\n\n");   
+	printf( "Malformed packets detected!\n"   
+		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
+		"values are correct for packets captured, so some captured packets may be malformed.\n"
+		"This can lead to unexpected results. Please analyze the dump file with Wireshark.\n\n");
 	return;
 	}
-if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L2)
-	{
-	printf("Warning: many malformed packets detected - check dumpfile with Wireshark!\n\n");   
-	return;
-	}
-if((beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount) <= ERROR_WARNING_MAX_L3)
-	{
-	printf("Warning: too many malformed packets detected - expect unrecoverable hashes - check dumpfile with Wireshark!\n\n");   
-	return;
-	}
-printf("Warning: large number of malformed packets detected - don't use this dump file - check dumpfile with Wireshark!\n\n");   
 return;
 }
 /*===========================================================================*/
