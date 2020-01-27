@@ -510,8 +510,10 @@ if(malformedcount > 10)
 	{
 	printf( "Malformed packets detected!\n"   
 		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
-		"values are correct for packets captured, so some captured packets may be malformed.\n"
-		"This can lead to unexpected results. Please analyze the dump file with Wireshark.\n\n");
+		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
+		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but there is a\n"
+		"bit error in the payload. This can lead to unexpected results.\n"
+		"Please analyze the dump file with Wireshark.\n\n");
 	return;
 	}
 return;
