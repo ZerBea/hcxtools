@@ -2379,6 +2379,8 @@ clientinfoptr = reassociationrequestptr +CAPABILITIESREQSTA_SIZE;
 clientinfolen = reassociationrequestlen -CAPABILITIESREQSTA_SIZE;
 if(clientinfolen < (int)IETAG_SIZE) return;
 if(gettags(clientinfolen, clientinfoptr, &tags) == false) return;
+if(tags.essidlen == 0) return;
+if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2451,6 +2453,8 @@ clientinfoptr = associationrequestptr +CAPABILITIESSTA_SIZE;
 clientinfolen = associationrequestlen -CAPABILITIESSTA_SIZE;
 if(clientinfolen < (int)IETAG_SIZE) return;
 if(gettags(clientinfolen, clientinfoptr, &tags) == false) return;
+if(tags.essidlen == 0) return;
+if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2538,6 +2542,8 @@ static tags_t tags;
 proberequestdirectedcount++;
 if(proberequestlen < (int)IETAG_SIZE) return;
 if(gettags(proberequestlen, proberequestptr, &tags) == false) return;
+if(tags.essidlen == 0) return;
+if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2591,6 +2597,8 @@ static tags_t tags;
 proberequestcount++;
 if(proberequestlen < (int)IETAG_SIZE) return;
 if(gettags(proberequestlen, proberequestptr, &tags) == false) return; 
+if(tags.essidlen == 0) return;
+if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2627,6 +2635,8 @@ apinfoptr = proberesponseptr +CAPABILITIESAP_SIZE;
 apinfolen = proberesponselen -CAPABILITIESAP_SIZE;
 if(proberesponselen < (int)IETAG_SIZE) return;
 if(gettags(apinfolen, apinfoptr, &tags) == false) return;
+if(tags.essidlen == 0) return;
+if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -2672,6 +2682,8 @@ apinfoptr = beaconptr +CAPABILITIESAP_SIZE;
 apinfolen = beaconlen -CAPABILITIESAP_SIZE;
 if(beaconlen < (int)IETAG_SIZE) return;
 if(gettags(apinfolen, apinfoptr, &tags) == false) return;
+if(tags.essidlen == 0) return;
+if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
