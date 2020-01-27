@@ -136,7 +136,13 @@ static long int authfilspkcount;
 static long int authnetworkeapcount;
 static long int authunknowncount;
 static long int associationrequestcount;
+static long int associationrequestpskcount;
+static long int associationrequestpsk256count;
+static long int associationrequestsae256count;
 static long int reassociationrequestcount;
+static long int reassociationrequestpskcount;
+static long int reassociationrequestpsk256count;
+static long int reassociationrequestsae256count;
 static long int ipv4count;
 static long int ipv6count;
 static long int wepenccount;
@@ -348,7 +354,13 @@ authfilspkcount = 0;
 authnetworkeapcount = 0;
 authunknowncount = 0;
 associationrequestcount = 0;
+associationrequestpskcount = 0;
+associationrequestpsk256count = 0;
+associationrequestsae256count = 0;
 reassociationrequestcount = 0;
+reassociationrequestpskcount = 0;
+reassociationrequestpsk256count = 0;
+reassociationrequestsae256count = 0;
 ipv4count = 0;
 ipv6count = 0;
 wepenccount = 0;
@@ -440,8 +452,14 @@ if(authfilspfs > 0)			printf("AUTHENTICATION (FILS PFS)..............: %ld\n", a
 if(authfilspkcount > 0)			printf("AUTHENTICATION (FILS PK................: %ld\n", authfilspkcount);
 if(authnetworkeapcount > 0)		printf("AUTHENTICATION (NETWORK EAP)...........: %ld\n", authnetworkeapcount);
 if(authunknowncount > 0)		printf("AUTHENTICATION (unknown)...............: %ld\n", authunknowncount);
-if(associationrequestcount > 0)		printf("ASSOCIATIONREQUEST.....................: %ld\n", associationrequestcount);
-if(reassociationrequestcount > 0)	printf("REASSOCIATIONREQUEST...................: %ld\n", reassociationrequestcount);
+if(associationrequestcount > 0)		printf("ASSOCIATIONREQUEST (total).............: %ld\n", associationrequestcount);
+if(associationrequestpskcount > 0)	printf("ASSOCIATIONREQUEST (PSK)...............: %ld\n", associationrequestpskcount);
+if(associationrequestpsk256count > 0)	printf("ASSOCIATIONREQUEST (PSK SHA256)........: %ld\n", associationrequestpsk256count);
+if(associationrequestsae256count > 0)	printf("ASSOCIATIONREQUEST (SAE SHA256)........: %ld\n", associationrequestsae256count);
+if(reassociationrequestcount > 0)	printf("REASSOCIATIONREQUEST (total)...........: %ld\n", reassociationrequestcount);
+if(reassociationrequestpskcount > 0)	printf("REASSOCIATIONREQUEST (PSK).............: %ld\n", reassociationrequestpskcount);
+if(reassociationrequestpsk256count > 0)	printf("REASSOCIATIONREQUEST (PSK SHA256)......: %ld\n", reassociationrequestpsk256count);
+if(reassociationrequestsae256count > 0)	printf("REASSOCIATIONREQUEST (SAE SHA256)......: %ld\n", reassociationrequestsae256count);
 if(wpaenccount > 0)			printf("WPA encrypted..........................: %ld\n", wpaenccount);
 if(wepenccount > 0)			printf("WEP encrypted..........................: %ld\n", wepenccount);
 if(ipv4count > 0)			printf("IPv4...................................: %ld\n", ipv4count);
@@ -2410,6 +2428,9 @@ else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PS
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
+if((tags.akm &TAK_PSK) == TAK_PSK) reassociationrequestpskcount++; 
+else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) reassociationrequestpsk256count++; 
+else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) reassociationrequestsae256count++; 
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
@@ -2484,6 +2505,9 @@ else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PS
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
+if((tags.akm &TAK_PSK) == TAK_PSK) associationrequestpskcount++; 
+else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) associationrequestpsk256count++; 
+else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) associationrequestsae256count++; 
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{

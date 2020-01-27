@@ -399,7 +399,7 @@ struct suite_s
 #define AK_FT_PSK	4
 #define	AK_PMKSA256	5
 #define	AK_PSKSHA256	6
-#define	AK_TDLS	7
+#define	AK_TDLS		7
 #define	AK_SAE_SHA256	8
 #define AK_FT_SAE	9
 } __attribute__ ((packed));
