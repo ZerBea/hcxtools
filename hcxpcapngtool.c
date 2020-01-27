@@ -1287,8 +1287,8 @@ for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 		if(memcmp(zeigermacold->addr, zeigermac->addr, 6) == 0)
 			{
 			essiddupecount++;
-			if(essiddupecount > essiddupemax) essiddupemax = essiddupecount;
-			if(essiddupecount > essidsvalue) continue;
+			if(essiddupecount >= essiddupemax) essiddupemax = essiddupecount;
+			if(essiddupecount >= essidsvalue) continue;
 			}
 		else essiddupecount = 0;
 		}
