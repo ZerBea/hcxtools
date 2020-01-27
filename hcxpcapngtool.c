@@ -1962,7 +1962,6 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		}
 	if((zeiger->message &HS_M1) != HS_M1) continue;
 	if(zeiger->rc >= rc -1) rcgap = zeiger->rc -rc +1;
-	else rcgap = rc -zeiger->rc +1;
 	if(rcgap > ncvalue) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
@@ -2039,7 +2038,6 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		}
 	if((zeiger->message) != HS_M2) continue;
 	if(zeiger->rc >= rc -1) rcgap = zeiger->rc -rc +1;
-	else rcgap = rc -zeiger->rc +1;
 	if(rcgap > ncvalue) continue;
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
@@ -2148,15 +2146,36 @@ if(infolen >= RSNIE_LEN_MIN)
 	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
-	if((zeiger->message &HS_M1) != HS_M1) continue;
-	if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
-	else rcgap = rc -zeiger->rc;
+	if((zeiger->message &HS_M1) == HS_M1)
+		{
+		if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
+		if(rcgap > ncvalue) continue;
+		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
+		if(memcmp(zeiger->ap, macap, 6) != 0) continue;
+		if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
+		else eaptimegap = zeiger->timestamp -eaptimestamp;
+		mpfield = ST_M12E2;
+		if(myaktreplaycount > 0)
+			{
+			if((rc == myaktreplaycount) && (memcmp(&myaktanonce, zeiger->nonce, 32) == 0))
+				{
+				eaptimegap = 0;
+				mpfield |= ST_APLESS;
+				}
+			if(rcgap != 0) continue;
+			}
+		if(rcgap > rcgapmax) rcgapmax = rcgap;
+		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
+		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
+		}
+	if((zeiger->message &HS_M3) != HS_M3) continue;
+	if(zeiger->rc >= rc +1) rcgap = zeiger->rc -rc -1;
 	if(rcgap > ncvalue) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
-	mpfield = ST_M12E2;
+	mpfield = ST_M32E2;
 	if(myaktreplaycount > 0)
 		{
 		if((rc == myaktreplaycount) && (memcmp(&myaktanonce, zeiger->nonce, 32) == 0))
