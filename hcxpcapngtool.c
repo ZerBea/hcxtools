@@ -139,10 +139,12 @@ static long int associationrequestcount;
 static long int associationrequestpskcount;
 static long int associationrequestpsk256count;
 static long int associationrequestsae256count;
+static long int associationrequestsae384bcount;
 static long int reassociationrequestcount;
 static long int reassociationrequestpskcount;
 static long int reassociationrequestpsk256count;
 static long int reassociationrequestsae256count;
+static long int reassociationrequestsae384bcount;
 static long int ipv4count;
 static long int ipv6count;
 static long int wepenccount;
@@ -357,10 +359,12 @@ associationrequestcount = 0;
 associationrequestpskcount = 0;
 associationrequestpsk256count = 0;
 associationrequestsae256count = 0;
+associationrequestsae384bcount = 0;
 reassociationrequestcount = 0;
 reassociationrequestpskcount = 0;
 reassociationrequestpsk256count = 0;
 reassociationrequestsae256count = 0;
+reassociationrequestsae384bcount = 0;
 ipv4count = 0;
 ipv6count = 0;
 wepenccount = 0;
@@ -433,97 +437,99 @@ return true;
 /*===========================================================================*/
 static void printcontentinfo()
 {
-if(nmeacount > 0)			printf("NMEA sentence..........................: %ld\n", nmeacount);
-if(endianess == 0)			printf("endianess (capture system).............: little endian\n");
-else					printf("endianess (capture system).............: big endian\n");
-if(rawpacketcount > 0)			printf("packets inside.........................: %ld\n", rawpacketcount);
-if(skippedpacketcount > 0)		printf("skipped packets........................: %ld\n", skippedpacketcount);
-if(fcsframecount > 0)			printf("frames with correct FCS................: %ld\n", fcsframecount);
-if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM...........: %ld\n", wdscount);
-if(beaconcount > 0)			printf("BEACON (total).........................: %ld\n", beaconcount);
-if(proberequestcount > 0)		printf("PROBEREQUEST...........................: %ld\n", proberequestcount);
-if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)................: %ld\n", proberequestdirectedcount);
-if(proberesponsecount > 0)		printf("PROBERESONSE...........................: %ld\n", proberesponsecount);
-if(authopensystemcount > 0)		printf("AUTHENTICATION (OPEN SYSTEM)...........: %ld\n", authopensystemcount);
-if(authseacount > 0)			printf("AUTHENTICATION (SAE)...................: %ld\n", authseacount);
-if(authsharedkeycount > 0)		printf("AUTHENTICATION (SHARED KEY)............: %ld\n", authsharedkeycount);
-if(authfbtcount > 0)			printf("AUTHENTICATION (FBT)...................: %ld\n", authfbtcount);
-if(authfilscount > 0)			printf("AUTHENTICATION (FILS)..................: %ld\n", authfilscount);
-if(authfilspfs > 0)			printf("AUTHENTICATION (FILS PFS)..............: %ld\n", authfilspfs);
-if(authfilspkcount > 0)			printf("AUTHENTICATION (FILS PK................: %ld\n", authfilspkcount);
-if(authnetworkeapcount > 0)		printf("AUTHENTICATION (NETWORK EAP)...........: %ld\n", authnetworkeapcount);
-if(authunknowncount > 0)		printf("AUTHENTICATION (unknown)...............: %ld\n", authunknowncount);
-if(associationrequestcount > 0)		printf("ASSOCIATIONREQUEST (total).............: %ld\n", associationrequestcount);
-if(associationrequestpskcount > 0)	printf("ASSOCIATIONREQUEST (PSK)...............: %ld\n", associationrequestpskcount);
-if(associationrequestpsk256count > 0)	printf("ASSOCIATIONREQUEST (PSK SHA256)........: %ld\n", associationrequestpsk256count);
-if(associationrequestsae256count > 0)	printf("ASSOCIATIONREQUEST (SAE SHA256)........: %ld\n", associationrequestsae256count);
-if(reassociationrequestcount > 0)	printf("REASSOCIATIONREQUEST (total)...........: %ld\n", reassociationrequestcount);
-if(reassociationrequestpskcount > 0)	printf("REASSOCIATIONREQUEST (PSK).............: %ld\n", reassociationrequestpskcount);
-if(reassociationrequestpsk256count > 0)	printf("REASSOCIATIONREQUEST (PSK SHA256)......: %ld\n", reassociationrequestpsk256count);
-if(reassociationrequestsae256count > 0)	printf("REASSOCIATIONREQUEST (SAE SHA256)......: %ld\n", reassociationrequestsae256count);
-if(wpaenccount > 0)			printf("WPA encrypted..........................: %ld\n", wpaenccount);
-if(wepenccount > 0)			printf("WEP encrypted..........................: %ld\n", wepenccount);
-if(ipv4count > 0)			printf("IPv4...................................: %ld\n", ipv4count);
-if(ipv6count > 0)			printf("IPv6...................................: %ld\n", ipv6count);
-if(identitycount > 0)			printf("IDENTITIES.............................: %ld\n", identitycount);
-if(usernamecount > 0)			printf("USERNAMES..............................: %ld\n", usernamecount);
-if(eapcount > 0)			printf("EAP (total)............................: %ld\n", eapcount);
-if(eapexpandedcount > 0)		printf("EAP-EXPANDED...........................: %ld\n", eapexpandedcount);
-if(eapcodereqcount > 0)			printf("EAP CODE REQUEST.......................: %ld\n", eapcodereqcount);
-if(eapcoderespcount > 0)		printf("EAP CODE RESPONSE......................: %ld\n", eapcoderespcount);
-if(eapidcount > 0)			printf("EAP ID.................................: %ld\n", eapidcount);
-if(eapsimcount > 0)			printf("EAP-SIM................................: %ld\n", eapsimcount);
-if(eapakacount > 0)			printf("EAP-AKA................................: %ld\n", eapakacount);
-if(eappeapcount > 0)			printf("EAP-PEAP...............................: %ld\n", eappeapcount);
-if(eapmd5count > 0)			printf("EAP-MD5 messages.......................: %ld\n", eapmd5count);
-if(eapmd5hashcount > 0)			printf("EAP-MD5 pairs..........................: %ld\n", eapmd5hashcount);
-if(eapmd5writtencount > 0)		printf("EAP-MD5 pairs written..................: %ld\n", eapmd5writtencount);
-if(eapmd5johnwrittencount > 0)		printf("EAP-MD5 pairs written to JtR...........: %ld\n", eapmd5johnwrittencount);
-if(eapleapcount > 0)			printf("EAP-LEAP messages......................: %ld\n", eapleapcount);
-if(eapleapwrittencount > 0)		printf("EAP-LEAP pairs written.................: %ld\n", eapleapwrittencount);
-if(zeroedpmkcount > 0)			printf("PMK (zeroed)...........................: %ld\n", zeroedpmkcount);
-if(eapolmsgcount > 0)			printf("EAPOL messages (total).................: %ld\n", eapolmsgcount);
-if(eapolrc4count > 0)			printf("EAPOL RC4 messages.....................: %ld\n", eapolrc4count);
-if(eapolrsncount > 0)			printf("EAPOL RSN messages.....................: %ld\n", eapolrsncount);
-if(eapolwpacount > 0)			printf("EAPOL WPA messages.....................: %ld\n", eapolwpacount);
-if(essidcount > 0)			printf("ESSID (total unique)...................: %ld\n", essidcount);
-if(essiddupemax > 0)			printf("ESSID changes (mesured maximum)........: %ld (warning)\n", essiddupemax);
-if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)..: %" PRId64 "\n", eaptimegapmax);
-if(rcgapmax > 0)			printf("REPLAYCOUNT gap (measured maximum).....: %" PRIu64 "\n", rcgapmax);
-if(eapolm1count > 0)			printf("EAPOL M1 messages......................: %ld\n", eapolm1count);
-if(eapolm2count > 0)			printf("EAPOL M2 messages......................: %ld\n", eapolm2count);
-if(eapolm3count > 0)			printf("EAPOL M3 messages......................: %ld\n", eapolm3count);
-if(eapolm4count > 0)			printf("EAPOL M4 messages......................: %ld\n", eapolm4count);
-if(eapolmpcount > 0)			printf("EAPOL pairs (total)....................: %ld\n", eapolmpcount);
-if(eapolmpbestcount > 0)		printf("EAPOL pairs (best).....................: %ld\n", eapolmpbestcount);
-if(eapolaplesscount > 0)		printf("EAPOL pairs (AP-LESS)..................: %ld\n", eapolaplesscount);
-if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file.: %ld (RC checked)\n", eapolwrittencount);
-if(eapolncwrittencount > 0)		printf("EAPOL pairs written to combi hash file.: %ld (RC not checked)\n", eapolncwrittencount);
-if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx..........: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
-if(eapolncwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx..........: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
-if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap...........: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
-if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format..: %ld (RC checked)\n", eapolwrittenjcountdeprecated);
-if(eapolm12e2count > 0)			printf("EAPOL M12E2............................: %ld\n", eapolm12e2count);
-if(eapolm14e4count > 0)			printf("EAPOL M14E4............................: %ld\n", eapolm14e4count);
-if(eapolm32e2count > 0)			printf("EAPOL M32E2............................: %ld\n", eapolm32e2count);
-if(eapolm32e3count > 0)			printf("EAPOL M32E3............................: %ld\n", eapolm32e3count);
-if(eapolm34e3count > 0)			printf("EAPOL M34E3............................: %ld\n", eapolm34e3count);
-if(eapolm34e4count > 0)			printf("EAPOL M34E4............................: %ld\n", eapolm34e4count);
-if(pmkidcount > 0)			printf("PMKID (total)..........................: %ld\n", pmkidcount);
-if(pmkiduselesscount > 0)		printf("PMKID (useless)........................: %ld\n", pmkiduselesscount);
-if(pmkidbestcount > 0)			printf("PMKID (best)...........................: %ld\n", pmkidbestcount);
-if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.......: %ld\n", pmkidwrittenhcount);
-if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format........: %ld\n", pmkidwrittenjcountdeprecated);
-if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)....: %ld\n", pmkidwrittencountdeprecated);
-if(pcapreaderrors > 0)			printf("packet read error......................: %ld\n", pcapreaderrors);
-if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps.........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
+if(nmeacount > 0)			printf("NMEA sentence............................: %ld\n", nmeacount);
+if(endianess == 0)			printf("endianess (capture system)...............: little endian\n");
+else					printf("endianess (capture system)...............: big endian\n");
+if(rawpacketcount > 0)			printf("packets inside...........................: %ld\n", rawpacketcount);
+if(skippedpacketcount > 0)		printf("skipped packets..........................: %ld\n", skippedpacketcount);
+if(fcsframecount > 0)			printf("frames with correct FCS..................: %ld\n", fcsframecount);
+if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM.............: %ld\n", wdscount);
+if(beaconcount > 0)			printf("BEACON (total)...........................: %ld\n", beaconcount);
+if(proberequestcount > 0)		printf("PROBEREQUEST.............................: %ld\n", proberequestcount);
+if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
+if(proberesponsecount > 0)		printf("PROBERESONSE.............................: %ld\n", proberesponsecount);
+if(authopensystemcount > 0)		printf("AUTHENTICATION (OPEN SYSTEM).............: %ld\n", authopensystemcount);
+if(authseacount > 0)			printf("AUTHENTICATION (SAE).....................: %ld\n", authseacount);
+if(authsharedkeycount > 0)		printf("AUTHENTICATION (SHARED KEY)..............: %ld\n", authsharedkeycount);
+if(authfbtcount > 0)			printf("AUTHENTICATION (FBT).....................: %ld\n", authfbtcount);
+if(authfilscount > 0)			printf("AUTHENTICATION (FILS)....................: %ld\n", authfilscount);
+if(authfilspfs > 0)			printf("AUTHENTICATION (FILS PFS)................: %ld\n", authfilspfs);
+if(authfilspkcount > 0)			printf("AUTHENTICATION (FILS PK..................: %ld\n", authfilspkcount);
+if(authnetworkeapcount > 0)		printf("AUTHENTICATION (NETWORK EAP).............: %ld\n", authnetworkeapcount);
+if(authunknowncount > 0)		printf("AUTHENTICATION (unknown).................: %ld\n", authunknowncount);
+if(associationrequestcount > 0)		printf("ASSOCIATIONREQUEST (total)...............: %ld\n", associationrequestcount);
+if(associationrequestpskcount > 0)	printf("ASSOCIATIONREQUEST (PSK).................: %ld\n", associationrequestpskcount);
+if(associationrequestpsk256count > 0)	printf("ASSOCIATIONREQUEST (PSK SHA256)..........: %ld\n", associationrequestpsk256count);
+if(associationrequestsae256count > 0)	printf("ASSOCIATIONREQUEST (SAE SHA256)..........: %ld\n", associationrequestsae256count);
+if(associationrequestsae384bcount > 0)	printf("ASSOCIATIONREQUEST (SAE SHA384 SUITE B)..: %ld\n", associationrequestsae384bcount);
+if(reassociationrequestcount > 0)	printf("REASSOCIATIONREQUEST (total).............: %ld\n", reassociationrequestcount);
+if(reassociationrequestpskcount > 0)	printf("REASSOCIATIONREQUEST (PSK)...............: %ld\n", reassociationrequestpskcount);
+if(reassociationrequestpsk256count > 0)	printf("REASSOCIATIONREQUEST (PSK SHA256)........: %ld\n", reassociationrequestpsk256count);
+if(reassociationrequestsae256count > 0)	printf("REASSOCIATIONREQUEST (SAE SHA256)........: %ld\n", reassociationrequestsae256count);
+if(reassociationrequestsae384bcount > 0)printf("REASSOCIATIONREQUEST (SAE SHA384 SUITE B): %ld\n", reassociationrequestsae384bcount);
+if(wpaenccount > 0)			printf("WPA encrypted............................: %ld\n", wpaenccount);
+if(wepenccount > 0)			printf("WEP encrypted............................: %ld\n", wepenccount);
+if(ipv4count > 0)			printf("IPv4.....................................: %ld\n", ipv4count);
+if(ipv6count > 0)			printf("IPv6.....................................: %ld\n", ipv6count);
+if(identitycount > 0)			printf("IDENTITIES...............................: %ld\n", identitycount);
+if(usernamecount > 0)			printf("USERNAMES................................: %ld\n", usernamecount);
+if(eapcount > 0)			printf("EAP (total)..............................: %ld\n", eapcount);
+if(eapexpandedcount > 0)		printf("EAP-EXPANDED.............................: %ld\n", eapexpandedcount);
+if(eapcodereqcount > 0)			printf("EAP CODE REQUEST.........................: %ld\n", eapcodereqcount);
+if(eapcoderespcount > 0)		printf("EAP CODE RESPONSE........................: %ld\n", eapcoderespcount);
+if(eapidcount > 0)			printf("EAP ID...................................: %ld\n", eapidcount);
+if(eapsimcount > 0)			printf("EAP-SIM..................................: %ld\n", eapsimcount);
+if(eapakacount > 0)			printf("EAP-AKA..................................: %ld\n", eapakacount);
+if(eappeapcount > 0)			printf("EAP-PEAP.................................: %ld\n", eappeapcount);
+if(eapmd5count > 0)			printf("EAP-MD5 messages.........................: %ld\n", eapmd5count);
+if(eapmd5hashcount > 0)			printf("EAP-MD5 pairs............................: %ld\n", eapmd5hashcount);
+if(eapmd5writtencount > 0)		printf("EAP-MD5 pairs written....................: %ld\n", eapmd5writtencount);
+if(eapmd5johnwrittencount > 0)		printf("EAP-MD5 pairs written to JtR.............: %ld\n", eapmd5johnwrittencount);
+if(eapleapcount > 0)			printf("EAP-LEAP messages........................: %ld\n", eapleapcount);
+if(eapleapwrittencount > 0)		printf("EAP-LEAP pairs written...................: %ld\n", eapleapwrittencount);
+if(zeroedpmkcount > 0)			printf("PMK (zeroed).............................: %ld\n", zeroedpmkcount);
+if(eapolmsgcount > 0)			printf("EAPOL messages (total)...................: %ld\n", eapolmsgcount);
+if(eapolrc4count > 0)			printf("EAPOL RC4 messages.......................: %ld\n", eapolrc4count);
+if(eapolrsncount > 0)			printf("EAPOL RSN messages.......................: %ld\n", eapolrsncount);
+if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n", eapolwpacount);
+if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
+if(essiddupemax > 0)			printf("ESSID changes (mesured maximum)..........: %ld (warning)\n", essiddupemax);
+if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
+if(rcgapmax > 0)			printf("REPLAYCOUNT gap (measured maximum).......: %" PRIu64 "\n", rcgapmax);
+if(eapolm1count > 0)			printf("EAPOL M1 messages........................: %ld\n", eapolm1count);
+if(eapolm2count > 0)			printf("EAPOL M2 messages........................: %ld\n", eapolm2count);
+if(eapolm3count > 0)			printf("EAPOL M3 messages........................: %ld\n", eapolm3count);
+if(eapolm4count > 0)			printf("EAPOL M4 messages........................: %ld\n", eapolm4count);
+if(eapolmpcount > 0)			printf("EAPOL pairs (total)......................: %ld\n", eapolmpcount);
+if(eapolmpbestcount > 0)		printf("EAPOL pairs (best).......................: %ld\n", eapolmpbestcount);
+if(eapolaplesscount > 0)		printf("EAPOL pairs (AP-LESS)....................: %ld\n", eapolaplesscount);
+if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file...: %ld (RC checked)\n", eapolwrittencount);
+if(eapolncwrittencount > 0)		printf("EAPOL pairs written to combi hash file...: %ld (RC not checked)\n", eapolncwrittencount);
+if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx............: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
+if(eapolncwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx............: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
+if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap.............: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
+if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format....: %ld (RC checked)\n", eapolwrittenjcountdeprecated);
+if(eapolm12e2count > 0)			printf("EAPOL M12E2..............................: %ld\n", eapolm12e2count);
+if(eapolm14e4count > 0)			printf("EAPOL M14E4..............................: %ld\n", eapolm14e4count);
+if(eapolm32e2count > 0)			printf("EAPOL M32E2..............................: %ld\n", eapolm32e2count);
+if(eapolm32e3count > 0)			printf("EAPOL M32E3..............................: %ld\n", eapolm32e3count);
+if(eapolm34e3count > 0)			printf("EAPOL M34E3..............................: %ld\n", eapolm34e3count);
+if(eapolm34e4count > 0)			printf("EAPOL M34E4..............................: %ld\n", eapolm34e4count);
+if(pmkidcount > 0)			printf("PMKID (total)............................: %ld\n", pmkidcount);
+if(pmkiduselesscount > 0)		printf("PMKID (useless)..........................: %ld\n", pmkiduselesscount);
+if(pmkidbestcount > 0)			printf("PMKID (best).............................: %ld\n", pmkidbestcount);
+if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.........: %ld\n", pmkidwrittenhcount);
+if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format..........: %ld\n", pmkidwrittenjcountdeprecated);
+if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)......: %ld\n", pmkidwrittencountdeprecated);
+if(pcapreaderrors > 0)			printf("packet read error........................: %ld\n", pcapreaderrors);
+if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps...........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
 malformedcount = beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount;
-if(malformedcount > 0)			printf("malformed packets (total)..............: %ld\n", malformedcount);
-if(beaconerrorcount > 0)		printf("BROADCAST MAC error (malformed packets): %ld\n", beaconerrorcount);
-if(taglenerrorcount > 0)		printf("IE TAG length error (malformed packets): %ld\n", taglenerrorcount);
-if(essiderrorcount > 0)			printf("ESSID error (malformed packets.........: %ld\n", essiderrorcount);
+if(malformedcount > 0)			printf("malformed packets (total)................: %ld\n", malformedcount);
+if(beaconerrorcount > 0)		printf("BROADCAST MAC error (malformed packets)..: %ld\n", beaconerrorcount);
+if(taglenerrorcount > 0)		printf("IE TAG length error (malformed packets)..: %ld\n", taglenerrorcount);
+if(essiderrorcount > 0)			printf("ESSID error (malformed packets...........: %ld\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
-if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).....: %ld\n", eapolmsgerrorcount);
+if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 printf("\n");
 if(malformedcount > 10)
 	{
@@ -551,14 +557,14 @@ strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmin.tv_sec));
 tvmax.tv_sec = timestampmax /1000000;
 tvmax.tv_usec = timestampmax %1000000;
 strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmax.tv_sec));
-printf("timestamp minimum (GMT)................: %s\n", timestringmin);
-printf("timestamp maximum (GMT)................: %s\n", timestringmax);
-if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type.................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
-if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type.................: DLT_IEEE802_11 (%d)\n", dltlinktype);
-if(dltlinktype == DLT_PPI)			printf("link layer header type.................: DLT_PPI (%d)\n", dltlinktype);
-if(dltlinktype == DLT_PRISM_HEADER)		printf("link layer header type.................: DLT_PRISM_HEADER (%d)\n", dltlinktype);
-if(dltlinktype == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type.................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype);
-if(dltlinktype == DLT_EN10MB)			printf("link layer header type.................: DLT_EN10MB (%d)\n", dltlinktype);
+printf("timestamp minimum (GMT)..................: %s\n", timestringmin);
+printf("timestamp maximum (GMT)..................: %s\n", timestringmax);
+if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type...................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
+if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type...................: DLT_IEEE802_11 (%d)\n", dltlinktype);
+if(dltlinktype == DLT_PPI)			printf("link layer header type...................: DLT_PPI (%d)\n", dltlinktype);
+if(dltlinktype == DLT_PRISM_HEADER)		printf("link layer header type...................: DLT_PRISM_HEADER (%d)\n", dltlinktype);
+if(dltlinktype == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type...................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype);
+if(dltlinktype == DLT_EN10MB)			printf("link layer header type...................: DLT_EN10MB (%d)\n", dltlinktype);
 return;
 }
 /*===========================================================================*/
@@ -1784,6 +1790,7 @@ for(c = 0; c < asuitecountptr->count; c++)
 		if(asuiteptr->type == AK_TDLS) zeiger->akm |= TAK_TDLS;
 		if(asuiteptr->type == AK_SAE_SHA256) zeiger->akm |= TAK_SAE_SHA256;
 		if(asuiteptr->type == AK_FT_SAE) zeiger->akm |= TAK_FT_SAE;
+		if(asuiteptr->type == AK_SAE_SHA384B) zeiger->akm |= TAK_SAE_SHA384B;
 		}
 	rsnlen -= SUITE_SIZE;
 	ieptr += SUITE_SIZE;
@@ -2472,6 +2479,7 @@ else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PS
 if((tags.akm &TAK_PSK) == TAK_PSK) reassociationrequestpskcount++; 
 else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) reassociationrequestpsk256count++; 
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) reassociationrequestsae256count++; 
+else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) reassociationrequestsae384bcount++; 
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
@@ -2549,6 +2557,7 @@ else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PS
 if((tags.akm &TAK_PSK) == TAK_PSK) associationrequestpskcount++; 
 else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) associationrequestpsk256count++; 
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) associationrequestsae256count++; 
+else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) associationrequestsae384bcount++; 
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
@@ -3148,8 +3157,8 @@ while(1)
 
 printf("\nsummary capture file\n"
 	"--------------------\n"
-	"file name..............................: %s\n"
-	"version (pcap/cap).....................: %d.%d (very basic format without any additional information)\n"  
+	"file name................................: %s\n"
+	"version (pcap/cap).......................: %d.%d (very basic format without any additional information)\n"  
 	, basename(pcaporgname), versionmajor, versionminor
 	);
 
@@ -3562,18 +3571,18 @@ while(1)
 
 printf("\nsummary capture file\n"
 	"--------------------\n"
-	"file name..............................: %s\n"
-	"version (pcapng).......................: %d.%d\n"
-	"operating system.......................: %s\n"
-	"application............................: %s\n"
-	"interface name.........................: %s\n"
-	"interface vendor.......................: %02x%02x%02x\n"
-	"weak candidate.........................: %s\n"
-	"MAC ACCESS POINT.......................: %02x%02x%02x%02x%02x%02x (incremented on every new client)\n"
-	"MAC CLIENT.............................: %02x%02x%02x%02x%02x%02x\n"
-	"REPLAYCOUNT............................: %"  PRIu64  "\n"
-	"ANONCE.................................: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
-	"SNONCE.................................: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
+	"file name................................: %s\n"
+	"version (pcapng).........................: %d.%d\n"
+	"operating system.........................: %s\n"
+	"application..............................: %s\n"
+	"interface name...........................: %s\n"
+	"interface vendor.........................: %02x%02x%02x\n"
+	"weak candidate...........................: %s\n"
+	"MAC ACCESS POINT.........................: %02x%02x%02x%02x%02x%02x (incremented on every new client)\n"
+	"MAC CLIENT...............................: %02x%02x%02x%02x%02x%02x\n"
+	"REPLAYCOUNT..............................: %"  PRIu64  "\n"
+	"ANONCE...................................: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
+	"SNONCE...................................: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
 	, basename(pcaporgname), versionmajor, versionminor,
 	pcapngosinfo, pcapngapplinfo, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngweakcandidate,
 	myaktap[0], myaktap[1], myaktap[2], myaktap[3], myaktap[4], myaktap[5],
