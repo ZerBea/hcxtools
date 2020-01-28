@@ -401,6 +401,7 @@ eapolm3errorcount = 0;
 eapolm4count = 0;
 eapolm4errorcount = 0;
 eapolwrittencount = 0;
+eapolncwrittencount = 0;
 eapolaplesscount = 0;
 eapolwrittenjcountdeprecated = 0;
 eapolwrittenhcpxcountdeprecated = 0;
