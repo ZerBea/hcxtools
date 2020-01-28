@@ -1927,7 +1927,12 @@ if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((ignoreieflag == false) && (keyver == 0)) return;
+if(keyver == 0) return;
+if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
+	{
+	eapolm4errorcount++;
+	return;
+	}
 #ifndef BIG_ENDIAN_HOST
 rc = byte_swap_64(wpak->replaycount);
 #else
@@ -2017,7 +2022,12 @@ if(authlen > restlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((ignoreieflag == false) && (keyver == 0)) return;
+if(keyver == 0) return;
+if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
+	{
+	eapolm3errorcount++;
+	return;
+	}
 #ifndef BIG_ENDIAN_HOST
 rc = byte_swap_64(wpak->replaycount);
 #else
@@ -2120,7 +2130,12 @@ if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((ignoreieflag == false) && (keyver == 0)) return;
+if(keyver == 0) return;
+if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
+	{
+	eapolm2errorcount++;
+	return;
+	}
 #ifndef BIG_ENDIAN_HOST
 rc = byte_swap_64(wpak->replaycount);
 #else
@@ -2248,7 +2263,12 @@ if(authlen > restlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((ignoreieflag == false) && (keyver == 0)) return;
+if(keyver == 0) return;
+if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
+	{
+	eapolm1errorcount++;
+	return;
+	}
 #ifndef BIG_ENDIAN_HOST
 rc = byte_swap_64(wpak->replaycount);
 #else
@@ -2363,11 +2383,6 @@ else if(wpak->keydescriptor == EAP_KDT_RSN) eapolrsncount++;
 else return;
 keylen = ntohs(wpak->keylen);
 if((keylen != 0) && (keylen != 16) && (keylen != 32))
-	{
-	eapolmsgerrorcount++;
-	return;
-	}
-if(ntohs(wpak->wpadatalen) > (eapauthlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	eapolmsgerrorcount++;
 	return;
