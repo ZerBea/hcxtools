@@ -1386,7 +1386,6 @@ return false;
 static void addhandshake(uint64_t eaptimegap, uint64_t rcgap, messagelist_t *msgclient, messagelist_t *msgap, uint8_t keyver, uint8_t mpfield)
 {
 static handshakelist_t *handshakelistnew;
-
 eapolmpcount++;
 if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
 	{
@@ -1843,9 +1842,11 @@ return true;
 static bool gettags(int infolen, uint8_t *infoptr, tags_t *zeiger)
 {
 static ietag_t *tagptr;
+
 memset(zeiger, 0, TAGS_SIZE);
 while(0 < infolen)
 	{
+	if(infolen == 4) return true;
 	tagptr = (ietag_t*)infoptr;
 	if(tagptr->len == 0)
 		{
@@ -3006,12 +3007,12 @@ if(packetlen < 4)
 	printf("failed to read packet\n");
 	return;
 	}
+
 fcs = (fcs_t*)(packetptr +packetlen -4);
 crc = fcscrc32check(packetptr, packetlen -4);
 #ifdef BIG_ENDIAN_HOST
 crc = byte_swap_32(crc);
 #endif
-if(endianess == 1) crc = byte_swap_32(crc);
 if(crc == fcs->fcs)
 	{
 	fcsframecount++;
