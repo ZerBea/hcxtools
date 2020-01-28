@@ -530,7 +530,7 @@ malformedcount = beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsger
 if(malformedcount > 0)			printf("malformed packets (total)................: %ld\n", malformedcount);
 if(beaconerrorcount > 0)		printf("BROADCAST MAC error (malformed packets)..: %ld\n", beaconerrorcount);
 if(taglenerrorcount > 0)		printf("IE TAG length error (malformed packets)..: %ld\n", taglenerrorcount);
-if(essiderrorcount > 0)			printf("ESSID error (malformed packets...........: %ld\n", essiderrorcount);
+if(essiderrorcount > 0)			printf("ESSID error (malformed packets)..........: %ld\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 printf("\n");
