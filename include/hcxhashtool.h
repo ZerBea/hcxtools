@@ -37,7 +37,8 @@
 #define HCX_INFO_OUT		23
 #define HCX_HCCAPX_OUT		24
 #define HCX_HCCAP_OUT		25
-#define HCX_JOHN_OUT		26
+#define HCX_HCCAP_SINGLE_OUT	26
+#define HCX_JOHN_OUT		27
 #define HCX_PMKIDEAPOL_IN	'i'
 #define HCX_PMKIDEAPOL_OUT	'o'
 #define HCX_ESSID_OUT		'E'

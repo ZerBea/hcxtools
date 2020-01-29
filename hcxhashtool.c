@@ -77,6 +77,7 @@ static bool flagmacapgroup;
 static bool flagmacclientgroup;
 static bool flagouigroup;
 static bool flagvendorout;
+static bool flaghccapsingleout;
 
 static bool flagfiltermacap;
 static uint8_t filtermacap[6];
@@ -752,6 +753,35 @@ hccap.eapol_size = byte_swap_16(hccap.eapol_size);
 #endif
 fwrite(&hccap, HCCAP_SIZE, 1, fh_hccap);
 hccapwrittencount++;
+return;
+}
+/*===========================================================================*/
+static void writehccapsinglefile()
+{
+static int c;
+static FILE *fh_hccap;
+static hashlist_t *zeiger;
+static struct stat statinfo;
+
+static char groupoutname[PATH_MAX];
+
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+	c = 0;
+	do
+		{
+		snprintf(groupoutname, PATH_MAX -1, "%02x%02x%02x%02x%02x%02x-%04d.hccap", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], c);
+		c++;
+		}
+	while (stat(groupoutname, &statinfo) == 0); 
+	if((fh_hccap = fopen(groupoutname, "a")) != NULL) continue;
+	writehccaprecord(fh_hccap, zeiger);
+	if(fh_hccap != NULL) fclose(fh_hccap);
+	if(stat(groupoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(groupoutname);
+		}
+	}
 return;
 }
 /*===========================================================================*/
@@ -1616,6 +1646,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                             : no nonce error corrections\n"
 	"--hccapx=<file>              : output to deprecated hccapx file\n"
 	"--hccap=<file>               : output to ancient hccap file\n"
+	"--hccap-single               : output to ancient hccap single files (MAC + count)\n"
 	"--john=<file>                : output to deprecated john file\n"
 	"--help                       : show this help\n"
 	"--version                    : show version\n"
@@ -1677,6 +1708,7 @@ static const struct option long_options[] =
 	{"info",			required_argument,	NULL,	HCX_INFO_OUT},
 	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT},
+	{"hccap-single",		no_argument,		NULL,	HCX_HCCAP_SINGLE_OUT},
 	{"john",			required_argument,	NULL,	HCX_JOHN_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
@@ -1716,6 +1748,7 @@ flagmacapgroup = false;
 flagmacclientgroup = false;
 flagouigroup = false;
 flagvendorout = false;
+flaghccapsingleout = false;
 hashtypein = 0;
 hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL;
 essidlenin = ESSID_LEN_MAX;
@@ -1913,7 +1946,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_HCCAP_OUT:
-		hccapxoutname = optarg;
+		hccapoutname = optarg;
+		break;
+
+		case HCX_HCCAP_SINGLE_OUT:
+		flaghccapsingleout = true;
 		break;
 
 		case HCX_JOHN_OUT:
@@ -1981,6 +2018,7 @@ if((pmkideapolcount > 0) && (flagpsk == true)) testhashfilepsk();
 if((pmkideapolcount > 0) && (flagpmk == true)) testhashfilepmk();
 if((pmkideapolcount > 0) && (hccapxoutname != NULL)) writehccapxfile(hccapxoutname);
 if((pmkideapolcount > 0) && (hccapoutname != NULL)) writehccapfile(hccapoutname);
+if((pmkideapolcount > 0) && (flaghccapsingleout == true)) writehccapsinglefile();
 if((pmkideapolcount > 0) && (johnoutname != NULL)) writejohnfile(johnoutname);
 
 printstatus();
