@@ -774,7 +774,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 		c++;
 		}
 	while (stat(groupoutname, &statinfo) == 0); 
-	if((fh_hccap = fopen(groupoutname, "a")) != NULL) continue;
+	if((fh_hccap = fopen(groupoutname, "a")) == NULL) continue;
 	writehccaprecord(fh_hccap, zeiger);
 	if(fh_hccap != NULL) fclose(fh_hccap);
 	if(stat(groupoutname, &statinfo) == 0)
