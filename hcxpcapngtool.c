@@ -1397,6 +1397,7 @@ static void addhandshake(uint64_t eaptimegap, uint64_t rcgap, messagelist_t *msg
 {
 static handshakelist_t *handshakelistnew;
 eapolmpcount++;
+
 if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
 	{
 	if(handshakelistptr >= handshakelist +handshakelistmax)
@@ -1927,7 +1928,7 @@ if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if(keyver == 0) return;
+if((keyver == 0) || (keyver > 3)) return;
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	eapolm4errorcount++;
@@ -2022,7 +2023,7 @@ if(authlen > restlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if(keyver == 0) return;
+if((keyver == 0) || (keyver > 3)) return;
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	eapolm3errorcount++;
@@ -2130,7 +2131,7 @@ if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if(keyver == 0) return;
+if((keyver == 0) || (keyver > 3)) return;
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	eapolm2errorcount++;
@@ -2263,7 +2264,7 @@ if(authlen > restlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if(keyver == 0) return;
+if((keyver == 0) || (keyver > 3)) return;
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	eapolm1errorcount++;
