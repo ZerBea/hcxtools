@@ -140,11 +140,13 @@ static long int associationrequestpskcount;
 static long int associationrequestpsk256count;
 static long int associationrequestsae256count;
 static long int associationrequestsae384bcount;
+static long int associationrequestowecount;
 static long int reassociationrequestcount;
 static long int reassociationrequestpskcount;
 static long int reassociationrequestpsk256count;
 static long int reassociationrequestsae256count;
 static long int reassociationrequestsae384bcount;
+static long int reassociationrequestowecount;
 static long int ipv4count;
 static long int ipv6count;
 static long int wepenccount;
@@ -361,11 +363,13 @@ associationrequestpskcount = 0;
 associationrequestpsk256count = 0;
 associationrequestsae256count = 0;
 associationrequestsae384bcount = 0;
+associationrequestowecount = 0;
 reassociationrequestcount = 0;
 reassociationrequestpskcount = 0;
 reassociationrequestpsk256count = 0;
 reassociationrequestsae256count = 0;
 reassociationrequestsae384bcount = 0;
+reassociationrequestowecount = 0;
 ipv4count = 0;
 ipv6count = 0;
 wepenccount = 0;
@@ -464,11 +468,13 @@ if(associationrequestpskcount > 0)	printf("ASSOCIATIONREQUEST (PSK).............
 if(associationrequestpsk256count > 0)	printf("ASSOCIATIONREQUEST (PSK SHA256)..........: %ld\n", associationrequestpsk256count);
 if(associationrequestsae256count > 0)	printf("ASSOCIATIONREQUEST (SAE SHA256)..........: %ld\n", associationrequestsae256count);
 if(associationrequestsae384bcount > 0)	printf("ASSOCIATIONREQUEST (SAE SHA384 SUITE B)..: %ld\n", associationrequestsae384bcount);
+if(associationrequestowecount > 0)	printf("ASSOCIATIONREQUEST (OWE).................: %ld\n", associationrequestowecount);
 if(reassociationrequestcount > 0)	printf("REASSOCIATIONREQUEST (total).............: %ld\n", reassociationrequestcount);
 if(reassociationrequestpskcount > 0)	printf("REASSOCIATIONREQUEST (PSK)...............: %ld\n", reassociationrequestpskcount);
 if(reassociationrequestpsk256count > 0)	printf("REASSOCIATIONREQUEST (PSK SHA256)........: %ld\n", reassociationrequestpsk256count);
 if(reassociationrequestsae256count > 0)	printf("REASSOCIATIONREQUEST (SAE SHA256)........: %ld\n", reassociationrequestsae256count);
 if(reassociationrequestsae384bcount > 0)printf("REASSOCIATIONREQUEST (SAE SHA384 SUITE B): %ld\n", reassociationrequestsae384bcount);
+if(reassociationrequestowecount > 0)	printf("REASSOCIATIONREQUEST (OWE)...............: %ld\n", reassociationrequestowecount);
 if(wpaenccount > 0)			printf("WPA encrypted............................: %ld\n", wpaenccount);
 if(wepenccount > 0)			printf("WEP encrypted............................: %ld\n", wepenccount);
 if(ipv4count > 0)			printf("IPv4.....................................: %ld\n", ipv4count);
@@ -1690,6 +1696,8 @@ for(c = 0; c < asuitecountptr->count; c++)
 		if(asuiteptr->type == AK_TDLS) zeiger->akm |= TAK_TDLS;
 		if(asuiteptr->type == AK_SAE_SHA256) zeiger->akm |= TAK_SAE_SHA256;
 		if(asuiteptr->type == AK_FT_SAE) zeiger->akm |= TAK_FT_SAE;
+		if(asuiteptr->type == AK_SAE_SHA384B) zeiger->akm |= TAK_SAE_SHA384B;
+		if(asuiteptr->type == AK_OWE) zeiger->akm |= TAK_OWE;
 		}
 	wpalen -= SUITE_SIZE;
 	ieptr += SUITE_SIZE;
@@ -1796,6 +1804,7 @@ for(c = 0; c < asuitecountptr->count; c++)
 		if(asuiteptr->type == AK_SAE_SHA256) zeiger->akm |= TAK_SAE_SHA256;
 		if(asuiteptr->type == AK_FT_SAE) zeiger->akm |= TAK_FT_SAE;
 		if(asuiteptr->type == AK_SAE_SHA384B) zeiger->akm |= TAK_SAE_SHA384B;
+		if(asuiteptr->type == AK_OWE) zeiger->akm |= TAK_OWE;
 		}
 	rsnlen -= SUITE_SIZE;
 	ieptr += SUITE_SIZE;
@@ -2500,6 +2509,7 @@ if((tags.akm &TAK_PSK) == TAK_PSK) reassociationrequestpskcount++;
 else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) reassociationrequestpsk256count++; 
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) reassociationrequestsae256count++; 
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) reassociationrequestsae384bcount++; 
+else if((tags.akm &TAK_OWE) == TAK_OWE) reassociationrequestowecount++; 
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
@@ -2578,6 +2588,7 @@ if((tags.akm &TAK_PSK) == TAK_PSK) associationrequestpskcount++;
 else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) associationrequestpsk256count++; 
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) associationrequestsae256count++; 
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) associationrequestsae384bcount++; 
+else if((tags.akm &TAK_OWE) == TAK_OWE) associationrequestowecount++; 
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{

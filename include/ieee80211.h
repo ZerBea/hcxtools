@@ -403,6 +403,7 @@ struct suite_s
 #define	AK_SAE_SHA256	8
 #define AK_FT_SAE	9
 #define AK_SAE_SHA384B	12
+#define AK_OWE		18
 } __attribute__ ((packed));
 typedef struct suite_s suite_t;
 #define	SUITE_SIZE sizeof(suite_t)
