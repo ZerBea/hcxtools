@@ -537,6 +537,7 @@ if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format....
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)......: %ld\n", pmkidwrittencountdeprecated);
 if(pcapreaderrors > 0)			printf("packet read error........................: %ld\n", pcapreaderrors);
 if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps...........: %ld\n", zeroedtimestampcount);
+if(eapolmsgtimestamperrorcount > 0)	printf("EAPOL frames with wrong timestamp........: %ld\n", eapolmsgtimestamperrorcount);
 malformedcount = beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount;
 if(malformedcount > 0)			printf("malformed packets (total)................: %ld\n", malformedcount);
 if(beaconerrorcount > 0)		printf("BROADCAST MAC error (malformed packets)..: %ld\n", beaconerrorcount);
@@ -559,25 +560,21 @@ if((proberequestcount +authenticationcount +associationrequestcount +reassociati
 	printf("\nWarning:\n"
 		"This dump file contains no important frames like\n"
 		"proberequest, authentication, association or reassociation\n"
-		"That makes it hard to retrieve the PSK!\n"
-		"Do not remove this frames or use tools which remove them\n"
-		"or doesn't store them!\n");
+		"That makes it hard to retrieve the PSK!\n");
 	}
 
 if(zeroedtimestampcount > 0)
 	{
 	printf("\nWarning:\n"
 		"This dump file contains frames with zeroed timestamps!\n"
-		"That prevent calculation of EAPOL TIMEOUT values!\n"
-		"Do not delete timestamps or use tools which delete them!\n");
+		"That prevent calculation of EAPOL TIMEOUT values!\n");
 	}
 
 if(eapolmsgtimestamperrorcount > 0)
 	{
 	printf("\nWarning:\n"
 		"This dump file contains frames with wrong timestamps!\n"
-		"That prevent calculation of EAPOL TIMEOUT values!\n"
-		"Do not use tools which calculate wrong timestamps!\n");
+		"That prevent calculation of EAPOL TIMEOUT values!\n");
 	}
 
 printf("\n");
