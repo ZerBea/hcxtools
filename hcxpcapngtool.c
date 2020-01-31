@@ -1951,6 +1951,7 @@ return true;
 /*===========================================================================*/
 static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint32_t restlen, uint8_t *eapauthptr)
 {
+static int c;
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
@@ -1961,6 +1962,8 @@ static uint8_t keyver;
 static uint64_t rc;
 static uint64_t rcgap;
 static uint8_t mpfield;
+
+static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm4count++;
 eapolmsgcount++;
@@ -1986,6 +1989,19 @@ if(memcmp(&zeroed32, wpak->keymic, 16) == 0)
 	{
 	eapolm4errorcount++;
 	return;
+	}
+for(c = 0; c < 12; c++)
+	{
+	if(memcmp(&zeroed32, &wpak->keymic[c], 4) == 0)
+		{
+		eapolm4errorcount++;
+		return;
+		}
+	if(memcmp(&foxtrott, &wpak->keymic[c], 4) == 0)
+		{
+		eapolm4errorcount++;
+		return;
+		}
 	}
 if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
 	{
@@ -2045,6 +2061,7 @@ return;
 /*===========================================================================*/
 static void process80211eapol_m3(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint32_t restlen, uint8_t *eapauthptr)
 {
+static int c;
 static messagelist_t *zeiger;
 static messagelist_t *zeigerakt;
 static uint8_t *wpakptr;
@@ -2056,6 +2073,8 @@ static uint8_t keyver;
 static uint64_t rc;
 static uint64_t rcgap;
 static uint8_t mpfield;
+
+static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm3count++;
 eapolmsgcount++;
@@ -2081,6 +2100,19 @@ if(memcmp(&zeroed32, wpak->keymic, 16) == 0)
 	{
 	eapolm3errorcount++;
 	return;
+	}
+for(c = 0; c < 12; c++)
+	{
+	if(memcmp(&zeroed32, &wpak->keymic[c], 4) == 0)
+		{
+		eapolm3errorcount++;
+		return;
+		}
+	if(memcmp(&foxtrott, &wpak->keymic[c], 4) == 0)
+		{
+		eapolm3errorcount++;
+		return;
+		}
 	}
 if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
 	{
@@ -2152,6 +2184,7 @@ return;
 /*===========================================================================*/
 static void process80211eapol_m2(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint32_t restlen, uint8_t *eapauthptr)
 {
+static int c;
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
@@ -2164,6 +2197,8 @@ static uint64_t rcgap;
 static uint8_t mpfield;
 static int infolen;
 static tags_t tags;
+
+static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm2count++;
 eapolmsgcount++;
@@ -2190,6 +2225,19 @@ if(memcmp(&zeroed32, wpak->keymic, 16) == 0)
 	{
 	eapolm2errorcount++;
 	return;
+	}
+for(c = 0; c < 12; c++)
+	{
+	if(memcmp(&zeroed32, &wpak->keymic[c], 4) == 0)
+		{
+		eapolm2errorcount++;
+		return;
+		}
+	if(memcmp(&foxtrott, &wpak->keymic[c], 4) == 0)
+		{
+		eapolm2errorcount++;
+		return;
+		}
 	}
 if(memcmp(&zeroed32, wpak->keyiv, 16) != 0)
 	{
