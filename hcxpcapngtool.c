@@ -558,7 +558,7 @@ if((proberequestcount +authenticationcount +associationrequestcount +reassociati
 	{
 	printf("\nWarning:\n"
 		"This dump file contains no important frames like\n"
-		"preoberequest, authentication, association or reassociation\n"
+		"proberequest, authentication, association or reassociation\n"
 		"That makes it hard to retrieve the PSK!\n"
 		"Do not remove this frames or use tools which remove them\n"
 		"or doesn't store them!\n");
