@@ -402,6 +402,8 @@ struct suite_s
 #define	AK_TDLS		7
 #define	AK_SAE_SHA256	8
 #define AK_FT_SAE	9
+#define AK_AP_PKA	10
+#define AK_SAE_SHA256B	11
 #define AK_SAE_SHA384B	12
 #define AK_OWE		18
 } __attribute__ ((packed));
