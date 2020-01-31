@@ -1297,20 +1297,24 @@ zeigerpmkidakt = pmkidlist;
 zeigermacold = aplist;
 if(zeigermacold->type == AP)
 	{
-	if(ignoreieflag == true)
+	if(zeigermacold->essidlen != 0)
 		{
-		getpmkid(zeigermacold, zeigerpmkidakt);
-		gethandshake(zeigermacold, zeigerhsakt);
-		}
-	else if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
-		{
-		getpmkid(zeigermacold, zeigerpmkidakt);
-		gethandshake(zeigermacold, zeigerhsakt);
+		if(ignoreieflag == true)
+			{
+			getpmkid(zeigermacold, zeigerpmkidakt);
+			gethandshake(zeigermacold, zeigerhsakt);
+			}
+		else if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+			{
+			getpmkid(zeigermacold, zeigerpmkidakt);
+			gethandshake(zeigermacold, zeigerhsakt);
+			}
 		}
 	}
 essiddupecount = 0;
 for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 	{
+	if(zeigermac->essidlen == 0) continue;
 	if(zeigermac->type != AP)
 		{
 		essiddupecount = 0;
