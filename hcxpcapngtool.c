@@ -126,6 +126,7 @@ static long int beaconerrorcount;
 static long int proberesponsecount;
 static long int proberequestcount;
 static long int proberequestdirectedcount;
+static long int authenticationcount;
 static long int authopensystemcount;
 static long int authseacount;
 static long int authsharedkeycount;
@@ -176,6 +177,7 @@ static long int eapolrsncount;
 static long int eapolwpacount;
 static long int eapolmsgcount;
 static long int eapolmsgerrorcount;
+static long int eapolmsgtimestamperrorcount;
 static long int eapolmpcount;
 static long int eapolmpbestcount;
 static long int eapolm1count;
@@ -349,6 +351,7 @@ beaconerrorcount = 0;
 proberesponsecount = 0;
 proberequestcount = 0;
 proberequestdirectedcount = 0;
+authenticationcount = 0;
 authopensystemcount = 0;
 authseacount = 0;
 authsharedkeycount = 0;
@@ -400,6 +403,7 @@ eapolrsncount = 0;
 eapolwpacount = 0;
 eapolmsgcount = 0;
 eapolmsgerrorcount = 0;
+eapolmsgtimestamperrorcount = 0;
 eapolmpbestcount = 0;
 eapolmpcount = 0;
 eapolm1count = 0;
@@ -454,6 +458,7 @@ if(beaconcount > 0)			printf("BEACON (total)...........................: %ld\n",
 if(proberequestcount > 0)		printf("PROBEREQUEST.............................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
 if(proberesponsecount > 0)		printf("PROBERESONSE.............................: %ld\n", proberesponsecount);
+if(authenticationcount > 0)		printf("AUTHENTICATION (total)...................: %ld\n", authenticationcount);
 if(authopensystemcount > 0)		printf("AUTHENTICATION (OPEN SYSTEM).............: %ld\n", authopensystemcount);
 if(authseacount > 0)			printf("AUTHENTICATION (SAE).....................: %ld\n", authseacount);
 if(authsharedkeycount > 0)		printf("AUTHENTICATION (SHARED KEY)..............: %ld\n", authsharedkeycount);
@@ -531,7 +536,7 @@ if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.........: %
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format..........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)......: %ld\n", pmkidwrittencountdeprecated);
 if(pcapreaderrors > 0)			printf("packet read error........................: %ld\n", pcapreaderrors);
-if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps...........: %ld (warning: this prevents EAPOL time calculation)\n", zeroedtimestampcount);
+if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps...........: %ld\n", zeroedtimestampcount);
 malformedcount = beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount;
 if(malformedcount > 0)			printf("malformed packets (total)................: %ld\n", malformedcount);
 if(beaconerrorcount > 0)		printf("BROADCAST MAC error (malformed packets)..: %ld\n", beaconerrorcount);
@@ -539,17 +544,43 @@ if(taglenerrorcount > 0)		printf("IE TAG length error (malformed packets)..: %ld
 if(essiderrorcount > 0)			printf("ESSID error (malformed packets)..........: %ld\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
-printf("\n");
 if(malformedcount > 10)
 	{
-	printf( "Malformed packets detected!\n"   
+	printf( "\nMalformed packets detected!\n"   
 		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
 		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
 		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
 		"a bit error in the payload. This can lead to unexpected results.\n"
-		"Please analyze the dump file with Wireshark.\n\n");
-	return;
+		"Please analyze the dump file with Wireshark.\n");
 	}
+ 
+if((proberequestcount +authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
+	{
+	printf("\nWarning:\n"
+		"This dump file contains no important frames like\n"
+		"preoberequest, authentication, association or reassociation\n"
+		"That makes it hard to retrieve the PSK!\n"
+		"Do not remove this frames or use tools which remove them\n"
+		"or doesn't store them!\n");
+	}
+
+if(zeroedtimestampcount > 0)
+	{
+	printf("\nWarning:\n"
+		"This dump file contains frames with zeroed timestamps!\n"
+		"That prevent calculation of EAPOL TIMEOUT values!\n"
+		"Do not delete timestamps or use tools which delete them!\n");
+	}
+
+if(eapolmsgtimestamperrorcount > 0)
+	{
+	printf("\nWarning:\n"
+		"This dump file contains frames with wrong timestamps!\n"
+		"That prevent calculation of EAPOL TIMEOUT values!\n"
+		"Do not use tools which calculate wrong timestamps!\n");
+	}
+
+printf("\n");
 return;
 }
 /*===========================================================================*/
@@ -1408,6 +1439,8 @@ static void addhandshake(uint64_t eaptimegap, uint64_t rcgap, messagelist_t *msg
 static handshakelist_t *handshakelistnew;
 eapolmpcount++;
 
+
+if(msgap->timestamp == msgclient->timestamp) eapolmsgtimestamperrorcount++;
 if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
 	{
 	if(handshakelistptr >= handshakelist +handshakelistmax)
@@ -2626,6 +2659,7 @@ static inline void process80211authentication(uint8_t *macfm, uint32_t authentic
 {
 static authf_t *auth;
 
+authenticationcount++;
 auth = (authf_t*)authenticationptr;
 if(authenticationlen < (int)AUTHENTICATIONFRAME_SIZE) return;
 if(auth->algorithm == OPEN_SYSTEM)	authopensystemcount++;
