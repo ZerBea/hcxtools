@@ -126,6 +126,8 @@ static long int beaconerrorcount;
 static long int proberesponsecount;
 static long int proberequestcount;
 static long int proberequestdirectedcount;
+static long int deauthenticationcount;
+static long int disassociationcount;
 static long int authenticationcount;
 static long int authopensystemcount;
 static long int authseacount;
@@ -351,6 +353,8 @@ beaconerrorcount = 0;
 proberesponsecount = 0;
 proberequestcount = 0;
 proberequestdirectedcount = 0;
+deauthenticationcount = 0;
+disassociationcount = 0;
 authenticationcount = 0;
 authopensystemcount = 0;
 authseacount = 0;
@@ -458,6 +462,8 @@ if(beaconcount > 0)			printf("BEACON (total)...........................: %ld\n",
 if(proberequestcount > 0)		printf("PROBEREQUEST.............................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
 if(proberesponsecount > 0)		printf("PROBERESONSE.............................: %ld\n", proberesponsecount);
+if(deauthenticationcount > 0)		printf("DEAUTHENTICATION (total).................: %ld\n", deauthenticationcount);
+if(disassociationcount > 0)		printf("DISASSOCIATION (total)...................: %ld\n", disassociationcount);
 if(authenticationcount > 0)		printf("AUTHENTICATION (total)...................: %ld\n", authenticationcount);
 if(authopensystemcount > 0)		printf("AUTHENTICATION (OPEN SYSTEM).............: %ld\n", authopensystemcount);
 if(authseacount > 0)			printf("AUTHENTICATION (SAE).....................: %ld\n", authseacount);
@@ -1061,6 +1067,7 @@ if((keyver == 1) || (keyver == 2))
 		HMAC(EVP_sha1(), ptk, 16, eapoldata, eapollen, miczero, NULL);
 		if(memcmp(&miczero, wpak->keymic, 16) == 0) return true;
 		}
+	else return false;
 	}
 else if(keyver == 3)
 	{
@@ -1435,7 +1442,6 @@ static void addhandshake(uint64_t eaptimegap, uint64_t rcgap, messagelist_t *msg
 {
 static handshakelist_t *handshakelistnew;
 eapolmpcount++;
-
 
 if(msgap->timestamp == msgclient->timestamp) eapolmsgtimestamperrorcount++;
 if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
@@ -2933,6 +2939,8 @@ if(macfrx->type == IEEE80211_FTYPE_MGMT)
 		if(memcmp(&mac_broadcast, macfrx->addr1, 6) == 0) process80211probe_req(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
 		else process80211probe_req_direct(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
 		}
+	else if(macfrx->subtype == IEEE80211_STYPE_DEAUTH) deauthenticationcount++;
+	else if(macfrx->subtype == IEEE80211_STYPE_DISASSOC) disassociationcount++;
 	}
 else if(macfrx->type == IEEE80211_FTYPE_DATA)
 	{
