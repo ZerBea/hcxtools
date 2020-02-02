@@ -553,7 +553,7 @@ eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +e
 if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 if(malformedcount > 10)
 	{
-	printf( "\nMalformed packets detected!\n"   
+	printf( "\nWarning: malformed packets detected!\n"   
 		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
 		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
 		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
@@ -561,26 +561,34 @@ if(malformedcount > 10)
 		"Please analyze the dump file with Wireshark.\n");
 	}
  
-if((proberequestcount +authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
+if((authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
 	{
-	printf("\nWarning:\n"
+	printf("\nWarning: missing frames!\n"
 		"This dump file contains no important frames like\n"
-		"proberequest, authentication, association or reassociation!\n"
-		"That makes it hard to recover the PSK!\n");
+		"authentication, association or reassociation.\n"
+		"That makes it hard to recover the PSK.\n");
+	}
+
+if(proberequestcount == 0)
+	{
+	printf("\nWarning: missing frames!\n"
+		"This dump file contains no undirected proberequest frames.\n"
+		"An undirected proberequest may contain information about the PSK.\n"
+		"That makes it hard to recover the PSK.\n");
 	}
 
 if(zeroedtimestampcount > 0)
 	{
-	printf("\nWarning:\n"
-		"This dump file contains frames with zeroed timestamps!\n"
-		"That prevent calculation of EAPOL TIMEOUT values!\n");
+	printf("\nWarning: missing timestamps!\n"
+		"This dump file contains frames with zeroed timestamps.\n"
+		"That prevent calculation of EAPOL TIMEOUT values.\n");
 	}
 
 if(eapolmsgtimestamperrorcount > 0)
 	{
-	printf("\nWarning:\n"
-		"This dump file contains frames with wrong timestamps!\n"
-		"That prevent calculation of EAPOL TIMEOUT values!\n");
+	printf("\nWarning: wrong timestamps!\n"
+		"This dump file contains frames with wrong timestamps.\n"
+		"That prevent calculation of EAPOL TIMEOUT values.\n");
 	}
 
 printf("\n");
