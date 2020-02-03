@@ -167,7 +167,8 @@ static long int eapexpandedcount;
 static long int eapidcount;
 static long int eapcodereqcount;
 static long int eapcoderespcount;
-static long int zeroedpmkcount;
+static long int zeroedpmkidpmkcount;
+static long int zeroedeapolpmkcount;
 static long int pmkidcount;
 static long int pmkidbestcount;
 static long int pmkiduselesscount;
@@ -394,7 +395,8 @@ eapexpandedcount = 0;
 eapidcount = 0;
 eapcodereqcount = 0;
 eapcoderespcount = 0;
-zeroedpmkcount = 0;
+zeroedpmkidpmkcount = 0;
+zeroedeapolpmkcount = 0;
 pmkidcount = 0;
 pmkidbestcount = 0;
 pmkiduselesscount = 0;
@@ -507,7 +509,6 @@ if(eapmd5johnwrittencount > 0)		printf("EAP-MD5 pairs written to JtR............
 if(eapleapcount > 0)			printf("EAP-LEAP messages........................: %ld\n", eapleapcount);
 if(eapleapwrittencount > 0)		printf("EAP-LEAP pairs written...................: %ld\n", eapleapwrittencount);
 if(eaptlscount > 0)			printf("EAP-TLS messages.........................: %ld\n", eaptlscount);
-if(zeroedpmkcount > 0)			printf("PMK (zeroed).............................: %ld\n", zeroedpmkcount);
 if(eapolmsgcount > 0)			printf("EAPOL messages (total)...................: %ld\n", eapolmsgcount);
 if(eapolrc4count > 0)			printf("EAPOL RC4 messages.......................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.......................: %ld\n", eapolrsncount);
@@ -521,6 +522,7 @@ if(eapolm2count > 0)			printf("EAPOL M2 messages........................: %ld\n"
 if(eapolm3count > 0)			printf("EAPOL M3 messages........................: %ld\n", eapolm3count);
 if(eapolm4count > 0)			printf("EAPOL M4 messages........................: %ld\n", eapolm4count);
 if(eapolmpcount > 0)			printf("EAPOL pairs (total)......................: %ld\n", eapolmpcount);
+if(zeroedeapolpmkcount > 0)		printf("EAPOL (over zeroed PMK)..................: %ld\n", zeroedeapolpmkcount);
 if(eapolmpbestcount > 0)		printf("EAPOL pairs (best).......................: %ld\n", eapolmpbestcount);
 if(eapolaplesscount > 0)		printf("EAPOL pairs (AP-LESS)....................: %ld\n", eapolaplesscount);
 if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file...: %ld (RC checked)\n", eapolwrittencount);
@@ -537,6 +539,7 @@ if(eapolm34e3count > 0)			printf("EAPOL M34E3..............................: %ld
 if(eapolm34e4count > 0)			printf("EAPOL M34E4..............................: %ld\n", eapolm34e4count);
 if(pmkidcount > 0)			printf("PMKID (total)............................: %ld\n", pmkidcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless)..........................: %ld\n", pmkiduselesscount);
+if(zeroedpmkidpmkcount > 0)		printf("PMKID (over zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
 if(pmkidbestcount > 0)			printf("PMKID (best).............................: %ld\n", pmkidbestcount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.........: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format..........: %ld\n", pmkidwrittenjcountdeprecated);
@@ -1483,7 +1486,7 @@ if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclien
 	}
 else
 	{
-	zeroedpmkcount++;
+	zeroedeapolpmkcount++;
 	if(donotcleanflag == true)
 		{
 		if(handshakelistptr >= handshakelist +handshakelistmax)
@@ -1563,7 +1566,7 @@ if(testzeroedpmkid(macclient, macap, pmkid) == false)
 	}
 else
 	{
-	zeroedpmkcount++;
+	zeroedpmkidpmkcount++;
 	if(donotcleanflag == true)
 		{
 		if(pmkidlistptr >= pmkidlist +pmkidlistmax)
