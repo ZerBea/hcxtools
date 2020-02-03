@@ -2163,7 +2163,6 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			{
 			if(zeiger->rc == myaktreplaycount) continue;
 			}
-		if(rcgap > rcgapmax) rcgapmax = rcgap;
 		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
 		}
@@ -2341,7 +2340,6 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			}
 		if(rcgap != 0) continue;
 		}
-	if(rcgap > rcgapmax) rcgapmax = rcgap;
 	if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 	}
