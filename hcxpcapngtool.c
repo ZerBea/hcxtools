@@ -2055,6 +2055,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	if((zeiger->message &HS_M1) != HS_M1) continue;
 	if(zeiger->rc >= rc -1) rcgap = zeiger->rc -rc +1;
 	else rcgap = rc +1 -zeiger->rc;
+	if(rcgap > rcgapmax) rcgapmax = rcgap;
 	if(rcgap > ncvalue) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
@@ -2065,7 +2066,6 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		{
 		if(zeiger->rc == myaktreplaycount) continue;
 		}
-	if(rcgap > rcgapmax) rcgapmax = rcgap;
 	if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 	}
@@ -2154,6 +2154,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		{
 		if(zeiger->rc >= rc -1) rcgap = zeiger->rc -rc +1;
 		else rcgap = rc +1 -zeiger->rc;
+		if(rcgap > rcgapmax) rcgapmax = rcgap;
 		if(rcgap > ncvalue) continue;
 		if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
@@ -2169,6 +2170,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	if((zeiger->message &HS_M4) != HS_M4) continue;
 	if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
 	else rcgap = rc -zeiger->rc;
+	if(rcgap > rcgapmax) rcgapmax = rcgap;
 	if(rcgap > ncvalue) continue;
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
@@ -2177,7 +2179,6 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		{
 		if(zeiger->rc == myaktreplaycount) continue;
 		}
-	if(rcgap > rcgapmax) rcgapmax = rcgap;
 	if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
 	}
@@ -2302,6 +2303,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		{
 		if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
 		else rcgap = rc -zeiger->rc;
+		if(rcgap > rcgapmax) rcgapmax = rcgap;
 		if(rcgap > ncvalue) continue;
 		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 		if(memcmp(zeiger->ap, macap, 6) != 0) continue;
@@ -2317,13 +2319,13 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 				}
 			if(rcgap != 0) continue;
 			}
-		if(rcgap > rcgapmax) rcgapmax = rcgap;
 		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 		}
 	if((zeiger->message &HS_M3) != HS_M3) continue;
 	if(zeiger->rc >= rc +1) rcgap = zeiger->rc -rc -1;
 	else rcgap = rc +1 -zeiger->rc;
+	if(rcgap > rcgapmax) rcgapmax = rcgap;
 	if(rcgap > ncvalue) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
