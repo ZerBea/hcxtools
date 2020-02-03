@@ -2040,12 +2040,12 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if((zeiger->message &HS_M3) == HS_M3)
 		{
+		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
+		if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 		if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
 		else rcgap = rc -zeiger->rc;
 		if(rcgap > rcgapmax) rcgapmax = rcgap;
 		if(rcgap > ncvalue) continue;
-		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
-		if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 		if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
 		mpfield = ST_M34E4;
@@ -2053,12 +2053,15 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 		}
 	if((zeiger->message &HS_M1) != HS_M1) continue;
-	if(zeiger->rc >= rc -1) rcgap = zeiger->rc -rc +1;
-	else rcgap = rc +1 -zeiger->rc;
-	if(rcgap > rcgapmax) rcgapmax = rcgap;
-	if(rcgap > ncvalue) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
+	if(zeiger->rc >= rc -1) rcgap = zeiger->rc -rc +1;
+	else rcgap = rc +1 -zeiger->rc;
+	if(zeiger->rc != myaktreplaycount)
+		{
+		if(rcgap > rcgapmax) rcgapmax = rcgap;
+		}
+	if(rcgap > ncvalue) continue;
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	mpfield = ST_M14E4;
@@ -2143,18 +2146,19 @@ zeigerakt->rc = rc;
 memcpy(zeigerakt->nonce, wpak->nonce, 32);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
-	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
-	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[29], &wpak->nonce[29], 4) != 0))
-		{
-		zeiger->status |= ST_NC;
-		zeigerakt->status |= ST_NC;
-		}
+	zeiger->status |= ST_NC;
+	zeigerakt->status |= ST_NC;
 	if((zeiger->message &HS_M2) == HS_M2)
 		{
+		if(memcmp(zeiger->ap, macap, 6) != 0) continue;
+		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 		if(zeiger->rc >= rc -1) rcgap = zeiger->rc -rc +1;
 		else rcgap = rc +1 -zeiger->rc;
-		if(rcgap > rcgapmax) rcgapmax = rcgap;
+		if(zeiger->rc != myaktreplaycount)
+			{
+			if(rcgap > rcgapmax) rcgapmax = rcgap;
+			}
 		if(rcgap > ncvalue) continue;
 		if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
@@ -2167,6 +2171,8 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
 		}
 	if((zeiger->message &HS_M4) != HS_M4) continue;
+	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
+	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
 	else rcgap = rc -zeiger->rc;
 	if(rcgap > rcgapmax) rcgapmax = rcgap;
@@ -2300,12 +2306,15 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if((zeiger->message &HS_M1) == HS_M1)
 		{
-		if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
-		else rcgap = rc -zeiger->rc;
-		if(rcgap > rcgapmax) rcgapmax = rcgap;
-		if(rcgap > ncvalue) continue;
 		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 		if(memcmp(zeiger->ap, macap, 6) != 0) continue;
+		if(zeiger->rc >= rc) rcgap = zeiger->rc -rc;
+		else rcgap = rc -zeiger->rc;
+		if((rc != myaktreplaycount) && (zeiger->rc != myaktreplaycount))
+			{
+			if(rcgap > rcgapmax) rcgapmax = rcgap;
+			}
+		if(rcgap > ncvalue) continue;
 		if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
 		mpfield = ST_M12E2;
@@ -2321,13 +2330,16 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 		}
+	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
+	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 	if((zeiger->message &HS_M3) != HS_M3) continue;
 	if(zeiger->rc >= rc +1) rcgap = zeiger->rc -rc -1;
 	else rcgap = rc +1 -zeiger->rc;
-	if(rcgap > rcgapmax) rcgapmax = rcgap;
+	if(rc != myaktreplaycount)
+		{
+		if(rcgap > rcgapmax) rcgapmax = rcgap;
+		}
 	if(rcgap > ncvalue) continue;
-	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
-	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 	if(eaptimestamp > zeiger->timestamp) eaptimegap = eaptimestamp -zeiger->timestamp;
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	mpfield = ST_M32E2;
