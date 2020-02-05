@@ -121,11 +121,11 @@ Bitmask message pair field (hcxpcapngtool)
 
 3: x unused
 
-4: ap-less attack (set to 1) - no nonce-error-corrections neccessary
+4: ap-less attack (set to 1) - no nonce-error-corrections necessary
 
-5: LE router detected (set to 1) - nonce-error-corrections only for LE neccessary
+5: LE router detected (set to 1) - nonce-error-corrections only for LE necessary
 
-6: BE router detected (set to 1) - nonce-error-corrections only for BE neccessary
+6: BE router detected (set to 1) - nonce-error-corrections only for BE necessary
 
-7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely neccessary
+7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely necessary
 
