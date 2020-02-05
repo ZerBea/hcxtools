@@ -580,6 +580,13 @@ if(proberequestcount == 0)
 		"That makes it hard to recover the PSK.\n");
 	}
 
+if(eapolm1count <= 1)
+	{
+	printf("\nWarning: missing frames!\n"
+		"This dump file doesn't contain enough EAPOL M1 frames.\n"
+		"That makes it impossible to calculate nonce-error-correction values.\n");
+	}
+
 if(zeroedtimestampcount > 0)
 	{
 	printf("\nWarning: missing timestamps!\n"
