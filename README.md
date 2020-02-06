@@ -39,15 +39,15 @@ Detailed description
 
 | Tool           | Description                                                                                                            |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| hcxpcapngtool  | Provide new hashcat format 22000 - highly experimental - format may change until final release (see changelog)         |
-| hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcapngtool output (-c -o, -z- -U) or commandline input |
-| hcxhashtool    | Provide various filter operations on new PMKID/EAPOL hash line - highly experimental - only limited functions          |
-| hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E, -I- -U)                                    |
+| hcxpcapngtool  | Provide new hashcat format 22000                                                                                       |
+| hcxhashtool    | Provide various filter operations on new PMKID/EAPOL hash line                                                         |
+| hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcapngtool output (-c -o -z- -U) or commandline input  |
+| hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E -I- -U)                                     |
 | wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                             |
+| whoismac       | Show vendor information and/or download oui reference list                                                             |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | deprecated     | obsolete when hashcat and JtR moved to new PMKID/EAPOL hash line - no longer under maintenance                         |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| whoismac       | Show vendor information and/or download oui reference list                                                             |
 | hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format     |
 | hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                              |
 | hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper             |
