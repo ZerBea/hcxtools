@@ -97,6 +97,7 @@ static FILE *fh_essid;
 static FILE *fh_identity;
 static FILE *fh_username;
 static FILE *fh_nmea;
+static FILE *fh_log;
 static FILE *fh_pmkideapoljtrdeprecated;
 static FILE *fh_pmkiddeprecated;
 static FILE *fh_hccapxdeprecated;
@@ -3054,6 +3055,7 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		{
 		pcapreaderrors++;
 		printf("failed to read radiotap header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read radiotap header: %ld\n", rawpacketcount);
 		return;
 		}
 	rth = (rth_t*)capptr;
@@ -3065,6 +3067,7 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		{
 		pcapreaderrors++;
 		printf("failed to read radiotap header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read radiotap header: %ld\n", rawpacketcount);
 		return;
 		}
 	packetlen = caplen -rth->it_len;
@@ -3081,6 +3084,7 @@ else if(linktype == DLT_PPI)
 		{
 		pcapreaderrors++;
 		printf("failed to read ppi header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read ppi header: %ld\n", rawpacketcount);
 		return;
 		}
 	ppi = (ppi_t*)capptr;
@@ -3091,6 +3095,7 @@ else if(linktype == DLT_PPI)
 		{
 		pcapreaderrors++;
 		printf("failed to read ppi header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read ppi header: %ld\n", rawpacketcount);
 		return;
 		}
 	packetlen = caplen -ppi->pph_len;
@@ -3102,6 +3107,7 @@ else if(linktype == DLT_PRISM_HEADER)
 		{
 		pcapreaderrors++;
 		printf("failed to read prism header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read prism header: %ld\n", rawpacketcount);
 		return;
 		}
 	prism = (prism_t*)capptr;
@@ -3116,6 +3122,7 @@ else if(linktype == DLT_PRISM_HEADER)
 			{
 			pcapreaderrors++;
 			printf("failed to read prism header\n");
+			if(fh_log != NULL) fprintf(fh_log, "failed to read prism header: %ld\n", rawpacketcount);
 			return;
 			}
 		prism->msglen = caplen -prism->frmlen.data;
@@ -3129,6 +3136,7 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 		{
 		pcapreaderrors++;
 		printf("failed to read avs header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to avs header: %ld\n", rawpacketcount);
 		return;
 		}
 	avs = (avs_t*)capptr;
@@ -3139,6 +3147,7 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 		{
 		pcapreaderrors++;
 		printf("failed to read avs header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to avs header: %ld\n", rawpacketcount);
 		return;
 		}
 	packetlen = caplen -avs->len;
@@ -3150,6 +3159,7 @@ else if(linktype == DLT_EN10MB)
 		{
 		pcapreaderrors++;
 		printf("failed to read ethernet header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to ethernet header: %ld\n", rawpacketcount);
 		return;
 		}
 	packetlen = caplen -ETH2_SIZE;
@@ -3160,6 +3170,7 @@ else if(linktype == DLT_EN10MB)
 else
 	{
 	printf("unsupported network type %d\n", linktype);
+	if(fh_log != NULL) fprintf(fh_log, "unsupported network type %d: %ld\n", linktype, rawpacketcount);
 	return;
 	}
 
@@ -3167,6 +3178,7 @@ if(packetlen < 4)
 	{
 	pcapreaderrors++;
 	printf("failed to read packet\n");
+	if(fh_log != NULL) fprintf(fh_log, "failed to read packet (len < 4): %ld\n", rawpacketcount);
 	return;
 	}
 
@@ -3202,6 +3214,7 @@ if(res != PCAPHDR_SIZE)
 	{
 	pcapreaderrors++;
 	printf("failed to read pcap header\n");
+	if(fh_log != NULL) fprintf(fh_log, "failed to read pcap header: %s\n", basename(pcapinname));
 	return;
 	}
 
@@ -3234,19 +3247,22 @@ dltlinktype  = pcapfhdr.network;
 if(pcapfhdr.version_major != PCAP_MAJOR_VER)
 	{
 	pcapreaderrors++;
-	printf("unsupported pcap version\n");
+	printf("unsupported major pcap version\n");
+	if(fh_log != NULL) fprintf(fh_log, "unsupported major pcap version: %d\n", pcapfhdr.version_major);
 	return;
 	}
 if(pcapfhdr.version_minor != PCAP_MINOR_VER)
 	{
 	pcapreaderrors++;
-	printf("unsupported pcap version\n");
+	printf("unsupported minor pcap version\n");
+	if(fh_log != NULL) fprintf(fh_log, "unsupported minor pcap version: %d\n", pcapfhdr.version_minor);
 	return;
 	}
 if(pcapfhdr.snaplen > MAXPACPSNAPLEN)
 	{
 	pcapreaderrors++;
 	printf("detected oversized snaplen (%d)\n", pcapfhdr.snaplen);
+	if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen (%d): %d\n",  pcapfhdr.snaplen, pcapfhdr.version_minor);
 	}
 
 while(1)
@@ -3257,6 +3273,7 @@ while(1)
 		{
 		pcapreaderrors++;
 		printf("failed to read pcap packet header for packet %ld\n", rawpacketcount);
+		if(fh_log != NULL) fprintf(fh_log, "failed to read pcap packet header: %ld\n", rawpacketcount);
 		break;
 		}
 
@@ -3276,6 +3293,7 @@ while(1)
 	if(pcaprhdr.incl_len > pcapfhdr.snaplen)
 		{
 		pcapreaderrors++;
+		if(fh_log != NULL) fprintf(fh_log, "inclusive length > snaplen: %ld\n", rawpacketcount);
 		}
 	if(pcaprhdr.incl_len < MAXPACPSNAPLEN)
 		{
@@ -3285,6 +3303,7 @@ while(1)
 			{
 			pcapreaderrors++;
 			printf("failed to read packet %ld\n", rawpacketcount);
+			if(fh_log != NULL) fprintf(fh_log, "packet error: %ld\n", rawpacketcount);
 			break;
 			}
 		}
@@ -3296,6 +3315,7 @@ while(1)
 			{
 			pcapreaderrors++;
 			printf("failed to set file pointer\n");
+			if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", basename(pcapinname));
 			break;
 			}
 		continue;
@@ -3479,6 +3499,7 @@ if(fdsize < 0)
 	{
 	pcapreaderrors++;
 	printf("failed to get file size\n");
+	if(fh_log != NULL) fprintf(fh_log, "failed to get file size: %s\n", basename(pcapinname));
 	return;
 	}
 
@@ -3487,6 +3508,7 @@ if(aktseek < 0)
 	{
 	pcapreaderrors++;
 	printf("failed to set file pointer\n");
+	if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", basename(pcapinname));
 	return;
 	}
 
@@ -3499,6 +3521,7 @@ while(1)
 		{
 		pcapreaderrors++;
 		printf("failed to set file pointer\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", basename(pcapinname));
 		break;
 		}
 	res = read(fd, &pcpngblock, BH_SIZE);
@@ -3510,6 +3533,7 @@ while(1)
 		{
 		pcapreaderrors++;
 		printf("failed to read block header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read block header: %s\n", basename(pcapinname));
 		break;
 		}
 	pcapngbh = (block_header_t*)pcpngblock;
@@ -3536,7 +3560,8 @@ while(1)
 	if((blocklen > (2 *MAXPACPSNAPLEN)) || ((blocklen %4) != 0))
 		{
 		pcapreaderrors++;
-		printf("failed to read pcapng block header \n");
+		printf("failed to read pcapng block header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read pcapng block header: %ld\n", rawpacketcount);
 		break;
 		}
 	resseek = lseek(fd, aktseek, SEEK_SET);
@@ -3544,6 +3569,7 @@ while(1)
 		{
 		pcapreaderrors++;
 		printf("failed to set file pointer\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", basename(pcapinname));
 		break;
 		}
 	res = read(fd, &pcpngblock, blocklen);
@@ -3551,12 +3577,14 @@ while(1)
 		{
 		pcapreaderrors++;
 		printf("failed to read pcapng block header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read pcapng block header: %ld\n", rawpacketcount);
 		break;
 		}
 	if(memcmp(&pcpngblock[4], &pcpngblock[ blocklen -4], 4) != 0)
 		{
 		pcapreaderrors++;
 		printf("failed to read pcapng block header \n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read pcapng block header: %ld\n", rawpacketcount);
 		break;
 		}
 	if(blocktype == PCAPNGBLOCKTYPE)
@@ -3578,13 +3606,15 @@ while(1)
 		if(pcapngshb->major_version != PCAPNG_MAJOR_VER)
 			{
 			pcapreaderrors++;
-			printf("unsupported pcapng version\n");
+			printf("unsupported major pcapng version\n");
+			if(fh_log != NULL) fprintf(fh_log, "unsupported major pcapng version: %d\n", pcapngshb->major_version);
 			break;
 			}
 		if(pcapngshb->minor_version != PCAPNG_MINOR_VER)
 			{
 			pcapreaderrors++;
-			printf("unsupported pcapng version\n");
+			printf("unsupported minor pcapng version\n");
+			if(fh_log != NULL) fprintf(fh_log, "unsupported minor pcapng version: %d\n", pcapngshb->minor_version);
 			break;
 			}
 		pcapngoptionwalk(blocktype, pcapngshb->data, blocklen -SHB_SIZE);
@@ -3607,6 +3637,7 @@ while(1)
 			{
 			pcapreaderrors++;
 			printf("detected oversized snaplen (%d)\n", snaplen);
+			if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen: %ld\n", rawpacketcount);
 			}
 		pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE);
 		}
@@ -3625,12 +3656,14 @@ while(1)
 			{
 			pcapreaderrors++;
 			printf("caplen > MAXSNAPLEN (%d > %d)\n", pcapngpb->caplen, MAXPACPSNAPLEN);
+			if(fh_log != NULL) fprintf(fh_log, "caplen > MAXSNAPLEN: %ld\n", rawpacketcount);
 			continue;
 			}
 		if(pcapngpb->caplen > blocklen)
 			{
 			pcapreaderrors++;
 			printf("caplen > blocklen (%d > %d)\n", pcapngpb->caplen, blocklen);
+			if(fh_log != NULL) fprintf(fh_log, "caplen > blocklen: %ld\n", rawpacketcount);
 			continue;
 			}
 		rawpacketcount++;
@@ -3672,18 +3705,21 @@ while(1)
 			{
 			pcapreaderrors++;
 			printf("caplen != len (%d != %d)\n", pcapngepb->caplen, pcapngepb->len);
+			if(fh_log != NULL) fprintf(fh_log, "caplen != len: %ld\n", rawpacketcount);
 			continue;
 			}
 		if(pcapngepb->caplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
 			printf("caplen > MAXSNAPLEN (%d > %d)\n", pcapngepb->caplen, MAXPACPSNAPLEN);
+			if(fh_log != NULL) fprintf(fh_log, "caplen > MAXSNAPLEN: %ld\n", rawpacketcount);
 			continue;
 			}
 		if(pcapngepb->caplen > blocklen)
 			{
 			pcapreaderrors++;
 			printf("caplen > blocklen (%d > %d)\n", pcapngepb->caplen, blocklen);
+			if(fh_log != NULL) fprintf(fh_log, "caplen > blocklen: %ld\n", rawpacketcount);
 			continue;
 			}
 		rawpacketcount++;
@@ -3874,6 +3910,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
 	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx -F file.gpx\n"
 	"                                     to display the track, open file.gpx with viking\n"
+	"--log=<file>                       : output logfile\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file\n"
@@ -3929,6 +3966,7 @@ static char *essidoutname;
 static char *identityoutname;
 static char *usernameoutname;
 static char *nmeaoutname;
+static char *logoutname;
 static char *pmkideapoljtroutnamedeprecated;
 static char *pmkidoutnamedeprecated;
 static char *hccapxoutnamedeprecated;
@@ -3963,6 +4001,7 @@ static const struct option long_options[] =
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"nmea",			required_argument,	NULL,	HCX_NMEA_OUT},
+	{"log",				required_argument,	NULL,	HCX_LOG_OUT},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
 	{"eapmd5",			required_argument,	NULL,	HCX_EAPMD5_OUT},
 	{"eapmd5-john",			required_argument,	NULL,	HCX_EAPMD5_JOHN_OUT},
@@ -3993,11 +4032,26 @@ essidoutname = NULL;
 identityoutname = NULL;
 usernameoutname = NULL;
 nmeaoutname = NULL;
+logoutname = NULL;
 prefixoutname = NULL;
 pmkideapoljtroutnamedeprecated = NULL;
 pmkidoutnamedeprecated = NULL;
 hccapxoutnamedeprecated = NULL;
 hccapoutnamedeprecated = NULL;
+
+fh_pmkideapol = NULL;
+fh_eapmd5 = NULL;
+fh_eapmd5john = NULL;
+fh_eapleap = NULL;
+fh_essid = NULL;
+fh_identity = NULL;
+fh_username = NULL;
+fh_nmea = NULL;
+fh_log = NULL;
+fh_pmkideapoljtrdeprecated = NULL;
+fh_pmkiddeprecated = NULL;
+fh_hccapxdeprecated = NULL;
+fh_hccapdeprecated = NULL;
 
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
@@ -4059,6 +4113,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_NMEA_OUT:
 		nmeaoutname = optarg;
+		break;
+
+		case HCX_LOG_OUT:
+		logoutname = optarg;
 		break;
 
 		case HCX_PMKIDEAPOLJTR_OUT_DEPRECATED:
@@ -4212,6 +4270,15 @@ if(nmeaoutname != NULL)
 		}
 	}
 
+if(logoutname != NULL)
+	{
+	if((fh_log = fopen(logoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n",logoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
 if(pmkideapoljtroutnamedeprecated != NULL)
 	{
 	if((fh_pmkideapoljtrdeprecated = fopen(pmkideapoljtroutnamedeprecated, "a")) == NULL)
@@ -4220,6 +4287,7 @@ if(pmkideapoljtroutnamedeprecated != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
+
 if(pmkidoutnamedeprecated != NULL)
 	{
 	if((fh_pmkiddeprecated = fopen(pmkidoutnamedeprecated, "a")) == NULL)
@@ -4258,6 +4326,7 @@ if(fh_essid != NULL) fclose(fh_essid);
 if(fh_identity != NULL) fclose(fh_identity);
 if(fh_username != NULL) fclose(fh_username);
 if(fh_nmea != NULL) fclose(fh_nmea);
+if(fh_log != NULL) fclose(fh_log);
 if(fh_pmkideapoljtrdeprecated != NULL) fclose(fh_pmkideapoljtrdeprecated);
 if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
 if(fh_hccapxdeprecated != NULL) fclose(fh_hccapxdeprecated);
@@ -4317,6 +4386,13 @@ if(nmeaoutname != NULL)
 	if(stat(nmeaoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(nmeaoutname);
+		}
+	}
+if(logoutname != NULL)
+	{
+	if(stat(logoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(logoutname);
 		}
 	}
 
