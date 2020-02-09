@@ -521,9 +521,9 @@ if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n
 if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
 if(essiddupemax > 0)			printf("ESSID changes (mesured maximum)..........: %ld (warning)\n", essiddupemax);
 if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
-if(eapolnccount > 0)
+if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
-	printf                 ("EAPOL ANONCE error corrections (NC)......: working\n");
+	printf ("EAPOL ANONCE error corrections (NC)......: working\n");
 	if(rcgapmax > 0) printf("REPLAYCOUNT gap (suggested NC)...........: %" PRIu64 "\n", rcgapmax);
 	if(rcgapmax == 0) printf("REPLAYCOUNT gap (recommended NC).........: 8\n");
 	}
