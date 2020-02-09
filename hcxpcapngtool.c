@@ -2040,6 +2040,7 @@ keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((keyver == 0) || (keyver > 3)) return;
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M4 wpa data len > eap authentication len: %ld\n", rawpacketcount);
 	eapolm4errorcount++;
 	return;
 	}
@@ -2050,6 +2051,7 @@ rc = wpak->replaycount;
 #endif
 if(memcmp(&zeroed32, wpak->keymic, 16) == 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M4 key mic zeroed: %ld\n", rawpacketcount);
 	eapolm4errorcount++;
 	return;
 	}
@@ -2057,17 +2059,20 @@ for(c = 0; c < 12; c++)
 	{
 	if(memcmp(&zeroed32, &wpak->keymic[c], 4) == 0)
 		{
+		if(fh_log != NULL) fprintf(fh_log, "EAPOL M4 key mic possible plcp bit error: %ld\n", rawpacketcount);
 		eapolm4errorcount++;
 		return;
 		}
 	if(memcmp(&foxtrott, &wpak->keymic[c], 4) == 0)
 		{
+		if(fh_log != NULL) fprintf(fh_log, "EAPOL M4 key mic possible plcp bit error: %ld\n", rawpacketcount);
 		eapolm4errorcount++;
 		return;
 		}
 	}
 if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M4 key id != 0: %ld\n", rawpacketcount);
 	eapolm4errorcount++;
 	return;
 	}
@@ -2154,6 +2159,7 @@ keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((keyver == 0) || (keyver > 3)) return;
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M3 wpa data len > eap authentication len: %ld\n", rawpacketcount);
 	eapolm3errorcount++;
 	return;
 	}
@@ -2164,6 +2170,7 @@ rc = wpak->replaycount;
 #endif
 if(memcmp(&zeroed32, wpak->keymic, 16) == 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M3 key mic zeroed: %ld\n", rawpacketcount);
 	eapolm3errorcount++;
 	return;
 	}
@@ -2171,17 +2178,20 @@ for(c = 0; c < 12; c++)
 	{
 	if(memcmp(&zeroed32, &wpak->keymic[c], 4) == 0)
 		{
+		if(fh_log != NULL) fprintf(fh_log, "EAPOL M3 key mic possible plcp bit error: %ld\n", rawpacketcount);
 		eapolm3errorcount++;
 		return;
 		}
 	if(memcmp(&foxtrott, &wpak->keymic[c], 4) == 0)
 		{
+		if(fh_log != NULL) fprintf(fh_log, "EAPOL M3 key mic possible plcp bit error: %ld\n", rawpacketcount);
 		eapolm3errorcount++;
 		return;
 		}
 	}
 if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M3 key id != 0: %ld\n", rawpacketcount);
 	eapolm3errorcount++;
 	return;
 	}
@@ -2278,6 +2288,7 @@ keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((keyver == 0) || (keyver > 3)) return;
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M2 wpa data len > eap authentication len: %ld\n", rawpacketcount);
 	eapolm2errorcount++;
 	return;
 	}
@@ -2289,6 +2300,7 @@ rc = wpak->replaycount;
 if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
 if(memcmp(&zeroed32, wpak->keymic, 16) == 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M2 key mic zeroed: %ld\n", rawpacketcount);
 	eapolm2errorcount++;
 	return;
 	}
@@ -2296,27 +2308,32 @@ for(c = 0; c < 12; c++)
 	{
 	if(memcmp(&zeroed32, &wpak->keymic[c], 4) == 0)
 		{
+		if(fh_log != NULL) fprintf(fh_log, "EAPOL M2 key mic possible plcp bit error: %ld\n", rawpacketcount);
 		eapolm2errorcount++;
 		return;
 		}
 	if(memcmp(&foxtrott, &wpak->keymic[c], 4) == 0)
 		{
+		if(fh_log != NULL) fprintf(fh_log, "EAPOL M2 key mic possible plcp bit error: %ld\n", rawpacketcount);
 		eapolm2errorcount++;
 		return;
 		}
 	}
 if(memcmp(&zeroed32, wpak->keyiv, 16) != 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M2 key iv != 0: %ld\n", rawpacketcount);
 	eapolm2errorcount++;
 	return;
 	}
 if(wpak->keyrsc != 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M2 key rsc != 0: %ld\n", rawpacketcount);
 	eapolm2errorcount++;
 	return;
 	}
 if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M2 key id != 0: %ld\n", rawpacketcount);
 	eapolm2errorcount++;
 	return;
 	}
@@ -2430,6 +2447,7 @@ keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((keyver == 0) || (keyver > 3)) return;
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M1 wpa data len > eap authentication len: %ld\n", rawpacketcount);
 	eapolm1errorcount++;
 	return;
 	}
@@ -2440,11 +2458,13 @@ rc = wpak->replaycount;
 #endif
 if(wpak->keyrsc != 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M1 key rc != 0: %ld\n", rawpacketcount);
 	eapolm1errorcount++;
 	return;
 	}
 if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
 	{
+	if(fh_log != NULL) fprintf(fh_log, "EAPOL M1 key id != 0: %ld\n", rawpacketcount);
 	eapolm1errorcount++;
 	return;
 	}
@@ -2475,11 +2495,13 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 				{
 				if(memcmp(&zeroed32, &pmkid->pmkid[c], 4) == 0)
 					{
+					if(fh_log != NULL) fprintf(fh_log, "EAPOL M1 possible plcp bit error: %ld\n", rawpacketcount);
 					eapolm1errorcount++;
 					return;
 					}
 				if(memcmp(&foxtrott, &pmkid->pmkid[c], 4) == 0)
 					{
+					if(fh_log != NULL) fprintf(fh_log, "EAPOL M1 possible plcp bit error: %ld\n", rawpacketcount);
 					eapolm1errorcount++;
 					return;
 					}
