@@ -159,6 +159,8 @@ for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
 	{
 	for(cs = 0; cs < (sizeof(substantiv) / sizeof(char *)); cs++)
 		{
+		snprintf(pskstring, 64, "%s%s", adjectiv[ca], substantiv[cs]);
+		fprintf(fhout,"%s\n", pskstring);
 		for (cn = 0; cn < 1000; cn++)
 			{
 			snprintf(pskstring, 64, "%s%s%d", adjectiv[ca], substantiv[cs], cn);
@@ -176,6 +178,7 @@ for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
 			}
 		}
 	}
+
 return;
 }
 /*===========================================================================*/
