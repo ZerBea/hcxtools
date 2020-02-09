@@ -180,11 +180,13 @@ static long int eapolrc4count;
 static long int eapolrsncount;
 static long int eapolwpacount;
 static long int eapolmsgcount;
+static long int eapolnccount;
 static long int eapolmsgerrorcount;
 static long int eapolmsgtimestamperrorcount;
 static long int eapolmpcount;
 static long int eapolmpbestcount;
 static long int eapolm1count;
+static long int eapolm1ancount;
 static long int eapolm1errorcount;
 static long int eapolm2count;
 static long int eapolm2errorcount;
@@ -409,11 +411,13 @@ eapolrc4count = 0;
 eapolrsncount = 0;
 eapolwpacount = 0;
 eapolmsgcount = 0;
+eapolnccount = 0;
 eapolmsgerrorcount = 0;
 eapolmsgtimestamperrorcount = 0;
 eapolmpbestcount = 0;
 eapolmpcount = 0;
 eapolm1count = 0;
+eapolm1ancount = 0;
 eapolm1errorcount = 0;
 eapolm2count = 0;
 eapolm2errorcount = 0;
@@ -517,7 +521,17 @@ if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n
 if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
 if(essiddupemax > 0)			printf("ESSID changes (mesured maximum)..........: %ld (warning)\n", essiddupemax);
 if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
-if(rcgapmax > 0)			printf("REPLAYCOUNT gap for NC (measured maximum): %" PRIu64 "\n", rcgapmax);
+if(eapolnccount > 0)
+	{
+	printf                 ("EAPOL ANONCE error corrections (NC)......: working\n");
+	if(rcgapmax > 0) printf("REPLAYCOUNT gap (suggested NC)...........: %" PRIu64 "\n", rcgapmax);
+	if(rcgapmax == 0) printf("REPLAYCOUNT gap (recommended NC).........: 8\n");
+	}
+if(eapolnccount == 0)
+	{
+	printf("EAPOL ANONCE error corrections (NC)......: not detected\n");
+	if(rcgapmax > 0) printf("REPLAYCOUNT gap (measured maximum).......: %" PRIu64 "\n", rcgapmax);
+	}
 if(eapolm1count > 0)			printf("EAPOL M1 messages........................: %ld\n", eapolm1count);
 if(eapolm2count > 0)			printf("EAPOL M2 messages........................: %ld\n", eapolm2count);
 if(eapolm3count > 0)			printf("EAPOL M3 messages........................: %ld\n", eapolm3count);
@@ -581,7 +595,7 @@ if(proberequestcount == 0)
 		"That makes it hard to recover the PSK.\n");
 	}
 
-if(eapolm1count <= 1)
+if(eapolm1ancount <= 1)
 	{
 	printf("\nWarning: missing frames!\n"
 		"This dump file doesn't contain enough EAPOL M1 frames.\n"
@@ -2204,6 +2218,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0))
 		{
+		eapolnccount++;
 		zeiger->status |= ST_NC;
 		if(zeiger->nonce[31] != wpak->nonce[31]) zeiger->status |= ST_LE;
 		else if(zeiger->nonce[28] != wpak->nonce[28]) zeiger->status |= ST_BE;
@@ -2459,8 +2474,10 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	{
 	if(((zeiger->message &HS_M1) != HS_M1) && ((zeiger->message &HS_M3) != HS_M3)) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
+	eapolm1ancount++;
 	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0))
 		{
+		eapolnccount++;
 		zeiger->status |= ST_NC;
 		if(zeiger->nonce[31] != wpak->nonce[31]) zeiger->status |= ST_LE;
 		else if(zeiger->nonce[28] != wpak->nonce[28]) zeiger->status |= ST_BE;
