@@ -292,7 +292,7 @@ if((potline[58] != ':') && (potline[58]  != '*'))
 	}
 
 essidptr = potline +59;
-pskptr = strrchr(potline +59, ':');
+pskptr = strchr(potline +59, ':');
 if (pskptr == NULL)
 	{
 	printf("sperator doesn't match: %s\n", potline);
@@ -300,7 +300,6 @@ if (pskptr == NULL)
 	}
 pskptr[0] = 0;
 pskptr++;
-
 if(potline[58] == ':')
 	{
 	essidlen = ishexify(essidptr);
@@ -335,14 +334,6 @@ else if(potline[58] == '*')
 		return;
 		}
 	pmktmp.essidlen = essidlen;
-	for(c = 0; c < essidlen; c++)
-		{
-		if((pmktmp.essid[c] < 0x20) || (pmktmp.essid[c] > 0x7e) || (pmktmp.essid[c] == ':'))
-			{
-			pmktmp.essidflag = true;
-			break;
-			}
-		}
 	}
 else
 	{
@@ -370,6 +361,15 @@ else
 		}
 	memcpy(&pmktmp.psk, pskptr, psklen);
 	pmktmp.pskflag = false;
+
+	for(c = 0; c < psklen; c++)
+		{
+		if((pmktmp.psk[c] < 0x20) || (pmktmp.psk[c] > 0x7e) || (pmktmp.psk[c] == ':'))
+			{
+			pmktmp.pskflag = true;
+			break;
+			}
+		}
 	}
 pmktmp.psklen = psklen;
 addentry(&pmktmp);
