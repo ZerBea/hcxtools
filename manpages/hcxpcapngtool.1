@@ -1,0 +1,45 @@
+.TH HCXPCAPNGTOOL "1"
+
+.SH NAME
+hcxpcapngtool - convert pcapng, pcap, cap files
+
+.SH SYNOPSIS
+.B  hcxpcapngtool <options>
+
+.SH DESCRIPTION
+.BI hcxpcaptool
+is a tool to convert pcapng, pcap, cap files to other hashformats accepted by hashcat and John the Ripper
+
+.SH AUTHOR
+This manual page was written by Mike (ZeroBeat).
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so. License MIT
+
+.SH OPTIONS
+.TP
+.B Common options:
+.TP
+.I -o <file>
+output PMKID/EAPOL hash file (hashcat -m 22000)
+.TP
+.I -E <file>
+output wordlist (autohex enabled) to use as input wordlist for cracker
+.TP
+.I -I <file>
+output unsorted identity list
+.TP
+.I -U <file>
+output unsorted username list
+.TP
+.B Other options:
+.TP
+.I -h or --help
+show help screen
+.TP
+.I -v or --version
+show version
+.TP
