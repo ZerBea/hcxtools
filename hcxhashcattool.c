@@ -89,7 +89,7 @@ for(c = 0; c < pmkcount; c++)
 		{
 		fprintf(fhpmk, "%02x", zeiger->pmk[d]);
 		}
-	fprintf(fhpmk, ":");
+	fprintf(fhpmk, "*");
 	for(p = 0; p < zeiger->essidlen; p++)
 		{
 		fprintf(fhpmk, "%02x",zeiger->essid[p]);
@@ -570,7 +570,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-p <file> : input old hashcat potfile (<= 5.1.0)\n"
 	"            accepted potfiles: 2500 or 16800\n"
-	"-P <file> : output new potfile file (PMK:ESSID:PSK)\n"
+	"-P <file> : output new potfile file (PMK*ESSID:PSK)\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
