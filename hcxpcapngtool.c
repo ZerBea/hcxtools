@@ -113,7 +113,9 @@ static int fd_pcap;
 static int endianess;
 static uint16_t versionmajor;
 static uint16_t versionminor;
-static uint16_t dltlinktype;
+
+static int iface;
+static uint16_t dltlinktype[MAX_INTERFACE_ID];
 
 static long int nmeacount;
 static long int rawpacketcount;
@@ -622,6 +624,7 @@ return;
 /*===========================================================================*/
 static void printlinklayerinfo()
 {
+static int c;
 static struct timeval tvmin;
 static struct timeval tvmax;
 static char timestringmin[32];
@@ -635,12 +638,16 @@ tvmax.tv_usec = timestampmax %1000000;
 strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmax.tv_sec));
 printf("timestamp minimum (GMT)..................: %s\n", timestringmin);
 printf("timestamp maximum (GMT)..................: %s\n", timestringmax);
-if(dltlinktype == DLT_IEEE802_11_RADIO)		printf("link layer header type...................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype);
-if(dltlinktype == DLT_IEEE802_11)		printf("link layer header type...................: DLT_IEEE802_11 (%d)\n", dltlinktype);
-if(dltlinktype == DLT_PPI)			printf("link layer header type...................: DLT_PPI (%d)\n", dltlinktype);
-if(dltlinktype == DLT_PRISM_HEADER)		printf("link layer header type...................: DLT_PRISM_HEADER (%d)\n", dltlinktype);
-if(dltlinktype == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type...................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype);
-if(dltlinktype == DLT_EN10MB)			printf("link layer header type...................: DLT_EN10MB (%d)\n", dltlinktype);
+printf("used capture interfaces..................: %d\n", iface);
+for(c = 0; c <= iface; c++)
+	{
+	if(dltlinktype[c] == DLT_IEEE802_11_RADIO)		printf("link layer header type...................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype[c]);
+	if(dltlinktype[c] == DLT_IEEE802_11)		printf("link layer header type...................: DLT_IEEE802_11 (%d)\n", dltlinktype[c]);
+	if(dltlinktype[c] == DLT_PPI)			printf("link layer header type...................: DLT_PPI (%d)\n", dltlinktype[c]);
+	if(dltlinktype[c] == DLT_PRISM_HEADER)		printf("link layer header type...................: DLT_PRISM_HEADER (%d)\n", dltlinktype[c]);
+	if(dltlinktype[c] == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type...................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype[c]);
+	if(dltlinktype[c] == DLT_EN10MB)			printf("link layer header type...................: DLT_EN10MB (%d)\n", dltlinktype[c]);
+	}
 return;
 }
 /*===========================================================================*/
@@ -3267,6 +3274,7 @@ static uint64_t timestampcap;
 static uint8_t packet[MAXPACPSNAPLEN];
 
 printf("reading from %s...\n", basename(pcapinname));
+iface = 1;
 memset(&packet, 0, MAXPACPSNAPLEN);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
@@ -3301,8 +3309,7 @@ if(pcapfhdr.magic_number == PCAPMAGICNUMBERBE)
 
 versionmajor = pcapfhdr.version_major;
 versionminor = pcapfhdr.version_minor;
-dltlinktype  = pcapfhdr.network;
-
+dltlinktype[iface] = pcapfhdr.network;
 if(pcapfhdr.version_major != PCAP_MAJOR_VER)
 	{
 	pcapreaderrors++;
@@ -3382,7 +3389,7 @@ while(1)
 	if(pcaprhdr.incl_len > 0)
 		{
 		timestampcap = ((uint64_t)pcaprhdr.ts_sec *1000000) + pcaprhdr.ts_usec;
-		processlinktype(timestampcap, pcapfhdr.network, pcaprhdr.incl_len, packet);
+		processlinktype(timestampcap, dltlinktype[iface], pcaprhdr.incl_len, packet);
 		}
 	}
 
@@ -3552,6 +3559,10 @@ static custom_block_t *pcapngcb;
 static uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 static uint8_t packet[MAXPACPSNAPLEN];
 
+static int interfaceid[MAX_INTERFACE_ID];
+
+memset(&interfaceid, 0, sizeof(int) *MAX_INTERFACE_ID);
+iface = 0;
 printf("reading from %s...\n", basename(pcapinname));
 fdsize = lseek(fd, 0, SEEK_END);
 if(fdsize < 0)
@@ -3690,7 +3701,13 @@ while(1)
 			pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
 			pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
 			}
-		dltlinktype = pcapngidb->linktype;
+		dltlinktype[iface] = pcapngidb->linktype;
+		iface++;
+		if(iface >= MAX_INTERFACE_ID)
+			{
+			printf("maximum of supported interfaces reached (%d)\n", MAX_INTERFACE_ID);
+			if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen: %ld\n", rawpacketcount);
+			}
 		snaplen = pcapngidb->snaplen;
 		if(snaplen > MAXPACPSNAPLEN)
 			{
@@ -3726,7 +3743,7 @@ while(1)
 			continue;
 			}
 		rawpacketcount++;
-		processlinktype(timestamppcapng, dltlinktype, pcapngpb->caplen, pcapngpb->data);
+		processlinktype(timestamppcapng, dltlinktype[0], pcapngpb->caplen, pcapngpb->data);
 		}
 	else if(blocktype == SPBID)
 		{
@@ -3782,7 +3799,7 @@ while(1)
 			continue;
 			}
 		rawpacketcount++;
-		processlinktype(timestamppcapng, dltlinktype, pcapngepb->caplen, pcapngepb->data);
+		processlinktype(timestamppcapng, dltlinktype[pcapngepb->interface_id], pcapngepb->caplen, pcapngepb->data);
 		padding = 0;
 		if((pcapngepb->caplen  %4))
 			{
