@@ -114,8 +114,8 @@ static int endianess;
 static uint16_t versionmajor;
 static uint16_t versionminor;
 
-static int iface;
-static uint16_t dltlinktype[MAX_INTERFACE_ID];
+static uint32_t iface;
+static uint16_t dltlinktype[MAX_INTERFACE_ID +1];
 
 static long int nmeacount;
 static long int rawpacketcount;
@@ -624,7 +624,7 @@ return;
 /*===========================================================================*/
 static void printlinklayerinfo()
 {
-static int c;
+static uint32_t c;
 static struct timeval tvmin;
 static struct timeval tvmax;
 static char timestringmin[32];
@@ -3309,7 +3309,8 @@ if(pcapfhdr.magic_number == PCAPMAGICNUMBERBE)
 
 versionmajor = pcapfhdr.version_major;
 versionminor = pcapfhdr.version_minor;
-dltlinktype[iface] = pcapfhdr.network;
+
+dltlinktype[0] = pcapfhdr.network;
 if(pcapfhdr.version_major != PCAP_MAJOR_VER)
 	{
 	pcapreaderrors++;
@@ -3389,7 +3390,7 @@ while(1)
 	if(pcaprhdr.incl_len > 0)
 		{
 		timestampcap = ((uint64_t)pcaprhdr.ts_sec *1000000) + pcaprhdr.ts_usec;
-		processlinktype(timestampcap, dltlinktype[iface], pcaprhdr.incl_len, packet);
+		processlinktype(timestampcap, pcapfhdr.network, pcaprhdr.incl_len, packet);
 		}
 	}
 
@@ -3561,9 +3562,9 @@ static uint8_t packet[MAXPACPSNAPLEN];
 
 static int interfaceid[MAX_INTERFACE_ID];
 
-memset(&interfaceid, 0, sizeof(int) *MAX_INTERFACE_ID);
-iface = 0;
 printf("reading from %s...\n", basename(pcapinname));
+iface = 0;
+memset(&interfaceid, 0, sizeof(int) *MAX_INTERFACE_ID);
 fdsize = lseek(fd, 0, SEEK_END);
 if(fdsize < 0)
 	{
@@ -3701,13 +3702,15 @@ while(1)
 			pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
 			pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
 			}
-		dltlinktype[iface] = pcapngidb->linktype;
-		iface++;
 		if(iface >= MAX_INTERFACE_ID)
 			{
-			printf("maximum of supported interfaces reached (%d)\n", MAX_INTERFACE_ID);
-			if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen: %ld\n", rawpacketcount);
+			pcapreaderrors++;
+			printf("maximum of supported interfaces reached: %d\n", iface);
+			if(fh_log != NULL) printf("maximum of supported interfaces reached: %d\n", iface);
+			continue;
 			}
+		dltlinktype[iface] = pcapngidb->linktype;
+		iface++;
 		snaplen = pcapngidb->snaplen;
 		if(snaplen > MAXPACPSNAPLEN)
 			{
@@ -3716,6 +3719,7 @@ while(1)
 			if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen: %ld\n", rawpacketcount);
 			}
 		pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE);
+
 		}
 	else if(blocktype == PBID)
 		{
@@ -3774,6 +3778,13 @@ while(1)
 			pcapngepb->timestamp_low	= byte_swap_32(pcapngepb->timestamp_low);
 			pcapngepb->caplen		= byte_swap_32(pcapngepb->caplen);
 			pcapngepb->len			= byte_swap_32(pcapngepb->len);
+			}
+		if(pcapngepb->interface_id >= iface)
+			{
+			pcapreaderrors++;
+			printf("maximum of supported interfaces reached: %d\n", iface);
+			if(fh_log != NULL) printf("maximum of supported interfaces reached: %d\n", iface);
+			continue;
 			}
 		timestamppcapng = pcapngepb->timestamp_high;
 		timestamppcapng = (timestamppcapng << 32) +pcapngepb->timestamp_low;
