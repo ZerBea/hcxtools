@@ -97,6 +97,7 @@ static FILE *fh_essid;
 static FILE *fh_identity;
 static FILE *fh_username;
 static FILE *fh_nmea;
+static FILE *fh_raw;
 static FILE *fh_log;
 static FILE *fh_pmkideapoljtrdeprecated;
 static FILE *fh_pmkiddeprecated;
@@ -3099,6 +3100,7 @@ return;
 /*===========================================================================*/
 static void processlinktype(uint64_t captimestamp, int linktype, uint32_t caplen, uint8_t *capptr)
 {
+static uint32_t p;
 static rth_t *rth;
 static uint32_t packetlen;
 static uint8_t *packetptr;
@@ -3116,6 +3118,12 @@ if(captimestamp == 0)
 	captimestamp = timestampstart;
 	timestampstart += (eapoltimeoutvalue -2);
 	zeroedtimestampcount++;
+	}
+if(fh_raw != NULL)
+	{
+	fprintf(fh_raw, "%08" PRIu64 "*%04x*", captimestamp, linktype);
+	for(p = 0; p < caplen; p++) fprintf(fh_raw, "%02x", capptr[p]);
+	fprintf(fh_raw, "\n");
 	}
 if(linktype == DLT_IEEE802_11_RADIO)
 	{
@@ -3793,7 +3801,12 @@ while(1)
 			}
 		timestamppcapng = pcapngepb->timestamp_high;
 		timestamppcapng = (timestamppcapng << 32) +pcapngepb->timestamp_low;
-		if(timeresolval[pcapngepb->interface_id] == TSRESOL_NSEC) timestamppcapng /= 1000;
+
+		if(timeresolval[pcapngepb->interface_id] == TSRESOL_NSEC)
+			{
+			timestamppcapng = pcapngepb->timestamp_high / 1000;
+			timestamppcapng = (timestamppcapng << 32) +pcapngepb->timestamp_low;
+			}
 		if(pcapngepb->caplen != pcapngepb->len)
 			{
 			pcapreaderrors++;
@@ -4004,6 +4017,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx -F file.gpx\n"
 	"                                     to display the track, open file.gpx with viking\n"
 	"--log=<file>                       : output logfile\n"
+	"--raw=<file>                       : output frames in HEX ASCII\n"
+	"                                   : format: TIMESTAMP*LINKTYPE*FRAME\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file\n"
@@ -4060,6 +4075,7 @@ static char *identityoutname;
 static char *usernameoutname;
 static char *nmeaoutname;
 static char *logoutname;
+static char *rawoutname;
 static char *pmkideapoljtroutnamedeprecated;
 static char *pmkidoutnamedeprecated;
 static char *hccapxoutnamedeprecated;
@@ -4094,6 +4110,7 @@ static const struct option long_options[] =
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"nmea",			required_argument,	NULL,	HCX_NMEA_OUT},
+	{"raw",				required_argument,	NULL,	HCX_RAW_OUT},
 	{"log",				required_argument,	NULL,	HCX_LOG_OUT},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
 	{"eapmd5",			required_argument,	NULL,	HCX_EAPMD5_OUT},
@@ -4126,6 +4143,7 @@ identityoutname = NULL;
 usernameoutname = NULL;
 nmeaoutname = NULL;
 logoutname = NULL;
+rawoutname = NULL;
 prefixoutname = NULL;
 pmkideapoljtroutnamedeprecated = NULL;
 pmkidoutnamedeprecated = NULL;
@@ -4141,6 +4159,7 @@ fh_identity = NULL;
 fh_username = NULL;
 fh_nmea = NULL;
 fh_log = NULL;
+fh_raw = NULL;
 fh_pmkideapoljtrdeprecated = NULL;
 fh_pmkiddeprecated = NULL;
 fh_hccapxdeprecated = NULL;
@@ -4206,6 +4225,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_NMEA_OUT:
 		nmeaoutname = optarg;
+		break;
+
+		case HCX_RAW_OUT:
+		rawoutname = optarg;
 		break;
 
 		case HCX_LOG_OUT:
@@ -4362,7 +4385,14 @@ if(nmeaoutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
-
+if(rawoutname != NULL)
+	{
+	if((fh_raw = fopen(rawoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n",rawoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
 if(logoutname != NULL)
 	{
 	if((fh_log = fopen(logoutname, "a")) == NULL)
@@ -4419,6 +4449,7 @@ if(fh_essid != NULL) fclose(fh_essid);
 if(fh_identity != NULL) fclose(fh_identity);
 if(fh_username != NULL) fclose(fh_username);
 if(fh_nmea != NULL) fclose(fh_nmea);
+if(fh_raw != NULL) fclose(fh_raw);
 if(fh_log != NULL) fclose(fh_log);
 if(fh_pmkideapoljtrdeprecated != NULL) fclose(fh_pmkideapoljtrdeprecated);
 if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
@@ -4479,6 +4510,13 @@ if(nmeaoutname != NULL)
 	if(stat(nmeaoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(nmeaoutname);
+		}
+	}
+if(rawoutname != NULL)
+	{
+	if(stat(rawoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(rawoutname);
 		}
 	}
 if(logoutname != NULL)
