@@ -3727,7 +3727,7 @@ while(1)
 			{
 			pcapreaderrors++;
 			printf("maximum of supported interfaces reached: %d\n", iface);
-			if(fh_log != NULL) printf("maximum of supported interfaces reached: %d\n", iface);
+			if(fh_log != NULL) fprintf(fh_log, "maximum of supported interfaces reached: %d\n", iface);
 			continue;
 			}
 		dltlinktype[iface] = pcapngidb->linktype;
@@ -3935,6 +3935,7 @@ if(resseek < 0)
 	{
 	pcapreaderrors++;
 	printf("failed to set file pointer\n");
+	if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", pcapinname);
 	return false;
 	}
 
@@ -4001,6 +4002,7 @@ static bool processrawfile(char *rawinname)
 {
 static int len;
 static FILE *fh_raw_in;
+static int endianessstart;
 
 static char linein[RAW_LEN_MAX];
 
@@ -4025,8 +4027,20 @@ while(1)
 	else if(linein[17] == '1') endianess = 1;
 	else
 		{
+		if(fh_log != NULL) fprintf(fh_log, "delimiter error: %ld\n", rawpacketcount);
 		pcapreaderrors++;
 		continue;
+		}
+	if(rawpacketcount == 0) endianessstart = endianess;
+	if(endianess == endianessstart)
+		{
+		rawpacketcount++;
+		}
+	else
+		{
+		printf("endianess changed in frame %ld\n", rawpacketcount);
+		if(fh_log != NULL) fprintf(fh_log, "endianess changed in frame: %ld\n", rawpacketcount);
+		skippedpacketcount++;
 		}
 	}
 
