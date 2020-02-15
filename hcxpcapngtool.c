@@ -116,6 +116,7 @@ static uint16_t versionminor;
 
 static uint32_t iface;
 static uint16_t dltlinktype[MAX_INTERFACE_ID +1];
+static uint16_t timeresolval[MAX_INTERFACE_ID +1];
 
 static long int nmeacount;
 static long int rawpacketcount;
@@ -263,7 +264,7 @@ static char pcapngapplinfo[OPTIONLEN_MAX];
 static char pcapngoptioninfo[OPTIONLEN_MAX];
 static char pcapngweakcandidate[OPTIONLEN_MAX];
 static uint8_t pcapngdeviceinfo[6];
-
+static uint8_t pcapngtimeresolution;
 static char nmeasentence[OPTIONLEN_MAX];
 static char gpwplold[OPTIONLEN_MAX];
 
@@ -335,6 +336,7 @@ memset(&pcapngapplinfo, 0, OPTIONLEN_MAX);
 memset(&pcapngoptioninfo, 0, OPTIONLEN_MAX);
 memset(&pcapngweakcandidate, 0 ,OPTIONLEN_MAX);
 memset(&pcapngdeviceinfo, 0 ,6);
+pcapngtimeresolution = IF_TSRESOL;
 memset(&myaktap, 0 ,6);
 memset(&myaktclient, 0 ,6);
 memset(&nmeasentence, 0, OPTIONLEN_MAX);
@@ -3463,6 +3465,10 @@ while(0 < restlen)
 			memcpy(&pcapngdeviceinfo, option->data, 6);
 			}
 		}
+	else if(option->option_code == IF_TSRESOL)
+		{
+		if(option->option_length == 1) pcapngtimeresolution = option->data[0];
+		}
 	else if(option->option_code == SHB_CUSTOM_OPT)
 		{
 		if(option->option_length > 40)
@@ -3701,6 +3707,14 @@ while(1)
 			pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
 			pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
 			}
+		snaplen = pcapngidb->snaplen;
+		pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE);
+		if(snaplen > MAXPACPSNAPLEN)
+			{
+			pcapreaderrors++;
+			printf("detected oversized snaplen (%d)\n", snaplen);
+			if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen: %ld\n", rawpacketcount);
+			}
 		if(iface >= MAX_INTERFACE_ID)
 			{
 			pcapreaderrors++;
@@ -3709,16 +3723,8 @@ while(1)
 			continue;
 			}
 		dltlinktype[iface] = pcapngidb->linktype;
+		timeresolval[iface] = pcapngtimeresolution;
 		iface++;
-		snaplen = pcapngidb->snaplen;
-		if(snaplen > MAXPACPSNAPLEN)
-			{
-			pcapreaderrors++;
-			printf("detected oversized snaplen (%d)\n", snaplen);
-			if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen: %ld\n", rawpacketcount);
-			}
-		pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE);
-
 		}
 	else if(blocktype == PBID)
 		{
@@ -3787,6 +3793,7 @@ while(1)
 			}
 		timestamppcapng = pcapngepb->timestamp_high;
 		timestamppcapng = (timestamppcapng << 32) +pcapngepb->timestamp_low;
+		if(timeresolval[pcapngepb->interface_id] == TSRESOL_NSEC) timestamppcapng /= 1000;
 		if(pcapngepb->caplen != pcapngepb->len)
 			{
 			pcapreaderrors++;

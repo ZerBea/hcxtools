@@ -276,9 +276,13 @@ struct option_header_s
 #define SHB_USER_APPL	4
 #define SHB_CUSTOM_OPT	0x0bad
 
+#define TSRESOL_USEC	6
+#define TSRESOL_NSEC	9
+
 #define IF_NAME		2
 #define IF_DESCRIPTION	3
 #define IF_MACADDR	6
+#define IF_TSRESOL	9
 #define IF_TZONE	10
 
 /* custom option code */
