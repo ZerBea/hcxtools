@@ -42,6 +42,7 @@ long options:
 --all                              : convert all possible hashes instead of only the best one
                                      that can lead to much overhead hashes
                                      use hcxhashtool to filter hashes
+                                     need hashcat --nonce-error-corrections >= 8
 --eapoltimeout=<digit>             : set EAPOL TIMEOUT (milliseconds)
                                    : default: 5000 ms
 --nonce-error-corrections=<digit>  : set nonce error correction
@@ -62,9 +63,12 @@ long options:
                                      to convert it to gpx, use GPSBabel:
                                      gpsbabel -i nmea -f hcxdumptool.nmea -o gpx -F file.gpx
                                      to display the track, open file.gpx with viking
+--log=<file>                       : output logfile
+--raw=<file>                       : output frames in HEX ASCII
+                                   : format: TIMESTAMP*LINKTYPE*FRAME
 --pmkid=<file>                     : output deprecated PMKID file (delimter *)
 --hccapx=<file>                    : output deprecated hccapx v4 file
---hccap=<file>                     : output deprecated hccap file (delimter *)
+--hccap=<file>                     : output deprecated hccap file
 --john=<file>                      : output deprecated PMKID/EAPOL (JtR wpapsk-opencl/wpapsk-pmk-opencl)
 --prefix=<file>                    : convert everything to lists using this prefix (overrides single options):
                                       -o <file.22000>      : output PMKID/EAPOL hash file
@@ -93,8 +97,9 @@ Do not use hcxpcapngtool in combination with third party cap/pcap/pcapng cleanin
 It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcapngtool will understand this.
 
 
+
 hcxhashtool: new tool
-$ hcxhashtool --hel
+$ hcxhashtool -h
 hcxhashtool 6.0.0 (C) 2020 ZeroBeat
 usage:
 hcxhashtool <options>
@@ -132,7 +137,7 @@ options:
                              : format: 001122334455 (hex)
 --mac-client=<MAC>           : filter CLIENT by MAC
                              : format: 001122334455 (hex)
---oui-ap=<OUI>                     : filter AP by OUI
+--oui-ap=<OUI>               : filter AP by OUI
                              : format: 001122 (hex)
 --oui-client=<OUI>           : filter CLIENT by OUI
                              : format: 001122 (hex)
@@ -151,6 +156,7 @@ options:
                              : no nonce error corrections
 --hccapx=<file>              : output to deprecated hccapx file
 --hccap=<file>               : output to ancient hccap file
+--hccap-single               : output to ancient hccap single files (MAC + count)
 --john=<file>                : output to deprecated john file
 --help                       : show this help
 --version                    : show version
