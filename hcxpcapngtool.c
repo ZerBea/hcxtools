@@ -3275,7 +3275,6 @@ static uint8_t packet[MAXPACPSNAPLEN];
 
 printf("reading from %s...\n", basename(pcapinname));
 iface = 1;
-memset(&packet, 0, MAXPACPSNAPLEN);
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
 	{
