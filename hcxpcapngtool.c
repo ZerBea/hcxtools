@@ -97,7 +97,7 @@ static FILE *fh_essid;
 static FILE *fh_identity;
 static FILE *fh_username;
 static FILE *fh_nmea;
-static FILE *fh_raw;
+static FILE *fh_raw_out;
 static FILE *fh_log;
 static FILE *fh_pmkideapoljtrdeprecated;
 static FILE *fh_pmkiddeprecated;
@@ -3119,11 +3119,11 @@ if(captimestamp == 0)
 	timestampstart += (eapoltimeoutvalue -2);
 	zeroedtimestampcount++;
 	}
-if(fh_raw != NULL)
+if(fh_raw_out != NULL)
 	{
-	fprintf(fh_raw, "%08" PRIu64 "*%04x*", captimestamp, linktype);
-	for(p = 0; p < caplen; p++) fprintf(fh_raw, "%02x", capptr[p]);
-	fprintf(fh_raw, "\n");
+	fprintf(fh_raw_out, "%08" PRIu64 "*%x*%04x*", captimestamp, endianess, linktype);
+	for(p = 0; p < caplen; p++) fprintf(fh_raw_out, "%02x", capptr[p]);
+	fprintf(fh_raw_out, "\n");
 	}
 if(linktype == DLT_IEEE802_11_RADIO)
 	{
@@ -3950,6 +3950,7 @@ if(magicnumber == PCAPNGBLOCKTYPE)
 
 else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	{
+	if(magicnumber == PCAPMAGICNUMBERBE) endianess = 1;
 	if(initlists() == true)
 		{
 		processcap(fd_pcap, pcapinname, pcapnameptr);
@@ -3961,6 +3962,89 @@ else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 if(pcaptempnameptr != NULL) remove(pcaptempnameptr);
 
 return true;
+}
+/*===========================================================================*/
+static inline size_t chop(char *buffer, size_t len)
+{
+static char *ptr;
+
+ptr = buffer +len -1;
+while(len)
+	{
+	if (*ptr != '\n') break;
+	*ptr-- = 0;
+	len--;
+	}
+while(len)
+	{
+	if (*ptr != '\r') break;
+	*ptr-- = 0;
+	len--;
+	}
+return len;
+}
+/*---------------------------------------------------------------------------*/
+static inline int fgetline(FILE *inputstream, size_t size, char *buffer)
+{
+static size_t len;
+static char *buffptr;
+
+if(feof(inputstream)) return -1;
+buffptr = fgets (buffer, size, inputstream);
+if(buffptr == NULL) return -1;
+len = strlen(buffptr);
+len = chop(buffptr, len);
+return len;
+}
+/*===========================================================================*/
+static bool processrawfile(char *rawinname)
+{
+static int len;
+static FILE *fh_raw_in;
+
+static char linein[RAW_LEN_MAX];
+
+if(initlists() == false) return false;
+
+if((fh_raw_in = fopen(rawinname, "r")) == NULL)
+	{
+	fprintf(stderr, "failed to open raw file %s\n", rawinname);
+	return false;
+	}
+
+while(1)
+	{
+	if((len = fgetline(fh_raw_in, RAW_LEN_MAX, linein)) == -1) break;
+	if(len == 0) continue;
+	if((linein[16] != '*') && (linein[18] != '*')  && (linein[23] != '*'))
+		{
+		pcapreaderrors++;
+		continue;
+		}
+	if(linein[17] == '0') endianess = 0;
+	else if(linein[17] == '1') endianess = 1;
+	else
+		{
+		pcapreaderrors++;
+		continue;
+		}
+	}
+
+printf("\nsummary raw file\n"
+	"----------------\n"
+	"file name................................: %s\n"
+	, basename(rawinname));
+
+printlinklayerinfo();
+cleanupmac();
+outputwpalists();
+outputwordlists();
+outputeapmd5hashlist();
+outputeapleaphashlist();
+printcontentinfo();
+
+fclose(fh_raw_in);
+return true ;
 }
 /*===========================================================================*/
 __attribute__ ((noreturn))
@@ -4017,8 +4101,10 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx -F file.gpx\n"
 	"                                     to display the track, open file.gpx with viking\n"
 	"--log=<file>                       : output logfile\n"
-	"--raw=<file>                       : output frames in HEX ASCII\n"
-	"                                   : format: TIMESTAMP*LINKTYPE*FRAME\n"
+	"--raw-out=<file>                   : output frames in HEX ASCII\n"
+	"                                   : format: TIMESTAMP*ENDIANESS*LINKTYPE*FRAME\n"
+//	"--raw-in=<file>                    : input frames in HEX ASCII\n"
+//	"                                   : format: TIMESTAMP*ENDIANESS*LINKTYPE*FRAME\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file\n"
@@ -4066,6 +4152,7 @@ int main(int argc, char *argv[])
 {
 static int auswahl;
 static int index;
+static int exitcode;
 static char *pmkideapoloutname;
 static char *eapmd5outname;
 static char *eapmd5johnoutname;
@@ -4076,6 +4163,7 @@ static char *usernameoutname;
 static char *nmeaoutname;
 static char *logoutname;
 static char *rawoutname;
+static char *rawinname;
 static char *pmkideapoljtroutnamedeprecated;
 static char *pmkidoutnamedeprecated;
 static char *hccapxoutnamedeprecated;
@@ -4110,7 +4198,8 @@ static const struct option long_options[] =
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"nmea",			required_argument,	NULL,	HCX_NMEA_OUT},
-	{"raw",				required_argument,	NULL,	HCX_RAW_OUT},
+	{"raw-out",			required_argument,	NULL,	HCX_RAW_OUT},
+	{"raw-in",			required_argument,	NULL,	HCX_RAW_IN},
 	{"log",				required_argument,	NULL,	HCX_LOG_OUT},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
 	{"eapmd5",			required_argument,	NULL,	HCX_EAPMD5_OUT},
@@ -4129,6 +4218,7 @@ auswahl = -1;
 index = 0;
 optind = 1;
 optopt = 0;
+exitcode = EXIT_SUCCESS;
 ignoreieflag = false;
 donotcleanflag = false;
 eapoltimeoutvalue = EAPOLTIMEOUT;
@@ -4144,6 +4234,7 @@ usernameoutname = NULL;
 nmeaoutname = NULL;
 logoutname = NULL;
 rawoutname = NULL;
+rawinname = NULL;
 prefixoutname = NULL;
 pmkideapoljtroutnamedeprecated = NULL;
 pmkidoutnamedeprecated = NULL;
@@ -4159,7 +4250,7 @@ fh_identity = NULL;
 fh_username = NULL;
 fh_nmea = NULL;
 fh_log = NULL;
-fh_raw = NULL;
+fh_raw_out = NULL;
 fh_pmkideapoljtrdeprecated = NULL;
 fh_pmkiddeprecated = NULL;
 fh_hccapxdeprecated = NULL;
@@ -4231,6 +4322,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		rawoutname = optarg;
 		break;
 
+		case HCX_RAW_IN:
+		rawinname = optarg;
+		break;
+
 		case HCX_LOG_OUT:
 		logoutname = optarg;
 		break;
@@ -4283,7 +4378,7 @@ if(argc < 2)
 	return EXIT_SUCCESS;
 	}
 
-if(optind == argc)
+if((optind == argc) && (rawinname == NULL))
 	{
 	printf("no input file(s) selected\n");
 	exit(EXIT_FAILURE);
@@ -4318,9 +4413,7 @@ if(prefixoutname != NULL)
 	strncpy(nmeaprefix, prefixoutname, PREFIX_BUFFER_MAX);
 	strncat(nmeaprefix, nmeasuffix, PREFIX_BUFFER_MAX);
 	nmeaoutname = nmeaprefix;
-
 	}
-
 if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
@@ -4387,7 +4480,7 @@ if(nmeaoutname != NULL)
 	}
 if(rawoutname != NULL)
 	{
-	if((fh_raw = fopen(rawoutname, "a")) == NULL)
+	if((fh_raw_out = fopen(rawoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n",rawoutname, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -4438,8 +4531,10 @@ if(hccapoutnamedeprecated != NULL)
 
 for(index = optind; index < argc; index++)
 	{
-	processcapfile(argv[index]);
+	if(processcapfile(argv[index]) == false) exitcode = EXIT_FAILURE;
 	}
+
+if(rawinname != NULL) processrawfile(rawinname);
 
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 if(fh_eapmd5 != NULL) fclose(fh_eapmd5);
@@ -4449,7 +4544,7 @@ if(fh_essid != NULL) fclose(fh_essid);
 if(fh_identity != NULL) fclose(fh_identity);
 if(fh_username != NULL) fclose(fh_username);
 if(fh_nmea != NULL) fclose(fh_nmea);
-if(fh_raw != NULL) fclose(fh_raw);
+if(fh_raw_out != NULL) fclose(fh_raw_out);
 if(fh_log != NULL) fclose(fh_log);
 if(fh_pmkideapoljtrdeprecated != NULL) fclose(fh_pmkideapoljtrdeprecated);
 if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
@@ -4555,6 +4650,6 @@ if(hccapoutnamedeprecated != NULL)
 		if(statinfo.st_size == 0) remove(hccapoutnamedeprecated);
 		}
 	}
-return EXIT_SUCCESS;
+return exitcode;
 }
 /*===========================================================================*/
