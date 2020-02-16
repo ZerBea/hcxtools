@@ -3110,6 +3110,19 @@ static avs_t *avs;
 static fcs_t *fcs;
 static uint32_t crc;
 
+
+if(fh_raw_out != NULL)
+	{
+	#ifndef BIG_ENDIAN_HOST
+	fprintf(fh_raw_out, "%016" PRIu64 "*%04x*", captimestamp, linktype);
+	for(p = 0; p < caplen; p++) fprintf(fh_raw_out, "%02x", capptr[p]);
+	fprintf(fh_raw_out, "\n");
+	#else
+	fprintf(fh_raw_out, "%016" PRIu64 "*%04x*", bswap64(captimestamp), bswap32(linktype));
+	for(p = 0; p < caplen; p++) fprintf(fh_raw_out, "%02x", capptr[p]);
+	fprintf(fh_raw_out, "\n");
+	#endif
+	}
 if(timestampmin == 0) timestampmin = captimestamp;
 if(timestampmin > captimestamp) timestampmin = captimestamp;
 if(timestampmax < captimestamp) timestampmax = captimestamp;
@@ -3118,12 +3131,6 @@ if(captimestamp == 0)
 	captimestamp = timestampstart;
 	timestampstart += (eapoltimeoutvalue -2);
 	zeroedtimestampcount++;
-	}
-if(fh_raw_out != NULL)
-	{
-	fprintf(fh_raw_out, "%08" PRIu64 "*%x*%04x*", captimestamp, endianess, linktype);
-	for(p = 0; p < caplen; p++) fprintf(fh_raw_out, "%02x", capptr[p]);
-	fprintf(fh_raw_out, "\n");
 	}
 if(linktype == DLT_IEEE802_11_RADIO)
 	{
@@ -4001,8 +4008,8 @@ return len;
 static bool processrawfile(char *rawinname)
 {
 static int len;
+static long int linecount;
 static FILE *fh_raw_in;
-static int endianessstart;
 
 static char linein[RAW_LEN_MAX];
 
@@ -4014,36 +4021,21 @@ if((fh_raw_in = fopen(rawinname, "r")) == NULL)
 	return false;
 	}
 
+linecount = 0;
 while(1)
 	{
+	linecount++;
 	if((len = fgetline(fh_raw_in, RAW_LEN_MAX, linein)) == -1) break;
-	if(len == 0) continue;
-	if((linein[16] != '*') && (linein[18] != '*')  && (linein[23] != '*'))
+	if(len < 23) continue;
+	if((linein[16] != '*') && (linein[21] != '*'))
 		{
+		printf("delimiter error\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %ld\n", linecount);
 		pcapreaderrors++;
 		continue;
 		}
-	if(linein[17] == '0') endianess = 0;
-	else if(linein[17] == '1') endianess = 1;
-	else
-		{
-		if(fh_log != NULL) fprintf(fh_log, "delimiter error: %ld\n", rawpacketcount);
-		pcapreaderrors++;
-		continue;
-		}
-	if(rawpacketcount == 0) endianessstart = endianess;
-	if(endianess == endianessstart)
-		{
-		rawpacketcount++;
-		}
-	else
-		{
-		printf("endianess changed in frame %ld\n", rawpacketcount);
-		if(fh_log != NULL) fprintf(fh_log, "endianess changed in frame: %ld\n", rawpacketcount);
-		skippedpacketcount++;
-		}
+	rawpacketcount++;
 	}
-
 printf("\nsummary raw file\n"
 	"----------------\n"
 	"file name................................: %s\n"
