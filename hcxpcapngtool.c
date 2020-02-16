@@ -4014,36 +4014,58 @@ static bool processrawfile(char *rawinname)
 static int len;
 static long int linecount;
 static FILE *fh_raw_in;
-
+static char *csptr;
 static char linein[RAW_LEN_MAX];
 
 if(initlists() == false) return false;
-
 if((fh_raw_in = fopen(rawinname, "r")) == NULL)
 	{
 	fprintf(stderr, "failed to open raw file %s\n", rawinname);
 	return false;
 	}
-
 linecount = 0;
 while(1)
 	{
-	linecount++;
 	if((len = fgetline(fh_raw_in, RAW_LEN_MAX, linein)) == -1) break;
+	linecount++;
 	if(len < 23) continue;
 	if((linein[16] != '*') && (linein[21] != '*'))
 		{
-		printf("delimiter error\n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %ld\n", linecount);
+		printf("delimiter error line: %ld\n", linecount);
+		if(fh_log != NULL) fprintf(fh_log, "delimiter error line: %ld\n", linecount);
+		pcapreaderrors++;
+		continue;
+		}
+	csptr = strchr(linein +22, '*');
+	if(csptr == NULL)
+		{
+		printf("delimiter error line: %ld\n", linecount);
+		if(fh_log != NULL) fprintf(fh_log, "delimiter error line: %ld\n", linecount);
+		pcapreaderrors++;
+		continue;
+		}
+	if(((csptr -linein) %2) != 0)
+		{
+		printf("delimiter error line: %ld\n", linecount);
+		if(fh_log != NULL) fprintf(fh_log, "delimiter error line: %ld\n", linecount);
+		pcapreaderrors++;
+		continue;
+		}
+	if((len -(csptr -linein)) < 3)
+		{
+		printf("delimiter error line: %ld\n", linecount);
+		if(fh_log != NULL) fprintf(fh_log, "delimiter error line: %ld\n", linecount);
 		pcapreaderrors++;
 		continue;
 		}
 	rawpacketcount++;
 	}
+
 printf("\nsummary raw file\n"
 	"----------------\n"
 	"file name................................: %s\n"
-	, basename(rawinname));
+	"lines read...............................: %ld\n"
+	, basename(rawinname),linecount);
 
 printlinklayerinfo();
 cleanupmac();
