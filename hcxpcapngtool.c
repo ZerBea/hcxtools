@@ -3100,6 +3100,7 @@ return;
 /*===========================================================================*/
 static void processlinktype(uint64_t captimestamp, int linktype, uint32_t caplen, uint8_t *capptr)
 {
+static uint8_t cs;
 static uint32_t p;
 static rth_t *rth;
 static uint32_t packetlen;
@@ -3115,13 +3116,16 @@ if(fh_raw_out != NULL)
 	{
 	#ifndef BIG_ENDIAN_HOST
 	fprintf(fh_raw_out, "%016" PRIu64 "*%04x*", captimestamp, linktype);
-	for(p = 0; p < caplen; p++) fprintf(fh_raw_out, "%02x", capptr[p]);
-	fprintf(fh_raw_out, "\n");
 	#else
 	fprintf(fh_raw_out, "%016" PRIu64 "*%04x*", bswap64(captimestamp), bswap32(linktype));
-	for(p = 0; p < caplen; p++) fprintf(fh_raw_out, "%02x", capptr[p]);
-	fprintf(fh_raw_out, "\n");
 	#endif
+	cs = 0;
+	for(p = 0; p < caplen; p++)
+		{
+		fprintf(fh_raw_out, "%02x", capptr[p]);
+		cs ^= capptr[p];
+		}
+	fprintf(fh_raw_out, "*%02x\n", cs);
 	}
 if(timestampmin == 0) timestampmin = captimestamp;
 if(timestampmin > captimestamp) timestampmin = captimestamp;
@@ -4108,9 +4112,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     to display the track, open file.gpx with viking\n"
 	"--log=<file>                       : output logfile\n"
 	"--raw-out=<file>                   : output frames in HEX ASCII\n"
-	"                                   : format: TIMESTAMP*ENDIANESS*LINKTYPE*FRAME\n"
+	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
 //	"--raw-in=<file>                    : input frames in HEX ASCII\n"
-//	"                                   : format: TIMESTAMP*ENDIANESS*LINKTYPE*FRAME\n"
+//	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file\n"
