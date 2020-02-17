@@ -116,8 +116,8 @@ static uint16_t versionmajor;
 static uint16_t versionminor;
 
 static uint32_t iface;
-static uint16_t dltlinktype[MAX_INTERFACE_ID +1];
-static uint16_t timeresolval[MAX_INTERFACE_ID +1];
+static uint32_t dltlinktype[MAX_INTERFACE_ID +1];
+static uint32_t timeresolval[MAX_INTERFACE_ID +1];
 
 static long int nmeacount;
 static long int rawpacketcount;
@@ -3098,7 +3098,7 @@ if(ntohs(eth2->ether_type) == LLC_TYPE_AUTH)
 return;
 }
 /*===========================================================================*/
-static void processlinktype(uint64_t captimestamp, int linktype, uint32_t caplen, uint8_t *capptr)
+static void processlinktype(uint64_t captimestamp, uint32_t linktype, uint32_t caplen, uint8_t *capptr)
 {
 static uint8_t cs;
 static uint32_t p;
@@ -3114,12 +3114,23 @@ static uint32_t crc;
 
 if(fh_raw_out != NULL)
 	{
+	cs = captimestamp &0xff;
+	cs ^= (captimestamp >> 8) &0xff;
+	cs ^= (captimestamp >> 16) &0xff;
+	cs ^= (captimestamp >> 24) &0xff;
+	cs ^= (captimestamp >> 32) &0xff;
+	cs ^= (captimestamp >> 40) &0xff;
+	cs ^= (captimestamp >> 48) &0xff;
+	cs ^= (captimestamp >> 56) &0xff;
+	cs ^= linktype &0xff;
+	cs ^= (linktype >> 8) &0xff;
+	cs ^= (linktype >> 16) &0xff;
+	cs ^= (linktype >> 24) &0xff;
 	#ifndef BIG_ENDIAN_HOST
-	fprintf(fh_raw_out, "%016" PRIu64 "*%04x*", captimestamp, linktype);
+	fprintf(fh_raw_out, "%016" PRIu64 "*%08x*", captimestamp, linktype);
 	#else
-	fprintf(fh_raw_out, "%016" PRIu64 "*%04x*", bswap64(captimestamp), bswap32(linktype));
+	fprintf(fh_raw_out, "%016" PRIu64 "*%08x*", bswap64(captimestamp), bswap32(linktype));
 	#endif
-	cs = 0;
 	for(p = 0; p < caplen; p++)
 		{
 		fprintf(fh_raw_out, "%02x", capptr[p]);
