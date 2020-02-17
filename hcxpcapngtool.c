@@ -1201,8 +1201,8 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		}
 	if(memcmp(zeigermac->addr, zeigerhs->ap, 6) == 0)
 		{
-		if((zeigerhs->status &ST_APLESS) != ST_APLESS) getnc(zeigerhs);
 		eapolmpbestcount++;
+		if((zeigerhs->status &ST_APLESS) != ST_APLESS) getnc(zeigerhs);
 		if((zeigerhs->status &ST_APLESS) == ST_APLESS) eapolaplesscount++;
 		if((zeigerhs->status &7) == ST_M12E2) eapolm12e2count++;
 		if((zeigerhs->status &7) == ST_M14E4) eapolm14e4count++;
@@ -1508,7 +1508,13 @@ return false;
 static void addhandshake(uint64_t eaptimegap, uint64_t rcgap, messagelist_t *msgclient, messagelist_t *msgap, uint8_t keyver, uint8_t mpfield)
 {
 static handshakelist_t *handshakelistnew;
+static messagelist_t *zeiger;
+
 eapolmpcount++;
+for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
+	{
+	if(memcmp(msgap->ap, zeiger->ap, 6) == 0) mpfield |= zeiger->status;
+	}
 
 if(msgap->timestamp == msgclient->timestamp) eapolmsgtimestamperrorcount++;
 if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
@@ -1527,7 +1533,10 @@ if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclien
 		}
 	memset(handshakelistptr, 0, HANDSHAKELIST_SIZE);
 	handshakelistptr->timestampgap = eaptimegap;
-	handshakelistptr->status = mpfield | msgap->status;
+
+	if((msgap->status &ST_NC) == ST_NC) printf("debug nc\n");
+
+	handshakelistptr->status = mpfield;
 	handshakelistptr->rcgap = rcgap;
 	if(handshakelistptr->rcgap > 0) handshakelistptr->status |= ST_NC;
 	handshakelistptr->messageap = msgap->message;
@@ -2037,7 +2046,6 @@ static uint64_t rcgap;
 static uint8_t mpfield;
 
 static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
-
 eapolm4count++;
 eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
