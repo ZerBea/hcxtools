@@ -4039,15 +4039,15 @@ while(1)
 	{
 	if((len = fgetline(fh_raw_in, RAW_LEN_MAX, linein)) == -1) break;
 	linecount++;
-	if(len < 23) continue;
-	if((linein[16] != '*') && (linein[21] != '*'))
+	if(len < 30) continue;
+	if((linein[16] != '*') && (linein[25] != '*'))
 		{
 		printf("delimiter error line: %ld\n", linecount);
 		if(fh_log != NULL) fprintf(fh_log, "delimiter error line: %ld\n", linecount);
 		pcapreaderrors++;
 		continue;
 		}
-	csptr = strchr(linein +22, '*');
+	csptr = strchr(linein +26, '*');
 	if(csptr == NULL)
 		{
 		printf("delimiter error line: %ld\n", linecount);
