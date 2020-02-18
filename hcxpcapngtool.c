@@ -1515,7 +1515,6 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if(memcmp(msgap->ap, zeiger->ap, 6) == 0) mpfield |= zeiger->status;
 	}
-
 if(msgap->timestamp == msgclient->timestamp) eapolmsgtimestamperrorcount++;
 if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
 	{
@@ -1533,9 +1532,6 @@ if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclien
 		}
 	memset(handshakelistptr, 0, HANDSHAKELIST_SIZE);
 	handshakelistptr->timestampgap = eaptimegap;
-
-	if((msgap->status &ST_NC) == ST_NC) printf("debug nc\n");
-
 	handshakelistptr->status = mpfield;
 	handshakelistptr->rcgap = rcgap;
 	if(handshakelistptr->rcgap > 0) handshakelistptr->status |= ST_NC;
