@@ -337,7 +337,7 @@ memset(&pcapngapplinfo, 0, OPTIONLEN_MAX);
 memset(&pcapngoptioninfo, 0, OPTIONLEN_MAX);
 memset(&pcapngweakcandidate, 0 ,OPTIONLEN_MAX);
 memset(&pcapngdeviceinfo, 0 ,6);
-pcapngtimeresolution = IF_TSRESOL;
+pcapngtimeresolution = TSRESOL_USEC;
 memset(&myaktap, 0 ,6);
 memset(&myaktclient, 0 ,6);
 memset(&nmeasentence, 0, OPTIONLEN_MAX);
