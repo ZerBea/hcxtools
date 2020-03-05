@@ -24,7 +24,6 @@
 #else
 #include <stdio_ext.h>
 #endif
-#include "include/version.h"
 #include "include/hcxpmkidtool.h"
 #include "include/strings.c"
 
@@ -467,7 +466,7 @@ return true;
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
+printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -497,7 +496,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"hcxpmkidtool designed to verify an existing PSK or and existing PMK.\n"
 	"It is not designed to run big wordlists!\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -505,7 +504,7 @@ __attribute__ ((noreturn))
 void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"
-	"usage: %s -h for help\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

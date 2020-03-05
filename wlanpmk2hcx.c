@@ -21,7 +21,6 @@
 #include <openssl/buffer.h>
 #include <math.h>
 
-#include "include/version.h"
 #include "common.c"
 
 /*===========================================================================*/
@@ -194,7 +193,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-e <essid> : input single essid (networkname: 1 .. 32 characters)\n"
 	"-p <pmk>   : input plainmasterkey (64 xdigits)\n"
 	"-h         : this help\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

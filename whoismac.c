@@ -17,7 +17,6 @@
 #include <utime.h>
 #include <curl/curl.h>
 
-#include "include/version.h"
 #include "include/strings.c"
 
 #include "common.h"
@@ -428,7 +427,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-e <ESSID>    : input ESSID\n"
 	"-v <vendor>   : vendor name\n"
 	"-h            : this help screen\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*===========================================================================*/

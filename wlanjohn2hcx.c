@@ -15,7 +15,6 @@
 #include <stdio_ext.h>
 #endif
 
-#include "include/version.h"
 #include "common.h"
 
 #define LINEBUFFER	1024
@@ -315,7 +314,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output hccapx file\n"
 	"-e <file> : output ESSID list\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

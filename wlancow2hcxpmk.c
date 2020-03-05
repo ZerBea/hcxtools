@@ -13,7 +13,6 @@
 #endif
 #include <curl/curl.h>
 
-#include "include/version.h"
 #include "common.h"
 
 
@@ -174,7 +173,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-p <file> : output pmk file\n"
 	"-s        : print pmk's to stdout\n"
 	"-h        : this help file\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

@@ -19,7 +19,6 @@
 #include <stdio_ext.h>
 #endif
 
-#include "include/version.h"
 #include "common.h"
 
 /*===========================================================================*/
@@ -1269,7 +1268,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-D <file>     : remove duplicates from the same authentication sequence\n"
 	"              : you must use nonce-error-corrections on that file!\n"
 	"-h            : this help\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

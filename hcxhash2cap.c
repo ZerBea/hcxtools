@@ -25,7 +25,6 @@
 #include "include/ieee80211.c"
 #include "include/strings.c"
 #include "include/byteops.c"
-#include "include/version.h"
 
 #define ARCH_INDEX(x)	((unsigned int)(unsigned char)(x))
 
@@ -1314,7 +1313,7 @@ return;
 __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
+printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -1338,7 +1337,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--john=<file>   : input John the Ripper WPAPSK hash file\n"
 	"--help          : show this help\n"
 	"--version       : show version\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -1346,7 +1345,7 @@ __attribute__ ((noreturn))
 static void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"
-	"usage: %s -h for help\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

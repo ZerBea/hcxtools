@@ -15,7 +15,6 @@
 #include <stdio_ext.h>
 #endif
 
-#include "include/version.h"
 #include "common.h"
 
 #define OM_MAC_AP	0b000000000000000001
@@ -679,7 +678,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-l        : list essid len\n"
 	"-e        : list essid\n"
 	"-h        : this help\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

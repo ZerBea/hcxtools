@@ -15,7 +15,6 @@
 #endif
 #include <curl/curl.h>
 
-#include "include/version.h"
 #include "common.h"
 
 
@@ -108,7 +107,7 @@ return uploadflag;
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
+printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -140,7 +139,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"To reduce the size of the cap file, compress it with gzip:\n"
 	"gzip capture.pcapng\n"
 	"\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, wpasecurl);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname, eigenname, eigenname, wpasecurl);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

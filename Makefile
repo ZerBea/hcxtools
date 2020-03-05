@@ -1,3 +1,14 @@
+PRODUCTION		:= 1
+PRODUCTION_VERSION	:= 6.0.0
+PRODUCTION_YEAR		:= 2020
+
+ifeq ($(PRODUCTION),1)
+VERSION_TAG		:= $(PRODUCTION_VERSION)
+else
+VERSION_TAG		:= $(shell git describe --tags || echo $(PRODUCTION_VERSION))
+endif
+VERSION_YEAR		:= $(shell echo $(PRODUCTION_YEAR))
+
 PREFIX		?=/usr/local
 INSTALLDIR	= $(DESTDIR)$(PREFIX)/bin
 
@@ -6,7 +17,6 @@ HOSTOS := $(shell uname -s)
 CC		?= gcc
 CFLAGS		?= -O3 -Wall -Wextra
 CFLAGS		+= -std=gnu99
-#CFLAGS		+= -ggdb -fsanitize=address
 INSTFLAGS	= -m 0755
 
 ifeq ($(HOSTOS), Linux)
@@ -16,7 +26,6 @@ endif
 ifeq ($(HOSTOS), Darwin)
 CFLAGS += -L/usr/local/opt/openssl/lib -I/usr/local/opt/openssl/include
 endif
-
 
 TOOLS=
 TOOLS+=hcxpcapngtool
@@ -64,7 +73,7 @@ $(1)_src ?= $(1).c
 $(1)_libs ?=
 
 $(1): $$($(1)_src) | .deps
-	$$(CC) $$(CFLAGS) $$(CPPFLAGS) -MMD -MF .deps/$$@.d -o $$@ $$($(1)_src) $$($(1)_libs) $$(LDFLAGS)
+	$$(CC) $$(CFLAGS) $$(CPPFLAGS) -MMD -MF .deps/$$@.d -o $$@ $$($(1)_src) $$($(1)_libs) $$(LDFLAGS) -DVERSION_TAG=\"$(VERSION_TAG)\" -DVERSION_YEAR=\"$(VERSION_YEAR)\"
 
 .deps/$(1).d: $(1)
 

@@ -18,7 +18,6 @@
 #include <pthread.h>
 #include <openssl/evp.h>
 
-#include "include/version.h"
 #include "include/hashcatops.h"
 #include "include/strings.c"
 
@@ -556,7 +555,7 @@ return;
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
+printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -573,7 +572,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-P <file> : output new potfile file (PMK*ESSID:PSK)\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -581,7 +580,7 @@ __attribute__ ((noreturn))
 void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"
-	"usage: %s -h for help\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

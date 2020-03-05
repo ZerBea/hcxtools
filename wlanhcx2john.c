@@ -15,7 +15,6 @@
 #include <stdio_ext.h>
 #endif
 
-#include "include/version.h"
 #include "common.h"
 
 struct hccap
@@ -224,7 +223,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"options:\n"
 	"-o <file> : output john file\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

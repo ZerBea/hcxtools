@@ -22,7 +22,6 @@
 #include <openssl/cmac.h>
 #include <openssl/evp.h>
 
-#include "include/version.h"
 #include "common.c"
 #include "com_md5_64.c"
 #include "com_aes.c"
@@ -666,7 +665,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-p\n"
 	"-P\n"
 	"-w\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*===========================================================================*/

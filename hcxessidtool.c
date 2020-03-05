@@ -18,7 +18,6 @@
 #else
 #include <stdio_ext.h>
 #endif
-#include "include/version.h"
 #include "include/hcxessidtool.h"
 #include "include/strings.c"
 #include "include/fileops.c"
@@ -1109,7 +1108,7 @@ return true;
 __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
+printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -1151,7 +1150,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"examples:\n"
 	"hcxessidtool --pmkid1=file1.16800 --pmkid2=file2.16800 --pmkidout12=joint.16800\n"
 	"hcxessidtool --pmkid1=file1.16800 -l 10 --pmkidout=filtered.16800\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -1159,7 +1158,7 @@ __attribute__ ((noreturn))
 static void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"
-	"usage: %s -h for help\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

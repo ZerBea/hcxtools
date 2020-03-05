@@ -10,7 +10,6 @@
 #include <sys/types.h>
 #include <stdbool.h>
 
-#include "include/version.h"
 #include "include/hcxwltool.h"
 
 /*===========================================================================*/
@@ -613,7 +612,7 @@ return;
 __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
+printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -645,7 +644,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"hcxwltool -i wordlist --digit --length=10 | sort | uniq |  | sort | uniq | hashcat -m 2500 hashfile.hccapx\n"
 	"hcxwltool -i wordlist --digit | sort | uniq | hashcat -m 16800 hashfile.16800\n"
 	"hcxwltool -i wordlist --xdigit | sort | uniq | john --stdin --format=wpapsk-opencl hashfile.16800\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -653,7 +652,7 @@ __attribute__ ((noreturn))
 static void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"
-	"usage: %s -h for help\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

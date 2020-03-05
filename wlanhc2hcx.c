@@ -15,7 +15,6 @@
 #include <stdio_ext.h>
 #endif
 
-#include "include/version.h"
 #include "common.h"
 
 struct hccap
@@ -379,7 +378,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"options:\n"
 	"-o <file> : output hccapx file\n"
 	"-e <file> : output ESSID list\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/

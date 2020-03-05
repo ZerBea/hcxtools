@@ -27,7 +27,6 @@
 #include <linux/limits.h>
 #endif
 
-#include "include/version.h"
 #include "include/hcxpcaptool.h"
 #include "include/ieee80211.old.c"
 #include "include/strings.c"
@@ -7177,7 +7176,7 @@ return;
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION, VERSION_JAHR);
+printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -7285,7 +7284,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"Do not edit, merge or convert pcapng files! This will remove optional comment fields!\n"
 	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
 	"It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcaptool will understand this.\n"
-	"\n", eigenname, VERSION, VERSION_JAHR, eigenname, eigenname, eigenname, eigenname, maxtvdiff/1000000, maxrcdiff, maxessidchanges, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname, eigenname, eigenname, maxtvdiff/1000000, maxrcdiff, maxessidchanges, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -7293,7 +7292,7 @@ __attribute__ ((noreturn))
 void usageerror(char *eigenname)
 {
 printf("%s %s (C) %s by ZeroBeat\n"
-	"usage: %s -h for help\n", eigenname, VERSION, VERSION_JAHR, eigenname);
+	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
 /*===========================================================================*/
