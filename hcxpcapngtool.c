@@ -175,6 +175,7 @@ static long int zeroedpmkidpmkcount;
 static long int zeroedeapolpmkcount;
 static long int pmkidcount;
 static long int pmkidbestcount;
+static long int pmkidroguecount;
 static long int pmkiduselesscount;
 static long int pmkidwrittenhcount;
 static long int pmkidwrittenjcountdeprecated;
@@ -267,8 +268,6 @@ static uint8_t pcapngdeviceinfo[6];
 static uint8_t pcapngtimeresolution;
 static char nmeasentence[OPTIONLEN_MAX];
 static char gpwplold[OPTIONLEN_MAX];
-
-//static unsigned char pmk[64];
 
 /*===========================================================================*/
 /*
@@ -406,6 +405,7 @@ zeroedpmkidpmkcount = 0;
 zeroedeapolpmkcount = 0;
 pmkidcount = 0;
 pmkidbestcount = 0;
+pmkidroguecount = 0;
 pmkiduselesscount = 0;
 pmkidwrittenhcount = 0;
 eapolwrittenjcountdeprecated = 0;
@@ -543,7 +543,7 @@ if(eapolm4count > 0)			printf("EAPOL M4 messages........................: %ld\n"
 if(eapolmpcount > 0)			printf("EAPOL pairs (total)......................: %ld\n", eapolmpcount);
 if(zeroedeapolpmkcount > 0)		printf("EAPOL (over zeroed PMK)..................: %ld\n", zeroedeapolpmkcount);
 if(eapolmpbestcount > 0)		printf("EAPOL pairs (best).......................: %ld\n", eapolmpbestcount);
-if(eapolaplesscount > 0)		printf("EAPOL pairs (AP-LESS)....................: %ld\n", eapolaplesscount);
+if(eapolaplesscount > 0)		printf("EAPOL ROGUE pairs........................: %ld\n", eapolaplesscount);
 if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file...: %ld (RC checked)\n", eapolwrittencount);
 if(eapolncwrittencount > 0)		printf("EAPOL pairs written to combi hash file...: %ld (RC not checked)\n", eapolncwrittencount);
 if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx............: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
@@ -560,6 +560,7 @@ if(pmkidcount > 0)			printf("PMKID (total)............................: %ld\n", 
 if(pmkiduselesscount > 0)		printf("PMKID (useless)..........................: %ld\n", pmkiduselesscount);
 if(zeroedpmkidpmkcount > 0)		printf("PMKID (over zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
 if(pmkidbestcount > 0)			printf("PMKID (best).............................: %ld\n", pmkidbestcount);
+if(pmkidroguecount > 0)			printf("PMKID ROGUE..............................: %ld\n", pmkidroguecount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.........: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old JtR format..........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)......: %ld\n", pmkidwrittencountdeprecated);
@@ -1335,6 +1336,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 		}
 	if(memcmp(zeigermac->addr, zeigerpmkid->ap, 6) == 0)
 		{
+		if(memcmp(&myaktclient, zeigerpmkid->client, 6) == 0) pmkidroguecount++;
 		pmkidbestcount++;
 		if(fh_pmkideapol != 0)
 			{
