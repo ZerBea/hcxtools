@@ -3116,7 +3116,6 @@ static avs_t *avs;
 static fcs_t *fcs;
 static uint32_t crc;
 
-
 if(fh_raw_out != NULL)
 	{
 	cs = captimestamp &0xff;
@@ -3132,9 +3131,9 @@ if(fh_raw_out != NULL)
 	cs ^= (linktype >> 16) &0xff;
 	cs ^= (linktype >> 24) &0xff;
 	#ifndef BIG_ENDIAN_HOST
-	fprintf(fh_raw_out, "%016" PRIu64 "*%08x*", captimestamp, linktype);
+	fprintf(fh_raw_out, "%016" PRIx64 "*%08x*", captimestamp, linktype);
 	#else
-	fprintf(fh_raw_out, "%016" PRIu64 "*%08x*", bswap64(captimestamp), bswap32(linktype));
+	fprintf(fh_raw_out, "%016" PRIx64 "*%08x*", bswap64(captimestamp), bswap32(linktype));
 	#endif
 	for(p = 0; p < caplen; p++)
 		{
@@ -4028,10 +4027,32 @@ return len;
 static bool processrawfile(char *rawinname)
 {
 static int len;
+static int pos;
 static long int linecount;
 static FILE *fh_raw_in;
+static uint64_t timestampraw;
+static uint16_t linktyperaw;
+static uint8_t cs;
+static uint32_t caplenraw;
+uint8_t idx0;
+uint8_t idx1;
 static char *csptr;
+static char *stopptr = NULL;
+
+uint8_t hashmap[] =
+{
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
+0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 89:;<=>?
+0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // @ABCDEFG
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // HIJKLMNO
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // PQRSTUVW
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // XYZ[\]^_
+0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // `abcdefg
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
+};
+
 static char linein[RAW_LEN_MAX];
+static uint8_t packet[MAXPACPSNAPLEN];
 
 if(initlists() == false) return false;
 if((fh_raw_in = fopen(rawinname, "r")) == NULL)
@@ -4074,6 +4095,57 @@ while(1)
 		pcapreaderrors++;
 		continue;
 		}
+	timestampraw = strtoull(linein, &stopptr, 16);
+	if((stopptr == NULL) || ((stopptr -linein) != 16))
+		{
+		printf("timestamp error line: %ld\n", linecount);
+		if(fh_log != NULL) fprintf(fh_log, "timestamp error line: %ld\n", linecount);
+		pcapreaderrors++;
+		continue;
+		}
+	#ifdef BIG_ENDIAN_HOST
+	timestampraw = bswap64(timestampraw);
+	#endif
+	linktyperaw = strtoul(&linein[17], &stopptr, 16);
+	if((stopptr == NULL) || ((stopptr -linein) != 25))
+		{
+		printf("linktype error line: %ld\n", linecount);
+		if(fh_log != NULL) fprintf(fh_log, "linktype error line: %ld\n", linecount);
+		pcapreaderrors++;
+		continue;
+		}
+	#ifdef BIG_ENDIAN_HOST
+	linktypraw = bswap16(linktypraw);
+	#endif
+	cs = timestampraw &0xff;
+	cs ^= (timestampraw >> 8) &0xff;
+	cs ^= (timestampraw >> 16) &0xff;
+	cs ^= (timestampraw >> 24) &0xff;
+	cs ^= (timestampraw >> 32) &0xff;
+	cs ^= (timestampraw >> 40) &0xff;
+	cs ^= (timestampraw >> 48) &0xff;
+	cs ^= (timestampraw >> 56) &0xff;
+	cs ^= linktyperaw &0xff;
+	cs ^= (linktyperaw >> 8) &0xff;
+	cs ^= (linktyperaw >> 16) &0xff;
+	cs ^= (linktyperaw >> 24) &0xff;
+	caplenraw = 0;
+	for (pos = 0; ((pos < MAXPACPSNAPLEN) && (pos < RAW_LEN_MAX)); pos += 2)
+		{
+		if(linein[26 +pos] == 0)
+			{
+			printf("frame error line: %ld\n", linecount);
+			if(fh_log != NULL) fprintf(fh_log, "frame error line: %ld\n", linecount);
+			pcapreaderrors++;
+			continue;
+			}
+		if(linein[26 +pos] == '*') break;
+		idx0 = ((uint8_t)linein[26 +pos +0] & 0x1F) ^ 0x10;
+		idx1 = ((uint8_t)linein[26 +pos +1] & 0x1F) ^ 0x10;
+		packet[pos/2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
+		cs ^= packet[pos/2];
+		caplenraw++;
+		};
 	rawpacketcount++;
 	}
 
@@ -4082,6 +4154,10 @@ printf("\nsummary raw file\n"
 	"file name................................: %s\n"
 	"lines read...............................: %ld\n"
 	, basename(rawinname),linecount);
+
+
+
+
 
 printlinklayerinfo();
 cleanupmac();
