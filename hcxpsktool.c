@@ -20,7 +20,6 @@
 #include "include/hcxpsktool.h"
 #include "include/hashcatops.h"
 #include "include/strings.c"
-
 /*===========================================================================*/
 /* global var */
 
@@ -36,12 +35,10 @@ static bool eudateflag;
 static bool usdateflag;
 static bool wpskeysflag;
 
-
 static bool easyboxflag;
 static bool ukrtelecomflag;
 
 uint8_t essidglen;
-
 /*===========================================================================*/
 static void globalinit()
 {
@@ -62,11 +59,11 @@ return;
 /*===========================================================================*/
 static void writepsk(FILE *fhout, const char *pskstring)
 {
-bool lflag = false;
-bool uflag = false;
-int p, l;
-char lowerpskstring[PSKSTRING_LEN_MAX] = {};
-char upperpskstring[PSKSTRING_LEN_MAX] = {};
+static bool lflag = false;
+static bool uflag = false;
+static int p, l;
+static char lowerpskstring[PSKSTRING_LEN_MAX] = {};
+static char upperpskstring[PSKSTRING_LEN_MAX] = {};
 
 l = strlen(pskstring);
 if((l < 8) || (l > PSKSTRING_LEN_MAX)) return;
@@ -101,9 +98,9 @@ static void keywritenetgear(FILE *fhout)
 static size_t ca, cs;
 static int cn;
 
-char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-const char *adjectiv[] = { "absurd", "ancient", "antique", "aquatic",
+static const char *adjectiv[] = { "absurd", "ancient", "antique", "aquatic",
 	"baby", "basic", "bay", "better", "big", "bitter", "black", "blue", "bold", "bottled", "brave", "breezy", "bright", "brown",
 	"calm", "carrot", "cash", "charming", "cheerful", "chilly", "chip", "chummy", "classy", "clean", "clear", "clever", "cloudy", "cold", "cool", "crispy", "curly",
 	"daily", "deep", "delightful", "dizzy", "dynamic",
@@ -129,9 +126,9 @@ const char *adjectiv[] = { "absurd", "ancient", "antique", "aquatic",
 	"yellow", "young",
 	"zany" };
 
-const char *substantiv[] = { "airplane", "apple", "automobile",
+static const char *substantiv[] = { "airplane", "apple", "automobile",
 	"ball", "balloon", "banana", "beach", "bead", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "bottle", "box", "brain", "bread", "breeze", "bubble", "bug", "bunny", "bush", "butter",
-	"canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "chip", "coast", "coconut", "comet", "cream", "curly", "curtain",
+	"canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "chip", "coast", "coconut", "comet", "cream", "crown", "curly", "curtain",
 	"daisy", "deal", "deer", "desk", "diamond", "dink", "door",
 	"earth", "elephant", "emerald",
 	"finch", "fire", "fish", "flamingo", "flower", "flute", "forest",
@@ -186,9 +183,9 @@ static void keywritephome(FILE *fhout)
 static size_t ca, cs;
 static int cn;
 
-char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-const char *five[] = {"about", "again", "aisle", "alley", "amaze", "apron", "attic", "award",
+static const char *five[] = {"about", "again", "aisle", "alley", "amaze", "apron", "attic", "award",
 	"bacon", "badge", "bagel", "beard", "begin", "being", "bloom", "bread", "brick", "bring", "brook", "build",
 	"built",
 	"cause", "chair", "charm", "chart", "chase", "check", "chime", "chord", "chore", "chose", "cough", "class",
@@ -198,7 +195,7 @@ const char *five[] = {"about", "again", "aisle", "alley", "amaze", "apron", "att
 	"fancy", "favor", "feast", "fence", "field", "fifty"
 	};
 
-const char *six[] = {"action", "always", "animal", "answer", "anyone", "appear", "arctic", "autumn",
+static const char *six[] = {"action", "always", "animal", "answer", "anyone", "appear", "arctic", "autumn",
 	"basket", "beside", "better", "bottle", "breezy", "bridge", "button", 
 	"cactus", "called", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery", "cellar",
 	"change", "charge", "cheery", "chores", "chosen", "circle", "cities", "comedy", "copied", "county", "create", 
@@ -239,14 +236,14 @@ static void keywritetenda1(FILE *fhout)
 static size_t ca, cs;
 static int cn;
 
-char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-const char *word1[] = { "card", "cash",
+static const char *word1[] = { "card", "cash",
 	"feed",
 	"jade",
 	"name" };
 
-const char *word2[] = { "dash",
+static const char *word2[] = { "dash",
 	"more",
 	"ride",
 	"think",
@@ -271,9 +268,9 @@ static void keywritetenda2(FILE *fhout)
 static size_t ca;
 static int cn;
 
-char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-const char *word1[] = { "apple",
+static const char *word1[] = { "apple",
 	"east",
 	"give",
 	"lable", "light",
@@ -299,7 +296,7 @@ static size_t w;
 static int y;
 
 static char pskstring[PSKSTRING_LEN_MAX] = {};
-const char *weakword[] =
+static const char *weakword[] =
 {
 "00000000", "0000000000", "01234567", "0123456789", "0123456789012345", "022844444", "0987654321",
 "1029384756", "11111111", "1111111111", "111222333", "11223344", "1122334455", "11235813",
@@ -562,7 +559,7 @@ return;
 /*===========================================================================*/
 static void writeessidadd(FILE *fhout, char *essid)
 {
-int c, d;
+static int c, d;
 static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = {};
 
 for(c = 22222; c <= 99999; c += 11111)
@@ -945,13 +942,13 @@ return;
 /*===========================================================================*/
 static void testeasybox(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
-int b;
-int s10, s9, s8 , s7;
-int m12, m11, m10 ,m9;
-int f1, f2;
-int k1, k2, k3, k4, k5, k6, k7, k8, k9;
+static int b;
+static int s10, s9, s8 , s7;
+static int m12, m11, m10 ,m9;
+static int f1, f2;
+static int k1, k2, k3, k4, k5, k6, k7, k8, k9;
 
-static char *easybox = "EasyBox-";
+static const char *easybox = "EasyBox-";
 
 if(easyboxflag == true) return;
 if(essidlen != 14) return;
@@ -987,7 +984,7 @@ return;
 static void testglocal(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2, k3, k4;
-static char *glocalme = "GlocalMe_";
+static const char *glocalme = "GlocalMe_";
 
 if(essidlen != 14) return;
 if(memcmp(essid, glocalme , 9) != 0) return;
@@ -1006,7 +1003,7 @@ static void testhotbox(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2;
 static char *ev;
-static char *hotbox = "HOTBOX-";
+static const char *hotbox = "HOTBOX-";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
@@ -1048,8 +1045,8 @@ return;
 static void testmtel(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2;
-static char *a1 = "A1_";
-static char *mtel = "M-Tel_";
+static const char *a1 = "A1_";
+static const char *mtel = "M-Tel_";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
@@ -1093,7 +1090,7 @@ return;
 static void testmywifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *mywifi = "MY WIFI ";
+static const char *mywifi = "MY WIFI ";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
@@ -1111,7 +1108,7 @@ static void testroamingman(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2, k3;
 static char *ev;
-static char *roamingman =  "Roamingman_";
+static const char *roamingman =  "Roamingman_";
 
 if(essidlen != 16) return;
 if((!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15]))) return;
@@ -1133,7 +1130,7 @@ return;
 static void testrtk(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *rtk =  "RTK-";
+static const char *rtk =  "RTK-";
 
 if(essidlen == 10)
 	{
@@ -1159,8 +1156,8 @@ return;
 static void testtechnicolor(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *tc8715d =  "TC8715D";
-static char *tc8717t =  "TC8717T";
+static const char *tc8715d =  "TC8715D";
+static const char *tc8717t =  "TC8717T";
 
 if(essidlen >= 9)
 	{
@@ -1181,7 +1178,7 @@ return;
 static void testukrtelecom(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k;
-static char *ukrtelekom = "UKrtelecom";
+static const char *ukrtelekom = "UKrtelecom";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
@@ -1200,7 +1197,7 @@ return;
 static void testwifirsu(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *wifirsu = "WiFiRSU_";
+static const char *wifirsu = "WiFiRSU_";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
@@ -1232,9 +1229,9 @@ return;
 static void testwlan(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2, k3, k4, k5, k6 ,k7 ,k8, k9;
-static char *wifirsu = "WLAN-";
+static const char *wifirsu = "WLAN-";
 
-static char hextable[] = "0123456789ABCDEF";
+static const char hextable[] = "0123456789ABCDEF";
 
 if(essidlen != 11) return;
 if(memcmp(essid, wifirsu, 5) != 0) return;
