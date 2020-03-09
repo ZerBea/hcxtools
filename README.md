@@ -8,7 +8,7 @@ and recommended by hashcat. This branch is pretty closely synced to hashcat git 
 (that means: latest hcxtools matching on latest hashcat beta) and John the Ripper
 git branch ("bleeding-jumbo").
 
-Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000, 16100, 16800, 16801, 22000
+Support for hashcat hash-modes: 2500, 2501, 4800, 5500, 12000, 16100, 16800, 16801, 22000, 22001
  
 Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm, tacacs-plus
 
