@@ -339,6 +339,11 @@ static char *vendorptr;
 static unsigned long long int vendoroui;
 static char linein[LINEBUFFER];
 static char vendorapname[256];
+#ifdef BIG_ENDIAN_HOST
+int lsb = oui & 0xf;
+#else
+int lsb = (oui >> 16) & 0xf;
+#endif
 
 if ((fhoui = fopen(ouiname, "r")) == NULL)
 	{
@@ -361,12 +366,15 @@ while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
 			if(vendorptr != NULL)
 				{
 				strncpy(vendorapname, vendorptr +1,255);
+				break;
 				}
 			}
 		}
 	}
 
-fprintf(stdout, "\nVENDOR: %s\n\n", vendorapname);
+fprintf(stdout, "\nVENDOR: %s (%s)%s\n\n", vendorapname,
+        oui == 0xffffff ? "broadcast" : lsb & 2 ? "LAA - likely randomized!" : "UAA",
+        oui == 0xffffff ? "" : lsb & 1 ? ", multicast" : ", unicast");
 
 fclose(fhoui);
 return;
