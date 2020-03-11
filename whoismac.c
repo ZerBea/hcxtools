@@ -445,6 +445,7 @@ static int auswahl;
 static int mode = 0;
 static int ret;
 static int l;
+static int p1, p2;
 static unsigned long long int oui = 0;
 static char *hashlineend;
 
@@ -474,23 +475,24 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 		break;
 
 		case 'm':
-		switch (strlen(optarg))
+		l= strlen(optarg);
+		if((l > 17) || (l < 6))
 			{
-			case 17:
-			case 8:
-			memmove(&optarg[5], &optarg[6], 2);
-			memmove(&optarg[2], &optarg[3], 4);
-			case 12:
-			optarg[6] = 0;
-			case 6:
-			oui = strtoull(optarg, NULL, 16);
-			mode = 'm';
-			break;
-
-			default:
 			fprintf(stderr, "error wrong oui size %s (need eg. 11:22:33:44:55:aa or 112233)\n", optarg);
 			exit(EXIT_FAILURE);
 			}
+		p2 = 0;
+		for(p1 = 0; p1 < l; p1++)
+			{
+			if(isxdigit(optarg[p1]))
+				{
+				optarg[p2] = optarg[p1];
+				p2++;
+				}
+			}
+		optarg[p2] = 6;
+		oui = (strtoull(optarg, NULL, 16) >> 24);
+		mode = 'm';
 		break;
 
 		case 'p':
@@ -538,7 +540,7 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 		break;
 
 		case 'v':
-		vendorname = optarg;;
+		vendorname = optarg;
 		mode = 'v';
 		break;
 
