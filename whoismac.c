@@ -490,7 +490,7 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 				p2++;
 				}
 			}
-		optarg[p2] = 0;
+		optarg[6] = 0;
 		oui = (strtoull(optarg, NULL, 16) >> 24);
 		mode = 'm';
 		break;
