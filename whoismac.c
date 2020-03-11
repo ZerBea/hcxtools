@@ -474,20 +474,21 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 		break;
 
 		case 'm':
-		if(strlen(optarg) == 6)
+		switch (strlen(optarg))
 			{
+			case 17:
+			case 8:
+			memmove(&optarg[5], &optarg[6], 2);
+			memmove(&optarg[2], &optarg[3], 4);
+			case 12:
+			optarg[6] = 0;
+			case 6:
 			oui = strtoull(optarg, NULL, 16);
 			mode = 'm';
-			}
+			break;
 
-		else if(strlen(optarg) == 12)
-			{
-			oui = (strtoull(optarg, NULL, 16) >> 24);
-			mode = 'm';
-			}
-		else
-			{
-			fprintf(stderr, "error wrong oui size %s (need 1122334455aa or 1122aa)\n", optarg);
+			default:
+			fprintf(stderr, "error wrong oui size %s (need eg. 11:22:33:44:55:aa or 112233)\n", optarg);
 			exit(EXIT_FAILURE);
 			}
 		break;
@@ -599,7 +600,7 @@ if(ouiname == NULL)
 	fprintf(stderr, "failed read oui.txt\n"
 			"use download option -d to download it\n"
 			"or download file http://standards-oui.ieee.org/oui.txt\n"
-			"and save it to ~.hcxtools/oui.txt\n");
+			"and save it to ~/.hcxtools/oui.txt\n");
 	exit(EXIT_FAILURE);
 	}
 if(stat(ouiname, &statinfo) < 0)
@@ -607,7 +608,7 @@ if(stat(ouiname, &statinfo) < 0)
 	fprintf(stderr, "failed read oui.txt\n"
 			"use download option -d to download it\n"
 			"or download file http://standards-oui.ieee.org/oui.txt\n"
-			"and save it to ~.hcxtools/oui.txt\n");
+			"and save it to ~/.hcxtools/oui.txt\n");
 	exit(EXIT_FAILURE);
 	}
 if(mode == 'm')
@@ -636,6 +637,12 @@ else if(mode == 'e')
 else if(mode == 'x')
 	{
 	getessidinfo(essidname);
+	}
+
+else
+	{
+	usage(basename(argv[0]));
+	return EXIT_FAILURE;
 	}
 
 return EXIT_SUCCESS;
