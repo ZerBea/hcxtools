@@ -3596,10 +3596,9 @@ static packet_block_t *pcapngpb;
 static enhanced_packet_block_t *pcapngepb;
 static custom_block_t *pcapngcb;
 
+static int interfaceid[MAX_INTERFACE_ID];
 static uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 static uint8_t packet[MAXPACPSNAPLEN];
-
-static int interfaceid[MAX_INTERFACE_ID];
 
 printf("reading from %s...\n", basename(pcapinname));
 iface = 0;
@@ -4032,7 +4031,7 @@ static long int linecount;
 static FILE *fh_raw_in;
 static uint64_t timestampraw;
 static uint16_t linktyperaw;
-static uint8_t cs;
+static uint8_t cs, ct;
 static uint32_t caplenraw;
 uint8_t idx0;
 uint8_t idx1;
@@ -4146,6 +4145,29 @@ while(1)
 		cs ^= packet[pos/2];
 		caplenraw++;
 		};
+	if((len -pos -26) < 3)
+		{
+		printf("line length error: %ld\n", linecount);
+		if(fh_log != NULL) fprintf(fh_log, "line length error: %ld\n", linecount);
+		pcapreaderrors++;
+		continue;
+		}
+	ct = strtoul(&linein[26 +pos +1], &stopptr, 16);
+	if((stopptr == NULL) || ((stopptr -linein) != len))
+		{
+		printf("line length error: %ld\n", linecount);
+		if(fh_log != NULL) fprintf(fh_log, "line length error: %ld\n", linecount);
+		pcapreaderrors++;
+		continue;
+		}
+	if(ct != cs)
+		{
+		printf("checksum error: %ld\n", linecount);
+		if(fh_log != NULL) fprintf(fh_log, "checksum error: %ld\n", linecount);
+		pcapreaderrors++;
+		continue;
+		}
+	processlinktype(timestampraw, linktyperaw, caplenraw, packet);
 	rawpacketcount++;
 	}
 
@@ -4154,10 +4176,6 @@ printf("\nsummary raw file\n"
 	"file name................................: %s\n"
 	"lines read...............................: %ld\n"
 	, basename(rawinname),linecount);
-
-
-
-
 
 printlinklayerinfo();
 cleanupmac();
@@ -4227,8 +4245,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--log=<file>                       : output logfile\n"
 	"--raw-out=<file>                   : output frames in HEX ASCII\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
-//	"--raw-in=<file>                    : input frames in HEX ASCII\n"
-//	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
+	"--raw-in=<file>                    : input frames in HEX ASCII\n"
+	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file\n"
