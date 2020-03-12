@@ -1623,13 +1623,13 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--essid=<ESSID>              : filter by ESSID\n"
 	"--essid-part=<part of ESSID> : filter by part of ESSID\n"
 	"--mac-ap=<MAC>               : filter AP by MAC\n"
-	"                             : format: 001122334455 (hex)\n"
+	"                             : format: 001122334455, 00:11:22:33:44:55, 00-11-22-33-44-55 (hex)\n"
 	"--mac-client=<MAC>           : filter CLIENT by MAC\n"
-	"                             : format: 001122334455 (hex)\n"
+	"                             : format: 001122334455, 00:11:22:33:44:55, 00-11-22-33-44-55 (hex)\n"
 	"--oui-ap=<OUI>               : filter AP by OUI\n"
-	"                             : format: 001122 (hex)\n"
+	"                             : format: 001122, 00:11:22, 00-11-22 (hex)\n"
 	"--oui-client=<OUI>           : filter CLIENT by OUI\n"
-	"                             : format: 001122 (hex)\n"
+	"                             : format: 001122, 00:11:22, 00-11-22 (hex)\n"
 	"--vendor=<VENDOR>            : filter by (part of) VENDOR name\n"
 	"--authorized                 : filter EAPOL pairs by status authorized\n"
 	"--notauthorized              : filter EAPOL pairs by status not authorized\n"
@@ -1665,6 +1665,8 @@ int main(int argc, char *argv[])
 {
 static int auswahl;
 static int index;
+static int l;
+static int p1, p2;
 static int hashtypein;
 static int essidlenin;
 static FILE *fh_pmkideapol;
@@ -1856,6 +1858,17 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_FILTER_OUI_AP:
+		l= strlen(optarg);
+		p2 = 0;
+		for(p1 = 0; p1 < l; p1++)
+			{
+			if(isxdigit(optarg[p1]))
+				{
+				optarg[p2] = optarg[p1];
+				p2++;
+				}
+			}
+		optarg[6] = 0;
 		ouiinstring = optarg;
 		if(getfield(ouiinstring, 3, filterouiap) != 3)
 			{
@@ -1866,16 +1879,38 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_FILTER_MAC_AP:
+		l= strlen(optarg);
+		p2 = 0;
+		for(p1 = 0; p1 < l; p1++)
+			{
+			if(isxdigit(optarg[p1]))
+				{
+				optarg[p2] = optarg[p1];
+				p2++;
+				}
+			}
+		optarg[12] = 0;
 		macinstring = optarg;
 		if(getfield(macinstring, 6, filtermacap) != 6)
 			{
-			fprintf(stderr, "wrong MAC format\n");
+			fprintf(stderr, "wrong MAC format $\n");
 			exit(EXIT_FAILURE);
 			}
 		flagfiltermacap = true;
 		break;
 
 		case HCX_FILTER_MAC_CLIENT:
+		l= strlen(optarg);
+		p2 = 0;
+		for(p1 = 0; p1 < l; p1++)
+			{
+			if(isxdigit(optarg[p1]))
+				{
+				optarg[p2] = optarg[p1];
+				p2++;
+				}
+			}
+		optarg[12] = 0;
 		macinstring = optarg;
 		if(getfield(macinstring, 6, filtermacclient) != 6)
 			{
@@ -1885,11 +1920,18 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		flagfiltermacclient = true;
 		break;
 
-		case HCX_FILTER_VENDOR:
-		filtervendorptr = optarg;
-		break;
-
 		case HCX_FILTER_OUI_CLIENT:
+		l= strlen(optarg);
+		p2 = 0;
+		for(p1 = 0; p1 < l; p1++)
+			{
+			if(isxdigit(optarg[p1]))
+				{
+				optarg[p2] = optarg[p1];
+				p2++;
+				}
+			}
+		optarg[6] = 0;
 		ouiinstring = optarg;
 		if(getfield(ouiinstring, 3, filterouiclient) != 3)
 			{
@@ -1897,6 +1939,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			exit(EXIT_FAILURE);
 			}
 		flagfilterouiclient = true;
+		break;
+
+		case HCX_FILTER_VENDOR:
+		filtervendorptr = optarg;
 		break;
 
 		case HCX_FILTER_RC:
