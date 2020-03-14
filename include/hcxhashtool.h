@@ -30,7 +30,7 @@
 #define HCX_FILTER_RC		16
 #define HCX_FILTER_M12		17
 #define HCX_FILTER_M1234	18
-#define HCX_FILTER_APLESS	19
+#define HCX_FILTER_M1M2ROGUE	19
 #define HCX_PSK			20
 #define HCX_PMK			21
 #define HCX_VENDOR_OUT		22

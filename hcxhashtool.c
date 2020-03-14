@@ -1634,7 +1634,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--authorized                 : filter EAPOL pairs by status authorized\n"
 	"--notauthorized              : filter EAPOL pairs by status not authorized\n"
 	"--rc                         : filter EAPOL pairs by replaycount status checked\n"
-	"--apless                     : filter EAPOL pairs by status M2 requested from client\n"
+	"--apless                     : filter EAPOL pairs by status M1M2ROGUE (M2 requested from CLIENT)\n"
 	"--info=<file>                : output detailed information about content of hash file\n"
 	"--info=stdout                : stdout output detailed information about content of hash file\n"
 	"--vendorlist                 : stdout output VENDOR list sorted by OUI\n"
@@ -1702,7 +1702,7 @@ static const struct option long_options[] =
 	{"rc",				no_argument,		NULL,	HCX_FILTER_RC},
 	{"authorized",			no_argument,		NULL,	HCX_FILTER_M12},
 	{"notauthorized",		no_argument,		NULL,	HCX_FILTER_M1234},
-	{"apless",			no_argument,		NULL,	HCX_FILTER_APLESS},
+	{"apless",			no_argument,		NULL,	HCX_FILTER_M1M2ROGUE},
 	{"psk",				required_argument,	NULL,	HCX_PSK},
 	{"pmk",				required_argument,	NULL,	HCX_PMK},
 	{"vendorlist",			no_argument,		NULL,	HCX_VENDOR_OUT},
@@ -1957,7 +1957,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		flagfilternotauthorized = true;
 		break;
 
-		case HCX_FILTER_APLESS:
+		case HCX_FILTER_M1M2ROGUE:
 		flagfilterapless = true;
 		break;
 
