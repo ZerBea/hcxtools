@@ -565,7 +565,6 @@ static uint8_t macap[6];
 static uint8_t macsta[6];
 static uint8_t pmkid[16];
 static uint8_t essid[ESSID_LEN_MAX];
-
 static char singlecapname[PATH_MAX +2];
 
 if((fhpmkid = fopen(pmkidname, "r")) == NULL)
@@ -573,7 +572,6 @@ if((fhpmkid = fopen(pmkidname, "r")) == NULL)
 	fprintf(stderr, "opening hash file failed %s\n", pmkidname);
 	return;
 	}
-
 while(1)
 	{
 	if((len = fgetline(fhpmkid, PMKID_LINE_LEN, linein)) == -1)
@@ -615,21 +613,18 @@ while(1)
 		pmkcapskipped++;
 		continue;
 		}
-
 	if(hex2bin(&linein[33], macap, 6) != true)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		pmkcapskipped++;
 		continue;
 		}
-
 	if(hex2bin(&linein[46], macsta, 6) != true)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		pmkcapskipped++;
 		continue;
 		}
-
 	if(hex2bin(&linein[59], essid, essidlen/2) != true)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
@@ -668,7 +663,6 @@ static struct stat statinfo;
 static hccapx_t *hcxptr;
 static int fd_singlecap;
 static FILE *fhhcx;
-
 static eapauth_t *eapa;
 static wpakey_t *wpak;
 static uint16_t keyinfo;
@@ -683,19 +677,16 @@ if(stat(hccapxname, &statinfo) != 0)
 	fprintf(stderr, "can't stat %s\n", hccapxname);
 	return;
 	}
-
 if((statinfo.st_size %HCCAPX_SIZE) != 0)
 	{
 	fprintf(stderr, "file corrupt\n");
 	return;
 	}
-
 if((fhhcx = fopen(hccapxname, "rb")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hccapxname);
 	return;
 	}
-
 hcxptr = (hccapx_t*)hcxdata;
 while(fread(&hcxdata, HCCAPX_SIZE, 1, fhhcx) == 1)
 	{
@@ -725,7 +716,6 @@ while(fread(&hcxdata, HCCAPX_SIZE, 1, fhhcx) == 1)
 		hccapxcapskipped++;
 		continue;
 		}
-
 	wpak = (wpakey_t*)(hcxptr->eapol +EAPAUTH_SIZE);
 	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 	if(keyver != hcxptr->keyver)
