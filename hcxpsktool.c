@@ -102,11 +102,11 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *adjectiv[] = { "absurd", "ancient", "antique", "aquatic",
 	"baby", "basic", "bay", "better", "big", "bitter", "black", "blue", "bold", "bottled", "brave", "breezy", "bright", "brown",
-	"calm", "carrot", "cash", "charming", "cheerful", "chilly", "chip", "chummy", "classy", "clean", "clear", "clever", "cloudy", "cold", "cool", "crispy", "curly",
+	"calm", "camera", "carrot", "cash", "charming", "cheerful", "chilly", "chip", "chummy", "classy", "clean", "clear", "clever", "cloudy", "cold", "cool", "crispy", "curly",
 	"daily", "deep", "delightful", "dizzy", "down", "dynamic",
 	"east", "elated", "elegant", "excite", "excited", "exotic",
 	"famous", "fancy", "fearless", "festive", "fluffy", "free", "fresh", "friendly", "funny", "fuzzy",
-	"gentle", "gifted", "gigantic", "good", "graceful", "grand", "great", "green",
+	"gentle", "gifted", "gigantic", "global", "good", "graceful", "grand", "great", "green",
 	"happy", "heavy", "helpful", "hot", "hungry", "husky",
 	"icy", "imaginary", "invisible",
 	"jacket", "jagged", "jolly", "joyful", "joyous",
@@ -136,12 +136,12 @@ static const char *substantiv[] = { "airplane", "apple", "automobile",
 	"hair", "hat", "hill", "hippo", "house",
 	"ink", "iris",
 	"jade", "jet", "jetcar", "jungle",
-	"kangaroo", "kayak",
+	"kangaroo", "kayak", "knight", 
 	"lake", "lemon", "light", "lightning", "lion", "lotus", "lump",
 	"mango", "mesa", "mint", "monkey", "moon", "motorcycle", "mountain",
 	"ness", "nest",
 	"oboe", "ocean", "octopus", "onion", "orange", "orchestra", "owl",
-	"panda", "pant", "path", "pear", "pencil", "penguin", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "poodle", "potato", "prairie",
+	"panda", "pant", "parade", "path", "pear", "pencil", "penguin", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "poodle", "potato", "prairie",
 	"quail",
 	"rabbit", "raccoon", "raid", "rain", "raven", "review", "river", "road", "rock", "robert", "rosebud", "ruby",
 	"sea", "seed", "shark", "sheep", "ship", "shoe", "shore", "shrub", "side", "silver", "sitter", "skates", "skin", "sky", "snail", "snake", "socks", "spark", "sparrow", "spider", "squash", "squirrel", "star", "state", "stream", "street", "studio", "sun",
@@ -854,7 +854,6 @@ if(essidlen >= 8)
 		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "TG862G%04X%c%c\n", k1, essid[6], essid[7]);
 		return;
 		}
-	return;
 	}
 if(essidlen >= 9)
 	{
@@ -874,7 +873,6 @@ if(essidlen >= 9)
 		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "TG1672G%04X%c%c\n", k1, essid[7], essid[8]);
 		return;
 		}
-	return;
 	}
 return;
 }
@@ -1275,7 +1273,6 @@ static int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if((essidlen == 0) || (essidlen > 32)) return;
-testalcatellinkzone(fhout, essidlen, essid);
 testalcatellinkzone(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
