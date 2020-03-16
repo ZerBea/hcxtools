@@ -156,6 +156,7 @@ for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
 	{
 	for(cs = 0; cs < (sizeof(substantiv) / sizeof(char *)); cs++)
 		{
+		if(strcmp(adjectiv[ca], substantiv[cs]) == 0) continue;
 		snprintf(pskstring, 64, "%s%s", adjectiv[ca], substantiv[cs]);
 		fprintf(fhout,"%s\n", pskstring);
 		for (cn = 0; cn < 1000; cn++)
