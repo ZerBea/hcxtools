@@ -118,7 +118,7 @@ static const char *adjectiv[] = { "absurd", "ancient", "antique", "aquatic",
 	"painless", "parade", "pass", "pastel", "peaceful", "perfect", "phobic", "phone", "pink", "plain", "polite", "poor", "precious", "pretty", "purple",
 	"quaint", "quick", "quiet",
 	"rain", "rapid", "red", "rocky", "rough", "round", "royal", "rustic",
-	"safe", "sandy", "sharp", "shiny", "short", "silent", "silky", "silly", "slender", "slow", "slower", "small", "smart", "smiley", "smiling", "smooth", "snug", "soft", "sour", "strange", "strong", "sunny", "super", "sweet", "swift",
+	"safe", "salute", "sandy", "sharp", "shiny", "short", "silent", "silky", "silly", "slender", "slow", "slower", "small", "smart", "smiley", "smiling", "smooth", "snug", "soft", "sour", "strange", "strong", "sunny", "super", "sweet", "swift",
 	"tablet", "terrific", "thirsty", "thoughtful", "tiny",
 	"uneven", "unusual", "urban",
 	"vanilla", "vast", "violet"
@@ -127,7 +127,7 @@ static const char *adjectiv[] = { "absurd", "ancient", "antique", "aquatic",
 	"zany" };
 
 static const char *substantiv[] = { "airplane", "album", "apple", "automobile",
-	"ball", "balloon", "banana", "beach", "bead", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "bottle", "box", "brain", "bread", "breeze", "bubble", "bug", "bunny", "bush", "butter",
+	"ball", "balloon", "banana", "beach", "bead", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "bottle", "box", "brain", "bread", "breeze", "bridge", "bubble", "bug", "bunny", "bush", "butter",
 	"canoe", "car", "carrot", "cartoon", "cello", "chair", "chat", "cheese", "chill", "chip", "coast", "coconut", "comet", "cream", "crown", "curly", "curtain",
 	"daisy", "deal", "deer", "desk", "diamond", "dink", "doll", "domain", "door",
 	"earth", "elephant", "emerald",
