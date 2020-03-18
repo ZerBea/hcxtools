@@ -65,11 +65,15 @@ Detailed description
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                                  |
 
 
+Get source
+--------------
+```
+git clone https://github.com/ZerBea/hcxtools.git
+cd hcxtools
+```
+
 Compile
 --------------
-
-Simply run:
-
 ```
 make
 make install (as super user)
