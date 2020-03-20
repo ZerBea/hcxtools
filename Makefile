@@ -36,10 +36,10 @@ TOOLS+=hcxpsktool
 hcxpsktool_libs=-lcrypto -lssl
 TOOLS+=hcxwltool
 TOOLS+=wlancap2wpasec
-wlancap2wpasec_libs=-lcurl -lssl
+wlancap2wpasec_libs=-lcrypto -lssl -lcurl
 
 TOOLS+=whoismac
-whoismac_libs=-lcurl -lssl
+whoismac_libs=-lcrypto -lssl -lcurl
 TOOLS+=hcxpmkidtool
 TOOLS+=wlanhcx2john
 TOOLS+=hcxpcaptool
