@@ -29,24 +29,24 @@ endif
 
 TOOLS=
 TOOLS+=hcxpcapngtool
-hcxpcapngtool_libs=-lz -lcrypto
+hcxpcapngtool_libs=-lz -lcrypto -lssl
 TOOLS+=hcxhashtool
-hcxhashtool_libs=-lcrypto -lcurl
+hcxhashtool_libs=-lcrypto -lssl -lcurl
 TOOLS+=hcxpsktool
-hcxpsktool_libs=-lcrypto
+hcxpsktool_libs=-lcrypto -lssl
 TOOLS+=hcxwltool
 TOOLS+=wlancap2wpasec
-wlancap2wpasec_libs=-lcurl
+wlancap2wpasec_libs=-lcurl -lssl
 
 TOOLS+=whoismac
-whoismac_libs=-lcurl
+whoismac_libs=-lcurl -lssl
 TOOLS+=hcxpmkidtool
 TOOLS+=wlanhcx2john
 TOOLS+=hcxpcaptool
-hcxpcaptool_libs=-lz -lcrypto
+hcxpcaptool_libs=-lz -lcrypto -lssl
 TOOLS+=hcxhashcattool
-hcxhashcattool_libs=-lcrypto -lpthread
-hcxpmkidtool_libs=-lcrypto -lpthread
+hcxhashcattool_libs=-lcrypto -lssl -lpthread
+hcxpmkidtool_libs=-lcrypto -lssl -lpthread
 TOOLS+=hcxmactool
 TOOLS+=hcxessidtool
 TOOLS+=hcxhash2cap
@@ -55,9 +55,9 @@ TOOLS+=wlanwkp2hcx
 TOOLS+=wlanhcxinfo
 TOOLS+=wlanhcx2ssid
 TOOLS+=wlanhcxcat
-wlanhcxcat_libs=-lcrypto
+wlanhcxcat_libs=-lcrypto -lssl
 TOOLS+=wlanpmk2hcx
-wlanpmk2hcx_libs=-lcrypto
+wlanpmk2hcx_libs=-lcrypto -lssl
 TOOLS+=wlanjohn2hcx
 TOOLS+=wlancow2hcxpmk
 
