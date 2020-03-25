@@ -9,6 +9,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <time.h>
+#include <inttypes.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <netinet/in.h>
@@ -19,7 +20,6 @@
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/cmac.h>
-#include <inttypes.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
 #include <sys/socket.h>
