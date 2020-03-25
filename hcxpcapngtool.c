@@ -9,6 +9,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <time.h>
+#include <limits.h>
 #include <inttypes.h>
 #include <fcntl.h>
 #include <unistd.h>
