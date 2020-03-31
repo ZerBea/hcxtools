@@ -1,4 +1,10 @@
-xx.03.2020
+30.03.2020
+==========
+hcxhas2cap: added new option to convert PMKID&EAPOL (hashcat -m 22000) to cap file
+--pmkid-eapol=<file> : input PMKID EAPOL combi hash file
+
+
+14.03.2020
 ==========
 moved to v 6.0.0
 complete rewrite from scratch
@@ -16,6 +22,7 @@ read more about monitor mode caused bit errors here:
 http://www.ict-optimix.eu/images/a/ad/WiFiBitError.pdf
 In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)
 values are correct for packets captured, so some captured packets may be corrupted.
+hcxpsktool: added new weak candidates
 
 
 hcxpcapngtool: new tool
@@ -65,6 +72,8 @@ long options:
                                      to display the track, open file.gpx with viking
 --log=<file>                       : output logfile
 --raw-out=<file>                   : output frames in HEX ASCII
+                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM
+--raw-in=<file>                    : input frames in HEX ASCII
                                    : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM
 --pmkid=<file>                     : output deprecated PMKID file (delimter *)
 --hccapx=<file>                    : output deprecated hccapx v4 file
