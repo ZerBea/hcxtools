@@ -1847,6 +1847,7 @@ if(memcmp(wpaptr->oui, &mscorp, 3) == 0)
 		if(gettagwps(vendorlen, ieptr, zeiger) == false) return false;
 		return true;
 		}
+	return true;
 	}
 if(vendorlen == 0x17)
 	{
