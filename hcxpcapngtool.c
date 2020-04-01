@@ -127,6 +127,7 @@ static long int zeroedtimestampcount;
 static long int fcsframecount;
 static long int wdscount;
 static long int beaconcount;
+static long int beaconhcxcount;
 static long int beaconerrorcount;
 static long int proberesponsecount;
 static long int proberequestcount;
@@ -357,6 +358,7 @@ zeroedtimestampcount = 0;
 fcsframecount = 0;
 wdscount = 0;
 beaconcount = 0;
+beaconhcxcount = 0;
 beaconerrorcount = 0;
 proberesponsecount = 0;
 proberequestcount = 0;
@@ -471,6 +473,7 @@ if(skippedpacketcount > 0)		printf("skipped packets..........................: %
 if(fcsframecount > 0)			printf("frames with correct FCS..................: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM.............: %ld\n", wdscount);
 if(beaconcount > 0)			printf("BEACON (total)...........................: %ld\n", beaconcount);
+if(beaconhcxcount > 0)			printf("BEACON (hcxhash2cap).....................: %ld\n", beaconhcxcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST.............................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
 if(proberesponsecount > 0)		printf("PROBERESONSE.............................: %ld\n", proberesponsecount);
@@ -1825,15 +1828,29 @@ static bool gettagvendor(int vendorlen, uint8_t *ieptr, tags_t *zeiger)
 {
 static wpaie_t *wpaptr;
 
+static const uint8_t hcxoui[] =
+{
+0xff, 0xff, 0xff, 0x00, 0xd9, 0x20, 0x21, 0x9b, 0x9b, 0x6a, 0xc9, 0x59, 0x49, 0x42, 0xe6, 0x55,
+0x6a, 0x06, 0xa3, 0x23, 0x94, 0x2d, 0x94
+};
+
 wpaptr = (wpaie_t*)ieptr;
-if(memcmp(wpaptr->oui, &mscorp, 3) != 0) return true;
-if((wpaptr->ouitype == VT_WPA_IE) && (vendorlen >= WPAIE_LEN_MIN))
+if(memcmp(wpaptr->oui, &mscorp, 3) == 0)
 	{
-	if(gettagwpa(vendorlen, ieptr, zeiger) == false) return false;
+	if((wpaptr->ouitype == VT_WPA_IE) && (vendorlen >= WPAIE_LEN_MIN))
+		{
+		if(gettagwpa(vendorlen, ieptr, zeiger) == false) return false;
+		return true;
+		}
+	if((wpaptr->ouitype == VT_WPS_IE) && (vendorlen >= (int)WPSIE_SIZE))
+		{
+		if(gettagwps(vendorlen, ieptr, zeiger) == false) return false;
+		return true;
+		}
 	}
-if((wpaptr->ouitype == VT_WPS_IE) && (vendorlen >= (int)WPSIE_SIZE))
+if(vendorlen == 0x17)
 	{
-	if(gettagwps(vendorlen, ieptr, zeiger) == false) return false;
+	if(memcmp(&hcxoui, ieptr, 0x17) == 0) beaconhcxcount++;
 	}
 return true;
 }
