@@ -179,7 +179,6 @@ options:
 | -------------- | -------------------------------------------------------------------------------------------------------------------- |
 | whoismac       | Show vendor information and/or download oui reference list                                                           |
 | hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format   |
-| hcxhash2cap    | Converts hash file (PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                            |
 | hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper           |
 | hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                    |
 | hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                      |
