@@ -1,6 +1,11 @@
+02.04.2020
+==========
+release v 6.0.0
+
+
 30.03.2020
 ==========
-hcxhas2cap: added new option to convert PMKID&EAPOL (hashcat -m 22000) to cap file
+hcxhash2cap: added new option to convert PMKID&EAPOL (hashcat -m 22000) to cap file
 --pmkid-eapol=<file> : input PMKID EAPOL combi hash file
 
 
