@@ -104,27 +104,22 @@ pcaph->ts_usec = timestamp %1000000;
 pcaph->incl_len = M1WPA1DATA_SIZE;
 pcaph->orig_len = pcaph->incl_len;
 timestamp++;
-
 memcpy(&packetout[PCAPREC_SIZE], &m1wpa1data, M1WPA1DATA_SIZE);
 mach = (mac_t*)(packetout +PCAPREC_SIZE);
 memcpy(mach->addr1, macsta, 6);
 memcpy(mach->addr2, macap, 6);
 memcpy(mach->addr3, macap, 6);
-
 packetout[PCAPREC_SIZE +0x22] = keyversion;
-
 wpak = (wpakey_t*)(packetout +PCAPREC_SIZE +0x26);
 #ifdef BIG_ENDIAN_HOST
 rc = byte_swap_64(rc);
 #endif
 wpak->keylen = keylen;
 wpak->replaycount = rc;
-
 for(c = 0; c < 32; c++)
 	{
 	packetout[PCAPREC_SIZE +0x33 +c] = anonce[c];
 	}
-
 if(write(fd_cap, packetout, PCAPREC_SIZE +M1WPA1DATA_SIZE) < 0)
 	{
 	perror("\nfailed to write EAPOL packet");
@@ -174,21 +169,17 @@ mach = (mac_t*)(packetout +PCAPREC_SIZE);
 memcpy(mach->addr1, macsta, 6);
 memcpy(mach->addr2, macap, 6);
 memcpy(mach->addr3, macap, 6);
-
 packetout[PCAPREC_SIZE +0x22] = keyversion;
-
 wpak = (wpakey_t*)(packetout +PCAPREC_SIZE +0x26);
 #ifdef BIG_ENDIAN_HOST
 rc = byte_swap_64(rc);
 #endif
 wpak->keylen = keylen;
 wpak->replaycount = rc;
-
 for(c = 0; c < 32; c++)
 	{
 	packetout[PCAPREC_SIZE +0x33 +c] = anonce[c];
 	}
-
 if(write(fd_cap, packetout, PCAPREC_SIZE +M1WPA2DATA_SIZE) < 0)
 	{
 	perror("\nfailed to write EAPOL packet");
@@ -232,27 +223,22 @@ pcaph->ts_usec = timestamp %1000000;
 pcaph->incl_len = M1WPA2KEYVER3DATA_SIZE;
 pcaph->orig_len = pcaph->incl_len;
 timestamp++;
-
 memcpy(&packetout[PCAPREC_SIZE], &m1wpa2keyver3data, M1WPA2KEYVER3DATA_SIZE);
 mach = (mac_t*)(packetout +PCAPREC_SIZE);
 memcpy(mach->addr1, macsta, 6);
 memcpy(mach->addr2, macap, 6);
 memcpy(mach->addr3, macap, 6);
-
 packetout[PCAPREC_SIZE +0x22] = keyversion;
-
 wpak = (wpakey_t*)(packetout +PCAPREC_SIZE +0x26);
 #ifdef BIG_ENDIAN_HOST
 rc = byte_swap_64(rc);
 #endif
 wpak->keylen = keylen;
 wpak->replaycount = rc;
-
 for(c = 0; c < 32; c++)
 	{
 	packetout[PCAPREC_SIZE +0x33 +c] = anonce[c];
 	}
-
 if(write(fd_cap, packetout, PCAPREC_SIZE +M1WPA2KEYVER3DATA_SIZE) < 0)
 	{
 	perror("\nfailed to write EAPOL packet");
@@ -262,7 +248,6 @@ return;
 /*===========================================================================*/
 static void writecappmkidwpa2(int fd_cap, uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
-static int c;
 static pcaprec_hdr_t *pcaph;
 static mac_t *mach;
 static const uint8_t pmkiddata[] =
@@ -275,8 +260,8 @@ static const uint8_t pmkiddata[] =
 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x88, 0x8e,
 0x02, 0x03, 0x00, 0x75, 0x02,
 0x00, 0x8a, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-0xed, 0x57, 0x5c, 0x4b, 0xca, 0xa7, 0x7a, 0xf1, 0x9e, 0x32, 0x94, 0x32, 0x63, 0x91, 0xad, 0x7d,
-0x9c, 0xbc, 0x6a, 0xb4, 0xad, 0x04, 0xf1, 0x23, 0x80, 0xb4, 0x44, 0xbe, 0xb5, 0x8d, 0x2a, 0xdd,
+0x91, 0x1b, 0xd9, 0xcb, 0x88, 0x9a, 0xcf, 0x5b, 0x0f, 0x62, 0xbf, 0x0d, 0x87, 0x6c, 0x33, 0x30,
+0x8a, 0xbf, 0x58, 0x8b, 0xc3, 0x80, 0x4c, 0x15, 0xc0, 0x42, 0x3c, 0xf2, 0x4c, 0x07, 0xa7, 0x25,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -296,19 +281,12 @@ pcaph->ts_usec = timestamp %1000000;
 pcaph->incl_len = PMKIDDATA_SIZE;
 pcaph->orig_len = pcaph->incl_len;
 timestamp++;
-
 memcpy(&packetout[PCAPREC_SIZE], &pmkiddata, PMKIDDATA_SIZE);
 mach = (mac_t*)(packetout +PCAPREC_SIZE);
 memcpy(mach->addr1, macsta, 6);
 memcpy(mach->addr2, macap, 6);
 memcpy(mach->addr3, macap, 6);
-
-for(c = 0; c < 32; c++)
-	{
-	packetout[PCAPREC_SIZE +0x33 +c] = rand() %0xff;
-	}
 memcpy(&packetout[PCAPREC_SIZE +0x8b], pmkid, 16);
-
 if(write(fd_cap, packetout, PCAPREC_SIZE +PMKIDDATA_SIZE) < 0)
 	{
 	perror("\nfailed to write EAPOL packet");
@@ -341,8 +319,6 @@ pcaph->ts_usec = timestamp %1000000;
 pcaph->incl_len = M2DATA_SIZE +eapollen;
 pcaph->orig_len = pcaph->incl_len;
 timestamp++;
-
-
 memcpy(&packetout[PCAPREC_SIZE], &m2data, M2DATA_SIZE);
 mach = (mac_t*)(packetout +PCAPREC_SIZE);
 memcpy(mach->addr1, macap, 6);
@@ -350,7 +326,6 @@ memcpy(mach->addr2, macsta, 6);
 memcpy(mach->addr3, macap, 6);
 memcpy(&packetout[PCAPREC_SIZE +M2DATA_SIZE], eapol, eapollen);
 memcpy(&packetout[PCAPREC_SIZE +M2DATA_SIZE +0x51], mic, 16);
-
 if(write(fd_cap, packetout, PCAPREC_SIZE +M2DATA_SIZE +eapollen) < 0)
 	{
 	perror("\nfailed to write EAPOL packet");
@@ -384,7 +359,6 @@ pcaph->ts_usec = timestamp %1000000;
 pcaph->incl_len = MAC_SIZE_NORM +CAPABILITIESAP_SIZE +2 +essidlen +BEACONDATA_SIZE;
 pcaph->orig_len = pcaph->incl_len;
 timestamp++;
-
 mach = (mac_t*)(packetout +PCAPREC_SIZE);
 mach->type = IEEE80211_FTYPE_MGMT;
 mach->subtype = IEEE80211_STYPE_BEACON;
@@ -396,12 +370,10 @@ if(mybeaconsequence >= 4096)
 	{
 	mybeaconsequence = 0;
 	}
-
 capap = (capap_t*)(packetout +PCAPREC_SIZE +MAC_SIZE_NORM);
 capap->timestamp = myaponlinetime++;
 capap->beaconintervall = 0x64;
 capap->capabilities = 0x431;
-
 packetout[PCAPREC_SIZE +MAC_SIZE_NORM +CAPABILITIESAP_SIZE +1] = essidlen;
 memcpy(&packetout[PCAPREC_SIZE +MAC_SIZE_NORM +CAPABILITIESAP_SIZE +2], essid, essidlen);
 memcpy(&packetout[PCAPREC_SIZE +MAC_SIZE_NORM +CAPABILITIESAP_SIZE +2 +essidlen], &beacondata, BEACONDATA_SIZE);
@@ -439,7 +411,6 @@ pcaph->ts_usec = timestamp %1000000;
 pcaph->incl_len = MAC_SIZE_NORM +CAPABILITIESAP_SIZE +2 +essidlen +BEACONDATA_SIZE;
 pcaph->orig_len = pcaph->incl_len;
 timestamp++;
-
 mach = (mac_t*)(packetout +PCAPREC_SIZE);
 mach->type = IEEE80211_FTYPE_MGMT;
 mach->subtype = IEEE80211_STYPE_BEACON;
@@ -451,12 +422,10 @@ if(mybeaconsequence >= 4096)
 	{
 	mybeaconsequence = 0;
 	}
-
 capap = (capap_t*)(packetout +PCAPREC_SIZE +MAC_SIZE_NORM);
 capap->timestamp = myaponlinetime++;
 capap->beaconintervall = 0x64;
 capap->capabilities = 0x431;
-
 packetout[PCAPREC_SIZE +MAC_SIZE_NORM +CAPABILITIESAP_SIZE +1] = essidlen;
 memcpy(&packetout[PCAPREC_SIZE +MAC_SIZE_NORM +CAPABILITIESAP_SIZE +2], essid, essidlen);
 memcpy(&packetout[PCAPREC_SIZE +MAC_SIZE_NORM +CAPABILITIESAP_SIZE +2 +essidlen], &beacondata, BEACONDATA_SIZE);
@@ -494,7 +463,6 @@ pcaph->ts_usec = timestamp %1000000;
 pcaph->incl_len = MAC_SIZE_NORM +CAPABILITIESAP_SIZE +2 +essidlen +BEACONDATA_SIZE;
 pcaph->orig_len = pcaph->incl_len;
 timestamp++;
-
 mach = (mac_t*)(packetout +PCAPREC_SIZE);
 mach->type = IEEE80211_FTYPE_MGMT;
 mach->subtype = IEEE80211_STYPE_BEACON;
@@ -506,12 +474,10 @@ if(mybeaconsequence >= 4096)
 	{
 	mybeaconsequence = 0;
 	}
-
 capap = (capap_t*)(packetout +PCAPREC_SIZE +MAC_SIZE_NORM);
 capap->timestamp = myaponlinetime++;
 capap->beaconintervall = 0x64;
 capap->capabilities = 0x431;
-
 packetout[PCAPREC_SIZE +MAC_SIZE_NORM +CAPABILITIESAP_SIZE +1] = essidlen;
 memcpy(&packetout[PCAPREC_SIZE +MAC_SIZE_NORM +CAPABILITIESAP_SIZE +2], essid, essidlen);
 memcpy(&packetout[PCAPREC_SIZE +MAC_SIZE_NORM +CAPABILITIESAP_SIZE +2 +essidlen], &beacondata, BEACONDATA_SIZE);
