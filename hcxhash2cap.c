@@ -127,7 +127,7 @@ for(c = 0; c < 32; c++)
 
 if(write(fd_cap, packetout, PCAPREC_SIZE +M1WPA1DATA_SIZE) < 0)
 	{
-	perror("\nfailed to write beacon packet");
+	perror("\nfailed to write EAPOL packet");
 	}
 return;
 }
@@ -191,7 +191,7 @@ for(c = 0; c < 32; c++)
 
 if(write(fd_cap, packetout, PCAPREC_SIZE +M1WPA2DATA_SIZE) < 0)
 	{
-	perror("\nfailed to write beacon packet");
+	perror("\nfailed to write EAPOL packet");
 	}
 return;
 }
@@ -255,7 +255,7 @@ for(c = 0; c < 32; c++)
 
 if(write(fd_cap, packetout, PCAPREC_SIZE +M1WPA2KEYVER3DATA_SIZE) < 0)
 	{
-	perror("\nfailed to write beacon packet");
+	perror("\nfailed to write EAPOL packet");
 	}
 return;
 }
@@ -311,7 +311,7 @@ memcpy(&packetout[PCAPREC_SIZE +0x8b], pmkid, 16);
 
 if(write(fd_cap, packetout, PCAPREC_SIZE +PMKIDDATA_SIZE) < 0)
 	{
-	perror("\nfailed to write beacon packet");
+	perror("\nfailed to write EAPOL packet");
 	}
 return;
 }
@@ -353,7 +353,7 @@ memcpy(&packetout[PCAPREC_SIZE +M2DATA_SIZE +0x51], mic, 16);
 
 if(write(fd_cap, packetout, PCAPREC_SIZE +M2DATA_SIZE +eapollen) < 0)
 	{
-	perror("\nfailed to write beacon packet");
+	perror("\nfailed to write EAPOL packet");
 	}
 return;
 }
