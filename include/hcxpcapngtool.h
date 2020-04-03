@@ -196,7 +196,7 @@ struct messagelist_s
 #define HS_M3		4
 #define HS_M4		8
 #define HS_PMKID	16
- unsigned long long int	rc;
+ uint64_t		rc;
  uint8_t		nonce[32];
  uint8_t		pmkid[16];
  uint16_t		eapauthlen;
@@ -221,7 +221,7 @@ struct handshakelist_s
  uint8_t		status;
  uint8_t		messageap;
  uint8_t		messageclient;
- unsigned long long int	rcgap;
+ uint64_t		rcgap;
  uint8_t		nc;
  uint8_t		ap[6];
  uint8_t		client[6];

@@ -1501,8 +1501,9 @@ for(c = 0; c < 20; c ++)
 	if(zeiger->eapauthlen != handshakelistptr->eapauthlen) continue;
 	if(memcmp(zeiger->eapol, handshakelistptr->eapol, handshakelistptr->eapauthlen) != 0) continue;
 	if(zeiger->timestampgap > handshakelistptr->timestampgap) zeiger->timestampgap = handshakelistptr->timestampgap;
-	if(zeiger->rcgap > handshakelistptr->rcgap) zeiger->rcgap = handshakelistptr->rcgap;
+	if(zeiger->rcgap > handshakelistptr->rcgap) zeiger->rcgap = (zeiger->rcgap &0xe0) | handshakelistptr->rcgap;
 	if(zeiger->status < handshakelistptr->status) zeiger->status = handshakelistptr->status;
+	
 	zeiger->messageap |= handshakelistptr->messageap;
 	zeiger->messageclient |= handshakelistptr->messageclient;
 	return true;
@@ -1518,7 +1519,10 @@ static messagelist_t *zeiger;
 eapolmpcount++;
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
-	if(memcmp(msgap->ap, zeiger->ap, 6) == 0) mpfield |= zeiger->status;
+	if(((zeiger->status &ST_APLESS) != ST_APLESS) && ((mpfield &ST_APLESS) != ST_APLESS))
+		{
+		if(memcmp(msgap->ap, zeiger->ap, 6) == 0) mpfield |= zeiger->status;
+		}
 	}
 if(msgap->timestamp == msgclient->timestamp) eapolmsgtimestamperrorcount++;
 if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
@@ -2427,9 +2431,9 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap; 
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 		}
+	if((zeiger->message &HS_M3) != HS_M3) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
-	if((zeiger->message &HS_M3) != HS_M3) continue;
 	if(zeiger->rc >= rc +1) rcgap = zeiger->rc -rc -1;
 	else rcgap = rc +1 -zeiger->rc;
 	if(rc != myaktreplaycount)
@@ -2513,6 +2517,14 @@ memcpy(zeiger->ap, macap, 6);
 zeiger->message = HS_M1;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
+
+if((zeiger->rc == myaktreplaycount) && (memcmp(&myaktanonce, zeiger->nonce, 32) == 0)) 
+	{
+	zeiger->status |= ST_APLESS;
+	eapolm1ancount++;
+	qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epcount);
+	return;
+	}
 if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	{
 	pmkid = (pmkid_t*)(wpakptr +WPAKEY_SIZE);
@@ -2565,9 +2577,7 @@ return;
 /*===========================================================================*/
 static void process80211rc4key()
 {
-
 eapolrc4count++;
-
 return;
 }
 /*===========================================================================*/
