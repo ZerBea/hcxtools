@@ -54,14 +54,12 @@ Detailed description
 | hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                      |
 | hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                        |
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |
-| wlanhc2hcx     | Converts hccap to hccapx                                                                                               |
 | wlanwkp2hcx    | Converts wpk (ELMCOMSOFT EWSA projectfile) to hccapx                                                                   |
 | wlanhcx2ssid   | Strips BSSID, ESSID, OUI                                                                                               |
 | wlanhcxinfo    | Shows detailed info from contents of hccapxfile                                                                        |
 | wlanhcxcat     | Simple password recovery tool for WPA/WPA2/WPA2 SHA256 AES-128-CMAC (hash-modes 2500, 2501)                            |
 | wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000 or john PBKDF2-HMAC-SHA1                        |
 | wlanjohn2hcx   | Converts john wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                                              |
-| wlancow2hcxpmk | Converts pre-computed cowpatty hashfiles for use with hashcat hash-mode 2501                                           |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                                  |
 
 

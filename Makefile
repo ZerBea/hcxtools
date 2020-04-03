@@ -35,11 +35,12 @@ hcxhashtool_libs=-lcrypto -lssl -lcurl
 TOOLS+=hcxpsktool
 hcxpsktool_libs=-lcrypto -lssl
 TOOLS+=hcxwltool
+TOOLS+=hcxhash2cap
 TOOLS+=wlancap2wpasec
 wlancap2wpasec_libs=-lcrypto -lssl -lcurl
-
 TOOLS+=whoismac
 whoismac_libs=-lcrypto -lssl -lcurl
+
 TOOLS+=hcxpmkidtool
 TOOLS+=wlanhcx2john
 TOOLS+=hcxpcaptool
@@ -49,8 +50,6 @@ hcxhashcattool_libs=-lcrypto -lssl -lpthread
 hcxpmkidtool_libs=-lcrypto -lssl -lpthread
 TOOLS+=hcxmactool
 TOOLS+=hcxessidtool
-TOOLS+=hcxhash2cap
-TOOLS+=wlanhc2hcx
 TOOLS+=wlanwkp2hcx
 TOOLS+=wlanhcxinfo
 TOOLS+=wlanhcx2ssid
@@ -59,7 +58,6 @@ wlanhcxcat_libs=-lcrypto -lssl
 TOOLS+=wlanpmk2hcx
 wlanpmk2hcx_libs=-lcrypto -lssl
 TOOLS+=wlanjohn2hcx
-TOOLS+=wlancow2hcxpmk
 
 .PHONY: build
 build: $(TOOLS)
