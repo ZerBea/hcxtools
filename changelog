@@ -1,5 +1,7 @@
 03.04.2020
 ==========
+release v 6.0.1
+hcxpcapngtool: improved NC speed and some bug fixes
 removed deprecated wlanhc2hcx
 removed deprecated wlancow2hcxpmk
 
