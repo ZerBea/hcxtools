@@ -1502,7 +1502,7 @@ for(c = 0; c < 20; c ++)
 	if(memcmp(zeiger->eapol, handshakelistptr->eapol, handshakelistptr->eapauthlen) != 0) continue;
 	if(zeiger->timestampgap > handshakelistptr->timestampgap) zeiger->timestampgap = handshakelistptr->timestampgap;
 	if(zeiger->rcgap > handshakelistptr->rcgap) zeiger->rcgap = handshakelistptr->rcgap;
-	zeiger->status |= handshakelistptr->status;
+	zeiger->status = handshakelistptr->status;
 	zeiger->messageap |= handshakelistptr->messageap;
 	zeiger->messageclient |= handshakelistptr->messageclient;
 	return true;
