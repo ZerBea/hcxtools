@@ -1167,8 +1167,7 @@ static handshakelist_t *zeigerhs, *zeigerhsold;
 zeigerhsold = zeigerhsakt;
 for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	{
-	if(memcmp(zeigerhs->ap, zeigerhsold->ap, 6) < 0) return;
-	if(memcmp(zeigerhs->ap, zeigerhsold->ap, 6) > 0) return;
+	if(memcmp(zeigerhs->ap, zeigerhsold->ap, 6) != 0) return;
 		{
 		zeigerhsakt->status |= zeigerhs->status &0xe0;
 		zeigerhsold->status |= zeigerhs->status &0xe0;
