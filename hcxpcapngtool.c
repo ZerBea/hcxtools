@@ -1169,8 +1169,8 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	if(memcmp(zeigerhs->ap, zeigerhsold->ap, 6) < 0) return;
 	if(memcmp(zeigerhs->ap, zeigerhsold->ap, 6) > 0) return;
 		{
-		zeigerhsakt->status |= zeigerhs->status &0xf0;
-		zeigerhsold->status |= zeigerhs->status &0xf0;
+		zeigerhsakt->status |= zeigerhs->status &0xe0;
+		zeigerhsold->status |= zeigerhs->status &0xe0;
 		}
 	zeigerhsold = zeigerhs;
 	}
@@ -1503,7 +1503,6 @@ for(c = 0; c < 20; c ++)
 	if(zeiger->timestampgap > handshakelistptr->timestampgap) zeiger->timestampgap = handshakelistptr->timestampgap;
 	if(zeiger->rcgap > handshakelistptr->rcgap) zeiger->rcgap = (zeiger->rcgap &0xe0) | handshakelistptr->rcgap;
 	if(zeiger->status < handshakelistptr->status) zeiger->status = handshakelistptr->status;
-	
 	zeiger->messageap |= handshakelistptr->messageap;
 	zeiger->messageclient |= handshakelistptr->messageclient;
 	return true;
@@ -1517,11 +1516,14 @@ static handshakelist_t *handshakelistnew;
 static messagelist_t *zeiger;
 
 eapolmpcount++;
-for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
+if((mpfield &ST_APLESS) != ST_APLESS)
 	{
-	if(((zeiger->status &ST_APLESS) != ST_APLESS) && ((mpfield &ST_APLESS) != ST_APLESS))
+	for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		{
-		if(memcmp(msgap->ap, zeiger->ap, 6) == 0) mpfield |= zeiger->status;
+		if((zeiger->status &ST_APLESS) != ST_APLESS)
+			{
+			if(memcmp(msgap->ap, zeiger->ap, 6) == 0) mpfield |= zeiger->status & 0xe0;
+			}
 		}
 	}
 if(msgap->timestamp == msgclient->timestamp) eapolmsgtimestamperrorcount++;
