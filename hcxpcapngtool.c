@@ -39,7 +39,7 @@
 #include "include/hashops.c"
 #include "include/pcap.c"
 #include "include/gzops.c"
-
+/*===========================================================================*/
 struct hccap_s
 {
   char essid[36];
@@ -75,6 +75,7 @@ struct hccapx_s
 } __attribute__((packed));
 typedef struct hccapx_s hccapx_t;
 #define	HCCAPX_SIZE (sizeof(hccapx_t))
+/*===========================================================================*/
 /*===========================================================================*/
 /* global var */
 
