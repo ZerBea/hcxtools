@@ -1231,10 +1231,10 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 	#endif
 	fprintf(fh_pmkideapol, "REPLAYCOUNT: %" PRIu64 "\n", rc);
 	if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO....: replycount checked\n");
-	if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO....: not replycount checked / nc required\n");
-	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO....: AP-LESS attack / nc not reqired\n");
-	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO....: little endian router / nc LE required\n");
-	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO....: big endian router / nc BE required\n");
+	if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO....: NC suggested\n");
+	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO....: AP-LESS attack / NC not reqired\n");
+	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO....: little endian router / NC LE suggested\n");
+	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO....: big endian router / NC BE suggested\n");
 	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2.: not authorized\n");
 	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4.: authorized\n");
 	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2.: authorized\n");
