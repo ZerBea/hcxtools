@@ -18,6 +18,9 @@
 #include <openssl/hmac.h>
 #include <openssl/cmac.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
+#if defined(__OpenBSD__)
+#define PATH_MAX 1024	/* as defined in sys/syslimits.h */
+#endif
 #include <libgen.h>
 #include <sys/socket.h>
 #else
