@@ -10,7 +10,7 @@ endif
 VERSION_YEAR		:= $(shell echo $(PRODUCTION_YEAR))
 
 PREFIX		?=/usr/local
-INSTALLDIR	= $(DESTDIR)$(PREFIX)/bin
+BINDIR		= $(DESTDIR)$(PREFIX)/bin
 MANDIR		= $(DESTDIR)$(PREFIX)/share/man
 
 HOSTOS := $(shell uname -s)
@@ -79,7 +79,7 @@ $(1): $$($(1)_src) | .deps
 
 .PHONY: $(1).install
 $(1).install: $(1)
-	$$(INSTALL) $$(INSTFLAGS) -m 0755 $(1) $$(INSTALLDIR)/$(1)
+	$$(INSTALL) $$(INSTFLAGS) -m 0755 $(1) $$(BINDIR)/$(1)
 
 .PHONY: $(1).clean
 $(1).clean:
@@ -88,7 +88,7 @@ $(1).clean:
 
 .PHONY: $(1).uninstall
 $(1).uninstall:
-	rm -rf $$(INSTALLDIR)/$(1)
+	rm -rf $$(BINDIR)/$(1)
 
 ifneq ($(wildcard manpages/$(1).1),)
 .PHONY: $(1).man-install
