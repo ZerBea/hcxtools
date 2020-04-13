@@ -118,7 +118,7 @@ static const char *adjectiv[] = { "absurd", "ancient", "antique", "aquatic",
 	"painless", "parade", "pass", "pastel", "peaceful", "perfect", "phobic", "phone", "pink", "plain", "polite", "poor", "precious", "pretty", "purple",
 	"quaint", "quick", "quiet",
 	"rain", "rapid", "red", "rocky", "rough", "round", "royal", "rustic",
-	"safe", "salute", "sandy", "sharp", "shiny", "short", "silent", "silky", "silly", "slender", "slow", "slower", "small", "smart", "smiley", "smiling", "smooth", "snug", "soft", "sour", "strange", "strong", "sunny", "super", "sweet", "swift",
+	"safe", "salute", "sandy", "sharp", "shiny", "short", "silent", "silky", "silly", "slender", "slow", "slower", "small", "smart", "smiley", "smiling", "smooth", "snug", "soft", "sour", "stealth", "strange", "strong", "sunny", "super", "sweet", "swift",
 	"tablet", "terrific", "thirsty", "thoughtful", "tiny",
 	"uneven", "unusual", "urban",
 	"vanilla", "vast", "violet"
