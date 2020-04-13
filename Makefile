@@ -17,6 +17,7 @@ HOSTOS := $(shell uname -s)
 CC		?= gcc
 CFLAGS		?= -O3 -Wall -Wextra
 CFLAGS		+= -std=gnu99
+INSTALL		?= install
 INSTFLAGS	= -m 0755
 
 ifeq ($(HOSTOS), Linux)
@@ -77,7 +78,7 @@ $(1): $$($(1)_src) | .deps
 
 .PHONY: $(1).install
 $(1).install: $(1)
-	install $$(INSTFLAGS) $(1) $$(INSTALLDIR)/$(1)
+	$$(INSTALL) $$(INSTFLAGS) $(1) $$(INSTALLDIR)/$(1)
 
 .PHONY: $(1).clean
 $(1).clean:
