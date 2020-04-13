@@ -11,6 +11,7 @@ VERSION_YEAR		:= $(shell echo $(PRODUCTION_YEAR))
 
 PREFIX		?=/usr/local
 INSTALLDIR	= $(DESTDIR)$(PREFIX)/bin
+MANDIR		= $(DESTDIR)$(PREFIX)/share/man
 
 HOSTOS := $(shell uname -s)
 
@@ -18,7 +19,7 @@ CC		?= gcc
 CFLAGS		?= -O3 -Wall -Wextra
 CFLAGS		+= -std=gnu99
 INSTALL		?= install
-INSTFLAGS	= -m 0755
+INSTFLAGS	=
 
 ifeq ($(HOSTOS), Linux)
 INSTFLAGS += -D
@@ -78,7 +79,7 @@ $(1): $$($(1)_src) | .deps
 
 .PHONY: $(1).install
 $(1).install: $(1)
-	$$(INSTALL) $$(INSTFLAGS) $(1) $$(INSTALLDIR)/$(1)
+	$$(INSTALL) $$(INSTFLAGS) -m 0755 $(1) $$(INSTALLDIR)/$(1)
 
 .PHONY: $(1).clean
 $(1).clean:
@@ -88,6 +89,18 @@ $(1).clean:
 .PHONY: $(1).uninstall
 $(1).uninstall:
 	rm -rf $$(INSTALLDIR)/$(1)
+
+ifneq ($(wildcard manpages/$(1).1),)
+.PHONY: $(1).man-install
+$(1).install: $(1).man-install
+$(1).man-install:
+	$$(INSTALL) $$(INSTFLAGS) -m 0644 manpages/$(1).1 $$(MANDIR)/man1/$(1).1
+
+.PHONY: $(1).man-uninstall
+$(1).uninstall: $(1).man-uninstall
+$(1).man-uninstall:
+	rm -rf $$(MANDIR)/man1/$(1).1
+endif
 
 endef
 
