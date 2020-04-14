@@ -720,7 +720,6 @@ static void processipv4(uint64_t timestamp, uint16_t ipv4len, uint8_t *ipv4ptr)
 
 ipv4count++;
 
-
 //dummy code to satisfy gcc untill full code is implemented
 timestamp = timestamp;
 ipv4len = ipv4len;
@@ -3115,15 +3114,15 @@ void processethernetpacket(uint64_t timestamp, uint32_t caplen, uint8_t *packetp
 {
 static eth2_t *eth2;
 
-if(caplen < (int)LLC_SIZE) return;
+if(caplen < LLC_SIZE) return;
 eth2 = (eth2_t*)packetptr;
 if(ntohs(eth2->ether_type) == LLC_TYPE_IPV4)
 	{
-	processipv4(timestamp, caplen, packetptr);
+	processipv4(timestamp, caplen -ETH2_SIZE, packetptr +ETH2_SIZE);
 	}
 else if(ntohs(eth2->ether_type) == LLC_TYPE_IPV6)
 	{
-	processipv6(timestamp, caplen, packetptr);
+	processipv6(timestamp, caplen -ETH2_SIZE, packetptr +ETH2_SIZE);
 	}
 /*
 if(ntohs(eth2->ether_type) == LLC_TYPE_AUTH)
@@ -3184,7 +3183,7 @@ if(captimestamp == 0)
 	}
 if(linktype == DLT_IEEE802_11_RADIO)
 	{
-	if(caplen < (uint32_t)RTH_SIZE)
+	if(caplen < RTH_SIZE)
 		{
 		pcapreaderrors++;
 		printf("failed to read radiotap header\n");
@@ -3213,7 +3212,7 @@ else if(linktype == DLT_IEEE802_11)
 	}
 else if(linktype == DLT_PPI)
 	{
-	if(caplen < (uint32_t)PPI_SIZE)
+	if(caplen < PPI_SIZE)
 		{
 		pcapreaderrors++;
 		printf("failed to read ppi header\n");
@@ -3236,7 +3235,7 @@ else if(linktype == DLT_PPI)
 	}
 else if(linktype == DLT_PRISM_HEADER)
 	{
-	if(caplen < (uint32_t)PRISM_SIZE)
+	if(caplen < PRISM_SIZE)
 		{
 		pcapreaderrors++;
 		printf("failed to read prism header\n");
@@ -3265,7 +3264,7 @@ else if(linktype == DLT_PRISM_HEADER)
 	}
 else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 	{
-	if(caplen < (uint32_t)AVS_SIZE)
+	if(caplen < AVS_SIZE)
 		{
 		pcapreaderrors++;
 		printf("failed to read avs header\n");
@@ -3288,16 +3287,14 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 	}
 else if(linktype == DLT_EN10MB)
 	{
-	if(caplen < (uint32_t)ETH2_SIZE)
+	if(caplen < ETH2_SIZE)
 		{
 		pcapreaderrors++;
 		printf("failed to read ethernet header\n");
 		if(fh_log != NULL) fprintf(fh_log, "failed to ethernet header: %ld\n", rawpacketcount);
 		return;
 		}
-	packetlen = caplen -ETH2_SIZE;
-	packetptr = capptr +ETH2_SIZE;
-	processethernetpacket(captimestamp, packetlen, packetptr);
+	processethernetpacket(captimestamp, caplen, capptr);
 	return;
 	}
 else
