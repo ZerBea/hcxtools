@@ -715,28 +715,41 @@ memcpy(&gpwplold, &gpwpl, gpwpllen);
 return;
 }
 /*===========================================================================*/
-static void processipv4(uint64_t timestamp, uint16_t ipv4len, uint8_t *ipv4ptr)
+static void processipv4(uint64_t timestamp, uint16_t restlen, uint8_t *ipv4ptr)
 {
+ipv4_t *ipv4;
+uint32_t ipv4len;
+
+if(restlen < IPV4_SIZE_MIN) return;
+ipv4 = (ipv4_t*)ipv4ptr;
+if((ipv4->ver_hlen & 0xf0) != 0x40) return;
+ipv4len = (ipv4->ver_hlen & 0x0f) *4;
+if(restlen < ipv4len) return;
+
+
+printf("%d %02x%02x\n", ipv4len, ipv4ptr[0], ipv4ptr[1]);
 
 ipv4count++;
 
 //dummy code to satisfy gcc untill full code is implemented
 timestamp = timestamp;
-ipv4len = ipv4len;
-if(ipv4ptr == NULL) return;
 return;
 }
 /*===========================================================================*/
-static void processipv6(uint64_t timestamp, uint16_t ipv6len, uint8_t *ipv6ptr)
+static void processipv6(uint64_t timestamp, uint16_t restlen, uint8_t *ipv6ptr)
 {
+ipv6_t *ipv6;
+
+if(restlen < IPV6_SIZE) return;
+ipv6 = (ipv6_t*)ipv6ptr;
+if((ntohl(ipv6->ver_class) & 0xf0000000) != 0x60000000) return;
+if(restlen < ntohs(ipv6->len)) return;
 
 ipv6count++;
 
 
 //dummy code to satisfy gcc untill full code is implemented
-if(ipv6ptr == NULL) return;
 timestamp = timestamp;
-ipv6len = ipv6len;
 return;
 }
 /*===========================================================================*/
