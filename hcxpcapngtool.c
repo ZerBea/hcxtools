@@ -727,7 +727,7 @@ ipv4len = (ipv4->ver_hlen & 0x0f) *4;
 if(restlen < ipv4len) return;
 
 
-printf("%d %02x%02x\n", ipv4len, ipv4ptr[0], ipv4ptr[1]);
+//printf("%d %02x%02x\n", ipv4len, ipv4ptr[0], ipv4ptr[1]);
 
 ipv4count++;
 
