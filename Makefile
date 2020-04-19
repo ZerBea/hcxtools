@@ -61,7 +61,10 @@ TOOLS+=wlanpmk2hcx
 wlanpmk2hcx_libs=-lcrypto -lssl
 TOOLS+=wlanjohn2hcx
 
-.PHONY: build
+.PHONY: all build install clean uninstall
+
+all: build
+
 build: $(TOOLS)
 
 .deps:
@@ -106,15 +109,12 @@ endef
 
 $(foreach tool,$(TOOLS),$(eval $(call tool-build,$(tool))))
 
-.PHONY: install
 install: $(patsubst %,%.install,$(TOOLS))
 
-.PHONY: clean
 clean: $(patsubst %,%.clean,$(TOOLS))
 	rm -rf .deps
 	rm -f *.o *~
 
-.PHONY: uninstall
 uninstall: $(patsubst %,%.uninstall,$(TOOLS))
 
 -include .deps/*.d
