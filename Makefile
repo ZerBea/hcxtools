@@ -18,6 +18,8 @@ HOSTOS		:= $(shell uname -s)
 CC		?= gcc
 CFLAGS		?= -O3 -Wall -Wextra
 CFLAGS		+= -std=gnu99
+DEFS		= -DVERSION_TAG=\"$(VERSION_TAG)\" -DVERSION_YEAR=\"$(VERSION_YEAR)\"
+
 INSTALL		?= install
 INSTFLAGS	=
 
@@ -76,7 +78,7 @@ $(1)_src ?= $(1).c
 $(1)_libs ?=
 
 $(1): $$($(1)_src) | .deps
-	$$(CC) $$(CFLAGS) $$(CPPFLAGS) -MMD -MF .deps/$$@.d -o $$@ $$($(1)_src) $$($(1)_libs) $$(LDFLAGS) -DVERSION_TAG=\"$(VERSION_TAG)\" -DVERSION_YEAR=\"$(VERSION_YEAR)\"
+	$$(CC) $$(CFLAGS) $$(CPPFLAGS) -MMD -MF .deps/$$@.d -o $$@ $$($(1)_src) $$($(1)_libs) $$(LDFLAGS) $$(DEFS)
 
 .deps/$(1).d: $(1)
 
