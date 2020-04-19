@@ -9,11 +9,11 @@ VERSION_TAG		:= $(shell git describe --tags || echo $(PRODUCTION_VERSION))
 endif
 VERSION_YEAR		:= $(shell echo $(PRODUCTION_YEAR))
 
-PREFIX		?=/usr/local
+PREFIX		?= /usr/local
 BINDIR		= $(DESTDIR)$(PREFIX)/bin
 MANDIR		= $(DESTDIR)$(PREFIX)/share/man
 
-HOSTOS := $(shell uname -s)
+HOSTOS		:= $(shell uname -s)
 
 CC		?= gcc
 CFLAGS		?= -O3 -Wall -Wextra
