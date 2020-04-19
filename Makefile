@@ -112,6 +112,7 @@ install: $(patsubst %,%.install,$(TOOLS))
 .PHONY: clean
 clean: $(patsubst %,%.clean,$(TOOLS))
 	rm -rf .deps
+	rm -f *.o *~
 
 .PHONY: uninstall
 uninstall: $(patsubst %,%.uninstall,$(TOOLS))
