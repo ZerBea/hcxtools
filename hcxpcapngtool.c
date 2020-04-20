@@ -782,8 +782,6 @@ static void processipv6(uint64_t timestamp, uint16_t restlen, uint8_t *ipv6ptr)
 {
 ipv6_t *ipv6;
 
-printf("v6\n");
-
 if(restlen < IPV6_SIZE) return;
 ipv6 = (ipv6_t*)ipv6ptr;
 if((ntohl(ipv6->ver_class) & 0xf0000000) != 0x60000000) return;
