@@ -720,7 +720,6 @@ while(1)
 			rc--;
 			}
 
-
 		if(fd_cap == 0)
 			{
 			snprintf(singlecapname, 18, "%02x%02x%02x%02x%02x%02x.cap", macsta[0], macsta[1], macsta[2], macsta[3], macsta[4], macsta[5]);
@@ -757,21 +756,21 @@ while(1)
 			{
 			if(keyver == 1)
 				{
-				writecapbeaconwpa1(fd_singlecap, macap, essidlen, essid);
+				writecapbeaconwpa1(fd_cap, macap, essidlen, essid);
 				writecapm1wpa1(fd_cap, macsta, macap, anonce, eapa->version, wpak->keylen, rc);
 				writecapm2(fd_cap, macsta, macap, eapauthlen, eapol, hash);
 				pmkideapolcapwritten++;
 				}
 			else if(keyver == 2)
 				{
-				writecapbeaconwpa2(fd_singlecap, macap, essidlen, essid);
+				writecapbeaconwpa2(fd_cap, macap, essidlen, essid);
 				writecapm1wpa2(fd_cap, macsta, macap, anonce, eapa->version, wpak->keylen, rc);
 				writecapm2(fd_cap, macsta, macap, eapauthlen, eapol, hash);
 				pmkideapolcapwritten++;
 				}
 			else if(keyver == 3)
 				{
-				writecapbeaconwpa2keyver3(fd_singlecap, macap, essidlen, essid);
+				writecapbeaconwpa2keyver3(fd_cap, macap, essidlen, essid);
 				writecapm1wpa2keyver3(fd_cap, macsta, macap, anonce, eapa->version, wpak->keylen, rc);
 				writecapm2(fd_cap, macsta, macap, eapauthlen, eapol, hash);
 				pmkideapolcapwritten++;
@@ -1689,7 +1688,6 @@ if(johnname != NULL)
 	{
 	processjohnfile(johnname, fd_cap);
 	}
-
 
 if(fd_cap != 0)
 	{
