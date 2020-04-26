@@ -63,6 +63,20 @@ Detailed description
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                                  |
 
 
+Installation
+--------------
+
+### Kali Linux
+`apt install hcxtools`
+
+### BlackArch
+[BlackArch](https://blackarch.org/) is an Arch Linux-based penetration testing distribution for penetration testers and security researchers  
+`pacman -S hcxtools`
+
+### macOS
+[Homebrew](https://brew.sh/) is 3-rd party package manager for macOS  
+`brew install hcxtools`
+
 Get source
 --------------
 ```
