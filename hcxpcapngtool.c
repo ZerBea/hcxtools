@@ -130,6 +130,7 @@ static long int wdscount;
 static long int beaconcount;
 static long int beaconhcxcount;
 static long int beaconerrorcount;
+static long int pagcount;
 static long int proberesponsecount;
 static long int proberequestcount;
 static long int proberequestdirectedcount;
@@ -363,6 +364,7 @@ wdscount = 0;
 beaconcount = 0;
 beaconhcxcount = 0;
 beaconerrorcount = 0;
+pagcount = 0;
 proberesponsecount = 0;
 proberequestcount = 0;
 proberequestdirectedcount = 0;
@@ -478,6 +480,7 @@ if(skippedpacketcount > 0)		printf("skipped packets..........................: %
 if(fcsframecount > 0)			printf("frames with correct FCS..................: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM.............: %ld\n", wdscount);
 if(beaconcount > 0)			printf("BEACON (total)...........................: %ld\n", beaconcount);
+if(pagcount > 0)			printf("BEACON (pwnagotchi)......................: %ld\n", pagcount);
 if(beaconhcxcount > 0)			printf("BEACON (hcxhash2cap).....................: %ld\n", beaconhcxcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST.............................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
@@ -3051,6 +3054,32 @@ if(fh_nmea != NULL) writegpwpl(macap);
 return;
 }
 /*===========================================================================*/
+static inline bool processpag(uint8_t *macap, int vendorlen, uint8_t *ieptr)
+{
+static int c, p;
+static const uint8_t mac_pwag[6] =
+{
+0xde, 0xad, 0xbe, 0xef, 0xde, 0xad
+};
+
+if(ieptr[1] != 0xff) return false;
+if(vendorlen <= 0x78) return false;
+if(memcmp(&mac_pwag, macap, 6) != 0) return false;
+for(p = 2; p < vendorlen -75 ; p++)
+	{
+	if(memcmp(&ieptr[p], "identity", 8) == 0)
+		{
+		for(c = 0; c < 64; c++)
+			{
+			if(!isxdigit(ieptr[p +11 +c])) return false;
+			}
+		pagcount++;
+		return true;
+		}
+	}
+return false;
+}
+/*===========================================================================*/
 static void process80211beacon(uint64_t beacontimestamp, uint8_t *macbc, uint8_t *macap, uint32_t beaconlen, uint8_t *beaconptr)
 {
 static int apinfolen;
@@ -3066,6 +3095,10 @@ if(memcmp(&mac_broadcast, macbc, 6) != 0)
 	}
 apinfoptr = beaconptr +CAPABILITIESAP_SIZE;
 apinfolen = beaconlen -CAPABILITIESAP_SIZE;
+if(apinfoptr[0] == TAG_PAG)
+	{
+	if(processpag(macap, apinfolen, apinfoptr) == true) return;
+	}
 if(beaconlen < (int)IETAG_SIZE) return;
 if(gettags(apinfolen, apinfoptr, &tags) == false) return;
 if(tags.essidlen == 0) return;
