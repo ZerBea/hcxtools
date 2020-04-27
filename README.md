@@ -87,12 +87,13 @@ Or install via packet manager of your distribution
 [Arch Linux ARM ](https://archlinuxarm.org/) 
 `pacman -S hcxtools`
 
+### Black Arch
+[Black Arch](https://blackarch.org/) is an Arch Linux-based penetration testing distribution for penetration testers and security researchers  
+`pacman -S hcxtools`
+
 ### Kali Linux
 `apt install hcxtools`
 
-### BlackArch
-[BlackArch](https://blackarch.org/) is an Arch Linux-based penetration testing distribution for penetration testers and security researchers  
-`pacman -S hcxtools`
 
 ### macOS
 [Homebrew](https://brew.sh/) is 3-rd party package manager for macOS  
