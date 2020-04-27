@@ -62,21 +62,6 @@ Detailed description
 | wlanjohn2hcx   | Converts john wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                                              |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                                  |
 
-
-Installation
---------------
-
-### Kali Linux
-`apt install hcxtools`
-
-### BlackArch
-[BlackArch](https://blackarch.org/) is an Arch Linux-based penetration testing distribution for penetration testers and security researchers  
-`pacman -S hcxtools`
-
-### macOS
-[Homebrew](https://brew.sh/) is 3-rd party package manager for macOS  
-`brew install hcxtools`
-
 Get source
 --------------
 ```
@@ -90,6 +75,28 @@ Compile
 make
 make install (as super user)
 ```
+
+Or install via packet manager of your distribution
+--------------
+
+### Arch Linux
+[Arch Linux](https://www.archlinux.org/) 
+`pacman -S hcxtools`
+
+### Arch Linux ARM
+[Arch Linux ARM ](https://archlinuxarm.org/) 
+`pacman -S hcxtools`
+
+### Kali Linux
+`apt install hcxtools`
+
+### BlackArch
+[BlackArch](https://blackarch.org/) is an Arch Linux-based penetration testing distribution for penetration testers and security researchers  
+`pacman -S hcxtools`
+
+### macOS
+[Homebrew](https://brew.sh/) is 3-rd party package manager for macOS  
+`brew install hcxtools`
 
 
 Requirements
