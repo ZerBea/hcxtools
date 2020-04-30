@@ -159,7 +159,9 @@ static long int reassociationrequestsae256count;
 static long int reassociationrequestsae384bcount;
 static long int reassociationrequestowecount;
 static long int ipv4count;
+static long int icmp4count;
 static long int ipv6count;
+static long int icmp6count;
 static long int tcpcount;
 static long int udpcount;
 static long int wepenccount;
@@ -393,7 +395,9 @@ reassociationrequestsae256count = 0;
 reassociationrequestsae384bcount = 0;
 reassociationrequestowecount = 0;
 ipv4count = 0;
+icmp4count = 0;
 ipv6count = 0;
+icmp6count = 0;
 tcpcount = 0;
 udpcount = 0;
 wepenccount = 0;
@@ -512,7 +516,9 @@ if(reassociationrequestowecount > 0)	printf("REASSOCIATIONREQUEST (OWE).........
 if(wpaenccount > 0)			printf("WPA encrypted............................: %ld\n", wpaenccount);
 if(wepenccount > 0)			printf("WEP encrypted............................: %ld\n", wepenccount);
 if(ipv4count > 0)			printf("IPv4.....................................: %ld\n", ipv4count);
+if(icmp4count > 0)			printf("ICMPv4...................................: %ld\n", icmp4count);
 if(ipv6count > 0)			printf("IPv6.....................................: %ld\n", ipv6count);
+if(icmp6count > 0)			printf("ICMPv6...................................: %ld\n", icmp6count);
 if(tcpcount > 0)			printf("TCP......................................: %ld\n", tcpcount);
 if(udpcount > 0)			printf("UDP......................................: %ld\n", udpcount);
 if(identitycount > 0)			printf("IDENTITIES...............................: %ld\n", identitycount);
@@ -758,6 +764,12 @@ timestamp = timestamp;
 return;
 }
 /*===========================================================================*/
+static void processicmp4()
+{
+icmp4count++;
+return;
+}
+/*===========================================================================*/
 static void processipv4(uint64_t timestamp, uint32_t restlen, uint8_t *ipv4ptr)
 {
 ipv4_t *ipv4;
@@ -777,7 +789,17 @@ else if(ipv4->nextprotocol == NEXTHDR_UDP)
 	{
 	processudppacket(timestamp, ntohs(ipv4->len) -ipv4len, ipv4ptr +ipv4len);
 	}
+else if(ipv4->nextprotocol == NEXTHDR_ICMP4)
+	{
+	processicmp4();
+	}
 ipv4count++;
+return;
+}
+/*===========================================================================*/
+static void processicmp6()
+{
+icmp6count++;
 return;
 }
 /*===========================================================================*/
@@ -797,6 +819,10 @@ if(ipv6->nextprotocol == NEXTHDR_TCP)
 else if(ipv6->nextprotocol == NEXTHDR_UDP)
 	{
 	processudppacket(timestamp, restlen, ipv6ptr +IPV6_SIZE);
+	}
+else if(ipv6->nextprotocol == NEXTHDR_ICMP6)
+	{
+	processicmp6();
 	}
 ipv6count++;
 return;
