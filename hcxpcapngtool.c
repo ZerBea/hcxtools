@@ -127,6 +127,8 @@ static long int skippedpacketcount;
 static long int zeroedtimestampcount;
 static long int fcsframecount;
 static long int wdscount;
+static long int actioncount;
+static long int awdlcount;
 static long int beaconcount;
 static long int beaconhcxcount;
 static long int beaconerrorcount;
@@ -363,6 +365,8 @@ skippedpacketcount = 0;
 zeroedtimestampcount = 0;
 fcsframecount = 0;
 wdscount = 0;
+actioncount = 0;
+awdlcount = 0;
 beaconcount = 0;
 beaconhcxcount = 0;
 beaconerrorcount = 0;
@@ -486,6 +490,8 @@ if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM.............: %ld\n", wd
 if(beaconcount > 0)			printf("BEACON (total)...........................: %ld\n", beaconcount);
 if(pagcount > 0)			printf("BEACON (pwnagotchi)......................: %ld\n", pagcount);
 if(beaconhcxcount > 0)			printf("BEACON (hcxhash2cap).....................: %ld\n", beaconhcxcount);
+if(actioncount > 0)			printf("ACTION (total)...........................: %ld\n", actioncount);
+if(awdlcount > 0)			printf("AWDL (Apple Wireless Direct Link)........: %ld\n", awdlcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST.............................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
 if(proberesponsecount > 0)		printf("PROBERESONSE.............................: %ld\n", proberesponsecount);
@@ -3157,6 +3163,29 @@ if(fh_nmea != NULL) writegpwpl(macap);
 return;
 }
 /*===========================================================================*/
+static void process80211actionvendor(uint32_t packetlen, uint8_t *packetptr)
+{
+static actvf_t *actvf;
+
+if(packetlen < ACTIONVENDORFRAME_SIZE) return;
+actvf = (actvf_t*)packetptr;
+if(memcmp(actvf->vendor, &ouiapple, 3) == 0) awdlcount++;
+return;
+}
+/*===========================================================================*/
+static void process80211action(uint32_t packetlen, uint8_t *packetptr)
+{
+static actf_t *actf;
+
+if(packetlen < ACTIONFRAME_SIZE) return;
+actf = (actf_t*)packetptr;
+actioncount++;
+if(actf->categoriecode == CAT_VENDOR) process80211actionvendor(packetlen, packetptr);
+
+
+return;
+}
+/*===========================================================================*/
 static void process80211packet(uint64_t packetimestamp, uint32_t packetlen, uint8_t *packetptr)
 {
 static mac_t *macfrx;
@@ -3192,6 +3221,7 @@ if(macfrx->type == IEEE80211_FTYPE_MGMT)
 		if(memcmp(&mac_broadcast, macfrx->addr1, 6) == 0) process80211probe_req(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
 		else process80211probe_req_direct(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
 		}
+	else if(macfrx->subtype == IEEE80211_STYPE_ACTION) process80211action(payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_DEAUTH) deauthenticationcount++;
 	else if(macfrx->subtype == IEEE80211_STYPE_DISASSOC) disassociationcount++;
 	}

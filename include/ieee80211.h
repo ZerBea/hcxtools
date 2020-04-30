@@ -493,16 +493,29 @@ typedef struct association_resp_frame assocrepf_t;
 struct action_frame
 {
  uint8_t	categoriecode;
-#define CAT_BLOCK_ACK		3
-#define CAT_RADIO_MEASUREMENT		5
+#define CAT_BLOCK_ACK			0x03
+#define CAT_RADIO_MEASUREMENT		0x05
+#define CAT_VENDOR			0x7f
  uint8_t	actioncode;
-#define ACT_ADD_BLOCK_ACK_REQ		0
-#define ACT_ADD_BLOCK_ACK_RESP		0
-#define ACT_DELETE_BLOCK_REQ		2
-#define ACT_RADIO_MEASUREMENT_REQ	0
+#define ACT_ADD_BLOCK_ACK_REQ		0x00
+#define ACT_ADD_BLOCK_ACK_RESP		0x00
+#define ACT_DELETE_BLOCK_REQ		0x02
+#define ACT_RADIO_MEASUREMENT_REQ	0x00
 };
 typedef struct action_frame actf_t;
 #define ACTIONFRAME_SIZE (sizeof(actf_t))
+/*===========================================================================*/
+struct actionvendor_frame
+{
+ uint8_t	categoriecode;
+ uint8_t	vendor[3];
+};
+typedef struct actionvendor_frame actvf_t;
+#define ACTIONVENDORFRAME_SIZE (sizeof(actvf_t))
+static const uint8_t ouiapple[3] =
+{
+0x00, 0x17, 0xf2
+};
 /*===========================================================================*/
 struct eapauthentication_s
 {
