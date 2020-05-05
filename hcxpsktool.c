@@ -1175,6 +1175,17 @@ if(essidlen >= 9)
 return;
 }
 /*===========================================================================*/
+static void testtelered(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static const char *telered = "TeleRed-";
+
+if(essidlen < 12) return;
+if(memcmp(essid, telered, 8) != 0) return;
+if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11]))) return;
+fprintf(fhout, "A26684%c%c%c%c\n", essid[8], essid[9], essid[10], essid[11]);
+return;
+}
+/*===========================================================================*/
 static void testukrtelecom(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k;
@@ -1288,6 +1299,7 @@ testmywifi(fhout, essidlen, essid);
 testroamingman(fhout, essidlen, essid);
 testrtk(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
+testtelered(fhout, essidlen, essid);
 testukrtelecom(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 testwlan(fhout, essidlen, essid);
