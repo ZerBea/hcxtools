@@ -828,6 +828,36 @@ for(k1 = 0; k1 < 10000; k1++)
 return;
 }
 /*===========================================================================*/
+static void testarrisizzi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int c;
+static uint32_t i;
+static char *izzi = "IZZI-";
+
+static int fix[] =
+{
+0x001C15, 0x090514, 0x189C27, 0x3C0461,
+0x509551, 0x704FB8, 0x8871B1, 0x8C61A3,
+0x9CC8FC, 0xA811FC, 0xD4AB82, 0xF0AF85,
+0xF82DC0, 0xF88B37, 0xF8F532, 0xFCAE34
+};
+#define FIX_SIZE sizeof(fix) /sizeof(int)
+
+if(essidlen < 9) return;
+if(memcmp(essid, izzi, 5) != 0) return;
+if((!isxdigit(essid[5])) || (!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8]))) return;
+
+
+for(i = 0; i < FIX_SIZE; i++)
+	{
+	for(c = 0; c < 0x100; c++)
+		{
+		 fprintf(fhout, "%06X%02X%C%C%C%C\n", fix[i], c, essid[5], essid[6], essid[7], essid[8]);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static void testarristg(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
@@ -1287,6 +1317,7 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if((essidlen == 0) || (essidlen > 32)) return;
 testalcatellinkzone(fhout, essidlen, essid);
+testarrisizzi(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
 testaxtelxtremo(fhout, essidlen, essid);
