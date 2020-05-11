@@ -844,14 +844,9 @@ static int fix[] =
 if(essidlen < 9) return;
 if(memcmp(essid, izzi, 5) != 0) return;
 if((!isxdigit(essid[5])) || (!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8]))) return;
-
-
 for(i = 0; i < FIX_SIZE; i++)
 	{
-	for(c = 0; c < 0x100; c++)
-		{
-		 fprintf(fhout, "%06X%02X%C%C%C%C\n", fix[i], c, essid[5], essid[6], essid[7], essid[8]);
-		}
+	for(c = 0; c < 0x100; c++) fprintf(fhout, "%06X%02X%C%C%C%C\n", fix[i], c, essid[5], essid[6], essid[7], essid[8]);
 	}
 return;
 }
