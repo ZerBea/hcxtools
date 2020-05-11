@@ -1200,12 +1200,24 @@ return;
 /*===========================================================================*/
 static void testtelered(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
+static uint32_t i;
+static int c;
 static const char *telered = "TeleRed-";
+
+static uint32_t fix[] =
+{
+0x324b, 0x9c67, 0xa266, 0xcfe2
+};
+#define FIX_SIZE sizeof(fix) /sizeof(int)
 
 if(essidlen < 12) return;
 if(memcmp(essid, telered, 8) != 0) return;
 if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11]))) return;
-fprintf(fhout, "A26684%c%c%c%c\n", essid[8], essid[9], essid[10], essid[11]);
+
+for(i = 0; i < FIX_SIZE; i++)
+	{
+	for(c = 0; c < 0x100; c++) fprintf(fhout, "%04X%02X%C%C%C%C\n", fix[i], c, essid[8], essid[9], essid[10], essid[11]);
+	}
 return;
 }
 /*===========================================================================*/
