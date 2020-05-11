@@ -1206,7 +1206,7 @@ static const char *telered = "TeleRed-";
 
 static uint32_t fix[] =
 {
-0x324b, 0x9c67, 0xa266, 0xcfe2
+0x324b, 0x96e6, 0x9c67, 0xa266, 0xcfe2
 };
 #define FIX_SIZE sizeof(fix) /sizeof(int)
 
