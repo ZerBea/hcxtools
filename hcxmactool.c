@@ -769,7 +769,7 @@ while(1)
 		{
 		continue;
 		}
-	strncpy(zeiger->vendor, vendorname, OUI_LINE_LEN);
+	strncpy(zeiger->vendor, vendorname, OUI_LINE_LEN -1);
 	ouicount++;
 	zeiger++;
 	}

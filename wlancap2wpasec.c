@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 struct stat statinfo;
 int auswahl;
 int index;
-char keyheader[4+32+1] = {0};
+char keyheader[4+32+1+2] = {0};
 char *emailaddr = NULL;
 long int timeout = 30;
 uploadcountok = 0;
