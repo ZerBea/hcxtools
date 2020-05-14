@@ -119,9 +119,9 @@ static const char *adjectiv[] = { "absurd", "ago", "album", "ancient", "antique"
 	"quaint", "quick", "quiet",
 	"rain", "rapid", "red", "rocky", "rough", "round", "royal", "rustic",
 	"safe", "salute", "sandy", "sharp", "shiny", "short", "silent", "silky", "silly", "slender", "slow", "slower", "small", "smart", "smiley", "smiling", "smooth", "snug", "soft", "sour", "stealth", "strange", "strong", "sunny", "super", "sweet", "swift",
-	"tablet", "terrific", "thirsty", "thoughtful", "tiny",
+	"tablet", "terrific", "thirsty", "thoughtful", "timber", "tiny",
 	"uneven", "unusual", "urban",
-	"vanilla", "vast", "violet",
+	"vanilla", "vast", "verse", "violet",
 	"warm", "watery", "weak", "white", "wide", "wild", "wilde", "windy", "wise", "witty", "wonderful",
 	"yellow", "young",
 	"zany" };
@@ -130,8 +130,8 @@ static const char *substantiv[] = { "airplane", "album", "apple", "automobile",
 	"ball", "balloon", "banana", "beach", "bead", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "bottle", "box", "brain", "bread", "breeze", "bridge", "bubble", "bug", "bunny", "bush", "butter",
 	"canoe", "car", "carrot", "cartoon", "cello", "chair", "chat", "cheese", "chill", "chip", "coast", "coconut", "comet", "cream", "crown", "curly", "curtain",
 	"daisy", "deal", "deer", "desk", "diamond", "dink", "doll", "domain", "door",
-	"earth", "elephant", "emerald",
-	"finch", "fire", "fish", "flamingo", "flower", "flute", "forest",
+	"eagle", "earth", "elephant", "emerald",
+	"finch", "fire", "fish", "flamingo", "flower", "fluent", "flute", "forest",
 	"gadfly", "gate", "gear", "giant", "giraffe", "girl", "glove", "grape", "grasshopper", "guppy",
 	"hair", "hand", "hat", "hill", "hippo", "horse", "hotel", "house",
 	"ink", "iris", "island",
@@ -519,6 +519,7 @@ static int ek;
 static char *ev;
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
+
 if(essidlen >= 4)
 	{
 	if((isxdigit(essid[essidlen -4])) && (isxdigit(essid[essidlen -3])) && (isxdigit(essid[essidlen -2])) && (isxdigit(essid[essidlen -1])))
