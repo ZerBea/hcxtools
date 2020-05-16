@@ -28,6 +28,7 @@ static int apessidcount;
 static int thisyear;
 
 static bool netgearflag;
+static bool digit10flag;
 static bool phomeflag;
 static bool tendaflag;
 static bool weakpassflag;
@@ -89,6 +90,79 @@ if((lowerpskstring[0] >= 'a') && (lowerpskstring[0] <= 'z'))
 	{
 	lowerpskstring[0] = toupper(lowerpskstring[0]);
 	fprintf(fhout,"%s\n", lowerpskstring);
+	}
+return;
+}
+/*===========================================================================*/
+static void keywritedigit10(FILE *fhout)
+{
+static int i;
+static uint16_t f;
+static unsigned long long int ec, el, eu;
+static MD5_CTX ctxmd5;
+static char saltstring[64];
+static unsigned char digestmd5[MD5_DIGEST_LENGTH];
+
+static uint32_t fixseed1[] =
+{
+0xb103, 0xb104, 0xb109,
+0xb110, 0xb112,
+0xb133, 0xb134, 
+0xb150, 0xb15c,
+0xb165,
+0xb177,
+0xb180, 0xb181,
+0xb30f,
+0xb345,
+0xb350, 0xb351,
+0xb366, 0xb367, 0xb36b,
+0xb393,
+0xf203, 0xf204, 0xf20a,
+0xf21c, 0xf21d,
+0xf222, 0xf224, 0xf225, 0xf227, 0xf228, 0xf22d, 0xf22e, 0xf22f,
+0xf237, 0xf238, 0xf23b,
+0xf240, 0xf241, 0xf245, 0xf247,
+0xf255, 0xf256,
+0xf26e,
+0xf272, 0xf277,
+0xf291, 0xf297, 0xf298,
+0xf2e6, 0xf2e7,
+0xf2f1, 0xf2f3, 0xf2f4, 0xf2f5, 0xf2f6,
+0xf80e,
+0xf817,
+0xf83a, 0xf83c,
+0xf840, 0xf843, 0xf845, 0xf847, 0xf848,
+0xf852, 0xf854, 0xf857, 0xf85b, 0xf85d, 0xf85e,
+0xf861, 0xf867, 0xf86b,
+0xf871, 0xf877, 0xf879,
+0xf88a, 0xf88d,
+0xf965,
+0xfa24,
+0xfa36,
+0xfa41, 0xfa42, 0xfa43, 0xfa49, 0xfa4b,
+0xfaa8, 0xfaad,
+0xfad1, 0xfad3, 0xfad4, 0xfad5, 0xfad7, 0xfad8, 0xfad9, 0xfada, 0xfadb, 0xfadc, 0xfade, 0xfadf,
+0xfaf1, 0xfaf2, 0xfaf3, 0xfaf4, 0xfaf5, 0xfaf6, 0xfaf7
+};
+#define FIXSEED1_SIZE sizeof(fixseed1) /sizeof(uint32_t)
+
+for(f = 0; f < FIXSEED1_SIZE; f++)
+	{
+	for(ec = 0; ec <= 0xffff; ec++)
+		{
+		snprintf(saltstring, 64, "D0542D-01%010lld", ec | fixseed1[f] << 16);
+		MD5_Init(&ctxmd5);
+		MD5_Update(&ctxmd5, saltstring, 19);
+		MD5_Final(digestmd5, &ctxmd5);
+		el = 0;
+		eu = 0;
+		for(i = 0; i < 8; i++)
+			{
+			eu = (el >> 0x18 | ((eu << 8) &0xffffffff)) &0xffffffff;
+			el = (((el << 8) &0xffffffff) | digestmd5[i + 8]) &0xffffffff;
+			}
+		fprintf(fhout, "%010lld\n", ((eu << 32) +el) %0x2540be400);
+		}
 	}
 return;
 }
@@ -835,19 +909,19 @@ static int c;
 static uint32_t i;
 static char *izzi = "IZZI-";
 
-static int fix[] =
+static int fixseed2[] =
 {
 0x001C15, 0x189C27, 0x3C0461, 0x509551, 0x704FB8, 0x8871B1, 0x8C61A3, 0x9CC8FC,
 0xA811FC, 0xD4AB82, 0xF0AF85, 0xF82DC0, 0xF88B37, 0xF8F532, 0xFCAE34
 };
-#define FIX_SIZE sizeof(fix) /sizeof(int)
+#define FIXSEED2_SIZE sizeof(fixseed2) /sizeof(int)
 
 if(essidlen < 9) return;
 if(memcmp(essid, izzi, 5) != 0) return;
 if((!isxdigit(essid[5])) || (!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8]))) return;
-for(i = 0; i < FIX_SIZE; i++)
+for(i = 0; i < FIXSEED2_SIZE; i++)
 	{
-	for(c = 0; c < 0x100; c++) fprintf(fhout, "%06X%02X%C%C%C%C\n", fix[i], c, essid[5], essid[6], essid[7], essid[8]);
+	for(c = 0; c < 0x100; c++) fprintf(fhout, "%06X%02X%C%C%C%C\n", fixseed2[i], c, essid[5], essid[6], essid[7], essid[8]);
 	}
 return;
 }
@@ -1567,6 +1641,7 @@ return;
 static void processadditionals(FILE *fhout)
 {
 if(netgearflag == true) keywritenetgear(fhout);
+if(digit10flag == true) keywritedigit10(fhout);
 if(phomeflag == true) keywritephome(fhout);
 if(tendaflag == true)
 	{
@@ -1967,15 +2042,16 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
-	"--netgear : include weak NETGEAR candidates\n"
-	"--phome   : include weak PEGATRON HOME candidates\n"
-	"--tenda   : include weak TENDA candidates\n"
-	"--weakpass: include weak password candidates\n"
-	"--eudate  : include complete european dates\n"
-	"--usdate  : include complete american dates\n"
-	"--wpskeys : include complete WPS keys\n"
-	"--help    : show this help\n"
-	"--version : show version\n"
+	"--netgear     : include weak NETGEAR candidates\n"
+	"--seeddigit10 : include 10 digit candidates\n"
+	"--phome       : include weak PEGATRON HOME candidates\n"
+	"--tenda       : include weak TENDA candidates\n"
+	"--weakpass    : include weak password candidates\n"
+	"--eudate      : include complete european dates\n"
+	"--usdate      : include complete american dates\n"
+	"--wpskeys     : include complete WPS keys\n"
+	"--help        : show this help\n"
+	"--version     : show version\n"
 	"\n"
 	"if hcxpsktool recovered your password, you should change it immediately!\n"
 	"\n"
@@ -2010,6 +2086,7 @@ static char *macapname = NULL;
 static char *pskname = NULL;
 
 netgearflag = false;
+digit10flag = false;
 phomeflag = false;
 tendaflag = false;
 weakpassflag = false;
@@ -2023,6 +2100,7 @@ static const char *short_options = "c:i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
+	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
 	{"phome",			no_argument,		NULL,	HCXD_PHOME},
 	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
@@ -2044,6 +2122,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		{
 		case HCXD_NETGEAR:
 		netgearflag = true;
+		break;
+
+		case HCXD_DIGIT10:
+		digit10flag = true;
 		break;
 
 		case HCXD_PHOME:
