@@ -188,7 +188,7 @@ static const char *adjectiv[] = { "absurd", "ago", "album", "ancient", "antique"
 	"large", "left", "light", "lime", "little", "lively", "locky", "lovely", "lucky", "lumpy",
 	"magical", "major", "manic", "mellow", "melodic", "mighty", "misty", "modern",
 	"narrow", "nest", "new", "nice", "nifty", "noisy", "normal",
-	"occur", "ocean", "odd", "old", "orange", "ordinary",
+	"oasis", "occur", "ocean", "odd", "old", "orange", "ordinary",
 	"painless", "parade", "pass", "pastel", "peaceful", "perfect", "phobic", "phone", "pink", "plain", "polite", "poor", "precious", "pretty", "purple",
 	"quaint", "quick", "quiet",
 	"rain", "rapid", "red", "rocky", "rough", "round", "royal", "rustic",
@@ -2043,7 +2043,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-v          : show version\n"
 	"\n"
 	"--netgear     : include weak NETGEAR candidates\n"
-	"--seeddigit10 : include 10 digit candidates\n"
+	"--seeddigit10 : include 10 digit candidates (INFINITUM, ALHN, INEA)\n"
 	"--phome       : include weak PEGATRON HOME candidates\n"
 	"--tenda       : include weak TENDA candidates\n"
 	"--weakpass    : include weak password candidates\n"
