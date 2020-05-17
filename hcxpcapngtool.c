@@ -616,7 +616,7 @@ if((authenticationcount +associationrequestcount +reassociationrequestcount) == 
 		"This dump file contains no important frames like\n"
 		"authentication, association or reassociation.\n"
 		"It always happens if the capture file was cleaned or\n"
-		"if filter options are used during capturing.\n"
+		"it could happen if filter options are used during capturing.\n"
 		"That makes it hard to recover the PSK.\n");
 	}
 
@@ -626,7 +626,7 @@ if(proberequestcount == 0)
 		"This dump file contains no undirected proberequest frames.\n"
 		"An undirected proberequest may contain information about the PSK.\n"
 		"It always happens if the capture file was cleaned or\n"
-		"if filter options are used during capturing.\n"
+		"it could happen if filter options are used during capturing.\n"
 		"That makes it hard to recover the PSK.\n");
 	}
 
@@ -635,7 +635,7 @@ if(eapolm1ancount <= 1)
 	printf("\nWarning: missing frames!\n"
 		"This dump file doesn't contain enough EAPOL M1 frames.\n"
 		"It always happens if the capture file was cleaned or\n"
-		"if filter options are used during capturing.\n"
+		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to calculate nonce-error-correction values.\n");
 	}
 
