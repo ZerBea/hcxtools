@@ -232,6 +232,7 @@ static uint64_t rcgapmax;
 static long int taglenerrorcount;
 static long int essidcount;
 static long int essiderrorcount;
+static long int sequenceerrorcount;
 static long int essiddupemax;
 
 static long int malformedcount;
@@ -240,6 +241,7 @@ static uint64_t timestampstart;
 static uint64_t timestampmin;
 static uint64_t timestampmax;
 static uint64_t eaptimegapmax;
+static uint64_t captimestampold;
 
 static uint32_t eapoltimeoutvalue;
 static uint64_t ncvalue;
@@ -466,6 +468,7 @@ usernamecount = 0;
 taglenerrorcount = 0;
 essidcount = 0;
 essiderrorcount = 0;
+sequenceerrorcount = 0;
 essiddupemax = 0;
 rcgapmax = 0;
 eaptimegapmax = 0;
@@ -473,6 +476,7 @@ malformedcount = 0;
 timestampmin = 0;
 timestampmax = 0;
 timestampstart = 0;
+captimestampold = 0;
 return true;
 }
 /*===========================================================================*/
@@ -636,14 +640,17 @@ if(eapolm1ancount <= 1)
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to calculate nonce-error-correction values.\n");
 	}
-
+if(sequenceerrorcount > 0)
+	{
+	printf("\nWarning: out of sequence timestamps!\n"
+		"This dump file contains frames with out of sequence timestamps.\n");
+	}
 if(zeroedtimestampcount > 0)
 	{
 	printf("\nWarning: missing timestamps!\n"
 		"This dump file contains frames with zeroed timestamps.\n"
 		"That prevent calculation of EAPOL TIMEOUT values.\n");
 	}
-
 if(eapolmsgtimestamperrorcount > 0)
 	{
 	printf("\nWarning: wrong timestamps!\n"
@@ -3324,7 +3331,8 @@ if(fh_raw_out != NULL)
 		}
 	fprintf(fh_raw_out, "*%02x\n", cs);
 	}
-
+if(captimestamp < captimestampold) sequenceerrorcount++;
+captimestampold = captimestamp;
 if(timestampmin == 0) timestampmin = captimestamp;
 if(timestampmin > captimestamp) timestampmin = captimestamp;
 if(timestampmax < captimestamp) timestampmax = captimestamp;
