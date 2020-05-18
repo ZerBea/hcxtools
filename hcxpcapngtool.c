@@ -230,7 +230,7 @@ static long int usernamecount;
 static uint64_t rcgapmax;
 
 static long int taglenerrorcount;
-
+static long int sequenceerrorcount;
 static long int essidcount;
 static long int essiderrorcount;
 static long int essiddupemax;
@@ -240,6 +240,7 @@ static long int malformedcount;
 static uint64_t timestampstart;
 static uint64_t timestampmin;
 static uint64_t timestampmax;
+static uint64_t captimestampold;
 static uint64_t eaptimegapmax;
 
 static uint32_t eapoltimeoutvalue;
@@ -471,10 +472,11 @@ essiddupemax = 0;
 rcgapmax = 0;
 eaptimegapmax = 0;
 malformedcount = 0;
-
+sequenceerrorcount = 0;
 timestampmin = 0;
 timestampmax = 0;
 timestampstart = 0;
+captimestampold = 0;
 return true;
 }
 /*===========================================================================*/
@@ -652,7 +654,12 @@ if(eapolmsgtimestamperrorcount > 0)
 		"This dump file contains frames with wrong timestamps.\n"
 		"That prevent calculation of EAPOL TIMEOUT values.\n");
 	}
-
+if(sequenceerrorcount > 0)
+	{
+	printf("\nWarning: out of sequence timestamps!\n"
+		"This dump file contains frames with timestamps out of sequence.\n"
+		"That prevent calculation of EAPOL TIMEOUT values.\n");
+	}
 printf("\n");
 return;
 }
@@ -3327,6 +3334,9 @@ if(fh_raw_out != NULL)
 		}
 	fprintf(fh_raw_out, "*%02x\n", cs);
 	}
+
+if(captimestamp < captimestampold) sequenceerrorcount++;
+captimestampold = captimestamp;
 if(timestampmin == 0) timestampmin = captimestamp;
 if(timestampmin > captimestamp) timestampmin = captimestamp;
 if(timestampmax < captimestamp) timestampmax = captimestamp;
