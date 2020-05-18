@@ -246,6 +246,8 @@ if(ia->timestampgap > ib->timestampgap) return 1;
 else if(ia->timestampgap < ib->timestampgap) return -1;
 if(ia->rcgap > ib->rcgap) return 1;
 else if(ia->rcgap < ib->rcgap) return -1;
+if(ia->rcgap > ib->rcgap) return 1;
+else if(ia->rcgap < ib->rcgap) return -1;
 return 0;
 }
 
@@ -266,8 +268,6 @@ if(ia->rcgap > ib->rcgap) return 1;
 else if(ia->rcgap < ib->rcgap) return -1;
 return 0;
 }
-
-
 /*===========================================================================*/
 struct pmkidlist_s
 {
