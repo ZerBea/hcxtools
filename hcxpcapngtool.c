@@ -1595,7 +1595,7 @@ static handshakelist_t *zeiger;
 
 if(donotcleanflag == true) return false;
 zeiger = handshakelistptr;
-for(c = 0; c < 20; c ++)
+for(c = 0; c < 10; c ++)
 	{
 	zeiger--;
 	if(zeiger < handshakelist) return false;
