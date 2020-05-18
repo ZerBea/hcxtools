@@ -248,6 +248,26 @@ if(ia->rcgap > ib->rcgap) return 1;
 else if(ia->rcgap < ib->rcgap) return -1;
 return 0;
 }
+
+static int sort_handshakelist_by_rcgap(const void *a, const void *b)
+{
+const handshakelist_t *ia = (const handshakelist_t *)a;
+const handshakelist_t *ib = (const handshakelist_t *)b;
+
+if(memcmp(ia->ap, ib->ap, 6) > 0) return 1;
+else if(memcmp(ia->ap, ib->ap, 6) < 0) return -1;
+if(memcmp(ia->client, ib->client, 6) > 0) return 1;
+else if(memcmp(ia->client, ib->client, 6) < 0) return -1;
+if(ia->rcgap > ib->rcgap) return 1;
+else if(ia->rcgap < ib->rcgap) return -1;
+if(ia->timestampgap > ib->timestampgap) return 1;
+else if(ia->timestampgap < ib->timestampgap) return -1;
+if(ia->rcgap > ib->rcgap) return 1;
+else if(ia->rcgap < ib->rcgap) return -1;
+return 0;
+}
+
+
 /*===========================================================================*/
 struct pmkidlist_s
 {

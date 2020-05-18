@@ -1496,7 +1496,8 @@ static int essiddupecount;
 
 qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_mac_count);
 qsort(pmkidlist, pmkidlistptr -pmkidlist, PMKIDLIST_SIZE, sort_pmkidlist_by_mac);
-qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_timegap);
+if(ncvalue == 0) qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_timegap);
+else  qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_rcgap);
 zeigerhsakt = handshakelist;
 zeigerpmkidakt = pmkidlist;
 zeigermacold = aplist;
