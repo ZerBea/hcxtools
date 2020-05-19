@@ -243,7 +243,7 @@ static uint64_t timestampmax;
 static uint64_t eaptimegapmax;
 static uint64_t captimestampold;
 
-static uint32_t eapoltimeoutvalue;
+static uint64_t eapoltimeoutvalue;
 static uint64_t ncvalue;
 static int essidsvalue;
 
@@ -4590,7 +4590,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	switch (auswahl)
 		{
 		case HCX_EAPOL_TIMEOUT:
-		eapoltimeoutvalue = strtol(optarg, NULL, 10);
+		eapoltimeoutvalue = strtoull(optarg, NULL, 10);
 		if(eapoltimeoutvalue <= 0)
 			{
 			fprintf(stderr, "EAPOL TIMEOUT must be > 0\n");
