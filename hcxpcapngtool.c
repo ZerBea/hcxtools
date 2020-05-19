@@ -602,44 +602,7 @@ if(taglenerrorcount > 0)		printf("IE TAG length error (malformed packets)..: %ld
 if(essiderrorcount > 0)			printf("ESSID error (malformed packets)..........: %ld\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
-if(malformedcount > 10)
-	{
-	printf( "\nWarning: malformed packets detected!\n"   
-		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
-		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
-		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
-		"a bit error in the payload it can lead to unexpected results.\n"
-		"Please analyze the dump file with Wireshark.\n");
-	}
- 
-if((authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
-	{
-	printf("\nWarning: missing frames!\n"
-		"This dump file contains no important frames like\n"
-		"authentication, association or reassociation.\n"
-		"It always happens if the capture file was cleaned or\n"
-		"it could happen if filter options are used during capturing.\n"
-		"That makes it hard to recover the PSK.\n");
-	}
 
-if(proberequestcount == 0)
-	{
-	printf("\nWarning: missing frames!\n"
-		"This dump file contains no undirected proberequest frames.\n"
-		"An undirected proberequest may contain information about the PSK.\n"
-		"It always happens if the capture file was cleaned or\n"
-		"it could happen if filter options are used during capturing.\n"
-		"That makes it hard to recover the PSK.\n");
-	}
-
-if(eapolm1ancount <= 1)
-	{
-	printf("\nWarning: missing frames!\n"
-		"This dump file doesn't contain enough EAPOL M1 frames.\n"
-		"It always happens if the capture file was cleaned or\n"
-		"it could happen if filter options are used during capturing.\n"
-		"That makes it impossible to calculate nonce-error-correction values.\n");
-	}
 if(sequenceerrorcount > 0)
 	{
 	printf("\nWarning: out of sequence timestamps!\n"
@@ -656,6 +619,41 @@ if(eapolmsgtimestamperrorcount > 0)
 	printf("\nWarning: wrong timestamps!\n"
 		"This dump file contains frames with wrong timestamps.\n"
 		"That prevent calculation of EAPOL TIMEOUT values.\n");
+	}
+if(malformedcount > 10)
+	{
+	printf( "\nWarning: malformed packets detected!\n"   
+		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
+		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
+		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
+		"a bit error in the payload it can lead to unexpected results.\n"
+		"Please analyze the dump file with Wireshark.\n");
+	}
+if((authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
+	{
+	printf("\nWarning: missing frames!\n"
+		"This dump file contains no important frames like\n"
+		"authentication, association or reassociation.\n"
+		"It always happens if the capture file was cleaned or\n"
+		"it could happen if filter options are used during capturing.\n"
+		"That makes it hard to recover the PSK.\n");
+	}
+if(proberequestcount == 0)
+	{
+	printf("\nWarning: missing frames!\n"
+		"This dump file contains no undirected proberequest frames.\n"
+		"An undirected proberequest may contain information about the PSK.\n"
+		"It always happens if the capture file was cleaned or\n"
+		"it could happen if filter options are used during capturing.\n"
+		"That makes it hard to recover the PSK.\n");
+	}
+if(eapolm1ancount <= 1)
+	{
+	printf("\nWarning: missing frames!\n"
+		"This dump file doesn't contain enough EAPOL M1 frames.\n"
+		"It always happens if the capture file was cleaned or\n"
+		"it could happen if filter options are used during capturing.\n"
+		"That makes it impossible to calculate nonce-error-correction values.\n");
 	}
 printf("\n");
 return;
