@@ -1509,13 +1509,13 @@ if(zeigermacold->type == AP)
 		{
 		if(ignoreieflag == true)
 			{
-			getpmkid(zeigermacold, zeigerpmkidakt);
-			gethandshake(zeigermacold, zeigerhsakt);
+			zeigerpmkidakt = getpmkid(zeigermacold, zeigerpmkidakt);
+			zeigerhsakt = gethandshake(zeigermacold, zeigerhsakt);
 			}
 		else if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 			{
-			getpmkid(zeigermacold, zeigerpmkidakt);
-			gethandshake(zeigermacold, zeigerhsakt);
+			zeigerpmkidakt = getpmkid(zeigermacold, zeigerpmkidakt);
+			zeigerhsakt = gethandshake(zeigermacold, zeigerhsakt);
 			}
 		}
 	}
@@ -1540,13 +1540,13 @@ for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 		}
 	if(ignoreieflag == true)
 		{
-		getpmkid(zeigermac, zeigerpmkidakt);
-		gethandshake(zeigermac, zeigerhsakt);
+		zeigerpmkidakt = getpmkid(zeigermac, zeigerpmkidakt);
+		zeigerhsakt = gethandshake(zeigermac, zeigerhsakt);
 		}
 	else if(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 		{
-		getpmkid(zeigermac, zeigerpmkidakt);
-		gethandshake(zeigermac, zeigerhsakt);
+		zeigerpmkidakt = getpmkid(zeigermac, zeigerpmkidakt);
+		zeigerhsakt = gethandshake(zeigermac, zeigerhsakt);
 		}
 	zeigermacold = zeigermac;
 	}
@@ -1593,7 +1593,7 @@ static handshakelist_t *zeiger;
 
 if(donotcleanflag == true) return false;
 zeiger = handshakelistptr;
-for(c = 0; c < 10; c ++)
+for(c = 0; c < 20; c ++)
 	{
 	zeiger--;
 	if(zeiger < handshakelist) return false;
@@ -1618,6 +1618,7 @@ static handshakelist_t *handshakelistnew;
 static messagelist_t *zeiger;
 
 eapolmpcount++;
+
 if((mpfield &ST_APLESS) != ST_APLESS)
 	{
 	for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
