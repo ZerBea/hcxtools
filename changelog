@@ -1,3 +1,16 @@
+20.05.2020
+==========
+hcxpcapngtool: print warning if out of sequence time stamps detected
+               hcxdumptool < 6.0.5 was affected, too and hcxpcapngtool will show you this warning
+               hcxdumptool 6.0.6 is fixed
+               improved conversion speed
+
+18.05.2020
+==========
+hcxpcapngtool: handle wrong time stamps in pwnagotchi cap files on --nonce-error-corrections > 0
+In that case we can't rely on EAPOL TIME OUT 
+
+
 01.05.2020
 ==========
 hcxpcapngtool: handle vendor defined action frames (eg: AWDL)
