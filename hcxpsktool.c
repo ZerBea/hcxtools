@@ -175,7 +175,7 @@ static int cn;
 
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-static const char *adjectiv[] = { "absurd", "agency", "ago", "album", "ancient", "anchor", "antique", "aquatic",
+static const char *firstword[] = { "absurd", "agency", "ago", "album", "ancient", "anchor", "antique", "aquatic",
 	"baby", "bakery", "basic", "bay", "better", "big", "bitter", "black", "blue", "bold", "botany", "bottled", "brave",
 	"breezy", "bridge", "brief", "bright", "brown",
 	"cable", "calm", "camera", "carrot", "cash", "charming", "cheerful", "chilly", "chip", "chorus", "chummy", "classy", "clean",
@@ -206,7 +206,7 @@ static const char *adjectiv[] = { "absurd", "agency", "ago", "album", "ancient",
 	"yellow", "young",
 	"zany", "zeal", "zebra" };
 
-static const char *substantiv[] = { "absent", "acre", "agency", "airplane", "album", "ape", "apple", "automobile",
+static const char *secondword[] = { "absent", "acre", "agency", "airplane", "album", "ape", "apple", "automobile",
 	"ball", "balloon", "banana", "beach", "bead", "bench", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "botany", "both",
 	"bottle", "box", "brain", "bread", "breeze", "bridge", "bubble", "bug", "bunny", "bush", "butter",
 	"canoe", "car", "carrot", "cartoon", "cello", "chair", "chat", "cheese", "chill", "chip", "coast", "coconut", "comet",
@@ -239,31 +239,30 @@ static const char *substantiv[] = { "absent", "acre", "agency", "airplane", "alb
 	"yard", "year",
 	"zeal", "zebra", "zoo" };
 
-for(ca = 0; ca < (sizeof(adjectiv) / sizeof(char *)); ca++)
+for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
-	for(cs = 0; cs < (sizeof(substantiv) / sizeof(char *)); cs++)
+	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
 		{
-		if(strcmp(adjectiv[ca], substantiv[cs]) == 0) continue;
-		snprintf(pskstring, 64, "%s%s", adjectiv[ca], substantiv[cs]);
+		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
+		snprintf(pskstring, 64, "%s%s", firstword[ca], secondword[cs]);
 		fprintf(fhout,"%s\n", pskstring);
 		for (cn = 0; cn < 1000; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%d", adjectiv[ca], substantiv[cs], cn);
+			snprintf(pskstring, 64, "%s%s%d", firstword[ca], secondword[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			if(cn < 10)
 				{
-				snprintf(pskstring, 64, "%s%s%02d", adjectiv[ca], substantiv[cs], cn);
+				snprintf(pskstring, 64, "%s%s%02d", firstword[ca], secondword[cs], cn);
 				fprintf(fhout,"%s\n", pskstring);
 				}
 			if(cn < 100)
 				{
-				snprintf(pskstring, 64, "%s%s%03d", adjectiv[ca], substantiv[cs], cn);
+				snprintf(pskstring, 64, "%s%s%03d", firstword[ca], secondword[cs], cn);
 				fprintf(fhout,"%s\n", pskstring);
 				}
 			}
 		}
 	}
-
 return;
 }
 /*===========================================================================*/
