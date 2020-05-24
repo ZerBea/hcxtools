@@ -190,7 +190,7 @@ static const char *firstword[] = { "absurd", "agency", "ago", "album", "ancient"
 	"key", "kind", "kite", 
 	"ladder", "large", "leader", "left", "lens", "light", "lime", "little", "lively", "locky", "lovely", "lucky", "lumpy",
 	"magical", "major", "manic", "mellow", "melodic", "middle", "mighty", "mirror", "misty", "modern", "month", 
-	"narrow", "nest", "new", "nice", "nifty", "noisy", "normal",
+	"narrow", "nest", "new", "nice", "nifty", "noisy", "normal", "north",
 	"oasis", "object", "occur", "ocean", "odd", "old", "orange", "ordinary",
 	"painless", "palm", "parade", "pass", "pastel", "peaceful", "perfect", "period", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite",
 	"poor", "praise", "precious", "pretty", "prose", "purple",
@@ -234,7 +234,7 @@ static const char *secondword[] = { "absent", "acre", "agency", "airplane", "alb
 	"table", "tablet", "teapot", "tent", "terrain", "theory", "tiger", "toast", "tomato", "town", "trail", "train", "tree", "truck",
 	"trumpet", "tuba", "tulip", "turkey",
 	"umbrella", "unicorn", "union", "unit", "useful",
-	"valley", "vase", "violet", "violin",
+	"valley", "vase", "verse", "violet", "violin",
 	"wagon", "wall", "walnut", "water", "whale", "wealth", "west", "wind", "window", "windy",
 	"yard", "year",
 	"zeal", "zebra", "zoo" };
