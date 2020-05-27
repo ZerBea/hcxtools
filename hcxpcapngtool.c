@@ -200,13 +200,17 @@ static long int eapolmsgtimestamperrorcount;
 static long int eapolmpcount;
 static long int eapolmpbestcount;
 static long int eapolm1count;
+static long int eapolm1kdv0count;
 static long int eapolm1ancount;
 static long int eapolm1errorcount;
 static long int eapolm2count;
+static long int eapolm2kdv0count;
 static long int eapolm2errorcount;
 static long int eapolm3count;
+static long int eapolm3kdv0count;
 static long int eapolm3errorcount;
 static long int eapolm4count;
+static long int eapolm4kdv0count;
 static long int eapolm4errorcount;
 static long int eapolwrittencount;
 static long int eapolncwrittencount;
@@ -440,13 +444,17 @@ eapolmsgtimestamperrorcount = 0;
 eapolmpbestcount = 0;
 eapolmpcount = 0;
 eapolm1count = 0;
+eapolm1kdv0count = 0;
 eapolm1ancount = 0;
 eapolm1errorcount = 0;
 eapolm2count = 0;
+eapolm2kdv0count = 0;
 eapolm2errorcount = 0;
 eapolm3count = 0;
+eapolm3kdv0count = 0;
 eapolm3errorcount = 0;
 eapolm4count = 0;
+eapolm4kdv0count = 0;
 eapolm4errorcount = 0;
 eapolwrittencount = 0;
 eapolncwrittencount = 0;
@@ -565,9 +573,13 @@ if(eapolnccount == 0)
 	if(rcgapmax > 0) printf("REPLAYCOUNT gap (measured maximum).......: %" PRIu64 "\n", rcgapmax);
 	}
 if(eapolm1count > 0)			printf("EAPOL M1 messages........................: %ld\n", eapolm1count);
+if(eapolm1kdv0count > 0)		printf("EAPOL M1 messages (AKM defined)..........: %ld\n", eapolm1kdv0count);
 if(eapolm2count > 0)			printf("EAPOL M2 messages........................: %ld\n", eapolm2count);
+if(eapolm2kdv0count > 0)		printf("EAPOL M2 messages (AKM defined)..........: %ld\n", eapolm2kdv0count);
 if(eapolm3count > 0)			printf("EAPOL M3 messages........................: %ld\n", eapolm3count);
+if(eapolm3kdv0count > 0)		printf("EAPOL M3 messages (AKM defined)..........: %ld\n", eapolm3kdv0count);
 if(eapolm4count > 0)			printf("EAPOL M4 messages........................: %ld\n", eapolm4count);
+if(eapolm4kdv0count > 0)		printf("EAPOL M4 messages (AKM defined)..........: %ld\n", eapolm4kdv0count);
 if(eapolmpcount > 0)			printf("EAPOL pairs (total)......................: %ld\n", eapolmpcount);
 if(zeroedeapolpmkcount > 0)		printf("EAPOL (over zeroed PMK)..................: %ld\n", zeroedeapolpmkcount);
 if(eapolmpbestcount > 0)		printf("EAPOL pairs (best).......................: %ld\n", eapolmpbestcount);
@@ -2180,7 +2192,11 @@ if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((keyver == 0) || (keyver > 3)) return;
+if((keyver == 0) || (keyver > 3))
+	{
+	eapolm4kdv0count++;
+	return;
+	}
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	if(fh_log != NULL) fprintf(fh_log, "EAPOL M4 wpa data len > eap authentication len: %ld\n", rawpacketcount);
@@ -2299,7 +2315,11 @@ if(authlen > restlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((keyver == 0) || (keyver > 3)) return;
+if((keyver == 0) || (keyver > 3))
+	{
+	eapolm3kdv0count++;
+	return;
+	}
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	if(fh_log != NULL) fprintf(fh_log, "EAPOL M3 wpa data len > eap authentication len: %ld\n", rawpacketcount);
@@ -2428,7 +2448,11 @@ if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((keyver == 0) || (keyver > 3)) return;
+if((keyver == 0) || (keyver > 3))
+	{
+	eapolm2kdv0count++;
+	return;
+	}
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	if(fh_log != NULL) fprintf(fh_log, "EAPOL M2 wpa data len > eap authentication len: %ld\n", rawpacketcount);
@@ -2587,7 +2611,11 @@ if(authlen > restlen) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((keyver == 0) || (keyver > 3)) return;
+if((keyver == 0) || (keyver > 3))
+	{
+	eapolm1kdv0count++;
+	return;
+	}
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	if(fh_log != NULL) fprintf(fh_log, "EAPOL M1 wpa data len > eap authentication len: %ld\n", rawpacketcount);
