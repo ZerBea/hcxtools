@@ -572,14 +572,14 @@ if(eapolnccount == 0)
 	printf("EAPOL ANONCE error corrections (NC)......: not detected\n");
 	if(rcgapmax > 0) printf("REPLAYCOUNT gap (measured maximum).......: %" PRIu64 "\n", rcgapmax);
 	}
-if(eapolm1count > 0)			printf("EAPOL M1 messages........................: %ld\n", eapolm1count);
-if(eapolm1kdv0count > 0)		printf("EAPOL M1 messages (AKM defined)..........: %ld\n", eapolm1kdv0count);
-if(eapolm2count > 0)			printf("EAPOL M2 messages........................: %ld\n", eapolm2count);
-if(eapolm2kdv0count > 0)		printf("EAPOL M2 messages (AKM defined)..........: %ld\n", eapolm2kdv0count);
-if(eapolm3count > 0)			printf("EAPOL M3 messages........................: %ld\n", eapolm3count);
-if(eapolm3kdv0count > 0)		printf("EAPOL M3 messages (AKM defined)..........: %ld\n", eapolm3kdv0count);
-if(eapolm4count > 0)			printf("EAPOL M4 messages........................: %ld\n", eapolm4count);
-if(eapolm4kdv0count > 0)		printf("EAPOL M4 messages (AKM defined)..........: %ld\n", eapolm4kdv0count);
+if(eapolm1count > 0)			printf("EAPOL M1 messages (total)................: %ld\n", eapolm1count);
+if(eapolm1kdv0count > 0)		printf("EAPOL M1 messages (KDV:0 AKM defined)....: %ld\n", eapolm1kdv0count);
+if(eapolm2count > 0)			printf("EAPOL M2 messages (total)................: %ld\n", eapolm2count);
+if(eapolm2kdv0count > 0)		printf("EAPOL M2 messages (KDV:0 AKM defined)....: %ld\n", eapolm2kdv0count);
+if(eapolm3count > 0)			printf("EAPOL M3 messages (total)................: %ld\n", eapolm3count);
+if(eapolm3kdv0count > 0)		printf("EAPOL M3 messages (KDV:0 AKM defined)....: %ld\n", eapolm3kdv0count);
+if(eapolm4count > 0)			printf("EAPOL M4 messages (total)................: %ld\n", eapolm4count);
+if(eapolm4kdv0count > 0)		printf("EAPOL M4 messages (KDV:0 AKM defined)....: %ld\n", eapolm4kdv0count);
 if(eapolmpcount > 0)			printf("EAPOL pairs (total)......................: %ld\n", eapolmpcount);
 if(zeroedeapolpmkcount > 0)		printf("EAPOL (over zeroed PMK)..................: %ld\n", zeroedeapolpmkcount);
 if(eapolmpbestcount > 0)		printf("EAPOL pairs (best).......................: %ld\n", eapolmpbestcount);
