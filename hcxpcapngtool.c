@@ -641,20 +641,20 @@ if(malformedcount > 10)
 		"a bit error in the payload it can lead to unexpected results.\n"
 		"Please analyze the dump file with Wireshark.\n");
 	}
-if((authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
-	{
-	printf("\nWarning: missing frames!\n"
-		"This dump file contains no important frames like\n"
-		"authentication, association or reassociation.\n"
-		"It always happens if the capture file was cleaned or\n"
-		"it could happen if filter options are used during capturing.\n"
-		"That makes it hard to recover the PSK.\n");
-	}
 if(proberequestcount == 0)
 	{
 	printf("\nWarning: missing frames!\n"
 		"This dump file contains no undirected proberequest frames.\n"
 		"An undirected proberequest may contain information about the PSK.\n"
+		"It always happens if the capture file was cleaned or\n"
+		"it could happen if filter options are used during capturing.\n"
+		"That makes it hard to recover the PSK.\n");
+	}
+if((authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
+	{
+	printf("\nWarning: missing frames!\n"
+		"This dump file contains no important frames like\n"
+		"authentication, association or reassociation.\n"
 		"It always happens if the capture file was cleaned or\n"
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it hard to recover the PSK.\n");
