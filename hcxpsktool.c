@@ -203,7 +203,7 @@ static const char *firstword[] = { "absurd", "agency", "ago", "album", "ancient"
 	"tablet", "teal", "terrific", "thirsty", "thoughtful", "timber", "tiny", "top", "town",
 	"uneven", "union", "unusual", "urban", "useful",
 	"vanilla", "vast", "verse", "violet", "violin",
-	"walnut", "warm", "watery", "weak", "west", "white", "wide", "wild", "wilde", "windy", "wise", "witty", "wonderful",
+	"walnut", "warm", "watch", "watery", "weak", "west", "white", "wide", "wild", "wilde", "windy", "wise", "witty", "wonderful",
 	"yellow", "young",
 	"zany", "zeal", "zebra" };
 
