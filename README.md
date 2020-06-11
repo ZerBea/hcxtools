@@ -32,8 +32,6 @@ Read this post: hcxtools - solution for capturing wlan traffic and conversion to
 Read this post: New attack on WPA/WPA2 using PMKID (https://hashcat.net/forum/thread-7717.html)
 
 
-
-
 Detailed description
 --------------
 
@@ -47,6 +45,8 @@ Detailed description
 | wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                             |
 | whoismac       | Show vendor information and/or download oui reference list                                                             |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+
+
 | deprecated     | obsolete when hashcat and JtR moved to new PMKID/EAPOL hash line - no longer under maintenance                         |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format     |
@@ -61,6 +61,7 @@ Detailed description
 | wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000 or john PBKDF2-HMAC-SHA1                        |
 | wlanjohn2hcx   | Converts john wpapsk hashfiles for use with hashcat hash-modes 2500, 2501                                              |
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                                  |
+
 
 Get source
 --------------
