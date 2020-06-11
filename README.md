@@ -44,7 +44,6 @@ Detailed description
 | hcxhash2cap    | Converts hash file (PMKID&EAPOL, PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                 |
 | wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                             |
 | whoismac       | Show vendor information and/or download oui reference list                                                             |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------- |
 
 
 | deprecated     | obsolete when hashcat and JtR moved to new PMKID/EAPOL hash line - no longer under maintenance                         |
