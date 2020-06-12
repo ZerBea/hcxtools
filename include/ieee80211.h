@@ -330,17 +330,27 @@ struct vendorie_tag
 {
  uint8_t		oui[3];
  uint8_t		ouitype;
-#define	VT_WPA_IE	1
-#define	VT_WMM_IE	2
-#define	VT_WPS_IE	4
+#define	VT_WPA_IE	0x01
+#define	VT_WMM_IE	0x02
+#define	VT_WPS_IE	0x04
+#define	VT_AWDL_IE	0x08
+#define	VT_NAN_IE	0x13
  uint8_t		data[1];
 } __attribute__ ((packed));
 typedef struct vendorie_tag vendorie_t;
 #define	VENDORIE_SIZE offsetof(vendorie_t, data)
 
-static const uint8_t mscorp[3] =
+static const uint8_t ouimscorp[3] =
 {
 0x00, 0x50, 0xf2
+};
+static const uint8_t ouiapple[3] =
+{
+0x00, 0x17, 0xf2
+};
+static const uint8_t ouiwifialliance[3] =
+{
+0x50, 0x6f, 0x9a
 };
 /*===========================================================================*/
 struct rsnie_tag
@@ -358,7 +368,6 @@ struct wpaie_tag
  uint8_t		oui[3];
  uint8_t		ouitype;
  uint16_t		type;
-#define	VT_WPA_IE	1
  uint8_t		data[1];
 } __attribute__ ((packed));
 typedef struct wpaie_tag wpaie_t;
@@ -512,10 +521,6 @@ struct actionvendor_frame
 };
 typedef struct actionvendor_frame actvf_t;
 #define ACTIONVENDORFRAME_SIZE (sizeof(actvf_t))
-static const uint8_t ouiapple[3] =
-{
-0x00, 0x17, 0xf2
-};
 /*===========================================================================*/
 struct eapauthentication_s
 {

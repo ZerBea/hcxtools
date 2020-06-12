@@ -1874,7 +1874,7 @@ ieptr += WPAIE_SIZE;
 if(wpaptr->type != VT_WPA_IE) return false;
 zeiger->kdversion |= KV_WPAIE;
 gsuiteptr = (suite_t*)ieptr; 
-if(memcmp(gsuiteptr->oui, &mscorp, 3) == 0)
+if(memcmp(gsuiteptr->oui, &ouimscorp, 3) == 0)
 	{
 	if(gsuiteptr->type == CS_WEP40) zeiger->groupcipher |= TCS_WEP40;
 	if(gsuiteptr->type == CS_TKIP) zeiger->groupcipher |= TCS_TKIP;
@@ -1897,7 +1897,7 @@ if(csuitecountptr->count *4 > wpalen)
 for(c = 0; c < csuitecountptr->count; c++)
 	{
 	csuiteptr = (suite_t*)ieptr; 
-	if(memcmp(csuiteptr->oui, &mscorp, 3) == 0)
+	if(memcmp(csuiteptr->oui, &ouimscorp, 3) == 0)
 		{
 		if(csuiteptr->type == CS_WEP40) zeiger->cipher |= TCS_WEP40;
 		if(csuiteptr->type == CS_TKIP) zeiger->cipher |= TCS_TKIP;
@@ -1923,7 +1923,7 @@ if(asuitecountptr->count *4 > wpalen)
 for(c = 0; c < asuitecountptr->count; c++)
 	{
 	asuiteptr = (suite_t*)ieptr; 
-	if(memcmp(asuiteptr->oui, &mscorp, 3) == 0)
+	if(memcmp(asuiteptr->oui, &ouimscorp, 3) == 0)
 		{
 		if(asuiteptr->type == AK_PMKSA) zeiger->akm |= TAK_PMKSA;
 		if(asuiteptr->type == AK_PSK) zeiger->akm |= TAK_PSK;
@@ -1956,7 +1956,7 @@ static const uint8_t hcxoui[] =
 };
 
 wpaptr = (wpaie_t*)ieptr;
-if(memcmp(wpaptr->oui, &mscorp, 3) == 0)
+if(memcmp(wpaptr->oui, &ouimscorp, 3) == 0)
 	{
 	if((wpaptr->ouitype == VT_WPA_IE) && (vendorlen >= WPAIE_LEN_MIN))
 		{
@@ -3208,6 +3208,8 @@ static actvf_t *actvf;
 if(packetlen < ACTIONVENDORFRAME_SIZE) return;
 actvf = (actvf_t*)packetptr;
 if(memcmp(actvf->vendor, &ouiapple, 3) == 0) awdlcount++;
+
+
 return;
 }
 /*===========================================================================*/
@@ -3219,8 +3221,6 @@ if(packetlen < ACTIONFRAME_SIZE) return;
 actf = (actf_t*)packetptr;
 actioncount++;
 if(actf->categoriecode == CAT_VENDOR) process80211actionvendor(packetlen, packetptr);
-
-
 return;
 }
 /*===========================================================================*/
