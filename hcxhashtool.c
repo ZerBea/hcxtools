@@ -188,8 +188,8 @@ if(flagfilterouiclient == true)
 	}
 if(flagfilterapless == true)		printf("filter by M2...........: requested from client (AP-LESS)\n");
 if(flagfilterrcchecked == true)		printf("filter by replaycount..: checked\n");
-if(flagfilterauthorized == true)	printf("filter by status.......: authorized\n");
-if(flagfilternotauthorized == true)	printf("filter by status.......: not authorized\n");
+if(flagfilterauthorized == true)	printf("filter by status.......: authorized (M1M4, M2M3 or M3M4)\n");
+if(flagfilternotauthorized == true)	printf("filter by status.......: challenge (M1M2)\n");
 if(pmkidwrittencount > 0)		printf("PMKID written..........: %ld\n", pmkidwrittencount);
 if(eapolwrittencount > 0)		printf("EAPOL written..........: %ld\n", eapolwrittencount);
 if(hccapxwrittencount > 0)		printf("EAPOL written to hccapx: %ld\n", hccapxwrittencount);
@@ -1235,7 +1235,7 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO....: ROGUE attack / NC not required\n");
 	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO....: little endian router / NC LE suggested\n");
 	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO....: big endian router / NC BE suggested\n");
-	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2.: not authorized\n");
+	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2.: challenge\n");
 	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4.: authorized\n");
 	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2.: authorized\n");
 	if((zeiger->mp & 0x07) == 0x03) fprintf(fh_pmkideapol, "MP M2M3 E3.: authorized\n");
