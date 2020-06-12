@@ -590,12 +590,12 @@ if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx...
 if(eapolncwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx............: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
 if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap.............: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
 if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format....: %ld (RC checked)\n", eapolwrittenjcountdeprecated);
-if(eapolm12e2count > 0)			printf("EAPOL M12E2..............................: %ld\n", eapolm12e2count);
-if(eapolm14e4count > 0)			printf("EAPOL M14E4..............................: %ld\n", eapolm14e4count);
-if(eapolm32e2count > 0)			printf("EAPOL M32E2..............................: %ld\n", eapolm32e2count);
-if(eapolm32e3count > 0)			printf("EAPOL M32E3..............................: %ld\n", eapolm32e3count);
-if(eapolm34e3count > 0)			printf("EAPOL M34E3..............................: %ld\n", eapolm34e3count);
-if(eapolm34e4count > 0)			printf("EAPOL M34E4..............................: %ld\n", eapolm34e4count);
+if(eapolm12e2count > 0)			printf("EAPOL M12E2 (challenge)..................: %ld\n", eapolm12e2count);
+if(eapolm14e4count > 0)			printf("EAPOL M14E4 (authorized).................: %ld\n", eapolm14e4count);
+if(eapolm32e2count > 0)			printf("EAPOL M32E2 (authorized).................: %ld\n", eapolm32e2count);
+if(eapolm32e3count > 0)			printf("EAPOL M32E3 (authorized).................: %ld\n", eapolm32e3count);
+if(eapolm34e3count > 0)			printf("EAPOL M34E3 (authorized).................: %ld\n", eapolm34e3count);
+if(eapolm34e4count > 0)			printf("EAPOL M34E4 (authorized).................: %ld\n", eapolm34e4count);
 if(pmkidcount > 0)			printf("PMKID (total)............................: %ld\n", pmkidcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless)..........................: %ld\n", pmkiduselesscount);
 if(zeroedpmkidpmkcount > 0)		printf("PMKID (over zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
