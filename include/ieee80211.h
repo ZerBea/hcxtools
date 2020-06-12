@@ -331,6 +331,7 @@ struct vendorie_tag
  uint8_t		oui[3];
  uint8_t		ouitype;
 #define	VT_WPA_IE	0x01
+#define	VT_RSN_IE	0x02
 #define	VT_WMM_IE	0x02
 #define	VT_WPS_IE	0x04
 #define	VT_AWDL_IE	0x08
@@ -355,7 +356,6 @@ static const uint8_t ouiwifialliance[3] =
 /*===========================================================================*/
 struct rsnie_tag
 {
-#define	VT_RSN_IE	2
  uint16_t		version;
  uint8_t		data[1];
 } __attribute__((__packed__));
