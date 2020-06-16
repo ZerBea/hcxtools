@@ -142,21 +142,21 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *firstword[] = { "absurd", "agency", "ago", "album", "ancient", "anchor", "antique", "aquatic", "author",
 	"baby", "bakery", "basic", "bay", "better", "big", "bitter", "black", "blue", "bold", "botany", "bottled", "brave",
-	"breezy", "bridge", "brief", "bright", "brown",
+	"breezy", "brew", "bridge", "brief", "bright", "brown",
 	"cable", "calm", "camera", "carrot", "cash", "charming", "cheerful", "chilly", "chip", "chorus", "chummy", "classy", "clean",
 	"clear", "clever", "cloudy", "clumsy", "cold", "comet", "cool", "crispy", "curly",
-	"daily", "deep", "delightful", "dizzy", "down", "dusty", "dynamic",
+	"daily", "deep", "delightful", "dizzy", "down", "dusty", "duty", "dynamic",
 	"eager", "east", "elated", "elegant", "emigrant", "energy", "engine", "every", "excite", "excited", "exotic", "eye",
 	"famous", "fancy", "fast", "fearless", "festive", "few", "finish", "fit", "fluent", "fluffy", "formal", "free", "fresh", "friendly", "funny", "fuzzy",
 	"gallon", "gentle", "gifted", "gigantic", "global", "good", "graceful", "grand", "great", "green",
 	"happy", "harbor", "heavy", "height", "helpful", "honor", "hot", "hotel", "hungry", "husky", "hybrid",
 	"icy", "idea", "imaginary", "invent", "invisible", "immune",
-	"jacket", "jagged", "jazz", "jewel", "jolly", "joyful", "joyous",
+	"jacket", "jagged", "jazz", "jewel", "jolly", "joyful", "joyous", "judge",
 	"key", "kind", "kite", 
 	"ladder", "large", "leader", "left", "lens", "light", "lime", "little", "lively", "locky", "lovely", "lucky", "lumpy",
 	"magical", "major", "manic", "mellow", "melodic", "middle", "mighty", "mirror", "misty", "mobile", "modern", "month", 
 	"narrow", "nest", "new", "nice", "nifty", "noisy", "normal", "north",
-	"oasis", "object", "occur", "ocean", "odd", "old", "only", "orange", "ordinary",
+	"oasis", "object", "occur", "ocean", "odd", "old", "olive", "only", "orange", "ordinary",
 	"painless", "palm", "parade", "pass", "pastel", "peaceful", "perfect", "period", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite",
 	"poor", "praise", "precious", "pretty", "prose", "purple",
 	"quaint", "quick", "quiet", "quote",
@@ -186,15 +186,15 @@ static const char *secondword[] = { "absent", "acre", "agency", "airplane", "alb
 	"jade", "jazz", "jeans", "jet", "jetcar", "jungle",
 	"kangaroo", "kayak", "key", "kite", "knight",
 	"lake", "lawn", "leader", "lemon", "light", "lightning", "lion", "lotus", "lump",
-	"mode", "mango", "menu", "mesa", "mint", "monkey", "month", "moon", "motorcycle", "mountain", "museum",
+	"mode", "mango", "menu", "mesa", "mint", "mirror", "monkey", "month", "moon", "motorcycle", "mountain", "museum",
 	"ness", "nest", "noble",
 	"oasis", "object", "oboe", "ocean", "octopus", "onion", "orange", "orchestra", "owl", "oxygen", 
 	"panda", "pant", "paper", "parade", "park", "path", "patron", "pear", "pencil", "penguin", "phrase", "phoenix", "piano", "pineapple",
 	"place", "plane", "planet", "pledge", "plum", "pocket", "poetry", "pond", "poodle", "potato", "prairie", "prose",
 	"quail", "quaint", "quick", "quote",
-	"rabbit", "raccoon", "raft", "raid", "rain", "raven", "reason", "remedy", "review", "reward", "river", "road", "rock", "robert", "rosebud",
+	"rabbit", "raccoon", "raft", "raid", "rain", "raven", "reason", "remedy", "review", "reward", "river", "road", "rock", "robert", "rock", "rosebud",
 	"ruby", "runner",
-	"safety", "sea", "seed", "shark", "sheep", "shelf", "ship", "shoe", "shore", "shrub", "side", "silver", "sitter", "skates", "skin", "sky", "sled",
+	"safety", "salute", "sea", "seed", "shark", "sheep", "shelf", "ship", "shoe", "shore", "shrub", "side", "silver", "sitter", "skates", "skin", "sky", "sled",
 	"snail", "snake", "soccer", "socks", "space", "spark", "sparrow", "spider", "squash", "squirrel", "stable", "star", "state", "statue", "stove",
 	"stream", "street", "studio", "sun",
 	"table", "tablet", "teapot", "tent", "terrain", "theory", "tiger", "toast", "tomato", "tooth", "town", "trail", "train", "tree", "truck",
@@ -1180,6 +1180,26 @@ for(k1 = 0; k1 < 10000; k1++)
 return;
 }
 /*===========================================================================*/
+static void testnet2g(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k;
+static const char *net2g = "NET_2G";
+
+static char essidtmp[PSKSTRING_LEN_MAX] = {};
+
+if(essidlen < 12) return;
+if(memcmp(essid, net2g, 6) != 0) return;
+if((isxdigit(essid[6])) && (isxdigit(essid[7])) && (isxdigit(essid[8])) && (isxdigit(essid[9])) && (isxdigit(essid[10])) && (isxdigit(essid[11])))
+	{
+	for(k = 0; k < 0x100; k++)
+		{
+		snprintf(essidtmp, PSKSTRING_LEN_MAX, "%02X%C%C%C%C%C%C", k, essid[6], essid[7], essid[8], essid[9], essid[10], essid[11]);
+		writepsk(fhout, essidtmp);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static void testroamingman(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2, k3;
@@ -1385,6 +1405,7 @@ testglocal(fhout, essidlen, essid);
 testhotbox(fhout, essidlen, essid);
 testmtel(fhout, essidlen, essid);
 testmywifi(fhout, essidlen, essid);
+testnet2g(fhout, essidlen, essid);
 testroamingman(fhout, essidlen, essid);
 testrtk(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
