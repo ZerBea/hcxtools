@@ -28,6 +28,7 @@ static int apessidcount;
 static int thisyear;
 
 static bool netgearflag;
+static bool askeyarrisflag;
 static bool digit10flag;
 static bool phomeflag;
 static bool tendaflag;
@@ -140,70 +141,160 @@ static int cn;
 
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-static const char *firstword[] = { "absurd", "agency", "ago", "album", "ancient", "anchor", "antique", "aquatic", "author",
-	"baby", "bakery", "basic", "bay", "better", "big", "bitter", "black", "blue", "bold", "botany", "bottled", "brave",
-	"breezy", "brew", "bridge", "brief", "bright", "brown",
-	"cable", "calm", "camera", "carrot", "cash", "charming", "cheerful", "chilly", "chip", "chorus", "chummy", "classy", "clean",
-	"clear", "clever", "cloudy", "clumsy", "cold", "comet", "cool", "crispy", "curly",
-	"daily", "deep", "delightful", "dizzy", "down", "dusty", "duty", "dynamic",
-	"eager", "east", "elated", "elegant", "emigrant", "energy", "engine", "every", "excite", "excited", "exotic", "eye",
-	"famous", "fancy", "fast", "fearless", "festive", "few", "finish", "fit", "fluent", "fluffy", "formal", "free", "fresh", "friendly", "funny", "fuzzy",
-	"gallon", "gentle", "gifted", "gigantic", "global", "good", "graceful", "grand", "great", "green",
-	"happy", "harbor", "heavy", "height", "helpful", "honor", "hot", "hotel", "hungry", "husky", "hybrid",
-	"icy", "idea", "imaginary", "invent", "invisible", "immune",
-	"jacket", "jagged", "jazz", "jewel", "jolly", "joyful", "joyous", "judge",
-	"key", "kind", "kite", 
-	"ladder", "large", "leader", "left", "lens", "light", "lime", "little", "lively", "locky", "lovely", "lucky", "lumpy",
-	"magical", "major", "manic", "mellow", "melodic", "middle", "mighty", "mirror", "misty", "mobile", "modern", "month", 
-	"narrow", "nest", "new", "nice", "nifty", "noisy", "normal", "north",
-	"oasis", "object", "occur", "ocean", "odd", "old", "olive", "only", "orange", "ordinary",
-	"painless", "palm", "parade", "pass", "pastel", "peaceful", "perfect", "period", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite",
-	"poor", "praise", "precious", "pretty", "prose", "purple",
-	"quaint", "quick", "quiet", "quote",
-	"rain", "rapid", "red", "remote", "rocky", "rough", "round", "royal", "runner", "rustic",
-	"safe", "safety", "salute", "sandy", "sharp", "shiny", "short", "silent", "silky", "silly", "slender", "slow",
-	"slower", "small", "smart", "smiley", "smiling", "smooth", "snug", "soft", "sour", "spirit", "stealth","still", "strange", "strong",
-	"summit", "sunny", "super", "sweet", "swift", "swing",
-	"tablet", "teal", "terrific", "thirsty", "thoughtful", "timber", "tiny", "top", "town",
-	"uneven", "union", "unusual", "urban", "useful",
-	"vanilla", "vast", "verse", "violet", "violin",
-	"walnut", "warm", "watch", "watery", "weak", "west", "white", "wide", "wild", "wilde", "windy", "wise", "witty", "wonderful", "worth",
-	"yellow", "young",
-	"zany", "zeal", "zebra" };
+static const char *firstword[] =
+{ 
+"ancient", "aquatic",
+"basic", "black", "blue", "bold", "brave", "breezy", "bright",
+"calm", "cheerful", "chummy", "classy", "clever", "cloudy", "cool", "crispy", "curly",
+"daily", "deep", "delightful", "dizzy", "dynamic",
+"elated", "elegant", "excited", "exotic",
+"fancy", "fearless", "festive", "fluffy", "free", "fresh", "friendly", "fuzzy",
+"gentle", "gifted", "gigantic", "graceful", "grand", "great", "green",
+"happy", "heavy", "helpful", "hungry", "husky",
+"icy", "imaginary",
+"jagged", "jolly", "joyous",
+"kind",
+"large", "little", "lively", "lucky",
+"magical", "manic", "melodic", "mighty", "misty", "modern",
+"narrow", "new", "nifty", "noisy",
+"odd", "orange",
+"pastel", "perfect", "phobic", "pink", "polite", "precious", "purple",
+"quaint", "quick", "quiet",
+"rapid", "red", "rocky", "round", "royal", "rustic",
+"shiny", "silent", "silky", "silly", "slow", "smiling", "smooth", "strong", "sunny", "sweet",
+"thirsty", "thoughtful", "tiny",
+"uneven", "unusual",
+"vanilla", "vast",
+"watery", "wide", "windy", "witty", "wonderful",
+"yellow", "young",
+"zany"
+};
 
-static const char *secondword[] = { "absent", "acre", "agency", "airplane", "album", "ape", "apple", "automobile",
-	"ball", "balloon", "banana", "beach", "bead", "bench", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "botany", "both",
-	"bottle", "box", "brain", "bread", "breeze", "bridge", "bubble", "bug", "bunny", "bush", "butter",
-	"canoe", "car", "cat", "carrot", "cartoon", "cello", "chair", "chat", "cheese", "chill", "chip", "city", "coast", "coconut", "comet",
-	"cream", "crown", "curly", "curtain",
-	"daisy", "deal", "deer", "desk", "diamond", "dink", "dog", "doll", "domain", "door",
-	"eagle", "earth", "elephant", "emerald", "energy", "epic",
-	"farmer", "field", "finch", "finish", "fire", "fish", "flamingo", "floor", "flower", "fluent", "flute", "forest", "formal", "free", "friend",
-	"fruit",
-	"gadfly", "gate", "gear", "giant", "giraffe", "girl", "global", "glove", "grain", "grape", "grasshopper", "guppy", "guitar",
-	"hair", "hall", "hand", "hat", "hill", "hippo", "horse", "hotel", "house",
-	"idea", "immune", "ink", "iris", "island",
-	"jade", "jazz", "jeans", "jet", "jetcar", "jungle",
-	"kangaroo", "kayak", "key", "kite", "knight",
-	"lake", "lawn", "leader", "lemon", "light", "lightning", "lion", "lotus", "lump",
-	"mode", "mango", "menu", "mesa", "mint", "mirror", "monkey", "month", "moon", "motorcycle", "mountain", "museum",
-	"ness", "nest", "noble",
-	"oasis", "object", "oboe", "ocean", "octopus", "onion", "orange", "orchestra", "owl", "oxygen", 
-	"panda", "pant", "paper", "parade", "park", "path", "patron", "pear", "pencil", "penguin", "phrase", "phoenix", "piano", "pineapple",
-	"place", "plane", "planet", "pledge", "plum", "pocket", "poetry", "pond", "poodle", "potato", "prairie", "prose",
-	"quail", "quaint", "quick", "quote",
-	"rabbit", "raccoon", "raft", "raid", "rain", "raven", "reason", "remedy", "review", "reward", "river", "road", "rock", "robert", "rock", "rosebud",
-	"ruby", "runner",
-	"safety", "salute", "sea", "seed", "shark", "sheep", "shelf", "ship", "shoe", "shore", "shrub", "side", "silver", "sitter", "skates", "skin", "sky", "sled",
-	"snail", "snake", "soccer", "socks", "space", "spark", "sparrow", "spider", "squash", "squirrel", "stable", "star", "state", "statue", "stove",
-	"stream", "street", "studio", "sun",
-	"table", "tablet", "teapot", "tent", "terrain", "theory", "tiger", "toast", "tomato", "tooth", "town", "trail", "train", "tree", "truck",
-	"trumpet", "tuba", "tulip", "turkey", "turtle",
-	"umbrella", "unicorn", "union", "unit", "useful",
-	"vacant", "valley", "vase", "verse", "violet", "violin",
-	"wagon", "wall", "walnut", "water", "whale", "wealth", "west", "wind", "window", "windy",
-	"yard", "year",
-	"zeal", "zebra", "zoo" };
+static const char *secondword[] =
+{
+"airplane", "apple",
+"balloon", "banana", "berry", "bird", "boat", "bolt", "box", "breeze", "bug", "butter",
+"canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "coconut", "comet", "cream", "curtain",
+"daisy", "diamond",
+"earth", "ecasa", "elephant",
+"finch", "fire", "fish", "flamingo", "flower", "flute",
+"gadfly", "giant", "grasshopper",
+"hat", "hill", "hippo",
+"ink", "iris",
+"jade", "jet", "jetcar", "jungle",
+"kangaroo", "kayak",
+"lake", "lightning", "lotus",
+"mango", "mesa", "mint", "moon", "mountain",
+"nest",
+"oboe", "ocean", "octopus", "onion", "orchestra", "owl",
+"panda", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "potato", "prairie",
+"quail",
+"rabbit", "raccoon", "raven", "river", "road", "rosebud",
+"sea", "sheep", "ship", "shoe", "shrub", "skates", "sky", "socks", "sparrow", "spider", "squash", "squirrel", "star", "street", "sun",
+"table", "teapot", "tomato", "trail", "train", "tree", "trumpet", "tuba", "tulip",
+"umbrella", "unicorn", "unit",
+"valley", "vase", "violet", "violin",
+"water", "wind", "window",
+"zoo"
+};
+
+for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
+		{
+		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
+		snprintf(pskstring, 64, "%s%s", firstword[ca], secondword[cs]);
+		fprintf(fhout,"%s\n", pskstring);
+		for (cn = 0; cn < 1000; cn++)
+			{
+			snprintf(pskstring, 64, "%s%s%d", firstword[ca], secondword[cs], cn);
+			fprintf(fhout,"%s\n", pskstring);
+			if(cn < 10)
+				{
+				snprintf(pskstring, 64, "%s%s%02d", firstword[ca], secondword[cs], cn);
+				fprintf(fhout,"%s\n", pskstring);
+				}
+			if(cn < 100)
+				{
+				snprintf(pskstring, 64, "%s%s%03d", firstword[ca], secondword[cs], cn);
+				fprintf(fhout,"%s\n", pskstring);
+				}
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void keywriteaskeyarris(FILE *fhout)
+{
+static size_t ca, cs;
+static int cn;
+
+static char pskstring[PSKSTRING_LEN_MAX] = {};
+
+static const char *firstword[] =
+{ 
+"absurd", "agency", "anchor", "ancient", "aquatic", "author",
+"bakery", "basic", "better", "black", "blue", "bold", "botany", "brave", "breezy", "brew", "bridge", "bright",
+"calm", "camera", "cheerful", "chilly", "chorus", "classy", "clean", "clever", "cloudy", "clumsy", "cool", "crispy", "curly",
+"daily", "deep", "dizzy", "dusty", "duty", "dynamic",
+"eager", "eagle", "elated", "elegant", "energy", "engine", "excited", "exotic",
+"famous", "fancy", "fast", "festive", "finish", "fluent", "fluffy", "formal", "free", "fresh", "funny", "fuzz",
+"gallon", "gentle", "gifted", "global", "grand", "great", "green",
+"happy", "harbor", "heavy", "height", "helpful", "honor", "hungry", "husky",
+"icy", "idea", "imaginary", "immune", "invent",
+"jacket", "jagged", "jewel", "jolly",
+"kind", "kite",
+"ladder", "large", "left", "light", "little", "lively", "lucky",
+"magical", "major", "manic", "mellow", "melodic", "mighty", "mirror", "misty", "mobile", "modern", "month",
+"nest", "new", "nifty", "noisy", "north",
+"oasis", "objec", "ocean", "odd", "olive", "orange",
+"palm", "parade", "pastel", "perfect", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite", "praise", "purple",
+"quaint", "quick", "quiet", "quote",
+"rain", "rapid", "red", "rocky", "round", "royal", "runner", "rustic",
+"salute", "shiny", "short", "silent", "silky", "silly", "slow", "small", "smart", "smiley", "smiling", "smooth", "stealth",
+"strong", "summit", "sunny", "super", "sweet", "swift",
+"tablet", "teal", "terrific", "thirsty", "timber", "tiny", "town",
+"uneven", "union", "unusual", "useful",
+"vanilla", "vast", "verse", "violet", "violin",
+"warm", "watch", "watery", "west", "wide", "windy", "witty", "wonderful",
+"yellow", "young",
+"zany", "zeal", "zebra"
+};
+
+static const char *secondword[] =
+{
+"agency", "airplane", "album", "apple",
+"ball", "balloon", "banana", "bench", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "botany", "box",
+"brain", "bread", "breeze", "bridge", "bubble", "bug", "bunny", "butter",
+"canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "city", "coconut", "comet", "cream", "crown", "curtain",
+"daisy", "deer", "desk", "diamond", "dog", "doll", "domain",
+"eagle", "earth", "energy", "epic",
+"farmer", "field", "finch", "finish", "fire", "fish", "flower", "fluent", "flute", "formal", "friend",
+"gadfly", "gate", "giant", "global", "grain", "green", "guppy",
+"hand", "hat", "hill", "hippo", "horse", "hotel", "house",
+"idea", "immune", "ink", "iris", "island",
+"jazz", "jeans", "jet", "jungle",
+"kayak", "key", "kite", "knight",
+"lake", "lawn", "leader", "lemon", "light", "lion", "lotus",
+"mango", "mesa", "mint", "mirror", "mobile", "month", "moon", "museum",
+"nest", "nwagon",
+"object", "oboe", "ocean", "octopus", "onion", "owl", "oxygen",
+"panda", "pant", "parade", "park", "pear", "pencil", "phoenix", "piano", "planet", "pledge", "plum", "pocket", "pond",
+"poodle", "potato", "prairie", "prose",
+"quail", "quaint", "quick", "quote",
+"rabbit", "raccoon", "raft", "raven", "reason", "reward", "river", "road", "rock", "rosebud", "runner",
+"sea", "seed", "shark", "sheep", "shelf", "ship", "shoe", "shrub", "skates", "sky", "sled", "snail", "snake", "soccer",
+"socks", "space", "spark", "sparrow", "spider", "squash", "squirrel", "stable", "star", "state", "stove", "street",
+"studio", "sun",
+"table", "tablet", "teapot", "tent", "theory", "tiger", "tomato", "town", "trail", "train", "tree", "truck", "trumpet",
+"tuba", "tulip", "turkey", "turtle",
+"unicorn", "union", "unit", "useful",
+"valley", "vase", "verse", "violet", "violin",
+"wagon", "water", "west", "whale", "wind", "window", "windy",
+"yard", "ysocks",
+"zeal", "zebra", "zoo"
+};
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
@@ -1640,6 +1731,7 @@ return;
 static void processadditionals(FILE *fhout)
 {
 if(netgearflag == true) keywritenetgear(fhout);
+if(askeyarrisflag == true) keywriteaskeyarris(fhout);
 if(digit10flag == true) keywritedigit10(fhout);
 if(phomeflag == true) keywritephome(fhout);
 if(tendaflag == true)
@@ -2041,7 +2133,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
-	"--netgear     : include weak NETGEAR candidates\n"
+	"--netgear     : include weak NETGEAR / ORBI candidates\n"
+	"--askeyarris  : include weak MySpectrumWiFI / SpectrumSetup / MyCharterWiFI candidates\n"
 	"--digit10     : include weak 10 digit candidates (INFINITUM, ALHN, INEA)\n"
 	"--phome       : include weak PEGATRON HOME candidates\n"
 	"--tenda       : include weak TENDA candidates\n"
@@ -2085,6 +2178,7 @@ static char *macapname = NULL;
 static char *pskname = NULL;
 
 netgearflag = false;
+askeyarrisflag = false;
 digit10flag = false;
 phomeflag = false;
 tendaflag = false;
@@ -2099,6 +2193,7 @@ static const char *short_options = "c:i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
+	{"askeyarris",			no_argument,		NULL,	HCXD_ASKEYARRIS},
 	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
 	{"phome",			no_argument,		NULL,	HCXD_PHOME},
 	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
@@ -2121,6 +2216,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		{
 		case HCXD_NETGEAR:
 		netgearflag = true;
+		break;
+
+		case HCXD_ASKEYARRIS:
+		askeyarrisflag = true;
 		break;
 
 		case HCXD_DIGIT10:
