@@ -62,6 +62,11 @@ Detailed description
 | wlanhcx2john   | Converts hccapx to format expected by John the Ripper                                                                  |
 
 
+Dependency
+--------------
+sudo apt-get install libz-dev
+
+
 Get source
 --------------
 ```
