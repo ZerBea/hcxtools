@@ -237,7 +237,7 @@ static const char *firstword[] =
 "absurd", "agency", "anchor", "ancient", "aquatic", "author",
 "bakery", "basic", "better", "black", "blue", "bold", "botany", "brave", "breezy", "brew", "bridge", "bright",
 "calm", "camera", "cheerful", "chilly", "chorus", "classy", "clean", "clever", "cloudy", "clumsy", "cool", "crispy", "curly",
-"daily", "deep", "dizzy", "dusty", "duty", "dynamic",
+"daily", "deep", "dizzy", "domain", "dusty", "duty", "dynamic",
 "eager", "eagle", "elated", "elegant", "energy", "engine", "excited", "exotic",
 "famous", "fancy", "fast", "festive", "finish", "fluent", "fluffy", "formal", "free", "fresh", "funny", "fuzz",
 "gallon", "gentle", "gifted", "global", "grand", "great", "green",
@@ -256,7 +256,7 @@ static const char *firstword[] =
 "strong", "summit", "sunny", "super", "sweet", "swift",
 "tablet", "teal", "terrific", "thirsty", "timber", "tiny", "town",
 "uneven", "union", "unusual", "useful",
-"vanilla", "vast", "verse", "violet", "violin",
+"valley", "vanilla", "vast", "verse", "violet", "violin",
 "warm", "watch", "watery", "west", "wide", "windy", "witty", "wonderful",
 "yellow", "young",
 "zany", "zeal", "zebra"
