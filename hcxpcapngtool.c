@@ -504,7 +504,7 @@ if(actioncount > 0)			printf("ACTION (total)...........................: %ld\n",
 if(awdlcount > 0)			printf("AWDL (Apple Wireless Direct Link)........: %ld\n", awdlcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST.............................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
-if(proberesponsecount > 0)		printf("PROBERESONSE.............................: %ld\n", proberesponsecount);
+if(proberesponsecount > 0)		printf("PROBERESPONSE.............................: %ld\n", proberesponsecount);
 if(deauthenticationcount > 0)		printf("DEAUTHENTICATION (total).................: %ld\n", deauthenticationcount);
 if(disassociationcount > 0)		printf("DISASSOCIATION (total)...................: %ld\n", disassociationcount);
 if(authenticationcount > 0)		printf("AUTHENTICATION (total)...................: %ld\n", authenticationcount);
@@ -559,7 +559,7 @@ if(eapolrc4count > 0)			printf("EAPOL RC4 messages.......................: %ld\n
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n", eapolwpacount);
 if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
-if(essiddupemax > 0)			printf("ESSID changes (mesured maximum)..........: %ld (warning)\n", essiddupemax);
+if(essiddupemax > 0)			printf("ESSID changes (measured maximum)..........: %ld (warning)\n", essiddupemax);
 if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
 if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
