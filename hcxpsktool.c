@@ -280,7 +280,7 @@ static const char *secondword[] =
 "ladder", "lake", "lawn", "leader", "lemon", "light", "lion", "lotus",
 "mango", "mesa", "mint", "mirror", "mobile", "month", "moon", "museum",
 "nest", "nwagon",
-"object", "oboe", "ocean", "octopus", "onion", "owl", "oxygen",
+"oasis", "object", "oboe", "ocean", "octopus", "onion", "owl", "oxygen",
 "panda", "pant", "parade", "park", "pear", "pencil", "phoenix", "piano", "planet", "pledge", "plum", "pocket", "pond",
 "poodle", "potato", "prairie", "prose",
 "quail", "quaint", "quick", "quote",
