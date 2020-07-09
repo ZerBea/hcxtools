@@ -234,7 +234,7 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *firstword[] =
 { 
-"absurd", "agency", "anchor", "ancient", "aquatic", "author",
+"absurd", "agency", "album", "anchor", "ancient", "aquatic", "author",
 "bakery", "basic", "better", "black", "blue", "bold", "botany", "brave", "breezy", "brew", "bridge", "bright",
 "calm", "camera", "cheerful", "chilly", "chorus", "classy", "clean", "clever", "cloudy", "clumsy", "cool", "crispy", "curly",
 "daily", "damp", "deep", "dizzy", "domain", "dusty", "duty", "dynamic",
