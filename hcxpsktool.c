@@ -264,7 +264,7 @@ static const char *firstword[] =
 
 static const char *secondword[] =
 {
-"absent", "agency", "airplane", "album", "apple",
+"absent", "acre", "agency", "airplane", "album", "apple",
 "ball", "balloon", "banana", "bench", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "botany", "box",
 "brain", "bread", "breeze", "bridge", "bubble", "bug", "bunny", "butter",
 "canoe", "car", "carrot", "cartoon", "cello", "chair", "check", "cheese", "city", "coat", "coconut", "comet", "cream", "crown",
