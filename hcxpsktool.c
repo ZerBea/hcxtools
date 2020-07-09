@@ -279,7 +279,7 @@ static const char *secondword[] =
 "kayak", "key", "kite", "knight",
 "ladder", "lake", "lawn", "leader", "lemon", "light", "lion", "lotus",
 "mango", "mesa", "mint", "mirror", "mobile", "month", "moon", "museum",
-"nest", "nwagon",
+"nest", "noble",
 "oasis", "object", "oboe", "ocean", "octopus", "onion", "owl", "oxygen",
 "panda", "pant", "parade", "park", "pear", "pencil", "phoenix", "piano", "planet", "pledge", "plum", "pocket", "pond",
 "poodle", "potato", "prairie", "prose",
