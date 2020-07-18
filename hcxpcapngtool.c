@@ -2661,6 +2661,7 @@ if((zeiger->rc == myaktreplaycount) && (memcmp(&myaktanonce, zeiger->nonce, 32) 
 if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	{
 	pmkid = (pmkid_t*)(wpakptr +WPAKEY_SIZE);
+	if(pmkid->id != TAG_VENDOR) return;
 	if((pmkid->len == 0x14) && (pmkid->type == 0x04))
 		{
 		zeiger->message |= HS_PMKID;
