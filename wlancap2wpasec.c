@@ -162,7 +162,7 @@ while ((auswahl = getopt(argc, argv, "k:u:t:e:Rhv")) != -1)
 		case 'k':
 		if((strlen(optarg) == 32) && (optarg[strspn(optarg, "0123456789abcdefABCDEF")] == 0))
 			{
-			snprintf(keyheader, sizeof(keyheader), "key=%s32", optarg);
+			snprintf(keyheader, sizeof(keyheader), "key=%s", optarg);
 			printf("\x1B[32muser key set\x1B[0m\n");
 			}
 		else
