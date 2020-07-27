@@ -1155,6 +1155,9 @@ static hashlist_t *zeigerbegin;
 static hashlist_t *zeigerend;
 static struct stat statinfo;
 
+if(lcmax == 0) lcmax = pmkideapolcount;
+if(lcmin > lcmax) return;
+
 if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
@@ -1164,8 +1167,6 @@ if(pmkideapoloutname != NULL)
 		}
 	}
 qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_essid);
-
-if(lcmax == 0) lcmax = pmkideapolcount;
 
 zeigerbegin = hashlist;
 lc = 0;
@@ -2129,7 +2130,7 @@ if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
 if((pmkideapolcount > 0) && (pmkideapoloutname != NULL))
 	{
 	if((lcmin == 0) && (lcmax == 0)) writeeapolpmkidfile(pmkideapoloutname);
-	else if(lcmin <= lcmax) writelceapolpmkidfile(pmkideapoloutname, lcmin, lcmax);
+	else writelceapolpmkidfile(pmkideapoloutname, lcmin, lcmax);
 	}
 if((pmkideapolcount > 0) && (infooutname != NULL)) writeinfofile(infooutname);
 if((pmkideapolcount > 0) && (flagessidgroup == true)) writeeapolpmkidessidgroups();
