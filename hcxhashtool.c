@@ -1145,6 +1145,58 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
+static void writelceapolpmkidfile(char *pmkideapoloutname, long int lcmin, long int lcmax)
+{
+static long int lc;
+static FILE *fh_pmkideapol;
+static hashlist_t *zeiger;
+static hashlist_t *zeiger2;
+static hashlist_t *zeigerbegin;
+static hashlist_t *zeigerend;
+static struct stat statinfo;
+
+if(pmkideapoloutname != NULL)
+	{
+	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+		return;
+		}
+	}
+qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_essid);
+
+if(lcmax == 0) lcmax = pmkideapolcount;
+
+zeigerbegin = hashlist;
+lc = 0;
+for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
+	{
+	if(memcmp(zeigerbegin->essid, zeiger->essid, ESSID_LEN_MAX) == 0)
+		{
+		zeigerend = zeiger;
+		lc++;
+		}
+	else
+		{
+		if(((zeigerend -zeigerbegin) >= lcmin) && ((zeigerend -zeigerbegin) <= lcmax))
+			{
+			for(zeiger2 = zeigerbegin; zeiger2 <= zeigerend; zeiger2++) writepmkideapolhashline(fh_pmkideapol, zeiger2);
+			}
+		lc = 0;
+		zeigerbegin = zeiger;
+		}
+	}
+if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+if(pmkideapoloutname != NULL)
+	{
+	if(stat(pmkideapoloutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(pmkideapoloutname);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static void writeeapolpmkidfile(char *pmkideapoloutname)
 {
 static FILE *fh_pmkideapol;
@@ -1617,6 +1669,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                1 = PMKID\n"
 	"                                2 = EAPOL\n"
 	"                               default PMKID and EAPOL (1+2=3)\n"
+	"--hcx-min=<digit>            : disregard hashes with occurrence lower than hcx-min/ESSID\n"
+	"--hcx-max=<digit>            : disregard hashes with occurrence higher than hcx-min/ESSID\n"
 	"--essid-len                  : filter by ESSID length\n"
 	"                             : default ESSID length: %d...%d\n"
 	"--essid-min                  : filter by ESSID minimum length\n"
@@ -1669,6 +1723,8 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static int l;
+static int lcmin;
+static int lcmax;
 static int p1, p2;
 static int hashtypein;
 static int essidlenin;
@@ -1684,10 +1740,14 @@ static char *ouiinstring;
 static char *macinstring;
 static char *pmkinstring;
 
+
 static const char *short_options = "i:o:E:dhv";
 static const struct option long_options[] =
 {
 	{"type",			required_argument,	NULL,	HCX_HASH_TYPE},
+	{"hcx-min",			required_argument,	NULL,	HCX_HASH_MIN},
+	{"hcx-max",			required_argument,	NULL,	HCX_HASH_MAX},
+	{"essid-min",			required_argument,	NULL,	HCX_ESSID_MIN},
 	{"essid-group",			no_argument,		NULL,	HCX_ESSID_GROUP},
 	{"essid-len",			required_argument,	NULL,	HCX_ESSID_LEN},
 	{"essid-min",			required_argument,	NULL,	HCX_ESSID_MIN},
@@ -1759,6 +1819,8 @@ essidlenin = ESSID_LEN_MAX;
 essidlen = ESSID_LEN_MAX;
 essidlenmin = ESSID_LEN_MIN;
 essidlenmax = ESSID_LEN_MAX;
+lcmin = 0;
+lcmax = 0;
 
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
@@ -1846,6 +1908,14 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			fprintf(stderr, "only values 0...32 allowed\n");
 			exit(EXIT_FAILURE);
 			}
+		break;
+
+		case HCX_HASH_MIN:
+		lcmin = strtol(optarg, NULL, 10);
+		break;
+
+		case HCX_HASH_MAX:
+		lcmax = strtol(optarg, NULL, 10);
 		break;
 
 		case HCX_MAC_GROUP_AP:
@@ -2056,7 +2126,11 @@ if(fh_pmkideapol != NULL) readpmkideapolfile(fh_pmkideapol);
 if(hashtypein > 0) hashtype = hashtypein;
 
 if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
-if((pmkideapolcount > 0) && (pmkideapoloutname != NULL)) writeeapolpmkidfile(pmkideapoloutname);
+if((pmkideapolcount > 0) && (pmkideapoloutname != NULL))
+	{
+	if((lcmin == 0) && (lcmax == 0)) writeeapolpmkidfile(pmkideapoloutname);
+	else if(lcmin <= lcmax) writelceapolpmkidfile(pmkideapoloutname, lcmin, lcmax);
+	}
 if((pmkideapolcount > 0) && (infooutname != NULL)) writeinfofile(infooutname);
 if((pmkideapolcount > 0) && (flagessidgroup == true)) writeeapolpmkidessidgroups();
 if((pmkideapolcount > 0) && (flagmacapgroup == true)) writeeapolpmkidmacapgroups();
