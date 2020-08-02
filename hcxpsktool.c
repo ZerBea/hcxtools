@@ -292,7 +292,7 @@ static const char *secondword[] =
 "tuba", "tulip", "turkey", "turtle",
 "unicorn", "union", "unit", "useful",
 "valley", "vase", "verse", "violet", "violin",
-"wagon", "water", "west", "whale", "wind", "window", "windy",
+"wagon", "water", "west", "whale", "wind", "window", "windy", "wolf",
 "yard", "ysocks",
 "zeal", "zebra", "zoo"
 };
