@@ -587,6 +587,7 @@ if(stat(confdirname, &statinfo) == -1)
 if(mode == 'd')
 	{
 	downloadoui(ouinameuser);
+	return EXIT_SUCCESS;
 	}
 
 if(stat(ouinamesystemwide, &statinfo) == 0)
