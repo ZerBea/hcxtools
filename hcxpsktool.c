@@ -240,7 +240,7 @@ static const char *firstword[] =
 "daily", "damp", "deep", "degree", "dizzy", "domain", "dusty", "duty", "dynamic",
 "eager", "eagle", "elated", "elegant", "energy", "engine", "excited", "exotic",
 "famous", "fancy", "fast", "festive", "finish", "fluent", "fluffy", "formal", "free", "fresh", "funny", "fuzz",
-"gallon", "gentle", "gifted", "global", "gold", "grand", "great", "green",
+"gallon", "gentle", "giddy", "gifted", "global", "gold", "grand", "great", "green",
 "happy", "harbor", "heavy", "height", "helpful", "honor", "hotel", "hungry", "husky",
 "icy", "idea", "imaginary", "immune", "invent",
 "jacket", "jagged", "jazz", "jewel", "jolly",
