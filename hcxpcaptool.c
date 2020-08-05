@@ -570,6 +570,8 @@ if(hcxdumptoolcbflag == false)
 strftime(mintimestring, 32, "%d.%m.%Y %H:%M:%S", gmtime(&mintv.tv_sec));
 strftime(maxtimestring, 32, "%d.%m.%Y %H:%M:%S", gmtime(&maxtv.tv_sec));
 printf( "                                                \n"
+        "Warning: hcxpcaptool is deprecated! Please use hcxpcapngtool!\n"
+        "                                                \n"
 	"summary capture file:                           \n"
 	"---------------------\n"
 	"file name........................: %s\n"
