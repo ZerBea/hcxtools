@@ -257,7 +257,7 @@ static const char *firstword[] =
 "tablet", "tall", "teal", "terrific", "theory", "thirsty", "timber", "tiny", "town",
 "uneven", "union", "unusual", "useful",
 "valley", "vanilla", "vast", "verse", "violet", "violin",
-"warm", "watch", "watery", "west", "wide", "windy", "witty", "wonderful",
+"warm", "watch", "watery", "west", "wide", "windy", "witty", "wonderful", "writer",
 "yellow", "young",
 "zany", "zeal", "zebra"
 };
@@ -273,7 +273,7 @@ static const char *secondword[] =
 "eagle", "earth", "energy", "epic",
 "farmer", "field", "finch", "finish", "fire", "fish", "flower", "fluent", "flute", "formal", "friend", "fruit",
 "gadfly", "gate", "giant", "global", "grain", "green", "guppy",
-"hall", "hand", "hat", "hill", "hippo", "horse", "hotel", "house",
+"hall", "hand", "harbor", "hat", "hill", "hippo", "horse", "hotel", "house",
 "idea", "immune", "ink", "iris", "island",
 "jazz", "jeans", "jet", "jewel", "jungle",
 "kayak", "key", "kite", "knight",
