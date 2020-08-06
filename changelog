@@ -1,3 +1,11 @@
+06.08.2020
+==========
+release v 6.1.1
+improved warnings
+fixed handling of short options
+added several new weak candidates
+
+
 29.06.2020
 ==========
 release v 6.1.0
