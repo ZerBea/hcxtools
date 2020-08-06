@@ -618,7 +618,8 @@ if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).......: %
 if(sequenceerrorcount > 0)
 	{
 	printf("\nWarning: out of sequence timestamps!\n"
-		"This dump file contains frames with out of sequence timestamps.\n");
+		"This dump file contains frames with out of sequence timestamps.\n"
+		"That is a bug of the capturing tool.\n");
 	}
 if(zeroedtimestampcount > 0)
 	{
