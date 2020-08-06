@@ -619,19 +619,21 @@ if(sequenceerrorcount > 0)
 	{
 	printf("\nWarning: out of sequence timestamps!\n"
 		"This dump file contains frames with out of sequence timestamps.\n"
-		"That is a bug of the capturing tool.\n");
+		"It is a bug of the capturing tool.\n");
 	}
 if(zeroedtimestampcount > 0)
 	{
 	printf("\nWarning: missing timestamps!\n"
 		"This dump file contains frames with zeroed timestamps.\n"
-		"That prevent calculation of EAPOL TIMEOUT values.\n");
+		"That prevent calculation of EAPOL TIMEOUT values.\n"
+		"It is a bug of the capturing tool.\n");
 	}
 if(eapolmsgtimestamperrorcount > 0)
 	{
 	printf("\nWarning: wrong timestamps!\n"
 		"This dump file contains frames with wrong timestamps.\n"
-		"That prevent calculation of EAPOL TIMEOUT values.\n");
+		"That prevent calculation of EAPOL TIMEOUT values.\n"
+		"It is a bug of the capturing tool.\n");
 	}
 if(malformedcount > 10)
 	{
