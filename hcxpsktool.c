@@ -240,7 +240,7 @@ static const char *firstword[] =
 "daily", "damp", "deep", "degree", "dizzy", "domain", "dusty", "duty", "dynamic",
 "eager", "eagle", "elated", "elegant", "energy", "engine", "excited", "exotic",
 "famous", "fancy", "fast", "festive", "finish", "fluent", "fluffy", "formal", "free", "fresh", "funny", "fuzzy",
-"gallon", "gentle", "giddy", "gifted", "global", "gold", "grand", "great", "green",
+"gallon", "genius", "gentle", "giddy", "gifted", "global", "gold", "grand", "great", "green",
 "happy", "harbor", "heavy", "height", "helpful", "honor", "hotel", "hungry", "husky",
 "icy", "idea", "imaginary", "immune", "invent",
 "jacket", "jagged", "jazz", "jeans", "jewel", "jolly", "joyous",
@@ -249,7 +249,7 @@ static const char *firstword[] =
 "magical", "major", "manic", "mellow", "melodic", "mighty", "mirror", "misty", "mobile", "modern", "month",
 "narrow", "nest", "new", "nifty", "noisy", "north",
 "oasis", "object", "ocean", "odd", "olive", "orange",
-"palm", "parade", "pastel", "perfect", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite", "praise", "purple",
+"palm", "parade", "pastel", "patron", "perfect", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite", "praise", "purple",
 "quaint", "quick", "quiet", "quote",
 "rain", "rapid", "red", "rocky", "round", "royal", "runner", "rustic",
 "salute", "scary", "shiny", "shelf", "short", "silent", "silky", "silly", "slow", "small", "smart", "smiley", "smiling", "smooth", "spirit",
@@ -257,7 +257,7 @@ static const char *firstword[] =
 "tablet", "tall", "teal", "terrific", "theory", "thirsty", "timber", "tiny", "town",
 "uneven", "union", "unusual", "useful",
 "valley", "vanilla", "vast", "verse", "violet", "violin",
-"warm", "watch", "watery", "west", "wide", "windy", "witty", "wonderful", "writer",
+"warm", "watch", "watery", "west", "wide", "windy", "witty", "wonderful", "wooden", "writer",
 "yellow", "young",
 "zany", "zeal", "zebra"
 };
@@ -281,7 +281,7 @@ static const char *secondword[] =
 "major", "mango", "marble", "mesa", "mint", "mirror", "mobile", "month", "moon", "museum",
 "nest", "noble",
 "oasis", "object", "oboe", "ocean", "octopus", "onion", "owl", "oxygen",
-"panda", "pant", "parade", "park", "pear", "pencil", "phoenix", "piano", "planet", "pledge", "plum", "pocket", "pond",
+"palm", "panda", "pant", "parade", "park", "pear", "pencil", "phoenix", "piano", "planet", "pledge", "plum", "pocket", "pond",
 "poodle", "potato", "prairie", "prose",
 "quail", "quaint", "quick", "quote",
 "rabbit", "raccoon", "raft", "raven", "reason", "review", "reward", "river", "road", "rock", "rocket", "rosebud", "runner",
@@ -292,7 +292,7 @@ static const char *secondword[] =
 "tuba", "tulip", "turkey", "turtle",
 "unicorn", "union", "unit", "useful",
 "valley", "vase", "verse", "violet", "violin",
-"wagon", "water", "west", "whale", "wind", "window", "windy", "wolf",
+"wagon", "water", "west", "whale", "wind", "window", "windy", "wolf", "writer", 
 "yard", "ysocks",
 "zeal", "zebra", "zoo"
 };
