@@ -3685,6 +3685,7 @@ while(0 < restlen)
 		option->option_length = byte_swap_16(option->option_length);
 		}
 	padding = 0;
+	if(option->option_length > OPTIONLEN_MAX) return;
 	if((option->option_length  %4)) padding = 4 -(option->option_length %4);
 	if(option->option_code == SHB_EOC) return;
 	if(option->option_code == SHB_HARDWARE)
