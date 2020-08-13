@@ -3947,7 +3947,7 @@ while(1)
 			if(fh_log != NULL) fprintf(fh_log, "unsupported minor pcapng version: %d\n", pcapngshb->minor_version);
 			break;
 			}
-		if(pcapngoptionwalk(blocktype, pcapngshb->data, blocklen -SHB_SIZE) > 0) pcapreaderrors++;
+		if(pcapngoptionwalk(blocktype, pcapngshb->data, blocklen -SHB_SIZE) != 0) pcapreaderrors++;
 		}
 	else if(blocktype == IDBID)
 		{
@@ -3962,7 +3962,7 @@ while(1)
 			pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
 			}
 		snaplen = pcapngidb->snaplen;
-		if(pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE) > 0) pcapreaderrors++;
+		if(pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE) != 0) pcapreaderrors++;
 		if(snaplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
@@ -4081,7 +4081,7 @@ while(1)
 			{
 			padding = 4 -(pcapngepb->caplen %4);
 			}
-		if(pcapngoptionwalk(blocktype, pcapngepb->data +pcapngepb->caplen +padding, blocklen -EPB_SIZE -pcapngepb->caplen -padding) > 0) pcapreaderrors++;
+		if(pcapngoptionwalk(blocktype, pcapngepb->data +pcapngepb->caplen +padding, blocklen -EPB_SIZE -pcapngepb->caplen -padding) != 0) pcapreaderrors++;
 		}
 	else if(blocktype == CBID)
 		{
@@ -4101,7 +4101,7 @@ while(1)
 			skippedpacketcount++;
 			continue;
 			}
-		if(pcapngoptionwalk(blocktype, pcapngcb->data, blocklen -CB_SIZE) > 0) pcapreaderrors++;
+		if(pcapngoptionwalk(blocktype, pcapngcb->data, blocklen -CB_SIZE) != 0) pcapreaderrors++;
 		}
 	else
 		{
