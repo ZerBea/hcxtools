@@ -3684,7 +3684,7 @@ while(0 <= restlen)
 		option->option_code = byte_swap_16(option->option_code);
 		option->option_length = byte_swap_16(option->option_length);
 		}
-	if(option->option_code == SHB_EOC) return SHB_EOC;
+	if(option->option_code == SHB_EOC) return 0;
 	padding = 0;
 	if(option->option_length > OPTIONLEN_MAX) return option->option_length;
 	if((option->option_length  %4)) padding = 4 -(option->option_length %4);
@@ -3795,7 +3795,7 @@ while(0 <= restlen)
 	optr += option->option_length +padding +OH_SIZE;
 	restlen -= option->option_length +padding +OH_SIZE;
 	}
-return SHB_EOC;
+return 0;
 }
 /*===========================================================================*/
 void processpcapng(int fd, char *pcaporgname, char *pcapinname)
