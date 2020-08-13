@@ -190,7 +190,7 @@ static const char *secondword[] =
 "panda", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "potato", "prairie",
 "quail",
 "rabbit", "raccoon", "raven", "river", "road", "rosebud",
-"sea", "sheep", "ship", "shoe", "shrub", "skates", "sky", "socks", "sparrow", "spider", "squash", "squirrel", "star", "street", "sun",
+"sea", "sheep", "ship", "shoe", "shrub", "skates", "sky", "snail", "socks", "sparrow", "spider", "squash", "squirrel", "star", "street", "sun",
 "table", "teapot", "tomato", "trail", "train", "tree", "trumpet", "tuba", "tulip", "turkey", 
 "umbrella", "unicorn", "unit",
 "valley", "vase", "violet", "violin",
