@@ -3667,12 +3667,12 @@ printcontentinfo();
 return;
 }
 /*===========================================================================*/
-void pcapngoptionwalk(uint32_t blocktype, uint8_t *optr, int restlen)
+int pcapngoptionwalk(uint32_t blocktype, uint8_t *optr, int restlen)
 {
 static option_header_t *option;
 static int padding;
 
-while(0 < restlen)
+while(0 <= restlen)
 	{
 	option = (option_header_t*)optr;
 	#ifdef BIG_ENDIAN_HOST
@@ -3684,10 +3684,10 @@ while(0 < restlen)
 		option->option_code = byte_swap_16(option->option_code);
 		option->option_length = byte_swap_16(option->option_length);
 		}
+	if(option->option_code == SHB_EOC) return SHB_EOC;
 	padding = 0;
-	if(option->option_length > OPTIONLEN_MAX) return;
+	if(option->option_length > OPTIONLEN_MAX) return option->option_length;
 	if((option->option_length  %4)) padding = 4 -(option->option_length %4);
-	if(option->option_code == SHB_EOC) return;
 	if(option->option_code == SHB_HARDWARE)
 		{
 		if(option->option_length < OPTIONLEN_MAX)
@@ -3728,8 +3728,8 @@ while(0 < restlen)
 		{
 		if(option->option_length > 40)
 			{
-			if((memcmp(&option->data[0], &hcxmagic, 4) == 0) && (memcmp(&option->data[4], &hcxmagic, 32) == 0)) pcapngoptionwalk(blocktype, optr +OH_SIZE +36, option->option_length -36);
-			else if((memcmp(&option->data[1], &hcxmagic, 4) == 0) && (memcmp(&option->data[5], &hcxmagic, 32) == 0)) pcapngoptionwalk(blocktype, optr +OH_SIZE +1 +36, option->option_length -36);
+			if((memcmp(&option->data[0], &hcxmagic, 4) == 0) && (memcmp(&option->data[4], &hcxmagic, 32) == 0)) restlen = pcapngoptionwalk(blocktype, optr +OH_SIZE +36, option->option_length -36);
+			else if((memcmp(&option->data[1], &hcxmagic, 4) == 0) && (memcmp(&option->data[5], &hcxmagic, 32) == 0)) restlen = pcapngoptionwalk(blocktype, optr +OH_SIZE +1 +36, option->option_length -36);
 			}
 		}
 	else if(option->option_code == OPTIONCODE_MACORIG)
@@ -3795,7 +3795,7 @@ while(0 < restlen)
 	optr += option->option_length +padding +OH_SIZE;
 	restlen -= option->option_length +padding +OH_SIZE;
 	}
-return;
+return SHB_EOC;
 }
 /*===========================================================================*/
 void processpcapng(int fd, char *pcaporgname, char *pcapinname)
@@ -3947,7 +3947,7 @@ while(1)
 			if(fh_log != NULL) fprintf(fh_log, "unsupported minor pcapng version: %d\n", pcapngshb->minor_version);
 			break;
 			}
-		pcapngoptionwalk(blocktype, pcapngshb->data, blocklen -SHB_SIZE);
+		if(pcapngoptionwalk(blocktype, pcapngshb->data, blocklen -SHB_SIZE) > 0) pcapreaderrors++;
 		}
 	else if(blocktype == IDBID)
 		{
@@ -3962,7 +3962,7 @@ while(1)
 			pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
 			}
 		snaplen = pcapngidb->snaplen;
-		pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE);
+		if(pcapngoptionwalk(blocktype, pcapngidb->data, blocklen -IDB_SIZE) > 0) pcapreaderrors++;
 		if(snaplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
@@ -4081,7 +4081,7 @@ while(1)
 			{
 			padding = 4 -(pcapngepb->caplen %4);
 			}
-		pcapngoptionwalk(blocktype, pcapngepb->data +pcapngepb->caplen +padding, blocklen -EPB_SIZE -pcapngepb->caplen -padding);
+		if(pcapngoptionwalk(blocktype, pcapngepb->data +pcapngepb->caplen +padding, blocklen -EPB_SIZE -pcapngepb->caplen -padding) > 0) pcapreaderrors++;
 		}
 	else if(blocktype == CBID)
 		{
@@ -4101,7 +4101,7 @@ while(1)
 			skippedpacketcount++;
 			continue;
 			}
-		pcapngoptionwalk(blocktype, pcapngcb->data, blocklen -CB_SIZE);
+		if(pcapngoptionwalk(blocktype, pcapngcb->data, blocklen -CB_SIZE) > 0) pcapreaderrors++;
 		}
 	else
 		{
