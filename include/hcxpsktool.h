@@ -13,6 +13,7 @@
 #define HCXD_USDATE			7
 #define HCXD_WPSKEYS			8
 #define HCXD_DIGIT10			9
+#define HCXD_EGN			10
 #define HCXD_HELP			'h'
 #define HCXD_VERSION			'v'
 
