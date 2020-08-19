@@ -36,6 +36,7 @@ static bool weakpassflag;
 static bool eudateflag;
 static bool usdateflag;
 static bool wpskeysflag;
+static bool egnflag;
 
 static bool easyboxflag;
 static bool ukrtelecomflag;
@@ -653,6 +654,50 @@ for(y = 1900; y <= thisyear; y++)
 			}
 		}
 	}
+return;
+}
+/*===========================================================================*/
+static void keywriteegn(FILE *fhout)
+{
+static int y, m, d, mc, i, j, c;
+static char pskstring[PSKSTRING_LEN_MAX] = {};
+static int w[] = {2, 4, 8, 5, 10, 9, 7, 3, 6};
+
+for(y = 1950; y <= thisyear; y++)
+    {
+    if (y < 2000) mc = 0; else mc = 40;
+    for(m = 1; m <= 12; m++)
+        {
+        for(d = 1; d <= 31; d++)
+	        {
+	        if (m == 2)
+	        {
+	        if ((((y % 4 == 0) && (y % 100 != 0)) || (y % 400 == 0)))
+	            {
+	            if (d > 29) continue;
+	            } else {
+	            if (d > 28) continue;
+	            }
+	        }
+	        if ((m == 4 || m == 6 || m == 9 || m == 11) && d > 30) continue;
+
+	        for (i = 0; i < 1000; i++)
+	            {
+	            snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%02d%03d", y % 100, m + mc, d, i);
+	            c = 0;
+	            for (j = 0; j < 10; j++)
+	                {
+	                c += (pskstring[j] - 48) * w[j];
+	                }
+	            c %= 11;
+	            if (c == 10) c = 0;
+                pskstring[9] = c + 48;
+                pskstring[10] = 0;
+	            writepsk(fhout, pskstring);
+	            }
+	        }
+	    }
+    }
 return;
 }
 /*===========================================================================*/
@@ -1745,6 +1790,7 @@ if(eudateflag == true) keywriteeudate(fhout);
 if(usdateflag == true) keywriteusdate(fhout);
 if((eudateflag == true) || (usdateflag == true)) keywriteyearyear(fhout);
 if(wpskeysflag == true) writewpsall(fhout);
+if(egnflag == true) keywriteegn(fhout);
 return;
 }
 /*===========================================================================*/
@@ -2143,6 +2189,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--eudate      : include complete european dates\n"
 	"--usdate      : include complete american dates\n"
 	"--wpskeys     : include complete WPS keys\n"
+	"--egn         : include Bulgarian EGN\n"
 	"--help        : show this help\n"
 	"--version     : show version\n"
 	"\n"
@@ -2189,6 +2236,7 @@ usdateflag = false;
 wpskeysflag = false;
 easyboxflag = false;
 ukrtelecomflag = false;
+egnflag = false;
 
 static const char *short_options = "c:i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
@@ -2202,6 +2250,7 @@ static const struct option long_options[] =
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
 	{"wpskeys",			no_argument,		NULL,	HCXD_WPSKEYS},
+	{"egn",			no_argument,		NULL,	HCXD_EGN},
 	{"version",			no_argument,		NULL,	HCXD_VERSION},
 	{"help",			no_argument,		NULL,	HCXD_HELP},
 	{NULL,				0,			NULL,	0}
@@ -2249,6 +2298,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_WPSKEYS:
 		wpskeysflag = true;
+		break;
+
+		case HCXD_EGN:
+		egnflag = true;
 		break;
 
 		case HCXD_HELP:
