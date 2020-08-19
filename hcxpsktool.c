@@ -245,7 +245,7 @@ static const char *firstword[] =
 "happy", "harbor", "heavy", "height", "helpful", "honor", "hotel", "hungry", "husky",
 "icy", "idea", "imaginary", "immune", "invent",
 "jacket", "jagged", "jazz", "jeans", "jewel", "jolly", "joyous",
-"kettle", "kind", "kite",
+"kettle", "kind", "kite", "knight",
 "ladder", "large", "leader", "left", "light", "little", "lively", "loyal", "lucky", "loud",
 "magical", "major", "manic", "mellow", "melodic", "mighty", "mirror", "misty", "mobile", "modern", "month",
 "narrow", "nest", "new", "nifty", "noisy", "north",
