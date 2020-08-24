@@ -596,8 +596,8 @@ if(eapolm32e2count > 0)			printf("EAPOL M32E2 (authorized).................: %ld
 if(eapolm32e3count > 0)			printf("EAPOL M32E3 (authorized).................: %ld\n", eapolm32e3count);
 if(eapolm34e3count > 0)			printf("EAPOL M34E3 (authorized).................: %ld\n", eapolm34e3count);
 if(eapolm34e4count > 0)			printf("EAPOL M34E4 (authorized).................: %ld\n", eapolm34e4count);
-if(pmkidcount > 0)			printf("PMKID (total)............................: %ld\n", pmkidcount);
 if(pmkiduselesscount > 0)		printf("PMKID (useless)..........................: %ld\n", pmkiduselesscount);
+if(pmkidcount > 0)			printf("PMKID (total)............................: %ld\n", pmkidcount);
 if(zeroedpmkidpmkcount > 0)		printf("PMKID (over zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
 if(pmkidbestcount > 0)			printf("PMKID (best).............................: %ld\n", pmkidbestcount);
 if(pmkidroguecount > 0)			printf("PMKID ROGUE..............................: %ld\n", pmkidroguecount);
