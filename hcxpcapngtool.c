@@ -111,6 +111,8 @@ static int pmkidlistmax;
 static int eapmd5hashlistmax;
 static int eapleaphashlistmax;
 static int fd_pcap;
+static int capstat;
+static int pcapngstat;
 
 static int endianess;
 static uint16_t versionmajor;
@@ -4191,6 +4193,7 @@ if(magicnumber == PCAPNGBLOCKTYPE)
 	if(initlists() == true)
 		{
 		processpcapng(fd_pcap, pcapinname, pcapnameptr);
+		pcapngstat++;
 		close(fd_pcap);
 		closelists();
 		}
@@ -4202,6 +4205,7 @@ else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	if(initlists() == true)
 		{
 		processcap(fd_pcap, pcapinname, pcapnameptr);
+		capstat++;
 		close(fd_pcap);
 		closelists();
 		}
@@ -4620,6 +4624,8 @@ fh_pmkiddeprecated = NULL;
 fh_hccapxdeprecated = NULL;
 fh_hccapdeprecated = NULL;
 
+capstat = 0;
+pcapngstat = 0;
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
 	switch (auswahl)
@@ -5014,6 +5020,11 @@ if(hccapoutnamedeprecated != NULL)
 		if(statinfo.st_size == 0) remove(hccapoutnamedeprecated);
 		}
 	}
+if((pcapngstat == 0) && (capstat == 0)) return exitcode;
+printf("\nsession statistics\n------------------\n");
+if(pcapngstat > 0)		printf("processed pcapng files................: %d\n", pcapngstat);
+if(capstat > 0)			printf("processed cap files...................: %d\n", capstat);
+printf("\n");
 return exitcode;
 }
 /*===========================================================================*/
