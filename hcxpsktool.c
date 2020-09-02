@@ -174,7 +174,7 @@ static const char *firstword[] =
 static const char *secondword[] =
 {
 "airplane", "apple",
-"balloon", "banana", "berry", "bird", "boat", "bolt", "box", "breeze", "bug", "butter",
+"balloon", "banana", "berry", "bird", "boat", "bolt", "box", "brain", "breeze", "bug", "butter",
 "canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "coconut", "comet", "cream", "curtain",
 "daisy", "diamond",
 "earth", "ecasa", "elephant",
