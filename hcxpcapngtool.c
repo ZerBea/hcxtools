@@ -111,6 +111,9 @@ static int pmkidlistmax;
 static int eapmd5hashlistmax;
 static int eapleaphashlistmax;
 static int fd_pcap;
+
+static int gzipstat;
+static int pcapngstat;
 static int capstat;
 static int pcapngstat;
 
@@ -4167,6 +4170,7 @@ if(testgzipfile(pcapinname) == true)
 	memset(&tmpoutname, 0, PATH_MAX);
 	snprintf(tmpoutname, PATH_MAX, "/tmp/%s.tmp", basename(pcapinname));
 	if(decompressgz(pcapinname, tmpoutname) == false) return false;
+	gzipstat++;
 	pcaptempnameptr = tmpoutname;
 	pcapnameptr = tmpoutname;
 	}
@@ -4624,6 +4628,7 @@ fh_pmkiddeprecated = NULL;
 fh_hccapxdeprecated = NULL;
 fh_hccapdeprecated = NULL;
 
+gzipstat = 0;
 capstat = 0;
 pcapngstat = 0;
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
@@ -5020,8 +5025,9 @@ if(hccapoutnamedeprecated != NULL)
 		if(statinfo.st_size == 0) remove(hccapoutnamedeprecated);
 		}
 	}
-if((pcapngstat == 0) && (capstat == 0)) return exitcode;
-printf("\nsession statistics\n------------------\n");
+if((gzipstat == 0) && (pcapngstat == 0) && (capstat == 0)) return exitcode;
+printf("\nsession summary\n---------------\n");
+if(gzipstat > 0)		printf("gzip compressed dump files............: %d\n", gzipstat);
 if(pcapngstat > 0)		printf("processed pcapng files................: %d\n", pcapngstat);
 if(capstat > 0)			printf("processed cap files...................: %d\n", capstat);
 printf("\n");
