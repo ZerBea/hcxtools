@@ -188,7 +188,7 @@ static const char *secondword[] =
 "mango", "mesa", "mint", "moon", "mountain",
 "nest",
 "oboe", "ocean", "octopus", "onion", "orchestra", "owl",
-"panda", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "potato", "prairie",
+"panda", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "poodle", "potato", "prairie",
 "quail",
 "rabbit", "raccoon", "raven", "river", "road", "rosebud",
 "sea", "sheep", "ship", "shoe", "shrub", "skates", "sky", "snail", "socks", "sparrow", "spider", "squash", "squirrel", "star", "street", "sun",
