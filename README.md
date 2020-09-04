@@ -40,7 +40,7 @@ Detailed description
 | hcxpcapngtool  | Provide new hashcat format 22000                                                                                       |
 | hcxhashtool    | Provide various filter operations on new PMKID/EAPOL hash line                                                         |
 | hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcapngtool output (-c -o -z- -U) or commandline input  |
-| hcxwltool      | Calculates candidates for hashcat and john based on hcxpcaptool output (-E -I- -U)                                     |
+| hcxwltool      | Calculates candidates for hashcat and john based on hcxpcapngtool output (-E -I- -U)                                     |
 | hcxhash2cap    | Converts hash file (PMKID&EAPOL, PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                 |
 | wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                             |
 | whoismac       | Show vendor information and/or download oui reference list                                                             |
@@ -49,7 +49,6 @@ Detailed description
 | deprecated     | obsolete when hashcat and JtR moved to new PMKID/EAPOL hash line - no longer under maintenance                         |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format     |
-| hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper             |
 | hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                      |
 | hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                        |
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |

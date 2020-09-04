@@ -1,3 +1,8 @@
+04.09.2020
+==========
+removed deprecated hcxpcaptool - use hcxpcapngtool instead
+
+
 19.08.2020
 ==========
 hcxpsktool: added new option:

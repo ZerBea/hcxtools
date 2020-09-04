@@ -47,8 +47,6 @@ whoismac_libs=-lcrypto -lssl -lcurl
 
 TOOLS+=hcxpmkidtool
 TOOLS+=wlanhcx2john
-TOOLS+=hcxpcaptool
-hcxpcaptool_libs=-lz -lcrypto -lssl
 TOOLS+=hcxhashcattool
 hcxhashcattool_libs=-lcrypto -lssl -lpthread
 hcxpmkidtool_libs=-lcrypto -lssl -lpthread
