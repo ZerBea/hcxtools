@@ -51,7 +51,6 @@ hcxhashcattool_libs=-lcrypto -lssl -lpthread
 hcxpmkidtool_libs=-lcrypto -lssl -lpthread
 TOOLS+=hcxmactool
 TOOLS+=hcxessidtool
-TOOLS+=wlanwkp2hcx
 TOOLS+=wlanhcxinfo
 TOOLS+=wlanhcx2ssid
 TOOLS+=wlanhcxcat
