@@ -46,7 +46,6 @@ TOOLS+=whoismac
 whoismac_libs=-lcrypto -lssl -lcurl
 
 TOOLS+=hcxpmkidtool
-TOOLS+=wlanhcx2john
 TOOLS+=hcxhashcattool
 hcxhashcattool_libs=-lcrypto -lssl -lpthread
 hcxpmkidtool_libs=-lcrypto -lssl -lpthread
@@ -59,7 +58,6 @@ TOOLS+=wlanhcxcat
 wlanhcxcat_libs=-lcrypto -lssl
 TOOLS+=wlanpmk2hcx
 wlanpmk2hcx_libs=-lcrypto -lssl
-TOOLS+=wlanjohn2hcx
 
 .PHONY: all build install clean uninstall
 
