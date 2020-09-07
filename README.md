@@ -40,7 +40,7 @@ Detailed description
 | hcxpcapngtool  | Provide new hashcat format 22000                                                                                       |
 | hcxhashtool    | Provide various filter operations on new PMKID/EAPOL hash line                                                         |
 | hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcapngtool output (-c -o -z- -U) or commandline input  |
-| hcxwltool      | Calculates candidates for hashcat and john based on hcxpcapngtool output (-E -I- -U)                                     |
+| hcxwltool      | Calculates candidates for hashcat and john based on hcxpcapngtool output (-E -I- -U)                                   |
 | hcxhash2cap    | Converts hash file (PMKID&EAPOL, PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                 |
 | wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                             |
 | whoismac       | Show vendor information and/or download oui reference list                                                             |
@@ -129,6 +129,8 @@ Notice
 --------------
 
 Most output files will be appended to existing files (with the exception of pcapng, pcap, cap files).
+
+It is recommended to use hash mode 22000 (22001) instead of deprecated hash modes 2500 (2501) and 16800 (16801)
 
 
 Bitmask message pair field (hcxpcapngtool)
