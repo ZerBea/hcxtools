@@ -1706,6 +1706,9 @@ writepsk(fhout, pskstring);
 snprintf(pskstring, PSKSTRING_LEN_MAX, "%08llx", (macaddr >> 16) &0xffffffff);
 writepsk(fhout, pskstring);
 
+snprintf(pskstring, PSKSTRING_LEN_MAX, "%010lld", (macaddr) &0xffffff);
+writepsk(fhout, pskstring);
+
 writebssidmd5(fhout, macaddr);
 writebssidwps(fhout, macaddr);
 return;
