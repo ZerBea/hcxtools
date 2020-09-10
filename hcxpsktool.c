@@ -191,7 +191,8 @@ static const char *secondword[] =
 "panda", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "poodle", "potato", "prairie",
 "quail",
 "rabbit", "raccoon", "raven", "river", "road", "rosebud",
-"sea", "sheep", "ship", "shoe", "shrub", "skates", "sky", "snail", "socks", "sparrow", "spider", "squash", "squirrel", "star", "street", "sun",
+"sea", "sheep", "ship", "shoe", "shrub", "skates", "sky", "snail", "socks", "sparrow", "spider", "squash",
+"squirrel", "star", "street", "sun",
 "table", "teapot", "tomato", "trail", "train", "tree", "trumpet", "tuba", "tulip", "turkey", 
 "umbrella", "unicorn", "unit",
 "valley", "vase", "violet", "violin",
@@ -235,11 +236,13 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *firstword[] =
 { 
-"absurd", "agency", "album", "anchor", "ancient", "aquatic", "author",
-"bakery", "barrel", "basic", "better", "black", "blue", "bold", "botany", "brave", "breezy", "brew", "bridge", "bright",
-"calm", "camera", "cheerful", "chilly", "chorus", "chummy", "classy", "clean", "clever", "cloudy", "clumsy", "cool", "crispy", "curly",
+"absurd", "adorable", "agency", "album", "anchor", "ancient", "aquatic", "author",
+"bakery", "barrel", "basic", "better", "black", "blue", "bold", "botany", "brave", "breezy", "brew", "bridge",
+"bright",
+"calm", "camera", "cheerful", "chilly", "chorus", "chummy", "classy", "clean", "clever", "cloudy", "clumsy", "cool",
+"crispy", "curly",
 "daily", "damp", "deep", "degree", "dizzy", "domain", "dusty", "duty", "dynamic",
-"eager", "eagle", "elated", "elegant", "energy", "engine", "excited", "exotic",
+"eager", "eagle", "elated", "elegant", "energy", "engine", "errand", "excited", "exotic",
 "famous", "fancy", "fast", "festive", "finish", "fluent", "fluffy", "formal", "free", "fresh", "funny", "fuzzy",
 "gallon", "genius", "gentle", "giddy", "gifted", "global", "gold", "grand", "great", "green",
 "happy", "harbor", "heavy", "height", "helpful", "honor", "hotel", "hungry", "husky",
@@ -250,11 +253,12 @@ static const char *firstword[] =
 "magical", "major", "manic", "mellow", "melodic", "mighty", "mirror", "misty", "mobile", "modern", "month",
 "narrow", "nest", "new", "nifty", "noisy", "north",
 "oasis", "object", "ocean", "odd", "olive", "orange",
-"palm", "parade", "pastel", "patron", "perfect", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite", "praise", "purple",
+"palm", "parade", "pastel", "patron", "perfect", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite",
+"praise", "proud", "purple",
 "quaint", "quick", "quiet", "quote",
 "rain", "rapid", "red", "rocky", "round", "royal", "runner", "rustic",
-"safety", "salute", "scary", "shiny", "shelf", "short", "silent", "silky", "silly", "slow", "small", "smart", "smiley", "smiling", "smooth",
-"spirit", "square", "stealth", "still", "strong", "summit", "sunny", "super", "sweet", "swift",
+"safety", "salute", "scary", "shiny", "shelf", "short", "silent", "silky", "silly", "slow", "small", "smart", "smiley",
+"smiling", "smooth", "spirit", "square", "stealth", "still", "strong", "summit", "sunny", "super", "sweet", "swift",
 "tablet", "tall", "teal", "terrific", "theory", "thirsty", "timber", "tiny", "town",
 "uneven", "union", "unusual", "urban", "useful",
 "valley", "vanilla", "vast", "verse", "violet", "violin",
@@ -268,8 +272,8 @@ static const char *secondword[] =
 "absent", "acre", "agency", "airplane", "album", "apple",
 "ball", "balloon", "banana", "bench", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "botany", "box",
 "brain", "bread", "breeze", "bridge", "bubble", "bug", "bunny", "butter",
-"canoe", "car", "carrot", "cartoon", "cello", "chair", "check", "cheese", "city", "coat", "coconut", "comet", "cream", "crown",
-"curtain",
+"canoe", "car", "carrot", "cartoon", "cello", "chair", "check", "cheese", "city", "coat", "coconut", "comet", "cream",
+"crown", "curtain",
 "daisy", "deer", "desk", "diamond", "dirt", "dog", "doll", "domain", "duty",
 "eagle", "earth", "energy", "epic",
 "famous", "farmer", "field", "finch", "finish", "fire", "fish", "flower", "fluent", "flute", "formal", "friend", "fruit",
@@ -282,13 +286,13 @@ static const char *secondword[] =
 "major", "mango", "marble", "mesa", "mint", "mirror", "mobile", "month", "moon", "museum",
 "nest", "noble",
 "oasis", "object", "oboe", "ocean", "octopus", "onion", "owl", "oxygen",
-"palm", "panda", "pant", "parade", "park", "pear", "pencil", "phoenix", "piano", "planet", "pledge", "plum", "pocket", "pond",
-"poodle", "potato", "prairie", "prose",
+"palm", "panda", "pant", "parade", "park", "pear", "pencil", "phoenix", "piano", "planet", "pledge", "plum", "pocket",
+"pond", "poodle", "potato", "prairie", "prose",
 "quail", "quaint", "quick", "quote",
 "rabbit", "raccoon", "raft", "raven", "reason", "review", "reward", "river", "road", "rock", "rocket", "rosebud", "runner",
-"salute", "sea", "seed", "shark", "sheep", "shelf", "ship", "shoe", "shrub", "skates", "sky", "sled", "snail", "snake", "soccer",
-"socks", "space", "spark", "sparrow", "spider", "squash", "squirrel", "stable", "star", "state", "statue", "stove", "straw",
-"street", "studio", "summit", "sun",
+"salute", "sea", "seed", "shark", "sheep", "shelf", "ship", "shoe", "shrub", "skates", "sky", "sled", "snail", "snake",
+"soccer", "socks", "space", "spark", "sparrow", "spider", "squash", "squirrel", "stable", "star", "state", "statue", "stove",
+"straw", "street", "studio", "summit", "sun",
 "table", "tablet", "teapot", "tent", "theory", "tiger", "tomato", "town", "trail", "train", "tree", "truck", "trumpet",
 "tuba", "tulip", "turkey", "turtle",
 "unicorn", "union", "unit", "useful",
@@ -1337,6 +1341,17 @@ if((isxdigit(essid[6])) && (isxdigit(essid[7])) && (isxdigit(essid[8])) && (isxd
 return;
 }
 /*===========================================================================*/
+static void testpoda(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k;
+static const char *poda = "PODA_";
+
+if(essidlen < 5) return;
+if(memcmp(essid, poda, 5) != 0) return;
+for(k = 0; k < 1000000; k++) fprintf(fhout, "%06d%06d\n", k, k);
+return;
+}
+/*===========================================================================*/
 static void testroamingman(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2, k3;
@@ -1543,6 +1558,7 @@ testhotbox(fhout, essidlen, essid);
 testmtel(fhout, essidlen, essid);
 testmywifi(fhout, essidlen, essid);
 testnet2g(fhout, essidlen, essid);
+testpoda(fhout, essidlen, essid);
 testroamingman(fhout, essidlen, essid);
 testrtk(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
