@@ -30,6 +30,7 @@ static int thisyear;
 static bool netgearflag;
 static bool askeyarrisflag;
 static bool digit10flag;
+static bool podaflag;
 static bool phomeflag;
 static bool tendaflag;
 static bool weakpassflag;
@@ -1346,9 +1347,11 @@ static void testpoda(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k;
 static const char *poda = "PODA_";
 
+if(podaflag == true) return;
 if(essidlen < 5) return;
 if(memcmp(essid, poda, 5) != 0) return;
 for(k = 0; k < 1000000; k++) fprintf(fhout, "%06d%06d\n", k, k);
+podaflag = true;
 return;
 }
 /*===========================================================================*/
@@ -2247,6 +2250,7 @@ static char *pskname = NULL;
 netgearflag = false;
 askeyarrisflag = false;
 digit10flag = false;
+podaflag = false;
 phomeflag = false;
 tendaflag = false;
 weakpassflag = false;
