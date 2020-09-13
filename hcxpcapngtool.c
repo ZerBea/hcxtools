@@ -592,8 +592,8 @@ if(eapolaplesscount > 0)		printf("EAPOL ROGUE pairs........................: %ld
 if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file...: %ld (RC checked)\n", eapolwrittencount);
 if(eapolncwrittencount > 0)		printf("EAPOL pairs written to combi hash file...: %ld (RC not checked)\n", eapolncwrittencount);
 if(eapolwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx............: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
-if(eapolncwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to hccapx............: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
-if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to hccap.............: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
+if(eapolncwrittenhcpxcountdeprecated > 0)	printf("EAPOL pairs written to old format hccapx.: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
+if(eapolwrittenhcpcountdeprecated > 0)	printf("EAPOL pairs written to old format hccap..: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
 if(eapolwrittenjcountdeprecated > 0)	printf("EAPOL pairs written to old JtR format....: %ld (RC checked)\n", eapolwrittenjcountdeprecated);
 if(eapolm12e2count > 0)			printf("EAPOL M12E2 (challenge)..................: %ld\n", eapolm12e2count);
 if(eapolm14e4count > 0)			printf("EAPOL M14E4 (authorized).................: %ld\n", eapolm14e4count);
