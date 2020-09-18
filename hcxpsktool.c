@@ -255,7 +255,7 @@ static const char *firstword[] =
 "narrow", "nest", "new", "nifty", "noisy", "north",
 "oasis", "object", "ocean", "odd", "olive", "orange",
 "palm", "parade", "pastel", "patron", "perfect", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite",
-"praise", "proud", "purple",
+"praise", "prose", "proud", "purple",
 "quaint", "quick", "quiet", "quote",
 "rain", "rapid", "red", "rocky", "round", "royal", "runner", "rustic",
 "safety", "salute", "scary", "shiny", "shelf", "short", "silent", "silky", "silly", "slow", "small", "smart", "smiley",
