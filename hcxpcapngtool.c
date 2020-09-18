@@ -95,6 +95,7 @@ static FILE *fh_eapmd5;
 static FILE *fh_eapmd5john;
 static FILE *fh_eapleap;
 static FILE *fh_essid;
+static FILE *fh_essidproberequest;
 static FILE *fh_identity;
 static FILE *fh_username;
 static FILE *fh_nmea;
@@ -727,6 +728,7 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		if(memcmp(zeigermac->essid, zeigermacold->essid, zeigermac->essidlen) == 0) continue;
 		}
 	if(fh_essid != NULL) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essid);
+	if((fh_essidproberequest != NULL) && (zeigermac->status == ST_PROBE_REQ)) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essidproberequest);
 	essidcount++;
 	zeigermacold = zeigermac;
 	}
@@ -4442,6 +4444,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-o <file> : output WPA-PBKDF2-PMKID+EAPOL (hashcat -m 22000)hash file\n"
 	"            get full advantage of reuse of PBKDF2 over PMKID and EAPOL\n"
 	"-E <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
+	"            retrieved from every frame that contain an ESSID\n"
+	"-R <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
+	"            retrieved from PROBEREQUEST frames only\n"
 	"-I <file> : output unsorted identity list to use as input wordlist for cracker\n"
 	"-U <file> : output unsorted username list to use as input wordlist for cracker\n"
 	"-h        : show this help\n"
@@ -4530,6 +4535,7 @@ static char *eapmd5outname;
 static char *eapmd5johnoutname;
 static char *eapleapoutname;
 static char *essidoutname;
+static char *essidproberequestoutname;
 static char *identityoutname;
 static char *usernameoutname;
 static char *nmeaoutname;
@@ -4546,6 +4552,7 @@ static const char *pmkideapolsuffix = ".22000";
 static const char *eapmd5suffix = ".4800";
 static const char *eapleapsuffix = ".5500";
 static const char *essidsuffix = ".essid";
+static const char *essidproberequestsuffix = ".essidproberequest";
 static const char *identitysuffix = ".identity";
 static const char *usernamesuffix = ".username";
 static const char *nmeasuffix = ".nmea";
@@ -4554,6 +4561,7 @@ static char pmkideapolprefix[PATH_MAX];
 static char eapmd5prefix[PATH_MAX];
 static char eapleapprefix[PATH_MAX];
 static char essidprefix[PATH_MAX];
+static char essidproberequestprefix[PATH_MAX];
 static char identityprefix[PATH_MAX];
 static char usernameprefix[PATH_MAX];
 static char nmeaprefix[PATH_MAX];
@@ -4561,7 +4569,7 @@ static char nmeaprefix[PATH_MAX];
 struct timeval tv;
 static struct stat statinfo;
 
-static const char *short_options = "o:E:I:U:hv";
+static const char *short_options = "o:E:R:I:U:hv";
 static const struct option long_options[] =
 {
 	{"all",				no_argument,		NULL,	HCX_CONVERT_ALL},
@@ -4601,6 +4609,7 @@ pmkideapoloutname = NULL;
 eapmd5outname = NULL;
 eapmd5johnoutname = NULL;
 essidoutname = NULL;
+essidproberequestoutname = NULL;
 identityoutname = NULL;
 usernameoutname = NULL;
 nmeaoutname = NULL;
@@ -4618,6 +4627,7 @@ fh_eapmd5 = NULL;
 fh_eapmd5john = NULL;
 fh_eapleap = NULL;
 fh_essid = NULL;
+fh_essidproberequest = NULL;
 fh_identity = NULL;
 fh_username = NULL;
 fh_nmea = NULL;
@@ -4679,6 +4689,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_ESSID_OUT:
 		essidoutname = optarg;
+		break;
+
+		case HCX_ESSIDPROBEREQUEST_OUT:
+		essidproberequestoutname = optarg;
 		break;
 
 		case HCX_IDENTITY_OUT:
@@ -4769,6 +4783,10 @@ if(prefixoutname != NULL)
 	strncat(essidprefix, essidsuffix, PREFIX_BUFFER_MAX);
 	essidoutname = essidprefix;
 
+	strncpy(essidproberequestprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(essidproberequestprefix, essidproberequestsuffix, PREFIX_BUFFER_MAX);
+	essidproberequestoutname = essidprefix;
+
 	strncpy(identityprefix, prefixoutname, PREFIX_BUFFER_MAX);
 	strncat(identityprefix, identitysuffix, PREFIX_BUFFER_MAX);
 	identityoutname = identityprefix;
@@ -4826,6 +4844,14 @@ if(essidoutname != NULL)
 	if((fh_essid = fopen(essidoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", essidoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+if(essidproberequestoutname != NULL)
+	{
+	if((fh_essidproberequest = fopen(essidproberequestoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", essidproberequestoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -4916,6 +4942,7 @@ if(fh_eapmd5 != NULL) fclose(fh_eapmd5);
 if(fh_eapmd5john != NULL) fclose(fh_eapmd5john);
 if(fh_eapleap != NULL) fclose(fh_eapleap);
 if(fh_essid != NULL) fclose(fh_essid);
+if(fh_essidproberequest != NULL) fclose(fh_essidproberequest);
 if(fh_identity != NULL) fclose(fh_identity);
 if(fh_username != NULL) fclose(fh_username);
 if(fh_nmea != NULL) fclose(fh_nmea);
@@ -4959,6 +4986,13 @@ if(essidoutname != NULL)
 	if(stat(essidoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(essidoutname);
+		}
+	}
+if(essidproberequestoutname != NULL)
+	{
+	if(stat(essidproberequestoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(essidproberequestoutname);
 		}
 	}
 if(identityoutname != NULL)

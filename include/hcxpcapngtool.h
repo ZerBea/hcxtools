@@ -17,6 +17,7 @@
 #define HCX_PREFIX_OUT				17
 #define HCX_PMKIDEAPOL_OUT			'o'
 #define HCX_ESSID_OUT				'E'
+#define HCX_ESSIDPROBEREQUEST_OUT		'R'
 #define HCX_IDENTITY_OUT			'I'
 #define HCX_USERNAME_OUT			'U'
 #define HCX_HELP				'h'
