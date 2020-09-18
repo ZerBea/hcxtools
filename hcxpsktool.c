@@ -493,7 +493,7 @@ static const char *weakword[] =
 "RealMadrid", "Remember", "Rockstar", "Ronaldo7", "RunEscape", "Rush2112",
 "Samantha", "Savannah", "Scarface", "Scorpion", "Scotland", "Sebastian",
 "Security", "September", "Serenity", "Simpsons", "Skateboard", "Skittles",
-"Skywalker", "Slipknot", "Snickers", "Snowball", "Snowboard", "Something",
+"Skywalker", "Slipknot", "smartbro", "Snickers", "Snowball", "Snowboard", "Something",
 "Southpark", "Spiderman", "Spitfire", "SpongeBob", "Starcraft", "Stargate",
 "StarTrek", "StarWars", "Steelers", "Stephanie", "Strawberry", "Sunflower",
 "Sunshine", "Superman", "Superstar", "Swordfish", "TaxiLinQ",  "Terminator",
