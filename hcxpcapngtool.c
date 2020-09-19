@@ -565,7 +565,7 @@ if(eapolrc4count > 0)			printf("EAPOL RC4 messages.......................: %ld\n
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n", eapolwpacount);
 if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
-if(essiddupemax > 0)			printf("ESSID changes (detected maximum).........: %ld (warning - option --all recommended)\n", essiddupemax);
+if(essiddupemax > 0)			printf("ESSID changes (detected maximum).........: %ld (warning: option --all recommended)\n", essiddupemax);
 if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
 if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
@@ -641,14 +641,11 @@ if(eapolmsgtimestamperrorcount > 0)
 		"That prevent calculation of EAPOL TIMEOUT values.\n"
 		"It is a bug of the capturing tool.\n");
 	}
-if(malformedcount > 10)
+if((deauthenticationcount +disassociationcount) > 100)
 	{
-	printf( "\nWarning: malformed packets detected!\n"   
-		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
-		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
-		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
-		"a bit error in the payload it can lead to unexpected results.\n"
-		"Please analyze the dump file with Wireshark.\n");
+	printf("\nWarning: too many disauthentication/disassociation frames detected!\n"
+		"That can cause that an ACCESS POINT reset the EAPOL TIMER and renew the ANONCE.\n"
+		"This could prevent to calculate a valid EAPOL MESSAGE PAIR.\n");
 	}
 if(proberequestcount == 0)
 	{
@@ -675,6 +672,15 @@ if(eapolm1ancount <= 1)
 		"It always happens if the capture file was cleaned or\n"
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to calculate nonce-error-correction values.\n");
+	}
+if(malformedcount > 10)
+	{
+	printf( "\nWarning: malformed packets detected!\n"   
+		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
+		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
+		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
+		"a bit error in the payload it can lead to unexpected results.\n"
+		"Please analyze the dump file with Wireshark.\n");
 	}
 printf("\n");
 return;
