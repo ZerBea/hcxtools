@@ -686,7 +686,7 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
 	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount) == 0)
 	{
-	printf( "\nWarning: No hashes written converted!\n");
+	printf( "\nWarning: no hashes converted!\n");
 	}
 printf("\n");
 return;
