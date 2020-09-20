@@ -142,6 +142,7 @@ static long int pagcount;
 static long int proberesponsecount;
 static long int proberequestcount;
 static long int proberequestdirectedcount;
+static long int mgtreservedcount;
 static long int deauthenticationcount;
 static long int disassociationcount;
 static long int authenticationcount;
@@ -385,6 +386,7 @@ pagcount = 0;
 proberesponsecount = 0;
 proberequestcount = 0;
 proberequestdirectedcount = 0;
+mgtreservedcount = 0;
 deauthenticationcount = 0;
 disassociationcount = 0;
 authenticationcount = 0;
@@ -535,6 +537,7 @@ if(reassociationrequestpsk256count > 0)	printf("REASSOCIATIONREQUEST (PSK SHA256
 if(reassociationrequestsae256count > 0)	printf("REASSOCIATIONREQUEST (SAE SHA256)........: %ld\n", reassociationrequestsae256count);
 if(reassociationrequestsae384bcount > 0)printf("REASSOCIATIONREQUEST (SAE SHA384 SUITE B): %ld\n", reassociationrequestsae384bcount);
 if(reassociationrequestowecount > 0)	printf("REASSOCIATIONREQUEST (OWE)...............: %ld\n", reassociationrequestowecount);
+if(mgtreservedcount > 0)		printf("RESERVED MANAGEMENT FRAMES...............: %ld\n", mgtreservedcount);
 if(wpaenccount > 0)			printf("WPA encrypted............................: %ld\n", wpaenccount);
 if(wepenccount > 0)			printf("WEP encrypted............................: %ld\n", wepenccount);
 if(ipv4count > 0)			printf("IPv4.....................................: %ld\n", ipv4count);
@@ -3286,6 +3289,7 @@ if(macfrx->type == IEEE80211_FTYPE_MGMT)
 	else if(macfrx->subtype == IEEE80211_STYPE_ACTION) process80211action(payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_DEAUTH) deauthenticationcount++;
 	else if(macfrx->subtype == IEEE80211_STYPE_DISASSOC) disassociationcount++;
+	else if(macfrx->subtype == IEEE80211_STYPE_MGTRESERVED) mgtreservedcount++;
 	}
 else if(macfrx->type == IEEE80211_FTYPE_DATA)
 	{
