@@ -537,7 +537,7 @@ if(reassociationrequestpsk256count > 0)	printf("REASSOCIATIONREQUEST (PSK SHA256
 if(reassociationrequestsae256count > 0)	printf("REASSOCIATIONREQUEST (SAE SHA256)........: %ld\n", reassociationrequestsae256count);
 if(reassociationrequestsae384bcount > 0)printf("REASSOCIATIONREQUEST (SAE SHA384 SUITE B): %ld\n", reassociationrequestsae384bcount);
 if(reassociationrequestowecount > 0)	printf("REASSOCIATIONREQUEST (OWE)...............: %ld\n", reassociationrequestowecount);
-if(mgtreservedcount > 0)		printf("RESERVED MANAGEMENT frames...............: %ld\n", mgtreservedcount);
+if(mgtreservedcount > 0)		printf("RESERVED MANAGEMENT frame................: %ld\n", mgtreservedcount);
 if(wpaenccount > 0)			printf("WPA encrypted............................: %ld\n", wpaenccount);
 if(wepenccount > 0)			printf("WEP encrypted............................: %ld\n", wepenccount);
 if(ipv4count > 0)			printf("IPv4.....................................: %ld\n", ipv4count);
