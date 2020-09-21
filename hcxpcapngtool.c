@@ -624,6 +624,12 @@ if(essiderrorcount > 0)			printf("ESSID error (malformed packets)..........: %ld
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 
+if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eapolncwrittenhcpxcountdeprecated +eapolwrittenhcpcountdeprecated 
+	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
+	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount) == 0)
+	{
+	printf( "\nInformation: no hashes written to hash files\n");
+	}
 if(sequenceerrorcount > 0)
 	{
 	printf("\nWarning: out of sequence timestamps!\n"
@@ -684,12 +690,6 @@ if(malformedcount > 10)
 		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
 		"a bit error in the payload it can lead to unexpected results.\n"
 		"Please analyze the dump file with Wireshark.\n");
-	}
-if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eapolncwrittenhcpxcountdeprecated +eapolwrittenhcpcountdeprecated 
-	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
-	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount) == 0)
-	{
-	printf( "\nWarning: no hashes converted!\n");
 	}
 printf("\n");
 return;
