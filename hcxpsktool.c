@@ -280,7 +280,7 @@ static const char *secondword[] =
 "famous", "farmer", "field", "finch", "finish", "fire", "fish", "flower", "fluent", "flute", "formal", "friend", "fruit",
 "gadfly", "gate", "giant", "global", "grain", "green", "guitar", "guppy",
 "hall", "hand", "harbor", "hat", "hill", "hippo", "horse", "hotel", "house",
-"idea", "immune", "ink", "input", "iris", "island",
+"idea", "immune", "ink", "input", "invent", "iris", "island",
 "jade", "jazz", "jeans", "jet", "jewel", "jungle",
 "kayak", "key", "kite", "knight",
 "ladder", "lake", "lawn", "leader", "lemon", "light", "lion", "lotus",
