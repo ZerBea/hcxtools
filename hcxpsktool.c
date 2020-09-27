@@ -281,7 +281,7 @@ static const char *secondword[] =
 "gadfly", "gate", "giant", "global", "grain", "green", "guitar", "guppy",
 "hall", "hand", "harbor", "hat", "hill", "hippo", "horse", "hotel", "house",
 "idea", "immune", "ink", "input", "invent", "iris", "island",
-"jacket", "jade", "jazz", "jeans", "jet", "jewel", "jungle",
+"jacket", "jade", "jazz", "jeans", "jet", "jewel", "judge", "jungle",
 "kayak", "key", "kite", "knight",
 "ladder", "lake", "lawn", "leader", "lemon", "light", "lion", "lotus",
 "major", "mango", "marble", "mesa", "mint", "mirror", "mobile", "month", "moon", "museum",
