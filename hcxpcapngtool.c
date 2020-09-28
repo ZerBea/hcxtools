@@ -4448,6 +4448,7 @@ __attribute__ ((noreturn))
 void usage(char *eigenname)
 {
 printf("%s %s (C) %s ZeroBeat\n"
+	"convert pcapng, pcap and cap files to hash formats that hashcat and JtR use\n"
 	"usage:\n"
 	"%s <options>\n"
 	"%s <options> input.pcapng\n"
