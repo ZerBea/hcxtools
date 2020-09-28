@@ -52,7 +52,6 @@ Detailed description
 | hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                      |
 | hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                        |
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |
-| wlanpmk2hcx    | Converts plainmasterkey and ESSID for use with hashcat hash-mode 12000 or john PBKDF2-HMAC-SHA1                        |
 
 
 Get source
