@@ -15,9 +15,6 @@
 #endif
 #include <curl/curl.h>
 
-#include "common.h"
-
-
 /*===========================================================================*/
 /* globale Konstante */
 

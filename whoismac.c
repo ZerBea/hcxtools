@@ -19,8 +19,6 @@
 
 #include "include/strings.c"
 
-#include "common.h"
-
 #define LINEBUFFER 256
 
 /*===========================================================================*/

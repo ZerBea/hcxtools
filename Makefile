@@ -51,8 +51,6 @@ hcxhashcattool_libs=-lcrypto -lssl -lpthread
 hcxpmkidtool_libs=-lcrypto -lssl -lpthread
 TOOLS+=hcxmactool
 TOOLS+=hcxessidtool
-TOOLS+=wlanpmk2hcx
-wlanpmk2hcx_libs=-lcrypto -lssl
 
 .PHONY: all build install clean uninstall
 
