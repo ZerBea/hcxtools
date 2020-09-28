@@ -240,7 +240,7 @@ static const char *firstword[] =
 "absurd", "acre", "adorable", "agency", "album", "anchor", "ancient", "aquatic", "author",
 "bakery", "barrel", "basic", "basket", "better", "black", "blue", "bold", "botany", "brave", "breezy", "brew", "bridge",
 "bright",
-"calm", "camera", "cheerful", "chilly", "chorus", "chummy", "classy", "clean", "clever", "cloudy", "clumsy",
+"calm", "camera", "check", "cheerful", "chilly", "chorus", "chummy", "classy", "clean", "clever", "cloudy", "clumsy",
 "content", "cool", "crispy", "curly",
 "daily", "damp", "deep", "degree", "desert", "dizzy", "domain", "dusty", "duty", "dynamic",
 "eager", "eagle", "elated", "elegant", "energy", "engine", "errand", "excited", "exotic",
