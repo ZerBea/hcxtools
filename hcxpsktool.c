@@ -284,7 +284,7 @@ static const char *secondword[] =
 "jacket", "jade", "jazz", "jeans", "jet", "jewel", "judge", "jungle",
 "kayak", "kettle", "key", "kite", "knight",
 "ladder", "lake", "lawn", "leader", "lemon", "light", "lion", "lotus",
-"major", "mango", "marble", "mesa", "mint", "mirror", "mobile", "month", "moon", "museum",
+"major", "mango", "marble", "market", "mesa", "mint", "mirror", "mobile", "month", "moon", "museum",
 "nest", "noble",
 "oasis", "object", "oboe", "ocean", "octopus", "onion", "owl", "oxygen",
 "palm", "panda", "pant", "parade", "park", "pear", "pencil", "phoenix", "piano", "planet", "pledge", "plum", "pocket",
