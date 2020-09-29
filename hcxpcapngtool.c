@@ -653,8 +653,10 @@ if(eapolmsgtimestamperrorcount > 0)
 if((deauthenticationcount +disassociationcount) > 100)
 	{
 	printf("\nWarning: too many deauthentication/disassociation frames detected!\n"
-		"That can cause that an ACCESS POINT reset the EAPOL TIMER, renew the ANONCE and set the PMKID to zero.\n"
-		"This could prevent to calculate a valid EAPOL MESSAGE PAIR.\n");
+		"That can cause that an ACCESS POINT reset the EAPOL TIMER,\n"
+		"renew the ANONCE and set the PMKID to zero.\n"
+		"This could prevent to calculate a valid EAPOL MESSAGE PAIR\n"
+		"or to get a valid PMKID.\n");
 	}
 if(proberequestcount == 0)
 	{
