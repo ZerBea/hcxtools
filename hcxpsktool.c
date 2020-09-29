@@ -294,7 +294,7 @@ static const char *secondword[] =
 "salute", "sea", "seed", "shark", "sheep", "shelf", "ship", "shirt", "shoe", "shrub", "skates", "sky", "sled", "snail", "snake",
 "soccer", "socks", "space", "spark", "sparrow", "spider", "squash", "squirrel", "stable", "star", "state", "statue", "stove",
 "straw", "street", "studio", "summit", "sun",
-"table", "tablet", "teapot", "tent", "theory", "tiger", "tomato", "town", "trail", "train", "tree", "truck", "trumpet",
+"table", "tablet", "teapot", "tent", "theory", "tiger", "timber", "tomato", "town", "trail", "train", "tree", "truck", "trumpet",
 "tuba", "tulip", "turkey", "turtle",
 "unicorn", "union", "unit", "useful",
 "valley", "vase", "verse", "violet", "violin",
