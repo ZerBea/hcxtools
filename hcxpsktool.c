@@ -257,7 +257,7 @@ static const char *firstword[] =
 "palm", "parade", "pastel", "patron", "perfect", "phobic", "phone", "pink", "plain", "pledge", "pocket", "polite",
 "praise", "prose", "proud", "purple",
 "quaint", "quick", "quiet", "quote",
-"rain", "rapid", "red", "rocky", "round", "royal", "runner", "rustic",
+"rain", "rapid", "red", "remedy", "rocky", "round", "royal", "runner", "rustic",
 "safety", "salute", "scary", "shiny", "shelf", "short", "silent", "silky", "silly", "slow", "small", "smart", "smiley",
 "smiling", "smooth", "spirit", "square", "stealth", "still", "strong", "summit", "sunny", "super", "sweet", "swift",
 "tablet", "tall", "teal", "terrific", "theory", "thirsty", "timber", "tiny", "town",
@@ -270,7 +270,7 @@ static const char *firstword[] =
 
 static const char *secondword[] =
 {
-"absent", "acre", "agency", "airplane", "album", "apple",
+"absent", "acre", "agency", "airplane", "album", "apple", "author",
 "ball", "balloon", "banana", "bench", "berry", "bike", "bird", "boat", "bolt", "book", "boot", "botany", "box",
 "brain", "bread", "breeze", "bridge", "bubble", "bug", "bunny", "butter",
 "canoe", "car", "carrot", "cartoon", "cello", "chair", "check", "cheese", "city", "coat", "coconut", "comet", "cow",
