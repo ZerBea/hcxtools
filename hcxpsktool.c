@@ -244,7 +244,7 @@ static const char *firstword[] =
 "content", "cool", "crispy", "curly",
 "daily", "damp", "deep", "degree", "desert", "dizzy", "domain", "dusty", "duty", "dynamic",
 "eager", "eagle", "elated", "elegant", "energy", "engine", "epic", "errand", "excited", "exotic",
-"famous", "fancy", "farmer", "fast", "festive", "finish", "fluent", "fluffy", "formal", "free", "fresh", "friend", "funny", "fuzzy",
+"famous", "fancy", "farmer", "fast", "festive", "finish", "fit", "fluent", "fluffy", "formal", "free", "fresh", "friend", "funny", "fuzzy",
 "gallon", "genius", "gentle", "giddy", "gifted", "global", "gold", "grand", "great", "green",
 "happy", "harbor", "heavy", "height", "helpful", "honest", "honor", "hotel", "hungry", "husky",
 "icy", "idea", "imaginary", "immune", "invent",
@@ -298,7 +298,7 @@ static const char *secondword[] =
 "tuba", "tulip", "turkey", "turtle",
 "unicorn", "union", "unit", "useful",
 "valley", "vase", "verse", "violet", "violin",
-"wagon", "water", "west", "whale", "wind", "window", "windy", "wolf", "writer", 
+"wagon", "water", "wealth", "west", "whale", "wind", "window", "windy", "wolf", "writer", 
 "yard", "ysocks",
 "zeal", "zebra", "zoo"
 };
