@@ -246,7 +246,7 @@ static const char *firstword[] =
 "eager", "eagle", "elated", "elegant", "energy", "engine", "epic", "errand", "excited", "exotic",
 "famous", "fancy", "farmer", "fast", "festive", "finish", "fit", "fluent", "fluffy", "formal", "free", "fresh", "friend",
 "funny", "fuzzy",
-"gallon", "genius", "gentle", "giddy", "gifted", "global", "gold", "grand", "great", "green",
+"gallon", "genius", "gentle", "giddy", "gifted", "global", "gold", "grain", "grand", "great", "green",
 "happy", "harbor", "hearty", "heavy", "height", "helpful", "honest", "honor", "hotel", "hungry", "husky",
 "icy", "idea", "imaginary", "immune", "invent",
 "jacket", "jagged", "jazz", "jeans", "jewel", "jolly", "joyous",
@@ -288,8 +288,8 @@ static const char *secondword[] =
 "major", "mango", "marble", "market", "mesa", "mint", "mirror", "mobile", "month", "moon", "museum",
 "nest", "noble", "north",
 "oasis", "object", "oboe", "ocean", "octopus", "onion", "owl", "oxygen",
-"palm", "panda", "pant", "parade", "park", "pear", "pencil", "phoenix", "piano", "planet", "pledge", "plum", "pocket",
-"pond", "poodle", "potato", "puppy", "prairie", "prose",
+"palm", "panda", "pant", "parade", "park", "patron", "pear", "pencil", "phoenix", "phone", "piano", "planet", "pledge",
+"plum", "pocket", "pond", "poodle", "potato", "puppy", "prairie", "prose",
 "quail", "quaint", "quick", "quote",
 "rabbit", "raccoon", "raft", "rain", "raven", "reason", "remedy", "review", "reward", "river", "road", "robin", "rock",
 "rocket", "rosebud", "runner",
@@ -300,7 +300,7 @@ static const char *secondword[] =
 "trumpet", "tuba", "tulip", "turkey", "turtle",
 "unicorn", "union", "unit", "useful",
 "valley", "vase", "verse", "violet", "violin",
-"wagon", "water", "wealth", "west", "whale", "wind", "window", "windy", "wolf", "writer", 
+"wagon", "watch", "water", "wealth", "west", "whale", "wind", "window", "windy", "wolf", "writer", 
 "yard", "ysocks",
 "zeal", "zebra", "zoo"
 };
