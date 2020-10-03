@@ -289,7 +289,7 @@ static const char *secondword[] =
 "nest", "noble", "north",
 "oasis", "object", "oboe", "ocean", "octopus", "onion", "owl", "oxygen",
 "palm", "panda", "pant", "parade", "park", "patron", "pear", "pencil", "phoenix", "phone", "piano", "planet", "pledge",
-"plum", "pocket", "pond", "poodle", "potato", "puppy", "prairie", "prose",
+"plum", "pocket", "pond", "poodle", "potato", "puppy", "prairie", "praise", "prose",
 "quail", "quaint", "quick", "quote",
 "rabbit", "raccoon", "raft", "rain", "raven", "reason", "remedy", "review", "reward", "river", "road", "robin", "rock",
 "rocket", "rosebud", "runner",
