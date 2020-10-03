@@ -246,7 +246,7 @@ static const char *firstword[] =
 "eager", "eagle", "elated", "elegant", "energy", "engine", "epic", "errand", "excited", "exotic",
 "famous", "fancy", "farmer", "fast", "festive", "finish", "fit", "fluent", "fluffy", "formal", "free", "fresh", "friend",
 "funny", "fuzzy",
-"gallon", "genius", "gentle", "giddy", "gifted", "global", "gold", "grain", "grand", "great", "green",
+"gallon", "genius", "gentle", "giddy", "gifted", "global", "gold", "grain", "grand", "great", "green", "guitar",
 "happy", "harbor", "hearty", "heavy", "height", "helpful", "honest", "honor", "hotel", "hungry", "husky",
 "icy", "idea", "imaginary", "immune", "invent",
 "jacket", "jagged", "jazz", "jeans", "jewel", "jolly", "joyous",
