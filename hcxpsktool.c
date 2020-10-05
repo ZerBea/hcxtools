@@ -298,7 +298,7 @@ static const char *wordlist[] =
 "wide", "wind", "window", "windy", "witty", "wolf", "wonderful", "wooden",
 "writer",
 "yard", "yellow", "young",
-"zany", "zeal", "zebra", "zoo",
+"zany", "zeal", "zebra", "zoo"
 };
 
 for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
