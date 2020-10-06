@@ -206,23 +206,44 @@ for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
 		{
 		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
-		snprintf(pskstring, 64, "%s%s", firstword[ca], secondword[cs]);
-		fprintf(fhout,"%s\n", pskstring);
 		for (cn = 0; cn < 1000; cn++)
+			{
+			snprintf(pskstring, 64, "%s%s%03d", firstword[ca], secondword[cs], cn);
+			fprintf(fhout,"%s\n", pskstring);
+			}
+		}
+	}
+for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
+		{
+		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
+		for (cn = 0; cn < 100; cn++)
+			{
+			snprintf(pskstring, 64, "%s%s%02d", firstword[ca], secondword[cs], cn);
+			fprintf(fhout,"%s\n", pskstring);
+			}
+		}
+	}
+for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
+		{
+		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
+		for (cn = 0; cn < 10; cn++)
 			{
 			snprintf(pskstring, 64, "%s%s%d", firstword[ca], secondword[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
-			if(cn < 10)
-				{
-				snprintf(pskstring, 64, "%s%s%02d", firstword[ca], secondword[cs], cn);
-				fprintf(fhout,"%s\n", pskstring);
-				}
-			if(cn < 100)
-				{
-				snprintf(pskstring, 64, "%s%s%03d", firstword[ca], secondword[cs], cn);
-				fprintf(fhout,"%s\n", pskstring);
-				}
 			}
+		}
+	}
+for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
+		{
+		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
+		snprintf(pskstring, 64, "%s%s", firstword[ca], secondword[cs]);
+		fprintf(fhout,"%s\n", pskstring);
 		}
 	}
 return;
@@ -306,23 +327,44 @@ for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
 	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
 		{
 		if(ca == cs) continue;
-		snprintf(pskstring, 64, "%s%s", wordlist[ca], wordlist[cs]);
-		fprintf(fhout,"%s\n", pskstring);
 		for (cn = 0; cn < 1000; cn++)
+			{
+			snprintf(pskstring, 64, "%s%s%03d", wordlist[ca], wordlist[cs], cn);
+			fprintf(fhout,"%s\n", pskstring);
+			}
+		}
+	}
+for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
+		{
+		if(ca == cs) continue;
+		for (cn = 0; cn < 100; cn++)
+			{
+			snprintf(pskstring, 64, "%s%s%02d", wordlist[ca], wordlist[cs], cn);
+			fprintf(fhout,"%s\n", pskstring);
+			}
+		}
+	}
+for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
+		{
+		if(ca == cs) continue;
+		for (cn = 0; cn < 10; cn++)
 			{
 			snprintf(pskstring, 64, "%s%s%d", wordlist[ca], wordlist[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
-			if(cn < 10)
-				{
-				snprintf(pskstring, 64, "%s%s%02d", wordlist[ca], wordlist[cs], cn);
-				fprintf(fhout,"%s\n", pskstring);
-				}
-			if(cn < 100)
-				{
-				snprintf(pskstring, 64, "%s%s%03d", wordlist[ca], wordlist[cs], cn);
-				fprintf(fhout,"%s\n", pskstring);
-				}
 			}
+		}
+	}
+for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
+	{
+	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
+		{
+		if(ca == cs) continue;
+		snprintf(pskstring, 64, "%s%s", wordlist[ca], wordlist[cs]);
+		fprintf(fhout,"%s\n", pskstring);
 		}
 	}
 return;
