@@ -1261,12 +1261,15 @@ static void testhotbox(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2;
 static char *ev;
-static const char *hotbox = "HOTBOX-";
+static const char *hotbox = "HOTBOX";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
+if(essidlen < 7) return;
+if(memcmp(essid, hotbox , 6) != 0) return;
+for(k1 = 500000000; k1 < 560000000; k1++) fprintf(fhout, "%010d\n", k1);
 if(essidlen != 11) return;
-if(memcmp(essid, hotbox , 7) != 0) return;
+if(essid[6] != '-') return;
 if((!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10]))) return;
 ev = (char*)(essid +7);
 k2 = strtol(ev, NULL, 16);
