@@ -1297,6 +1297,7 @@ for(k1 = 0; k1 < 0x100; k1++)
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "fcb4e6%02x%04x", k1, k2);
 	writepsk(fhout, essidtmp);
 	}
+for(k1 = 500000000; k1 < 560000000; k1++) fprintf(fhout, "%010d\n", k1);
 return;
 }
 /*===========================================================================*/
