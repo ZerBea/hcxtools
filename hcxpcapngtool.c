@@ -752,10 +752,18 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 return;
 }
 /*===========================================================================*/
+
+//$GPRMC,200802.00,A,5011.78201,N,00649.56403,E,0.039,,091020,,,A*7E
+//$GPGGA,200802.00,5011.78201,N,00649.56403,E,1,05,2.79,440.0,M,47.0,M,,*58
+//$GPGGA,203453,xxxx.xx0138,N,xxxxx.xx8022,W,2,09,1.0,122.0,M,-41.0,M,,*78
+//$GPGGA,132947,xxxx.xx40,N,xxxxx.xx89,W,1,4,0.9595,85.5999,M,,,,*37
+
+/*===========================================================================*/
 static void writegpwpl(uint8_t *mac)
 {
 static int c;
 static int cs;
+static int cc, ca, ce;
 static int gpwpllen;
 static char *gpwplptr;
 static char gpwpl[NMEA_MAX];
@@ -764,10 +772,54 @@ static const char gpgga[] = "$GPGGA";
 static const char gprmc[] = "$GPRMC";
 
 if(nmealen < 30) return;
-if(memcmp(&gpgga, &nmeasentence, 6) == 0) snprintf(gpwpl, NMEA_MAX-1, "$GPWPL,%.*s,%02x%02x%02x%02x%02x%02x*", 26, &nmeasentence[17], mac[0] , mac[1], mac[2], mac[3], mac[4], mac[5]);
-else if(memcmp(&gprmc, &nmeasentence, 6) == 0) snprintf(gpwpl, NMEA_MAX-1, "$GPWPL,%.*s,%02x%02x%02x%02x%02x%02x*", 26, &nmeasentence[19], mac[0] , mac[1], mac[2], mac[3], mac[4], mac[5]);
+gpwpl[0] = 0;
+c = 0;
+cc = 0;
+ca = 0;
+ce = 0;
+if(memcmp(&gprmc, nmeasentence, 6) == 0)
+	{
+	while(nmeasentence[c] != 0)
+		{
+		if(nmeasentence[c] == ',')
+			{
+			cc++;
+			if(cc == 3) ca = c +1;
+			if(cc == 7)
+				{
+				ce = c;
+				break;
+				}
+			}
+		c++;
+		}
+	if(ce > ca) snprintf(gpwpl, NMEA_MAX-1, "$GPWPL,%.*s,%02x%02x%02x%02x%02x%02x*", ce-ca, &nmeasentence[ca], mac[0] , mac[1], mac[2], mac[3], mac[4], mac[5]);
+	}
+else if(memcmp(&gprmc, &nmeasentence, 6) == 0)
+c = 0;
+cc = 0;
+ca = 0;
+ce = 0;
+if(memcmp(&gpgga, nmeasentence, 6) == 0)
+	{
+	while(nmeasentence[c] != 0)
+		{
+		if(nmeasentence[c] == ',')
+			{
+			cc++;
+			if(cc == 2) ca = c +1;
+			if(cc == 6)
+				{
+				ce = c;
+				break;
+				}
+			}
+		c++;
+		}
+	if(ce > ca) snprintf(gpwpl, NMEA_MAX-1, "$GPWPL,%.*s,%02x%02x%02x%02x%02x%02x*", ce-ca, &nmeasentence[ca], mac[0] , mac[1], mac[2], mac[3], mac[4], mac[5]);
+	}
 else return;
-
+if(gpwpl[0] == 0) return;
 gpwplptr = gpwpl+1;
 c = 0;
 cs = 0;
