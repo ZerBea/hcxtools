@@ -378,27 +378,31 @@ static int cn;
 
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-static const char *five[] = {"about", "again", "aisle", "alley", "amaze", "angle", "apron", "attic", "award",
-	"bacon", "badge", "bagel", "beard", "begin", "being", "berry", "bloom", "board", "bread", "brick", "bring",
-	"brush", "brook", "build", "built",
-	"cause", "chair", "charm", "chart", "charm", "chase", "check", "chime", "chord", "chore", "chose", "cough",
-	"class", "clear", "coast", "cough", "cover", "court", "creak", "curve",
-	"daily", "daisy", "dance", "diner", "dodge", "dough", "dozed", "drain", "drink",
-	"eager", "eagle", "earth", "eight", "elect", "empty", "enter", "equal", "event", "exact",
-	"fancy", "favor", "feast", "fence", "fever", "field", "fifty"
-	};
+static const char *five[] =
+{
+"about", "again", "aisle", "alley", "amaze", "angle", "apron", "attic", "award",
+"bacon", "badge", "bagel", "beard", "begin", "being", "berry", "bloom", "board", "bread", "brick", "bring",
+"brush", "brook", "build", "built",
+"cause", "chair", "charm", "chart", "charm", "chase", "check", "chime", "chord", "chore", "chose", "cough",
+"class", "clear", "coast", "cough", "cover", "court", "creak", "curve",
+"daily", "daisy", "dance", "diner", "dodge", "dough", "dozed", "drain", "drink",
+"eager", "eagle", "earth", "eight", "elect", "empty", "enter", "equal", "event", "exact",
+"fancy", "favor", "feast", "fence", "fever", "field", "fifty"
+};
 
-static const char *six[] = {"across", "action", "always", "amount", "animal", "answer", "anyone", "appear", "arctic", "autumn",
-	"basket", "become", "beside", "better", "bottle", "breezy", "bridge", "bright", "button",
-	"cactus", "called", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery", "cellar",
-	"chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "collar", "column", "comedy", "copied",
-	"county", "create",
-	"degree", "depend", "design", "detail", "dimmed", "dinner", "direct",
-	"effect", "eighty", "eleven", "engine",
-	"factor", "famous", "filter", "finish", "flight", "flower", "follow", "forest",
-	"garden", "gather",
-	"harbor", "hardly", "health"
-	};
+static const char *six[] =
+{
+"across", "action", "always", "amount", "animal", "answer", "anyone", "appear", "arctic", "autumn",
+"basket", "become", "beside", "better", "bottle", "breezy", "bridge", "bright", "button",
+"cactus", "called", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery", "cellar",
+"chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "collar", "column", "comedy", "copied",
+"county", "create",
+"degree", "depend", "design", "detail", "dimmed", "dinner", "direct",
+"effect", "eighty", "eleven", "engine",
+"factor", "famous", "filter", "finish", "flight", "flower", "follow", "forest",
+"garden", "gather",
+"harbor", "hardly", "health"
+};
 
 for(ca = 0; ca < (sizeof(five) / sizeof(char *)); ca++)
 	{
