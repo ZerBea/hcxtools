@@ -378,24 +378,25 @@ static int cn;
 
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-static const char *five[] = {"about", "again", "aisle", "alley", "amaze", "apron", "attic", "award",
-	"bacon", "badge", "bagel", "beard", "begin", "being", "bloom", "bread", "brick", "bring", "brook", "build",
-	"built",
-	"cause", "chair", "charm", "chart", "chase", "check", "chime", "chord", "chore", "chose", "cough", "class",
-	"coast", "cough", "cover", "court", "creak",
-	"daily", "daisy", "diner", "dodge", "dough", "dozed", "drain", "drink",
-	"eager", "eagle", "earth", "elect", "empty", "enter", "event", "exact",
-	"fancy", "favor", "feast", "fence", "field", "fifty"
+static const char *five[] = {"about", "again", "aisle", "alley", "amaze", "angle", "apron", "attic", "award",
+	"bacon", "badge", "bagel", "beard", "begin", "being", "berry", "bloom", "board", "bread", "brick", "bring",
+	"brush", "brook", "build", "built",
+	"cause", "chair", "charm", "chart", "charm", "chase", "check", "chime", "chord", "chore", "chose", "cough",
+	"class", "clear", "coast", "cough", "cover", "court", "creak", "curve",
+	"daily", "daisy", "dance", "diner", "dodge", "dough", "dozed", "drain", "drink",
+	"eager", "eagle", "earth", "eight", "elect", "empty", "enter", "equal", "event", "exact",
+	"fancy", "favor", "feast", "fence", "fever", "field", "fifty"
 	};
 
-static const char *six[] = {"action", "always", "animal", "answer", "anyone", "appear", "arctic", "autumn",
-	"basket", "beside", "better", "bottle", "breezy", "bridge", "button",
-	"cactus", "called", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery", "cellar",
-	"change", "charge", "cheery", "chores", "chosen", "circle", "cities", "comedy", "copied", "county", "create",
-	"degree", "depend", "detail", "dimmed", "dinner", "direct",
-	"effect", "eighty", "eleven",
-	"factir", "famous", "filter", "finish", "flower", "follow", "forest",
-	"gather",
+static const char *six[] = {"across", "action", "always", "amount", "animal", "answer", "anyone", "appear", "arctic", "autumn",
+	"basket", "become", "beside", "better", "bottle", "breezy", "bridge", "bright", "button",
+	"cactus", "called", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery", "cellar",
+	"chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "collar", "column", "comedy", "copied",
+	"county", "create",
+	"degree", "depend", "design", "detail", "dimmed", "dinner", "direct",
+	"effect", "eighty", "eleven", "engine",
+	"factor", "famous", "filter", "finish", "flight", "flower", "follow", "forest",
+	"garden", "gather",
 	"harbor", "hardly", "health"
 	};
 
