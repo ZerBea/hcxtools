@@ -1273,7 +1273,11 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if(essidlen < 7) return;
 if(memcmp(essid, hotbox , 6) != 0) return;
-if(hb5flag == false) for(k1 = 500000000; k1 < 560000000; k1++) fprintf(fhout, "%010d\n", k1);
+if(hb5flag == false)
+	{
+	for(k1 = 500000000; k1 < 560000000; k1++) fprintf(fhout, "%010d\n", k1);
+	for(k1 = 770000000; k1 < 780000000; k1++) fprintf(fhout, "%010d\n", k1);
+	}
 hb5flag = true;
 if(essidlen != 11) return;
 if(essid[6] != '-') return;
