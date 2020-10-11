@@ -34,6 +34,7 @@ static bool hb5flag;
 static bool podaflag;
 static bool phomeflag;
 static bool tendaflag;
+static bool eeflag;
 static bool weakpassflag;
 static bool eudateflag;
 static bool usdateflag;
@@ -104,7 +105,7 @@ static int i;
 static uint16_t f1, f2;
 static unsigned long long int ec, el, eu;
 static MD5_CTX ctxmd5;
-static char saltstring[64];
+static char saltstring[PSKSTRING_LEN_MAX];
 static unsigned char digestmd5[MD5_DIGEST_LENGTH];
 
 static uint32_t fixseed1[] =
@@ -119,7 +120,7 @@ for(f1 = 0; f1 < FIXSEED1_SIZE; f1++)
 		{
 		for(ec = 0; ec <= 0xffff; ec++)
 			{
-			snprintf(saltstring, 64, "D0542D-01%010lld", ec | (fixseed1[f1] +f2) << 16);
+			snprintf(saltstring, PSKSTRING_LEN_MAX, "D0542D-01%010lld", ec | (fixseed1[f1] +f2) << 16);
 			MD5_Init(&ctxmd5);
 			MD5_Update(&ctxmd5, saltstring, 19);
 			MD5_Final(digestmd5, &ctxmd5);
@@ -209,7 +210,7 @@ for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
 		for (cn = 0; cn < 1000; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%03d", firstword[ca], secondword[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", firstword[ca], secondword[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -221,7 +222,7 @@ for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
 		for (cn = 0; cn < 100; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%02d", firstword[ca], secondword[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%02d", firstword[ca], secondword[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -233,7 +234,7 @@ for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
 		for (cn = 0; cn < 10; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%d", firstword[ca], secondword[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%d", firstword[ca], secondword[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -243,7 +244,7 @@ for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
 		{
 		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
-		snprintf(pskstring, 64, "%s%s", firstword[ca], secondword[cs]);
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s", firstword[ca], secondword[cs]);
 		fprintf(fhout,"%s\n", pskstring);
 		}
 	}
@@ -330,7 +331,7 @@ for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
 		if(ca == cs) continue;
 		for (cn = 0; cn < 1000; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%03d", wordlist[ca], wordlist[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", wordlist[ca], wordlist[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -342,7 +343,7 @@ for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
 		if(ca == cs) continue;
 		for (cn = 0; cn < 100; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%02d", wordlist[ca], wordlist[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%02d", wordlist[ca], wordlist[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -354,7 +355,7 @@ for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
 		if(ca == cs) continue;
 		for (cn = 0; cn < 10; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%d", wordlist[ca], wordlist[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%d", wordlist[ca], wordlist[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -364,7 +365,7 @@ for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
 	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
 		{
 		if(ca == cs) continue;
-		snprintf(pskstring, 64, "%s%s", wordlist[ca], wordlist[cs]);
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s", wordlist[ca], wordlist[cs]);
 		fprintf(fhout,"%s\n", pskstring);
 		}
 	}
@@ -410,7 +411,7 @@ for(ca = 0; ca < (sizeof(five) / sizeof(char *)); ca++)
 		{
 		for (cn = 0; cn < 10000; cn++)
 			{
-			snprintf(pskstring, 64, "%s%04d%s", five[ca], cn, six[cs]);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d%s", five[ca], cn, six[cs]);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -421,7 +422,7 @@ for(ca = 0; ca < (sizeof(six) / sizeof(char *)); ca++)
 		{
 		for (cn = 0; cn < 10000; cn++)
 			{
-			snprintf(pskstring, 64, "%s%04d%s", six[ca], cn, five[cs]);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d%s", six[ca], cn, five[cs]);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -453,7 +454,7 @@ for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
 		{
 		for (cn = 0; cn < 1000; cn++)
 			{
-			snprintf(pskstring, 64, "%s%s%03d", word1[ca], word2[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", word1[ca], word2[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -481,10 +482,92 @@ for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
 	{
 	for (cn = 0; cn < 10000; cn++)
 		{
-		snprintf(pskstring, 64, "%s%04d", word1[ca], cn);
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d", word1[ca], cn);
 		fprintf(fhout,"%s\n", pskstring);
 		}
 	}
+return;
+}
+/*===========================================================================*/
+static void keywriteee(FILE *fhout)
+{
+static size_t w3, w4, w5;
+
+static char pskstring[PSKSTRING_LEN_MAX] = {};
+
+static const char *word3[] =
+{
+    "ace", "act", "age", "aid", "aim", "all", "ape",
+    "bay", "bet", "bow", "box", "bus",
+    "cam", "can", "cop",
+    "eye",
+    "fat",
+    "gap",
+    "hit", "hot",
+    "key",
+    "leg",
+    "map", "mow",
+    "net",
+    "oar", "one",
+    "red", "rot",
+    "set", "sin",
+    "try", "two"
+};
+
+static const char *word4[] =
+{
+    "base", "boil", "bore",
+    "camp", "coat",
+    "damp",
+    "edit",
+    "face", "fine", "flag", "four", "full",
+    "half",
+    "lazy", "link", "look",
+    "mere", "move", "much",
+    "past", "pear", "plan", "poem", "post",
+    "riot", "roam",
+    "sale", "sift",
+    "trod",
+    "wait", "want", "warn", "wave"
+};
+
+static const char *word5[] =
+{
+    "ahead", "angle",
+    "cheap", "clove", "comic", "cruel", "cubic",
+    "diner", "dusty",
+    "early", "exact", "extra",
+    "fancy",
+    "guest",
+    "ivory",
+    "linen", "lyric",
+    "moist",
+    "nurse",
+    "pious", "prime", "prize",
+    "rally", "refer", "repel",
+    "scoop", "sharp", "shine", "silly",
+    "thief", "track",
+    "wrist",
+    "yeast"
+};
+
+for(w3 = 0; w3 < (sizeof(word3) / sizeof(char *)); w3++)
+for(w4 = 0; w4 < (sizeof(word4) / sizeof(char *)); w4++)
+for(w5 = 0; w5 < (sizeof(word5) / sizeof(char *)); w5++)
+    {
+    snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word3[w3], word4[w4], word5[w5]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word3[w3], word5[w5], word4[w4]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word4[w4], word3[w3], word5[w5]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word4[w4], word5[w5], word3[w3]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word5[w5], word3[w3], word4[w4]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word5[w5], word4[w4], word3[w3]);
+	fprintf(fhout,"%s\n", pskstring);
+    }
 return;
 }
 /*===========================================================================*/
@@ -554,13 +637,13 @@ for(w = 0; w < (sizeof(weakword) /sizeof(weakword[0])); w++)
 
 for(y = 1900; y <= thisyear; y++)
 	{
-	snprintf(pskstring, 64, "abcd%04d", y);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "abcd%04d", y);
 	writepsk(fhout, pskstring);
 	}
 
 for(y = 0; y < 1000; y++)
 	{
-	snprintf(pskstring, 64, "%03d%03d%03d", y, y, y);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%03d%03d%03d", y, y, y);
 	writepsk(fhout, pskstring);
 	}
 return;
@@ -1862,6 +1945,7 @@ if(tendaflag == true)
 	keywritetenda1(fhout);
 	keywritetenda2(fhout);
 	}
+if(eeflag == true) keywriteee(fhout);
 if(weakpassflag == true) keywriteweakpass(fhout);
 if(eudateflag == true) keywriteeudate(fhout);
 if(usdateflag == true) keywriteusdate(fhout);
@@ -2262,6 +2346,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--digit10     : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"--phome       : include weak PEGATRON HOME candidates\n"
 	"--tenda       : include weak TENDA candidates\n"
+	"--ee          : include weak EE BrightBox candidates\n"
 	"--weakpass    : include weak password candidates\n"
 	"--eudate      : include complete european dates\n"
 	"--usdate      : include complete american dates\n"
@@ -2309,6 +2394,7 @@ hb5flag = false;
 podaflag = false;
 phomeflag = false;
 tendaflag = false;
+eeflag = false;
 weakpassflag = false;
 eudateflag = false;
 usdateflag = false;
@@ -2325,6 +2411,7 @@ static const struct option long_options[] =
 	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
 	{"phome",			no_argument,		NULL,	HCXD_PHOME},
 	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
+	{"ee",			no_argument,		NULL,	HCXD_EE},
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
@@ -2361,6 +2448,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_TENDA:
 		tendaflag = true;
+		break;
+
+		case HCXD_EE:
+		eeflag = true;
 		break;
 
 		case HCXD_WEAKPASS:
