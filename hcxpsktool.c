@@ -34,6 +34,7 @@ static bool hb5flag;
 static bool podaflag;
 static bool phomeflag;
 static bool tendaflag;
+static bool eeflag;
 static bool weakpassflag;
 static bool eudateflag;
 static bool usdateflag;
@@ -485,6 +486,88 @@ for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
 		fprintf(fhout,"%s\n", pskstring);
 		}
 	}
+return;
+}
+/*===========================================================================*/
+static void keywriteee(FILE *fhout)
+{
+static size_t w3, w4, w5;
+
+static char pskstring[PSKSTRING_LEN_MAX] = {};
+
+static const char *word3[] =
+{ 
+    "ace", "act", "age", "aid", "aim", "all", "ape",
+    "bay", "bet", "bow", "box", "bus",
+    "cam", "can", "cop",
+    "eye",
+    "fat",
+    "gap",
+    "hit", "hot",
+    "key",
+    "leg",
+    "map", "mow",
+    "net",
+    "oar", "one",
+    "red", "rot",
+    "set", "sin",
+    "try", "two"
+};
+
+static const char *word4[] =
+{
+    "base", "boil", "bore",
+    "camp", "coat",
+    "damp",
+    "edit",
+    "face", "fine", "flag", "four", "full",
+    "half",
+    "lazy", "link", "look",
+    "mere", "move", "much",
+    "past", "pear", "plan", "poem", "post",
+    "riot", "roam",
+    "sale", "sift",
+    "trod",
+    "wait", "want", "warn", "wave"
+};
+
+static const char *word5[] =
+{
+    "ahead", "angle",
+    "cheap", "clove", "comic", "cruel", "cubic",
+    "diner", "dusty",
+    "early", "exact", "extra",
+    "fancy",
+    "guest",
+    "ivory",
+    "linen", "lyric",
+    "moist",
+    "nurse",
+    "pious", "prime", "prize",
+    "rally", "refer", "repel",
+    "scoop", "sharp", "shine", "silly",
+    "thief", "track",
+    "wrist",
+    "yeast"
+};
+
+for(w3 = 0; w3 < (sizeof(word3) / sizeof(char *)); w3++)
+for(w4 = 0; w4 < (sizeof(word4) / sizeof(char *)); w4++)
+for(w5 = 0; w5 < (sizeof(word5) / sizeof(char *)); w5++)
+    {
+    snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word3[w3], word4[w4], word5[w5]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word3[w3], word5[w5], word4[w4]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word4[w4], word3[w3], word5[w5]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word4[w4], word5[w5], word3[w3]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word5[w5], word3[w3], word4[w4]);
+	fprintf(fhout,"%s\n", pskstring);
+	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word5[w5], word4[w4], word3[w3]);
+	fprintf(fhout,"%s\n", pskstring);
+    }
 return;
 }
 /*===========================================================================*/
@@ -1862,6 +1945,7 @@ if(tendaflag == true)
 	keywritetenda1(fhout);
 	keywritetenda2(fhout);
 	}
+if(eeflag == true) keywriteee(fhout);
 if(weakpassflag == true) keywriteweakpass(fhout);
 if(eudateflag == true) keywriteeudate(fhout);
 if(usdateflag == true) keywriteusdate(fhout);
@@ -2262,6 +2346,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--digit10     : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"--phome       : include weak PEGATRON HOME candidates\n"
 	"--tenda       : include weak TENDA candidates\n"
+	"--ee          : include weak EE BrightBox candidates\n"
 	"--weakpass    : include weak password candidates\n"
 	"--eudate      : include complete european dates\n"
 	"--usdate      : include complete american dates\n"
@@ -2309,6 +2394,7 @@ hb5flag = false;
 podaflag = false;
 phomeflag = false;
 tendaflag = false;
+eeflag = false;
 weakpassflag = false;
 eudateflag = false;
 usdateflag = false;
@@ -2325,6 +2411,7 @@ static const struct option long_options[] =
 	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
 	{"phome",			no_argument,		NULL,	HCXD_PHOME},
 	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
+	{"ee",			no_argument,		NULL,	HCXD_EE},
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
@@ -2361,6 +2448,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_TENDA:
 		tendaflag = true;
+		break;
+
+		case HCXD_EE:
+		eeflag = true;
 		break;
 
 		case HCXD_WEAKPASS:
