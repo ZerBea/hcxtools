@@ -686,6 +686,23 @@ struct eapleap_frame
 typedef struct eapleap_frame eapleap_t;
 #define	EAPLEAP_SIZE offsetof(eapleap_t, leapdata)
 /*===========================================================================*/
+struct eapmschapv2_frame
+{
+ uint8_t	code;
+ uint8_t	id;
+ uint16_t	eaplen;
+ uint8_t	type;
+ uint8_t	opcode;
+ #define EAP_MSCHAPV2_OPCODE_REQ 1
+ #define EAP_MSCHAPV2_OPCODE_RESP 2
+ uint8_t	mschapv2id;
+ uint16_t	mschapv2len;
+ uint8_t  mschapv2valuesize;
+ uint8_t	mschapv2data[1];
+} __attribute__((__packed__));
+typedef struct eapmschapv2_frame eapmschapv2_t;
+#define	EAPMSCHAPV2_SIZE offsetof(eapmschapv2_t, mschapv2data)
+/*===========================================================================*/
 struct ipv4_frame
 {
  uint8_t	ver_hlen;
