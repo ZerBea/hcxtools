@@ -15,6 +15,7 @@
 #define HCX_HCCAP_OUT_DEPRECATED		15
 #define HCX_PMKIDEAPOLJTR_OUT_DEPRECATED	16
 #define HCX_PREFIX_OUT				17
+#define HCX_EAPMSCHAPV2_OUT			18
 #define HCX_PMKIDEAPOL_OUT			'o'
 #define HCX_ESSID_OUT				'E'
 #define HCX_ESSIDPROBEREQUEST_OUT		'R'
@@ -52,6 +53,17 @@
 #define	LEAPREQ_LEN_MAX			8
 #define	LEAPRESP_LEN_MAX		24
 #define	LEAPUSERNAME_LEN_MAX		120
+
+#define EAPMSCHAPV2HASHLIST_MAX		1000
+#define EAPMSCHAPV2MSGLIST_MAX		32
+#define MSCHAPV2REQ_LEN_MAX		16
+#define MSCHAPV2RESP_LEN_MAX		49
+#define MSCHAPV2USERNAME_LEN_MAX	120
+#define MSCHAPV2_CHALLENGE_AUTH_LEN_MAX	16
+#define MSCHAPV2_CHALLENGE_PEER_LEN_MAX	16
+#define MSCHAPV2_CHALLENGE_LEN_MAX	8
+#define MSCHAPV2_RESERVED_LEN_MAX	8
+#define MSCHAPV2_NTRESPONSE_LEN_MAX	24
 
 #define ESSIDSMAX			1
 #define EAPOLTIMEOUT			5000000
@@ -392,6 +404,61 @@ else if(memcmp(ia->leapresponse, ib->leapresponse, LEAPRESP_LEN_MAX) < 0) return
 else if(memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen) < 0) return -1;
 if(memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen) > 0) return 1;
 else if(memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen) < 0) return -1;
+return 0;
+}
+/*===========================================================================*/
+struct eapmschapv2msglist_s
+{
+ uint64_t	timestamp;
+ uint8_t	ap[6];
+ uint8_t	client[6];
+ uint8_t	type;
+ uint8_t	id;
+ uint8_t	mschapv2request[MSCHAPV2REQ_LEN_MAX];
+ uint8_t	mschapv2response[MSCHAPV2RESP_LEN_MAX];
+ uint8_t	mschapv2usernamelen;
+ uint8_t	mschapv2username[MSCHAPV2USERNAME_LEN_MAX];
+};
+typedef struct eapmschapv2msglist_s eapmschapv2msglist_t;
+#define	EAPMSCHAPV2MSGLIST_SIZE (sizeof(eapmschapv2msglist_t))
+
+static int sort_eapmschapv2msglist_by_timestamp(const void *a, const void *b)
+{
+const eapmschapv2msglist_t *ia = (const eapmschapv2msglist_t *)a;
+const eapmschapv2msglist_t *ib = (const eapmschapv2msglist_t *)b;
+
+if(ia->timestamp < ib->timestamp) return 1;
+else if(ia->timestamp > ib->timestamp) return -1;
+return 0;
+}
+/*===========================================================================*/
+struct eapmschapv2hashlist_s
+{
+ uint8_t	id;
+ uint8_t	mschapv2request[MSCHAPV2REQ_LEN_MAX];
+ uint8_t	mschapv2response[MSCHAPV2RESP_LEN_MAX];
+ uint8_t	mschapv2usernamelen;
+ uint8_t	mschapv2username[MSCHAPV2USERNAME_LEN_MAX];
+};
+typedef struct eapmschapv2hashlist_s eapmschapv2hashlist_t;
+#define	EAPMSCHAPV2HASHLIST_SIZE (sizeof(eapmschapv2hashlist_t))
+
+static int sort_eapmschapv2hashlist_by_id(const void *a, const void *b)
+{
+const eapmschapv2hashlist_t *ia = (const eapmschapv2hashlist_t *)a;
+const eapmschapv2hashlist_t *ib = (const eapmschapv2hashlist_t *)b;
+
+if(ia->id < ib->id) return 1;
+else if(ia->id > ib->id) return -1;
+if(ia->mschapv2usernamelen > ib->mschapv2usernamelen) return 1;
+if(ia->mschapv2usernamelen < ib->mschapv2usernamelen) return -1;
+if(memcmp(ia->mschapv2request, ib->mschapv2request, MSCHAPV2REQ_LEN_MAX) > 0) return 1;
+else if(memcmp(ia->mschapv2request, ib->mschapv2request, MSCHAPV2REQ_LEN_MAX) < 0) return -1;
+if(memcmp(ia->mschapv2response, ib->mschapv2response, MSCHAPV2RESP_LEN_MAX) > 0) return 1;
+else if(memcmp(ia->mschapv2response, ib->mschapv2response, MSCHAPV2RESP_LEN_MAX) < 0) return -1;
+else if(memcmp(ia->mschapv2username, ib->mschapv2username, ia->mschapv2usernamelen) < 0) return -1;
+if(memcmp(ia->mschapv2username, ib->mschapv2username, ia->mschapv2usernamelen) > 0) return 1;
+else if(memcmp(ia->mschapv2username, ib->mschapv2username, ia->mschapv2usernamelen) < 0) return -1;
 return 0;
 }
 /*===========================================================================*/
