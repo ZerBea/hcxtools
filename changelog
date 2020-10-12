@@ -1,6 +1,12 @@
+12.10.2020
+==========
+hcxpcapngtool: added new option --eapmschapv2
+--eapmschapv2=<file>               : output EAP MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)
+
+
 11.10.2020
 ==========
-hcxpsktool: added new option -ee
+hcxpsktool: added new option --ee
 --ee          : include weak EE BrightBox candidates
 
 
