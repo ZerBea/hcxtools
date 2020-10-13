@@ -869,7 +869,7 @@ if(restlen < (uint32_t)TACACSP_SIZE) return;
 tacacsp = (tacacsp_t*)tacacspptr;
 if(tacacsp->type != TACACS_AUTHENTICATION) return;
 authlen = ntohl(tacacsp->len);
-if((authlen > restlen -TACACSP_SIZE) || (authlen > 0xff)) return;
+if((authlen > restlen -TACACSP_SIZE) || (authlen > TACACSPMAX_LEN)) return;
 
 tacacspcount++;
 return;

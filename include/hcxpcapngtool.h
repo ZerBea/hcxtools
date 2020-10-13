@@ -462,5 +462,17 @@ else if(memcmp(ia->mschapv2username, ib->mschapv2username, ia->mschapv2usernamel
 return 0;
 }
 /*===========================================================================*/
+#define TACACSPMAX_LEN	0xff
+struct tacacsplist_s
+{
+ uint8_t	version;
+ uint8_t	sequencenr;
+ uint32_t	sessionid;
+ uint32_t	len;
+ uint8_t	data[TACACSPMAX_LEN];
+} __attribute__((__packed__));
+typedef struct tacacsplist_s tacacspl_t;
+#define	TACACSPLIST_SIZE (sizeof(tacacspl_t))
+/*===========================================================================*/
 
 
