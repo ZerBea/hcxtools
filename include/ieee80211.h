@@ -357,6 +357,15 @@ static const uint8_t ouiwifialliance[3] =
 0x50, 0x6f, 0x9a
 };
 /*===========================================================================*/
+struct owe_tag
+{
+ uint8_t	number;
+ uint16_t	group;
+ uint8_t	data[1];
+} __attribute__((__packed__));
+typedef struct owe_tag owe_t;
+#define	OWE_SIZE offsetof(owe_t, data)
+/*===========================================================================*/
 struct rsnie_tag
 {
  uint16_t		version;
