@@ -176,6 +176,8 @@ static long int ipv6count;
 static long int icmp6count;
 static long int tcpcount;
 static long int udpcount;
+static long int grecount;
+static long int tacacspcount;
 static long int wepenccount;
 static long int wpaenccount;
 static long int eapcount;
@@ -431,6 +433,8 @@ ipv6count = 0;
 icmp6count = 0;
 tcpcount = 0;
 udpcount = 0;
+grecount = 0;
+tacacspcount = 0;
 wepenccount = 0;
 wpaenccount = 0;
 eapcount = 0;
@@ -563,6 +567,8 @@ if(ipv6count > 0)			printf("IPv6.....................................: %ld\n", i
 if(icmp6count > 0)			printf("ICMPv6...................................: %ld\n", icmp6count);
 if(tcpcount > 0)			printf("TCP......................................: %ld\n", tcpcount);
 if(udpcount > 0)			printf("UDP......................................: %ld\n", udpcount);
+if(grecount > 0)			printf("GRE......................................: %ld\n", grecount);
+if(tacacspcount > 0)			printf("TACACS+..................................: %ld\n", tacacspcount);
 if(identitycount > 0)			printf("IDENTITIES...............................: %ld\n", identitycount);
 if(usernamecount > 0)			printf("USERNAMES................................: %ld\n", usernamecount);
 if(eapcount > 0)			printf("EAP (total)..............................: %ld\n", eapcount);
@@ -854,6 +860,29 @@ memcpy(&gpwplold, &gpwpl, gpwpllen);
 return;
 }
 /*===========================================================================*/
+void processtacacsppacket(uint32_t restlen, uint8_t *tacacspptr)
+{
+tacacsp_t *tacacsp;
+
+if(restlen < (uint32_t)TACACSP_SIZE) return;
+tacacsp = (tacacsp_t*)tacacspptr;
+if(tacacsp->type != TACACS_AUTHENTICATION) return;
+
+tacacspcount++;
+return;
+}
+/*===========================================================================*/
+static void processgrepacket(uint32_t restlen, uint8_t *greptr)
+{
+gre_t *gre;
+
+if(restlen < (uint32_t)GRE_SIZE) return;
+gre = (gre_t*)greptr;
+if((ntohs(gre->flags) & GRE_MASK_VERSION) != 0x1) return; /* only GRE v1 supported */
+grecount++;
+return;
+}
+/*===========================================================================*/
 static void processudppacket(uint64_t timestamp, uint32_t restlen, uint8_t *udpptr)
 {
 udp_t *udp;
@@ -872,16 +901,19 @@ return;
 /*===========================================================================*/
 static void processtcppacket(uint64_t timestamp, uint32_t restlen, uint8_t *tcpptr)
 {
-tcp_t *tcp;
 uint16_t tcplen; 
+tcp_t *tcp;
+tacacsp_t *tacacsp;
 
 if(restlen < TCP_SIZE_MIN) return;
 tcp = (tcp_t*)tcpptr;
 tcplen = byte_swap_8(tcp->len) *4;
 if(restlen < tcplen) return;
-
-//printf("%d %02x%02x\n", restlen, tcpptr[0], tcpptr[1]);
-
+if(restlen >= (uint32_t)TCP_SIZE_MIN +(uint32_t)TACACSP_SIZE)
+	{
+	tacacsp = (tacacsp_t*)(tcpptr +tcplen);
+	if(tacacsp->version == TACACSP_VERSION)processtacacsppacket(restlen -tcplen, tcpptr +tcplen);
+	}
 tcpcount++;
 //dummy code to satisfy gcc untill full code is implemented
 timestamp = timestamp;
@@ -917,6 +949,10 @@ else if(ipv4->nextprotocol == NEXTHDR_ICMP4)
 	{
 	processicmp4();
 	}
+else if(ipv4->nextprotocol == NEXTHDR_GRE)
+	{
+	processgrepacket(ntohs(ipv4->len) -ipv4len, ipv4ptr +ipv4len);
+	}
 ipv4count++;
 return;
 }
@@ -947,6 +983,10 @@ else if(ipv6->nextprotocol == NEXTHDR_UDP)
 else if(ipv6->nextprotocol == NEXTHDR_ICMP6)
 	{
 	processicmp6();
+	}
+else if(ipv6->nextprotocol == NEXTHDR_GRE)
+	{
+	processgrepacket(restlen, ipv6ptr +IPV6_SIZE);
 	}
 ipv6count++;
 return;
