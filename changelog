@@ -1,5 +1,8 @@
 13.10.2020
 ==========
+hcxpcapngtool: added new option --tacacs-plus
+--tacacs-plus=<file>               : output TACACS+ (hashcat -m 16100, john tacacs-plus)
+
 hcxpcapngtool: merged options --eapleap and --eapmschapv2 to --eapleap due to same hash format
 --eapleap=<file>                   : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)
 --prefix=<file>                    : convert everything to lists using this prefix (overrides single options):

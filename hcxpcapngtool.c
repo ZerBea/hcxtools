@@ -89,7 +89,7 @@ static eapleaphashlist_t *eapleaphashlist, *eapleaphashlistptr;
 static eapleapmsglist_t *eapleapmsglist;
 static eapmschapv2hashlist_t *eapmschapv2hashlist, *eapmschapv2hashlistptr;
 static eapmschapv2msglist_t *eapmschapv2msglist;
-static tacacsplist_t *tacacsplist;
+static tacacsplist_t *tacacsplist, *tacacsplistptr;
 
 static char *jtrbasenamedeprecated;
 
@@ -97,6 +97,7 @@ static FILE *fh_pmkideapol;
 static FILE *fh_eapmd5;
 static FILE *fh_eapmd5john;
 static FILE *fh_eapleap;
+static FILE *fh_tacacsp;
 static FILE *fh_essid;
 static FILE *fh_essidproberequest;
 static FILE *fh_identity;
@@ -115,6 +116,7 @@ static int pmkidlistmax;
 static int eapmd5hashlistmax;
 static int eapleaphashlistmax;
 static int eapmschapv2hashlistmax;
+static int tacacsplistmax;
 static int fd_pcap;
 
 static int gzipstat;
@@ -179,6 +181,7 @@ static long int tcpcount;
 static long int udpcount;
 static long int grecount;
 static long int tacacspcount;
+static long int tacacspwrittencount;
 static long int wepenccount;
 static long int wpaenccount;
 static long int eapcount;
@@ -369,8 +372,9 @@ eapmschapv2hashlistmax = EAPMSCHAPV2HASHLIST_MAX;
 if((eapmschapv2hashlist = (eapmschapv2hashlist_t*)calloc((eapmschapv2hashlistmax +1), EAPMSCHAPV2HASHLIST_SIZE)) == NULL) return false;
 eapmschapv2hashlistptr = eapmschapv2hashlist;
 
+tacacsplistmax = TACACSPLIST_MAX;
 if((tacacsplist = (tacacsplist_t*)calloc((TACACSPLIST_MAX +1), TACACSPLIST_SIZE)) == NULL) return false;
-
+tacacsplistptr = tacacsplist;
 
 memset(&pcapnghwinfo, 0, OPTIONLEN_MAX);
 memset(&pcapngosinfo, 0, OPTIONLEN_MAX);
@@ -440,6 +444,7 @@ tcpcount = 0;
 udpcount = 0;
 grecount = 0;
 tacacspcount = 0;
+tacacspwrittencount = 0;
 wepenccount = 0;
 wpaenccount = 0;
 eapcount = 0;
@@ -574,6 +579,7 @@ if(tcpcount > 0)			printf("TCP......................................: %ld\n", tc
 if(udpcount > 0)			printf("UDP......................................: %ld\n", udpcount);
 if(grecount > 0)			printf("GRE......................................: %ld\n", grecount);
 if(tacacspcount > 0)			printf("TACACS+..................................: %ld\n", tacacspcount);
+if(tacacspwrittencount > 0)		printf("TACACS+ written..........................: %ld\n", tacacspwrittencount);
 if(identitycount > 0)			printf("IDENTITIES...............................: %ld\n", identitycount);
 if(usernamecount > 0)			printf("USERNAMES................................: %ld\n", usernamecount);
 if(eapcount > 0)			printf("EAP (total)..............................: %ld\n", eapcount);
@@ -656,7 +662,7 @@ if(eapolmsgerrorcount > 0)		printf("EAPOL messages (malformed packets).......: %
 
 if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eapolncwrittenhcpxcountdeprecated +eapolwrittenhcpcountdeprecated 
 	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
-	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount +eapmschapv2writtencount) == 0)
+	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount +eapmschapv2writtencount +tacacspwrittencount) == 0)
 	{
 	printf( "\nInformation: no hashes written to hash files\n");
 	}
@@ -782,13 +788,6 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 return;
 }
 /*===========================================================================*/
-
-//$GPRMC,200802.00,A,5011.78201,N,00649.56403,E,0.039,,091020,,,A*7E
-//$GPGGA,200802.00,5011.78201,N,00649.56403,E,1,05,2.79,440.0,M,47.0,M,,*58
-//$GPGGA,203453,xxxx.xx0138,N,xxxxx.xx8022,W,2,09,1.0,122.0,M,-41.0,M,,*78
-//$GPGGA,132947,xxxx.xx40,N,xxxxx.xx89,W,1,4,0.9595,85.5999,M,,,,*37
-
-/*===========================================================================*/
 static void writegpwpl(uint8_t *mac)
 {
 static int c;
@@ -865,10 +864,40 @@ memcpy(&gpwplold, &gpwpl, gpwpllen);
 return;
 }
 /*===========================================================================*/
+static void outputtacacsplist()
+{
+uint32_t c;
+static tacacsplist_t *zeiger, *zeigerold;
+
+zeiger = tacacsplist;
+zeigerold = tacacsplist;
+if(fh_tacacsp != NULL)
+	{
+	fprintf(fh_tacacsp, "$tacacs-plus$0$%08x$", zeiger->sessionid);
+	for(c = 0; c < zeiger->len; c++) fprintf(fh_tacacsp, "%02x", zeiger->data[c]);
+	fprintf(fh_tacacsp, "$%02x%02x\n", zeiger->version, zeiger->sequencenr);
+	tacacspwrittencount++;
+	}
+for(zeiger = tacacsplist +1; zeiger < tacacsplistptr; zeiger++)
+	{
+	if((zeigerold->sessionid == zeiger->sessionid) && (zeigerold->sequencenr == zeiger->sequencenr)  && (zeigerold->len == zeiger->len) && (memcmp(zeigerold->data, zeiger->data, zeiger->len) == 0)) continue;
+	if(fh_tacacsp != NULL)
+		{
+		fprintf(fh_tacacsp, "$tacacs-plus$0$%08x$", zeiger->sessionid);
+		for(c = 0; c < zeiger->len; c++) fprintf(fh_tacacsp, "%02x", zeiger->data[c]);
+		fprintf(fh_tacacsp, "$%02x%02x\n", zeiger->version, zeiger->sequencenr);
+		tacacspwrittencount++;
+		}
+	zeigerold = zeiger;
+	}
+return;
+}
+/*===========================================================================*/
 void processtacacsppacket(uint32_t restlen, uint8_t *tacacspptr)
 {
 uint32_t authlen;
 tacacsp_t *tacacsp;
+static tacacsplist_t *tacacsplistnew; 
 
 if(restlen < (uint32_t)TACACSP_SIZE) return;
 tacacsp = (tacacsp_t*)tacacspptr;
@@ -876,7 +905,25 @@ if(tacacsp->type != TACACS_AUTHENTICATION) return;
 authlen = ntohl(tacacsp->len);
 if((authlen > restlen -TACACSP_SIZE) || (authlen > TACACSPMAX_LEN)) return;
 
-
+if(tacacsplistptr >= tacacsplist +tacacsplistmax)
+	{
+	tacacsplistnew = realloc(tacacsplist, (tacacsplistmax +TACACSPLIST_MAX) *TACACSPLIST_SIZE);
+	if(tacacsplistnew == NULL)
+		{
+		printf("failed to allocate memory for internal list\n");
+		exit(EXIT_FAILURE);
+		}
+	tacacsplist = tacacsplistnew;
+	tacacsplistptr = tacacsplistnew +tacacsplistmax;
+	tacacsplistmax += TACACSPLIST_MAX;
+	}
+memset(tacacsplistptr, 0, TACACSPLIST_SIZE);
+tacacsplistptr->version = tacacsp->version;
+tacacsplistptr->sequencenr = tacacsp->sequencenr;
+tacacsplistptr->sessionid = ntohl(tacacsp->sessionid);
+tacacsplistptr->len = authlen;
+memcpy(tacacsplistptr->data, tacacsp->data, authlen);
+tacacsplistptr++;
 tacacspcount++;
 return;
 }
@@ -3968,6 +4015,7 @@ outputwpalists();
 outputeapmd5hashlist();
 outputeapleaphashlist();
 outputeapmschapv2hashlist();
+outputtacacsplist();
 outputwordlists();
 printcontentinfo();
 
@@ -4452,6 +4500,7 @@ outputwordlists();
 outputeapmd5hashlist();
 outputeapleaphashlist();
 outputeapmschapv2hashlist();
+outputtacacsplist();
 printcontentinfo();
 
 return;
@@ -4774,6 +4823,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--eapmd5=<file>                    : output EAP MD5 CHALLENGE (hashcat -m 4800)\n"
 	"--eapmd5-john=<file>               : output EAP MD5 CHALLENGE (john chap)\n"
 	"--eapleap=<file>                   : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
+	"--tacacs-plus=<file>               : output TACACS+ (hashcat -m 16100, john tacacs-plus)\n"
 	"--nmea=<file>                      : output GPS data in NMEA format\n"
 	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
@@ -4836,6 +4886,7 @@ static char *pmkideapoloutname;
 static char *eapmd5outname;
 static char *eapmd5johnoutname;
 static char *eapleapoutname;
+static char *tacacspoutname;
 static char *essidoutname;
 static char *essidproberequestoutname;
 static char *identityoutname;
@@ -4853,6 +4904,7 @@ static const char *prefixoutname;
 static const char *pmkideapolsuffix = ".22000";
 static const char *eapmd5suffix = ".4800";
 static const char *eapleapsuffix = ".5500";
+static const char *tacacspsuffix = ".16100";
 static const char *essidsuffix = ".essid";
 static const char *essidproberequestsuffix = ".essidproberequest";
 static const char *identitysuffix = ".identity";
@@ -4862,6 +4914,7 @@ static const char *nmeasuffix = ".nmea";
 static char pmkideapolprefix[PATH_MAX];
 static char eapmd5prefix[PATH_MAX];
 static char eapleapprefix[PATH_MAX];
+static char tacacspprefix[PATH_MAX];
 static char essidprefix[PATH_MAX];
 static char essidproberequestprefix[PATH_MAX];
 static char identityprefix[PATH_MAX];
@@ -4887,6 +4940,7 @@ static const struct option long_options[] =
 	{"eapmd5",			required_argument,	NULL,	HCX_EAPMD5_OUT},
 	{"eapmd5-john",			required_argument,	NULL,	HCX_EAPMD5_JOHN_OUT},
 	{"eapleap",			required_argument,	NULL,	HCX_EAPLEAP_OUT},
+	{"tacacs-plus",			required_argument,	NULL,	HCX_TACACSP_OUT},
 	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT_DEPRECATED},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT_DEPRECATED},
 	{"john",			required_argument,	NULL,	HCX_PMKIDEAPOLJTR_OUT_DEPRECATED},
@@ -4910,6 +4964,8 @@ essidsvalue = ESSIDSMAX;
 pmkideapoloutname = NULL;
 eapmd5outname = NULL;
 eapmd5johnoutname = NULL;
+eapleapoutname = NULL;
+tacacspoutname = NULL;
 essidoutname = NULL;
 essidproberequestoutname = NULL;
 identityoutname = NULL;
@@ -4928,6 +4984,7 @@ fh_pmkideapol = NULL;
 fh_eapmd5 = NULL;
 fh_eapmd5john = NULL;
 fh_eapleap = NULL;
+fh_tacacsp = NULL;
 fh_essid = NULL;
 fh_essidproberequest = NULL;
 fh_identity = NULL;
@@ -4987,6 +5044,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_EAPLEAP_OUT:
 		eapleapoutname = optarg;
+		break;
+
+		case HCX_TACACSP_OUT:
+		tacacspoutname = optarg;
 		break;
 
 		case HCX_ESSID_OUT:
@@ -5105,6 +5166,10 @@ if(prefixoutname != NULL)
 	strncat(eapleapprefix, eapleapsuffix, PREFIX_BUFFER_MAX);
 	eapleapoutname = eapleapprefix;
 
+	strncpy(tacacspprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(tacacspprefix, tacacspsuffix, PREFIX_BUFFER_MAX);
+	tacacspoutname = tacacspprefix;
+
 	strncpy(nmeaprefix, prefixoutname, PREFIX_BUFFER_MAX);
 	strncat(nmeaprefix, nmeasuffix, PREFIX_BUFFER_MAX);
 	nmeaoutname = nmeaprefix;
@@ -5138,6 +5203,14 @@ if(eapleapoutname != NULL)
 	if((fh_eapleap = fopen(eapleapoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", eapleapoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+if(tacacspoutname != NULL)
+	{
+	if((fh_tacacsp = fopen(tacacspoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", tacacspoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -5243,6 +5316,7 @@ if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 if(fh_eapmd5 != NULL) fclose(fh_eapmd5);
 if(fh_eapmd5john != NULL) fclose(fh_eapmd5john);
 if(fh_eapleap != NULL) fclose(fh_eapleap);
+if(fh_tacacsp != NULL) fclose(fh_tacacsp);
 if(fh_essid != NULL) fclose(fh_essid);
 if(fh_essidproberequest != NULL) fclose(fh_essidproberequest);
 if(fh_identity != NULL) fclose(fh_identity);
@@ -5281,6 +5355,13 @@ if(eapleapoutname != NULL)
 	if(stat(eapleapoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(eapleapoutname);
+		}
+	}
+if(tacacspoutname != NULL)
+	{
+	if(stat(tacacspoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(tacacspoutname);
 		}
 	}
 if(essidoutname != NULL)
