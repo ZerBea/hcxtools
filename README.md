@@ -8,13 +8,13 @@ and recommended by hashcat. This branch is pretty closely synced to hashcat git 
 (that means: latest hcxtools matching on latest hashcat beta) and John the Ripper
 git branch ("bleeding-jumbo").
 
-Support for hashcat hash-modes: 4800, 5500, 2200x, 250x (deprecated), 1680x (deprecated)
+Support for hashcat hash-modes: 4800, 5500, 2200x, 16100, 250x (deprecated), 1680x (deprecated)
   
-Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm
+Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm, tacacs-plus
 
 After capturing, upload the "uncleaned" cap here (https://wpa-sec.stanev.org/?submit)
 to see if your ap or the client is vulnerable by using common wordlists.
-Convert the cap to hccapx and/or to WPA-PMKID-PBKDF2 hashline (16800) and check if wlan-key
+Convert the dump file to WPA-PBKDF2-PMKID+EAPOL hash file and check if wlan-key
 or plainmasterkey was transmitted unencrypted.
 
 
