@@ -322,6 +322,7 @@ struct ie_tag
 #define	TAG_RSN		0x30
 #define	TAG_PAG		0xde
 #define	TAG_VENDOR	0xdd
+#define	TAG_EXT		0xff
  uint8_t		len;
  uint8_t		data[1];
 } __attribute__((__packed__));
