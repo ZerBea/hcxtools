@@ -580,17 +580,17 @@ typedef struct rsnpmkidlist_s rsnpmkidlist_t;
 /*===========================================================================*/
 struct exteap_frame
 {
- uint8_t			code;
+ uint8_t	code;
 #define EAP_CODE_REQ		1
 #define EAP_CODE_RESP		2
 #define EAP_CODE_SUCCESS	3
 #define EAP_CODE_FAILURE	4
 #define EAP_CODE_INITIATE	5
 #define EAP_CODE_FINISH		6
- uint8_t			id;
+ uint8_t	id;
 #define EAP_TYPE_ID		1
- uint16_t			len;
- uint8_t			type;
+ uint16_t	len;
+ uint8_t	type;
 #define EAP_TYPE_EAP		0
 #define EAP_TYPE_ID		1
 #define EAP_TYPE_NOTIFY		2
@@ -646,16 +646,16 @@ struct exteap_frame
 #define EAP_TYPE_TEAP		55
 #define	EAP_TYPE_EXPAND		254
 #define EAP_TYPE_EXPERIMENTAL	255
- uint8_t			data[1];
+ uint8_t	data[1];
 } __attribute__((__packed__));
 typedef struct exteap_frame exteap_t;
 #define	EXTEAP_SIZE offsetof(exteap_t, data)
 /*===========================================================================*/
 struct mpdu_frame
 {
- uint8_t pn[3];
- uint8_t keyid;
- uint8_t exitiv[4];
+ uint8_t	pn[3];
+ uint8_t	keyid;
+ uint8_t	exitiv[4];
 };
 typedef struct mpdu_frame mpdu_t;
 #define	MPDU_SIZE (sizeof(mpdu_t))
@@ -697,7 +697,7 @@ struct eapmschapv2_frame
  #define EAP_MSCHAPV2_OPCODE_RESP 2
  uint8_t	mschapv2id;
  uint16_t	mschapv2len;
- uint8_t  mschapv2valuesize;
+ uint8_t	mschapv2valuesize;
  uint8_t	mschapv2data[1];
 } __attribute__((__packed__));
 typedef struct eapmschapv2_frame eapmschapv2_t;
@@ -806,7 +806,6 @@ struct tzsp_tag
  uint8_t	tag;
 #define TZSP_TAG_END 1
 #define TZSP_TAG_ORGLEN 41
-
  uint8_t	len;
  uint8_t	data[1];
 } __attribute__ ((packed));
@@ -841,7 +840,6 @@ struct chap_frame
  uint8_t	code;
 #define	CHAP_CODE_REQ	1
 #define	CHAP_CODE_RESP	2
-
  uint8_t	id;
  uint16_t	len;
  uint8_t	data[1];
@@ -851,15 +849,15 @@ typedef struct chap_frame chap_t;
 /*===========================================================================*/
 struct tacacsp_frame
 {
- uint8_t   version;
+ uint8_t	version;
 #define TACACSP_VERSION 0xc0
- uint8_t   type;
+ uint8_t	type;
 #define TACACS_AUTHENTICATION 1
- uint8_t   sequencenr;
- uint8_t   flags;
- uint32_t  sessionid;
- uint32_t  len;
- uint8_t   data[1];
+ uint8_t	sequencenr;
+ uint8_t	flags;
+ uint32_t	sessionid;
+ uint32_t	len;
+ uint8_t	data[1];
 } __attribute__ ((packed));
 typedef struct tacacsp_frame tacacsp_t;
 #define	TACACSP_SIZE offsetof(tacacsp_t, data)
