@@ -96,7 +96,6 @@ static FILE *fh_pmkideapol;
 static FILE *fh_eapmd5;
 static FILE *fh_eapmd5john;
 static FILE *fh_eapleap;
-static FILE *fh_eapmschapv2;
 static FILE *fh_essid;
 static FILE *fh_essidproberequest;
 static FILE *fh_identity;
@@ -985,17 +984,18 @@ static eapmschapv2hashlist_t *zeiger, *zeigerold;
 static uint8_t challenge[MSCHAPV2_CHALLENGE_LEN_MAX];
 static uint8_t usernameclean[MSCHAPV2USERNAME_LEN_MAX];
 static size_t usernamecleanlen;
+
 zeiger = eapmschapv2hashlist;
 zeigerold = NULL;
 qsort(eapmschapv2hashlist, eapmschapv2hashlistptr -eapmschapv2hashlist, EAPMSCHAPV2HASHLIST_SIZE, sort_eapmschapv2hashlist_by_id);
 for(zeiger = eapmschapv2hashlist; zeiger < eapmschapv2hashlistptr; zeiger++)
 	{
 	if((zeigerold != NULL) && (zeigerold->id == zeiger->id) && (zeigerold->mschapv2usernamelen == zeiger->mschapv2usernamelen) && (memcmp(zeigerold->mschapv2username, zeiger->mschapv2username, zeiger->mschapv2usernamelen) == 0) && (memcmp(zeigerold->mschapv2request, zeiger->mschapv2request, MSCHAPV2REQ_LEN_MAX) == 0) && (memcmp(zeigerold->mschapv2response, zeiger->mschapv2response, MSCHAPV2RESP_LEN_MAX) == 0)) continue;
-	if(fh_eapmschapv2 != 0)
+	if(fh_eapleap != NULL)
 		{
 		usernamecleanlen = mschapv2_username_clean(zeiger->mschapv2username, zeiger->mschapv2usernamelen, usernameclean);
 		if(mschapv2_challenge_hash(zeiger->mschapv2response, zeiger->mschapv2request, usernameclean, usernamecleanlen, challenge) != 0) continue;
-		fprintf(fh_eapmschapv2, "%.*s::::%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x%02x%02x\n",
+		fprintf(fh_eapleap, "%.*s::::%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x%02x%02x\n",
 			(int)zeiger->mschapv2usernamelen, zeiger->mschapv2username,
 			zeiger->mschapv2response[24], zeiger->mschapv2response[25], zeiger->mschapv2response[26], zeiger->mschapv2response[27], zeiger->mschapv2response[28], zeiger->mschapv2response[29], zeiger->mschapv2response[30], zeiger->mschapv2response[31],
 			zeiger->mschapv2response[32], zeiger->mschapv2response[33], zeiger->mschapv2response[34], zeiger->mschapv2response[35], zeiger->mschapv2response[36], zeiger->mschapv2response[37], zeiger->mschapv2response[38], zeiger->mschapv2response[39],
@@ -1119,7 +1119,7 @@ zeiger = eapleaphashlist;
 zeigerold = eapleaphashlist;
 if(memcmp(&zeroed32, zeiger->leaprequest, LEAPREQ_LEN_MAX) == 0) return;
 qsort(eapleaphashlist, eapleaphashlistptr -eapleaphashlist, EAPLEAPHASHLIST_SIZE, sort_eapleaphashlist_by_id);
-if(fh_eapleap != 0)
+if(fh_eapleap != NULL)
 	{
 	fprintf(fh_eapleap, "%.*s::::%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x%02x%02x\n",
 		zeiger->leapusernamelen, zeiger->leapusername,
@@ -1132,7 +1132,7 @@ if(fh_eapleap != 0)
 for(zeiger = eapleaphashlist +1; zeiger < eapleaphashlistptr; zeiger++)
 	{
 	if((zeigerold->id == zeiger->id) && (zeigerold->leapusernamelen == zeiger->leapusernamelen) && (memcmp(zeigerold->leapusername, zeiger->leapusername, zeiger->leapusernamelen) == 0) && (memcmp(zeigerold->leaprequest, zeiger->leaprequest, LEAPREQ_LEN_MAX) == 0) && (memcmp(zeigerold->leapresponse, zeiger->leapresponse, LEAPRESP_LEN_MAX) == 0)) continue;
-	if(fh_eapleap != 0)
+	if(fh_eapleap != NULL)
 		{
 		fprintf(fh_eapleap, "%.*s::::%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x%02x%02x\n",
 			zeiger->leapusernamelen, zeiger->leapusername,
@@ -4724,8 +4724,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     disregard ESSID changes and take ESSID with highest ranking\n"
 	"--eapmd5=<file>                    : output EAP MD5 CHALLENGE (hashcat -m 4800)\n"
 	"--eapmd5-john=<file>               : output EAP MD5 CHALLENGE (john chap)\n"
-	"--eapleap=<file>                   : output EAP LEAP CHALLENGE (hashcat -m 5500, john netntlm)\n"
-	"--eapmschapv2=<file>               : output EAP MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
+	"--eapleap=<file>                   : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"--nmea=<file>                      : output GPS data in NMEA format\n"
 	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
@@ -4746,8 +4745,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                      -I <file.identitiy>  : output unsorted identity list to use as input wordlist for cracker\n"
 	"                                      -U <file.username>   : output unsorted username list to use as input wordlist for cracker\n"
 	"                                     --eapmd5=<file.4800>  : output EAP MD5 CHALLENGE (hashcat -m 4800)\n"
-	"                                     --eapleap=<file.5500> : output EAP LEAP CHALLENGE (hashcat -m 5500, john netntlm)\n"
-	"                                 --eapmschapv2=<file.5500> : output EAP MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
+	"                                     --eapleap=<file.5500> : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"                                     --nmea=<file.nmea>    : output GPS data in NMEA format\n"
 	"--help                             : show this help\n"
 	"--version                          : show version\n"
@@ -4789,7 +4787,6 @@ static char *pmkideapoloutname;
 static char *eapmd5outname;
 static char *eapmd5johnoutname;
 static char *eapleapoutname;
-static char *eapmschapv2outname;
 static char *essidoutname;
 static char *essidproberequestoutname;
 static char *identityoutname;
@@ -4807,7 +4804,6 @@ static const char *prefixoutname;
 static const char *pmkideapolsuffix = ".22000";
 static const char *eapmd5suffix = ".4800";
 static const char *eapleapsuffix = ".5500";
-static const char *eapmschapv2suffix = ".5500";
 static const char *essidsuffix = ".essid";
 static const char *essidproberequestsuffix = ".essidproberequest";
 static const char *identitysuffix = ".identity";
@@ -4817,7 +4813,6 @@ static const char *nmeasuffix = ".nmea";
 static char pmkideapolprefix[PATH_MAX];
 static char eapmd5prefix[PATH_MAX];
 static char eapleapprefix[PATH_MAX];
-static char eapmschapv2prefix[PATH_MAX];
 static char essidprefix[PATH_MAX];
 static char essidproberequestprefix[PATH_MAX];
 static char identityprefix[PATH_MAX];
@@ -4843,7 +4838,6 @@ static const struct option long_options[] =
 	{"eapmd5",			required_argument,	NULL,	HCX_EAPMD5_OUT},
 	{"eapmd5-john",			required_argument,	NULL,	HCX_EAPMD5_JOHN_OUT},
 	{"eapleap",			required_argument,	NULL,	HCX_EAPLEAP_OUT},
-	{"eapmschapv2",			required_argument,	NULL,	HCX_EAPMSCHAPV2_OUT},
 	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT_DEPRECATED},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT_DEPRECATED},
 	{"john",			required_argument,	NULL,	HCX_PMKIDEAPOLJTR_OUT_DEPRECATED},
@@ -4885,7 +4879,6 @@ fh_pmkideapol = NULL;
 fh_eapmd5 = NULL;
 fh_eapmd5john = NULL;
 fh_eapleap = NULL;
-fh_eapmschapv2 = NULL;
 fh_essid = NULL;
 fh_essidproberequest = NULL;
 fh_identity = NULL;
@@ -4945,10 +4938,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_EAPLEAP_OUT:
 		eapleapoutname = optarg;
-		break;
-
-		case HCX_EAPMSCHAPV2_OUT:
-		eapmschapv2outname = optarg;
 		break;
 
 		case HCX_ESSID_OUT:
@@ -5067,10 +5056,6 @@ if(prefixoutname != NULL)
 	strncat(eapleapprefix, eapleapsuffix, PREFIX_BUFFER_MAX);
 	eapleapoutname = eapleapprefix;
 
-	strncpy(eapmschapv2prefix, prefixoutname, PREFIX_BUFFER_MAX);
-	strncat(eapmschapv2prefix, eapmschapv2suffix, PREFIX_BUFFER_MAX);
-	eapmschapv2outname = eapmschapv2prefix;
-
 	strncpy(nmeaprefix, prefixoutname, PREFIX_BUFFER_MAX);
 	strncat(nmeaprefix, nmeasuffix, PREFIX_BUFFER_MAX);
 	nmeaoutname = nmeaprefix;
@@ -5104,18 +5089,6 @@ if(eapleapoutname != NULL)
 	if((fh_eapleap = fopen(eapleapoutname, "a")) == NULL)
 		{
 		printf("error opening file %s: %s\n", eapleapoutname, strerror(errno));
-		exit(EXIT_FAILURE);
-		}
-	}
-if(eapmschapv2outname != NULL)
-	{
-	if((eapleapoutname != NULL) && (strcmp(eapmschapv2outname, eapleapoutname) == 0))
-		{
-		fh_eapmschapv2 = fh_eapleap;
-		}
-	else if((fh_eapmschapv2 = fopen(eapmschapv2outname, "a")) == NULL)
-		{
-		printf("error opening file %s: %s\n", eapmschapv2outname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -5221,7 +5194,6 @@ if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 if(fh_eapmd5 != NULL) fclose(fh_eapmd5);
 if(fh_eapmd5john != NULL) fclose(fh_eapmd5john);
 if(fh_eapleap != NULL) fclose(fh_eapleap);
-if((fh_eapmschapv2 != NULL) && (fh_eapmschapv2 != fh_eapleap)) fclose(fh_eapmschapv2);
 if(fh_essid != NULL) fclose(fh_essid);
 if(fh_essidproberequest != NULL) fclose(fh_essidproberequest);
 if(fh_identity != NULL) fclose(fh_identity);
@@ -5260,13 +5232,6 @@ if(eapleapoutname != NULL)
 	if(stat(eapleapoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(eapleapoutname);
-		}
-	}
-if(eapmschapv2outname != NULL)
-	{
-	if(stat(eapmschapv2outname, &statinfo) == 0)
-		{
-		if(statinfo.st_size == 0) remove(eapmschapv2outname);
 		}
 	}
 if(essidoutname != NULL)

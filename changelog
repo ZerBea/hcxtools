@@ -1,3 +1,17 @@
+13.10.2020
+==========
+hcxpcapngtool: merged options --eapleap and --eapmschapv2 to --eapleap due to same hash format
+--eapleap=<file>                   : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)
+--prefix=<file>                    : convert everything to lists using this prefix (overrides single options):
+                                      -o <file.22000>      : output PMKID/EAPOL hash file
+                                      -E <file.essid>      : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker
+                                      -I <file.identitiy>  : output unsorted identity list to use as input wordlist for cracker
+                                      -U <file.username>   : output unsorted username list to use as input wordlist for cracker
+                                     --eapmd5=<file.4800>  : output EAP MD5 CHALLENGE (hashcat -m 4800)
+                                     --eapleap=<file.5500> : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)
+                                     --nmea=<file.nmea>    : output GPS data in NMEA format
+
+
 12.10.2020
 ==========
 hcxpcapngtool: added new option --eapmschapv2
