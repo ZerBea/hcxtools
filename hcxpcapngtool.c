@@ -862,11 +862,14 @@ return;
 /*===========================================================================*/
 void processtacacsppacket(uint32_t restlen, uint8_t *tacacspptr)
 {
+uint32_t authlen;
 tacacsp_t *tacacsp;
 
 if(restlen < (uint32_t)TACACSP_SIZE) return;
 tacacsp = (tacacsp_t*)tacacspptr;
 if(tacacsp->type != TACACS_AUTHENTICATION) return;
+authlen = ntohl(tacacsp->len);
+if((authlen > restlen -TACACSP_SIZE) || (authlen > 0xff)) return;
 
 tacacspcount++;
 return;
