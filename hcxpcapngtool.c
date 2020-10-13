@@ -89,6 +89,7 @@ static eapleaphashlist_t *eapleaphashlist, *eapleaphashlistptr;
 static eapleapmsglist_t *eapleapmsglist;
 static eapmschapv2hashlist_t *eapmschapv2hashlist, *eapmschapv2hashlistptr;
 static eapmschapv2msglist_t *eapmschapv2msglist;
+static tacacsplist_t *tacacsplist;
 
 static char *jtrbasenamedeprecated;
 
@@ -328,6 +329,7 @@ if(eapleapmsglist != NULL) free(eapleapmsglist);
 if(eapleaphashlist != NULL) free(eapleaphashlist);
 if(eapmschapv2msglist != NULL) free(eapmschapv2msglist);
 if(eapmschapv2hashlist != NULL) free(eapmschapv2hashlist);
+if(tacacsplist != NULL) free(tacacsplist);
 return;
 }
 /*===========================================================================*/
@@ -366,6 +368,9 @@ if((eapmschapv2msglist = (eapmschapv2msglist_t*)calloc((EAPMSCHAPV2MSGLIST_MAX +
 eapmschapv2hashlistmax = EAPMSCHAPV2HASHLIST_MAX;
 if((eapmschapv2hashlist = (eapmschapv2hashlist_t*)calloc((eapmschapv2hashlistmax +1), EAPMSCHAPV2HASHLIST_SIZE)) == NULL) return false;
 eapmschapv2hashlistptr = eapmschapv2hashlist;
+
+if((tacacsplist = (tacacsplist_t*)calloc((TACACSPLIST_MAX +1), TACACSPLIST_SIZE)) == NULL) return false;
+
 
 memset(&pcapnghwinfo, 0, OPTIONLEN_MAX);
 memset(&pcapngosinfo, 0, OPTIONLEN_MAX);

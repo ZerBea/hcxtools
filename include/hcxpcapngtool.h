@@ -65,6 +65,8 @@
 #define MSCHAPV2_RESERVED_LEN_MAX	8
 #define MSCHAPV2_NTRESPONSE_LEN_MAX	24
 
+#define TACACSPLIST_MAX		1000
+
 #define ESSIDSMAX			1
 #define EAPOLTIMEOUT			5000000
 #define NONCEERRORCORRECTION		0
@@ -471,8 +473,8 @@ struct tacacsplist_s
  uint32_t	len;
  uint8_t	data[TACACSPMAX_LEN];
 } __attribute__((__packed__));
-typedef struct tacacsplist_s tacacspl_t;
-#define	TACACSPLIST_SIZE (sizeof(tacacspl_t))
+typedef struct tacacsplist_s tacacsplist_t;
+#define	TACACSPLIST_SIZE (sizeof(tacacsplist_t))
 /*===========================================================================*/
 
 
