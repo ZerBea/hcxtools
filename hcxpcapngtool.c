@@ -750,14 +750,19 @@ strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmax.tv_sec));
 printf("timestamp minimum (GMT)..................: %s\n", timestringmin);
 printf("timestamp maximum (GMT)..................: %s\n", timestringmax);
 printf("used capture interfaces..................: %d\n", iface);
-for(c = 0; c <= iface; c++)
+for(c = 0; c < iface; c++)
 	{
-	if(dltlinktype[c] == DLT_IEEE802_11_RADIO)		printf("link layer header type...................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype[c]);
+	if(c > 0)
+		{
+		if(dltlinktype[c] == dltlinktype[c -1]) continue;
+		}
+	if(dltlinktype[c] == DLT_IEEE802_11_RADIO)	printf("link layer header type...................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype[c]);
 	if(dltlinktype[c] == DLT_IEEE802_11)		printf("link layer header type...................: DLT_IEEE802_11 (%d)\n", dltlinktype[c]);
 	if(dltlinktype[c] == DLT_PPI)			printf("link layer header type...................: DLT_PPI (%d)\n", dltlinktype[c]);
 	if(dltlinktype[c] == DLT_PRISM_HEADER)		printf("link layer header type...................: DLT_PRISM_HEADER (%d)\n", dltlinktype[c]);
 	if(dltlinktype[c] == DLT_IEEE802_11_RADIO_AVS)	printf("link layer header type...................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype[c]);
-	if(dltlinktype[c] == DLT_EN10MB)			printf("link layer header type...................: DLT_EN10MB (%d)\n", dltlinktype[c]);
+	if(dltlinktype[c] == DLT_EN10MB)		printf("link layer header type...................: DLT_EN10MB (%d)\n", dltlinktype[c]);
+	if(dltlinktype[c] == DLT_NULL)			printf("link layer header type...................: DLT_NULL (BSD LO) (%d)\n", dltlinktype[c]);
 	}
 return;
 }
@@ -992,23 +997,10 @@ ipv4 = (ipv4_t*)ipv4ptr;
 if((ipv4->ver_hlen & 0xf0) != 0x40) return;
 ipv4len = (ipv4->ver_hlen & 0x0f) *4;
 if(restlen < ipv4len) return;
-
-if(ipv4->nextprotocol == NEXTHDR_TCP)
-	{
-	processtcppacket(timestamp, ntohs(ipv4->len) -ipv4len, ipv4ptr +ipv4len);
-	}
-else if(ipv4->nextprotocol == NEXTHDR_UDP)
-	{
-	processudppacket(timestamp, ntohs(ipv4->len) -ipv4len, ipv4ptr +ipv4len);
-	}
-else if(ipv4->nextprotocol == NEXTHDR_ICMP4)
-	{
-	processicmp4();
-	}
-else if(ipv4->nextprotocol == NEXTHDR_GRE)
-	{
-	processgrepacket(ntohs(ipv4->len) -ipv4len, ipv4ptr +ipv4len);
-	}
+if(ipv4->nextprotocol == NEXTHDR_TCP) processtcppacket(timestamp, ntohs(ipv4->len) -ipv4len, ipv4ptr +ipv4len);
+else if(ipv4->nextprotocol == NEXTHDR_UDP) processudppacket(timestamp, ntohs(ipv4->len) -ipv4len, ipv4ptr +ipv4len);
+else if(ipv4->nextprotocol == NEXTHDR_ICMP4) processicmp4();
+else if(ipv4->nextprotocol == NEXTHDR_GRE) processgrepacket(ntohs(ipv4->len) -ipv4len, ipv4ptr +ipv4len);
 ipv4count++;
 return;
 }
@@ -1027,23 +1019,10 @@ if(restlen < IPV6_SIZE) return;
 ipv6 = (ipv6_t*)ipv6ptr;
 if((ntohl(ipv6->ver_class) & 0xf0000000) != 0x60000000) return;
 if(restlen < ntohs(ipv6->len)) return;
-
-if(ipv6->nextprotocol == NEXTHDR_TCP)
-	{
-	processtcppacket(timestamp, restlen, ipv6ptr +IPV6_SIZE);
-	}
-else if(ipv6->nextprotocol == NEXTHDR_UDP)
-	{
-	processudppacket(timestamp, restlen, ipv6ptr +IPV6_SIZE);
-	}
-else if(ipv6->nextprotocol == NEXTHDR_ICMP6)
-	{
-	processicmp6();
-	}
-else if(ipv6->nextprotocol == NEXTHDR_GRE)
-	{
-	processgrepacket(restlen, ipv6ptr +IPV6_SIZE);
-	}
+if(ipv6->nextprotocol == NEXTHDR_TCP) processtcppacket(timestamp, restlen, ipv6ptr +IPV6_SIZE);
+else if(ipv6->nextprotocol == NEXTHDR_UDP) processudppacket(timestamp, restlen, ipv6ptr +IPV6_SIZE);
+else if(ipv6->nextprotocol == NEXTHDR_ICMP6) processicmp6();
+else if(ipv6->nextprotocol == NEXTHDR_GRE) processgrepacket(restlen, ipv6ptr +IPV6_SIZE);
 ipv6count++;
 return;
 }
@@ -3676,6 +3655,21 @@ if(ntohs(eth2->ether_type) == LLC_TYPE_AUTH)
 return;
 }
 /*===========================================================================*/
+void processlobapacket(uint64_t timestamp, uint32_t caplen, uint8_t *packetptr)
+{
+static loba_t *loba;
+if(caplen < LOBA_SIZE) return;
+loba = (loba_t*)packetptr;
+#ifdef BIG_ENDIAN_HOST
+loba->family = byte_swap_32(loba->family);
+#endif
+if(loba->family == LOBA_IPV4) processipv4(timestamp, caplen -LOBA_SIZE, packetptr +LOBA_SIZE);
+else if(loba->family == LOBA_IPV624) processipv6(timestamp, caplen -LOBA_SIZE, packetptr +LOBA_SIZE);
+else if(loba->family == LOBA_IPV628) processipv6(timestamp, caplen -LOBA_SIZE, packetptr +LOBA_SIZE);
+else if(loba->family == LOBA_IPV630) processipv6(timestamp, caplen -LOBA_SIZE, packetptr +LOBA_SIZE);
+return;
+}
+/*===========================================================================*/
 static void processlinktype(uint64_t captimestamp, uint32_t linktype, uint32_t caplen, uint8_t *capptr)
 {
 static uint8_t cs;
@@ -3813,7 +3807,7 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 		{
 		pcapreaderrors++;
 		printf("failed to read avs header\n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to avs header: %ld\n", rawpacketcount);
+		if(fh_log != NULL) fprintf(fh_log, "failed to read avs header: %ld\n", rawpacketcount);
 		return;
 		}
 	avs = (avs_t*)capptr;
@@ -3824,7 +3818,7 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 		{
 		pcapreaderrors++;
 		printf("failed to read avs header\n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to avs header: %ld\n", rawpacketcount);
+		if(fh_log != NULL) fprintf(fh_log, "failed to read avs header: %ld\n", rawpacketcount);
 		return;
 		}
 	packetlen = caplen -avs->len;
@@ -3836,10 +3830,22 @@ else if(linktype == DLT_EN10MB)
 		{
 		pcapreaderrors++;
 		printf("failed to read ethernet header\n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to ethernet header: %ld\n", rawpacketcount);
+		if(fh_log != NULL) fprintf(fh_log, "failed to read ethernet header: %ld\n", rawpacketcount);
 		return;
 		}
 	processethernetpacket(captimestamp, caplen, capptr);
+	return;
+	}
+else if(linktype == DLT_NULL)
+	{
+	if(caplen < LOBA_SIZE)
+		{
+		pcapreaderrors++;
+		printf("failed to read loopback header\n");
+		if(fh_log != NULL) fprintf(fh_log, "failed to read loopback header: %ld\n", rawpacketcount);
+		return;
+		}
+	processlobapacket(captimestamp, caplen, capptr);
 	return;
 	}
 else

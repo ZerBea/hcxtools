@@ -127,6 +127,11 @@ typedef struct ethernet2_header eth2_t;
 /*===========================================================================*/
 struct loopback_header
 {
+#define LOBA_IPV4	2
+#define LOBA_IPX	23
+#define LOBA_IPV624	24
+#define LOBA_IPV628	28
+#define LOBA_IPV630	30
  uint32_t		family;
 } __attribute__((packed));
 typedef struct loopback_header loba_t;
