@@ -853,8 +853,9 @@ typedef struct ptp_frame ptp_t;
 struct chap_frame
 {
  uint8_t	code;
-#define	CHAP_CODE_REQ	1
-#define	CHAP_CODE_RESP	2
+#define	CHAP_CODE_REQ		1
+#define	CHAP_CODE_RESP		2
+#define	CHAP_CODE_SUCCESS	3
  uint8_t	id;
  uint16_t	len;
  uint8_t	data[1];

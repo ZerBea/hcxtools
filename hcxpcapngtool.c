@@ -181,6 +181,9 @@ static long int tcpcount;
 static long int udpcount;
 static long int grecount;
 static long int protochapcount;
+static long int protochapreqcount;
+static long int protochaprespcount;
+static long int protochapsuccesscount;
 static long int protopapcount;
 static long int tacacspcount;
 static long int tacacspwrittencount;
@@ -446,6 +449,9 @@ tcpcount = 0;
 udpcount = 0;
 grecount = 0;
 protochapcount = 0;
+protochapreqcount = 0;
+protochaprespcount = 0;
+protochapsuccesscount = 0;
 protopapcount = 0;
 tacacspcount = 0;
 tacacspwrittencount = 0;
@@ -575,14 +581,17 @@ if(reassociationrequestowecount > 0)	printf("REASSOCIATIONREQUEST (OWE).........
 if(mgtreservedcount > 0)		printf("RESERVED MANAGEMENT frame................: %ld\n", mgtreservedcount);
 if(wpaenccount > 0)			printf("WPA encrypted............................: %ld\n", wpaenccount);
 if(wepenccount > 0)			printf("WEP encrypted............................: %ld\n", wepenccount);
-if(ipv4count > 0)			printf("IPv4.....................................: %ld\n", ipv4count);
+if(ipv4count > 0)			printf("IPv4 (total).............................: %ld\n", ipv4count);
 if(icmp4count > 0)			printf("ICMPv4...................................: %ld\n", icmp4count);
-if(ipv6count > 0)			printf("IPv6.....................................: %ld\n", ipv6count);
+if(ipv6count > 0)			printf("IPv6 (total).............................: %ld\n", ipv6count);
 if(icmp6count > 0)			printf("ICMPv6...................................: %ld\n", icmp6count);
-if(tcpcount > 0)			printf("TCP......................................: %ld\n", tcpcount);
-if(udpcount > 0)			printf("UDP......................................: %ld\n", udpcount);
-if(grecount > 0)			printf("GRE......................................: %ld\n", grecount);
-if(protochapcount > 0)			printf("PPP-CHAP.................................: %ld\n", protochapcount);
+if(tcpcount > 0)			printf("TCP (total)..............................: %ld\n", tcpcount);
+if(udpcount > 0)			printf("UDP (total)..............................: %ld\n", udpcount);
+if(grecount > 0)			printf("GRE (total)..............................: %ld\n", grecount);
+if(protochapcount > 0)			printf("PPP-CHAP (total).........................: %ld\n", protochapcount);
+if(protochapreqcount > 0)		printf("PPP-CHAP (request).......................: %ld\n", protochapreqcount);
+if(protochaprespcount > 0)		printf("PPP-CHAP (response)......................: %ld\n", protochaprespcount);
+if(protochapsuccesscount > 0)		printf("PPP-CHAP (success).......................: %ld\n", protochapsuccesscount);
 if(protopapcount > 0)			printf("PPP-PAP..................................: %ld\n", protopapcount);
 if(tacacspcount > 0)			printf("TACACS+..................................: %ld\n", tacacspcount);
 if(tacacspwrittencount > 0)		printf("TACACS+ written..........................: %ld\n", tacacspwrittencount);
@@ -939,8 +948,25 @@ tacacspcount++;
 return;
 }
 /*===========================================================================*/
-static void processprotochappacket()
+static void processprotochappacket(uint32_t restlen, uint8_t *chapptr)
 {
+chap_t *chap;
+
+if(restlen < (uint32_t)CHAP_SIZE) return;
+chap = (chap_t*)chapptr;
+
+if(chap->code == CHAP_CODE_REQ)
+	{
+	protochapreqcount++;
+	}
+else if(chap->code == CHAP_CODE_RESP)
+	{
+	protochaprespcount++;
+	}
+else if(chap->code == CHAP_CODE_SUCCESS)
+	{
+	protochapsuccesscount++;
+	}
 
 
 protochapcount++;
@@ -960,7 +986,7 @@ ptp_t *ptp;
 
 if(restlen < (uint32_t)PTP_SIZE) return;
 ptp = (ptp_t*)ptpptr;
-if(ntohs(ptp->type) == PROTO_CHAP) processprotochappacket();
+if(ntohs(ptp->type) == PROTO_CHAP) processprotochappacket(restlen -PTP_SIZE, ptpptr +PTP_SIZE);
 else if(ntohs(ptp->type) == PROTO_PAP) processprotopapppacket();
 return;
 }
