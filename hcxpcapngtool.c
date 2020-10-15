@@ -180,6 +180,8 @@ static long int icmp6count;
 static long int tcpcount;
 static long int udpcount;
 static long int grecount;
+static long int protochapcount;
+static long int protopapcount;
 static long int tacacspcount;
 static long int tacacspwrittencount;
 static long int wepenccount;
@@ -443,6 +445,8 @@ icmp6count = 0;
 tcpcount = 0;
 udpcount = 0;
 grecount = 0;
+protochapcount = 0;
+protopapcount = 0;
 tacacspcount = 0;
 tacacspwrittencount = 0;
 wepenccount = 0;
@@ -578,6 +582,8 @@ if(icmp6count > 0)			printf("ICMPv6...................................: %ld\n", 
 if(tcpcount > 0)			printf("TCP......................................: %ld\n", tcpcount);
 if(udpcount > 0)			printf("UDP......................................: %ld\n", udpcount);
 if(grecount > 0)			printf("GRE......................................: %ld\n", grecount);
+if(protochapcount > 0)			printf("PPP-CHAP.................................: %ld\n", protochapcount);
+if(protopapcount > 0)			printf("PPP-PAP..................................: %ld\n", protopapcount);
 if(tacacspcount > 0)			printf("TACACS+..................................: %ld\n", tacacspcount);
 if(tacacspwrittencount > 0)		printf("TACACS+ written..........................: %ld\n", tacacspwrittencount);
 if(identitycount > 0)			printf("IDENTITIES...............................: %ld\n", identitycount);
@@ -933,14 +939,45 @@ tacacspcount++;
 return;
 }
 /*===========================================================================*/
+static void processprotochappacket()
+{
+
+
+protochapcount++;
+return;
+}
+/*===========================================================================*/
+static void processprotopapppacket()
+{
+
+protopapcount++;
+return;
+}
+/*===========================================================================*/
+static void processptppacket(uint32_t restlen, uint8_t *ptpptr)
+{
+ptp_t *ptp;
+
+if(restlen < (uint32_t)PTP_SIZE) return;
+ptp = (ptp_t*)ptpptr;
+if(ntohs(ptp->type) == PROTO_CHAP) processprotochappacket();
+else if(ntohs(ptp->type) == PROTO_PAP) processprotopapppacket();
+return;
+}
+/*===========================================================================*/
 static void processgrepacket(uint32_t restlen, uint8_t *greptr)
 {
 gre_t *gre;
+uint32_t ofco;
 
 if(restlen < (uint32_t)GRE_SIZE) return;
 gre = (gre_t*)greptr;
 if((ntohs(gre->flags) & GRE_MASK_VERSION) != 0x1) return; /* only GRE v1 supported */
-if(ntohs(gre->type) != GREPROTO_PPP) return;
+
+ofco = 0;
+if((ntohs(gre->flags) & GRE_FLAG_SNSET) == GRE_FLAG_SNSET) ofco += 4;
+if((ntohs(gre->flags) & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET) ofco +=4;
+if(ntohs(gre->type) == GREPROTO_PPP) processptppacket(restlen -GRE_SIZE -ofco, greptr +GRE_SIZE +ofco);
 grecount++;
 return;
 }
