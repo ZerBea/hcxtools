@@ -589,9 +589,9 @@ if(tcpcount > 0)			printf("TCP (total)..............................: %ld\n", tc
 if(udpcount > 0)			printf("UDP (total)..............................: %ld\n", udpcount);
 if(grecount > 0)			printf("GRE (total)..............................: %ld\n", grecount);
 if(protochapcount > 0)			printf("PPP-CHAP (total).........................: %ld\n", protochapcount);
-if(protochapreqcount > 0)		printf("PPP-CHAP (request).......................: %ld\n", protochapreqcount);
-if(protochaprespcount > 0)		printf("PPP-CHAP (response)......................: %ld\n", protochaprespcount);
-if(protochapsuccesscount > 0)		printf("PPP-CHAP (success).......................: %ld\n", protochapsuccesscount);
+if(protochapreqcount > 0)		printf("PPP-CHAP request.........................: %ld\n", protochapreqcount);
+if(protochaprespcount > 0)		printf("PPP-CHAP response........................: %ld\n", protochaprespcount);
+if(protochapsuccesscount > 0)		printf("PPP-CHAP success.........................: %ld\n", protochapsuccesscount);
 if(protopapcount > 0)			printf("PPP-PAP..................................: %ld\n", protopapcount);
 if(tacacspcount > 0)			printf("TACACS+..................................: %ld\n", tacacspcount);
 if(tacacspwrittencount > 0)		printf("TACACS+ written..........................: %ld\n", tacacspwrittencount);
@@ -599,8 +599,8 @@ if(identitycount > 0)			printf("IDENTITIES...............................: %ld\n
 if(usernamecount > 0)			printf("USERNAMES................................: %ld\n", usernamecount);
 if(eapcount > 0)			printf("EAP (total)..............................: %ld\n", eapcount);
 if(eapexpandedcount > 0)		printf("EAP-EXPANDED.............................: %ld\n", eapexpandedcount);
-if(eapcodereqcount > 0)			printf("EAP CODE REQUEST.........................: %ld\n", eapcodereqcount);
-if(eapcoderespcount > 0)		printf("EAP CODE RESPONSE........................: %ld\n", eapcoderespcount);
+if(eapcodereqcount > 0)			printf("EAP CODE request.........................: %ld\n", eapcodereqcount);
+if(eapcoderespcount > 0)		printf("EAP CODE response........................: %ld\n", eapcoderespcount);
 if(eapidcount > 0)			printf("EAP ID...................................: %ld\n", eapidcount);
 if(eapsimcount > 0)			printf("EAP-SIM..................................: %ld\n", eapsimcount);
 if(eapakacount > 0)			printf("EAP-AKA..................................: %ld\n", eapakacount);
