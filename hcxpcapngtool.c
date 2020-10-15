@@ -940,6 +940,7 @@ gre_t *gre;
 if(restlen < (uint32_t)GRE_SIZE) return;
 gre = (gre_t*)greptr;
 if((ntohs(gre->flags) & GRE_MASK_VERSION) != 0x1) return; /* only GRE v1 supported */
+if(ntohs(gre->type) != GREPROTO_PPP) return;
 grecount++;
 return;
 }
