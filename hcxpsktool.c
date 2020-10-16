@@ -316,7 +316,7 @@ static const char *wordlist[] =
 "thirsty", "tiger", "timber", "tiny", "tomato", "town", "trail", "train",
 "tree", "truck", "trumpet", "tuba", "tulip", "turkey", "turtle",
 "uneven", "unicorn", "union", "unit", "unusual", "urban", "useful",
-"valley", "vanilla", "vase", "vast", "verse", "violet", "violin",
+"valley", "vanilla", "vase", "vast", "verse", "violet", "violin", "voyage",
 "wagon", "walnut", "warm", "watch", "water", "watery", "wealth", "west",
 "whale", "wide", "wind", "window", "windy", "witty", "wolf", "wonderful",
 "wooden", "writer",
