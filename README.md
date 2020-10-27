@@ -40,7 +40,7 @@ Detailed description
 | hcxpcapngtool  | Provide new hashcat format 22000                                                                                       |
 | hcxhashtool    | Provide various filter operations on new PMKID/EAPOL hash line                                                         |
 | hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcapngtool output or commandline input                 |
-| hcxeiutool     | Prepare -E -I -U output of hcxpcapngtool for use by hashcat or JtR + rule                                              |
+| hcxeiutool     | Prepare -E -I -U output of hcxpcapngtool for use by hashcat + rule or JtR + rule                                       |
 | hcxwltool      | Calculates candidates for hashcat and john based on mixed wordlists                                                    |
 | hcxhash2cap    | Converts hash file (PMKID&EAPOL, PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                                 |
 | wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                             |
