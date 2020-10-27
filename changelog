@@ -1,3 +1,35 @@
+27.10.2020
+==========
+hcxeiutool: new tool to prepare -E -I -U output of hcxpcapngtool for use by hashcat + rule
+
+$ hcxeiutool -h
+hcxeiutool 6.1.3-37-gbdc5a67 (C) 2020 ZeroBeat
+usage:
+hcxeiutool <options>
+
+options:
+-i <file> : input wordlist
+-d <file> : output digit wordlist
+-x <file> : output xdigit wordlist
+-c <file> : output character wordlist (A-Za-z - other characters removed)
+-s <file> : output character wordlist (A-Za-z - other characters replaced by 0x0d)
+-h        : show this help
+-v        : show version
+
+--help           : show this help
+--version        : show version
+
+example:
+$ hcxdumptool -i <interface> -o dump.pcapng --enable_status=31
+$ hcxpcapngtool -o test.22000 -E elist dump.pcapng
+$ hcxeiutool -i elist -d digitlist -x xdigitlist -c charlist -s sclist
+$ cat elist digitlist xdigitlist charlist sclist > wordlisttmp
+$ hashcat --stdout -r <rule> charlist >> wordlisttmp
+$ hashcat --stdout -r <rule> sclist >> wordlisttmp
+$ cat wordlisttmp | sort | uniq > wordlist
+$ hashcat -m 22000 dump.pcapng wordlist
+
+
 15.10.2020
 ==========
 hcxpcapngtool: added handling of BSD loopback header (DLT_NULL)

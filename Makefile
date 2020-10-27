@@ -38,6 +38,7 @@ TOOLS+=hcxhashtool
 hcxhashtool_libs=-lcrypto -lssl -lcurl
 TOOLS+=hcxpsktool
 hcxpsktool_libs=-lcrypto -lssl
+TOOLS+=hcxeiutool
 TOOLS+=hcxwltool
 TOOLS+=hcxhash2cap
 TOOLS+=wlancap2wpasec
