@@ -134,13 +134,21 @@ It is recommended to use hash mode 22000 (22001) instead of deprecated hash mode
 Bitmask message pair field (hcxpcapngtool)
 --------------
 
-0: MP info (https://hashcat.net/wiki/doku.php?id=hccapx#message_pair_table)
+bit 0-2
 
-1: MP info (https://hashcat.net/wiki/doku.php?id=hccapx#message_pair_table)
+ 000 = M1+M2, EAPOL from M2 (challenge)
 
-2: MP info (https://hashcat.net/wiki/doku.php?id=hccapx#message_pair_table)
+ 001 = M1+M4, EAPOL from M4 if not zeroed (authorized)
 
-3: x unused
+ 010 = M2+M3, EAPOL from M2 (authorized)
+
+ 011 = M2+M3, EAPOL from M3 (authorized) - unused"
+
+ 100 = M3+M4, EAPOL from M3 (authorized) - unused"
+
+ 101 = M3+M4, EAPOL from M4 if not zeroed (authorized)"
+
+3: reserved\n"
 
 4: ap-less attack (set to 1) - no nonce-error-corrections necessary
 
