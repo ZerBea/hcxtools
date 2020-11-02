@@ -136,19 +136,19 @@ Bitmask message pair field (hcxpcapngtool)
 
 bit 0-2
 
- 000 = M1+M2, EAPOL from M2 (challenge)
+000 = M1+M2, EAPOL from M2 (challenge)
 
- 001 = M1+M4, EAPOL from M4 if not zeroed (authorized)
+001 = M1+M4, EAPOL from M4 if not zeroed (authorized)
 
- 010 = M2+M3, EAPOL from M2 (authorized)
+010 = M2+M3, EAPOL from M2 (authorized)
 
- 011 = M2+M3, EAPOL from M3 (authorized) - unused"
+011 = M2+M3, EAPOL from M3 (authorized) - unused"
 
- 100 = M3+M4, EAPOL from M3 (authorized) - unused"
+100 = M3+M4, EAPOL from M3 (authorized) - unused"
 
- 101 = M3+M4, EAPOL from M4 if not zeroed (authorized)"
+101 = M3+M4, EAPOL from M4 if not zeroed (authorized)"
 
-3: reserved\n"
+3: reserved
 
 4: ap-less attack (set to 1) - no nonce-error-corrections necessary
 
