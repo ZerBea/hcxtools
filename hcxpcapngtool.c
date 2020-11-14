@@ -248,6 +248,7 @@ static long int eapolm32e2count;
 static long int eapolm32e3count;
 static long int eapolm34e3count;
 static long int eapolm34e4count;
+static long int akmpmkideapolignoredcount;
 static long int eapmd5writtencount;
 static long int eapmd5johnwrittencount;
 static long int eapleapwrittencount;
@@ -516,6 +517,7 @@ eapolm32e2count = 0;
 eapolm32e3count = 0;
 eapolm34e3count = 0;
 eapolm34e4count = 0;
+akmpmkideapolignoredcount = 0;
 eapmd5writtencount = 0;
 eapmd5johnwrittencount = 0;
 eapleapwrittencount = 0;
@@ -681,6 +683,13 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 	{
 	printf( "\nInformation: no hashes written to hash files\n");
 	}
+if(akmpmkideapolignoredcount > 0)
+	{
+	printf("\nInformation: the dump file contain some EAPOL messages / PMKIDs\n"
+		"which are not based on PBKDF2.\n"
+		"Using default options, they will not be converted to hash file.\n");
+	}
+
 if(sequenceerrorcount > 0)
 	{
 	printf("\nWarning: out of sequence timestamps!\n"
@@ -1920,10 +1929,14 @@ if(zeigermacold->type == AP)
 			zeigerpmkidakt = getpmkid(zeigermacold, zeigerpmkidakt);
 			zeigerhsakt = gethandshake(zeigermacold, zeigerhsakt);
 			}
-		else if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+		else
 			{
-			zeigerpmkidakt = getpmkid(zeigermacold, zeigerpmkidakt);
-			zeigerhsakt = gethandshake(zeigermacold, zeigerhsakt);
+			if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+				{
+				zeigerpmkidakt = getpmkid(zeigermacold, zeigerpmkidakt);
+				zeigerhsakt = gethandshake(zeigermacold, zeigerhsakt);
+				}
+			else akmpmkideapolignoredcount++;
 			}
 		}
 	}
@@ -1951,10 +1964,14 @@ for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 		zeigerpmkidakt = getpmkid(zeigermac, zeigerpmkidakt);
 		zeigerhsakt = gethandshake(zeigermac, zeigerhsakt);
 		}
-	else if(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+	else
 		{
-		zeigerpmkidakt = getpmkid(zeigermac, zeigerpmkidakt);
-		zeigerhsakt = gethandshake(zeigermac, zeigerhsakt);
+		if(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+			{
+			zeigerpmkidakt = getpmkid(zeigermac, zeigerpmkidakt);
+			zeigerhsakt = gethandshake(zeigermac, zeigerhsakt);
+			}
+		else akmpmkideapolignoredcount++;
 		}
 	zeigermacold = zeigermac;
 	}
