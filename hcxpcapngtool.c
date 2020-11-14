@@ -687,7 +687,7 @@ if(akmpmkideapolignoredcount > 0)
 	{
 	printf("\nInformation: the dump file contain some EAPOL messages / PMKIDs\n"
 		"which are not based on PBKDF2.\n"
-		"Using default options, they will not be converted to hash file.\n");
+		"Using default options, they will be ignored.\n");
 	}
 
 if(sequenceerrorcount > 0)
