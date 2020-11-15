@@ -685,9 +685,9 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 	}
 if(akmpmkideapolignoredcount > 0)
 	{
-	printf("\nInformation: the dump file contain some EAPOL messages / PMKIDs\n"
+	printf("\nInformation: the dump file contain some PMKIDs/EAPOL messages\n"
 		"which are not based on PBKDF2.\n"
-		"Using default options, they will be ignored.\n");
+		"As default, they will be ignored unless --all is used.\n");
 	}
 
 if(sequenceerrorcount > 0)
