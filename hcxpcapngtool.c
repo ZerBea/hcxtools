@@ -1755,7 +1755,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 				{
 				zeroedeapolpskcount++;
 				eapolmpbestcount--;
-				continue;
+				if(donotcleanflag == false) continue;
 				}
 			}
 		if(fh_pmkideapol != 0)
@@ -1884,7 +1884,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			if(testpmkid(calculatedpmk, zeigerpmkid->client, zeigerpmkid->ap, zeigerpmkid->pmkid) == true)
 				{
 				zeroedpmkidpskcount++;
-				continue;
+				if(donotcleanflag == false) continue;
 				}
 			}
 		if(memcmp(&myaktclient, zeigerpmkid->client, 6) == 0) pmkidroguecount++;
