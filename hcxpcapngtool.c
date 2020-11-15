@@ -204,8 +204,11 @@ static long int eapexpandedcount;
 static long int eapidcount;
 static long int eapcodereqcount;
 static long int eapcoderespcount;
+static long int zeroedpmkidpskcount;
 static long int zeroedpmkidpmkcount;
+static long int zeroedeapolpskcount;
 static long int zeroedeapolpmkcount;
+static long int zeroedeapolpskcount;
 static long int pmkidcount;
 static long int pmkidbestcount;
 static long int pmkidroguecount;
@@ -308,6 +311,10 @@ static uint8_t pcapngdeviceinfo[6];
 static uint8_t pcapngtimeresolution;
 static char nmeasentence[OPTIONLEN_MAX];
 static char gpwplold[OPTIONLEN_MAX];
+
+static char zeroedpsk[8];
+static uint8_t zeroedpmk[32];
+static uint8_t calculatedpmk[32];
 
 /*===========================================================================*/
 /*
@@ -473,7 +480,9 @@ eapexpandedcount = 0;
 eapidcount = 0;
 eapcodereqcount = 0;
 eapcoderespcount = 0;
+zeroedpmkidpskcount = 0;
 zeroedpmkidpmkcount = 0;
+zeroedeapolpskcount = 0;
 zeroedeapolpmkcount = 0;
 pmkidcount = 0;
 pmkidbestcount = 0;
@@ -536,6 +545,9 @@ timestampmin = 0;
 timestampmax = 0;
 timestampstart = 0;
 captimestampold = 0;
+
+memset(&zeroedpsk, 0, 8);
+memset(&zeroedpmk, 0, 32);
 return true;
 }
 /*===========================================================================*/
@@ -643,6 +655,7 @@ if(eapolm3kdv0count > 0)		printf("EAPOL M3 messages (KDV:0 AKM defined)....: %ld
 if(eapolm4count > 0)			printf("EAPOL M4 messages (total)................: %ld\n", eapolm4count);
 if(eapolm4kdv0count > 0)		printf("EAPOL M4 messages (KDV:0 AKM defined)....: %ld\n", eapolm4kdv0count);
 if(eapolmpcount > 0)			printf("EAPOL pairs (total)......................: %ld\n", eapolmpcount);
+if(zeroedeapolpskcount > 0)		printf("EAPOL (over zeroed PSK)..................: %ld\n", zeroedeapolpskcount);
 if(zeroedeapolpmkcount > 0)		printf("EAPOL (over zeroed PMK)..................: %ld\n", zeroedeapolpmkcount);
 if(eapolmpbestcount > 0)		printf("EAPOL pairs (best).......................: %ld\n", eapolmpbestcount);
 if(eapolaplesscount > 0)		printf("EAPOL ROGUE pairs........................: %ld\n", eapolaplesscount);
@@ -660,6 +673,7 @@ if(eapolm34e3count > 0)			printf("EAPOL M34E3 (authorized).................: %ld
 if(eapolm34e4count > 0)			printf("EAPOL M34E4 (authorized).................: %ld\n", eapolm34e4count);
 if(pmkiduselesscount > 0)		printf("PMKID (useless)..........................: %ld\n", pmkiduselesscount);
 if(pmkidcount > 0)			printf("PMKID (total)............................: %ld\n", pmkidcount);
+if(zeroedpmkidpskcount > 0)		printf("PMKID (over zeroed PSK)..................: %ld\n", zeroedpmkidpskcount);
 if(zeroedpmkidpmkcount > 0)		printf("PMKID (over zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
 if(pmkidbestcount > 0)			printf("PMKID (best).............................: %ld\n", pmkidbestcount);
 if(pmkidroguecount > 0)			printf("PMKID ROGUE..............................: %ld\n", pmkidroguecount);
@@ -1533,7 +1547,7 @@ else fprintf(fh_pmkideapoljtrdeprecated, "%c", (itoa64[((in[1] & 0x0f) << 2)]));
 return;
 }
 /*===========================================================================*/
-static bool testzeroedpmkid(uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
+static bool testpmkid(uint8_t *testpmk, uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
 static char *pmkname = "PMK Name";
 
@@ -1543,7 +1557,7 @@ static uint8_t testpmkid[32];
 memcpy(&salt, pmkname, 8);
 memcpy(&salt[8], macap, 6);
 memcpy(&salt[14], macsta, 6);
-HMAC(EVP_sha1(), zeroed32, 32, salt, 20, testpmkid, NULL);
+HMAC(EVP_sha1(), testpmk, 32, salt, 20, testpmkid, NULL);
 if(memcmp(&testpmkid, pmkid, 16) == 0) return true;
 return false;
 }
@@ -1573,7 +1587,7 @@ int omac1_aes_128(const uint8_t *key, const uint8_t *data, size_t data_len, uint
 return omac1_aes_128_vector(key, 1, &data, &data_len, mac);
 }
 /*===========================================================================*/
-static bool testeapolzeropmk(uint8_t keyver, uint8_t *macsta, uint8_t *macap, uint8_t *nonceap, uint8_t eapollen, uint8_t *eapolmessage)
+static bool testeapolpmk(uint8_t *testpmk, uint8_t keyver, uint8_t *macsta, uint8_t *macap, uint8_t *nonceap, uint8_t eapollen, uint8_t *eapolmessage)
 {
 static int p;
 static uint8_t *pkeptr;
@@ -1621,7 +1635,7 @@ if((keyver == 1) || (keyver == 2))
 	for (p = 0; p < 4; p++)
 		{
 		pkedata[99] = p;
-		HMAC(EVP_sha1(), zeroed32, 32, pkedata, 100, ptk + p *20, NULL);
+		HMAC(EVP_sha1(), testpmk, 32, pkedata, 100, ptk + p *20, NULL);
 		}
 	if(keyver == 1)
 		{
@@ -1663,20 +1677,18 @@ else if(keyver == 3)
 	memcpy (pkedata_prf + 2, pkedata, 98);
 	pkedata_prf[100] = 0x80;
 	pkedata_prf[101] = 1;
-	HMAC(EVP_sha256(), zeroed32, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
+	HMAC(EVP_sha256(), testpmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
 	omac1_aes_128(ptk, eapoldata, eapollen, miczero);
 	if(memcmp(&miczero, wpak->keymic, 16) == 0) return true;
 	}
 return false;
 }
 /*===========================================================================*/
-/*
-static bool dopbkdf2(uint8_t psklen, char *psk, uint8_t essidlen, uint8_t *essid)
+static bool testzeroedpsk(uint8_t essidlen, uint8_t *essid)
 {
-if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmk) == 0) return false;
+if(PKCS5_PBKDF2_HMAC_SHA1(zeroedpsk, 8, essid, essidlen, 4096, 32, calculatedpmk) == 0) return false;
 return true;
 }
-*/
 /*===========================================================================*/
 static void getnc(handshakelist_t *zeigerhsakt)
 {
@@ -1737,6 +1749,15 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		memcpy(&eapoltemp, zeigerhs->eapol, zeigerhs->eapauthlen);
 		wpaktemp = (wpakey_t*)(eapoltemp +EAPAUTH_SIZE);
 		memset(wpaktemp->keymic, 0, 16);
+		if(testzeroedpsk(zeigermac->essidlen, zeigermac->essid) == true)
+			{
+			if(testeapolpmk(calculatedpmk, keyvertemp, zeigerhs->client, zeigerhs->ap, zeigerhs->anonce, zeigerhs->eapauthlen, zeigerhs->eapol) == true)
+				{
+				zeroedeapolpskcount++;
+				eapolmpbestcount--;
+				continue;
+				}
+			}
 		if(fh_pmkideapol != 0)
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
@@ -1858,6 +1879,14 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 		}
 	if(memcmp(zeigermac->addr, zeigerpmkid->ap, 6) == 0)
 		{
+		if(testzeroedpsk(zeigermac->essidlen, zeigermac->essid) == true)
+			{
+			if(testpmkid(calculatedpmk, zeigerpmkid->client, zeigerpmkid->ap, zeigerpmkid->pmkid) == true)
+				{
+				zeroedpmkidpskcount++;
+				continue;
+				}
+			}
 		if(memcmp(&myaktclient, zeigerpmkid->client, 6) == 0) pmkidroguecount++;
 		pmkidbestcount++;
 		if(fh_pmkideapol != 0)
@@ -2055,7 +2084,7 @@ if((mpfield &ST_APLESS) != ST_APLESS)
 		}
 	}
 if(msgap->timestamp == msgclient->timestamp) eapolmsgtimestamperrorcount++;
-if(testeapolzeropmk(keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
+if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, msgclient->eapauthlen, msgclient->eapol) == false)
 	{
 	if(handshakelistptr >= handshakelist +handshakelistmax)
 		{
@@ -2144,7 +2173,7 @@ static void addpmkid(uint8_t *macclient, uint8_t *macap, uint8_t *pmkid)
 static pmkidlist_t *pmkidlistnew;
 
 pmkidcount++;
-if(testzeroedpmkid(macclient, macap, pmkid) == false)
+if(testpmkid(zeroedpmk, macclient, macap, pmkid) == false)
 	{
 	if(pmkidlistptr >= pmkidlist +pmkidlistmax)
 		{
