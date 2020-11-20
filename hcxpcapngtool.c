@@ -17,10 +17,13 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 #include <openssl/sha.h>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/cmac.h>
+#include <openssl/ssl.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
 #include <sys/socket.h>
@@ -352,6 +355,12 @@ return;
 static bool initlists()
 {
 static const char nastring[] = { "N/A" };
+
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
+SSL_library_init();
+#else
+OPENSSL_init_ssl(0, NULL);
+#endif
 
 maclistmax = MACLIST_MAX;
 if((aplist = (maclist_t*)calloc((maclistmax +1), MACLIST_SIZE)) == NULL) return false;
