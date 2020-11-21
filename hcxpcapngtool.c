@@ -644,7 +644,14 @@ if(eapolrc4count > 0)			printf("EAPOL RC4 messages.......................: %ld\n
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n", eapolwpacount);
 if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
-if(essiddupemax > 0)			printf("ESSID changes (detected maximum).........: %ld (information: option --all recommended)\n", essiddupemax);
+if(donotcleanflag == false)
+	{
+	if(essiddupemax > 0)			printf("ESSID changes (detected maximum).........: %ld (information: option --all recommended)\n", essiddupemax);
+	}
+if(donotcleanflag == true)
+	{
+	if(essiddupemax > 0)			printf("ESSID changes (detected maximum).........: %ld\n", essiddupemax);
+	}
 if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
 if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
