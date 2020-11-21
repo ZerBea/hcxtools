@@ -1845,7 +1845,7 @@ static const struct option long_options[] =
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
 	{"essid",			required_argument,	NULL,	HCX_FILTER_ESSID},
 	{"essid-part",			required_argument,	NULL,	HCX_FILTER_ESSID_PART},
-	{"essid-list",			required_argument,	NULL,	HCX_ESSID_LIST_IN},
+	{"essid-list",			required_argument,	NULL,	HCX_FILTER_ESSID_LIST_IN},
 	{"mac-ap",			required_argument,	NULL,	HCX_FILTER_MAC_AP},
 	{"mac-client",			required_argument,	NULL,	HCX_FILTER_MAC_CLIENT},
 	{"mac-group-ap",		no_argument,		NULL,	HCX_MAC_GROUP_AP},
@@ -2003,7 +2003,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			}
 		break;
 
-		case HCX_ESSID_LIST_IN:
+		case HCX_FILTER_ESSID_LIST_IN:
 		essidinname = optarg;
 		break;
 

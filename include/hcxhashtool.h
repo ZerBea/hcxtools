@@ -12,41 +12,42 @@
 #define PMKIDEAPOL_BUFFER_LEN	1024
 #define HASHLIST_MAX		50000
 
-#define HCX_HASH_TYPE		1
-#define HCX_HASH_MIN		2
-#define HCX_HASH_MAX		3
-#define HCX_ESSID_GROUP		4
-#define HCX_ESSID_LEN		5
-#define HCX_ESSID_MIN		6
-#define HCX_ESSID_MAX		7
-#define HCX_MAC_GROUP_AP	8
-#define HCX_MAC_GROUP_CLIENT	9
-#define HCX_OUI_GROUP		10
-#define HCX_FILTER_OUI_AP	11
-#define HCX_FILTER_OUI_CLIENT	12
-#define HCX_FILTER_MAC_AP	13
-#define HCX_FILTER_MAC_CLIENT	14
-#define HCX_FILTER_VENDOR	15
-#define HCX_FILTER_ESSID	16
-#define HCX_FILTER_ESSID_PART	17
-#define HCX_FILTER_RC		18
-#define HCX_FILTER_M12		19
-#define HCX_FILTER_M1234	20
-#define HCX_FILTER_M1M2ROGUE	21
-#define HCX_PSK			22
-#define HCX_PMK			23
-#define HCX_VENDOR_OUT		24
-#define HCX_INFO_OUT		25
-#define HCX_HCCAPX_OUT		26
-#define HCX_HCCAP_OUT		27
-#define HCX_HCCAP_SINGLE_OUT	28
-#define HCX_JOHN_OUT		29
-#define HCX_PMKIDEAPOL_IN	'i'
-#define HCX_PMKIDEAPOL_OUT	'o'
-#define HCX_ESSID_OUT		'E'
-#define HCX_DOWNLOAD_OUI	'd'
-#define HCX_HELP		'h'
-#define HCX_VERSION		'v'
+#define HCX_HASH_TYPE			1
+#define HCX_HASH_MIN			2
+#define HCX_HASH_MAX			3
+#define HCX_ESSID_GROUP			4
+#define HCX_ESSID_LEN			5
+#define HCX_ESSID_MIN			6
+#define HCX_ESSID_MAX			7
+#define HCX_FILTER_ESSID_LIST_IN	8
+#define HCX_MAC_GROUP_AP		9
+#define HCX_MAC_GROUP_CLIENT		10
+#define HCX_OUI_GROUP			11
+#define HCX_FILTER_OUI_AP		12
+#define HCX_FILTER_OUI_CLIENT		13
+#define HCX_FILTER_MAC_AP		14
+#define HCX_FILTER_MAC_CLIENT		15
+#define HCX_FILTER_VENDOR		16
+#define HCX_FILTER_ESSID		17
+#define HCX_FILTER_ESSID_PART		18
+#define HCX_FILTER_RC			19
+#define HCX_FILTER_M12			20
+#define HCX_FILTER_M1234		21
+#define HCX_FILTER_M1M2ROGUE		22
+#define HCX_PSK				23
+#define HCX_PMK				24
+#define HCX_VENDOR_OUT			25
+#define HCX_INFO_OUT			26
+#define HCX_HCCAPX_OUT			27
+#define HCX_HCCAP_OUT			28
+#define HCX_HCCAP_SINGLE_OUT		29
+#define HCX_JOHN_OUT			30
+#define HCX_PMKIDEAPOL_IN		'i'
+#define HCX_PMKIDEAPOL_OUT		'o'
+#define HCX_ESSID_OUT			'E'
+#define HCX_DOWNLOAD_OUI		'd'
+#define HCX_HELP			'h'
+#define HCX_VERSION			'v'
 /*===========================================================================*/
 /*===========================================================================*/
 struct hashlist_s
@@ -76,6 +77,18 @@ if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) > 0) return 1;
 else if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) < 0) return -1;
 return 0;
 }
+
+static int sort_maclist_by_essidlen(const void *a, const void *b)
+{
+const hashlist_t *ia = (const hashlist_t *)a;
+const hashlist_t *ib = (const hashlist_t *)b;
+
+if(ia->essidlen > ib->essidlen) return 1;
+else if(ia->essidlen < ib->essidlen) return -1;
+if(memcmp(ia->essid, ib->essid, ia->essidlen) > 0) return 1;
+else if(memcmp(ia->essid, ib->essid, ia->essidlen) < 0) return -1;
+return 0;
+}
 /*===========================================================================*/
 struct ouilist_s
 {
@@ -93,6 +106,26 @@ const ouilist_t *ib = (const ouilist_t *)b;
 
 if(memcmp(ia->oui, ib->oui, 3) > 0) return 1;
 else if(memcmp(ia->oui, ib->oui, 3) < 0) return -1;
+return 0;
+}
+/*===========================================================================*/
+struct essidlist_s
+{
+ int		essidlen;
+ uint8_t	essid[ESSID_LEN_MAX];
+};
+typedef struct essidlist_s essidlist_t;
+#define	ESSIDLIST_SIZE (sizeof(essidlist_t))
+
+static int sort_essidlistin(const void *a, const void *b)
+{
+const essidlist_t *ia = (const essidlist_t *)a;
+const essidlist_t *ib = (const essidlist_t *)b;
+
+if(ia->essidlen > ib->essidlen) return 1;
+else if(ia->essidlen < ib->essidlen) return -1;
+if(memcmp(ia->essid, ib->essid, ia->essidlen) > 0) return 1;
+else if(memcmp(ia->essid, ib->essid, ia->essidlen) < 0) return -1;
 return 0;
 }
 /*===========================================================================*/
