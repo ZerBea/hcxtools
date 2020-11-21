@@ -1424,7 +1424,7 @@ while(1)
 	zeiger->essidlen = len;
 	memcpy(zeiger->essid, linein, len);
 	essidlistincount++;
-	if(essidlistincount >= hashlistcount)
+	if(essidlistincount >= essidlistinmax)
 		{
 		essidlistinmax += 1000;
 		essidlistinnew = realloc(essidlistin, essidlistinmax *ESSIDLIST_SIZE);
