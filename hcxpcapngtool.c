@@ -131,6 +131,9 @@ static int endianess;
 static uint16_t versionmajor;
 static uint16_t versionminor;
 
+static int opensslversionmajor;
+static int opensslversionminor;
+
 static uint32_t iface;
 static uint32_t dltlinktype[MAX_INTERFACE_ID +1];
 static uint32_t timeresolval[MAX_INTERFACE_ID +1];
@@ -356,11 +359,10 @@ static bool initlists()
 {
 static const char nastring[] = { "N/A" };
 
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
-SSL_library_init();
-#else
-OPENSSL_init_ssl(0, NULL);
-#endif
+unsigned long opensslversion;
+opensslversion = OpenSSL_version_num();
+opensslversionmajor = (opensslversion & 0x10000000L) >> 28;
+opensslversionminor = (opensslversion & 0x01100000L) >> 20;
 
 maclistmax = MACLIST_MAX;
 if((aplist = (maclist_t*)calloc((maclistmax +1), MACLIST_SIZE)) == NULL) return false;
@@ -4597,6 +4599,7 @@ printf("\nsummary capture file\n"
 	"application..............................: %s\n"
 	"interface name...........................: %s\n"
 	"interface vendor.........................: %02x%02x%02x\n"
+	"openSSL version..........................: %d.%d\n"
 	"weak candidate...........................: %s\n"
 	"MAC ACCESS POINT.........................: %02x%02x%02x%02x%02x%02x (incremented on every new client)\n"
 	"MAC CLIENT...............................: %02x%02x%02x%02x%02x%02x\n"
@@ -4604,7 +4607,9 @@ printf("\nsummary capture file\n"
 	"ANONCE...................................: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
 	"SNONCE...................................: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n"
 	, basename(pcaporgname), versionmajor, versionminor,
-	pcapngosinfo, pcapngapplinfo, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2], pcapngweakcandidate,
+	pcapngosinfo, pcapngapplinfo, pcapnghwinfo, pcapngdeviceinfo[0], pcapngdeviceinfo[1], pcapngdeviceinfo[2],
+	opensslversionmajor, opensslversionminor,
+	pcapngweakcandidate,
 	myaktap[0], myaktap[1], myaktap[2], myaktap[3], myaktap[4], myaktap[5],
 	myaktclient[0], myaktclient[1], myaktclient[2], myaktclient[3], myaktclient[4], myaktclient[5],
 	myaktreplaycount,
