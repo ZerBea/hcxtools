@@ -1760,13 +1760,16 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		memcpy(&eapoltemp, zeigerhs->eapol, zeigerhs->eapauthlen);
 		wpaktemp = (wpakey_t*)(eapoltemp +EAPAUTH_SIZE);
 		memset(wpaktemp->keymic, 0, 16);
-		if(testzeroedpsk(zeigermac->essidlen, zeigermac->essid) == true)
+		if(donotcleanflag == false)
 			{
-			if(testeapolpmk(calculatedpmk, keyvertemp, zeigerhs->client, zeigerhs->ap, zeigerhs->anonce, zeigerhs->eapauthlen, zeigerhs->eapol) == true)
+			if(testzeroedpsk(zeigermac->essidlen, zeigermac->essid) == true)
 				{
-				zeroedeapolpskcount++;
-				eapolmpbestcount--;
-				if(donotcleanflag == false) continue;
+				if(testeapolpmk(calculatedpmk, keyvertemp, zeigerhs->client, zeigerhs->ap, zeigerhs->anonce, zeigerhs->eapauthlen, zeigerhs->eapol) == true)
+					{
+					zeroedeapolpskcount++;
+					eapolmpbestcount--;
+					continue;
+					}
 				}
 			}
 		if(fh_pmkideapol != 0)
@@ -1890,12 +1893,15 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 		}
 	if(memcmp(zeigermac->addr, zeigerpmkid->ap, 6) == 0)
 		{
-		if(testzeroedpsk(zeigermac->essidlen, zeigermac->essid) == true)
+		if(donotcleanflag == false)
 			{
-			if(testpmkid(calculatedpmk, zeigerpmkid->client, zeigerpmkid->ap, zeigerpmkid->pmkid) == true)
+			if(testzeroedpsk(zeigermac->essidlen, zeigermac->essid) == true)
 				{
-				zeroedpmkidpskcount++;
-				if(donotcleanflag == false) continue;
+				if(testpmkid(calculatedpmk, zeigerpmkid->client, zeigerpmkid->ap, zeigerpmkid->pmkid) == true)
+					{
+					zeroedpmkidpskcount++;
+					continue;
+					}
 				}
 			}
 		if(memcmp(&myaktclient, zeigerpmkid->client, 6) == 0) pmkidroguecount++;
