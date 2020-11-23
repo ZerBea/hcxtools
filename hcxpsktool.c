@@ -29,6 +29,7 @@ static int thisyear;
 
 static bool netgearflag;
 static bool askeyarrisflag;
+static bool cg3000dv2flag;
 static bool digit10flag;
 static bool hb5flag;
 static bool podaflag;
@@ -1329,6 +1330,19 @@ for(k1 = 0; k1 < 0x100; k1++)
 return;
 }
 /*===========================================================================*/
+static void testcg3000dv2(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1;
+static char *cg3000dv2 = "CG3000DV2";
+
+if(cg3000dv2flag == true) return;
+if(essidlen < 9) return;
+if(memcmp(essid, cg3000dv2, 9) != 0) return;
+for(k1 = 0; k1 < 0x1000000; k1++) fprintf(fhout, "CG3000DV2%06X\n", k1);
+cg3000dv2flag = true;
+return;
+}
+/*===========================================================================*/
 static void testeasybox(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int b;
@@ -1735,6 +1749,7 @@ testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
 testaxtelxtremo(fhout, essidlen, essid);
 testcabovisao(fhout, essidlen, essid);
+testcg3000dv2(fhout, essidlen, essid);
 testeasybox(fhout, essidlen, essid);
 testglocal(fhout, essidlen, essid);
 testhotbox(fhout, essidlen, essid);
@@ -2431,6 +2446,7 @@ static char *pskname = NULL;
 
 netgearflag = false;
 askeyarrisflag = false;
+cg3000dv2flag = false;
 digit10flag = false;
 hb5flag = false;
 podaflag = false;
@@ -2453,12 +2469,12 @@ static const struct option long_options[] =
 	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
 	{"phome",			no_argument,		NULL,	HCXD_PHOME},
 	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
-	{"ee",			no_argument,		NULL,	HCXD_EE},
+	{"ee",				no_argument,		NULL,	HCXD_EE},
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
 	{"wpskeys",			no_argument,		NULL,	HCXD_WPSKEYS},
-	{"egn",			no_argument,		NULL,	HCXD_EGN},
+	{"egn",				no_argument,		NULL,	HCXD_EGN},
 	{"version",			no_argument,		NULL,	HCXD_VERSION},
 	{"help",			no_argument,		NULL,	HCXD_HELP},
 	{NULL,				0,			NULL,	0}
