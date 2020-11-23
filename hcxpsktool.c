@@ -29,7 +29,6 @@ static int thisyear;
 
 static bool netgearflag;
 static bool askeyarrisflag;
-static bool cg3000dv2flag;
 static bool digit10flag;
 static bool hb5flag;
 static bool podaflag;
@@ -1335,11 +1334,10 @@ static void testcg3000dv2(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k1;
 static char *cg3000dv2 = "CG3000DV2";
 
-if(cg3000dv2flag == true) return;
-if(essidlen < 9) return;
+if(essidlen < 11) return;
 if(memcmp(essid, cg3000dv2, 9) != 0) return;
-for(k1 = 0; k1 < 0x1000000; k1++) fprintf(fhout, "CG3000DV2%06X\n", k1);
-cg3000dv2flag = true;
+if((!isxdigit(essid[9])) || (!isxdigit(essid[10]))) return;
+for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "CG3000DV2%04X%c%c\n", k1, essid[9], essid[10]);
 return;
 }
 /*===========================================================================*/
@@ -2446,7 +2444,6 @@ static char *pskname = NULL;
 
 netgearflag = false;
 askeyarrisflag = false;
-cg3000dv2flag = false;
 digit10flag = false;
 hb5flag = false;
 podaflag = false;
