@@ -5409,8 +5409,6 @@ if((pmkideapoloutname != NULL) && (nmeaoutname != NULL))
 		}
 	}
 
-
-
 if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
