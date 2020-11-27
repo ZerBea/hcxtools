@@ -4917,6 +4917,15 @@ fclose(fh_raw_in);
 return true ;
 }
 /*===========================================================================*/
+static bool testfilename(char *filename1, char *filename2)
+{
+if(filename1 == NULL) return false;
+if(filename2 == NULL) return false;
+if(strcmp(filename1, filename2) != 0) return false;
+printf("same file names for different file types not allowed: %s - %s\n", filename1, filename2);
+return true;
+}
+/*===========================================================================*/
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
@@ -5287,6 +5296,69 @@ if((optind == argc) && (rawinname == NULL))
 	exit(EXIT_FAILURE);
 	}
 
+if(testfilename(pmkideapoloutname, essidoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, identityoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, eapmd5outname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, eapleapoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, tacacspoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, nmeaoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, rawoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, logoutname) == true) exit(EXIT_FAILURE);
+
+if(testfilename(eapmd5outname, essidoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, identityoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, eapleapoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, tacacspoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, nmeaoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, rawoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, logoutname) == true) exit(EXIT_FAILURE);
+
+if(testfilename(eapleapoutname, essidoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, identityoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, tacacspoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, nmeaoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, rawoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, logoutname) == true) exit(EXIT_FAILURE);
+
+if(testfilename(tacacspoutname, essidoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(tacacspoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(tacacspoutname, identityoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(tacacspoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(tacacspoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(tacacspoutname, nmeaoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(tacacspoutname, rawoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(tacacspoutname, logoutname) == true) exit(EXIT_FAILURE);
+
+if(testfilename(nmeaoutname, essidoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(nmeaoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(nmeaoutname, identityoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(nmeaoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(nmeaoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(nmeaoutname, rawoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(nmeaoutname, logoutname) == true) exit(EXIT_FAILURE);
+
+if(testfilename(rawoutname, essidoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(rawoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(rawoutname, identityoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(rawoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(rawoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(rawoutname, logoutname) == true) exit(EXIT_FAILURE);
+
+if(testfilename(logoutname, essidoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(logoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(logoutname, identityoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(logoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(logoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
+
 if(prefixoutname != NULL)
 	{
 	strncpy(pmkideapolprefix, prefixoutname, PREFIX_BUFFER_MAX);
@@ -5325,6 +5397,20 @@ if(prefixoutname != NULL)
 	strncat(nmeaprefix, nmeasuffix, PREFIX_BUFFER_MAX);
 	nmeaoutname = nmeaprefix;
 	}
+
+
+
+if((pmkideapoloutname != NULL) && (nmeaoutname != NULL))
+	{
+	if(strcmp(pmkideapoloutname, usernameoutname) == 0)
+		{
+		printf("same file names for different file types not allowed: %s - %s\n", pmkideapoloutname, usernameoutname);
+		exit(EXIT_FAILURE);
+		}
+	}
+
+
+
 if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
