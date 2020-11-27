@@ -72,9 +72,12 @@ if(fh_charlist != NULL)
 	{
 	if(strnlen(word[CHARWORD], WORD_MAX)  > 3) fprintf(fh_charlist, "%s\n", word[CHARWORD]);
 	}
-for(c = CSWORD; c < LINE_MAX; c++)
+if(fh_cslist != NULL)
 	{
-	if(strnlen(word[c], WORD_MAX)  > 3) fprintf(fh_cslist, "%s\n", word[c]);
+	for(c = CSWORD; c < LINE_MAX; c++)
+		{
+		if(strnlen(word[c], WORD_MAX)  > 3) fprintf(fh_cslist, "%s\n", word[c]);
+		}
 	}
 return;
 }
