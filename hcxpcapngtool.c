@@ -4922,7 +4922,7 @@ static bool testfilename(char *filename1, char *filename2)
 if(filename1 == NULL) return false;
 if(filename2 == NULL) return false;
 if(strcmp(filename1, filename2) != 0) return false;
-printf("same file names for different file types not allowed: %s - %s\n", filename1, filename2);
+printf("same file names for different file types is not allowed: %s - %s\n", filename1, filename2);
 return true;
 }
 /*===========================================================================*/
