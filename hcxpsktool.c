@@ -305,7 +305,7 @@ static const char *wordlist[] =
 "quail", "quaint", "quick", "quiet", "quote",
 "rabbit", "raccoon", "raft", "rain", "rapid", "raven", "reason", "red",
 "remedy", "review", "reward", "river", "road", "robin", "rock", "rocket",
-"rocky", "rosebud", "round", "royal", "runner", "rustic",
+"rocky", "rose", "rosebud", "round", "royal", "runner", "rustic",
 "safety", "salute", "scary", "sea", "seed", "shark", "sheep", "shelf",
 "shiny", "ship", "shirt", "shoe", "short", "shrub", "silent", "silky",
 "silly", "silver", "skates", "sky", "sled", "slow", "small", "smart",
