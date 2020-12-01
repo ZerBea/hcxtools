@@ -29,14 +29,16 @@ endif
 
 OPENSSL_LIBS=$(shell pkg-config --libs openssl)
 OPENSSL_CFLAGS=$(shell pkg-config --cflags openssl)
+CURL_LIBS=$(shell pkg-config --libs libcurl)
+CURL_CFLAGS=$(shell pkg-config --cflags libcurl)
 
 TOOLS=
 TOOLS+=hcxpcapngtool
 hcxpcapngtool_libs=-lz $(OPENSSL_LIBS)
 hcxpcapngtool_cflags=$(OPENSSL_CFLAGS)
 TOOLS+=hcxhashtool
-hcxhashtool_libs=-lcurl $(OPENSSL_LIBS)
-hcxhashtool_cflags=$(OPENSSL_CFLAGS)
+hcxhashtool_libs=$(OPENSSL_LIBS) $(CURL_LIBS)
+hcxhashtool_cflags=$(OPENSSL_CFLAGS) $(CURL_CFLAGS)
 TOOLS+=hcxpsktool
 hcxpsktool_libs=$(OPENSSL_LIBS)
 hcxpsktool_cflags=$(OPENSSL_CFLAGS)
@@ -44,11 +46,11 @@ TOOLS+=hcxeiutool
 TOOLS+=hcxwltool
 TOOLS+=hcxhash2cap
 TOOLS+=wlancap2wpasec
-wlancap2wpasec_libs=-lcurl $(OPENSSL_LIBS)
-wlancap2wpasec_cflags=$(OPENSSL_CFLAGS)
+wlancap2wpasec_libs=$(OPENSSL_LIBS) $(CURL_LIBS)
+wlancap2wpasec_cflags=$(OPENSSL_CFLAGS) $(CURL_CFLAGS)
 TOOLS+=whoismac
-whoismac_libs=-lcurl $(OPENSSL_LIBS)
-whoismac_cflags=$(OPENSSL_CFLAGS)
+whoismac_libs=$(OPENSSL_LIBS) $(CURL_LIBS)
+whoismac_cflags=$(OPENSSL_CFLAGS) $(CURL_CFLAGS)
 
 TOOLS+=hcxpmkidtool
 TOOLS+=hcxhashcattool
