@@ -27,29 +27,35 @@ ifeq ($(HOSTOS), Linux)
 INSTFLAGS += -D
 endif
 
-ifeq ($(HOSTOS), Darwin)
-CFLAGS += -L/usr/local/opt/openssl/lib -I/usr/local/opt/openssl/include
-endif
+OPENSSL_LIBS=$(shell pkg-config --libs openssl)
+OPENSSL_CFLAGS=$(shell pkg-config --cflags openssl)
 
 TOOLS=
 TOOLS+=hcxpcapngtool
-hcxpcapngtool_libs=-lz -lcrypto -lssl
+hcxpcapngtool_libs=-lz $(OPENSSL_LIBS)
+hcxpcapngtool_cflags=$(OPENSSL_CFLAGS)
 TOOLS+=hcxhashtool
-hcxhashtool_libs=-lcrypto -lssl -lcurl
+hcxhashtool_libs=-lcurl $(OPENSSL_LIBS)
+hcxhashtool_cflags=$(OPENSSL_CFLAGS)
 TOOLS+=hcxpsktool
-hcxpsktool_libs=-lcrypto -lssl
+hcxpsktool_libs=$(OPENSSL_LIBS)
+hcxpsktool_cflags=$(OPENSSL_CFLAGS)
 TOOLS+=hcxeiutool
 TOOLS+=hcxwltool
 TOOLS+=hcxhash2cap
 TOOLS+=wlancap2wpasec
-wlancap2wpasec_libs=-lcrypto -lssl -lcurl
+wlancap2wpasec_libs=-lcurl $(OPENSSL_LIBS)
+wlancap2wpasec_cflags=$(OPENSSL_CFLAGS)
 TOOLS+=whoismac
-whoismac_libs=-lcrypto -lssl -lcurl
+whoismac_libs=-lcurl $(OPENSSL_LIBS)
+whoismac_cflags=$(OPENSSL_CFLAGS)
 
 TOOLS+=hcxpmkidtool
 TOOLS+=hcxhashcattool
-hcxhashcattool_libs=-lcrypto -lssl -lpthread
-hcxpmkidtool_libs=-lcrypto -lssl -lpthread
+hcxhashcattool_libs=-lpthread $(OPENSSL_LIBS)
+hcxhashcattool_cflags=$(OPENSSL_CFLAGS)
+hcxpmkidtool_libs=-lpthread $(OPENSSL_LIBS)
+hcxpmkidtool_cflags=$(OPENSSL_CFLAGS)
 TOOLS+=hcxmactool
 TOOLS+=hcxessidtool
 
@@ -66,9 +72,10 @@ build: $(TOOLS)
 define tool-build
 $(1)_src ?= $(1).c
 $(1)_libs ?=
+$(1)_cflags ?=
 
 $(1): $$($(1)_src) | .deps
-	$$(CC) $$(CFLAGS) $$(CPPFLAGS) -MMD -MF .deps/$$@.d -o $$@ $$($(1)_src) $$($(1)_libs) $$(LDFLAGS) $$(DEFS)
+	$$(CC) $$(CFLAGS) $$($(1)_cflags) $$(CPPFLAGS) -MMD -MF .deps/$$@.d -o $$@ $$($(1)_src) $$($(1)_libs) $$(LDFLAGS) $$(DEFS)
 
 .deps/$(1).d: $(1)
 
