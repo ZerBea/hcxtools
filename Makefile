@@ -31,11 +31,13 @@ OPENSSL_LIBS=$(shell pkg-config --libs openssl)
 OPENSSL_CFLAGS=$(shell pkg-config --cflags openssl)
 CURL_LIBS=$(shell pkg-config --libs libcurl)
 CURL_CFLAGS=$(shell pkg-config --cflags libcurl)
+Z_LIBS=$(shell pkg-config --libs zlib)
+Z_CFLAGS=$(shell pkg-config --cflags zlib)
 
 TOOLS=
 TOOLS+=hcxpcapngtool
-hcxpcapngtool_libs=-lz $(OPENSSL_LIBS)
-hcxpcapngtool_cflags=$(OPENSSL_CFLAGS)
+hcxpcapngtool_libs=$(OPENSSL_LIBS) $(Z_LIBS)
+hcxpcapngtool_cflags=$(OPENSSL_CFLAGS) $(Z_CFLAGS)
 TOOLS+=hcxhashtool
 hcxhashtool_libs=$(OPENSSL_LIBS) $(CURL_LIBS)
 hcxhashtool_cflags=$(OPENSSL_CFLAGS) $(CURL_CFLAGS)
