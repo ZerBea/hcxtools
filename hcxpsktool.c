@@ -595,22 +595,56 @@ static const char *word5[] =
 };
 
 for(w3 = 0; w3 < (sizeof(word3) / sizeof(char *)); w3++)
-for(w4 = 0; w4 < (sizeof(word4) / sizeof(char *)); w4++)
-for(w5 = 0; w5 < (sizeof(word5) / sizeof(char *)); w5++)
-    {
-    snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word3[w3], word4[w4], word5[w5]);
-	fprintf(fhout,"%s\n", pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word3[w3], word5[w5], word4[w4]);
-	fprintf(fhout,"%s\n", pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word4[w4], word3[w3], word5[w5]);
-	fprintf(fhout,"%s\n", pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word4[w4], word5[w5], word3[w3]);
-	fprintf(fhout,"%s\n", pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word5[w5], word3[w3], word4[w4]);
-	fprintf(fhout,"%s\n", pskstring);
-	snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word5[w5], word4[w4], word3[w3]);
-	fprintf(fhout,"%s\n", pskstring);
-    }
+	{
+	for(w4 = 0; w4 < (sizeof(word4) / sizeof(char *)); w4++)
+		{
+		for(w5 = 0; w5 < (sizeof(word5) / sizeof(char *)); w5++)
+			{
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word3[w3], word4[w4], word5[w5]);
+			fprintf(fhout,"%s\n", pskstring);
+			pskstring[0] = toupper(pskstring[0]);
+			pskstring[1] = toupper(pskstring[1]);
+			pskstring[2] = toupper(pskstring[2]);
+			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word3[w3], word5[w5], word4[w4]);
+			fprintf(fhout,"%s\n", pskstring);
+			pskstring[0] = toupper(pskstring[0]);
+			pskstring[1] = toupper(pskstring[1]);
+			pskstring[2] = toupper(pskstring[2]);
+			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word4[w4], word3[w3], word5[w5]);
+			fprintf(fhout,"%s\n", pskstring);
+			pskstring[0] = toupper(pskstring[0]);
+			pskstring[1] = toupper(pskstring[1]);
+			pskstring[2] = toupper(pskstring[2]);
+			pskstring[3] = toupper(pskstring[3]);
+			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word4[w4], word5[w5], word3[w3]);
+			fprintf(fhout,"%s\n", pskstring);
+			pskstring[0] = toupper(pskstring[0]);
+			pskstring[1] = toupper(pskstring[1]);
+			pskstring[2] = toupper(pskstring[2]);
+			pskstring[3] = toupper(pskstring[3]);
+			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word5[w5], word3[w3], word4[w4]);
+			fprintf(fhout,"%s\n", pskstring);
+			pskstring[0] = toupper(pskstring[0]);
+			pskstring[1] = toupper(pskstring[1]);
+			pskstring[2] = toupper(pskstring[2]);
+			pskstring[3] = toupper(pskstring[3]);
+			pskstring[4] = toupper(pskstring[4]);
+			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s-%s-%s", word5[w5], word4[w4], word3[w3]);
+			fprintf(fhout,"%s\n", pskstring);
+			pskstring[0] = toupper(pskstring[0]);
+			pskstring[1] = toupper(pskstring[1]);
+			pskstring[2] = toupper(pskstring[2]);
+			pskstring[3] = toupper(pskstring[3]);
+			pskstring[4] = toupper(pskstring[4]);
+			fprintf(fhout,"%s\n", pskstring);
+			}
+		}
+	}
 return;
 }
 /*===========================================================================*/
