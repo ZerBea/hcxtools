@@ -1347,8 +1347,8 @@ memset(buff, 0, bufflen);
 p = 0;
 while((lineptr[p] != '*') && (lineptr[p] != 0) && (p /2 <= bufflen))
 	{
-	if(! isxdigit(lineptr[p +0])) return 0;
-	if(! isxdigit(lineptr[p +1])) return 0;
+	if(!isxdigit(lineptr[p +0])) return 0;
+	if(!isxdigit(lineptr[p +1])) return 0;
 	if((lineptr[p +1] == '*') && (lineptr[p +1] == 0)) return 0;
 	idx0 = ((uint8_t)lineptr[p +0] &0x1F) ^0x10;
 	idx1 = ((uint8_t)lineptr[p +1] &0x1F) ^0x10;
@@ -1398,13 +1398,15 @@ static int len;
 static FILE *fh_essidlistin;
 static FILE *fh_pmkideapol;
 static struct stat statinfo;
+static char hexpfx[] = { "$HEX[" };
+
 
 static int essidlistincount, essidlistinmax;
 static essidlist_t *essidlistin, *zeiger, *essidlistinnew;
 static hashlist_t *zeigerhash;
 static int i, o;
 
-static char linein[128];
+static char linein[PMKIDEAPOL_BUFFER_LEN];
 
 essidlistinmax = 1000;
 if((essidlistin = (essidlist_t*)calloc(essidlistinmax, ESSIDLIST_SIZE)) == NULL) return;
@@ -1418,11 +1420,20 @@ zeiger = essidlistin;
 essidlistincount = 0;
 while(1)
 	{
-	if((len = fgetline(fh_essidlistin, 128, linein)) == -1) break;
-	if((len < 1) || (len > 32)) continue;
+	if((len = fgetline(fh_essidlistin, PMKIDEAPOL_BUFFER_LEN, linein)) == -1) break;
+	if((len < 1) || (len > 70)) continue;
 	memset(zeiger->essid, 0, 33);
-	zeiger->essidlen = len;
-	memcpy(zeiger->essid, linein, len);
+	if((len >= 8) && ((len %2) == 0) && (linein[len -1] == ']') && (memcmp(linein, hexpfx, 5) == 0))
+		{
+		linein[len -1] = 0;
+		zeiger->essidlen = getfield(&linein[5], 32, zeiger->essid);
+		}
+	else if(len <= 32)
+		{
+		zeiger->essidlen = len;
+		memcpy(zeiger->essid, linein, len);
+		}
+	else continue;
 	essidlistincount++;
 	if(essidlistincount >= essidlistinmax)
 		{
