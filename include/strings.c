@@ -1,3 +1,6 @@
+#define _GNU_SOURCE
+#include <ctype.h>
+
 /*===========================================================================*/
 bool ispotfilestring(int len, char *buffer)
 {
@@ -76,5 +79,42 @@ if (string[3]      != 'X') return 0;
 if (string[4]      != '[') return 0;
 if (string[len -1] != ']') return 0;
 return (len -6)/2;
+}
+/*===========================================================================*/
+char** create_upper_array(const char** from, size_t size)
+{
+size_t len;
+size_t i;
+uint8_t j;
+char** to;
+
+to = malloc(size * sizeof(char *));
+if(to == NULL)
+	{
+	fprintf(stderr, "failed to allocate memory\n");
+	exit(EXIT_FAILURE);
+	}
+
+for (i = 0; i < size; i++)
+    {
+    len = strlen(from[i]);
+    to[i] = malloc(len * sizeof(char) + 1);
+	if(to[i] == NULL)
+		{
+		fprintf(stderr, "failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+		}
+    for (j = 0; j <= len; j++) to[i][j] = toupper(from[i][j]);
+    }
+return to;
+}
+/*===========================================================================*/
+void free_array(char** arr, size_t size)
+{
+size_t i;
+
+for (i = 0; i < size; i++) free(arr[i]);
+free(arr);
+return;
 }
 /*===========================================================================*/
