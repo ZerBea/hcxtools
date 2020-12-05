@@ -63,21 +63,21 @@ if(memcmp(word[CSWORD], word[CHARWORD], WORD_MAX) == 0) word[CHARWORD][0] = 0;
 
 if(fh_digitlist != NULL)
 	{
-	if(strnlen(word[DIGITWORD], WORD_MAX)  > 3) fprintf(fh_digitlist, "%s\n", word[DIGITWORD]);
+	if(strnlen(word[DIGITWORD], WORD_MAX) > 3) fprintf(fh_digitlist, "%s\n", word[DIGITWORD]);
 	}
 if(fh_xdigitlist != NULL)
 	{
-	if(strnlen(word[XDIGITWORD], WORD_MAX)  > 3) fprintf(fh_xdigitlist, "%s\n", word[XDIGITWORD]);
+	if(strnlen(word[XDIGITWORD], WORD_MAX) > 3) fprintf(fh_xdigitlist, "%s\n", word[XDIGITWORD]);
 	}
 if(fh_charlist != NULL)
 	{
-	if(strnlen(word[CHARWORD], WORD_MAX)  > 3) fprintf(fh_charlist, "%s\n", word[CHARWORD]);
+	if(strnlen(word[CHARWORD], WORD_MAX) > 3) fprintf(fh_charlist, "%s\n", word[CHARWORD]);
 	}
 if(fh_cslist != NULL)
 	{
 	for(c = CSWORD; c < LINE_MAX; c++)
 		{
-		if(strnlen(word[c], WORD_MAX)  > 3) fprintf(fh_cslist, "%s\n", word[c]);
+		if(strnlen(word[c], WORD_MAX) > 3) fprintf(fh_cslist, "%s\n", word[c]);
 		}
 	}
 return;
@@ -207,7 +207,6 @@ fh_digitlist = NULL;
 fh_xdigitlist = NULL;
 fh_charlist = NULL;
 fh_cslist = NULL;
-
 
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
