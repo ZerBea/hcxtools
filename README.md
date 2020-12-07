@@ -50,7 +50,7 @@ Detailed description
 | deprecated     | obsolete and - no longer under maintenance - will be removed, soon                                                     |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format     |
-| hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                      |
+| hcxpmkidtool   | CPU based tools to verify a PMKID                                                                                      |
 | hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                        |
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |
 
