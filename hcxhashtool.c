@@ -1282,9 +1282,9 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 	rc = wpak->replaycount;
 	#endif
 	fprintf(fh_pmkideapol, "REPLAYCOUNT: %" PRIu64 "\n", rc);
-	if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO....: NC not required\n");
-	if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO....: NC suggested\n");
 	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO....: ROGUE attack / NC not required\n");
+	else if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO....: NC not required\n");
+	else if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO....: NC suggested\n");
 	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO....: little endian router / NC LE suggested\n");
 	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO....: big endian router / NC BE suggested\n");
 	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2.: challenge\n");
