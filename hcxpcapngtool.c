@@ -138,6 +138,8 @@ static uint32_t iface;
 static uint32_t dltlinktype[MAX_INTERFACE_ID +1];
 static uint32_t timeresolval[MAX_INTERFACE_ID +1];
 
+static long int radiotaperrorcount;
+
 static long int nmeacount;
 static long int rawpacketcount;
 static long int pcapreaderrors;
@@ -421,6 +423,7 @@ memcpy(&pcapngapplinfo, nastring, 3);
 memcpy(&pcapngoptioninfo, nastring, 3);
 memcpy(&pcapngweakcandidate, nastring, 3);
 
+radiotaperrorcount = 0;
 nmeacount = 0;
 endianess = 0;
 rawpacketcount = 0;
@@ -702,6 +705,7 @@ if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.........: %
 if(pmkidwrittenjcountdeprecated > 0)	printf("PMKID written to old format JtR..........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	printf("PMKID written to old format (1680x)......: %ld\n", pmkidwrittencountdeprecated);
 if(pcapreaderrors > 0)			printf("packet read error........................: %ld\n", pcapreaderrors);
+if(radiotaperrorcount > 0)		printf("packet with damaged radiotap header......: %ld\n", radiotaperrorcount);
 if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps...........: %ld\n", zeroedtimestampcount);
 if(eapolmsgtimestamperrorcount > 0)	printf("EAPOL frames with wrong timestamp........: %ld\n", eapolmsgtimestamperrorcount);
 malformedcount = beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount;
@@ -3862,7 +3866,7 @@ if(linktype == DLT_IEEE802_11_RADIO)
 	if(caplen < RTH_SIZE)
 		{
 		pcapreaderrors++;
-		printf("failed to read radiotap header\n");
+		radiotaperrorcount++;
 		if(fh_log != NULL) fprintf(fh_log, "failed to read radiotap header: %ld\n", rawpacketcount);
 		return;
 		}
@@ -3874,7 +3878,7 @@ if(linktype == DLT_IEEE802_11_RADIO)
 	if(rth->it_len > caplen)
 		{
 		pcapreaderrors++;
-		printf("failed to read radiotap header\n");
+		radiotaperrorcount++;
 		if(fh_log != NULL) fprintf(fh_log, "failed to read radiotap header: %ld\n", rawpacketcount);
 		return;
 		}
