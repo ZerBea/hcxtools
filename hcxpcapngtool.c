@@ -862,9 +862,9 @@ static int cs;
 static int cc, ca, ce;
 static int gpwpllen;
 static char *gpwplptr;
-static char gpwpl[NMEA_MAX];
 static const char gpgga[] = "$GPGGA";
 static const char gprmc[] = "$GPRMC";
+static char gpwpl[NMEA_MAX];
 
 if(nmealen < 30) return;
 gpwpl[0] = 0;
