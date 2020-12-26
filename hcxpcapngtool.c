@@ -323,7 +323,6 @@ static char gpwplold[OPTIONLEN_MAX];
 static char zeroedpsk[8];
 static uint8_t zeroedpmk[32];
 static uint8_t calculatedpmk[32];
-
 /*===========================================================================*/
 /*
 static inline void debugprint(int len, uint8_t *ptr)
@@ -864,7 +863,6 @@ static int cc, ca, ce;
 static int gpwpllen;
 static char *gpwplptr;
 static char gpwpl[NMEA_MAX];
-
 static const char gpgga[] = "$GPGGA";
 static const char gprmc[] = "$GPRMC";
 
@@ -934,7 +932,7 @@ return;
 /*===========================================================================*/
 static void outputtacacsplist()
 {
-uint32_t c;
+static uint32_t c;
 static tacacsplist_t *zeiger, *zeigerold;
 
 zeiger = tacacsplist;
@@ -963,8 +961,8 @@ return;
 /*===========================================================================*/
 void processtacacsppacket(uint32_t restlen, uint8_t *tacacspptr)
 {
-uint32_t authlen;
-tacacsp_t *tacacsp;
+static uint32_t authlen;
+static tacacsp_t *tacacsp;
 static tacacsplist_t *tacacsplistnew; 
 
 if(restlen < (uint32_t)TACACSP_SIZE) return;
@@ -972,7 +970,6 @@ tacacsp = (tacacsp_t*)tacacspptr;
 if(tacacsp->type != TACACS_AUTHENTICATION) return;
 authlen = ntohl(tacacsp->len);
 if((authlen > restlen -TACACSP_SIZE) || (authlen > TACACSPMAX_LEN)) return;
-
 if(tacacsplistptr >= tacacsplist +tacacsplistmax)
 	{
 	tacacsplistnew = realloc(tacacsplist, (tacacsplistmax +TACACSPLIST_MAX) *TACACSPLIST_SIZE);
@@ -998,25 +995,13 @@ return;
 /*===========================================================================*/
 static void processprotochappacket(uint32_t restlen, uint8_t *chapptr)
 {
-chap_t *chap;
+static chap_t *chap;
 
 if(restlen < (uint32_t)CHAP_SIZE) return;
 chap = (chap_t*)chapptr;
-
-if(chap->code == CHAP_CODE_REQ)
-	{
-	protochapreqcount++;
-	}
-else if(chap->code == CHAP_CODE_RESP)
-	{
-	protochaprespcount++;
-	}
-else if(chap->code == CHAP_CODE_SUCCESS)
-	{
-	protochapsuccesscount++;
-	}
-
-
+if(chap->code == CHAP_CODE_REQ) protochapreqcount++;
+else if(chap->code == CHAP_CODE_RESP) protochaprespcount++;
+else if(chap->code == CHAP_CODE_SUCCESS) protochapsuccesscount++;
 protochapcount++;
 return;
 }
@@ -1030,7 +1015,7 @@ return;
 /*===========================================================================*/
 static void processptppacket(uint32_t restlen, uint8_t *ptpptr)
 {
-ptp_t *ptp;
+static  ptp_t *ptp;
 
 if(restlen < (uint32_t)PTP_SIZE) return;
 ptp = (ptp_t*)ptpptr;
@@ -1041,13 +1026,12 @@ return;
 /*===========================================================================*/
 static void processgrepacket(uint32_t restlen, uint8_t *greptr)
 {
-gre_t *gre;
-uint32_t ofco;
+static gre_t *gre;
+static uint32_t ofco;
 
 if(restlen < (uint32_t)GRE_SIZE) return;
 gre = (gre_t*)greptr;
 if((ntohs(gre->flags) & GRE_MASK_VERSION) != 0x1) return; /* only GRE v1 supported */
-
 ofco = 0;
 if((ntohs(gre->flags) & GRE_FLAG_SNSET) == GRE_FLAG_SNSET) ofco += 4;
 if((ntohs(gre->flags) & GRE_FLAG_ACKSET) == GRE_FLAG_ACKSET) ofco +=4;
@@ -1058,14 +1042,13 @@ return;
 /*===========================================================================*/
 static void processudppacket(uint64_t timestamp, uint32_t restlen, uint8_t *udpptr)
 {
-udp_t *udp;
-uint16_t udplen; 
+static udp_t *udp;
+static uint16_t udplen; 
 
 if(restlen < UDP_SIZE) return;
 udp = (udp_t*)udpptr;
 udplen = ntohs(udp->len);
 if(restlen < udplen) return;
-
 udpcount++;
 //dummy code to satisfy gcc untill full code is implemented
 timestamp = timestamp;
@@ -1074,9 +1057,9 @@ return;
 /*===========================================================================*/
 static void processtcppacket(uint64_t timestamp, uint32_t restlen, uint8_t *tcpptr)
 {
-uint16_t tcplen; 
-tcp_t *tcp;
-tacacsp_t *tacacsp;
+static uint32_t tcplen; 
+static tcp_t *tcp;
+static tacacsp_t *tacacsp;
 
 if(restlen < TCP_SIZE_MIN) return;
 tcp = (tcp_t*)tcpptr;
@@ -1101,8 +1084,8 @@ return;
 /*===========================================================================*/
 static void processipv4(uint64_t timestamp, uint32_t restlen, uint8_t *ipv4ptr)
 {
-ipv4_t *ipv4;
-uint32_t ipv4len;
+static ipv4_t *ipv4;
+static uint32_t ipv4len;
 
 if(restlen < IPV4_SIZE_MIN) return;
 ipv4 = (ipv4_t*)ipv4ptr;
@@ -1125,7 +1108,7 @@ return;
 /*===========================================================================*/
 static void processipv6(uint64_t timestamp, uint16_t restlen, uint8_t *ipv6ptr)
 {
-ipv6_t *ipv6;
+static ipv6_t *ipv6;
 
 if(restlen < IPV6_SIZE) return;
 ipv6 = (ipv6_t*)ipv6ptr;
@@ -1155,6 +1138,7 @@ return 0;
 static inline size_t mschapv2_username_clean(uint8_t *username, size_t usernamelen, uint8_t *usernameclean)
 {
 static char *ptr;
+
 ptr = memchr(username, '\\', usernamelen);
 if(ptr == NULL)
 	{
@@ -1656,7 +1640,6 @@ if((keyver == 1) || (keyver == 2))
 		memcpy (pkeptr +35, wpak->nonce, 32);
 		memcpy (pkeptr +67, nonceap, 32);
 		}
-
 	for (p = 0; p < 4; p++)
 		{
 		pkedata[99] = p;
@@ -2103,7 +2086,6 @@ static handshakelist_t *handshakelistnew;
 static messagelist_t *zeiger;
 
 eapolmpcount++;
-
 if((mpfield &ST_APLESS) != ST_APLESS)
 	{
 	for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
@@ -3811,6 +3793,11 @@ else if(loba->family == LOBA_IPV630) processipv6(timestamp, caplen -LOBA_SIZE, p
 return;
 }
 /*===========================================================================*/
+static void getradiotapfield()
+{
+return;
+}
+/*===========================================================================*/
 static void processlinktype(uint64_t captimestamp, uint32_t linktype, uint32_t caplen, uint8_t *capptr)
 {
 static uint8_t cs;
@@ -3882,6 +3869,14 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		if(fh_log != NULL) fprintf(fh_log, "failed to read radiotap header: %ld\n", rawpacketcount);
 		return;
 		}
+	if(rth->it_version != 0)
+		{
+		pcapreaderrors++;
+		radiotaperrorcount++;
+		if(fh_log != NULL) fprintf(fh_log, "unsupported radiotap header version: %ld\n", rawpacketcount);
+		return;
+		}
+	getradiotapfield();
 	packetlen = caplen -rth->it_len;
 	packetptr = capptr +rth->it_len;
 	}
