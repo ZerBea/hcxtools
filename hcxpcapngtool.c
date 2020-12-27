@@ -3803,7 +3803,10 @@ static uint32_t *pp;
 
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
-if(((rth->it_present >> IEEE80211_RADIOTAP_EXT) & 1) == 1)
+
+rssi = 0;
+if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) != IEEE80211_RADIOTAP_DBM_ANTSIGNAL) return;
+if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
 	{
 	pp = (uint32_t*)capptr;
 	for(i = 2; i < rthlen /4; i++)
@@ -3812,17 +3815,15 @@ if(((rth->it_present >> IEEE80211_RADIOTAP_EXT) & 1) == 1)
 		pp[i] = byte_swap_32(pp[i]);
 		#endif
 		pf += 4;
-		if(((pp[i] >> IEEE80211_RADIOTAP_EXT) & 1) == 0) break;
+		if((pp[i] & IEEE80211_RADIOTAP_EXT) != IEEE80211_RADIOTAP_EXT) break;
 		}
 	}
 if((pf %8) != 0) pf +=4;
-if(((rth->it_present >> IEEE80211_RADIOTAP_TSFT) & 1) == 1) pf += 8;
-if(((rth->it_present >> IEEE80211_RADIOTAP_FLAGS) & 1) == 1) pf += 1;
-if(((rth->it_present >> IEEE80211_RADIOTAP_RATE) & 1) == 1) pf += 1;
-if(((rth->it_present >> IEEE80211_RADIOTAP_CHANNEL) & 1) == 1) pf += 4;
-if(((rth->it_present >> IEEE80211_RADIOTAP_FHSS) & 1) == 1) pf += 2;
-rssi = 0;
-if(((rth->it_present >> IEEE80211_RADIOTAP_DBM_ANTSIGNAL) & 1) == 0) return;
+if((rth->it_present & IEEE80211_RADIOTAP_TSFT) == IEEE80211_RADIOTAP_TSFT) pf += 8;
+if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS) pf += 1;
+if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS) pf += 1;
+if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL) pf += 4;
+if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS) pf += 2;
 if(pf > caplen) return;
 rssi = capptr[pf];
 return;
