@@ -863,13 +863,13 @@ static struct timeval tvo;
 
 static char timestring[24];
 
-if(rssi == 0) return;
 if(essidlen == 0) return;
 if(essid[0] == 0) return;
 tvo.tv_sec = timestamp /1000000;
 tvo.tv_usec = 0;
 strftime(timestring, 24, "%Y-%m-%d\t%H:%M:%S", gmtime(&tvo.tv_sec));
-fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d\t%d\n", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], essidlen, essid, channel, rssi);
+if(rssi != 0) fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d\t%d\n", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], essidlen, essid, channel, rssi);
+else fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d\t\n", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], essidlen, essid, channel);
 return;
 }
 /*===========================================================================*/
