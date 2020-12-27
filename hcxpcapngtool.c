@@ -3805,12 +3805,14 @@ rth = (rth_t*)capptr;
 pf = RTH_SIZE;
 if(((rth->it_present >> IEEE80211_RADIOTAP_EXT) & 1) == 1)
 	{
-	pf += 4;
 	pp = (uint32_t*)capptr;
 	for(i = 2; i < rthlen /4; i++)
 		{
-		if(((pp[i] >> IEEE80211_RADIOTAP_EXT) & 1) == 0) break;
+		#ifdef BIG_ENDIAN_HOST
+		pp[i] = byte_swap_32(pp[i]);
+		#endif
 		pf += 4;
+		if(((pp[i] >> IEEE80211_RADIOTAP_EXT) & 1) == 0) break;
 		}
 	}
 if((pf %8) != 0) pf +=4;
