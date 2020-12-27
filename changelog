@@ -3,7 +3,7 @@
 hcxpcapngtool: added new option --csv
 --csv=<file>                : output network information in CSV format
 outputfile is tabluator separted
-current fields: yyyy-mm-dd	hh:mm:ss	MAC_AP	ESSID	RSSI
+current fields: YYYY-MM-DD	HH:MM:SS	MAC_AP	ESSID	CHANNEL	RSSI
 more fields will follow, soon
 
 

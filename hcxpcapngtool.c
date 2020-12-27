@@ -857,7 +857,7 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 return;
 }
 /*===========================================================================*/
-static void writecsv(uint64_t timestamp, uint8_t *mac, uint8_t essidlen, uint8_t *essid)
+static void writecsv(uint64_t timestamp, uint8_t *mac, uint8_t essidlen, uint8_t *essid, uint8_t channel)
 {
 static struct timeval tvo;
 
@@ -869,7 +869,7 @@ if(essid[0] == 0) return;
 tvo.tv_sec = timestamp /1000000;
 tvo.tv_usec = 0;
 strftime(timestring, 24, "%Y-%m-%d\t%H:%M:%S", gmtime(&tvo.tv_sec));
-fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d\n", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], essidlen, essid, rssi);
+fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d\t%d\n", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], essidlen, essid, channel, rssi);
 return;
 }
 /*===========================================================================*/
@@ -3596,7 +3596,7 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
-if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, tags.essidlen, tags.essid);
+if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, tags.essidlen, tags.essid, tags.channel);
 return;
 }
 /*===========================================================================*/
@@ -3674,7 +3674,7 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
-if(fh_csv != NULL) writecsv(beacontimestamp, macap, tags.essidlen, tags.essid);
+if(fh_csv != NULL) writecsv(beacontimestamp, macap, tags.essidlen, tags.essid, tags.channel);
 return;
 }
 /*===========================================================================*/
