@@ -3822,8 +3822,6 @@ static uint32_t *pp;
 
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
-
-rssi = 0;
 if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) != IEEE80211_RADIOTAP_DBM_ANTSIGNAL) return;
 if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
 	{
@@ -3861,6 +3859,7 @@ static avs_t *avs;
 static fcs_t *fcs;
 static uint32_t crc;
 
+rssi = 0;
 if(fh_raw_out != NULL)
 	{
 	cs = captimestamp &0xff;
