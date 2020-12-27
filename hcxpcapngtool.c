@@ -304,6 +304,7 @@ static const uint8_t fakenonce2[] =
 0x75, 0x1f, 0x53, 0xcc, 0xb5, 0x81, 0xd1, 0x52, 0x3b, 0xb4, 0xba, 0xad, 0x23, 0xab, 0x01, 0x07
 };
 
+static char rssi;
 static uint8_t myaktap[6];
 static uint8_t myaktclient[6];
 static uint8_t myaktanonce[32];
@@ -3793,17 +3794,35 @@ else if(loba->family == LOBA_IPV630) processipv6(timestamp, caplen -LOBA_SIZE, p
 return;
 }
 /*===========================================================================*/
-static void getradiotapfield(uint16_t rthlen, uint8_t *capptr)
+static void getradiotapfield(uint16_t rthlen, uint32_t caplen, uint8_t *capptr)
 {
-uint16_t p;
+static int i;
+static uint16_t pf;
 static rth_t *rth;
+static uint32_t *pp;
 
-p = RTH_SIZE;
 rth = (rth_t*)capptr;
+pf = RTH_SIZE;
 if(((rth->it_present >> IEEE80211_RADIOTAP_EXT) & 1) == 1)
 	{
-	if(p > rthlen) return;
+	pf += 4;
+	pp = (uint32_t*)capptr;
+	for(i = 2; i < rthlen /4; i++)
+		{
+		if(((pp[i] >> IEEE80211_RADIOTAP_EXT) & 1) == 0) break;
+		pf += 4;
+		}
 	}
+if((pf %8) != 0) pf +=4;
+if(((rth->it_present >> IEEE80211_RADIOTAP_TSFT) & 1) == 1) pf += 8;
+if(((rth->it_present >> IEEE80211_RADIOTAP_FLAGS) & 1) == 1) pf += 1;
+if(((rth->it_present >> IEEE80211_RADIOTAP_RATE) & 1) == 1) pf += 1;
+if(((rth->it_present >> IEEE80211_RADIOTAP_CHANNEL) & 1) == 1) pf += 4;
+if(((rth->it_present >> IEEE80211_RADIOTAP_FHSS) & 1) == 1) pf += 2;
+rssi = 0;
+if(((rth->it_present >> IEEE80211_RADIOTAP_DBM_ANTSIGNAL) & 1) == 0) return;
+if(pf > caplen) return;
+rssi = capptr[pf];
 return;
 }
 /*===========================================================================*/
@@ -3885,7 +3904,7 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		if(fh_log != NULL) fprintf(fh_log, "unsupported radiotap header version: %ld\n", rawpacketcount);
 		return;
 		}
-	getradiotapfield(rth->it_len, capptr);
+	getradiotapfield(rth->it_len, caplen, capptr);
 	packetlen = caplen -rth->it_len;
 	packetptr = capptr +rth->it_len;
 	}
