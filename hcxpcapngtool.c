@@ -3793,8 +3793,17 @@ else if(loba->family == LOBA_IPV630) processipv6(timestamp, caplen -LOBA_SIZE, p
 return;
 }
 /*===========================================================================*/
-static void getradiotapfield()
+static void getradiotapfield(uint16_t rthlen, uint8_t *capptr)
 {
+uint16_t p;
+static rth_t *rth;
+
+p = RTH_SIZE;
+rth = (rth_t*)capptr;
+if(((rth->it_present >> IEEE80211_RADIOTAP_EXT) & 1) == 1)
+	{
+	if(p > rthlen) return;
+	}
 return;
 }
 /*===========================================================================*/
@@ -3876,7 +3885,7 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		if(fh_log != NULL) fprintf(fh_log, "unsupported radiotap header version: %ld\n", rawpacketcount);
 		return;
 		}
-	getradiotapfield();
+	getradiotapfield(rth->it_len, capptr);
 	packetlen = caplen -rth->it_len;
 	packetptr = capptr +rth->it_len;
 	}
