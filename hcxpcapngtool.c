@@ -857,19 +857,27 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 return;
 }
 /*===========================================================================*/
-static void writecsv(uint64_t timestamp, uint8_t *mac, uint8_t essidlen, uint8_t *essid, uint8_t channel)
+static void writecsv(uint64_t timestamp, uint8_t *mac, tags_t *tags)
 {
 static struct timeval tvo;
 
 static char timestring[24];
 
-if(essidlen == 0) return;
-if(essid[0] == 0) return;
+if(tags->essidlen == 0) return;
+if(tags->essid[0] == 0) return;
 tvo.tv_sec = timestamp /1000000;
 tvo.tv_usec = 0;
 strftime(timestring, 24, "%Y-%m-%d\t%H:%M:%S", gmtime(&tvo.tv_sec));
-if(rssi != 0) fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d\t%d\n", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], essidlen, essid, channel, rssi);
-else fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d\t\n", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], essidlen, essid, channel);
+fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], tags->essidlen, tags->essid, tags->channel);
+if(tags->kdversion == 1) fprintf(fh_csv, "\tWPA2");
+else if(tags->kdversion == 3) fprintf(fh_csv, "\tWPA1/WPA2");
+else if(tags->kdversion == 1) fprintf(fh_csv, "\tWPA1");
+else if(tags->kdversion == 0) fprintf(fh_csv, "\tOPEN");
+else fprintf(fh_csv, "\t");
+if(rssi != 0) fprintf(fh_csv, "\t%d", rssi);
+else fprintf(fh_csv, "\t");
+
+fprintf(fh_csv, "\n");
 return;
 }
 /*===========================================================================*/
@@ -3594,9 +3602,9 @@ memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
+if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
-if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, tags.essidlen, tags.essid, tags.channel);
 return;
 }
 /*===========================================================================*/
@@ -3672,9 +3680,9 @@ memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
+if(fh_csv != NULL) writecsv(beacontimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
-if(fh_csv != NULL) writecsv(beacontimestamp, macap, tags.essidlen, tags.essid, tags.channel);
 return;
 }
 /*===========================================================================*/
