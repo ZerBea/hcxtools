@@ -106,6 +106,7 @@ static FILE *fh_essidproberequest;
 static FILE *fh_identity;
 static FILE *fh_username;
 static FILE *fh_nmea;
+static FILE *fh_csv;
 static FILE *fh_raw_out;
 static FILE *fh_log;
 static FILE *fh_pmkideapoljtrdeprecated;
@@ -853,6 +854,22 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	essidcount++;
 	zeigermacold = zeigermac;
 	}
+return;
+}
+/*===========================================================================*/
+static void writecsv(uint64_t timestamp, uint8_t *mac, uint8_t essidlen, uint8_t *essid)
+{
+static struct timeval tvo;
+
+static char timestring[24];
+
+if(rssi == 0) return;
+if(essidlen == 0) return;
+if(essid[0] == 0) return;
+tvo.tv_sec = timestamp /1000000;
+tvo.tv_usec = 0;
+strftime(timestring, 24, "%Y-%m-%d\t%H:%M:%S", gmtime(&tvo.tv_sec));
+fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d\n", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], essidlen, essid, rssi);
 return;
 }
 /*===========================================================================*/
@@ -3579,6 +3596,7 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
+if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, tags.essidlen, tags.essid);
 return;
 }
 /*===========================================================================*/
@@ -3656,6 +3674,7 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
+if(fh_csv != NULL) writecsv(beacontimestamp, macap, tags.essidlen, tags.essid);
 return;
 }
 /*===========================================================================*/
@@ -5014,6 +5033,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
 	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx,gpxver=1.1 -F hcxdumptool.gpx\n"
 	"                                     to display the track, open file.gpx with viking\n"
+	"--csv=<file>                       : output network information in CSV format\n"
 	"--log=<file>                       : output logfile\n"
 	"--raw-out=<file>                   : output frames in HEX ASCII\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
@@ -5082,6 +5102,7 @@ static char *essidproberequestoutname;
 static char *identityoutname;
 static char *usernameoutname;
 static char *nmeaoutname;
+static char *csvoutname;
 static char *logoutname;
 static char *rawoutname;
 static char *rawinname;
@@ -5100,6 +5121,7 @@ static const char *essidproberequestsuffix = ".essidproberequest";
 static const char *identitysuffix = ".identity";
 static const char *usernamesuffix = ".username";
 static const char *nmeasuffix = ".nmea";
+static const char *csvsuffix = ".csv";
 
 static char pmkideapolprefix[PATH_MAX];
 static char eapmd5prefix[PATH_MAX];
@@ -5110,6 +5132,7 @@ static char essidproberequestprefix[PATH_MAX];
 static char identityprefix[PATH_MAX];
 static char usernameprefix[PATH_MAX];
 static char nmeaprefix[PATH_MAX];
+static char csvprefix[PATH_MAX];
 
 struct timeval tv;
 static struct stat statinfo;
@@ -5123,6 +5146,7 @@ static const struct option long_options[] =
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"nmea",			required_argument,	NULL,	HCX_NMEA_OUT},
+	{"csv",				required_argument,	NULL,	HCX_CSV_OUT},
 	{"raw-out",			required_argument,	NULL,	HCX_RAW_OUT},
 	{"raw-in",			required_argument,	NULL,	HCX_RAW_IN},
 	{"log",				required_argument,	NULL,	HCX_LOG_OUT},
@@ -5161,6 +5185,7 @@ essidproberequestoutname = NULL;
 identityoutname = NULL;
 usernameoutname = NULL;
 nmeaoutname = NULL;
+csvoutname = NULL;
 logoutname = NULL;
 rawoutname = NULL;
 rawinname = NULL;
@@ -5180,6 +5205,7 @@ fh_essidproberequest = NULL;
 fh_identity = NULL;
 fh_username = NULL;
 fh_nmea = NULL;
+fh_csv = NULL;
 fh_log = NULL;
 fh_raw_out = NULL;
 fh_pmkideapoljtrdeprecated = NULL;
@@ -5260,6 +5286,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		nmeaoutname = optarg;
 		break;
 
+		case HCX_CSV_OUT:
+		csvoutname = optarg;
+		break;
+
 		case HCX_RAW_OUT:
 		rawoutname = optarg;
 		break;
@@ -5335,6 +5365,7 @@ if(testfilename(pmkideapoloutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE
 if(testfilename(pmkideapoloutname, eapleapoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, tacacspoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, nmeaoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, csvoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, rawoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, logoutname) == true) exit(EXIT_FAILURE);
 
@@ -5346,6 +5377,7 @@ if(testfilename(eapmd5outname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, eapleapoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, tacacspoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, nmeaoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, csvoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, rawoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, logoutname) == true) exit(EXIT_FAILURE);
 
@@ -5356,6 +5388,7 @@ if(testfilename(eapleapoutname, usernameoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, tacacspoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, nmeaoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, csvoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, rawoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, logoutname) == true) exit(EXIT_FAILURE);
 
@@ -5365,6 +5398,7 @@ if(testfilename(tacacspoutname, identityoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, usernameoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, nmeaoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(tacacspoutname, csvoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, rawoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, logoutname) == true) exit(EXIT_FAILURE);
 
@@ -5426,9 +5460,11 @@ if(prefixoutname != NULL)
 	strncpy(nmeaprefix, prefixoutname, PREFIX_BUFFER_MAX);
 	strncat(nmeaprefix, nmeasuffix, PREFIX_BUFFER_MAX);
 	nmeaoutname = nmeaprefix;
+
+	strncpy(csvprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(csvprefix, csvsuffix, PREFIX_BUFFER_MAX);
+	csvoutname = csvprefix;
 	}
-
-
 
 if((pmkideapoloutname != NULL) && (nmeaoutname != NULL))
 	{
@@ -5519,6 +5555,14 @@ if(nmeaoutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
+if(csvoutname != NULL)
+	{
+	if((fh_csv = fopen(csvoutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", csvoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
 if(rawoutname != NULL)
 	{
 	if((fh_raw_out = fopen(rawoutname, "a")) == NULL)
@@ -5587,6 +5631,7 @@ if(fh_essidproberequest != NULL) fclose(fh_essidproberequest);
 if(fh_identity != NULL) fclose(fh_identity);
 if(fh_username != NULL) fclose(fh_username);
 if(fh_nmea != NULL) fclose(fh_nmea);
+if(fh_csv != NULL) fclose(fh_csv);
 if(fh_raw_out != NULL) fclose(fh_raw_out);
 if(fh_log != NULL) fclose(fh_log);
 if(fh_pmkideapoljtrdeprecated != NULL) fclose(fh_pmkideapoljtrdeprecated);
@@ -5662,6 +5707,13 @@ if(nmeaoutname != NULL)
 	if(stat(nmeaoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(nmeaoutname);
+		}
+	}
+if(csvoutname != NULL)
+	{
+	if(stat(csvoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(csvoutname);
 		}
 	}
 if(rawoutname != NULL)
