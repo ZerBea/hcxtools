@@ -4,7 +4,7 @@ hcxpcapngtool: added new option --csv
 --csv=<file>                       : output ACCESS POINT information in CSV format
                                      delimiter: tabulator (0x08)
                                      columns:
-                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM CHANNEL RSSI
+                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI
 still incomplete (GPS missing)
 
 

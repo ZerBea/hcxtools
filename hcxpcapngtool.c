@@ -896,6 +896,8 @@ if((tags->akm & TAK_SAE_SHA384B) == TAK_SAE_SHA384B) fprintf(fh_csv, "[SAE_SHA38
 if((tags->akm & TAK_AP_PKA) == TAK_AP_PKA) fprintf(fh_csv, "[AP_PKA]");
 if((tags->akm & TAK_OWE) == TAK_OWE) fprintf(fh_csv, "[OWE]");
 fprintf(fh_csv, "\t");
+if((tags->country[0] != 0) && (tags->country[1] != 0)) fprintf(fh_csv,"%c%c", tags->country[0], tags->country[1]);
+fprintf(fh_csv, "\t");
 if(tags->channel != 0) fprintf(fh_csv,"%d", tags->channel);
 fprintf(fh_csv, "\t");
 if(rssi != 0) fprintf(fh_csv, "\t%d", rssi);
@@ -2649,6 +2651,14 @@ while(0 < infolen)
 	else if(tagptr->id == TAG_CHAN)
 		{
 		if(tagptr->len == 1) zeiger->channel = tagptr->data[0];
+		}
+	else if(tagptr->id == TAG_COUNTRY)
+		{
+		if(tagptr->len > 2)
+			{
+			zeiger->country[0] = tagptr->data[0];
+			zeiger->country[1] = tagptr->data[1];
+			}
 		}
 	else if(tagptr->id == TAG_RSN)
 		{
@@ -5064,7 +5074,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--csv=<file>                       : output ACCESS POINT information in CSV format\n"
 	"                                     delimiter: tabulator (0x08)\n"
 	"                                     columns:\n"
-	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM CHANNEL RSSI\n"
+	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI\n"
 	"--log=<file>                       : output logfile\n"
 	"--raw-out=<file>                   : output frames in HEX ASCII\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"

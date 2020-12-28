@@ -366,6 +366,7 @@ struct ie_tag
 #define	TAG_SSID	0x00
 #define	TAG_RATE	0x01
 #define	TAG_CHAN	0x03
+#define	TAG_COUNTRY	0x07
 #define	TAG_RSN		0x30
 #define	TAG_PAG		0xde
 #define	TAG_VENDOR	0xdd

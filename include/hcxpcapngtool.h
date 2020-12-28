@@ -113,6 +113,7 @@ struct tags_s
 #define TAK_OWE		0b0001000000000000
  uint8_t	pmkid[16];
  uint8_t	wpsinfo;
+ char		country[2];
  uint8_t	essidlen;
  uint8_t	essid[ESSID_LEN_MAX];
 };
