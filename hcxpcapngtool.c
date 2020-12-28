@@ -868,15 +868,37 @@ if(tags->essid[0] == 0) return;
 tvo.tv_sec = timestamp /1000000;
 tvo.tv_usec = 0;
 strftime(timestring, 24, "%Y-%m-%d\t%H:%M:%S", gmtime(&tvo.tv_sec));
-fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t%d", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], tags->essidlen, tags->essid, tags->channel);
-if(tags->kdversion == 1) fprintf(fh_csv, "\tWPA2");
-else if(tags->kdversion == 3) fprintf(fh_csv, "\tWPA1/WPA2");
-else if(tags->kdversion == 1) fprintf(fh_csv, "\tWPA1");
-else if(tags->kdversion == 0) fprintf(fh_csv, "\tOPEN");
-else fprintf(fh_csv, "\t");
+fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], tags->essidlen, tags->essid);
+fprintf(fh_csv, "\t");
+if(tags->kdversion == 0) fprintf(fh_csv, "OPEN");
+if((tags->kdversion & KV_WPAIE) == KV_WPAIE) fprintf(fh_csv, "[WPA1]");
+if((tags->kdversion & KV_RSNIE) == KV_RSNIE) fprintf(fh_csv, "[WPA2]");
+fprintf(fh_csv, "\t");
+if((tags->cipher & TCS_TKIP) == TCS_TKIP) fprintf(fh_csv, "[TKIP]");
+if((tags->cipher & TCS_CCMP) == TCS_CCMP) fprintf(fh_csv, "[CCMP]");
+if((tags->cipher & TCS_WEP40) == TCS_WEP40) fprintf(fh_csv, "[WEP40]");
+if((tags->cipher & TCS_WEP104) == TCS_WEP104) fprintf(fh_csv, "[WEP104]");
+if((tags->cipher & TCS_WRAP) == TCS_WRAP) fprintf(fh_csv, "[WRAP]");
+if((tags->cipher & TCS_BIP) == TCS_BIP) fprintf(fh_csv, "[BIP]");
+if((tags->cipher & TCS_NOT_ALLOWED) == TCS_NOT_ALLOWED) fprintf(fh_csv, "[NOT_ALLOWED]");
+fprintf(fh_csv, "\t");
+if(tags->channel != 0) fprintf(fh_csv,"%d", tags->channel);
+fprintf(fh_csv, "\t");
 if(rssi != 0) fprintf(fh_csv, "\t%d", rssi);
-else fprintf(fh_csv, "\t");
-
+fprintf(fh_csv, "\t");
+if((tags->akm & TAK_PSK) == TAK_PSK) fprintf(fh_csv, "[PSK]");
+if((tags->akm & TAK_PSKSHA256) == TAK_PSKSHA256) fprintf(fh_csv, "[PSKSHA256]");
+if((tags->akm & TAK_PMKSA) == TAK_PMKSA) fprintf(fh_csv, "[PMKSA]");
+if((tags->akm & TAK_PMKSA256) == TAK_PMKSA256) fprintf(fh_csv, "[PMKSA256]");
+if((tags->akm & TAK_FT) == TAK_FT) fprintf(fh_csv, "[FT]");
+if((tags->akm & TAK_FT_PSK) == TAK_FT_PSK) fprintf(fh_csv, "[FT_PSK]");
+if((tags->akm & TAK_FT_SAE) == TAK_FT_SAE) fprintf(fh_csv, "[FT_SAE]");
+if((tags->akm & TAK_TDLS) == TAK_TDLS) fprintf(fh_csv, "[TDLS]");
+if((tags->akm & TAK_SAE_SHA256) == TAK_SAE_SHA256) fprintf(fh_csv, "[SAE_SHA256]");
+if((tags->akm & TAK_SAE_SHA256B) == TAK_SAE_SHA256B) fprintf(fh_csv, "[SAE_SHA256B]");
+if((tags->akm & TAK_SAE_SHA384B) == TAK_SAE_SHA384B) fprintf(fh_csv, "[SAE_SHA384B]");
+if((tags->akm & TAK_AP_PKA) == TAK_AP_PKA) fprintf(fh_csv, "[AP_PKA]");
+if((tags->akm & TAK_OWE) == TAK_OWE) fprintf(fh_csv, "[OWE]");
 fprintf(fh_csv, "\n");
 return;
 }
@@ -5041,6 +5063,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx,gpxver=1.1 -F hcxdumptool.gpx\n"
 	"                                     to display the track, open file.gpx with viking\n"
 	"--csv=<file>                       : output network information in CSV format\n"
+	"                                     delimiter: tabulator (0x08)\n"
+	"                                     columns:\n"
+	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM CHANNEL RSSI\n"
 	"--log=<file>                       : output logfile\n"
 	"--raw-out=<file>                   : output frames in HEX ASCII\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
