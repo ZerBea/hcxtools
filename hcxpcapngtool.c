@@ -2356,8 +2356,7 @@ static bool gettagwps(int wpslen, uint8_t *ieptr, tags_t *zeiger)
 {
 wpslen -= VENDORIE_SIZE;
 ieptr += VENDORIE_SIZE;
-
-if(wpslen == 0) return true;
+if(wpslen < (int)WPSIE_SIZE) return true;
 zeiger->wpsinfo = 1;
 return true;
 }
