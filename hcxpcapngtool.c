@@ -882,10 +882,6 @@ if((tags->cipher & TCS_WRAP) == TCS_WRAP) fprintf(fh_csv, "[WRAP]");
 if((tags->cipher & TCS_BIP) == TCS_BIP) fprintf(fh_csv, "[BIP]");
 if((tags->cipher & TCS_NOT_ALLOWED) == TCS_NOT_ALLOWED) fprintf(fh_csv, "[NOT_ALLOWED]");
 fprintf(fh_csv, "\t");
-if(tags->channel != 0) fprintf(fh_csv,"%d", tags->channel);
-fprintf(fh_csv, "\t");
-if(rssi != 0) fprintf(fh_csv, "\t%d", rssi);
-fprintf(fh_csv, "\t");
 if((tags->akm & TAK_PSK) == TAK_PSK) fprintf(fh_csv, "[PSK]");
 if((tags->akm & TAK_PSKSHA256) == TAK_PSKSHA256) fprintf(fh_csv, "[PSKSHA256]");
 if((tags->akm & TAK_PMKSA) == TAK_PMKSA) fprintf(fh_csv, "[PMKSA]");
@@ -899,6 +895,10 @@ if((tags->akm & TAK_SAE_SHA256B) == TAK_SAE_SHA256B) fprintf(fh_csv, "[SAE_SHA25
 if((tags->akm & TAK_SAE_SHA384B) == TAK_SAE_SHA384B) fprintf(fh_csv, "[SAE_SHA384B]");
 if((tags->akm & TAK_AP_PKA) == TAK_AP_PKA) fprintf(fh_csv, "[AP_PKA]");
 if((tags->akm & TAK_OWE) == TAK_OWE) fprintf(fh_csv, "[OWE]");
+fprintf(fh_csv, "\t");
+if(tags->channel != 0) fprintf(fh_csv,"%d", tags->channel);
+fprintf(fh_csv, "\t");
+if(rssi != 0) fprintf(fh_csv, "\t%d", rssi);
 fprintf(fh_csv, "\n");
 return;
 }

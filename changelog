@@ -1,10 +1,11 @@
-17.12.2020
+28.12.2020
 ==========
 hcxpcapngtool: added new option --csv
---csv=<file>                : output network information in CSV format
-outputfile is tabluator separted
-current fields: YYYY-MM-DD	HH:MM:SS	MAC_AP	ESSID	CHANNEL	KDV	RSSI
-more fields will follow, soon
+--csv=<file>                       : output network information in CSV format
+                                     delimiter: tabulator (0x08)
+                                     columns:
+                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM CHANNEL RSSI
+still incomplete (GPS missing)
 
 
 10.12.2020
