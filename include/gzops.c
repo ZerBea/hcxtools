@@ -8,17 +8,10 @@ int pcapr_fd;
 uint32_t magicnumber;
 
 pcapr_fd = open(pcapinname, O_RDONLY);
-if(pcapr_fd == -1)
-	{
-	return false;
-	}
+if(pcapr_fd == -1) return false;
 magicnumber = getmagicnumber(pcapr_fd);
 close(pcapr_fd);
-
-if((magicnumber &0xffff) != GZIPMAGICNUMBER)
-	{
-	return false;
-	}
+if((magicnumber &0xffff) != GZIPMAGICNUMBER) return false;
 return true;
 }
 /*===========================================================================*/
@@ -36,7 +29,6 @@ strm.zfree = Z_NULL;
 strm.opaque = Z_NULL;
 strm.next_in = in;
 strm.avail_in = 0;
-
 inflateInit2(& strm, windowBits | ENABLE_ZLIB_GZIP);
 printf("decompressing %s to %s\n", basename(gzname), tmpoutname);
 fhin = fopen (gzname, "rb");
@@ -68,7 +60,6 @@ while(1)
 		}
 	strm.avail_in = bytes_read;
 	strm.next_in = in;
-
 	do
 		{
 		unsigned have;
@@ -86,7 +77,6 @@ while(1)
 			printf("failed to decompress %s\n", gzname);
 			return false;
 			}
-
 		have = CHUNK - strm.avail_out;
 		fwrite(out, sizeof (unsigned char), have, fhout);
 		}
