@@ -11,6 +11,9 @@ pcapr_fd = open(pcapinname, O_RDONLY);
 if(pcapr_fd == -1) return false;
 magicnumber = getmagicnumber(pcapr_fd);
 close(pcapr_fd);
+#ifdef BIG_ENDIAN_HOST
+magicnumber = byte_swap_32(magicnumber);
+#endif
 if((magicnumber & 0xffff) != GZIPMAGICNUMBER) return false;
 if(((magicnumber >> 16) & 0xff) != DEFLATE) return false;
 return true;
