@@ -4417,33 +4417,30 @@ while(0 <= restlen)
 		}
 	else if(option->option_code == OPTIONCODE_NMEA)
 		{
-		if(option->option_length >= 66)
+		if(fh_nmea != NULL)
 			{
-			nmealen = option->option_length;
-			memset(&nmeasentence, 0, NMEA_MAX);
-			memcpy(&nmeasentence, &option->data, option->option_length);
-			if(fh_nmea != NULL)
+			if(option->option_length >= 48)
 				{
-				if(option->option_length > 30)
+				nmealen = option->option_length;
+				memset(&nmeasentence, 0, NMEA_MAX);
+				memcpy(&nmeasentence, &option->data, option->option_length);
+				csc = 0;
+				csn = 0;
+				pn = 1;
+				while((nmeasentence[pn] != 0) && (nmeasentence[pn] != '*'))
 					{
-					csc = 0;
-					csn = 0;
-					pn = 1;
-					while((nmeasentence[pn] != 0) && (nmeasentence[pn] != '*'))
+					csn ^= nmeasentence[pn];
+					pn++;
+					}
+				if(nmeasentence[pn] == '*')
+					{
+					csc = strtol(&nmeasentence[option->option_length -2], NULL, 16);
+					if(csn == csc)
 						{
-						csn ^= nmeasentence[pn];
-						pn++;
+						fprintf(fh_nmea, "%s\n", nmeasentence);
+						nmeacount++;
 						}
-					if(nmeasentence[pn] == '*')
-						{
-						csc = strtol(&nmeasentence[option->option_length -2], NULL, 16);
-						if(csn == csc)
-							{
-							fprintf(fh_nmea, "%s\n", nmeasentence);
-							nmeacount++;
-							}
-						else nmeaerrorcount++;
-						}
+					else nmeaerrorcount++;
 					}
 				}
 			}
