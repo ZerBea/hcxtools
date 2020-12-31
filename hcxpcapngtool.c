@@ -859,7 +859,15 @@ return;
 /*===========================================================================*/
 static void writecsv(uint64_t timestamp, uint8_t *mac, tags_t *tags)
 {
+static int c;
+static int p;
 static struct timeval tvo;
+static float latitude;
+static char ew;
+static float longitude;
+static char ns;
+static const char gpgga[] = "$GPGGA";
+static const char gprmc[] = "$GPRMC";
 
 static char timestring[24];
 
@@ -900,8 +908,50 @@ if((tags->country[0] >= 'A') && (tags->country[0] <= 'Z') && (tags->country[1] >
 fprintf(fh_csv, "\t");
 if(tags->channel != 0) fprintf(fh_csv,"%d", tags->channel);
 fprintf(fh_csv, "\t");
-if(rssi != 0) fprintf(fh_csv, "\t%d", rssi);
-fprintf(fh_csv, "\n");
+if(rssi != 0) fprintf(fh_csv, "%d", rssi);
+if(nmealen < 30)
+	{
+	fprintf(fh_csv, "\n");
+	return;
+	}
+p = 7;
+c = 0;
+latitude = 0;
+longitude = 0;
+ew = 0;
+ns = 0;
+if(memcmp(&gprmc, nmeasentence, 6) == 0)
+	{
+	while((nmeasentence[p] != 0) && (c < 2))
+		{
+		if(nmeasentence[p] == ',') c++;
+		p++;
+		}
+	sscanf(&nmeasentence[p],"%f,%c,%f,%c", &latitude, &ew, &longitude, &ns);
+	if((latitude = 0) || (longitude == 0) || (ew == 0) || (ns == 0))
+		{
+		fprintf(fh_csv, "\n");
+		return;
+		}
+	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\n", latitude, ew, longitude, ns);
+	return;
+	}
+if(memcmp(&gpgga, nmeasentence, 6) == 0)
+	{
+	while((nmeasentence[p] != 0) && (c < 1))
+		{
+		if(nmeasentence[p] == ',') c++;
+		p++;
+		}
+	sscanf(&nmeasentence[p],"%f,%c,%f,%c", &latitude, &ew, &longitude, &ns);
+	if((latitude = 0) || (longitude == 0) || (ew == 0) || (ns == 0))
+		{
+		fprintf(fh_csv, "\n");
+		return;
+		}
+	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\n", latitude, ew, longitude, ns);
+	return;
+	}
 return;
 }
 /*===========================================================================*/
@@ -940,12 +990,7 @@ if(memcmp(&gprmc, nmeasentence, 6) == 0)
 		}
 	if(ce > ca) snprintf(gpwpl, NMEA_MAX-1, "$GPWPL,%.*s,%02x%02x%02x%02x%02x%02x*", ce-ca, &nmeasentence[ca], mac[0] , mac[1], mac[2], mac[3], mac[4], mac[5]);
 	}
-else if(memcmp(&gprmc, &nmeasentence, 6) == 0)
-c = 0;
-cc = 0;
-ca = 0;
-ce = 0;
-if(memcmp(&gpgga, nmeasentence, 6) == 0)
+else if(memcmp(&gpgga, nmeasentence, 6) == 0)
 	{
 	while(nmeasentence[c] != 0)
 		{
