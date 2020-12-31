@@ -912,7 +912,7 @@ fprintf(fh_csv, "\t");
 if(tags->channel != 0) fprintf(fh_csv,"%d", tags->channel);
 fprintf(fh_csv, "\t");
 if(rssi != 0) fprintf(fh_csv, "%d", rssi);
-if(nmealen < 30)
+if(nmealen < 48)
 	{
 	fprintf(fh_csv, "\n");
 	return;
@@ -969,7 +969,7 @@ static const char gpgga[] = "$GPGGA";
 static const char gprmc[] = "$GPRMC";
 static char gpwpl[NMEA_MAX];
 
-if(nmealen < 30) return;
+if(nmealen < 48) return;
 gpwpl[0] = 0;
 c = 0;
 cc = 0;
@@ -4440,7 +4440,11 @@ while(0 <= restlen)
 						fprintf(fh_nmea, "%s\n", nmeasentence);
 						nmeacount++;
 						}
-					else nmeaerrorcount++;
+					else
+						{
+						nmealen = 0;
+						nmeaerrorcount++;
+						}
 					}
 				}
 			}
@@ -4476,6 +4480,7 @@ static uint8_t packet[MAXPACPSNAPLEN];
 
 printf("reading from %s...\n", basename(pcapinname));
 iface = 0;
+nmealen = 0;
 memset(&interfaceid, 0, sizeof(int) *MAX_INTERFACE_ID);
 fdsize = lseek(fd, 0, SEEK_END);
 if(fdsize < 0)
