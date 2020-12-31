@@ -142,6 +142,7 @@ static uint32_t timeresolval[MAX_INTERFACE_ID +1];
 static long int radiotaperrorcount;
 
 static long int nmeacount;
+static long int nmeaerrorcount;
 static long int rawpacketcount;
 static long int pcapreaderrors;
 static long int skippedpacketcount;
@@ -426,6 +427,7 @@ memcpy(&pcapngweakcandidate, nastring, 3);
 
 radiotaperrorcount = 0;
 nmeacount = 0;
+nmeaerrorcount = 0;
 endianess = 0;
 rawpacketcount = 0;
 pcapreaderrors = 0;
@@ -572,6 +574,7 @@ return true;
 static void printcontentinfo()
 {
 if(nmeacount > 0)			printf("NMEA sentence............................: %ld\n", nmeacount);
+if(nmeaerrorcount > 0)			printf("NMEA sentence checksum errors............: %ld\n", nmeaerrorcount);
 if(endianess == 0)			printf("endianess (capture system)...............: little endian\n");
 else					printf("endianess (capture system)...............: big endian\n");
 if(rawpacketcount > 0)			printf("packets inside...........................: %ld\n", rawpacketcount);
@@ -4299,8 +4302,9 @@ return;
 /*===========================================================================*/
 int pcapngoptionwalk(uint32_t blocktype, uint8_t *optr, int restlen)
 {
-static option_header_t *option;
+static int csn, csc, pn;
 static int padding;
+static option_header_t *option;
 
 while(0 <= restlen)
 	{
@@ -4418,8 +4422,30 @@ while(0 <= restlen)
 			nmealen = option->option_length;
 			memset(&nmeasentence, 0, NMEA_MAX);
 			memcpy(&nmeasentence, &option->data, option->option_length);
-			if(fh_nmea != NULL) fprintf(fh_nmea, "%s\n", nmeasentence);
-			nmeacount++;
+			if(fh_nmea != NULL)
+				{
+				if(option->option_length > 30)
+					{
+					csc = 0;
+					csn = 0;
+					pn = 1;
+					while((nmeasentence[pn] != 0) && (nmeasentence[pn] != '*'))
+						{
+						csn ^= nmeasentence[pn];
+						pn++;
+						}
+					if(nmeasentence[pn] == '*')
+						{
+						csc = strtol(&nmeasentence[option->option_length -2], NULL, 16);
+						if(csn == csc)
+							{
+							fprintf(fh_nmea, "%s\n", nmeasentence);
+							nmeacount++;
+							}
+						else nmeaerrorcount++;
+						}
+					}
+				}
 			}
 		}
 	optr += option->option_length +padding +OH_SIZE;
