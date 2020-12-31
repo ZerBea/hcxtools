@@ -11,7 +11,8 @@ pcapr_fd = open(pcapinname, O_RDONLY);
 if(pcapr_fd == -1) return false;
 magicnumber = getmagicnumber(pcapr_fd);
 close(pcapr_fd);
-if((magicnumber &0xffff) != GZIPMAGICNUMBER) return false;
+if((magicnumber & 0xffff) != GZIPMAGICNUMBER) return false;
+if(((magicnumber >> 16) & 0xff) != DEFLATE) return false;
 return true;
 }
 /*===========================================================================*/
@@ -49,10 +50,10 @@ while(1)
 	{
 	int bytes_read;
 	int zlib_status;
-	bytes_read = fread (in, sizeof(char), sizeof(in), fhin);
+	bytes_read = fread(in, sizeof(char), sizeof(in), fhin);
 	if(ferror(fhin))
 		{
-		inflateEnd (& strm);
+		inflateEnd(&strm);
 		printf("failed to decompress %s\n", gzname);
 		fclose(fhout);
 		fclose(fhin);
@@ -73,11 +74,11 @@ while(1)
 			case Z_BUF_ERROR:
 			break;
 			default:
-			inflateEnd (& strm);
+			inflateEnd (&strm);
 			printf("failed to decompress %s\n", gzname);
 			return false;
 			}
-		have = CHUNK - strm.avail_out;
+		have = CHUNK -strm.avail_out;
 		fwrite(out, sizeof (unsigned char), have, fhout);
 		}
 	while(strm.avail_out == 0);
