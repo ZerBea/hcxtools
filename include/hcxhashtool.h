@@ -27,21 +27,22 @@
 #define HCX_FILTER_OUI_CLIENT		13
 #define HCX_FILTER_MAC_AP		14
 #define HCX_FILTER_MAC_CLIENT		15
-#define HCX_FILTER_VENDOR		16
-#define HCX_FILTER_ESSID		17
-#define HCX_FILTER_ESSID_PART		18
-#define HCX_FILTER_RC			19
-#define HCX_FILTER_M12			20
-#define HCX_FILTER_M1234		21
-#define HCX_FILTER_M1M2ROGUE		22
-#define HCX_PSK				23
-#define HCX_PMK				24
-#define HCX_VENDOR_OUT			25
-#define HCX_INFO_OUT			26
-#define HCX_HCCAPX_OUT			27
-#define HCX_HCCAP_OUT			28
-#define HCX_HCCAP_SINGLE_OUT		29
-#define HCX_JOHN_OUT			30
+#define HCX_FILTER_MAC_LIST_IN		16
+#define HCX_FILTER_VENDOR		17
+#define HCX_FILTER_ESSID		18
+#define HCX_FILTER_ESSID_PART		19
+#define HCX_FILTER_RC			20
+#define HCX_FILTER_M12			21
+#define HCX_FILTER_M1234		22
+#define HCX_FILTER_M1M2ROGUE		23
+#define HCX_PSK				24
+#define HCX_PMK				25
+#define HCX_VENDOR_OUT			26
+#define HCX_INFO_OUT			27
+#define HCX_HCCAPX_OUT			28
+#define HCX_HCCAP_OUT			29
+#define HCX_HCCAP_SINGLE_OUT		30
+#define HCX_JOHN_OUT			31
 #define HCX_PMKIDEAPOL_IN		'i'
 #define HCX_PMKIDEAPOL_OUT		'o'
 #define HCX_ESSID_OUT			'E'
@@ -89,6 +90,26 @@ if(memcmp(ia->essid, ib->essid, ia->essidlen) > 0) return 1;
 else if(memcmp(ia->essid, ib->essid, ia->essidlen) < 0) return -1;
 return 0;
 }
+
+static int sort_maclist_by_macap(const void *a, const void *b)
+{
+const hashlist_t *ia = (const hashlist_t *)a;
+const hashlist_t *ib = (const hashlist_t *)b;
+
+if(memcmp(ia->ap, ib->ap, 6) > 0) return 1;
+else if(memcmp(ia->ap, ib->ap, 6) < 0) return -1;
+return 0;
+}
+
+static int sort_maclist_by_macclient(const void *a, const void *b)
+{
+const hashlist_t *ia = (const hashlist_t *)a;
+const hashlist_t *ib = (const hashlist_t *)b;
+
+if(memcmp(ia->client, ib->client, 6) > 0) return 1;
+else if(memcmp(ia->client, ib->client, 6) < 0) return -1;
+return 0;
+}
 /*===========================================================================*/
 struct ouilist_s
 {
@@ -126,6 +147,23 @@ if(ia->essidlen > ib->essidlen) return 1;
 else if(ia->essidlen < ib->essidlen) return -1;
 if(memcmp(ia->essid, ib->essid, ia->essidlen) > 0) return 1;
 else if(memcmp(ia->essid, ib->essid, ia->essidlen) < 0) return -1;
+return 0;
+}
+/*===========================================================================*/
+struct maclist_s
+{
+ uint8_t	mac[6];
+};
+typedef struct maclist_s maclist_t;
+#define	MACLIST_SIZE (sizeof(maclist_t))
+
+static int sort_maclistin(const void *a, const void *b)
+{
+const maclist_t *ia = (const maclist_t *)a;
+const maclist_t *ib = (const maclist_t *)b;
+
+if(memcmp(ia->mac, ib->mac, 6) > 0) return 1;
+else if(memcmp(ia->mac, ib->mac, 6) < 0) return -1;
 return 0;
 }
 /*===========================================================================*/

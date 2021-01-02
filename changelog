@@ -1,3 +1,10 @@
+02.01.2021
+==========
+hcxhashtool: added new option --mac-list
+--mac-list=<file>            : filter by MAC file
+                             : format: 001122334455, 00:11:22:33:44:55, 00-11-22-33-44-55 (hex)
+
+
 31.12.2020
 ==========
 hcxpcapngtool: added new option --csv

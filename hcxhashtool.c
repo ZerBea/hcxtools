@@ -1392,6 +1392,114 @@ len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
+static void processmacfile(char *maclistinname, char *pmkideapoloutname)
+{
+static int len;
+static int p1, p2;
+static FILE *fh_maclistin;
+static FILE *fh_pmkideapol;
+static struct stat statinfo;
+
+static int maclistincount, maclistinmax;
+static maclist_t *maclistin, *zeiger, *maclistinnew;
+static hashlist_t *zeigerhash;
+static int i, o;
+
+static char linein[PMKIDEAPOL_BUFFER_LEN];
+
+maclistinmax = 1000;
+if((maclistin = (maclist_t*)calloc(maclistinmax, MACLIST_SIZE)) == NULL) return;
+if((fh_maclistin = fopen(maclistinname, "rb")) == NULL)
+	{
+	printf("error opening file %s: %s\n", maclistinname, strerror(errno));
+	return;
+	}
+
+zeiger = maclistin;
+maclistincount = 0;
+while(1)
+	{
+	if((len = fgetline(fh_maclistin, PMKIDEAPOL_BUFFER_LEN, linein)) == -1) break;
+	if(len == 17)
+		{
+		p2 = 0;
+		for(p1 = 0; p1 < 17; p1++)
+			{
+			if(isxdigit(linein[p1]))
+				{
+				linein[p2] = linein[p1];
+				p2++;
+				}
+			}
+		linein[p2] = 0;
+		len = p2;
+		}
+	if(len != 12) continue;
+	if(getfield(linein, 6, zeiger->mac) != 6) continue;
+	maclistincount++;
+	if(maclistincount >= maclistinmax)
+		{
+		maclistinmax += 1000;
+		maclistinnew = realloc(maclistin, maclistinmax *MACLIST_SIZE);
+		if(maclistinnew == NULL)
+			{
+			printf("failed to allocate memory for internal list\n");
+			exit(EXIT_FAILURE);
+			}
+		maclistin = maclistinnew;
+		}
+	zeiger = maclistin +maclistincount;
+	}
+if(fh_maclistin != NULL) fclose(fh_maclistin);
+qsort(maclistin, maclistincount, MACLIST_SIZE, sort_maclistin);
+
+if(pmkideapoloutname != NULL)
+	{
+	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+		free(maclistin);
+		return;
+		}
+	}
+qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_macap);
+zeiger = maclistin;
+zeigerhash = hashlist;
+o = 0;
+for(i = 0; i < maclistincount; i++)
+	{
+	while(o < pmkideapolcount)
+		{
+		if(memcmp((zeigerhash +o)->ap, (zeiger +i)->mac, 6) > 0) break;
+		if(memcmp((zeigerhash +o)->ap, (zeiger +i)->mac, 6) == 0) writepmkideapolhashline(fh_pmkideapol, zeigerhash +o);
+		o++;
+		}
+	}
+qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_macclient);
+zeiger = maclistin;
+zeigerhash = hashlist;
+o = 0;
+for(i = 0; i < maclistincount; i++)
+	{
+	while(o < pmkideapolcount)
+		{
+		if(memcmp((zeigerhash +o)->client, (zeiger +i)->mac, 6) > 0) break;
+		if(memcmp((zeigerhash +o)->client, (zeiger +i)->mac, 6) == 0) writepmkideapolhashline(fh_pmkideapol, zeigerhash +o);
+		o++;
+		}
+	}
+if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+if(pmkideapoloutname != NULL)
+	{
+	if(stat(pmkideapoloutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(pmkideapoloutname);
+		}
+	}
+if(maclistin != NULL) free(maclistin);
+return;
+}
+/*===========================================================================*/
 static void processessidfile(char *essidlistinname, char *pmkideapoloutname)
 {
 static int len;
@@ -1399,7 +1507,6 @@ static FILE *fh_essidlistin;
 static FILE *fh_pmkideapol;
 static struct stat statinfo;
 static char hexpfx[] = { "$HEX[" };
-
 
 static int essidlistincount, essidlistinmax;
 static essidlist_t *essidlistin, *zeiger, *essidlistinnew;
@@ -1783,6 +1890,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                             : format: 001122334455, 00:11:22:33:44:55, 00-11-22-33-44-55 (hex)\n"
 	"--mac-client=<MAC>           : filter CLIENT by MAC\n"
 	"                             : format: 001122334455, 00:11:22:33:44:55, 00-11-22-33-44-55 (hex)\n"
+	"--mac-list=<file>            : filter by MAC file\n"
+	"                             : format: 001122334455, 00:11:22:33:44:55, 00-11-22-33-44-55 (hex)\n"
 	"--oui-ap=<OUI>               : filter AP by OUI\n"
 	"                             : format: 001122, 00:11:22, 00-11-22 (hex)\n"
 	"--oui-client=<OUI>           : filter CLIENT by OUI\n"
@@ -1833,6 +1942,7 @@ static char *pmkideapolinname;
 static char *pmkideapoloutname;
 static char *essidoutname;
 static char *essidinname;
+static char *macinname;
 static char *hccapxoutname;
 static char *hccapoutname;
 static char *johnoutname;
@@ -1857,6 +1967,7 @@ static const struct option long_options[] =
 	{"essid-list",			required_argument,	NULL,	HCX_FILTER_ESSID_LIST_IN},
 	{"mac-ap",			required_argument,	NULL,	HCX_FILTER_MAC_AP},
 	{"mac-client",			required_argument,	NULL,	HCX_FILTER_MAC_CLIENT},
+	{"mac-list",			required_argument,	NULL,	HCX_FILTER_MAC_LIST_IN},
 	{"mac-group-ap",		no_argument,		NULL,	HCX_MAC_GROUP_AP},
 	{"mac-group-client",		no_argument,		NULL,	HCX_MAC_GROUP_CLIENT},
 	{"oui-group",			no_argument,		NULL,	HCX_OUI_GROUP},
@@ -1889,6 +2000,7 @@ pmkideapolinname = NULL;
 pmkideapoloutname = NULL;
 essidoutname = NULL;
 essidinname = NULL;
+macinname = NULL;
 infooutname = NULL;
 hccapxoutname = NULL;
 hccapoutname = NULL;
@@ -2099,6 +2211,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		flagfiltermacclient = true;
 		break;
 
+		case HCX_FILTER_MAC_LIST_IN:
+		macinname = optarg;
+		break;
+
 		case HCX_FILTER_OUI_CLIENT:
 		l= strlen(optarg);
 		p2 = 0;
@@ -2249,6 +2365,7 @@ if((pmkideapolcount > 0) && (hccapoutname != NULL)) writehccapfile(hccapoutname)
 if((pmkideapolcount > 0) && (flaghccapsingleout == true)) writehccapsinglefile();
 if((pmkideapolcount > 0) && (johnoutname != NULL)) writejohnfile(johnoutname);
 if((pmkideapolcount > 0) && (essidinname != NULL)) processessidfile(essidinname, pmkideapoloutname);
+if((pmkideapolcount > 0) && (macinname != NULL)) processmacfile(macinname, pmkideapoloutname);
 
 printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
