@@ -1556,14 +1556,16 @@ while(1)
 if(fh_essidlistin != NULL) fclose(fh_essidlistin);
 qsort(essidlistin, essidlistincount, ESSIDLIST_SIZE, sort_essidlistin);
 qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_essidlen);
-if(pmkideapoloutname != NULL)
+if(pmkideapoloutname == NULL)
 	{
-	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
-		{
-		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
-		free(essidlistin);
-		return;
-		}
+	if(essidlistin != NULL) free(essidlistin);
+	return;
+	}
+if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
+	{
+	printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+	free(essidlistin);
+	return;
 	}
 zeiger = essidlistin;
 zeigerhash = hashlist;
