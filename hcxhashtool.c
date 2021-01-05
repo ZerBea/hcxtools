@@ -972,7 +972,6 @@ if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
 if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
-
 if(zeiger->type == HCX_TYPE_PMKID)
 	{
 	fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -1503,15 +1502,14 @@ return;
 static void processessidfile(char *essidlistinname, char *pmkideapoloutname)
 {
 static int len;
+static int i, o;
 static FILE *fh_essidlistin;
 static FILE *fh_pmkideapol;
 static struct stat statinfo;
-static char hexpfx[] = { "$HEX[" };
-
 static int essidlistincount, essidlistinmax;
 static essidlist_t *essidlistin, *zeiger, *essidlistinnew;
 static hashlist_t *zeigerhash;
-static int i, o;
+static char hexpfx[] = { "$HEX[" };
 
 static char linein[PMKIDEAPOL_BUFFER_LEN];
 
@@ -1558,7 +1556,6 @@ while(1)
 if(fh_essidlistin != NULL) fclose(fh_essidlistin);
 qsort(essidlistin, essidlistincount, ESSIDLIST_SIZE, sort_essidlistin);
 qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_maclist_by_essidlen);
-
 if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
@@ -1570,6 +1567,7 @@ if(pmkideapoloutname != NULL)
 	}
 zeiger = essidlistin;
 zeigerhash = hashlist;
+
 o = 0;
 for(i = 0; i < essidlistincount; i++)
 	{
@@ -2364,7 +2362,7 @@ if((pmkideapolcount > 0) && (hccapxoutname != NULL)) writehccapxfile(hccapxoutna
 if((pmkideapolcount > 0) && (hccapoutname != NULL)) writehccapfile(hccapoutname);
 if((pmkideapolcount > 0) && (flaghccapsingleout == true)) writehccapsinglefile();
 if((pmkideapolcount > 0) && (johnoutname != NULL)) writejohnfile(johnoutname);
-if((pmkideapolcount > 0) && (essidinname != NULL)) processessidfile(essidinname, pmkideapoloutname);
+if((pmkideapolcount > 0) && (pmkideapoloutname != NULL) && (essidinname != NULL)) processessidfile(essidinname, pmkideapoloutname);
 if((pmkideapolcount > 0) && (macinname != NULL)) processmacfile(macinname, pmkideapoloutname);
 
 printstatus();
