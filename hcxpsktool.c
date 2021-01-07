@@ -260,8 +260,8 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *wordlist[] =
 { 
-"absent", "absurd", "acre", "adorable", "agency", "airplane", "album", "anchor",
-"ancient", "apple", "aquatic", "author",
+"absent", "absurd", "acre", "adorable", "advice", "agency", "airplane", "album",
+"anchor", "ancient", "apple", "aquatic", "author",
 "bakery", "ball", "balloon", "banana", "barrel", "basic", "basket", "bench",
 "berry", "better", "bike", "bird", "black", "blue", "boat", "bold",
 "bolt", "book", "boot", "botany", "bowl", "box", "brain", "brave",
@@ -315,8 +315,9 @@ static const char *wordlist[] =
 "straw", "street", "strong", "studio", "summit", "sun", "sunny", "super",
 "sweet", "swift",
 "table", "tablet", "tall", "teal", "teapot", "tent", "terrific", "theory",
-"think", "thirsty", "tiger", "timber", "tiny", "tomato", "town", "trail",
-"train", "tree", "truck", "trumpet", "tuba", "tulip", "turkey", "turtle",
+"think", "thirsty", "tiger", "timber", "tiny", "tomato", "topic", "town",
+"trail", "train", "tree", "truck", "trumpet", "tuba", "tulip", "turkey",
+"turtle",
 "uneven", "unicorn", "union", "unit", "unite", "unusual", "urban", "useful",
 "valley", "vanilla", "vase", "vast", "verse", "violet", "violin", "voyage",
 "wagon", "walnut", "warm", "watch", "water", "watery", "wealth", "west",
