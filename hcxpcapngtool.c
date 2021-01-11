@@ -5188,6 +5188,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"Detection of bit errors does not work on cleaned dump files!\n"
 	"Do not use %s in combination with third party cap/pcap/pcapng cleaning tools (except: tshark and/or Wireshark)!\n"
 	"It is much better to run gzip to compress the files. Wireshark, tshark and hcxpcapngtool will understand this.\n"
+	"Recommended tool to convert to hash formats accepted by hashcat and john: hcxpcapngtool\n"
+	"Recommended tools to show additional 802.11 fields or to decrypt WiFi traffic: Wireshark and/or tshark\n"
 	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname, eigenname, eigenname, eigenname, eigenname,
 	EAPOLTIMEOUT /1000, NONCEERRORCORRECTION, ESSIDSMAX,
 	eigenname);
