@@ -3925,7 +3925,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
 if((pf %8) != 0) pf +=4;
 if((rth->it_present & IEEE80211_RADIOTAP_TSFT) == IEEE80211_RADIOTAP_TSFT) pf += 8;
 if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS) pf += 1;
-if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS) pf += 1;
+if((rth->it_present & IEEE80211_RADIOTAP_RATE) == IEEE80211_RADIOTAP_RATE) pf += 1;
 if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL) pf += 4;
 if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS) pf += 2;
 if(pf > caplen) return;
@@ -4134,7 +4134,6 @@ if(packetlen < 4)
 	if(fh_log != NULL) fprintf(fh_log, "failed to read packet (len < 4): %ld\n", rawpacketcount);
 	return;
 	}
-
 fcs = (fcs_t*)(packetptr +packetlen -4);
 crc = fcscrc32check(packetptr, packetlen -4);
 #ifdef BIG_ENDIAN_HOST
@@ -4145,9 +4144,7 @@ if(crc == fcs->fcs)
 	fcsframecount++;
 	packetlen -= 4;
 	}
-
 process80211packet(captimestamp, packetlen, packetptr);
-
 return;
 }
 /*===========================================================================*/
