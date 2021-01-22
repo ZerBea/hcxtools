@@ -931,7 +931,7 @@ if(memcmp(&gprmc, nmeasentence, 6) == 0)
 		p++;
 		}
 	sscanf(&nmeasentence[p],"%f,%c,%f,%c", &latitude, &ew, &longitude, &ns);
-	if((latitude = 0) || (longitude == 0) || (ew == 0) || (ns == 0))
+	if((latitude == 0) || (longitude == 0) || (ew == 0) || (ns == 0))
 		{
 		fprintf(fh_csv, "\n");
 		return;
@@ -947,7 +947,7 @@ if(memcmp(&gpgga, nmeasentence, 6) == 0)
 		p++;
 		}
 	sscanf(&nmeasentence[p],"%f,%c,%f,%c", &latitude, &ew, &longitude, &ns);
-	if((latitude = 0) || (longitude == 0) || (ew == 0) || (ns == 0))
+	if((latitude == 0) || (longitude == 0) || (ew == 0) || (ns == 0))
 		{
 		fprintf(fh_csv, "\n");
 		return;
