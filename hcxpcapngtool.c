@@ -4419,7 +4419,7 @@ while(0 <= restlen)
 			if(option->option_length >= 48)
 				{
 				nmealen = option->option_length;
-				memset(&nmeasentence, 0, NMEA_MAX);
+				memset(&nmeasentence, 0, option->option_length);
 				memcpy(&nmeasentence, &option->data, option->option_length);
 				csc = 0;
 				csn = 0;
@@ -4434,7 +4434,7 @@ while(0 <= restlen)
 					csc = strtol(&nmeasentence[option->option_length -2], NULL, 16);
 					if(csn == csc)
 						{
-						fprintf(fh_nmea, "%s\n", nmeasentence);
+						if(fh_nmea!= NULL) fprintf(fh_nmea, "%s\n", nmeasentence);
 						nmeacount++;
 						}
 					else
