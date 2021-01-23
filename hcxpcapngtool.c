@@ -4419,7 +4419,7 @@ while(0 <= restlen)
 			if(option->option_length >= 48)
 				{
 				nmealen = option->option_length;
-				memset(&nmeasentence, 0, option->option_length);
+				memset(&nmeasentence, 0, OPTIONLEN_MAX);
 				memcpy(&nmeasentence, &option->data, option->option_length);
 				csc = 0;
 				csn = 0;
