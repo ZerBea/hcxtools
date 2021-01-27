@@ -261,7 +261,7 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 static const char *wordlist[] =
 { 
 "absent", "absurd", "acre", "adorable", "advice", "agency", "airplane", "album",
-"anchor", "ancient", "apple", "aquatic", "author",
+"anchor", "ancient", "apple", "aquatic", "author", "away",
 "bakery", "ball", "balloon", "banana", "barrel", "basic", "basket", "bench",
 "berry", "better", "bike", "bird", "black", "blue", "boat", "bold",
 "bolt", "book", "boot", "botany", "bowl", "box", "brain", "brave",
@@ -2465,7 +2465,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"--netgear     : include weak NETGEAR / ORBI / NTGR_VMB candidates\n"
 	"--askeyarris  : include weak MySpectrumWiFI / SpectrumSetup / MyCharterWiFI candidates\n"
-	"                list will be > 2GB\n"
+	"                list will be > 3GB\n"
 	"--digit10     : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"                list will be > 1GB\n"
 	"--phome       : include weak PEGATRON HOME candidates\n"
