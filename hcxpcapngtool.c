@@ -4532,10 +4532,7 @@ while(1)
 	#endif
 	if(blocktype == PCAPNGBLOCKTYPE)
 		{
-		if(blockmagic == PCAPNGMAGICNUMBERBE)
-			{
-			endianess = 1;
-			}
+		if(blockmagic == PCAPNGMAGICNUMBERBE) endianess = 1;
 		}
 	if(endianess == 1)
 		{
@@ -4639,12 +4636,9 @@ while(1)
 		{
 		pcapngpb = (packet_block_t*)pcpngblock;
 		#ifdef BIG_ENDIAN_HOST
-		pcapngpb->caplen		= byte_swap_32(pcapngpb->caplen);
+		pcapngpb->caplen = byte_swap_32(pcapngpb->caplen);
 		#endif
-		if(endianess == 1)
-			{
-			pcapngpb->caplen	= byte_swap_32(pcapngpb->caplen);
-			}
+		if(endianess == 1) pcapngpb->caplen	= byte_swap_32(pcapngpb->caplen);
 		timestamppcapng = 0;
 		if(pcapngpb->caplen > MAXPACPSNAPLEN)
 			{
@@ -4663,18 +4657,9 @@ while(1)
 		rawpacketcount++;
 		processlinktype(timestamppcapng, dltlinktype[0], pcapngpb->caplen, pcapngpb->data);
 		}
-	else if(blocktype == SPBID)
-		{
-		continue;
-		}
-	else if(blocktype == NRBID)
-		{
-		continue;
-		}
-	else if(blocktype == ISBID)
-		{
-		continue;
-		}
+	else if(blocktype == SPBID) continue;
+	else if(blocktype == NRBID) continue;
+	else if(blocktype == ISBID) continue;
 	else if(blocktype == EPBID)
 		{
 		pcapngepb = (enhanced_packet_block_t*)pcpngblock;
@@ -4732,10 +4717,7 @@ while(1)
 		rawpacketcount++;
 		processlinktype(timestamppcapng, dltlinktype[pcapngepb->interface_id], pcapngepb->caplen, pcapngepb->data);
 		padding = 0;
-		if((pcapngepb->caplen  %4))
-			{
-			padding = 4 -(pcapngepb->caplen %4);
-			}
+		if((pcapngepb->caplen %4)) padding = 4 -(pcapngepb->caplen %4);
 		if(pcapngoptionwalk(blocktype, pcapngepb->data +pcapngepb->caplen +padding, blocklen -EPB_SIZE -pcapngepb->caplen -padding) != 0) pcapreaderrors++;
 		}
 	else if(blocktype == CBID)
