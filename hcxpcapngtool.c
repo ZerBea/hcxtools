@@ -683,8 +683,8 @@ if(eapolm3kdv0count > 0)		printf("EAPOL M3 messages (KDV:0 AKM defined)....: %ld
 if(eapolm4count > 0)			printf("EAPOL M4 messages (total)................: %ld\n", eapolm4count);
 if(eapolm4kdv0count > 0)		printf("EAPOL M4 messages (KDV:0 AKM defined)....: %ld\n", eapolm4kdv0count);
 if(eapolmpcount > 0)			printf("EAPOL pairs (total)......................: %ld\n", eapolmpcount);
-if(zeroedeapolpskcount > 0)		printf("EAPOL (over zeroed PSK)..................: %ld\n", zeroedeapolpskcount);
-if(zeroedeapolpmkcount > 0)		printf("EAPOL (over zeroed PMK)..................: %ld\n", zeroedeapolpmkcount);
+if(zeroedeapolpskcount > 0)		printf("EAPOL (from zeroed PSK)..................: %ld\n", zeroedeapolpskcount);
+if(zeroedeapolpmkcount > 0)		printf("EAPOL (from zeroed PMK)..................: %ld\n", zeroedeapolpmkcount);
 if(eapolmpbestcount > 0)		printf("EAPOL pairs (best).......................: %ld\n", eapolmpbestcount);
 if(eapolaplesscount > 0)		printf("EAPOL ROGUE pairs........................: %ld\n", eapolaplesscount);
 if(eapolwrittencount > 0)		printf("EAPOL pairs written to combi hash file...: %ld (RC checked)\n", eapolwrittencount);
@@ -701,8 +701,8 @@ if(eapolm34e3count > 0)			printf("EAPOL M34E3 (authorized).................: %ld
 if(eapolm34e4count > 0)			printf("EAPOL M34E4 (authorized).................: %ld\n", eapolm34e4count);
 if(pmkiduselesscount > 0)		printf("PMKID (useless)..........................: %ld\n", pmkiduselesscount);
 if(pmkidcount > 0)			printf("PMKID (total)............................: %ld\n", pmkidcount);
-if(zeroedpmkidpskcount > 0)		printf("PMKID (over zeroed PSK)..................: %ld\n", zeroedpmkidpskcount);
-if(zeroedpmkidpmkcount > 0)		printf("PMKID (over zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
+if(zeroedpmkidpskcount > 0)		printf("PMKID (from zeroed PSK)..................: %ld\n", zeroedpmkidpskcount);
+if(zeroedpmkidpmkcount > 0)		printf("PMKID (from zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
 if(pmkidbestcount > 0)			printf("PMKID (best).............................: %ld\n", pmkidbestcount);
 if(pmkidroguecount > 0)			printf("PMKID ROGUE..............................: %ld\n", pmkidroguecount);
 if(pmkidwrittenhcount > 0)		printf("PMKID written to combi hash file.........: %ld\n", pmkidwrittenhcount);
@@ -5087,7 +5087,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"short options:\n"
 	"-o <file> : output WPA-PBKDF2-PMKID+EAPOL (hashcat -m 22000)hash file\n"
-	"            get full advantage of reuse of PBKDF2 over PMKID and EAPOL\n"
+	"            get full advantage of reuse of PBKDF2 on PMKID and EAPOL\n"
 	"-E <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
 	"            retrieved from every frame that contain an ESSID\n"
 	"-R <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
