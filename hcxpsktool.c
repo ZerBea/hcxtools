@@ -27,22 +27,22 @@ static apessidl_t *apessidliste;
 static int apessidcount;
 static int thisyear;
 
-static bool netgearflag;
+static bool airtelflag;
 static bool askeyarrisflag;
 static bool digit10flag;
-static bool hb5flag;
-static bool podaflag;
-static bool phomeflag;
-static bool tendaflag;
-static bool eeflag;
-static bool weakpassflag;
-static bool eudateflag;
-static bool usdateflag;
-static bool wpskeysflag;
-static bool egnflag;
-
 static bool easyboxflag;
+static bool eeflag;
+static bool egnflag;
+static bool eudateflag;
+static bool hb5flag;
+static bool netgearflag;
+static bool phomeflag;
+static bool podaflag;
+static bool tendaflag;
 static bool ukrtelecomflag;
+static bool usdateflag;
+static bool weakpassflag;
+static bool wpskeysflag;
 
 uint8_t essidglen;
 /*===========================================================================*/
@@ -1244,6 +1244,20 @@ for(l1 = 2; l1 <= essidlen; l1++)
 return;
 }
 /*===========================================================================*/
+static void testairtel(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k;
+static char *air = "Airtel_";
+
+if(airtelflag == true) return;
+if(essidlen < 7) return;
+if(memcmp(essid, air, 7) != 0) return;
+fprintf(fhout, "Airtel@123\n");
+for(k = 0; k < 100000; k++) fprintf(fhout, "air%05d\n", k);
+airtelflag = true;
+return;
+}
+/*===========================================================================*/
 static void testalcatellinkzone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
@@ -1809,6 +1823,7 @@ static int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if((essidlen == 0) || (essidlen > 32)) return;
+testairtel(fhout, essidlen, essid);
 testalcatellinkzone(fhout, essidlen, essid);
 testarrisizzi(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
@@ -2513,21 +2528,22 @@ static char *essidname = NULL;
 static char *macapname = NULL;
 static char *pskname = NULL;
 
-netgearflag = false;
+airtelflag = false;
 askeyarrisflag = false;
 digit10flag = false;
-hb5flag = false;
-podaflag = false;
-phomeflag = false;
-tendaflag = false;
-eeflag = false;
-weakpassflag = false;
-eudateflag = false;
-usdateflag = false;
-wpskeysflag = false;
 easyboxflag = false;
-ukrtelecomflag = false;
+eeflag = false;
 egnflag = false;
+eudateflag = false;
+hb5flag = false;
+netgearflag = false;
+phomeflag = false;
+podaflag = false;
+tendaflag = false;
+ukrtelecomflag = false;
+usdateflag = false;
+weakpassflag = false;
+wpskeysflag = false;
 
 static const char *short_options = "c:i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
