@@ -4525,15 +4525,15 @@ while(1)
 	blocktype = pcapngbh->block_type;
 	blocklen =  pcapngbh->total_length;
 	blockmagic = pcapngbh->byte_order_magic;
-	#ifdef BIG_ENDIAN_HOST
-	blocktype  = byte_swap_32(blocktype);
-	blocklen = byte_swap_32(blocklen);
-	blockmagic = byte_swap_32(blockmagic);
-	#endif
 	if(blocktype == PCAPNGBLOCKTYPE)
 		{
 		if(blockmagic == PCAPNGMAGICNUMBERBE) endianess = 1;
 		}
+//	#ifdef BIG_ENDIAN_HOST
+//	blocktype  = byte_swap_32(blocktype);
+//	blocklen = byte_swap_32(blocklen);
+//	blockmagic = byte_swap_32(blockmagic);
+//	#endif
 	if(endianess == 1)
 		{
 		blocktype  = byte_swap_32(blocktype);
