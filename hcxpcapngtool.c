@@ -3994,10 +3994,10 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		return;
 		}
 	rth = (rth_t*)capptr;
-	#ifdef BIG_ENDIAN_HOST
-	rth->it_len = byte_swap_16(rth->it_len);
-	rth->it_present = byte_swap_32(rth->it_present);
-	#endif
+//	#ifdef BIG_ENDIAN_HOST
+//	rth->it_len = byte_swap_16(rth->it_len);
+//	rth->it_present = byte_swap_32(rth->it_present);
+//	#endif
 	if(rth->it_len > caplen)
 		{
 		pcapreaderrors++;
@@ -4031,9 +4031,9 @@ else if(linktype == DLT_PPI)
 		return;
 		}
 	ppi = (ppi_t*)capptr;
-	#ifdef BIG_ENDIAN_HOST
-	ppi->pph_len = byte_swap_16(ppi->pph_len);
-	#endif
+//	#ifdef BIG_ENDIAN_HOST
+//	ppi->pph_len = byte_swap_16(ppi->pph_len);
+//	#endif
 	if(ppi->pph_len > caplen)
 		{
 		pcapreaderrors++;
@@ -4054,11 +4054,11 @@ else if(linktype == DLT_PRISM_HEADER)
 		return;
 		}
 	prism = (prism_t*)capptr;
-	#ifdef BIG_ENDIAN_HOST
-	prism->msgcode = byte_swap_32(prism->msgcode);
-	prism->msglen = byte_swap_32(prism->msglen);
-	prism->frmlen.data = byte_swap_32(prism->frmlen.data);
-	#endif
+//	#ifdef BIG_ENDIAN_HOST
+//	prism->msgcode = byte_swap_32(prism->msgcode);
+//	prism->msglen = byte_swap_32(prism->msglen);
+//	prism->frmlen.data = byte_swap_32(prism->frmlen.data);
+//	#endif
 	if(prism->msglen > caplen)
 		{
 		if(prism->frmlen.data > caplen)
@@ -4083,9 +4083,9 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 		return;
 		}
 	avs = (avs_t*)capptr;
-	#ifdef BIG_ENDIAN_HOST
-	avs->len = byte_swap_32(avs->len);
-	#endif
+//	#ifdef BIG_ENDIAN_HOST
+//	avs->len = byte_swap_32(avs->len);
+//	#endif
 	if(avs->len > caplen)
 		{
 		pcapreaderrors++;
