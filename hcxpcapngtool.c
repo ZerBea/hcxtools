@@ -34,6 +34,10 @@
 #include <linux/limits.h>
 #endif
 
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define BIG_ENDIAN_HOST
+#endif
+
 #include "include/hcxpcapngtool.h"
 #include "include/ieee80211.c"
 #include "include/strings.c"
@@ -261,7 +265,6 @@ static long int eapolm32e2count;
 static long int eapolm32e3count;
 static long int eapolm34e3count;
 static long int eapolm34e4count;
-static long int akmpmkideapolignoredcount;
 static long int eapmd5writtencount;
 static long int eapmd5johnwrittencount;
 static long int eapleapwrittencount;
@@ -546,7 +549,6 @@ eapolm32e2count = 0;
 eapolm32e3count = 0;
 eapolm34e3count = 0;
 eapolm34e4count = 0;
-akmpmkideapolignoredcount = 0;
 eapmd5writtencount = 0;
 eapmd5johnwrittencount = 0;
 eapleapwrittencount = 0;
@@ -726,13 +728,6 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 	{
 	printf( "\nInformation: no hashes written to hash files\n");
 	}
-if(akmpmkideapolignoredcount > 0)
-	{
-	printf("\nInformation: the dump file contain some PMKIDs/EAPOL messages\n"
-		"which are not based on PBKDF2.\n"
-		"As default, they will be ignored unless --all is used.\n");
-	}
-
 if(sequenceerrorcount > 0)
 	{
 	printf("\nWarning: out of sequence timestamps!\n"
@@ -2077,7 +2072,6 @@ if(zeigermacold->type == AP)
 				zeigerpmkidakt = getpmkid(zeigermacold, zeigerpmkidakt);
 				zeigerhsakt = gethandshake(zeigermacold, zeigerhsakt);
 				}
-			else akmpmkideapolignoredcount++;
 			}
 		}
 	}
@@ -2112,7 +2106,6 @@ for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 			zeigerpmkidakt = getpmkid(zeigermac, zeigerpmkidakt);
 			zeigerhsakt = gethandshake(zeigermac, zeigerhsakt);
 			}
-		else akmpmkideapolignoredcount++;
 		}
 	zeigermacold = zeigermac;
 	}
@@ -3964,7 +3957,7 @@ if(fh_raw_out != NULL)
 	#ifndef BIG_ENDIAN_HOST
 	fprintf(fh_raw_out, "%016" PRIx64 "*%08x*", captimestamp, linktype);
 	#else
-	fprintf(fh_raw_out, "%016" PRIx64 "*%08x*", bswap64(captimestamp), bswap32(linktype));
+	fprintf(fh_raw_out, "%016" PRIx64 "*%08x*", byte_swap_64(captimestamp), byte_swap_32(linktype));
 	#endif
 	for(p = 0; p < caplen; p++)
 		{
@@ -3994,10 +3987,10 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		return;
 		}
 	rth = (rth_t*)capptr;
-//	#ifdef BIG_ENDIAN_HOST
-//	rth->it_len = byte_swap_16(rth->it_len);
-//	rth->it_present = byte_swap_32(rth->it_present);
-//	#endif
+	#ifdef BIG_ENDIAN_HOST
+	rth->it_len = byte_swap_16(rth->it_len);
+	rth->it_present = byte_swap_32(rth->it_present);
+	#endif
 	if(rth->it_len > caplen)
 		{
 		pcapreaderrors++;
@@ -4031,9 +4024,9 @@ else if(linktype == DLT_PPI)
 		return;
 		}
 	ppi = (ppi_t*)capptr;
-//	#ifdef BIG_ENDIAN_HOST
-//	ppi->pph_len = byte_swap_16(ppi->pph_len);
-//	#endif
+	#ifdef BIG_ENDIAN_HOST
+	ppi->pph_len = byte_swap_16(ppi->pph_len);
+	#endif
 	if(ppi->pph_len > caplen)
 		{
 		pcapreaderrors++;
@@ -4054,11 +4047,11 @@ else if(linktype == DLT_PRISM_HEADER)
 		return;
 		}
 	prism = (prism_t*)capptr;
-//	#ifdef BIG_ENDIAN_HOST
-//	prism->msgcode = byte_swap_32(prism->msgcode);
-//	prism->msglen = byte_swap_32(prism->msglen);
-//	prism->frmlen.data = byte_swap_32(prism->frmlen.data);
-//	#endif
+	#ifdef BIG_ENDIAN_HOST
+	prism->msgcode = byte_swap_32(prism->msgcode);
+	prism->msglen = byte_swap_32(prism->msglen);
+	prism->frmlen.data = byte_swap_32(prism->frmlen.data);
+	#endif
 	if(prism->msglen > caplen)
 		{
 		if(prism->frmlen.data > caplen)
@@ -4083,9 +4076,9 @@ else if(linktype == DLT_IEEE802_11_RADIO_AVS)
 		return;
 		}
 	avs = (avs_t*)capptr;
-//	#ifdef BIG_ENDIAN_HOST
-//	avs->len = byte_swap_32(avs->len);
-//	#endif
+	#ifdef BIG_ENDIAN_HOST
+	avs->len = byte_swap_32(avs->len);
+	#endif
 	if(avs->len > caplen)
 		{
 		pcapreaderrors++;
@@ -4387,13 +4380,9 @@ while(0 <= restlen)
 			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x02] & 0xff);
 			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x01] & 0xff);
 			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x00] & 0xff);
-//			#ifdef BIG_ENDIAN_HOST
-//			myaktreplaycount = byte_swap_64(myaktreplaycount);
-//			#endif
-			if(endianess == 1)
-				{
-				myaktreplaycount = byte_swap_64(myaktreplaycount);
-				}
+			#ifdef BIG_ENDIAN_HOST
+			myaktreplaycount = byte_swap_64(myaktreplaycount);
+			#endif
 			}
 		}
 	else if(option->option_code == OPTIONCODE_ANONCE)
@@ -4525,18 +4514,18 @@ while(1)
 	blocktype = pcapngbh->block_type;
 	blocklen =  pcapngbh->total_length;
 	blockmagic = pcapngbh->byte_order_magic;
+	#ifdef BIG_ENDIAN_HOST
+	blocktype = byte_swap_32(blocktype);
+	blocklen = byte_swap_32(blocklen);
+	blockmagic = byte_swap_32(blockmagic);
+	#endif
 	if(blocktype == PCAPNGBLOCKTYPE)
 		{
 		if(blockmagic == PCAPNGMAGICNUMBERBE) endianess = 1;
 		}
-//	#ifdef BIG_ENDIAN_HOST
-//	blocktype  = byte_swap_32(blocktype);
-//	blocklen = byte_swap_32(blocklen);
-//	blockmagic = byte_swap_32(blockmagic);
-//	#endif
 	if(endianess == 1)
 		{
-		blocktype  = byte_swap_32(blocktype);
+		blocktype = byte_swap_32(blocktype);
 		blocklen = byte_swap_32(blocklen);
 		}
 	if((blocklen > (2 *MAXPACPSNAPLEN)) || ((blocklen %4) != 0))
@@ -4969,7 +4958,7 @@ while(1)
 		continue;
 		}
 	#ifdef BIG_ENDIAN_HOST
-	timestampraw = bswap64(timestampraw);
+	timestampraw = byte_swap_64(timestampraw);
 	#endif
 	linktyperaw = strtoul(&linein[17], &stopptr, 16);
 	if((stopptr == NULL) || ((stopptr -linein) != 25))
@@ -4980,7 +4969,7 @@ while(1)
 		continue;
 		}
 	#ifdef BIG_ENDIAN_HOST
-	linktypraw = bswap16(linktypraw);
+	linktyperaw = byte_swap_16(linktyperaw);
 	#endif
 	cs = timestampraw &0xff;
 	cs ^= (timestampraw >> 8) &0xff;
