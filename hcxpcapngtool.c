@@ -4387,9 +4387,9 @@ while(0 <= restlen)
 			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x02] & 0xff);
 			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x01] & 0xff);
 			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x00] & 0xff);
-			#ifdef BIG_ENDIAN_HOST
-			myaktreplaycount = byte_swap_64(myaktreplaycount);
-			#endif
+//			#ifdef BIG_ENDIAN_HOST
+//			myaktreplaycount = byte_swap_64(myaktreplaycount);
+//			#endif
 			if(endianess == 1)
 				{
 				myaktreplaycount = byte_swap_64(myaktreplaycount);
