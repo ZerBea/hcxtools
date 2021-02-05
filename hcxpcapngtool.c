@@ -2408,13 +2408,15 @@ return true;
 static bool gettagwpa(int wpalen, uint8_t *ieptr, tags_t *zeiger)
 {
 static int c;
-static int wpatype;
 static wpaie_t *wpaptr;
+static int wpatype;
 static suite_t *gsuiteptr;
 static suitecount_t *csuitecountptr;
 static suite_t *csuiteptr;
+static int csuitecount;
 static suitecount_t *asuitecountptr;
 static suite_t *asuiteptr;
+static int asuitecount;
 
 wpaptr = (wpaie_t*)ieptr;
 wpalen -= WPAIE_SIZE;
@@ -2442,12 +2444,17 @@ ieptr += SUITE_SIZE;
 csuitecountptr = (suitecount_t*)ieptr;
 wpalen -= SUITECOUNT_SIZE;
 ieptr += SUITECOUNT_SIZE;
-if(csuitecountptr->count *4 > wpalen)
+#ifndef BIG_ENDIAN_HOST
+csuitecount = csuitecountptr->count;
+#else
+csuitecount = byte_swap_16(csuitecountptr->count);
+#endif
+if(csuitecount *4 > wpalen)
 	{
 	taglenerrorcount++;
 	return false;
 	}
-for(c = 0; c < csuitecountptr->count; c++)
+for(c = 0; c < csuitecount; c++)
 	{
 	csuiteptr = (suite_t*)ieptr; 
 	if(memcmp(csuiteptr->oui, &ouimscorp, 3) == 0)
@@ -2468,12 +2475,17 @@ for(c = 0; c < csuitecountptr->count; c++)
 asuitecountptr = (suitecount_t*)ieptr;
 wpalen -= SUITECOUNT_SIZE;
 ieptr += SUITECOUNT_SIZE;
-if(asuitecountptr->count *4 > wpalen)
+#ifndef BIG_ENDIAN_HOST
+asuitecount = asuitecountptr->count;
+#else
+asuitecount = byte_swap_16(asuitecountptr->count);
+#endif
+if(asuitecount *4 > wpalen)
 	{
 	taglenerrorcount++;
 	return false;
 	}
-for(c = 0; c < asuitecountptr->count; c++)
+for(c = 0; c < asuitecount; c++)
 	{
 	asuiteptr = (suite_t*)ieptr; 
 	if(memcmp(asuiteptr->oui, &ouimscorp, 3) == 0)
@@ -2533,14 +2545,17 @@ return true;
 static bool gettagrsn(int rsnlen, uint8_t *ieptr, tags_t *zeiger)
 {
 static int c;
-static int rsnver;
 static rsnie_t *rsnptr;
+static int rsnver;
 static suite_t *gsuiteptr;
 static suitecount_t *csuitecountptr;
 static suite_t *csuiteptr;
+static int csuitecount;
 static suitecount_t *asuitecountptr;
 static suite_t *asuiteptr;
+static int asuitecount;
 static rsnpmkidlist_t *rsnpmkidlistptr; 
+static int rsnpmkidcount;
 
 static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
@@ -2548,7 +2563,7 @@ rsnptr = (rsnie_t*)ieptr;
 #ifndef BIG_ENDIAN_HOST
 rsnver = rsnptr->version;
 #else
-rsnver = byte_swap_16(rsnver);
+rsnver = byte_swap_16(rsnptr->version);
 #endif
 if(rsnver != 1) return true;
 zeiger->kdversion |= KV_RSNIE;
@@ -2570,12 +2585,17 @@ ieptr += SUITE_SIZE;
 csuitecountptr = (suitecount_t*)ieptr;
 rsnlen -= SUITECOUNT_SIZE;
 ieptr += SUITECOUNT_SIZE;
-if(csuitecountptr->count *4 > rsnlen)
+#ifndef BIG_ENDIAN_HOST
+csuitecount = csuitecountptr->count;
+#else
+csuitecount = byte_swap_16(csuitecountptr->count);
+#endif
+if(csuitecount *4 > rsnlen)
 	{
 	taglenerrorcount++;
 	return false;
 	}
-for(c = 0; c < csuitecountptr->count; c++)
+for(c = 0; c < csuitecount; c++)
 	{
 	csuiteptr = (suite_t*)ieptr; 
 	if(memcmp(csuiteptr->oui, &suiteoui, 3) == 0)
@@ -2596,12 +2616,17 @@ for(c = 0; c < csuitecountptr->count; c++)
 asuitecountptr = (suitecount_t*)ieptr;
 rsnlen -= SUITECOUNT_SIZE;
 ieptr += SUITECOUNT_SIZE;
-if(asuitecountptr->count *4 > rsnlen)
+#ifndef BIG_ENDIAN_HOST
+asuitecount = asuitecountptr->count;
+#else
+asuitecount = byte_swap_16(asuitecountptr->count);
+#endif
+if(asuitecount *4 > rsnlen)
 	{
 	taglenerrorcount++;
 	return false;
 	}
-for(c = 0; c < asuitecountptr->count; c++)
+for(c = 0; c < asuitecount; c++)
 	{
 	asuiteptr = (suite_t*)ieptr; 
 	if(memcmp(asuiteptr->oui, &suiteoui, 3) == 0)
@@ -2627,7 +2652,13 @@ rsnlen -= RSNCAPABILITIES_SIZE;
 ieptr += RSNCAPABILITIES_SIZE;
 if(rsnlen <= 0) return true;
 rsnpmkidlistptr = (rsnpmkidlist_t*)ieptr; 
-if(rsnpmkidlistptr->count == 0) return true;
+
+#ifndef BIG_ENDIAN_HOST
+rsnpmkidcount = rsnpmkidlistptr->count;
+#else
+rsnpmkidcount = byte_swap_16(rsnpmkidlistptr->count);
+#endif
+if(rsnpmkidcount == 0) return true;
 rsnlen -= RSNPMKIDLIST_SIZE;
 ieptr += RSNPMKIDLIST_SIZE;
 if(rsnlen < 16) return true;
