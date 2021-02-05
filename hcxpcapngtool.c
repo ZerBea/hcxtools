@@ -1028,6 +1028,7 @@ static void outputtacacsplist()
 static uint32_t c;
 static tacacsplist_t *zeiger, *zeigerold;
 
+if(tacacsplist == tacacsplistptr) return;
 zeiger = tacacsplist;
 zeigerold = tacacsplist;
 if(fh_tacacsp != NULL)
@@ -1161,7 +1162,7 @@ if(restlen < tcplen) return;
 if(restlen >= (uint32_t)TCP_SIZE_MIN +(uint32_t)TACACSP_SIZE)
 	{
 	tacacsp = (tacacsp_t*)(tcpptr +tcplen);
-	if(tacacsp->version == TACACSP_VERSION)processtacacsppacket(restlen -tcplen, tcpptr +tcplen);
+	if(tacacsp->version == TACACSP_VERSION) processtacacsppacket(restlen -tcplen, tcpptr +tcplen);
 	}
 tcpcount++;
 //dummy code to satisfy gcc untill full code is implemented
