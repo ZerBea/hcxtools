@@ -2408,6 +2408,7 @@ return true;
 static bool gettagwpa(int wpalen, uint8_t *ieptr, tags_t *zeiger)
 {
 static int c;
+static int wpatype;
 static wpaie_t *wpaptr;
 static suite_t *gsuiteptr;
 static suitecount_t *csuitecountptr;
@@ -2418,7 +2419,12 @@ static suite_t *asuiteptr;
 wpaptr = (wpaie_t*)ieptr;
 wpalen -= WPAIE_SIZE;
 ieptr += WPAIE_SIZE;
-if(wpaptr->type != VT_WPA_IE) return false;
+#ifndef BIG_ENDIAN_HOST
+wpatype = wpaptr->type;
+#else
+wpatype = byte_swap_16(wpaptr->type);
+#endif
+if(wpatype != VT_WPA_IE) return false;
 zeiger->kdversion |= KV_WPAIE;
 gsuiteptr = (suite_t*)ieptr; 
 if(memcmp(gsuiteptr->oui, &ouimscorp, 3) == 0)
@@ -2527,6 +2533,7 @@ return true;
 static bool gettagrsn(int rsnlen, uint8_t *ieptr, tags_t *zeiger)
 {
 static int c;
+static int rsnver;
 static rsnie_t *rsnptr;
 static suite_t *gsuiteptr;
 static suitecount_t *csuitecountptr;
@@ -2538,7 +2545,12 @@ static rsnpmkidlist_t *rsnpmkidlistptr;
 static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 rsnptr = (rsnie_t*)ieptr;
-if(rsnptr->version != 1) return true;
+#ifndef BIG_ENDIAN_HOST
+rsnver = rsnptr->version;
+#else
+rsnver = byte_swap_16(rsnver);
+#endif
+if(rsnver != 1) return true;
 zeiger->kdversion |= KV_RSNIE;
 rsnlen -= RSNIE_SIZE;
 ieptr += RSNIE_SIZE;
