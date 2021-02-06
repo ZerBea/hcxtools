@@ -2652,7 +2652,6 @@ rsnlen -= RSNCAPABILITIES_SIZE;
 ieptr += RSNCAPABILITIES_SIZE;
 if(rsnlen <= 0) return true;
 rsnpmkidlistptr = (rsnpmkidlist_t*)ieptr; 
-
 #ifndef BIG_ENDIAN_HOST
 rsnpmkidcount = rsnpmkidlistptr->count;
 #else
