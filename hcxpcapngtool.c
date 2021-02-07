@@ -17,7 +17,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <openssl/sha.h>
 #include <openssl/evp.h>
