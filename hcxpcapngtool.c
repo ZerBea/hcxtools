@@ -1220,7 +1220,7 @@ ipv6count++;
 return;
 }
 /*===========================================================================*/
-static inline int mschapv2_challenge_hash(uint8_t *peer_challenge, uint8_t *auth_challenge, uint8_t *username, size_t usernamelen, uint8_t *challenge)
+static inline bool mschapv2_challenge_hash(uint8_t *peer_challenge, uint8_t *auth_challenge, uint8_t *username, size_t usernamelen, uint8_t *challenge)
 {
 static unsigned int shalen;
 static EVP_MD_CTX* mdctx;
@@ -1228,15 +1228,15 @@ static uint8_t shahash[SHA_DIGEST_LENGTH];
 
 mdctx = EVP_MD_CTX_create();
 if(mdctx == NULL) return -1;
-if(EVP_DigestInit_ex(mdctx, EVP_sha1(), NULL) == 0) return -1;
+if(EVP_DigestInit_ex(mdctx, EVP_sha1(), NULL) == 0) return false;
 shalen = MSCHAPV2_CHALLENGE_LEN_MAX;
-if(EVP_DigestUpdate(mdctx, peer_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return -1;
-if(EVP_DigestUpdate(mdctx, auth_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return -1;
-if(EVP_DigestUpdate(mdctx, username, usernamelen) == 0) return -1;
-if(EVP_DigestFinal_ex(mdctx, shahash, &shalen) == 0) return -1;
+if(EVP_DigestUpdate(mdctx, peer_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return false;
+if(EVP_DigestUpdate(mdctx, auth_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return false;
+if(EVP_DigestUpdate(mdctx, username, usernamelen) == 0) return false;
+if(EVP_DigestFinal_ex(mdctx, shahash, &shalen) == 0) return false;
 memcpy(challenge, shahash, MSCHAPV2_CHALLENGE_LEN_MAX);
 EVP_MD_CTX_destroy(mdctx);
-return 0;
+return true;
 }
 /*===========================================================================*/
 static inline size_t mschapv2_username_clean(uint8_t *username, size_t usernamelen, uint8_t *usernameclean)
@@ -1269,7 +1269,7 @@ for(zeiger = eapmschapv2hashlist; zeiger < eapmschapv2hashlistptr; zeiger++)
 	if(fh_eapleap != NULL)
 		{
 		usernamecleanlen = mschapv2_username_clean(zeiger->mschapv2username, zeiger->mschapv2usernamelen, usernameclean);
-		if(mschapv2_challenge_hash(zeiger->mschapv2response, zeiger->mschapv2request, usernameclean, usernamecleanlen, challenge) != 0) continue;
+		if(mschapv2_challenge_hash(zeiger->mschapv2response, zeiger->mschapv2request, usernameclean, usernamecleanlen, challenge) == false) continue;
 		fprintf(fh_eapleap, "%.*s::::%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x:%02x%02x%02x%02x%02x%02x%02x%02x\n",
 			(int)zeiger->mschapv2usernamelen, zeiger->mschapv2username,
 			zeiger->mschapv2response[24], zeiger->mschapv2response[25], zeiger->mschapv2response[26], zeiger->mschapv2response[27], zeiger->mschapv2response[28], zeiger->mschapv2response[29], zeiger->mschapv2response[30], zeiger->mschapv2response[31],
