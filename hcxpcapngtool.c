@@ -1669,7 +1669,7 @@ static EVP_PKEY *pkey;
 static char *pmkname = "PMK Name";
 
 static uint8_t salt[32];
-static uint8_t testpmkid[32];
+static uint8_t testpmkid[EVP_MAX_MD_SIZE];
 
 memcpy(&salt, pmkname, 8);
 memcpy(&salt[8], macap, 6);
