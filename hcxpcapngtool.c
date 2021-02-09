@@ -1223,19 +1223,19 @@ return;
 static inline int mschapv2_challenge_hash(uint8_t *peer_challenge, uint8_t *auth_challenge, uint8_t *username, size_t usernamelen, uint8_t *challenge)
 {
 static unsigned int shalen;
-static EVP_MD_CTX* context;
+static EVP_MD_CTX* mdctx;
 static uint8_t shahash[SHA_DIGEST_LENGTH];
 
-context = EVP_MD_CTX_create();
-if(context == NULL) return -1;
-if(EVP_DigestInit_ex(context, EVP_sha1(), NULL) == 0) return -1;
+mdctx = EVP_MD_CTX_create();
+if(mdctx == NULL) return -1;
+if(EVP_DigestInit_ex(mdctx, EVP_sha1(), NULL) == 0) return -1;
 shalen = MSCHAPV2_CHALLENGE_LEN_MAX;
-if(EVP_DigestUpdate(context, peer_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return -1;
-if(EVP_DigestUpdate(context, auth_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return -1;
-if(EVP_DigestUpdate(context, username, usernamelen) == 0) return -1;
-if(EVP_DigestFinal_ex(context, shahash, &shalen) == 0) return -1;
+if(EVP_DigestUpdate(mdctx, peer_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return -1;
+if(EVP_DigestUpdate(mdctx, auth_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return -1;
+if(EVP_DigestUpdate(mdctx, username, usernamelen) == 0) return -1;
+if(EVP_DigestFinal_ex(mdctx, shahash, &shalen) == 0) return -1;
 memcpy(challenge, shahash, MSCHAPV2_CHALLENGE_LEN_MAX);
-EVP_MD_CTX_destroy(context);
+EVP_MD_CTX_destroy(mdctx);
 return 0;
 }
 /*===========================================================================*/
@@ -1662,6 +1662,10 @@ return;
 /*===========================================================================*/
 static bool testpmkid(uint8_t *testpmk, uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
+static size_t testpmkidlen = 0;
+static EVP_MD_CTX *mdctx = NULL;
+static const EVP_MD *md = NULL;
+static EVP_PKEY *pkey = NULL;
 static char *pmkname = "PMK Name";
 
 static uint8_t salt[32];
@@ -1670,7 +1674,13 @@ static uint8_t testpmkid[32];
 memcpy(&salt, pmkname, 8);
 memcpy(&salt[8], macap, 6);
 memcpy(&salt[14], macsta, 6);
-HMAC(EVP_sha1(), testpmk, 32, salt, 20, testpmkid, NULL);
+mdctx = EVP_MD_CTX_create();
+md = EVP_get_digestbyname("SHA1");
+pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmk, 32);
+EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey);
+EVP_DigestSignUpdate(mdctx, salt, 20);
+EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen);
+EVP_MD_CTX_destroy(mdctx);
 if(memcmp(&testpmkid, pmkid, 16) == 0) return true;
 return false;
 }
