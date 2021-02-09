@@ -1,3 +1,11 @@
+09.02.2021
+==========
+started to prepare to use openssl 3.0
+Many structures have been made opaque in OpenSSL 3.0 since OpenSSL 1.0.2
+https://wiki.openssl.org/index.php/OpenSSL_3.0
+it is recommended to upgrade to at least OpenSSL 1.1 
+
+
 04.02.2021
 ==========
 hcxpcapngtool: fixed handling of BE pcapng files on BE systems
