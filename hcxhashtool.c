@@ -357,11 +357,14 @@ mdctx = NULL;
 md = NULL;
 pkey = NULL;
 mdctx = EVP_MD_CTX_new();
+if(mdctx == 0) return;
 md = EVP_get_digestbyname("SHA1");
-pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmkid, 32);
-EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey);
-EVP_DigestSignUpdate(mdctx, salt, 20);
-EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen);
+if(md == 0) return;
+pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, pmk, 32);
+if(pkey == NULL) return;
+if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0) return;
+if(EVP_DigestSignUpdate(mdctx, salt, 20) <= 0) return;
+if(EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen) <= 0) return;
 EVP_MD_CTX_destroy(mdctx);
 if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
 	{
