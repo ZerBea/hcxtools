@@ -1218,7 +1218,7 @@ return;
 static inline int mschapv2_challenge_hash(uint8_t *peer_challenge, uint8_t *auth_challenge, uint8_t *username, size_t usernamelen, uint8_t *challenge)
 {
 static unsigned int shalen;
-static EVP_MD_CTX* context = NULL;
+static EVP_MD_CTX* context;
 static uint8_t shahash[SHA_DIGEST_LENGTH];
 
 context = EVP_MD_CTX_create();
