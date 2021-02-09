@@ -17,9 +17,11 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <openssl/conf.h>
+#include <openssl/err.h>
 #include <openssl/crypto.h>
-#include <openssl/sha.h>
 #include <openssl/evp.h>
+#include <openssl/sha.h>
 #include <openssl/hmac.h>
 #include <openssl/cmac.h>
 #include <openssl/ssl.h>
@@ -358,6 +360,10 @@ if(eapleaphashlist != NULL) free(eapleaphashlist);
 if(eapmschapv2msglist != NULL) free(eapmschapv2msglist);
 if(eapmschapv2hashlist != NULL) free(eapmschapv2hashlist);
 if(tacacsplist != NULL) free(tacacsplist);
+
+EVP_cleanup();
+CRYPTO_cleanup_all_ex_data();
+ERR_free_strings();
 return;
 }
 /*===========================================================================*/
@@ -366,9 +372,8 @@ static bool initlists()
 static unsigned long opensslversion;
 static const char nastring[] = { "N/A" };
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-SSL_library_init();
-#endif
+ERR_load_crypto_strings();
+OpenSSL_add_all_algorithms();
 opensslversion = OpenSSL_version_num();
 opensslversionmajor = (opensslversion & 0x10000000L) >> 28;
 opensslversionminor = (opensslversion & 0x01100000L) >> 20;
