@@ -18,10 +18,15 @@
 #include <sys/stat.h>
 #include <curl/curl.h>
 #include <arpa/inet.h>  
-#include <openssl/sha.h>
+#include <openssl/conf.h>
+#include <openssl/err.h>
+#include <openssl/crypto.h>
 #include <openssl/evp.h>
+#include <openssl/sha.h>
 #include <openssl/hmac.h>
 #include <openssl/cmac.h>
+#include <openssl/ssl.h>
+
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
 #include <sys/socket.h>
@@ -105,6 +110,9 @@ static void closelists()
 if(hashlist != NULL) free(hashlist);
 if(ouilist != NULL) free(ouilist);
 
+EVP_cleanup();
+CRYPTO_cleanup_all_ex_data();
+ERR_free_strings();
 return;
 }
 /*===========================================================================*/
@@ -124,9 +132,11 @@ essidwrittencount = 0;
 hccapxwrittencount = 0;
 hccapwrittencount = 0;
 
+ERR_load_crypto_strings();
+OpenSSL_add_all_algorithms();
+
 if((hashlist = (hashlist_t*)calloc(hashlistcount, HASHLIST_SIZE)) == NULL) return false;
 if((ouilist = (ouilist_t*)calloc(ouilistcount, OUILIST_SIZE)) == NULL) return false;
-
 return true;
 }
 /*===========================================================================*/
@@ -330,15 +340,30 @@ return;
 static void testpmkidpmk(hashlist_t *zeiger)
 {
 static int p;
-static const char *pmkname = "PMK Name";
+static size_t testpmkidlen;
+static EVP_MD_CTX *mdctx;
+static const EVP_MD *md;
+static EVP_PKEY *pkey;
+static char *pmkname = "PMK Name";
+
 static uint8_t salt[32];
-static uint8_t pmkidcalc[32];
+static uint8_t testpmkid[EVP_MAX_MD_SIZE];
 
 memcpy(&salt, pmkname, 8);
 memcpy(&salt[8], zeiger->ap, 6);
 memcpy(&salt[14], zeiger->client, 6);
-HMAC(EVP_sha1(), &pmk, 32, salt, 20, pmkidcalc, NULL);
-if(memcmp(&pmkidcalc, zeiger->hash, 16) == 0)
+testpmkidlen = 0;
+mdctx = NULL;
+md = NULL;
+pkey = NULL;
+mdctx = EVP_MD_CTX_new();
+md = EVP_get_digestbyname("SHA1");
+pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmkid, 32);
+EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey);
+EVP_DigestSignUpdate(mdctx, salt, 20);
+EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen);
+EVP_MD_CTX_destroy(mdctx);
+if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
 	{
 	fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
 		pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
