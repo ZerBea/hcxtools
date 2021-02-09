@@ -1662,10 +1662,10 @@ return;
 /*===========================================================================*/
 static bool testpmkid(uint8_t *testpmk, uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
-static size_t testpmkidlen = 0;
-static EVP_MD_CTX *mdctx = NULL;
-static const EVP_MD *md = NULL;
-static EVP_PKEY *pkey = NULL;
+static size_t testpmkidlen;
+static EVP_MD_CTX *mdctx;
+static const EVP_MD *md;
+static EVP_PKEY *pkey;
 static char *pmkname = "PMK Name";
 
 static uint8_t salt[32];
@@ -1674,7 +1674,11 @@ static uint8_t testpmkid[32];
 memcpy(&salt, pmkname, 8);
 memcpy(&salt[8], macap, 6);
 memcpy(&salt[14], macsta, 6);
-mdctx = EVP_MD_CTX_create();
+testpmkidlen = 0;
+mdctx = NULL;
+md = NULL;
+pkey = NULL;
+mdctx = EVP_MD_CTX_new();
 md = EVP_get_digestbyname("SHA1");
 pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmk, 32);
 EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey);
