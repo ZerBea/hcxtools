@@ -1217,14 +1217,20 @@ return;
 /*===========================================================================*/
 static inline int mschapv2_challenge_hash(uint8_t *peer_challenge, uint8_t *auth_challenge, uint8_t *username, size_t usernamelen, uint8_t *challenge)
 {
+static unsigned int shalen;
+static EVP_MD_CTX* context = NULL;
 static uint8_t shahash[SHA_DIGEST_LENGTH];
-static SHA_CTX shactx;
-SHA1_Init(&shactx);
-SHA1_Update(&shactx, peer_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX);
-SHA1_Update(&shactx, auth_challenge, MSCHAPV2_CHALLENGE_AUTH_LEN_MAX);
-SHA1_Update(&shactx, username, usernamelen);
-if(!SHA1_Final(shahash, &shactx)) return -1;
+
+context = EVP_MD_CTX_create();
+if(context == NULL) return -1;
+if(EVP_DigestInit_ex(context, EVP_sha1(), NULL) == 0) return -1;
+shalen = MSCHAPV2_CHALLENGE_LEN_MAX;
+if(EVP_DigestUpdate(context, peer_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return -1;
+if(EVP_DigestUpdate(context, auth_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return -1;
+if(EVP_DigestUpdate(context, username, usernamelen) == 0) return -1;
+if(EVP_DigestFinal_ex(context, shahash, &shalen) == 0) return -1;
 memcpy(challenge, shahash, MSCHAPV2_CHALLENGE_LEN_MAX);
+EVP_MD_CTX_destroy(context);
 return 0;
 }
 /*===========================================================================*/
