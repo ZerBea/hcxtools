@@ -209,31 +209,6 @@ printf("\n");
 return;
 }
 /*===========================================================================*/
-static int omac1_aes_128_vector(const uint8_t *key, size_t num_elem, const uint8_t *addr[], const size_t *len, uint8_t *mac)
-{
-static CMAC_CTX *ctx;
-static int ret = -1;
-static size_t outlen, i;
-
-ctx = CMAC_CTX_new();
-if (ctx == NULL) return -1;
-if (!CMAC_Init(ctx, key, 16, EVP_aes_128_cbc(), NULL)) goto fail;
-for (i = 0; i < num_elem; i++)
-	{
-	if (!CMAC_Update(ctx, addr[i], len[i])) goto fail;
-	}
-if (!CMAC_Final(ctx, mac, &outlen) || outlen != 16) goto fail;
-ret = 0;
-fail:
-CMAC_CTX_free(ctx);
-return ret;
-}
-/*===========================================================================*/
-static int omac1_aes_128(const uint8_t *key, const uint8_t *data, size_t data_len, uint8_t *mac)
-{
-return omac1_aes_128_vector(key, 1, &data, &data_len, mac);
-}
-/*===========================================================================*/
 static void testeapolpmk(hashlist_t *zeiger)
 {
 static int keyver;
@@ -245,6 +220,8 @@ static size_t testptklen;
 static size_t testmiclen;
 static EVP_MD_CTX *mdctx;
 static EVP_PKEY *pkey;
+
+static CMAC_CTX *ctx;
 
 static uint8_t pkedata[102];
 static uint8_t testptk[EVP_MAX_MD_SIZE];
@@ -427,7 +404,22 @@ else if(keyver == 3)
 		}
 	EVP_PKEY_free(pkey);
 	EVP_MD_CTX_free(mdctx);
-	omac1_aes_128(testptk, zeiger->eapol, zeiger->eapauthlen, testmic);
+
+	testmiclen = 16;
+	ctx = CMAC_CTX_new();
+	if(ctx == NULL) return;
+	if(CMAC_Init(ctx, testptk, 16, EVP_aes_128_cbc(), NULL) != 1)
+		{
+		CMAC_CTX_free(ctx);
+		return;
+		}
+	if(!CMAC_Update(ctx, zeiger->eapol, zeiger->eapauthlen))
+		{
+		CMAC_CTX_free(ctx);
+		return;
+		}
+	CMAC_Final(ctx, testmic, &testmiclen);
+
 	if(memcmp(zeiger->hash, &testmic, 16) == 0)
 		{
 		fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
