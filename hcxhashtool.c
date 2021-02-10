@@ -102,7 +102,6 @@ static bool flagfilterapless;
 
 static int pskptrlen;
 static char *pskptr;
-static uint8_t pmkpbkdf2[32];
 static uint8_t pmk[32];
 /*===========================================================================*/
 static void closelists()
@@ -242,18 +241,24 @@ static int p;
 static wpakey_t *wpak;
 static uint8_t *pkeptr;
 
+static size_t testptklen;
+static size_t testmiclen;
+static EVP_MD_CTX *mdctx;
+static EVP_PKEY *pkey;
+
 static uint8_t pkedata[102];
 static uint8_t pkedata_prf[2 + 98 + 2];
-static uint8_t ptk[128];
-static uint8_t mymic[16];
+static uint8_t testptk[EVP_MAX_MD_SIZE];
+static uint8_t testmic[EVP_MAX_MD_SIZE];
 
 wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+
 if((keyver == 1 || keyver == 2))
 	{
 	pkeptr = pkedata;
 	memset(&pkedata, 0, sizeof(pkedata));
-	memset(&ptk, 0, sizeof(ptk));
+	memset(&testptk, 0, sizeof(testptk));
 	memcpy(pkeptr, "Pairwise key expansion", 23);
 	if(memcmp(zeiger->ap, zeiger->client, 6) < 0)
 		{
@@ -276,14 +281,77 @@ if((keyver == 1 || keyver == 2))
 		memcpy (pkeptr +35, wpak->nonce, 32);
 		memcpy (pkeptr +67, zeiger->nonce, 32);
 		}
-	for (p = 0; p < 4; p++)
+	testptklen = 0;
+	mdctx = EVP_MD_CTX_new();
+	if(mdctx == 0) return;
+	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, pmk, 32);
+	if(pkey == NULL)
 		{
-		pkedata[99] = p;
-		HMAC(EVP_sha1(), &pmk, 32, pkedata, 100, ptk + p *20, NULL);
+		EVP_MD_CTX_free(mdctx);
+		return;
 		}
-	if(keyver == 1) HMAC(EVP_md5(), &ptk, 16, zeiger->eapol, zeiger->eapauthlen, mymic, NULL);
-	if(keyver == 2) HMAC(EVP_sha1(), &ptk, 16, zeiger->eapol, zeiger->eapauthlen, mymic, NULL);
-	if(memcmp(zeiger->hash, &mymic, 16) == 0)
+	if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignUpdate(mdctx, pkedata, 100) != 1)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignFinal(mdctx, testptk, &testptklen) <= 0)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	testmiclen = 0;
+	mdctx = EVP_MD_CTX_new();
+	if(mdctx == 0) return;
+	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
+	if(pkey == NULL)
+		{
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(keyver == 1)
+		{
+		if(EVP_DigestSignInit(mdctx, NULL,  EVP_md5(), NULL, pkey) != 1)
+			{
+			EVP_PKEY_free(pkey);
+			EVP_MD_CTX_free(mdctx);
+			return;
+			}
+		}
+	else if(keyver == 2)
+		{
+		if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
+			{
+			EVP_PKEY_free(pkey);
+			EVP_MD_CTX_free(mdctx);
+			return;
+			}
+		}
+	if(EVP_DigestSignUpdate(mdctx, zeiger->eapol, zeiger->eapauthlen) != 1)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignFinal(mdctx, testmic, &testmiclen) <= 0)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	if(memcmp(zeiger->hash, &testmic, 16) == 0)
 		{
 		fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
 			pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
@@ -291,6 +359,16 @@ if((keyver == 1 || keyver == 2))
 			pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
 			pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
 		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+		if(pskptr != NULL)
+			{
+			if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s", pskptr);
+			else
+				{
+				fprintf(stdout, ":$HEX[");
+				for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
+				fprintf(stdout, "]");
+				}
+			}
 		fprintf(stdout, "\n");
 		}
 	return;
@@ -299,7 +377,7 @@ else if(keyver == 3)
 	{
 	pkeptr = pkedata;
 	memset(&pkedata_prf, 0, sizeof(pkedata_prf));
-	memset(&ptk, 0, sizeof(ptk));
+	memset(&testptk, 0, sizeof(testptk));
 	memcpy(pkeptr, "Pairwise key expansion", 22);
 	if(memcmp(zeiger->ap, zeiger->client, 6) < 0)
 		{
@@ -321,9 +399,37 @@ else if(keyver == 3)
 		memcpy (pkeptr +34, wpak->nonce, 32);
 		memcpy (pkeptr +66, zeiger->nonce, 32);
 		}
-	HMAC(EVP_sha256(), &pmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
-	omac1_aes_128(ptk, zeiger->eapol, zeiger->eapauthlen, mymic);
-	if(memcmp(zeiger->hash, &mymic, 16) == 0)
+	testptklen = 0;
+	mdctx = EVP_MD_CTX_new();
+	if(mdctx == 0) return;
+	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, pmk, 32);
+	if(pkey == NULL)
+		{
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha256(), NULL, pkey) != 1)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignUpdate(mdctx, pkedata_prf, 102) != 1)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignFinal(mdctx, testptk, &testptklen) <= 0)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	omac1_aes_128(testptk, zeiger->eapol, zeiger->eapauthlen, testmic);
+	if(memcmp(zeiger->hash, &testmic, 16) == 0)
 		{
 		fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
 			pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
@@ -331,6 +437,16 @@ else if(keyver == 3)
 			pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
 			pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
 		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+		if(pskptr != NULL)
+			{
+			if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s", pskptr);
+			else
+				{
+				fprintf(stdout, ":$HEX[");
+				for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
+				fprintf(stdout, "]");
+				}
+			}
 		fprintf(stdout, "\n");
 		}
 	}
@@ -342,29 +458,43 @@ static void testpmkidpmk(hashlist_t *zeiger)
 static int p;
 static size_t testpmkidlen;
 static EVP_MD_CTX *mdctx;
-static const EVP_MD *md;
 static EVP_PKEY *pkey;
 static char *pmkname = "PMK Name";
 
-static uint8_t salt[32];
+static uint8_t message[32];
 static uint8_t testpmkid[EVP_MAX_MD_SIZE];
 
-memcpy(&salt, pmkname, 8);
-memcpy(&salt[8], zeiger->ap, 6);
-memcpy(&salt[14], zeiger->client, 6);
+memcpy(&message, pmkname, 8);
+memcpy(&message[8], zeiger->ap, 6);
+memcpy(&message[14], zeiger->client, 6);
 testpmkidlen = 0;
 mdctx = NULL;
-md = NULL;
-pkey = NULL;
 mdctx = EVP_MD_CTX_new();
 if(mdctx == 0) return;
-md = EVP_get_digestbyname("SHA1");
-if(md == 0) return;
 pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, pmk, 32);
-if(pkey == NULL) return;
-if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0) return;
-if(EVP_DigestSignUpdate(mdctx, salt, 20) <= 0) return;
-if(EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen) <= 0) return;
+if(pkey == NULL)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return;
+	}
+if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
+	{
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	return;
+	}
+if(EVP_DigestSignUpdate(mdctx, message, 20) != 1)
+	{
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	return;
+	}
+if(EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen) <= 0)
+	{
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	return;
+	}
 EVP_PKEY_free(pkey);
 EVP_MD_CTX_free(mdctx);
 if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
@@ -375,6 +505,16 @@ if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
 		pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
 		pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
 	for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+	if(pskptr != NULL)
+		{
+		if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s", pskptr);
+		else
+			{
+			fprintf(stdout, ":$HEX[");
+			for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
+			fprintf(stdout, "]");
+			}
+		}
 	fprintf(stdout, "\n");
 	}
 return;
@@ -384,7 +524,7 @@ static void testhashfilepmk()
 {
 static hashlist_t *zeiger;
 
-for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
+for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
 	if(zeiger->type == HCX_TYPE_PMKID) testpmkidpmk(zeiger);
 	else if (zeiger->type == HCX_TYPE_EAPOL) testeapolpmk(zeiger);
@@ -394,157 +534,8 @@ return;
 /*===========================================================================*/
 static bool dopbkdf2(int psklen, char *psk, int essidlen, uint8_t *essid)
 {
-if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmkpbkdf2) == 0) return false;
+if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmk) == 0) return false;
 return true;
-}
-/*===========================================================================*/
-static void testeapolpbkdf2(hashlist_t *zeiger)
-{
-static int keyver;
-static int p;
-static wpakey_t *wpak;
-static uint8_t *pkeptr;
-
-static uint8_t pkedata[102];
-static uint8_t pkedata_prf[2 + 98 + 2];
-static uint8_t ptk[128];
-static uint8_t mymic[16];
-
-wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
-keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((keyver == 1 || keyver == 2))
-	{
-	pkeptr = pkedata;
-	memset(&pkedata, 0, sizeof(pkedata));
-	memset(&ptk, 0, sizeof(ptk));
-	memcpy(pkeptr, "Pairwise key expansion", 23);
-	if(memcmp(zeiger->ap, zeiger->client, 6) < 0)
-		{
-		memcpy(pkeptr +23, zeiger->ap, 6);
-		memcpy(pkeptr +29, zeiger->client, 6);
-		}
-	else
-		{
-		memcpy(pkeptr +23, zeiger->client, 6);
-		memcpy(pkeptr +29, zeiger->ap, 6);
-		}
-
-	if(memcmp(zeiger->nonce, wpak->nonce, 32) < 0)
-		{
-		memcpy (pkeptr +35, zeiger->nonce, 32);
-		memcpy (pkeptr +67, wpak->nonce, 32);
-		}
-	else
-		{
-		memcpy (pkeptr +35, wpak->nonce, 32);
-		memcpy (pkeptr +67, zeiger->nonce, 32);
-		}
-	for (p = 0; p < 4; p++)
-		{
-		pkedata[99] = p;
-		HMAC(EVP_sha1(), &pmkpbkdf2, 32, pkedata, 100, ptk + p *20, NULL);
-		}
-	if(keyver == 1) HMAC(EVP_md5(), &ptk, 16, zeiger->eapol, zeiger->eapauthlen, mymic, NULL);
-	if(keyver == 2) HMAC(EVP_sha1(), &ptk, 16, zeiger->eapol, zeiger->eapauthlen, mymic, NULL);
-	if(memcmp(zeiger->hash, &mymic, 16) == 0)
-		{
-		fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
-			pmkpbkdf2[0], pmkpbkdf2[1], pmkpbkdf2[2], pmkpbkdf2[3], pmkpbkdf2[4], pmkpbkdf2[5], pmkpbkdf2[6], pmkpbkdf2[7],
-			pmkpbkdf2[8], pmkpbkdf2[9], pmkpbkdf2[10], pmkpbkdf2[11], pmkpbkdf2[12], pmkpbkdf2[13], pmkpbkdf2[14], pmkpbkdf2[15],
-			pmkpbkdf2[16], pmkpbkdf2[17], pmkpbkdf2[18], pmkpbkdf2[19], pmkpbkdf2[20], pmkpbkdf2[21], pmkpbkdf2[22], pmkpbkdf2[23],
-			pmkpbkdf2[24], pmkpbkdf2[25], pmkpbkdf2[26], pmkpbkdf2[27], pmkpbkdf2[28], pmkpbkdf2[29], pmkpbkdf2[30], pmkpbkdf2[31]);
-		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
-		if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s\n", pskptr);
-		else
-			{
-			fprintf(stdout, ":$HEX[");
-			for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
-			fprintf(stdout, "]\n");
-			}
-		}
-	return;
-	}
-else if(keyver == 3)
-	{
-	pkeptr = pkedata;
-	memset(&pkedata_prf, 0, sizeof(pkedata_prf));
-	memset(&ptk, 0, sizeof(ptk));
-	memcpy(pkeptr, "Pairwise key expansion", 22);
-	if(memcmp(zeiger->ap, zeiger->client, 6) < 0)
-		{
-		memcpy(pkeptr +22, zeiger->ap, 6);
-		memcpy(pkeptr +28, zeiger->client, 6);
-		}
-	else
-		{
-		memcpy(pkeptr +22, zeiger->client, 6);
-		memcpy(pkeptr +28, zeiger->ap, 6);
-		}
-	if(memcmp(zeiger->nonce, wpak->nonce, 32) < 0)
-		{
-		memcpy (pkeptr +34, zeiger->nonce, 32);
-		memcpy (pkeptr +66, wpak->nonce, 32);
-		}
-	else
-		{
-		memcpy (pkeptr +34, wpak->nonce, 32);
-		memcpy (pkeptr +66, zeiger->nonce, 32);
-		}
-	pkedata_prf[0] = 1;
-	pkedata_prf[1] = 0;
-	memcpy (pkedata_prf + 2, pkedata, 98);
-	pkedata_prf[100] = 0x80;
-	pkedata_prf[101] = 1;
-	HMAC(EVP_sha256(), &pmkpbkdf2, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
-	omac1_aes_128(ptk, zeiger->eapol, zeiger->eapauthlen, mymic);
-	if(memcmp(zeiger->hash, &mymic, 16) == 0)
-		{
-		fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
-			pmkpbkdf2[0], pmkpbkdf2[1], pmkpbkdf2[2], pmkpbkdf2[3], pmkpbkdf2[4], pmkpbkdf2[5], pmkpbkdf2[6], pmkpbkdf2[7],
-			pmkpbkdf2[8], pmkpbkdf2[9], pmkpbkdf2[10], pmkpbkdf2[11], pmkpbkdf2[12], pmkpbkdf2[13], pmkpbkdf2[14], pmkpbkdf2[15],
-			pmkpbkdf2[16], pmkpbkdf2[17], pmkpbkdf2[18], pmkpbkdf2[19], pmkpbkdf2[20], pmkpbkdf2[21], pmkpbkdf2[22], pmkpbkdf2[23],
-			pmkpbkdf2[24], pmkpbkdf2[25], pmkpbkdf2[26], pmkpbkdf2[27], pmkpbkdf2[28], pmkpbkdf2[29], pmkpbkdf2[30], pmkpbkdf2[31]);
-		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
-		if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s\n", pskptr);
-		else
-			{
-			fprintf(stdout, ":$HEX[");
-			for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
-			fprintf(stdout, "]\n");
-			}
-		}
-	}
-return;
-}
-/*===========================================================================*/
-static void testpmkidpbkdf2(hashlist_t *zeiger)
-{
-static int p;
-static const char *pmkname = "PMK Name";
-static uint8_t salt[32];
-static uint8_t pmkidcalc[32];
-
-memcpy(&salt, pmkname, 8);
-memcpy(&salt[8], zeiger->ap, 6);
-memcpy(&salt[14], zeiger->client, 6);
-HMAC(EVP_sha1(), &pmkpbkdf2, 32, salt, 20, pmkidcalc, NULL);
-if(memcmp(&pmkidcalc, zeiger->hash, 16) == 0)
-	{
-	fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
-		pmkpbkdf2[0], pmkpbkdf2[1], pmkpbkdf2[2], pmkpbkdf2[3], pmkpbkdf2[4], pmkpbkdf2[5], pmkpbkdf2[6], pmkpbkdf2[7],
-		pmkpbkdf2[8], pmkpbkdf2[9], pmkpbkdf2[10], pmkpbkdf2[11], pmkpbkdf2[12], pmkpbkdf2[13], pmkpbkdf2[14], pmkpbkdf2[15],
-		pmkpbkdf2[16], pmkpbkdf2[17], pmkpbkdf2[18], pmkpbkdf2[19], pmkpbkdf2[20], pmkpbkdf2[21], pmkpbkdf2[22], pmkpbkdf2[23],
-		pmkpbkdf2[24], pmkpbkdf2[25], pmkpbkdf2[26], pmkpbkdf2[27], pmkpbkdf2[28], pmkpbkdf2[29], pmkpbkdf2[30], pmkpbkdf2[31]);
-	for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
-	if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s\n", pskptr);
-	else
-		{
-		fprintf(stdout, ":$HEX[");
-		for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
-		fprintf(stdout, "]\n");
-		}
-	}
-return;
 }
 /*===========================================================================*/
 static void testhashfilepsk()
@@ -554,22 +545,22 @@ static hashlist_t *zeiger, *zeigerold;
 zeigerold = hashlist;
 if(dopbkdf2(pskptrlen, pskptr, zeigerold->essidlen, zeigerold->essid) == true)
 	{
-	if(zeigerold->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeigerold);
-	if(zeigerold->type == HCX_TYPE_EAPOL) testeapolpbkdf2(zeigerold);
+	if(zeigerold->type == HCX_TYPE_PMKID) testpmkidpmk(zeigerold);
+	if(zeigerold->type == HCX_TYPE_EAPOL) testeapolpmk(zeigerold);
 	}
 for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
 	if((zeigerold->essidlen == zeiger->essidlen) && (memcmp(zeigerold->essid, zeiger->essid, zeigerold->essidlen) == 0))
 		{
-		if(zeiger->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeiger);
-		if(zeiger->type == HCX_TYPE_EAPOL) testeapolpbkdf2(zeiger);
+		if(zeiger->type == HCX_TYPE_PMKID) testpmkidpmk(zeiger);
+		if(zeiger->type == HCX_TYPE_EAPOL) testeapolpmk(zeiger);
 		}
 	else
 		{
 		if(dopbkdf2(pskptrlen, pskptr, zeiger->essidlen, zeiger->essid) == true)
 			{
-			if(zeiger->type == HCX_TYPE_PMKID) testpmkidpbkdf2(zeiger);
-			if(zeiger->type == HCX_TYPE_EAPOL) testeapolpbkdf2(zeiger);
+			if(zeiger->type == HCX_TYPE_PMKID) testpmkidpmk(zeiger);
+			if(zeiger->type == HCX_TYPE_EAPOL) testeapolpmk(zeiger);
 			}
 		}
 	zeigerold = zeiger;
