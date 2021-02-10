@@ -5618,15 +5618,16 @@ if(prefixoutname != NULL)
 	strncat(csvprefix, csvsuffix, PREFIX_BUFFER_MAX);
 	csvoutname = csvprefix;
 	}
-
 if((pmkideapoloutname != NULL) && (nmeaoutname != NULL))
 	{
-	if(strcmp(pmkideapoloutname, usernameoutname) == 0)
+	if(strcmp(pmkideapoloutname, nmeaoutname) == 0)
 		{
 		printf("same file names for different file types not allowed: %s - %s\n", pmkideapoloutname, usernameoutname);
 		exit(EXIT_FAILURE);
 		}
 	}
+
+printf("debug\n");
 
 if(pmkideapoloutname != NULL)
 	{
