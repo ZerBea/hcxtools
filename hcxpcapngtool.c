@@ -1687,7 +1687,8 @@ if(pkey == NULL) return false;
 if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0) return false;
 if(EVP_DigestSignUpdate(mdctx, salt, 20) <= 0) return false;
 if(EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen) <= 0) return false;
-EVP_MD_CTX_destroy(mdctx);
+EVP_PKEY_free(pkey);
+EVP_MD_CTX_free(mdctx);
 if(memcmp(&testpmkid, pmkid, 16) == 0) return true;
 return false;
 }
@@ -1719,15 +1720,20 @@ return omac1_aes_128_vector(key, 1, &data, &data_len, mac);
 /*===========================================================================*/
 static bool testeapolpmk(uint8_t *testpmk, uint8_t keyver, uint8_t *macsta, uint8_t *macap, uint8_t *nonceap, uint8_t eapollen, uint8_t *eapolmessage)
 {
-static int p;
 static uint8_t *pkeptr;
 static wpakey_t *wpakzero, *wpak;
 
+static size_t testptklen;
+static size_t testmiclen;
+static EVP_MD_CTX *mdctx;
+static const EVP_MD *md;
+static EVP_PKEY *pkey;
+
 static uint8_t pkedata[102];
 static uint8_t pkedata_prf[2 + 98 + 2];
-static uint8_t ptk[128];
+static uint8_t testptk[EVP_MAX_MD_SIZE];
 static uint8_t eapoldata[0xff];
-static uint8_t miczero[16];
+static uint8_t testmic[EVP_MAX_MD_SIZE];
 
 memcpy(&eapoldata, eapolmessage, eapollen);
 wpakzero = (wpakey_t*)(eapoldata +EAPAUTH_SIZE);
@@ -1735,7 +1741,7 @@ memset(wpakzero->keymic, 0, 16);
 wpak = (wpakey_t*)(eapolmessage +EAPAUTH_SIZE);
 memset(&pkedata, 0, sizeof(pkedata));
 memset(&pkedata_prf, 0, sizeof(pkedata_prf));
-memset(&ptk, 0, sizeof(ptk));
+memset(&testptk, 0, sizeof(testptk));
 pkeptr = pkedata;
 if((keyver == 1) || (keyver == 2))
 	{
@@ -1761,20 +1767,58 @@ if((keyver == 1) || (keyver == 2))
 		memcpy (pkeptr +35, wpak->nonce, 32);
 		memcpy (pkeptr +67, nonceap, 32);
 		}
-	for (p = 0; p < 4; p++)
-		{
-		pkedata[99] = p;
-		HMAC(EVP_sha1(), testpmk, 32, pkedata, 100, ptk + p *20, NULL);
-		}
+	testptklen = 0;
+	mdctx = NULL;
+	md = NULL;
+	pkey = NULL;
+	mdctx = EVP_MD_CTX_new();
+	if(mdctx == 0) return false;
+	md = EVP_get_digestbyname("SHA1");
+	if(md == 0) return false;
+	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmk, 32);
+	if(pkey == NULL) return false;
+	if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0) return false;
+	if(EVP_DigestSignUpdate(mdctx, pkedata, 100) <= 0) return false;
+	if(EVP_DigestSignFinal(mdctx, testptk, &testptklen) <= 0) return false;
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
 	if(keyver == 1)
 		{
-		HMAC(EVP_md5(), &ptk, 16, eapoldata, eapollen, miczero, NULL);
-		if(memcmp(&miczero, wpak->keymic, 16) == 0) return true;
+		testmiclen = 0;
+		mdctx = NULL;
+		md = NULL;
+		pkey = NULL;
+		mdctx = EVP_MD_CTX_new();
+		if(mdctx == 0) return false;
+		md = EVP_get_digestbyname("MD5");
+		if(md == 0) return false;
+		pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
+		if(pkey == NULL) return false;
+		if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0) return false;
+		if(EVP_DigestSignUpdate(mdctx, eapoldata, eapollen) <= 0) return false;
+		if(EVP_DigestSignFinal(mdctx,testmic, &testmiclen) <= 0) return false;
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		if(memcmp(&testmic, wpak->keymic, 16) == 0) return true;
 		}
 	else if(keyver == 2)
 		{
-		HMAC(EVP_sha1(), ptk, 16, eapoldata, eapollen, miczero, NULL);
-		if(memcmp(&miczero, wpak->keymic, 16) == 0) return true;
+		testmiclen = 0;
+		mdctx = NULL;
+		md = NULL;
+		pkey = NULL;
+		mdctx = EVP_MD_CTX_new();
+		if(mdctx == 0) return false;
+		md = EVP_get_digestbyname("SHA1");
+		if(md == 0) return false;
+		pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
+		if(pkey == NULL) return false;
+		if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0) return false;
+		if(EVP_DigestSignUpdate(mdctx, eapoldata, eapollen) <= 0) return false;
+		if(EVP_DigestSignFinal(mdctx, testmic, &testmiclen) <= 0) return false;
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		if(memcmp(&testmic, wpak->keymic, 16) == 0) return true;
 		}
 	else return false;
 	}
@@ -1806,9 +1850,39 @@ else if(keyver == 3)
 	memcpy (pkedata_prf + 2, pkedata, 98);
 	pkedata_prf[100] = 0x80;
 	pkedata_prf[101] = 1;
-	HMAC(EVP_sha256(), testpmk, 32, pkedata_prf, 2 + 98 + 2, ptk, NULL);
-	omac1_aes_128(ptk, eapoldata, eapollen, miczero);
-	if(memcmp(&miczero, wpak->keymic, 16) == 0) return true;
+	testptklen = 0;
+	mdctx = NULL;
+	md = NULL;
+	pkey = NULL;
+	mdctx = EVP_MD_CTX_new();
+	if(mdctx == 0) return false;
+	md = EVP_get_digestbyname("SHA256");
+	if(md == 0) return false;
+	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmk, 32);
+	if(pkey == NULL) return false;
+	if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0) return false;
+	if(EVP_DigestSignUpdate(mdctx, pkedata_prf, 2 + 98 + 2) <= 0) return false;
+	if(EVP_DigestSignFinal(mdctx, testptk, &testptklen) <= 0) return false;
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+
+
+//	static EVP_CIPHER_CTX *cictx;
+//	static const EVP_CIPHER *cd;
+
+//	cictx = EVP_CIPHER_CTX_new();
+//	if(cictx == 0) return false;
+//	cd = EVP_get_cipherbyname("AES-128-CBC");
+//	if(cd == 0) return false;
+
+//	EVP_CIPHER_CTX_free(cictx);
+
+	omac1_aes_128(testptk, eapoldata, eapollen, testmic);
+
+//	for(int x = 0; x < 16; x++) printf("%02x", testmic[x]);
+//	printf("\n");
+
+	if(memcmp(&testmic, wpak->keymic, 16) == 0) return true;
 	}
 return false;
 }
@@ -5626,9 +5700,6 @@ if((pmkideapoloutname != NULL) && (nmeaoutname != NULL))
 		exit(EXIT_FAILURE);
 		}
 	}
-
-printf("debug\n");
-
 if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
