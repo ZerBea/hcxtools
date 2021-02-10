@@ -247,18 +247,15 @@ static EVP_MD_CTX *mdctx;
 static EVP_PKEY *pkey;
 
 static uint8_t pkedata[102];
-static uint8_t pkedata_prf[2 + 98 + 2];
 static uint8_t testptk[EVP_MAX_MD_SIZE];
 static uint8_t testmic[EVP_MAX_MD_SIZE];
 
 wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-
 if((keyver == 1 || keyver == 2))
 	{
 	pkeptr = pkedata;
 	memset(&pkedata, 0, sizeof(pkedata));
-	memset(&testptk, 0, sizeof(testptk));
 	memcpy(pkeptr, "Pairwise key expansion", 23);
 	if(memcmp(zeiger->ap, zeiger->client, 6) < 0)
 		{
@@ -281,7 +278,7 @@ if((keyver == 1 || keyver == 2))
 		memcpy (pkeptr +35, wpak->nonce, 32);
 		memcpy (pkeptr +67, zeiger->nonce, 32);
 		}
-	testptklen = 0;
+	testptklen = 32;
 	mdctx = EVP_MD_CTX_new();
 	if(mdctx == 0) return;
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, pmk, 32);
@@ -310,7 +307,7 @@ if((keyver == 1 || keyver == 2))
 		}
 	EVP_PKEY_free(pkey);
 	EVP_MD_CTX_free(mdctx);
-	testmiclen = 0;
+	testmiclen = 16;
 	mdctx = EVP_MD_CTX_new();
 	if(mdctx == 0) return;
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
@@ -375,9 +372,10 @@ if((keyver == 1 || keyver == 2))
 	}
 else if(keyver == 3)
 	{
-	pkeptr = pkedata;
-	memset(&pkedata_prf, 0, sizeof(pkedata_prf));
-	memset(&testptk, 0, sizeof(testptk));
+	memset(&pkedata, 0, sizeof(pkedata));
+	pkedata[0] = 1;
+	pkedata[1] = 0;
+	pkeptr = pkedata +2;
 	memcpy(pkeptr, "Pairwise key expansion", 22);
 	if(memcmp(zeiger->ap, zeiger->client, 6) < 0)
 		{
@@ -399,7 +397,9 @@ else if(keyver == 3)
 		memcpy (pkeptr +34, wpak->nonce, 32);
 		memcpy (pkeptr +66, zeiger->nonce, 32);
 		}
-	testptklen = 0;
+	pkedata[100] = 0x80;
+	pkedata[101] = 1;
+	testptklen = 32;
 	mdctx = EVP_MD_CTX_new();
 	if(mdctx == 0) return;
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, pmk, 32);
@@ -408,13 +408,13 @@ else if(keyver == 3)
 		EVP_MD_CTX_free(mdctx);
 		return;
 		}
-	if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha256(), NULL, pkey) != 1)
+	if(EVP_DigestSignInit(mdctx, NULL, EVP_sha256(), NULL, pkey) != 1)
 		{
 		EVP_PKEY_free(pkey);
 		EVP_MD_CTX_free(mdctx);
 		return;
 		}
-	if(EVP_DigestSignUpdate(mdctx, pkedata_prf, 102) != 1)
+	if(EVP_DigestSignUpdate(mdctx, pkedata, 102) != 1)
 		{
 		EVP_PKEY_free(pkey);
 		EVP_MD_CTX_free(mdctx);
