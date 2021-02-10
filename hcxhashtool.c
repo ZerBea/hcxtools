@@ -365,7 +365,8 @@ if(pkey == NULL) return;
 if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0) return;
 if(EVP_DigestSignUpdate(mdctx, salt, 20) <= 0) return;
 if(EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen) <= 0) return;
-EVP_MD_CTX_destroy(mdctx);
+EVP_PKEY_free(pkey);
+EVP_MD_CTX_free(mdctx);
 if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
 	{
 	fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
