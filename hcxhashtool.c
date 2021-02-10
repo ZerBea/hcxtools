@@ -267,7 +267,6 @@ if((keyver == 1 || keyver == 2))
 		memcpy(pkeptr +23, zeiger->client, 6);
 		memcpy(pkeptr +29, zeiger->ap, 6);
 		}
-
 	if(memcmp(zeiger->nonce, wpak->nonce, 32) < 0)
 		{
 		memcpy (pkeptr +35, zeiger->nonce, 32);
