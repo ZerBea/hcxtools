@@ -602,7 +602,7 @@ if(pkey == NULL)
 	EVP_MD_CTX_free(mdctx);
 	return;
 	}
-if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
+if(EVP_DigestSignInit(mdctx, NULL, EVP_sha1(), NULL, pkey) != 1)
 	{
 	EVP_PKEY_free(pkey);
 	EVP_MD_CTX_free(mdctx);
