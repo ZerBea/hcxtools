@@ -227,7 +227,7 @@ static uint8_t testmic[EVP_MAX_MD_SIZE];
 
 wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-if((keyver == 1 || keyver == 2))
+if(keyver == 2)
 	{
 	pkeptr = pkedata;
 	memset(&pkedata, 0, sizeof(pkedata));
@@ -290,23 +290,116 @@ if((keyver == 1 || keyver == 2))
 		EVP_MD_CTX_free(mdctx);
 		return;
 		}
-	if(keyver == 1)
+	if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
 		{
-		if(EVP_DigestSignInit(mdctx, NULL,  EVP_md5(), NULL, pkey) != 1)
-			{
-			EVP_PKEY_free(pkey);
-			EVP_MD_CTX_free(mdctx);
-			return;
-			}
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
 		}
-	else if(keyver == 2)
+	if(EVP_DigestSignUpdate(mdctx, zeiger->eapol, zeiger->eapauthlen) != 1)
 		{
-		if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignFinal(mdctx, testmic, &testmiclen) <= 0)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	if(memcmp(zeiger->hash, &testmic, 16) == 0)
+		{
+		fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
+			pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
+			pmk[8], pmk[9], pmk[10], pmk[11], pmk[12], pmk[13], pmk[14], pmk[15],
+			pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
+			pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
+		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+		if(pskptr != NULL)
 			{
-			EVP_PKEY_free(pkey);
-			EVP_MD_CTX_free(mdctx);
-			return;
+			if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s", pskptr);
+			else
+				{
+				fprintf(stdout, ":$HEX[");
+				for(p = 0; p < pskptrlen; p++) fprintf(stdout, "%02x", pskptr[p]);
+				fprintf(stdout, "]");
+				}
 			}
+		fprintf(stdout, "\n");
+		}
+	return;
+	}
+else if(keyver == 1)
+	{
+	pkeptr = pkedata;
+	memset(&pkedata, 0, sizeof(pkedata));
+	memcpy(pkeptr, "Pairwise key expansion", 23);
+	if(memcmp(zeiger->ap, zeiger->client, 6) < 0)
+		{
+		memcpy(pkeptr +23, zeiger->ap, 6);
+		memcpy(pkeptr +29, zeiger->client, 6);
+		}
+	else
+		{
+		memcpy(pkeptr +23, zeiger->client, 6);
+		memcpy(pkeptr +29, zeiger->ap, 6);
+		}
+	if(memcmp(zeiger->nonce, wpak->nonce, 32) < 0)
+		{
+		memcpy (pkeptr +35, zeiger->nonce, 32);
+		memcpy (pkeptr +67, wpak->nonce, 32);
+		}
+	else
+		{
+		memcpy (pkeptr +35, wpak->nonce, 32);
+		memcpy (pkeptr +67, zeiger->nonce, 32);
+		}
+	testptklen = 32;
+	mdctx = EVP_MD_CTX_new();
+	if(mdctx == 0) return;
+	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, pmk, 32);
+	if(pkey == NULL)
+		{
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignUpdate(mdctx, pkedata, 100) != 1)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignFinal(mdctx, testptk, &testptklen) <= 0)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	testmiclen = 16;
+	mdctx = EVP_MD_CTX_new();
+	if(mdctx == 0) return;
+	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
+	if(pkey == NULL)
+		{
+		EVP_MD_CTX_free(mdctx);
+		return;
+		}
+	if(EVP_DigestSignInit(mdctx, NULL,  EVP_md5(), NULL, pkey) != 1)
+		{
+		EVP_PKEY_free(pkey);
+		EVP_MD_CTX_free(mdctx);
+		return;
 		}
 	if(EVP_DigestSignUpdate(mdctx, zeiger->eapol, zeiger->eapauthlen) != 1)
 		{
@@ -456,7 +549,7 @@ static uint8_t testpmkid[EVP_MAX_MD_SIZE];
 memcpy(&message, pmkname, 8);
 memcpy(&message[8], zeiger->ap, 6);
 memcpy(&message[14], zeiger->client, 6);
-testpmkidlen = 0;
+testpmkidlen = 16;
 mdctx = NULL;
 mdctx = EVP_MD_CTX_new();
 if(mdctx == 0) return;
