@@ -1664,29 +1664,42 @@ static bool testpmkid(uint8_t *testpmk, uint8_t *macsta, uint8_t *macap, uint8_t
 {
 static size_t testpmkidlen;
 static EVP_MD_CTX *mdctx;
-static const EVP_MD *md;
 static EVP_PKEY *pkey;
 static char *pmkname = "PMK Name";
 
-static uint8_t salt[32];
+static uint8_t message[32];
 static uint8_t testpmkid[EVP_MAX_MD_SIZE];
 
-memcpy(&salt, pmkname, 8);
-memcpy(&salt[8], macap, 6);
-memcpy(&salt[14], macsta, 6);
+memcpy(&message, pmkname, 8);
+memcpy(&message[8], macap, 6);
+memcpy(&message[14], macsta, 6);
 testpmkidlen = 0;
-mdctx = NULL;
-md = NULL;
-pkey = NULL;
 mdctx = EVP_MD_CTX_new();
 if(mdctx == 0) return false;
-md = EVP_get_digestbyname("SHA1");
-if(md == 0) return false;
 pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmk, 32);
-if(pkey == NULL) return false;
-if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0) return false;
-if(EVP_DigestSignUpdate(mdctx, salt, 20) <= 0) return false;
-if(EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen) <= 0) return false;
+if(pkey == NULL)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return false;
+	}
+if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
+	{
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	return false;
+	}
+if(EVP_DigestSignUpdate(mdctx, message, 20) != 1)
+	{
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	return false;
+	}
+if(EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen) <= 0)
+	{
+	EVP_PKEY_free(pkey);
+	EVP_MD_CTX_free(mdctx);
+	return false;
+	}
 EVP_PKEY_free(pkey);
 EVP_MD_CTX_free(mdctx);
 if(memcmp(&testpmkid, pmkid, 16) == 0) return true;
