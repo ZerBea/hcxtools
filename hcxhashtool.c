@@ -274,10 +274,8 @@ if(keyver == 2)
 		return;
 		}
 	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
+	EVP_MD_CTX_reset(mdctx);
 	testmiclen = 16;
-	mdctx = EVP_MD_CTX_new();
-	if(mdctx == 0) return;
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
 	if(pkey == NULL)
 		{
@@ -394,10 +392,8 @@ else if(keyver == 1)
 		return;
 		}
 	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
+	EVP_MD_CTX_reset(mdctx);
 	testmiclen = 16;
-	mdctx = EVP_MD_CTX_new();
-	if(mdctx == 0) return;
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
 	if(pkey == NULL)
 		{
@@ -518,10 +514,8 @@ else if(keyver == 3)
 		return;
 		}
 	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
+	EVP_MD_CTX_reset(mdctx);
 	testmiclen = 16;
-	mdctx = EVP_MD_CTX_new();
-	if(mdctx == 0) return;
 	pkey = EVP_PKEY_new_CMAC_key(NULL, testptk, 16, EVP_aes_128_cbc());
 	if(pkey == NULL)
 		{
@@ -600,7 +594,6 @@ memcpy(&message, pmkname, 8);
 memcpy(&message[8], zeiger->ap, 6);
 memcpy(&message[14], zeiger->client, 6);
 testpmkidlen = 16;
-mdctx = NULL;
 mdctx = EVP_MD_CTX_new();
 if(mdctx == 0) return;
 pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, pmk, 32);
