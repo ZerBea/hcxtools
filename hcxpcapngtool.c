@@ -1715,7 +1715,6 @@ static size_t testptklen;
 static size_t testmiclen;
 static EVP_MD_CTX *mdctx;
 static EVP_PKEY *pkey;
-static CMAC_CTX *ctx;
 
 static uint8_t pkedata[102];
 static uint8_t testptk[EVP_MAX_MD_SIZE];
@@ -1991,7 +1990,6 @@ else if(keyver == 3)
 		}
 	EVP_PKEY_free(pkey);
 	EVP_MD_CTX_free(mdctx);
-	CMAC_Final(ctx, testmic, &testmiclen);
 	if(memcmp(&testmic, wpak->keymic, 16) == 0) return true;
 	}
 return false;
