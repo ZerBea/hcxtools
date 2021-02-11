@@ -341,7 +341,6 @@ if(keyver == 2)
 				fprintf(stdout, "]");
 				}
 			}
-		else fprintf(stdout, ":");
 		fprintf(stdout, "\n");
 		}
 	return;
@@ -462,7 +461,6 @@ else if(keyver == 1)
 				fprintf(stdout, "]");
 				}
 			}
-		else fprintf(stdout, ":");
 		fprintf(stdout, "\n");
 		}
 	return;
@@ -574,7 +572,6 @@ else if(keyver == 3)
 				fprintf(stdout, "]");
 				}
 			}
-		else fprintf(stdout, ":");
 		fprintf(stdout, "\n");
 		}
 	}
@@ -656,7 +653,6 @@ if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
 			fprintf(stdout, "]");
 			}
 		}
-	else fprintf(stdout, ":");
 	fprintf(stdout, "\n");
 	}
 return;
