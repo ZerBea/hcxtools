@@ -312,12 +312,25 @@ if(keyver == 2)
 	EVP_MD_CTX_free(mdctx);
 	if(memcmp(zeiger->hash, &testmic, 16) == 0)
 		{
-		fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
+		for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->client[p]);
+		fprintf(stdout, ":");
+		for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->ap[p]);
+		if(zeiger->essidlen != 0)
+			{
+			if(ispotfilestring(zeiger->essidlen, (char*)zeiger->essid) == true) fprintf(stdout, ":%.*s", zeiger->essidlen, zeiger->essid);
+			else
+				{
+				fprintf(stdout, ":$HEX[");
+				for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+				fprintf(stdout, "]");
+				}
+			}
+		else fprintf(stdout, ":");
+		fprintf(stdout, ":%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
 			pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
 			pmk[8], pmk[9], pmk[10], pmk[11], pmk[12], pmk[13], pmk[14], pmk[15],
 			pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
 			pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
-		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
 		if(pskptr != NULL)
 			{
 			if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s", pskptr);
@@ -328,6 +341,7 @@ if(keyver == 2)
 				fprintf(stdout, "]");
 				}
 			}
+		else fprintf(stdout, ":");
 		fprintf(stdout, "\n");
 		}
 	return;
@@ -417,12 +431,25 @@ else if(keyver == 1)
 	EVP_MD_CTX_free(mdctx);
 	if(memcmp(zeiger->hash, &testmic, 16) == 0)
 		{
-		fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
+		for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->client[p]);
+		fprintf(stdout, ":");
+		for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->ap[p]);
+		if(zeiger->essidlen != 0)
+			{
+			if(ispotfilestring(zeiger->essidlen, (char*)zeiger->essid) == true) fprintf(stdout, ":%.*s", zeiger->essidlen, zeiger->essid);
+			else
+				{
+				fprintf(stdout, ":$HEX[");
+				for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+				fprintf(stdout, "]");
+				}
+			}
+		else fprintf(stdout, ":");
+		fprintf(stdout, ":%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
 			pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
 			pmk[8], pmk[9], pmk[10], pmk[11], pmk[12], pmk[13], pmk[14], pmk[15],
 			pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
 			pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
-		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
 		if(pskptr != NULL)
 			{
 			if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s", pskptr);
@@ -433,6 +460,7 @@ else if(keyver == 1)
 				fprintf(stdout, "]");
 				}
 			}
+		else fprintf(stdout, ":");
 		fprintf(stdout, "\n");
 		}
 	return;
@@ -513,12 +541,25 @@ else if(keyver == 3)
 
 	if(memcmp(zeiger->hash, &testmic, 16) == 0)
 		{
-		fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
+		for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->client[p]);
+		fprintf(stdout, ":");
+		for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->ap[p]);
+		if(zeiger->essidlen != 0)
+			{
+			if(ispotfilestring(zeiger->essidlen, (char*)zeiger->essid) == true) fprintf(stdout, ":%.*s", zeiger->essidlen, zeiger->essid);
+			else
+				{
+				fprintf(stdout, ":$HEX[");
+				for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+				fprintf(stdout, "]");
+				}
+			}
+		else fprintf(stdout, ":");
+		fprintf(stdout, ":%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
 			pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
 			pmk[8], pmk[9], pmk[10], pmk[11], pmk[12], pmk[13], pmk[14], pmk[15],
 			pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
 			pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
-		for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
 		if(pskptr != NULL)
 			{
 			if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s", pskptr);
@@ -529,6 +570,7 @@ else if(keyver == 3)
 				fprintf(stdout, "]");
 				}
 			}
+		else fprintf(stdout, ":");
 		fprintf(stdout, "\n");
 		}
 	}
@@ -581,12 +623,25 @@ EVP_PKEY_free(pkey);
 EVP_MD_CTX_free(mdctx);
 if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
 	{
-	fprintf(stdout, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*", 
+	for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->client[p]);
+	fprintf(stdout, ":");
+	for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->ap[p]);
+	if(zeiger->essidlen != 0)
+		{
+		if(ispotfilestring(zeiger->essidlen, (char*)zeiger->essid) == true) fprintf(stdout, ":%.*s", zeiger->essidlen, zeiger->essid);
+		else
+			{
+			fprintf(stdout, ":$HEX[");
+			for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
+			fprintf(stdout, "]");
+			}
+		}
+	else fprintf(stdout, ":");
+	fprintf(stdout, ":%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
 		pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
 		pmk[8], pmk[9], pmk[10], pmk[11], pmk[12], pmk[13], pmk[14], pmk[15],
 		pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
 		pmk[24], pmk[25], pmk[26], pmk[27], pmk[28], pmk[29], pmk[30], pmk[31]);
-	for(p = 0; p < zeiger->essidlen; p++) fprintf(stdout, "%02x", zeiger->essid[p]);
 	if(pskptr != NULL)
 		{
 		if(ispotfilestring(pskptrlen, pskptr) == true) fprintf(stdout, ":%s", pskptr);
@@ -597,6 +652,7 @@ if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
 			fprintf(stdout, "]");
 			}
 		}
+	else fprintf(stdout, ":");
 	fprintf(stdout, "\n");
 	}
 return;
