@@ -215,12 +215,10 @@ static int keyver;
 static int p;
 static wpakey_t *wpak;
 static uint8_t *pkeptr;
-
 static size_t testptklen;
 static size_t testmiclen;
 static EVP_MD_CTX *mdctx;
 static EVP_PKEY *pkey;
-
 static CMAC_CTX *ctx;
 
 static uint8_t pkedata[102];
