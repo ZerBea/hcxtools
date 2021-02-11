@@ -11,7 +11,11 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <openssl/md5.h>
+#include <openssl/conf.h>
+#include <openssl/err.h>
+#include <openssl/crypto.h>
+#include <openssl/evp.h>
+
 #if defined(__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
 #else
@@ -54,11 +58,11 @@ static struct tm *tm;
 apessidliste = NULL;
 apessidcount = 0;
 essidglen = 32;
-
 t = time(NULL);
 tm = localtime(&t);
 thisyear = tm->tm_year +1900;
-
+ERR_load_crypto_strings();
+OpenSSL_add_all_algorithms();
 return;
 }
 /*===========================================================================*/
@@ -104,9 +108,8 @@ static void keywritedigit10(FILE *fhout)
 static int i;
 static uint16_t f1, f2;
 static unsigned long long int ec, el, eu;
-static MD5_CTX ctxmd5;
-static char saltstring[PSKSTRING_LEN_MAX];
-static unsigned char digestmd5[MD5_DIGEST_LENGTH];
+static unsigned int digestmd5len;
+static EVP_MD_CTX* mdctx;
 
 static uint32_t fixseed1[] =
 {
@@ -114,25 +117,44 @@ static uint32_t fixseed1[] =
 };
 #define FIXSEED1_SIZE sizeof(fixseed1) /sizeof(uint32_t)
 
+static char message[PSKSTRING_LEN_MAX];
+static uint8_t digestmd5[EVP_MAX_MD_SIZE];
+
 for(f1 = 0; f1 < FIXSEED1_SIZE; f1++)
 	{
 	for(f2 = 0; f2 <=0xff; f2++)
 		{
 		for(ec = 0; ec <= 0xffff; ec++)
 			{
-			snprintf(saltstring, PSKSTRING_LEN_MAX, "D0542D-01%010lld", ec | (fixseed1[f1] +f2) << 16);
-			MD5_Init(&ctxmd5);
-			MD5_Update(&ctxmd5, saltstring, 19);
-			MD5_Final(digestmd5, &ctxmd5);
-			el = 0;
-			eu = 0;
-			for(i = 0; i < 8; i++)
+			snprintf(message, PSKSTRING_LEN_MAX, "D0542D-01%010lld", ec | (fixseed1[f1] +f2) << 16);
+			digestmd5len = 16;
+			mdctx = EVP_MD_CTX_create();
+			if(mdctx == NULL) continue;
+			if(EVP_DigestInit_ex(mdctx, EVP_md5(), NULL) == 0)
 				{
-				eu = (el >> 0x18 | ((eu << 8) &0xffffffff)) &0xffffffff;
-				el = (((el << 8) &0xffffffff) | digestmd5[i + 8]) &0xffffffff;
+				EVP_MD_CTX_free(mdctx);
+				continue;
 				}
-			fprintf(fhout, "%010lld\n", ((eu << 32) +el) %0x2540be400);
+			if(EVP_DigestUpdate(mdctx, message, 19) == 0)
+				{
+				EVP_MD_CTX_free(mdctx);
+				continue;
+				}
+			if(EVP_DigestFinal_ex(mdctx, digestmd5, &digestmd5len) == 0)
+				{
+				EVP_MD_CTX_free(mdctx);
+				continue;
+				}
+			EVP_MD_CTX_free(mdctx);
 			}
+		el = 0;
+		eu = 0;
+		for(i = 0; i < 8; i++)
+			{
+			eu = (el >> 0x18 | ((eu << 8) &0xffffffff)) &0xffffffff;
+			el = (((el << 8) &0xffffffff) | digestmd5[i + 8]) &0xffffffff;
+			}
+		fprintf(fhout, "%010lld\n", ((eu << 32) +el) %0x2540be400);
 		}
 	}
 return;
@@ -1886,17 +1908,35 @@ return;
 /*===========================================================================*/
 static void writebssidmd5(FILE *fhout, unsigned long long int macaddr)
 {
-static MD5_CTX ctxmd5;
 static int k;
 static int p;
-static char keystring[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static char macstring[PSKSTRING_LEN_MAX] = {};
-static unsigned char digestmd5[MD5_DIGEST_LENGTH];
+static unsigned int digestmd5len;
+static EVP_MD_CTX* mdctx;
+static char message[PSKSTRING_LEN_MAX];
+static uint8_t digestmd5[EVP_MAX_MD_SIZE];
 
-snprintf(macstring, 14, "%012llX", macaddr);
-MD5_Init(&ctxmd5);
-MD5_Update(&ctxmd5, macstring, 12);
-MD5_Final(digestmd5, &ctxmd5);
+static char keystring[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+snprintf(message, 14, "%012llX", macaddr);
+digestmd5len = 16;
+mdctx = EVP_MD_CTX_create();
+if(mdctx == NULL) return;
+if(EVP_DigestInit_ex(mdctx, EVP_md5(), NULL) == 0)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return;
+	}
+if(EVP_DigestUpdate(mdctx, message, 12) == 0)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return;
+	}
+if(EVP_DigestFinal_ex(mdctx, digestmd5, &digestmd5len) == 0)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return;
+	}
+EVP_MD_CTX_free(mdctx);
 
 for (p = 0; p < 10; p++) fprintf(fhout, "%02x",digestmd5[p]);
 fprintf(fhout, "\n");
@@ -2726,6 +2766,10 @@ if(pskname != NULL)
 	{
 	fclose(fhpsk);
 	}
+
+EVP_cleanup();
+CRYPTO_cleanup_all_ex_data();
+ERR_free_strings();
 
 return EXIT_SUCCESS;
 }

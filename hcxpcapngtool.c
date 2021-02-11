@@ -21,9 +21,6 @@
 #include <openssl/err.h>
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
-#include <openssl/sha.h>
-#include <openssl/hmac.h>
-#include <openssl/cmac.h>
 #include <openssl/ssl.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
@@ -1224,18 +1221,39 @@ static inline bool mschapv2_challenge_hash(uint8_t *peer_challenge, uint8_t *aut
 {
 static unsigned int shalen;
 static EVP_MD_CTX* mdctx;
-static uint8_t shahash[SHA_DIGEST_LENGTH];
+static uint8_t shahash[EVP_MAX_MD_SIZE];
 
+shalen = 40;
 mdctx = EVP_MD_CTX_create();
 if(mdctx == NULL) return false;
-if(EVP_DigestInit_ex(mdctx, EVP_sha1(), NULL) == 0) return false;
+if(EVP_DigestInit_ex(mdctx, EVP_sha1(), NULL) == 0)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return false;
+	}
 shalen = MSCHAPV2_CHALLENGE_LEN_MAX;
-if(EVP_DigestUpdate(mdctx, peer_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return false;
-if(EVP_DigestUpdate(mdctx, auth_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return false;
-if(EVP_DigestUpdate(mdctx, username, usernamelen) == 0) return false;
-if(EVP_DigestFinal_ex(mdctx, shahash, &shalen) == 0) return false;
+if(EVP_DigestUpdate(mdctx, peer_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return false;
+	}
+if(EVP_DigestUpdate(mdctx, auth_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return false;
+	}
+if(EVP_DigestUpdate(mdctx, username, usernamelen) == 0)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return false;
+	}
+if(EVP_DigestFinal_ex(mdctx, shahash, &shalen) == 0)
+	{
+	EVP_MD_CTX_free(mdctx);
+	return false;
+	}
+EVP_MD_CTX_free(mdctx);
 memcpy(challenge, shahash, MSCHAPV2_CHALLENGE_LEN_MAX);
-EVP_MD_CTX_destroy(mdctx);
 return true;
 }
 /*===========================================================================*/

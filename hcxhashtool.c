@@ -22,11 +22,7 @@
 #include <openssl/err.h>
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
-#include <openssl/sha.h>
-#include <openssl/hmac.h>
-#include <openssl/cmac.h>
 #include <openssl/ssl.h>
-
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
 #include <sys/socket.h>
@@ -108,7 +104,6 @@ static void closelists()
 {
 if(hashlist != NULL) free(hashlist);
 if(ouilist != NULL) free(ouilist);
-
 EVP_cleanup();
 CRYPTO_cleanup_all_ex_data();
 ERR_free_strings();
