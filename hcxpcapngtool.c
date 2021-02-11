@@ -1799,10 +1799,8 @@ if(keyver == 2)
 		return false;
 		}
 	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
+	EVP_MD_CTX_reset(mdctx);
 	testmiclen = 16;
-	mdctx = EVP_MD_CTX_new();
-	if(mdctx == 0) return false;
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
 	if(pkey == NULL)
 		{
@@ -1887,7 +1885,7 @@ else if(keyver == 1)
 		return false;
 		}
 	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
+	EVP_MD_CTX_reset(mdctx);
 	testmiclen = 16;
 	mdctx = EVP_MD_CTX_new();
 	if(mdctx == 0) return false;
@@ -1978,7 +1976,7 @@ else if(keyver == 3)
 		return false;
 		}
 	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
+	EVP_MD_CTX_reset(mdctx);
 	testmiclen = 16;
 	mdctx = EVP_MD_CTX_new();
 	if(mdctx == 0) return false;
