@@ -130,10 +130,8 @@ eapolwrittencount = 0;
 essidwrittencount = 0;
 hccapxwrittencount = 0;
 hccapwrittencount = 0;
-
 ERR_load_crypto_strings();
 OpenSSL_add_all_algorithms();
-
 if((hashlist = (hashlist_t*)calloc(hashlistcount, HASHLIST_SIZE)) == NULL) return false;
 if((ouilist = (ouilist_t*)calloc(ouilistcount, OUILIST_SIZE)) == NULL) return false;
 return true;
@@ -229,8 +227,10 @@ wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if(keyver == 2)
 	{
-	pkeptr = pkedata;
 	memset(&pkedata, 0, sizeof(pkedata));
+	memset(&testptk, 0, sizeof(testptk));
+	memset(&testmic, 0, sizeof(testptk));
+	pkeptr = pkedata;
 	memcpy(pkeptr, "Pairwise key expansion", 23);
 	if(memcmp(zeiger->ap, zeiger->client, 6) < 0)
 		{
@@ -284,13 +284,14 @@ if(keyver == 2)
 	testmiclen = 16;
 	mdctx = EVP_MD_CTX_new();
 	if(mdctx == 0) return;
+//	EVP_MD_CTX_reset(mdctx);
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
 	if(pkey == NULL)
 		{
 		EVP_MD_CTX_free(mdctx);
 		return;
 		}
-	if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
+	if(EVP_DigestSignInit(mdctx, NULL, EVP_sha1(), NULL, pkey) != 1)
 		{
 		EVP_PKEY_free(pkey);
 		EVP_MD_CTX_free(mdctx);
@@ -348,8 +349,10 @@ if(keyver == 2)
 	}
 else if(keyver == 1)
 	{
-	pkeptr = pkedata;
 	memset(&pkedata, 0, sizeof(pkedata));
+	memset(&testptk, 0, sizeof(testptk));
+	memset(&testmic, 0, sizeof(testptk));
+	pkeptr = pkedata;
 	memcpy(pkeptr, "Pairwise key expansion", 23);
 	if(memcmp(zeiger->ap, zeiger->client, 6) < 0)
 		{
@@ -409,7 +412,7 @@ else if(keyver == 1)
 		EVP_MD_CTX_free(mdctx);
 		return;
 		}
-	if(EVP_DigestSignInit(mdctx, NULL,  EVP_md5(), NULL, pkey) != 1)
+	if(EVP_DigestSignInit(mdctx, NULL, EVP_md5(), NULL, pkey) != 1)
 		{
 		EVP_PKEY_free(pkey);
 		EVP_MD_CTX_free(mdctx);
@@ -468,6 +471,8 @@ else if(keyver == 1)
 else if(keyver == 3)
 	{
 	memset(&pkedata, 0, sizeof(pkedata));
+	memset(&testptk, 0, sizeof(testptk));
+	memset(&testmic, 0, sizeof(testptk));
 	pkedata[0] = 1;
 	pkedata[1] = 0;
 	pkeptr = pkedata +2;
