@@ -284,7 +284,6 @@ if(keyver == 2)
 	testmiclen = 16;
 	mdctx = EVP_MD_CTX_new();
 	if(mdctx == 0) return;
-//	EVP_MD_CTX_reset(mdctx);
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
 	if(pkey == NULL)
 		{
