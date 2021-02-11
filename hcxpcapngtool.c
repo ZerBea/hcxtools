@@ -1227,7 +1227,7 @@ static EVP_MD_CTX* mdctx;
 static uint8_t shahash[SHA_DIGEST_LENGTH];
 
 mdctx = EVP_MD_CTX_create();
-if(mdctx == NULL) return -1;
+if(mdctx == NULL) return false;
 if(EVP_DigestInit_ex(mdctx, EVP_sha1(), NULL) == 0) return false;
 shalen = MSCHAPV2_CHALLENGE_LEN_MAX;
 if(EVP_DigestUpdate(mdctx, peer_challenge, MSCHAPV2_CHALLENGE_PEER_LEN_MAX) == 0) return false;
