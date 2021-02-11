@@ -1714,7 +1714,6 @@ static wpakey_t *wpakzero, *wpak;
 static size_t testptklen;
 static size_t testmiclen;
 static EVP_MD_CTX *mdctx;
-static const EVP_MD *md;
 static EVP_PKEY *pkey;
 static CMAC_CTX *ctx;
 
@@ -1755,7 +1754,6 @@ if(keyver == 2)
 		memcpy (pkeptr +35, wpak->nonce, 32);
 		memcpy (pkeptr +67, nonceap, 32);
 		}
-
 	testptklen = 32;
 	mdctx = EVP_MD_CTX_new();
 	if(mdctx == 0) return false;
@@ -1794,7 +1792,7 @@ if(keyver == 2)
 		EVP_MD_CTX_free(mdctx);
 		return false;
 		}
-	if(EVP_DigestSignInit(mdctx, NULL,  EVP_sha1(), NULL, pkey) != 1)
+	if(EVP_DigestSignInit(mdctx, NULL, EVP_sha1(), NULL, pkey) != 1)
 		{
 		EVP_PKEY_free(pkey);
 		EVP_MD_CTX_free(mdctx);
@@ -1944,7 +1942,7 @@ else if(keyver == 3)
 		EVP_MD_CTX_free(mdctx);
 		return false;
 		}
-	if(EVP_DigestSignInit(mdctx, NULL, md, NULL, pkey) <= 0)
+	if(EVP_DigestSignInit(mdctx, NULL, EVP_sha256(), NULL, pkey) <= 0)
 		{
 		EVP_PKEY_free(pkey);
 		EVP_MD_CTX_free(mdctx);
