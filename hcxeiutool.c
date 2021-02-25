@@ -161,13 +161,13 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"example:\n"
 	"$ hcxdumptool -i <interface> -o dump.pcapng --enable_status=31\n"
-	"$ hcxpcapngtool -o test.22000 -E elist dump.pcapng\n"
+	"$ hcxpcapngtool -o hash.22000 -E elist dump.pcapng\n"
 	"$ hcxeiutool -i elist -d digitlist -x xdigitlist -c charlist -s sclist\n"
 	"$ cat elist digitlist xdigitlist charlist sclist > wordlisttmp\n"
 	"$ hashcat --stdout -r <rule> charlist >> wordlisttmp\n"
 	"$ hashcat --stdout -r <rule> sclist >> wordlisttmp\n"
 	"$ cat wordlisttmp | sort | uniq > wordlist\n"
-	"$ hashcat -m 22000 dump.pcapng wordlist\n" 
+	"$ hashcat -m 22000 hash.22000 wordlist\n" 
 	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
