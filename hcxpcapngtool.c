@@ -659,7 +659,7 @@ if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n
 if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
 if(donotcleanflag == false)
 	{
-	if(essiddupemax > 0)			printf("ESSID changes (detected maximum).........: %ld (information: option --all recommended)\n", essiddupemax);
+	if(essiddupemax > 0)			printf("ESSID changes (detected maximum).........: %ld (information: option --max-essids=<digit> and --all recommended)\n", essiddupemax);
 	}
 if(donotcleanflag == true)
 	{
