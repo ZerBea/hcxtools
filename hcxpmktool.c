@@ -496,6 +496,80 @@ free(hashlinedupa);
 return true;
 }
 /*===========================================================================*/
+static void showstandardinfohashlineessidpsk(char *hashlinestring, char *essidstring,  char *pskstring)
+{
+size_t p;
+size_t psklen;
+size_t essidlen;
+
+if(gethashlinefields(hashlinestring) == false)
+	{
+	printf("hash line exception\n");
+	return;
+	}
+
+essidlen = strlen(essidstring);
+if((essidlen == 0) || (essidlen > ESSID_LEN_MAX))
+	{
+	fprintf(stderr, "ESSID length exception\n");
+	return;
+	}
+
+psklen = strlen(pskstring);
+if((psklen == 63) || (psklen > 63))
+	{
+	fprintf(stderr, "PSK length exception\n");
+	return;
+	}
+
+if(dopbkdf2(psklen, pskstring, essidlen, (uint8_t*)essidstring) == false) 
+	{
+	fprintf(stderr, "PBKDF2 calculation error\n");
+	return;
+	}
+
+if(calculatepmkid(pmkcalculated) == false)
+	{
+	fprintf(stderr, "MIC calculation error\n");
+	return;
+	}
+else if(hashlist.type == HS_EAPOL)
+	{
+	if(calculatemic(pmkcalculated) == false)
+		{
+		fprintf(stderr, "MIC calculation error\n");
+		return;
+		}
+	}
+printf("ESSID (option)....: %s\n", essidstring);
+printf("ESSID (hash line).: %.*s\n", hashlist.essidlen, hashlist.essid);
+printf("PSK...............: %s\n", pskstring);
+printf("PMK (ESSID option): ");
+for(p = 0; p < PMK_LEN; p++) printf("%02x", pmkcalculated[p]);
+printf("\n");
+printf("PMKID (calculated): ");
+for(p = 0; p < HASH_LEN; p++) printf("%02x", pmkidcalculated[p]);
+printf("\n");
+if(hashlist.type == HS_PMKID)
+	{
+	printf("PMKID (hash line).: ");
+	for(p = 0; p < HASH_LEN; p++) printf("%02x", hashlist.hash[p]);
+	if(memcmp(&pmkidcalculated, &hashlist.hash, HASH_LEN) == 0) printf(" (equal)\n");
+	else printf(" (not equal)\n");
+	}
+else if(hashlist.type == HS_EAPOL)
+	{
+	printf("MIC (calculated)..: ");
+	for(p = 0; p < HASH_LEN; p++) printf("%02x", miccalculated[p]);
+	printf("\n");
+	printf("MIC (hash line)...: ");
+	for(p = 0; p < HASH_LEN; p++) printf("%02x", hashlist.hash[p]);
+	if(memcmp(&miccalculated, &hashlist.hash, HASH_LEN) == 0) printf(" (equal)\n");
+	else printf(" (not equal)\n");
+	}
+return;
+}
+/*===========================================================================*/
 static void showstandardinfohashlinepmk(char *hashlinestring, char *pmkstring)
 {
 size_t p;
@@ -871,6 +945,11 @@ else if((essidstring == NULL) && (pskstring != NULL) && (pmkstring == NULL) && (
 else if((essidstring == NULL) && (pskstring == NULL) && (pmkstring != NULL) && (hashlinestring != NULL))
 	{
 	showstandardinfohashlinepmk(hashlinestring, pmkstring);
+	}
+
+else if((essidstring != NULL) && (pskstring != NULL) && (pmkstring == NULL) && (hashlinestring != NULL))
+	{
+	showstandardinfohashlineessidpsk(hashlinestring, essidstring, pskstring);
 	}
 
 printf("\n");
