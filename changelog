@@ -1,3 +1,22 @@
+28.02.2021
+==========
+added new tool to calculate a PMK and verify a 22000 hashline
+
+hcxpmktool 6.1.5-72-g585fe37  (C) 2021 ZeroBeat
+usage  : hcxpmktool <options>
+
+short options:
+-i <hash line> : input hashcat hash line (-m 22000)
+-e <ESSID>     : input ESSID
+                 default: use ESSID from hash line
+-p <PSK>       : input Pre Shared Key
+-m <PMK>       : input Plain Master KEY
+
+long options:
+--help         : show this help
+--version      : show version
+
+
 09.02.2021
 ==========
 started to prepare to use openssl 3.0
