@@ -662,7 +662,7 @@ if(essiddupemax > 0)
 	if((essidsvalue > 1) || (donotcleanflag == true)) printf("ESSID changes (detected maximum).........: %ld\n", essiddupemax);
 	else printf("ESSID changes (detected maximum).........: %ld (information: option --max-essids=<digit> and --all recommended)\n", essiddupemax);
 	}
-if(eaptimegapmax > 0)			printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
+if(eaptimegapmax > 0) printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
 if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
 	printf ("EAPOL ANONCE error corrections (NC)......: working\n");
@@ -780,14 +780,14 @@ if(eapolm1ancount <= 1)
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to calculate nonce-error-correction values.\n");
 	}
-if(malformedcount > 10)
+if(malformedcount > 5)
 	{
 	printf( "\nWarning: malformed packets detected!\n"   
 		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
 		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
 		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
 		"a bit error in the payload it can lead to unexpected results.\n"
-		"Please analyze the dump file with Wireshark.\n");
+		"Please analyze the dump file with tshark or Wireshark.\n");
 	}
 printf("\n");
 return;
