@@ -45,10 +45,13 @@ static size_t testmiclen;
 static EVP_MD_CTX *mdctx;
 static EVP_PKEY *pkey;
 
+static hashlist_t hashlisttmp;
+
 static uint8_t pkedata[102];
 static uint8_t testptk[EVP_MAX_MD_SIZE];
 
-wpak = (wpakey_t*)&hashlist.eapol[EAPAUTH_SIZE];
+memcpy(&hashlisttmp, &hashlist, sizeof(hashlist));
+wpak = (wpakey_t*)&hashlisttmp.eapol[EAPAUTH_SIZE];
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if(keyver == 2)
 	{
@@ -57,25 +60,25 @@ if(keyver == 2)
 	memset(&miccalculated, 0, sizeof(testptk));
 	pkeptr = pkedata;
 	memcpy(pkeptr, "Pairwise key expansion", 23);
-	if(memcmp(hashlist.ap, hashlist.client, 6) < 0)
+	if(memcmp(hashlisttmp.ap, hashlisttmp.client, 6) < 0)
 		{
-		memcpy(pkeptr +23, hashlist.ap, 6);
-		memcpy(pkeptr +29, hashlist.client, 6);
+		memcpy(pkeptr +23, hashlisttmp.ap, 6);
+		memcpy(pkeptr +29, hashlisttmp.client, 6);
 		}
 	else
 		{
-		memcpy(pkeptr +23, hashlist.client, 6);
-		memcpy(pkeptr +29, hashlist.ap, 6);
+		memcpy(pkeptr +23, hashlisttmp.client, 6);
+		memcpy(pkeptr +29, hashlisttmp.ap, 6);
 		}
-	if(memcmp(hashlist.nonce, wpak->nonce, 32) < 0)
+	if(memcmp(hashlisttmp.nonce, wpak->nonce, 32) < 0)
 		{
-		memcpy (pkeptr +35, hashlist.nonce, 32);
+		memcpy (pkeptr +35, hashlisttmp.nonce, 32);
 		memcpy (pkeptr +67, wpak->nonce, 32);
 		}
 	else
 		{
 		memcpy (pkeptr +35, wpak->nonce, 32);
-		memcpy (pkeptr +67, hashlist.nonce, 32);
+		memcpy (pkeptr +67, hashlisttmp.nonce, 32);
 		}
 	testptklen = 32;
 	mdctx = EVP_MD_CTX_new();
@@ -119,7 +122,7 @@ if(keyver == 2)
 		EVP_MD_CTX_free(mdctx);
 		return false;
 		}
-	if(EVP_DigestSignUpdate(mdctx, hashlist.eapol, hashlist.eapauthlen) != 1)
+	if(EVP_DigestSignUpdate(mdctx, hashlisttmp.eapol, hashlisttmp.eapauthlen) != 1)
 		{
 		EVP_PKEY_free(pkey);
 		EVP_MD_CTX_free(mdctx);
@@ -142,25 +145,25 @@ else if(keyver == 1)
 	memset(&miccalculated, 0, sizeof(testptk));
 	pkeptr = pkedata;
 	memcpy(pkeptr, "Pairwise key expansion", 23);
-	if(memcmp(hashlist.ap, hashlist.client, 6) < 0)
+	if(memcmp(hashlisttmp.ap, hashlisttmp.client, 6) < 0)
 		{
-		memcpy(pkeptr +23, hashlist.ap, 6);
-		memcpy(pkeptr +29, hashlist.client, 6);
+		memcpy(pkeptr +23, hashlisttmp.ap, 6);
+		memcpy(pkeptr +29, hashlisttmp.client, 6);
 		}
 	else
 		{
-		memcpy(pkeptr +23, hashlist.client, 6);
-		memcpy(pkeptr +29, hashlist.ap, 6);
+		memcpy(pkeptr +23, hashlisttmp.client, 6);
+		memcpy(pkeptr +29, hashlisttmp.ap, 6);
 		}
-	if(memcmp(hashlist.nonce, wpak->nonce, 32) < 0)
+	if(memcmp(hashlisttmp.nonce, wpak->nonce, 32) < 0)
 		{
-		memcpy (pkeptr +35, hashlist.nonce, 32);
+		memcpy (pkeptr +35, hashlisttmp.nonce, 32);
 		memcpy (pkeptr +67, wpak->nonce, 32);
 		}
 	else
 		{
 		memcpy (pkeptr +35, wpak->nonce, 32);
-		memcpy (pkeptr +67, hashlist.nonce, 32);
+		memcpy (pkeptr +67, hashlisttmp.nonce, 32);
 		}
 	testptklen = 32;
 	mdctx = EVP_MD_CTX_new();
@@ -204,7 +207,7 @@ else if(keyver == 1)
 		EVP_MD_CTX_free(mdctx);
 		return false;
 		}
-	if(EVP_DigestSignUpdate(mdctx, hashlist.eapol, hashlist.eapauthlen) != 1)
+	if(EVP_DigestSignUpdate(mdctx, hashlisttmp.eapol, hashlisttmp.eapauthlen) != 1)
 		{
 		EVP_PKEY_free(pkey);
 		EVP_MD_CTX_free(mdctx);
@@ -229,25 +232,25 @@ else if(keyver == 3)
 	pkedata[1] = 0;
 	pkeptr = pkedata +2;
 	memcpy(pkeptr, "Pairwise key expansion", 22);
-	if(memcmp(hashlist.ap, hashlist.client, 6) < 0)
+	if(memcmp(hashlisttmp.ap, hashlisttmp.client, 6) < 0)
 		{
-		memcpy(pkeptr +22, hashlist.ap, 6);
-		memcpy(pkeptr +28, hashlist.client, 6);
+		memcpy(pkeptr +22, hashlisttmp.ap, 6);
+		memcpy(pkeptr +28, hashlisttmp.client, 6);
 		}
 	else
 		{
-		memcpy(pkeptr +22, hashlist.client, 6);
-		memcpy(pkeptr +28, hashlist.ap, 6);
+		memcpy(pkeptr +22, hashlisttmp.client, 6);
+		memcpy(pkeptr +28, hashlisttmp.ap, 6);
 		}
-	if(memcmp(hashlist.nonce, wpak->nonce, 32) < 0)
+	if(memcmp(hashlisttmp.nonce, wpak->nonce, 32) < 0)
 		{
-		memcpy (pkeptr +34, hashlist.nonce, 32);
+		memcpy (pkeptr +34, hashlisttmp.nonce, 32);
 		memcpy (pkeptr +66, wpak->nonce, 32);
 		}
 	else
 		{
 		memcpy (pkeptr +34, wpak->nonce, 32);
-		memcpy (pkeptr +66, hashlist.nonce, 32);
+		memcpy (pkeptr +66, hashlisttmp.nonce, 32);
 		}
 	pkedata[100] = 0x80;
 	pkedata[101] = 1;
@@ -293,7 +296,7 @@ else if(keyver == 3)
 		EVP_MD_CTX_free(mdctx);
 		return false;
 		}
-	if(EVP_DigestSignUpdate(mdctx, hashlist.eapol, hashlist.eapauthlen) != 1)
+	if(EVP_DigestSignUpdate(mdctx, hashlisttmp.eapol, hashlisttmp.eapauthlen) != 1)
 		{
 		EVP_PKEY_free(pkey);
 		EVP_MD_CTX_free(mdctx);
@@ -437,7 +440,7 @@ for(p = 7; p < len; p++)
 	{
 	if((!isxdigit(hashlinestring[p])) && (hashlinestring[p] != '*')) return false;
 	}
-hashlinedupa = strdupa(hashlinestring);
+hashlinedupa = strndup(hashlinestring, len +1);
 if(hashlinedupa == NULL) return false;
 token = strsep(&hashlinedupa, "*");
 if(token == NULL) return false;
