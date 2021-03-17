@@ -28,21 +28,22 @@
 #define HCX_FILTER_MAC_AP		14
 #define HCX_FILTER_MAC_CLIENT		15
 #define HCX_FILTER_MAC_LIST_IN		16
-#define HCX_FILTER_VENDOR		17
-#define HCX_FILTER_ESSID		18
-#define HCX_FILTER_ESSID_PART		19
-#define HCX_FILTER_RC			20
-#define HCX_FILTER_M12			21
-#define HCX_FILTER_M1234		22
-#define HCX_FILTER_M1M2ROGUE		23
-#define HCX_PSK				24
-#define HCX_PMK				25
-#define HCX_VENDOR_OUT			26
-#define HCX_INFO_OUT			27
-#define HCX_HCCAPX_OUT			28
-#define HCX_HCCAP_OUT			29
-#define HCX_HCCAP_SINGLE_OUT		30
-#define HCX_JOHN_OUT			31
+#define HCX_FILTER_MAC_LIST_SKIP	17
+#define HCX_FILTER_VENDOR		18
+#define HCX_FILTER_ESSID		19
+#define HCX_FILTER_ESSID_PART		20
+#define HCX_FILTER_RC			21
+#define HCX_FILTER_M12			22
+#define HCX_FILTER_M1234		23
+#define HCX_FILTER_M1M2ROGUE		24
+#define HCX_PSK				25
+#define HCX_PMK				26
+#define HCX_VENDOR_OUT			27
+#define HCX_INFO_OUT			28
+#define HCX_HCCAPX_OUT			29
+#define HCX_HCCAP_OUT			30
+#define HCX_HCCAP_SINGLE_OUT		31
+#define HCX_JOHN_OUT			32
 #define HCX_PMKIDEAPOL_IN		'i'
 #define HCX_PMKIDEAPOL_OUT		'o'
 #define HCX_ESSID_OUT			'E'
@@ -54,6 +55,7 @@
 struct hashlist_s
 {
  uint8_t		type;
+#define HS_REMOVED	0xff;
 #define HS_PMKID	1;
 #define HS_EAPOL	2;
  uint8_t		hash[16];
@@ -69,7 +71,7 @@ struct hashlist_s
 typedef struct hashlist_s hashlist_t;
 #define	HASHLIST_SIZE (sizeof(hashlist_t))
 
-static int sort_maclist_by_essid(const void *a, const void *b)
+static int sort_hashlist_by_essid(const void *a, const void *b)
 {
 const hashlist_t *ia = (const hashlist_t *)a;
 const hashlist_t *ib = (const hashlist_t *)b;
@@ -79,7 +81,7 @@ else if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) < 0) return -1;
 return 0;
 }
 
-static int sort_maclist_by_essidlen(const void *a, const void *b)
+static int sort_hashlist_by_essidlen(const void *a, const void *b)
 {
 const hashlist_t *ia = (const hashlist_t *)a;
 const hashlist_t *ib = (const hashlist_t *)b;
@@ -91,7 +93,7 @@ else if(memcmp(ia->essid, ib->essid, ia->essidlen) < 0) return -1;
 return 0;
 }
 
-static int sort_maclist_by_macap(const void *a, const void *b)
+static int sort_hashlist_by_macap(const void *a, const void *b)
 {
 const hashlist_t *ia = (const hashlist_t *)a;
 const hashlist_t *ib = (const hashlist_t *)b;
@@ -101,13 +103,23 @@ else if(memcmp(ia->ap, ib->ap, 6) < 0) return -1;
 return 0;
 }
 
-static int sort_maclist_by_macclient(const void *a, const void *b)
+static int sort_hashlist_by_macclient(const void *a, const void *b)
 {
 const hashlist_t *ia = (const hashlist_t *)a;
 const hashlist_t *ib = (const hashlist_t *)b;
 
 if(memcmp(ia->client, ib->client, 6) > 0) return 1;
 else if(memcmp(ia->client, ib->client, 6) < 0) return -1;
+return 0;
+}
+
+static int sort_hashlist_by_type(const void *a, const void *b)
+{
+const hashlist_t *ia = (const hashlist_t *)a;
+const hashlist_t *ib = (const hashlist_t *)b;
+
+if(ia->type > ib->type) return 1;
+else if(ia->type < ib->type) return -1;
 return 0;
 }
 /*===========================================================================*/

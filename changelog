@@ -1,3 +1,10 @@
+17.03.2021
+==========
+hcxhastool: added new option to use an exclude MAC filter list
+--mac-skiplist=<file>        : exclude MAC from file
+                               format: 001122334455, 00:11:22:33:44:55, 00-11-22-33-44-55 (hex)
+
+
 09.03.2021
 ==========
 release v 6.1.5
