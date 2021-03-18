@@ -660,7 +660,7 @@ if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", 
 if(essiddupemax > 0)
 	{
 	if((essidsvalue > 1) || (donotcleanflag == true)) printf("ESSID changes (detected maximum).........: %ld\n", essiddupemax);
-	else printf("ESSID changes (detected maximum).........: %ld (information: option --max-essids=<digit> and --all recommended)\n", essiddupemax);
+	else printf("ESSID changes (detected maximum).........: %ld (information: option --max-essids=%ld and --all recommended)\n", essiddupemax, essiddupemax +1);
 	}
 if(eaptimegapmax > 0) printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
 if((eapolnccount > 0) && (eapolmpcount > 0))
