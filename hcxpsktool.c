@@ -299,7 +299,7 @@ static const char *wordlist[] =
 "calm", "camera", "canoe", "car", "carrot", "cartoon", "cello", "chair",
 "check", "cheerful", "cheese", "chilly", "chorus", "chummy", "city", "classy",
 "clean", "clever", "clock", "cloudy", "clumsy", "coat", "coconut", "coffee",
-"comet", "content", "cool", "country", "cow", "cream", "crispy", "crown",
+"comet", "content", "cool", "cosmic", "country", "cow", "cream", "crispy", "crown",
 "curly", "curtain",
 "daily", "daisy", "damp", "darken", "data", "deep", "deer", "degree",
 "desert", "desk", "diamond", "dirt", "dizzy", "dog", "doll", "domain",
