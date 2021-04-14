@@ -289,13 +289,14 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *wordlist[] =
 { 
-"absent", "absurd", "acre", "adorable", "advice", "agency", "ago", "airplane",
-"album", "anchor", "ancient", "apple", "aquatic", "author", "away",
+"absent", "absurd", "acre", "ad", "adorable", "advice", "agency", "ago",
+"airplane", "album", "anchor", "ancient", "apple", "aquatic", "author",
+"away",
 "bakery", "ball", "balloon", "banana", "barrel", "basic", "basket", "bench",
 "berry", "better", "bike", "bird", "black", "blue", "boat", "bold",
 "bolt", "book", "boot", "botany", "bowl", "box", "brain", "brave",
-"bread", "breeze", "breezy", "brew", "bridge", "bright", "bubble", "bug",
-"bunny", "butter",
+"bread", "breeze", "breezy", "brew", "bridge", "brief", "bright", "bubble",
+"bug", "bunny", "butter",
 "calm", "camera", "canoe", "car", "carrot", "cartoon", "cello", "chair",
 "check", "cheerful", "cheese", "chilly", "chorus", "chummy", "city", "classy",
 "clean", "clever", "clock", "cloudy", "clumsy", "coat", "coconut", "coffee",
