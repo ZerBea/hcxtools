@@ -365,7 +365,6 @@ for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
 	{
 	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
 		{
-		if(ca == cs) continue;
 		for (cn = 0; cn < 1000; cn++)
 			{
 			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", wordlist[ca], wordlist[cs], cn);
@@ -377,7 +376,6 @@ for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
 	{
 	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
 		{
-		if(ca == cs) continue;
 		for (cn = 0; cn < 100; cn++)
 			{
 			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%02d", wordlist[ca], wordlist[cs], cn);
@@ -389,7 +387,6 @@ for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
 	{
 	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
 		{
-		if(ca == cs) continue;
 		for (cn = 0; cn < 10; cn++)
 			{
 			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%d", wordlist[ca], wordlist[cs], cn);
@@ -401,7 +398,6 @@ for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
 	{
 	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
 		{
-		if(ca == cs) continue;
 		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s", wordlist[ca], wordlist[cs]);
 		fprintf(fhout,"%s\n", pskstring);
 		}
