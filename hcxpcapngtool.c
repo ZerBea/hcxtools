@@ -4561,7 +4561,7 @@ static int csn, csc, pn;
 static int padding;
 static option_header_t *option;
 
-while(0 <= restlen)
+while(0 < restlen)
 	{
 	option = (option_header_t*)optr;
 	#ifdef BIG_ENDIAN_HOST
@@ -4969,7 +4969,7 @@ while(1)
 		rawpacketcount++;
 		processlinktype(timestamppcapng, dltlinktype[pcapngepb->interface_id], pcapngepb->caplen, pcapngepb->data);
 		padding = 0;
-		if((pcapngepb->caplen %4)) padding = 4 -(pcapngepb->caplen %4);
+		if((pcapngepb->caplen %4) != 0) padding = 4 -(pcapngepb->caplen %4);
 		if(pcapngoptionwalk(blocktype, pcapngepb->data +pcapngepb->caplen +padding, blocklen -EPB_SIZE -pcapngepb->caplen -padding) != 0) pcapreaderrors++;
 		}
 	else if(blocktype == CBID)
