@@ -2048,6 +2048,8 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	{
 	if(donotcleanflag == false)
 		{
+		if(memcmp(&mac_broadcast, zeigerhs->client, 6) == 0) continue;
+		if(memcmp(&mac_broadcast, zeigerhs->ap, 6) == 0) continue;
 		if(zeigerhsold != NULL)
 			{
 			if((memcmp(zeigerhs->ap, zeigerhsold->ap, 6) == 0) && (memcmp(zeigerhs->client, zeigerhsold->client, 6) == 0))
@@ -2199,6 +2201,8 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 	{
 	if(donotcleanflag == false)
 		{
+		if(memcmp(&mac_broadcast, zeigerpmkid->client, 6) == 0) continue;
+		if(memcmp(&mac_broadcast, zeigerpmkid->ap, 6) == 0) continue;
 		if(zeigerpmkidold != NULL)
 			{
 			if((memcmp(zeigerpmkid->ap, zeigerpmkidold->ap, 6) == 0) && (memcmp(zeigerpmkid->client, zeigerpmkidold->client, 6) == 0)) continue;
