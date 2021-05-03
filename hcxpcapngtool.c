@@ -5119,13 +5119,13 @@ static char *ptr;
 ptr = buffer +len -1;
 while(len)
 	{
-	if (*ptr != '\n') break;
+	if(*ptr != '\n') break;
 	*ptr-- = 0;
 	len--;
 	}
 while(len)
 	{
-	if (*ptr != '\r') break;
+	if(*ptr != '\r') break;
 	*ptr-- = 0;
 	len--;
 	}
