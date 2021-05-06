@@ -115,6 +115,8 @@ Requirements
 
 To install requirements on Kali use the following 'apt-get install pkg-config libcurl4-openssl-dev libssl-dev zlib1g-dev'
 
+If you decide to compile latest git head, make sure that your distribution is updated on latest version.
+
 
 Useful scripts
 --------------
