@@ -1,3 +1,9 @@
+12.05.2021
+==========
+hcxpasktool: added new option to print only candidates based on ACCESS POINT MAC
+--maconly     : print only candidates based on ACCESS POINT MAC
+
+
 17.03.2021
 ==========
 hcxhastool: added new option to use an exclude MAC filter list

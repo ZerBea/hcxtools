@@ -40,6 +40,7 @@ static bool egnflag;
 static bool eudateflag;
 static bool hb5flag;
 static bool netgearflag;
+static bool maconlyflag;
 static bool phomeflag;
 static bool podaflag;
 static bool tendaflag;
@@ -77,6 +78,7 @@ static char upperpskstring[PSKSTRING_LEN_MAX] = {};
 
 l = strlen(pskstring);
 if((l < 8) || (l > PSKSTRING_LEN_MAX)) return;
+fprintf(fhout,"%s\n", pskstring);
 for(p = 0; p < l; p++)
 	{
 	if(islower(pskstring[p]))
@@ -92,7 +94,8 @@ for(p = 0; p < l; p++)
 		}
 	else lowerpskstring[p] = pskstring[p];
 	}
-fprintf(fhout,"%s\n", pskstring);
+upperpskstring[p] = 0;
+lowerpskstring[p] = 0;
 if(uflag == true) fprintf(fhout,"%s\n", upperpskstring);
 if(lflag == true) fprintf(fhout,"%s\n", lowerpskstring);
 if((lowerpskstring[0] >= 'a') && (lowerpskstring[0] <= 'z'))
@@ -2087,11 +2090,11 @@ static int swap;
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 oui = macaddr &0xffffff000000L;
-nic = (macaddr &0xffffffL) -8;
+nic = (macaddr &0xffffffL) -0x0f;
 for(c = 0; c < 0x10; c++) writebssid(fhout, oui +nic +c);
 swap = (nic >> 8) & 0xffff;
 	{
-	swap = (swap & 0xf000) >> 12 | (swap & 0x0f00) >> 4 | (swap & 0x00f0) << 4 |  (swap & 0x000f) << 12;
+	swap = (swap & 0xf000) >> 12 | (swap & 0x0f00) >> 4 | (swap & 0x00f0) << 4 | (swap & 0x000f) << 12;
 	snprintf(pskstring, PSKSTRING_LEN_MAX, "000000%04X", swap);
 	fprintf(fhout, "%s\n", pskstring);
 	}
@@ -2527,6 +2530,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
+	"--maconly     : print only candidates based on ACCESS POINT MAC\n"
 	"--netgear     : include weak NETGEAR / ORBI / NTGR_VMB candidates\n"
 	"--askeyarris  : include weak MySpectrumWiFI / SpectrumSetup / MyCharterWiFI candidates\n"
 	"                list will be > 3GB\n"
@@ -2584,6 +2588,7 @@ eeflag = false;
 egnflag = false;
 eudateflag = false;
 hb5flag = false;
+maconlyflag = false;
 netgearflag = false;
 phomeflag = false;
 podaflag = false;
@@ -2596,6 +2601,7 @@ wpskeysflag = false;
 static const char *short_options = "c:i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
+	{"maconly",			no_argument,		NULL,	HCXD_MACONLY},
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
 	{"askeyarris",			no_argument,		NULL,	HCXD_ASKEYARRIS},
 	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
@@ -2620,6 +2626,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	{
 	switch (auswahl)
 		{
+		case HCXD_MACONLY:
+		maconlyflag = true;
+		break;
+
 		case HCXD_NETGEAR:
 		netgearflag = true;
 		break;
@@ -2757,16 +2767,22 @@ if(pskname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	processbssids(fhpsk);
-	processessids(fhpsk);
-	processbssidsessids(fhpsk);
-	processadditionals(fhpsk);
+	if(maconlyflag == false)
+		{
+		processessids(fhpsk);
+		processbssidsessids(fhpsk);
+		processadditionals(fhpsk);
+		}
 	}
 else
 	{
 	processbssids(stdout);
-	processessids(stdout);
-	processbssidsessids(stdout);
-	processadditionals(stdout);
+	if(maconlyflag == false)
+		{
+		processessids(stdout);
+		processbssidsessids(stdout);
+		processadditionals(stdout);
+		}
 	}
 
 
