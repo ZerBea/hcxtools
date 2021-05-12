@@ -2090,7 +2090,7 @@ static int swap;
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 oui = macaddr &0xffffff000000L;
-nic = (macaddr &0xffffffL) -0x0f;
+nic = (macaddr -0x0f) &0xffffffL;
 for(c = 0; c < 0x10; c++) writebssid(fhout, oui +nic +c);
 swap = (nic >> 8) & 0xffff;
 	{
