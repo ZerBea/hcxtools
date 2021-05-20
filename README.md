@@ -59,7 +59,7 @@ Detailed description
 Work flow
 --------------
 
-hcxdumptool -> hcxpcapngtool -> hcxpsktool/hcxhashtool -> hashcat or JtR
+hcxdumptool -> hcxpcapngtool -> hcxhashtool (additional hcxpsktool/hcxeiutool) -> hashcat or JtR
 
 hcxdumptool: attack and capture everything (depending on options)
 
@@ -68,6 +68,8 @@ hcxpcapngtool: convert everything
 hcxhashtool: filter hashes
 
 hcxpsktool: get weak PSK candidates
+
+hcxeiutool: calculate wordlists from ESSID
  
 hashcat or JtR: get PSK from hash
 
