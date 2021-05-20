@@ -61,7 +61,7 @@ Work flow
 
 hcxdumptool -> hcxpcapngtool -> hcxpsktool/hcxhashtool -> hashcat or JtR
 
-hcxdumptool: attack and capture everything
+hcxdumptool: attack and capture everything (depending on options)
 
 hcxpcapngtool: convert everything
 
