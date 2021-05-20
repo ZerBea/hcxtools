@@ -56,6 +56,22 @@ Detailed description
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |
 
 
+Work flow
+--------------
+
+hcxdumptool -> hcxpcapngtool -> hcxpsktool/hcxhashtool -> hashcat or JtR
+
+hcxdumptool: attack and capture everything
+
+hcxpcapngtool: convert everything
+
+hcxhashtool: filter hashes
+
+hcxpsktool: get weak PSK candidates
+ 
+hashcat or JtR: get PSK from hash
+
+
 Get source
 --------------
 ```
