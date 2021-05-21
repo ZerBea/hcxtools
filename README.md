@@ -12,8 +12,9 @@ Support for hashcat hash-modes: 4800, 5500, 2200x, 16100, 250x (deprecated), 168
   
 Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm, tacacs-plus
 
-After capturing, upload the "uncleaned" cap here (https://wpa-sec.stanev.org/?submit)
+After capturing, upload the "uncleaned" dump file (pcapng, pcap, cap) here https://wpa-sec.stanev.org/?submit
 to see if your ap or the client is vulnerable by using common wordlists.
+To reduce dump file size, gzip (.gz) compression is supported.
 Convert the dump file to WPA-PBKDF2-PMKID+EAPOL hash file and check if wlan-key
 or plainmasterkey was transmitted unencrypted.
 
