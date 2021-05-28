@@ -1860,7 +1860,6 @@ if(essidlen < 9) return;
 if(memcmp(&essid[essidlen -9], x2g, 2) != 0) return;
 if((!isdigit(essid[essidlen -1])) || (!isdigit(essid[essidlen -2])) || (!isdigit(essid[essidlen -3])) || (!isdigit(essid[essidlen -4])) || (!isdigit(essid[essidlen -5])) || (!isdigit(essid[essidlen -6]))) return;
 for(k = 0; k < 0x100; k++) fprintf(fhout, "%02X%s\n", k, &essid[essidlen -6]);
-exit(EXIT_FAILURE);
 return;
 }
 /*===========================================================================*/
