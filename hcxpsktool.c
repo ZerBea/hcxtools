@@ -41,6 +41,7 @@ static bool eudateflag;
 static bool hb5flag;
 static bool netgearflag;
 static bool maconlyflag;
+static bool noessidcombinationflag;
 static bool phomeflag;
 static bool podaflag;
 static bool tendaflag;
@@ -1850,12 +1851,26 @@ for(k2 = 0; k2 < 10; k2++)
 return;
 }
 /*===========================================================================*/
+static void testx2g(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k;
+static char *x2g = "_2G";
+
+if(essidlen < 9) return;
+if(memcmp(&essid[essidlen -9], x2g, 2) != 0) return;
+if((!isdigit(essid[essidlen -1])) || (!isdigit(essid[essidlen -2])) || (!isdigit(essid[essidlen -3])) || (!isdigit(essid[essidlen -4])) || (!isdigit(essid[essidlen -5])) || (!isdigit(essid[essidlen -6]))) return;
+for(k = 0; k < 0x100; k++) fprintf(fhout, "%02X%s\n", k, &essid[essidlen -6]);
+exit(EXIT_FAILURE);
+return;
+}
+/*===========================================================================*/
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if((essidlen == 0) || (essidlen > 32)) return;
+testx2g(fhout, essidlen, essid);
 testairtel(fhout, essidlen, essid);
 testalcatellinkzone(fhout, essidlen, essid);
 testarrisizzi(fhout, essidlen, essid);
@@ -1879,6 +1894,7 @@ testukrtelecom(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 testwlan(fhout, essidlen, essid);
 
+if(noessidcombinationflag == true) return;
 writeessidsweeped(fhout, essidlen, essid);
 po = 0;
 memset(&essidtmp, 0, PSKSTRING_LEN_MAX);
@@ -2530,23 +2546,24 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
-	"--maconly     : print only candidates based on ACCESS POINT MAC\n"
-	"--netgear     : include weak NETGEAR / ORBI / NTGR_VMB candidates\n"
-	"--askeyarris  : include weak MySpectrumWiFI / SpectrumSetup / MyCharterWiFI candidates\n"
-	"                list will be > 3GB\n"
-	"--digit10     : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
-	"                list will be > 1GB\n"
-	"--phome       : include weak PEGATRON HOME candidates\n"
-	"--tenda       : include weak TENDA candidates\n"
-	"--ee          : include weak EE BrightBox candidates\n"
-	"                list will be > 3GB\n"
-	"--weakpass    : include weak password candidates\n"
-	"--eudate      : include complete european dates\n"
-	"--usdate      : include complete american dates\n"
-	"--wpskeys     : include complete WPS keys\n"
-	"--egn         : include Bulgarian EGN\n"
-	"--help        : show this help\n"
-	"--version     : show version\n"
+	"--maconly           : print only candidates based on ACCESS POINT MAC\n"
+	"--noessidcombination: exclude ESSID combinations\n"
+	"--netgear           : include weak NETGEAR / ORBI / NTGR_VMB candidates\n"
+	"--askeyarris        : include weak MySpectrumWiFI / SpectrumSetup / MyCharterWiFI candidates\n"
+	"                      list will be > 3GB\n"
+	"--digit10           : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
+	"                      list will be > 1GB\n"
+	"--phome             : include weak PEGATRON HOME candidates\n"
+	"--tenda             : include weak TENDA candidates\n"
+	"--ee                : include weak EE BrightBox candidates\n"
+	"                      list will be > 3GB\n"
+	"--weakpass          : include weak password candidates\n"
+	"--eudate            : include complete european dates\n"
+	"--usdate            : include complete american dates\n"
+	"--wpskeys           : include complete WPS keys\n"
+	"--egn               : include Bulgarian EGN\n"
+	"--help              : show this help\n"
+	"--version           : show version\n"
 	"\n"
 	"if hcxpsktool recovered your password, you should change it immediately!\n"
 	"\n"
@@ -2589,6 +2606,7 @@ egnflag = false;
 eudateflag = false;
 hb5flag = false;
 maconlyflag = false;
+noessidcombinationflag = false;
 netgearflag = false;
 phomeflag = false;
 podaflag = false;
@@ -2602,6 +2620,7 @@ static const char *short_options = "c:i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
 {
 	{"maconly",			no_argument,		NULL,	HCXD_MACONLY},
+	{"noessidcombination",		no_argument,		NULL,	HCXD_NOESSIDCOMBINATION},
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
 	{"askeyarris",			no_argument,		NULL,	HCXD_ASKEYARRIS},
 	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
@@ -2632,6 +2651,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_NETGEAR:
 		netgearflag = true;
+		break;
+
+		case HCXD_NOESSIDCOMBINATION:
+		noessidcombinationflag = true;
 		break;
 
 		case HCXD_ASKEYARRIS:
