@@ -921,6 +921,9 @@ latitude = 0;
 longitude = 0;
 ew = 0;
 ns = 0;
+
+double latm, lonm;
+
 if(memcmp(&gprmc, nmeasentence, 6) == 0)
 	{
 	while((nmeasentence[p] != 0) && (c < 2))
@@ -929,12 +932,16 @@ if(memcmp(&gprmc, nmeasentence, 6) == 0)
 		p++;
 		}
 	sscanf(&nmeasentence[p],"%f,%c,%f,%c", &latitude, &ew, &longitude, &ns);
+	latm = ((int)latitude) /100 + (((int)latitude) %100 +latitude -(int)latitude)/60;
+	lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
+	if(ew == 'W') latm =-latm;
+	if(ns == 'S') lonm =-lonm;
 	if((latitude == 0) || (longitude == 0) || (ew == 0) || (ns == 0))
 		{
 		fprintf(fh_csv, "\n");
 		return;
 		}
-	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\n", latitude, ew, longitude, ns);
+	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\n", latitude, ew, longitude, ns, latm, lonm);
 	return;
 	}
 if(memcmp(&gpgga, nmeasentence, 6) == 0)
@@ -945,12 +952,16 @@ if(memcmp(&gpgga, nmeasentence, 6) == 0)
 		p++;
 		}
 	sscanf(&nmeasentence[p],"%f,%c,%f,%c", &latitude, &ew, &longitude, &ns);
+	latm = ((int)latitude) /100 + (((int)latitude) %100 +latitude -(int)latitude)/60;
+	lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
+	if(ew == 'W') latm =-latm;
+	if(ns == 'S') lonm =-lonm;
 	if((latitude == 0) || (longitude == 0) || (ew == 0) || (ns == 0))
 		{
 		fprintf(fh_csv, "\n");
 		return;
 		}
-	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\n", latitude, ew, longitude, ns);
+	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\n", latitude, ew, longitude, ns, latm, lonm);
 	return;
 	}
 return;
@@ -5398,7 +5409,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--csv=<file>                       : output ACCESS POINT information in CSV format\n"
 	"                                     delimiter: tabulator (0x08)\n"
 	"                                     columns:\n"
-	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI NMEA (if available)\n"
+	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI GPD(DM.m) GPS(D.d)\n"
 	"                                     to convert it to other formats, use bash tools or scripting languages\n"
 	"--log=<file>                       : output logfile\n"
 	"--raw-out=<file>                   : output frames in HEX ASCII\n"
