@@ -4196,16 +4196,21 @@ if((pf %8) != 0) pf +=4;
 if((rth->it_present & IEEE80211_RADIOTAP_TSFT) == IEEE80211_RADIOTAP_TSFT) pf += 8;
 if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS) pf += 1;
 if((rth->it_present & IEEE80211_RADIOTAP_RATE) == IEEE80211_RADIOTAP_RATE) pf += 1;
-if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL) pf += 4;
+if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	{
-	frequency = (capptr[pf -3] << 8) + capptr[pf -4];
+	if(pf > caplen) return;
+	frequency = (capptr[pf +1] << 8) + capptr[pf];
 	if((frequency >= 2407) && (frequency <= 2474)) interfacechannel = (frequency -2407)/5;
 	else if((frequency >= 2481) && (frequency <= 2487)) interfacechannel = (frequency -2412)/5;
 	else if((frequency >= 5150) && (frequency <= 5875)) interfacechannel = (frequency -5000)/5;
+	pf += 4;
 	}
 if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS) pf += 2;
-if(pf > caplen) return;
-rssi = capptr[pf];
+if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) == IEEE80211_RADIOTAP_DBM_ANTSIGNAL)
+	{
+	if(pf > caplen) return;
+	rssi = capptr[pf];
+	}
 return;
 }
 /*===========================================================================*/
