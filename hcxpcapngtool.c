@@ -307,7 +307,8 @@ static const uint8_t fakenonce2[] =
 0x75, 0x1f, 0x53, 0xcc, 0xb5, 0x81, 0xd1, 0x52, 0x3b, 0xb4, 0xba, 0xad, 0x23, 0xab, 0x01, 0x07
 };
 
-static char rssi;
+static int rssi;
+static int interfacechannel;
 static uint8_t myaktap[6];
 static uint8_t myaktclient[6];
 static uint8_t myaktanonce[32];
@@ -903,6 +904,10 @@ fprintf(fh_csv, "\t");
 if((tags->country[0] >= 'A') && (tags->country[0] <= 'Z') && (tags->country[1] >= 'A') && (tags->country[1] <= 'Z')) fprintf(fh_csv,"%c%c", tags->country[0], tags->country[1]);
 fprintf(fh_csv, "\t");
 if(tags->channel != 0) fprintf(fh_csv,"%d", tags->channel);
+else if(interfacechannel != 0)
+	{
+	fprintf(fh_csv,"%d", interfacechannel);
+	}
 fprintf(fh_csv, "\t");
 if(rssi != 0) fprintf(fh_csv, "%d", rssi);
 if(nmealen < 48)
@@ -4168,9 +4173,12 @@ static int i;
 static uint16_t pf;
 static rth_t *rth;
 static uint32_t *pp;
+static uint16_t frequency;
 
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
+rssi = 0;
+interfacechannel = 0;
 if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) != IEEE80211_RADIOTAP_DBM_ANTSIGNAL) return;
 if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
 	{
@@ -4189,6 +4197,12 @@ if((rth->it_present & IEEE80211_RADIOTAP_TSFT) == IEEE80211_RADIOTAP_TSFT) pf +=
 if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS) pf += 1;
 if((rth->it_present & IEEE80211_RADIOTAP_RATE) == IEEE80211_RADIOTAP_RATE) pf += 1;
 if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL) pf += 4;
+	{
+	frequency = (capptr[pf -3] << 8) + capptr[pf -4];
+	if((frequency >= 2407) && (frequency <= 2474)) interfacechannel = (frequency -2407)/5;
+	else if((frequency >= 2481) && (frequency <= 2487)) interfacechannel = (frequency -2412)/5;
+	else if((frequency >= 5150) && (frequency <= 5875)) interfacechannel = (frequency -5000)/5;
+	}
 if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS) pf += 2;
 if(pf > caplen) return;
 rssi = capptr[pf];
