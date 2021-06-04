@@ -903,8 +903,8 @@ if((tags->akm & TAK_SAE_SHA384B) == TAK_SAE_SHA384B) fprintf(fh_csv, "[SAE_SHA38
 if((tags->akm & TAK_AP_PKA) == TAK_AP_PKA) fprintf(fh_csv, "[AP_PKA]");
 if((tags->akm & TAK_OWE) == TAK_OWE) fprintf(fh_csv, "[OWE]");
 fprintf(fh_csv, "\t");
-if((tags->country[0] >= 'A') && (tags->country[0] <= 'Z') && (tags->country[1] >= 'A') && (tags->country[1] <= 'Z')) fprintf(fh_csv,"%c%c", tags->country[0], tags->country[1]);
-fprintf(fh_csv, "\t");
+if((tags->country[0] >= 'A') && (tags->country[0] <= 'Z') && (tags->country[1] >= 'A') && (tags->country[1] <= 'Z')) fprintf(fh_csv,"%c%c\t", tags->country[0], tags->country[1]);
+else fprintf(fh_csv,"00\t");
 if(tags->channel != 0) fprintf(fh_csv,"%d", tags->channel);
 else if(interfacechannel != 0)
 	{
