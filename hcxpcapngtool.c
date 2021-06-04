@@ -862,6 +862,7 @@ static struct timeval tvo;
 static float latitude;
 static char ew;
 static float longitude;
+static float latm, lonm;
 static char ns;
 static const char gpgga[] = "$GPGGA";
 static const char gprmc[] = "$GPRMC";
@@ -919,11 +920,10 @@ p = 7;
 c = 0;
 latitude = 0;
 longitude = 0;
-ew = 0;
-ns = 0;
-
-double latm, lonm;
-
+ew = 'E';
+ns = 'S';
+latm = 0;
+lonm = 0;
 if(memcmp(&gprmc, nmeasentence, 6) == 0)
 	{
 	while((nmeasentence[p] != 0) && (c < 2))
@@ -932,15 +932,10 @@ if(memcmp(&gprmc, nmeasentence, 6) == 0)
 		p++;
 		}
 	sscanf(&nmeasentence[p],"%f,%c,%f,%c", &latitude, &ew, &longitude, &ns);
-	latm = ((int)latitude) /100 + (((int)latitude) %100 +latitude -(int)latitude)/60;
-	lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
+	if(latitude != 0) latm = ((int)latitude) /100 + (((int)latitude) %100 +latitude -(int)latitude)/60;
+	if(longitude != 0) lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
 	if(ew == 'W') latm =-latm;
 	if(ns == 'S') lonm =-lonm;
-	if((latitude == 0) || (longitude == 0) || (ew == 0) || (ns == 0))
-		{
-		fprintf(fh_csv, "\n");
-		return;
-		}
 	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\n", latitude, ew, longitude, ns, latm, lonm);
 	return;
 	}
@@ -952,15 +947,10 @@ if(memcmp(&gpgga, nmeasentence, 6) == 0)
 		p++;
 		}
 	sscanf(&nmeasentence[p],"%f,%c,%f,%c", &latitude, &ew, &longitude, &ns);
-	latm = ((int)latitude) /100 + (((int)latitude) %100 +latitude -(int)latitude)/60;
-	lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
+	if(latitude != 0) latm = ((int)latitude) /100 + (((int)latitude) %100 +latitude -(int)latitude)/60;
+	if(longitude != 0) lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
 	if(ew == 'W') latm =-latm;
 	if(ns == 'S') lonm =-lonm;
-	if((latitude == 0) || (longitude == 0) || (ew == 0) || (ns == 0))
-		{
-		fprintf(fh_csv, "\n");
-		return;
-		}
 	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\n", latitude, ew, longitude, ns, latm, lonm);
 	return;
 	}
