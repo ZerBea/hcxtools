@@ -914,7 +914,7 @@ fprintf(fh_csv, "\t");
 if(rssi != 0) fprintf(fh_csv, "%d", rssi);
 if(nmealen < 48)
 	{
-	fprintf(fh_csv, "\n");
+	fprintf(fh_csv, "\t\t\t\t\t\t\t\n");
 	return;
 	}
 p = 7;
