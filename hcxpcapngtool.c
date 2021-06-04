@@ -905,16 +905,12 @@ if((tags->akm & TAK_OWE) == TAK_OWE) fprintf(fh_csv, "[OWE]");
 fprintf(fh_csv, "\t");
 if((tags->country[0] >= 'A') && (tags->country[0] <= 'Z') && (tags->country[1] >= 'A') && (tags->country[1] <= 'Z')) fprintf(fh_csv,"%c%c\t", tags->country[0], tags->country[1]);
 else fprintf(fh_csv,"00\t");
-if(tags->channel != 0) fprintf(fh_csv,"%d", tags->channel);
-else if(interfacechannel != 0)
-	{
-	fprintf(fh_csv,"%d", interfacechannel);
-	}
-fprintf(fh_csv, "\t");
-if(rssi != 0) fprintf(fh_csv, "%d", rssi);
+if(tags->channel != 0) fprintf(fh_csv,"%d\t", tags->channel);
+else fprintf(fh_csv,"%d\t", interfacechannel);
+fprintf(fh_csv, "%d\t", rssi);
 if(nmealen < 48)
 	{
-	fprintf(fh_csv, "\t\t\t\t\t\t\t\n");
+	fprintf(fh_csv, "\t\t\t\t\t\t\n");
 	return;
 	}
 p = 7;
@@ -938,7 +934,7 @@ if(memcmp(&gprmc, nmeasentence, 6) == 0)
 	if(longitude != 0) lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
 	if(ew == 'W') latm =-latm;
 	if(ns == 'S') lonm =-lonm;
-	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\t%d\n", latitude, ew, longitude, ns, latm, lonm, fix);
+	fprintf(fh_csv, "%f\t%c\t%f\t%c\t%f\t%f\t%d\n", latitude, ew, longitude, ns, latm, lonm, fix);
 	return;
 	}
 if(memcmp(&gpgga, nmeasentence, 6) == 0)
@@ -953,7 +949,7 @@ if(memcmp(&gpgga, nmeasentence, 6) == 0)
 	if(longitude != 0) lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
 	if(ew == 'W') latm =-latm;
 	if(ns == 'S') lonm =-lonm;
-	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\t%d\n", latitude, ew, longitude, ns, latm, lonm, fix);
+	fprintf(fh_csv, "%f\t%c\t%f\t%c\t%f\t%f\t%d\n", latitude, ew, longitude, ns, latm, lonm, fix);
 	return;
 	}
 return;
