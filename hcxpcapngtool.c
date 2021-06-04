@@ -863,6 +863,7 @@ static float latitude;
 static char ew;
 static float longitude;
 static float latm, lonm;
+static int fix;
 static char ns;
 static const char gpgga[] = "$GPGGA";
 static const char gprmc[] = "$GPRMC";
@@ -924,6 +925,7 @@ ew = 'E';
 ns = 'S';
 latm = 0;
 lonm = 0;
+fix = 0;
 if(memcmp(&gprmc, nmeasentence, 6) == 0)
 	{
 	while((nmeasentence[p] != 0) && (c < 2))
@@ -936,7 +938,7 @@ if(memcmp(&gprmc, nmeasentence, 6) == 0)
 	if(longitude != 0) lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
 	if(ew == 'W') latm =-latm;
 	if(ns == 'S') lonm =-lonm;
-	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\n", latitude, ew, longitude, ns, latm, lonm);
+	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\t%d\n", latitude, ew, longitude, ns, latm, lonm, fix);
 	return;
 	}
 if(memcmp(&gpgga, nmeasentence, 6) == 0)
@@ -946,12 +948,12 @@ if(memcmp(&gpgga, nmeasentence, 6) == 0)
 		if(nmeasentence[p] == ',') c++;
 		p++;
 		}
-	sscanf(&nmeasentence[p],"%f,%c,%f,%c", &latitude, &ew, &longitude, &ns);
+	sscanf(&nmeasentence[p],"%f,%c,%f,%c,%d", &latitude, &ew, &longitude, &ns, &fix);
 	if(latitude != 0) latm = ((int)latitude) /100 + (((int)latitude) %100 +latitude -(int)latitude)/60;
 	if(longitude != 0) lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
 	if(ew == 'W') latm =-latm;
 	if(ns == 'S') lonm =-lonm;
-	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\n", latitude, ew, longitude, ns, latm, lonm);
+	fprintf(fh_csv, "\t%f\t%c\t%f\t%c\t%f\t%f\t%d\n", latitude, ew, longitude, ns, latm, lonm, fix);
 	return;
 	}
 return;
@@ -5399,8 +5401,16 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--csv=<file>                       : output ACCESS POINT information in CSV format\n"
 	"                                     delimiter: tabulator (0x08)\n"
 	"                                     columns:\n"
-	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI GPS(DM.m) GPS(D.d)\n"
+	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI GPS(DM.m) GPS(D.d) GPSFIX\n"
 	"                                     to convert it to other formats, use bash tools or scripting languages\n"
+	"                                     GPS FIX:\n"
+	"                                     0 = fix not available or invalid\n"
+	"                                     1 = fix valid (GPS SPS mode)\n"
+	"                                     2 = fix valid (differential GPS SPS Mode)\n"
+	"                                     3 = not supported\n"
+	"                                     4 = not supported\n"
+	"                                     5 = not supported\n"
+	"                                     6 = fix valid (Dead Reckoning Mode)\n"
 	"--log=<file>                       : output logfile\n"
 	"--raw-out=<file>                   : output frames in HEX ASCII\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"

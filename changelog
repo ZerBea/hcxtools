@@ -1,3 +1,27 @@
+04.06.2021
+==========
+hcxpcapngtool: improved CSV output:
+--csv=<file>                       : output ACCESS POINT information in CSV format
+                                     delimiter: tabulator (0x08)
+                                     columns:
+                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI GPS(DM.m) GPS(D.d) GPSFIX
+                                     to convert it to other formats, use bash tools or scripting languages
+                                     GPS FIX:
+                                     0 = fix not available or invalid
+                                     1 = fix valid (GPS SPS mode)
+                                     2 = fix valid (differential GPS SPS Mode)
+                                     3 = not supported
+                                     4 = not supported
+                                     5 = not supported
+                                     6 = fix valid (Dead Reckoning Mode)
+
+
+28.05.2021
+==========
+hcxpsktool: added new option to use an exclude ESSID combinations
+--noessidcombination: exclude ESSID combinations
+
+
 17.05.2021
 ==========
 release v 6.2.0
