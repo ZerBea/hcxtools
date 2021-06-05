@@ -4176,8 +4176,6 @@ static uint16_t frequency;
 
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
-rssi = 0;
-interfacechannel = 0;
 if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) != IEEE80211_RADIOTAP_DBM_ANTSIGNAL) return;
 if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
 	{
@@ -4227,6 +4225,7 @@ static fcs_t *fcs;
 static uint32_t crc;
 
 rssi = 0;
+interfacechannel = 0;
 if(fh_raw_out != NULL)
 	{
 	cs = captimestamp &0xff;
