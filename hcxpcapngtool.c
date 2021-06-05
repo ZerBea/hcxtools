@@ -912,11 +912,6 @@ else fprintf(fh_csv,"00\t");
 if(tags->channel != 0) fprintf(fh_csv,"%d\t", tags->channel);
 else fprintf(fh_csv,"%d\t", interfacechannel);
 fprintf(fh_csv, "%d\t", rssi);
-if(nmealen < 48)
-	{
-	fprintf(fh_csv, "\t\t\t\t\t\t\n");
-	return;
-	}
 p = 7;
 c = 0;
 latitude = 0;
@@ -930,6 +925,11 @@ satcount = 0;
 hdop = 0;
 altitude = 0;
 altunit = 'M';
+if(nmealen < 48)
+	{
+	fprintf(fh_csv, "%f\t%c\t%f\t%c\t%f\t%f\t%d\t%d\t%f\t%f\t%c\n", latitude, ew, longitude, ns, latm, lonm, fix, satcount, hdop, altitude, altunit);
+	return;
+	}
 if(memcmp(&gpgga, nmeasentence, 6) == 0)
 	{
 	while((nmeasentence[p] != 0) && (c < 1))
