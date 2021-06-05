@@ -864,6 +864,10 @@ static char ew;
 static float longitude;
 static float latm, lonm;
 static int fix;
+static int satcount;
+static float hdop;
+static float altitude;
+static char altunit;
 static char ns;
 static const char gpgga[] = "$GPGGA";
 static const char gprmc[] = "$GPRMC";
@@ -922,6 +926,25 @@ ns = 'S';
 latm = 0;
 lonm = 0;
 fix = 0;
+satcount = 0;
+hdop = 0;
+altitude = 0;
+altunit = 'M';
+if(memcmp(&gpgga, nmeasentence, 6) == 0)
+	{
+	while((nmeasentence[p] != 0) && (c < 1))
+		{
+		if(nmeasentence[p] == ',') c++;
+		p++;
+		}
+	sscanf(&nmeasentence[p],"%f,%c,%f,%c,%d,%d,%f,%f,%c", &latitude, &ew, &longitude, &ns, &fix, &satcount, &hdop, &altitude, &altunit);
+	if(latitude != 0) latm = ((int)latitude) /100 + (((int)latitude) %100 +latitude -(int)latitude)/60;
+	if(longitude != 0) lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
+	if(ew == 'W') latm =-latm;
+	if(ns == 'S') lonm =-lonm;
+	fprintf(fh_csv, "%f\t%c\t%f\t%c\t%f\t%f\t%d\t%d\t%f\t%f\t%c\n", latitude, ew, longitude, ns, latm, lonm, fix, satcount, hdop, altitude, altunit);
+	return;
+	}
 if(memcmp(&gprmc, nmeasentence, 6) == 0)
 	{
 	while((nmeasentence[p] != 0) && (c < 2))
@@ -934,22 +957,7 @@ if(memcmp(&gprmc, nmeasentence, 6) == 0)
 	if(longitude != 0) lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
 	if(ew == 'W') latm =-latm;
 	if(ns == 'S') lonm =-lonm;
-	fprintf(fh_csv, "%f\t%c\t%f\t%c\t%f\t%f\t%d\n", latitude, ew, longitude, ns, latm, lonm, fix);
-	return;
-	}
-if(memcmp(&gpgga, nmeasentence, 6) == 0)
-	{
-	while((nmeasentence[p] != 0) && (c < 1))
-		{
-		if(nmeasentence[p] == ',') c++;
-		p++;
-		}
-	sscanf(&nmeasentence[p],"%f,%c,%f,%c,%d", &latitude, &ew, &longitude, &ns, &fix);
-	if(latitude != 0) latm = ((int)latitude) /100 + (((int)latitude) %100 +latitude -(int)latitude)/60;
-	if(longitude != 0) lonm = ((int)longitude) /100 + (((int)longitude) %100 +longitude -(int)longitude)/60;
-	if(ew == 'W') latm =-latm;
-	if(ns == 'S') lonm =-lonm;
-	fprintf(fh_csv, "%f\t%c\t%f\t%c\t%f\t%f\t%d\n", latitude, ew, longitude, ns, latm, lonm, fix);
+	fprintf(fh_csv, "%f\t%c\t%f\t%c\t%f\t%f\t%d\t%d\t%f\t%f\t%c\n", latitude, ew, longitude, ns, latm, lonm, fix, satcount, hdop, altitude, altunit);
 	return;
 	}
 return;
@@ -5396,7 +5404,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--csv=<file>                       : output ACCESS POINT information in CSV format\n"
 	"                                     delimiter: tabulator (0x08)\n"
 	"                                     columns:\n"
-	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI GPS(DM.m) GPS(D.d) GPSFIX\n"
+	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI GPS(DM.m) GPS(D.d) GPSFIX SATCOUNT HDOP ALTITUDE UNIT\n"
 	"                                     to convert it to other formats, use bash tools or scripting languages\n"
 	"                                     GPS FIX:\n"
 	"                                     0 = fix not available or invalid\n"
