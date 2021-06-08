@@ -294,7 +294,7 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 static const char *wordlist[] =
 { 
 "absent", "absurd", "acre", "ad", "adorable", "advice", "agency", "ago",
-"airplane", "album", "anchor", "ancient", "apple", "aquatic", "author",
+"airplane", "album", "anchor", "ancient", "angry", "apple", "aquatic", "author",
 "away",
 "bakery", "ball", "balloon", "banana", "barrel", "basic", "basket", "bench",
 "berry", "better", "bike", "bird", "black", "blue", "boat", "bold",
