@@ -487,13 +487,16 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 				optarg[p2] = optarg[p1];
 				p2++;
 				}
-			else
+			}
+		optarg[6] = 0;
+		for(p1 = 0; p1 < 6; p1++)
+			{
+			if(!isxdigit(optarg[p1]))
 				{
-				fprintf(stderr, "error wrong oui size %s (need eg. 11:22:33:44:55:aa or 112233)\n", optarg);
+				fprintf(stderr, "error wrong oui %s (need eg. 11:22:33:44:55:aa or 112233)\n", optarg);
 				exit(EXIT_FAILURE);
 				}
 			}
-		optarg[6] = 0;
 		oui = strtoull(optarg, NULL, 16);
 		mode = 'm';
 		break;
