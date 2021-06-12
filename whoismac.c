@@ -487,6 +487,11 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 				optarg[p2] = optarg[p1];
 				p2++;
 				}
+			else
+				{
+				fprintf(stderr, "error wrong oui size %s (need eg. 11:22:33:44:55:aa or 112233)\n", optarg);
+				exit(EXIT_FAILURE);
+				}
 			}
 		optarg[6] = 0;
 		oui = strtoull(optarg, NULL, 16);
