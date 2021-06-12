@@ -217,7 +217,7 @@ static const char *secondword[] =
 "ink", "iris",
 "jade", "jet", "jetcar", "jungle",
 "kangaroo", "kayak",
-"lake", "lightning", "lotus",
+"lake", "lightning", "link", "lotus",
 "mango", "mesa", "mint", "moon", "mountain",
 "nest",
 "oboe", "ocean", "octopus", "onion", "orchestra", "owl",
