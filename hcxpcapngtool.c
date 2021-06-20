@@ -5096,7 +5096,6 @@ if(fd_pcap == -1)
 	return false;
 	}
 magicnumber = getmagicnumber(fd_pcap);
-
 resseek = lseek(fd_pcap, 0L, SEEK_SET);
 if(resseek < 0)
 	{
@@ -5105,7 +5104,6 @@ if(resseek < 0)
 	if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", pcapinname);
 	return false;
 	}
-
 if(magicnumber == PCAPNGBLOCKTYPE)
 	{
 	if(initlists() == true)
@@ -5116,7 +5114,6 @@ if(magicnumber == PCAPNGBLOCKTYPE)
 		closelists();
 		}
 	}
-
 else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	{
 	if(magicnumber == PCAPMAGICNUMBERBE) endianess = 1;
@@ -5128,9 +5125,12 @@ else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 		closelists();
 		}
 	}
-
+else
+	{
+	printf("unsupported dump file format: %s\n", pcapinname);
+	return false;
+	}
 if(pcaptempnameptr != NULL) remove(pcaptempnameptr);
-
 return true;
 }
 /*===========================================================================*/
