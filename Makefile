@@ -19,6 +19,7 @@ CC		?= gcc
 CFLAGS		?= -O3 -Wall -Wextra
 CFLAGS		+= -std=gnu99
 DEFS		= -DVERSION_TAG=\"$(VERSION_TAG)\" -DVERSION_YEAR=\"$(VERSION_YEAR)\"
+DEFS		+= -DWANTZLIB
 
 INSTALL		?= install
 INSTFLAGS	=

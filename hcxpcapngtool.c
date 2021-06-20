@@ -5074,11 +5074,16 @@ static bool processcapfile(char *pcapinname)
 static int resseek;
 static uint32_t magicnumber;
 static char *pcapnameptr;
+#ifdef WANTZLIB
 static char *pcaptempnameptr;
 static char tmpoutname[PATH_MAX +1];
+#endif
 
+#ifdef WANTZLIB
 pcaptempnameptr = NULL;
+#endif
 pcapnameptr = pcapinname;
+#ifdef WANTZLIB
 if(testgzipfile(pcapinname) == true)
 	{
 	memset(&tmpoutname, 0, PATH_MAX);
@@ -5088,6 +5093,7 @@ if(testgzipfile(pcapinname) == true)
 	pcaptempnameptr = tmpoutname;
 	pcapnameptr = tmpoutname;
 	}
+#endif
 jtrbasenamedeprecated = pcapinname;
 fd_pcap = open(pcapnameptr, O_RDONLY);
 if(fd_pcap == -1)
@@ -5130,7 +5136,9 @@ else
 	printf("unsupported dump file format: %s\n", pcapinname);
 	return false;
 	}
+#ifdef WANTZLIB
 if(pcaptempnameptr != NULL) remove(pcaptempnameptr);
+#endif
 return true;
 }
 /*===========================================================================*/
