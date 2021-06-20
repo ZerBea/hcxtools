@@ -29,7 +29,7 @@
 
 static apessidl_t *apessidliste;
 static int apessidcount;
-static int thisyear;
+static unsigned int thisyear;
 
 static bool airtelflag;
 static bool askeyarrisflag;
@@ -718,7 +718,7 @@ return;
 static void keywriteweakpass(FILE *fhout)
 {
 static size_t w;
-static int y;
+static unsigned int y;
 
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 static const char *weakword[] =
@@ -795,7 +795,7 @@ return;
 /*===========================================================================*/
 static void keywriteeudate(FILE *fhout)
 {
-static int d ,m ,y;
+static unsigned int d, m, y;
 
 for(y = 1900; y <= thisyear; y++)
 	{
@@ -852,7 +852,7 @@ return;
 /*===========================================================================*/
 static void keywriteusdate(FILE *fhout)
 {
-static int d ,m ,y;
+static unsigned int d, m, y;
 
 for(y = 1900; y <= thisyear; y++)
 	{
@@ -909,7 +909,7 @@ return;
 /*===========================================================================*/
 static void keywriteyearyear(FILE *fhout)
 {
-static int y, y2, y3;
+static unsigned int y, y2, y3;
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 for(y = 1900; y <= thisyear; y++)
@@ -937,9 +937,9 @@ return;
 /*===========================================================================*/
 static void keywriteegn(FILE *fhout)
 {
-static int y, m, d, mc, i, j, c;
+static unsigned int y, m, d, mc, i, j, c;
 static char pskstring[PSKSTRING_LEN_MAX] = {};
-static int w[] = {2, 4, 8, 5, 10, 9, 7, 3, 6};
+static unsigned int w[] = {2, 4, 8, 5, 10, 9, 7, 3, 6};
 
 for(y = 1950; y <= thisyear; y++)
 	{
@@ -964,7 +964,7 @@ for(y = 1950; y <= thisyear; y++)
 				{
 				snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%02d%03d", y % 100, m + mc, d, i);
 				c = 0;
-				for (j = 0; j < 10; j++)
+				for (j = 0; j < 9; j++)
 					{
 					c += (pskstring[j] - 48) * w[j];
 					}
@@ -1030,7 +1030,7 @@ return;
 /*===========================================================================*/
 static void writeessidadd(FILE *fhout, char *essid)
 {
-static int c, d;
+static unsigned int c, d;
 static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = {};
 
 for(c = 22222; c <= 99999; c += 11111)
@@ -1690,7 +1690,7 @@ return;
 static void testrtk(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static const char *rtk =  "RTK-";
+static const char *rtk = "RTK-";
 
 if(essidlen == 10)
 	{
@@ -1716,8 +1716,8 @@ return;
 static void testtechnicolor(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static const char *tc8715d =  "TC8715D";
-static const char *tc8717t =  "TC8717T";
+static const char *tc8715d = "TC8715D";
+static const char *tc8717t = "TC8717T";
 
 if(essidlen >= 9)
 	{
