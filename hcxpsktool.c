@@ -942,40 +942,41 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 static int w[] = {2, 4, 8, 5, 10, 9, 7, 3, 6};
 
 for(y = 1950; y <= thisyear; y++)
-    {
-    if (y < 2000) mc = 0; else mc = 40;
-    for(m = 1; m <= 12; m++)
-        {
-        for(d = 1; d <= 31; d++)
-	        {
-	        if (m == 2)
-	        {
-	        if ((((y % 4 == 0) && (y % 100 != 0)) || (y % 400 == 0)))
-	            {
-	            if (d > 29) continue;
-	            } else {
-	            if (d > 28) continue;
-	            }
-	        }
-	        if ((m == 4 || m == 6 || m == 9 || m == 11) && d > 30) continue;
-
-	        for (i = 0; i < 1000; i++)
-	            {
-	            snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%02d%03d", y % 100, m + mc, d, i);
-	            c = 0;
-	            for (j = 0; j < 10; j++)
-	                {
-	                c += (pskstring[j] - 48) * w[j];
-	                }
-	            c %= 11;
-	            if (c == 10) c = 0;
-                pskstring[9] = c + 48;
-                pskstring[10] = 0;
-	            writepsk(fhout, pskstring);
-	            }
-	        }
-	    }
-    }
+	{
+	if (y < 2000) mc = 0; else mc = 40;
+	for(m = 1; m <= 12; m++)
+		{
+		for(d = 1; d <= 31; d++)
+			{
+			if (m == 2)
+				{
+				if ((((y % 4 == 0) && (y % 100 != 0)) || (y % 400 == 0)))
+					{
+					if (d > 29) continue;
+					}
+				else
+					{
+					if (d > 28) continue;
+					}
+				}
+			if ((m == 4 || m == 6 || m == 9 || m == 11) && d > 30) continue;
+			for (i = 0; i < 1000; i++)
+				{
+				snprintf(pskstring, PSKSTRING_LEN_MAX, "%02d%02d%02d%03d", y % 100, m + mc, d, i);
+				c = 0;
+				for (j = 0; j < 10; j++)
+					{
+					c += (pskstring[j] - 48) * w[j];
+					}
+				c %= 11;
+				if (c == 10) c = 0;
+				pskstring[9] = c + 48;
+				pskstring[10] = 0;
+				writepsk(fhout, pskstring);
+				}
+			}
+		}
+	}
 return;
 }
 /*===========================================================================*/
