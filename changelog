@@ -1,3 +1,8 @@
+20.06.2021
+==========
+Makefile: added compiler flag to disable zlib support
+
+
 04.06.2021
 ==========
 hcxpcapngtool: improved CSV output:
