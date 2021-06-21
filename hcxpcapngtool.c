@@ -788,7 +788,7 @@ if(malformedcount > 5)
 		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
 		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
 		"a bit error in the payload it can lead to unexpected results.\n"
-		"Please analyze the dump file with tshark or Wireshark.\n");
+		"Please analyze the dump file with tshark or Wireshark or make a better capture!\n");
 	}
 printf("\n");
 return;
