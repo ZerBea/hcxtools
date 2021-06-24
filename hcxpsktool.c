@@ -2565,13 +2565,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--help              : show this help\n"
 	"--version           : show version\n"
 	"\n"
-	"if hcxpsktool recovered your password, you should change it immediately!\n"
-	"\n"
-	"examples:\n"
-	"hcxpsktool -i hashfile.hccapx | sort | uniq | hashcat -m 2500 hashfile.hccapx\n"
-	"hcxpsktool -z hashfile.16800 | sort | uniq | hashcat -m 16800 hashfile.16800\n"
-	"hcxpsktool -z hashfile.16800 | sort | uniq | john --stdin --format=wpapsk-opencl hashfile.16800\n"
-	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
+	"if hcxpsktool recovered your password, you should change it immediately!\n\n",
+	eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
