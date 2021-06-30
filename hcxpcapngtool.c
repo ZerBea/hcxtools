@@ -747,7 +747,7 @@ if(eapolmsgtimestamperrorcount > 0)
 		"It prevent calculation of EAPOL TIMEOUT values.\n"
 		"That is a bug of the capturing tool.\n");
 	}
-if((deauthenticationcount +disassociationcount) > 100)
+if(((deauthenticationcount +disassociationcount) >= 100) && ((deauthenticationcount +disassociationcount) <= 10000))
 	{
 	printf("\nWarning: too many deauthentication/disassociation frames detected!\n"
 		"That can cause that an ACCESS POINT change channel, reset EAPOL TIMER,\n"
@@ -755,6 +755,15 @@ if((deauthenticationcount +disassociationcount) > 100)
 		"This could prevent to calculate a valid EAPOL MESSAGE PAIR\n"
 		"or to get a valid PMKID.\n");
 	}
+if((deauthenticationcount +disassociationcount) > 10000)
+	{
+	printf("\nWarning: excessive number of deauthentication/disassociation frames detected!\n"
+		"That can cause that an ACCESS POINT change channel, reset EAPOL TIMER,\n"
+		"renew ANONCE and set PMKID to zero.\n"
+		"This could prevent to calculate a valid EAPOL MESSAGE PAIR\n"
+		"or to get a valid PMKID.\n");
+	}
+
 if(proberequestcount == 0)
 	{
 	printf("\nWarning: missing frames!\n"
