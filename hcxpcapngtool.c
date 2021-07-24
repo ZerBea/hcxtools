@@ -4444,7 +4444,7 @@ process80211packet(captimestamp, packetlen, packetptr);
 return;
 }
 /*===========================================================================*/
-void processcap(int fd, char *pcaporgname, char *pcapinname)
+void processcap(int fd, char *eigenname, char *pcaporgname, char *pcapinname)
 {
 static unsigned int res;
 static off_t resseek;
@@ -4453,7 +4453,7 @@ static pcaprec_hdr_t pcaprhdr;
 static uint64_t timestampcap;
 static uint8_t packet[MAXPACPSNAPLEN];
 
-printf("reading from %s...\n", basename(pcapinname));
+printf("%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(pcapinname));
 iface = 1;
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
@@ -4739,7 +4739,7 @@ while(0 < restlen)
 return 0;
 }
 /*===========================================================================*/
-void processpcapng(int fd, char *pcaporgname, char *pcapinname)
+void processpcapng(int fd, char *eigenname, char *pcaporgname, char *pcapinname)
 {
 static unsigned int res;
 static off_t fdsize;
@@ -4762,7 +4762,7 @@ static int interfaceid[MAX_INTERFACE_ID];
 static uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 static uint8_t packet[MAXPACPSNAPLEN];
 
-printf("reading from %s...\n", basename(pcapinname));
+printf("%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(pcapinname));
 iface = 0;
 nmealen = 0;
 memset(&interfaceid, 0, sizeof(int) *MAX_INTERFACE_ID);
@@ -5078,7 +5078,7 @@ printcontentinfo();
 return;
 }
 /*===========================================================================*/
-static bool processcapfile(char *pcapinname)
+static bool processcapfile(char *eigenname, char *pcapinname)
 {
 static int resseek;
 static uint32_t magicnumber;
@@ -5123,7 +5123,7 @@ if(magicnumber == PCAPNGBLOCKTYPE)
 	{
 	if(initlists() == true)
 		{
-		processpcapng(fd_pcap, pcapinname, pcapnameptr);
+		processpcapng(fd_pcap, eigenname, pcapinname, pcapnameptr);
 		pcapngstat++;
 		close(fd_pcap);
 		closelists();
@@ -5134,7 +5134,7 @@ else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	if(magicnumber == PCAPMAGICNUMBERBE) endianess = 1;
 	if(initlists() == true)
 		{
-		processcap(fd_pcap, pcapinname, pcapnameptr);
+		processcap(fd_pcap, eigenname, pcapinname, pcapnameptr);
 		capstat++;
 		close(fd_pcap);
 		closelists();
@@ -6016,7 +6016,7 @@ if(hccapoutnamedeprecated != NULL)
 
 for(index = optind; index < argc; index++)
 	{
-	if(processcapfile(argv[index]) == false) exitcode = EXIT_FAILURE;
+	if(processcapfile(argv[0], argv[index]) == false) exitcode = EXIT_FAILURE;
 	}
 
 if(rawinname != NULL) processrawfile(rawinname);
