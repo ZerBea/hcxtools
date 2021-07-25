@@ -2102,8 +2102,11 @@ static int c;
 static unsigned long long int oui;
 static unsigned long long int nic;
 static int swap;
-
+static int me;
 static char pskstring[PSKSTRING_LEN_MAX] = {};
+
+me = macaddr &0xffffff;
+fprintf(fhout, "05%6d\n", me);
 
 oui = macaddr &0xffffff000000L;
 nic = (macaddr -0x0f) &0xffffffL;
