@@ -2334,7 +2334,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		hashtypein |= strtol(optarg, NULL, 10);
 		if((hashtypein < HCX_TYPE_PMKID) || (hashtypein > (HCX_TYPE_PMKID + HCX_TYPE_EAPOL)))
 			{
-			fprintf(stderr, "only hash types 1 and 2 allowed\n");
+			fprintf(stderr, "only hash types 1 and 2 allowed (values 1, 2 or 3)\n");
 			exit(EXIT_FAILURE);
 			}
 		break;
