@@ -209,7 +209,7 @@ static const char *secondword[] =
 "brain", "breeze", "bug", "butter",
 "canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese", "coconut",
 "comet", "cream", "curtain",
-"daisy", "diamond", "domain"
+"daisy", "diamond", "domain",
 "earth", "ecasa", "elephant",
 "finch", "fire", "fish", "flamingo", "flower", "flute",
 "gadfly", "giant", "grasshopper",
