@@ -32,6 +32,8 @@ Read this post: hcxtools - solution for capturing wlan traffic and conversion to
 
 Read this post: New attack on WPA/WPA2 using PMKID (https://hashcat.net/forum/thread-7717.html)
 
+Read this post: Hash mode 22000 explained (https://hashcat.net/forum/thread-10253.html)
+
 
 Detailed description
 --------------
