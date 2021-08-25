@@ -161,6 +161,8 @@ static long int beaconhcxcount;
 static long int beaconerrorcount;
 static long int pagcount;
 static long int proberesponsecount;
+static long int proberesponsessidunsetcount;
+static long int proberesponsessidzeroedcount;
 static long int proberequestcount;
 static long int proberequestdirectedcount;
 static long int mgtreservedcount;
@@ -453,6 +455,8 @@ beaconhcxcount = 0;
 beaconerrorcount = 0;
 pagcount = 0;
 proberesponsecount = 0;
+proberesponsessidunsetcount = 0;
+proberesponsessidzeroedcount = 0;
 proberequestcount = 0;
 proberequestdirectedcount = 0;
 mgtreservedcount = 0;
@@ -601,7 +605,9 @@ if(actioncount > 0)			printf("ACTION (total)...........................: %ld\n",
 if(awdlcount > 0)			printf("AWDL (Apple Wireless Direct Link)........: %ld\n", awdlcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST.............................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
-if(proberesponsecount > 0)		printf("PROBERESPONSE............................: %ld\n", proberesponsecount);
+if(proberesponsecount > 0)		printf("PROBERESPONSE (total)....................: %ld\n", proberesponsecount);
+if(proberesponsessidunsetcount > 0)	printf("PROBERESPONSE (SSID unset)...............: %ld\n", proberesponsessidunsetcount);
+if(proberesponsessidzeroedcount > 0)	printf("PROBERESPONSE (SSID zeroed)..............: %ld\n", proberesponsessidzeroedcount);
 if(deauthenticationcount > 0)		printf("DEAUTHENTICATION (total).................: %ld\n", deauthenticationcount);
 if(disassociationcount > 0)		printf("DISASSOCIATION (total)...................: %ld\n", disassociationcount);
 if(authenticationcount > 0)		printf("AUTHENTICATION (total)...................: %ld\n", authenticationcount);
@@ -3948,7 +3954,16 @@ apinfoptr = proberesponseptr +CAPABILITIESAP_SIZE;
 apinfolen = proberesponselen -CAPABILITIESAP_SIZE;
 if(proberesponselen < (int)IETAG_SIZE) return;
 if(gettags(apinfolen, apinfoptr, &tags) == false) return;
-if(tags.essidlen == 0) return;
+if(tags.essidlen == 0)
+	{
+	proberesponsessidunsetcount++;
+	return;
+	}
+if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
+	{
+	proberesponsessidzeroedcount++;
+	return;
+	}
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
@@ -4046,7 +4061,6 @@ if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
 	return;
 	}
 if(tags.essid[0] == 0) return;
-
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
