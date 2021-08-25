@@ -154,6 +154,9 @@ static long int wdscount;
 static long int actioncount;
 static long int awdlcount;
 static long int beaconcount;
+static long int beaconssidunsetcount;
+static long int beaconssidzeroedcount;
+static long int beaconoversizedcount;
 static long int beaconhcxcount;
 static long int beaconerrorcount;
 static long int pagcount;
@@ -443,6 +446,9 @@ wdscount = 0;
 actioncount = 0;
 awdlcount = 0;
 beaconcount = 0;
+beaconssidunsetcount = 0;
+beaconssidzeroedcount = 0;
+beaconoversizedcount = 0;
 beaconhcxcount = 0;
 beaconerrorcount = 0;
 pagcount = 0;
@@ -586,6 +592,8 @@ if(skippedpacketcount > 0)		printf("skipped packets..........................: %
 if(fcsframecount > 0)			printf("frames with correct FCS..................: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM.............: %ld\n", wdscount);
 if(beaconcount > 0)			printf("BEACON (total)...........................: %ld\n", beaconcount);
+if(beaconssidunsetcount > 0)		printf("BEACON (SSID unset)......................: %ld\n", beaconssidunsetcount);
+if(beaconssidzeroedcount > 0)		printf("BEACON (SSID zeroed).....................: %ld\n", beaconssidzeroedcount);
 if(pagcount > 0)			printf("BEACON (pwnagotchi)......................: %ld\n", pagcount);
 if(beaconhcxcount > 0)			printf("BEACON (hcxhash2cap).....................: %ld\n", beaconhcxcount);
 if(actioncount > 0)			printf("ACTION (total)...........................: %ld\n", actioncount);
@@ -4017,8 +4025,18 @@ if(apinfoptr[0] == TAG_PAG)
 	}
 if(beaconlen < (int)IETAG_SIZE) return;
 if(gettags(apinfolen, apinfoptr, &tags) == false) return;
-if(tags.essidlen == 0) return;
+if(tags.essidlen == 0)
+	{
+	beaconssidunsetcount++;
+	return;
+	}
+if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
+	{
+	beaconssidzeroedcount++;
+	return;
+	}
 if(tags.essid[0] == 0) return;
+
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
