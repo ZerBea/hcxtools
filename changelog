@@ -1,3 +1,9 @@
+25.08.2021
+==========
+hcxpcapngtool: advanced handling of BEACON and PROBERESPOSNE frames
+               distinguish between SSID set, SSID unset and SSID zeroed
+
+
 20.06.2021
 ==========
 Makefile: added compiler flag to disable zlib support
