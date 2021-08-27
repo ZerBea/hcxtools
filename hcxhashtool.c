@@ -1991,6 +1991,7 @@ return;
 static void readoui()
 {
 static int len;
+static int c;
 static uid_t uid;
 static struct passwd *pwd;
 static struct stat statinfo;
@@ -2015,6 +2016,15 @@ else if(stat(ouinameuser, &statinfo) == 0) usedoui = ouinamesystemwide;
 else return;
 if((fh_oui = fopen(usedoui, "r")) == NULL) return;
 zeiger = ouilist;
+
+if(filtervendorptr != NULL)
+	{
+	len = strlen(filtervendorptr);
+	for(c = 0; c < len; c++)
+		{
+		if(islower(filtervendorptr[c])) filtervendorptr[c] = toupper(filtervendorptr[c]);
+		}
+	}
 while(1)
 	{
 	if((len = fgetline(fh_oui, OUI_LINE_LEN, linein)) == -1) break;
@@ -2024,6 +2034,10 @@ while(1)
 	if(strstr(&linein[7], "(base 16)") == NULL) continue;
 	if(filtervendorptr != NULL)
 		{
+		for(c = 7; c < len; c++)
+			{
+			if(islower(linein[c])) linein[c] = toupper(linein[c]);
+			}
 		if(strstr(&linein[7], filtervendorptr) == NULL) continue;
 		}
 	vendorptr = strrchr(&linein[7], '\t');
