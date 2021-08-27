@@ -30,20 +30,22 @@
 #define HCX_FILTER_MAC_LIST_IN		16
 #define HCX_FILTER_MAC_LIST_SKIP	17
 #define HCX_FILTER_VENDOR		18
-#define HCX_FILTER_ESSID		19
-#define HCX_FILTER_ESSID_PART		20
-#define HCX_FILTER_RC			21
-#define HCX_FILTER_M12			22
-#define HCX_FILTER_M1234		23
-#define HCX_FILTER_M1M2ROGUE		24
-#define HCX_PSK				25
-#define HCX_PMK				26
-#define HCX_VENDOR_OUT			27
-#define HCX_INFO_OUT			28
-#define HCX_HCCAPX_OUT			29
-#define HCX_HCCAP_OUT			30
-#define HCX_HCCAP_SINGLE_OUT		31
-#define HCX_JOHN_OUT			32
+#define HCX_FILTER_VENDOR_AP		19
+#define HCX_FILTER_VENDOR_CLIENT	20
+#define HCX_FILTER_ESSID		21
+#define HCX_FILTER_ESSID_PART		22
+#define HCX_FILTER_RC			23
+#define HCX_FILTER_M12			24
+#define HCX_FILTER_M1234		25
+#define HCX_FILTER_M1M2ROGUE		26
+#define HCX_PSK				27
+#define HCX_PMK				28
+#define HCX_VENDOR_OUT			29
+#define HCX_INFO_OUT			30
+#define HCX_HCCAPX_OUT			31
+#define HCX_HCCAP_OUT			32
+#define HCX_HCCAP_SINGLE_OUT		33
+#define HCX_JOHN_OUT			34
 #define HCX_PMKIDEAPOL_IN		'i'
 #define HCX_PMKIDEAPOL_OUT		'o'
 #define HCX_ESSID_OUT			'E'
@@ -125,6 +127,9 @@ return 0;
 /*===========================================================================*/
 struct ouilist_s
 {
+ uint8_t		type;
+#define TYPE_AP		1
+#define TYPE_CLIENT	2
  uint8_t		oui[3];
 #define VENDOR_LEN_MAX	128
  char			vendor[VENDOR_LEN_MAX];

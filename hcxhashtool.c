@@ -69,6 +69,8 @@ static int filteressidpartlen;
 static char *filteressidpartptr;
 
 static char *filtervendorptr;
+static char *filtervendorapptr;
+static char *filtervendorclientptr;
 
 static bool flagpsk;
 static bool flagpmk;
@@ -182,7 +184,9 @@ if(flagfilterouiap == true)
 	vendor = getvendor(filterouiap);
 	printf("filter AP by OUI.......: %02x%02x%02x (%s)\n", filterouiap[0], filterouiap[1], filterouiap[2], vendor);
 	}
-if(filtervendorptr != NULL)		printf("filter AP by VENDOR....: %s\n", filtervendorptr);
+if(filtervendorptr != NULL)		printf("filter AP and CLIENT by VENDOR....: %s\n", filtervendorptr);
+if(filtervendorapptr != NULL)		printf("filter AP by VENDOR....: %s\n", filtervendorapptr);
+if(filtervendorclientptr != NULL)	printf("filter CLIENT by VENDOR....: %s\n", filtervendorclientptr);
 if(flagfilterouiclient == true)
 	{
 	vendor = getvendor(filterouiclient);
@@ -706,13 +710,14 @@ for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static bool isoui(uint8_t *mac)
+static bool isoui(uint8_t *macap, uint8_t *macclient)
 {
 static ouilist_t *zeiger;
 
 for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
 	{
-	if(memcmp(mac, zeiger->oui, 3) == 0) return true;
+	if(((zeiger->type &TYPE_AP) == TYPE_AP) && (memcmp(macap, zeiger->oui, 3) == 0)) return true;
+	if(((zeiger->type &TYPE_CLIENT) == TYPE_CLIENT) && (memcmp(macclient, zeiger->oui, 3) == 0)) return true;
 	}
 return false;
 }
@@ -782,9 +787,9 @@ if(filteressidpartptr != NULL)
 	{
 	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
-if(filtervendorptr != 0)
+if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
 	{
-	if(isoui(zeiger->ap) == false) return;
+	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
@@ -885,9 +890,9 @@ if(filteressidpartptr != NULL)
 	{
 	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
-if(filtervendorptr != 0)
+if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
 	{
-	if(isoui(zeiger->ap) == false) return;
+	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
@@ -1010,9 +1015,9 @@ if(filteressidpartptr != NULL)
 	{
 	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
-if(filtervendorptr != 0)
+if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
 	{
-	if(isoui(zeiger->ap) == false) return;
+	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
@@ -1122,9 +1127,9 @@ if(filteressidpartptr != NULL)
 	{
 	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
-if(filtervendorptr != 0)
+if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
 	{
-	if(isoui(zeiger->ap) == false) return;
+	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
@@ -1403,9 +1408,9 @@ if(filteressidpartptr != NULL)
 	{
 	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
-if(filtervendorptr != 0)
+if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
 	{
-	if(isoui(zeiger->ap) == false) return;
+	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
@@ -1988,10 +1993,35 @@ for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++) fprintf(stdout, "%02
 return;
 }
 /*===========================================================================*/
+static int isvendor(int len, char *linein)
+{
+static int c;
+static int ret;
+
+for(c = 7; c < len; c++)
+	{
+	if(islower(linein[c])) linein[c] = toupper(linein[c]);
+	}
+
+ret = 0;
+if(filtervendorptr != NULL)
+	{
+	if(strstr(&linein[7], filtervendorptr) != NULL) ret |= 3;
+	}
+if(filtervendorapptr != NULL)
+	{
+	if(strstr(&linein[7], filtervendorapptr) != NULL) ret |= 1;
+	}
+if(filtervendorclientptr != NULL)
+	{
+	if(strstr(&linein[7], filtervendorclientptr) != NULL) ret |= 2;
+	}
+return ret;
+}
+/*===========================================================================*/
 static void readoui()
 {
 static int len;
-static int c;
 static uid_t uid;
 static struct passwd *pwd;
 static struct stat statinfo;
@@ -2023,13 +2053,11 @@ while(1)
 	linein[6] = 0;
 	if(getfield(linein, OUI_LINE_LEN, zeiger->oui) != 3) continue;
 	if(strstr(&linein[7], "(base 16)") == NULL) continue;
-	if(filtervendorptr != NULL)
+	zeiger->type = 0;
+	if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
 		{
-		for(c = 7; c < len; c++)
-			{
-			if(islower(linein[c])) linein[c] = toupper(linein[c]);
-			}
-		if(strstr(&linein[7], filtervendorptr) == NULL) continue;
+		zeiger->type = isvendor(len, linein);
+		if(zeiger->type == 0) continue;
 		}
 	vendorptr = strrchr(&linein[7], '\t');
 	if(vendorptr == NULL) continue;
@@ -2164,7 +2192,9 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"                               format: 001122, 00:11:22, 00-11-22 (hex)\n"
 	"--oui-client=<OUI>           : filter CLIENT by OUI\n"
 	"                               format: 001122, 00:11:22, 00-11-22 (hex)\n"
-	"--vendor=<VENDOR>            : filter by (part of) VENDOR name\n"
+	"--vendor=<VENDOR>            : filter AP or CLIENT by (part of) VENDOR name\n"
+	"--vendor-ap=<VENDOR>         : filter AP by (part of) VENDOR name\n"
+	"--vendor-client=<VENDOR>     : filter CLIENT by (part of) VENDOR name\n"
 	"--authorized                 : filter EAPOL pairs by status authorized\n"
 	"--notauthorized              : filter EAPOL pairs by status CHALLENGE (not authorized)\n"
 	"--rc                         : filter EAPOL pairs by replaycount status checked\n"
@@ -2242,8 +2272,10 @@ static const struct option long_options[] =
 	{"mac-group-client",		no_argument,		NULL,	HCX_MAC_GROUP_CLIENT},
 	{"oui-group",			no_argument,		NULL,	HCX_OUI_GROUP},
 	{"oui-ap",			required_argument,	NULL,	HCX_FILTER_OUI_AP},
-	{"vendor",			required_argument,	NULL,	HCX_FILTER_VENDOR},
 	{"oui-client",			required_argument,	NULL,	HCX_FILTER_OUI_CLIENT},
+	{"vendor",			required_argument,	NULL,	HCX_FILTER_VENDOR},
+	{"vendor-ap",			required_argument,	NULL,	HCX_FILTER_VENDOR_AP},
+	{"vendor-client",		required_argument,	NULL,	HCX_FILTER_VENDOR_CLIENT},
 	{"rc",				no_argument,		NULL,	HCX_FILTER_RC},
 	{"authorized",			no_argument,		NULL,	HCX_FILTER_M12},
 	{"notauthorized",		no_argument,		NULL,	HCX_FILTER_M1234},
@@ -2282,6 +2314,8 @@ pmkinstring = NULL;
 filteressidptr = NULL;
 filteressidpartptr = NULL;
 filtervendorptr = NULL;
+filtervendorapptr = NULL;
+filtervendorclientptr = NULL;
 flagfiltermacap = false;
 flagfiltermacclient = false;
 flagfilterouiap = false;
@@ -2522,6 +2556,34 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		for(p1 = 0; p1 < l; p1++)
 			{
 			if(islower(filtervendorptr[p1])) filtervendorptr[p1] = toupper(filtervendorptr[p1]);
+			}
+		break;
+
+		case HCX_FILTER_VENDOR_AP:
+		filtervendorapptr = optarg;
+		l = strlen(filtervendorapptr);
+		if(l < 3)
+			{
+			fprintf(stderr, "at least three characters of the VENDOR name are mandatory\n");
+			exit(EXIT_FAILURE);
+			}
+		for(p1 = 0; p1 < l; p1++)
+			{
+			if(islower(filtervendorapptr[p1])) filtervendorapptr[p1] = toupper(filtervendorapptr[p1]);
+			}
+		break;
+
+		case HCX_FILTER_VENDOR_CLIENT:
+		filtervendorclientptr = optarg;
+		l = strlen(filtervendorclientptr);
+		if(l < 3)
+			{
+			fprintf(stderr, "at least three characters of the VENDOR name are mandatory\n");
+			exit(EXIT_FAILURE);
+			}
+		for(p1 = 0; p1 < l; p1++)
+			{
+			if(islower(filtervendorclientptr[p1])) filtervendorclientptr[p1] = toupper(filtervendorclientptr[p1]);
 			}
 		break;
 

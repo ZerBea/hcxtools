@@ -1,6 +1,10 @@
 27.08.2021
 ==========
 hcxhashtool: VENDOR search is not longer case sensitive
+hcxhashtool: improved filtering by VENDOR
+--vendor=<VENDOR>            : filter AP or CLIENT by (part of) VENDOR name
+--vendor-ap=<VENDOR>         : filter AP by (part of) VENDOR name
+--vendor-client=<VENDOR>     : filter CLIENT by (part of) VENDOR name
 
 
 25.08.2021
