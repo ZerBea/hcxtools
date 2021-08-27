@@ -152,56 +152,56 @@ static void printstatus()
 static char *vendor;
 
 
-printf("\nOUI information file...: %s\n", usedoui);
-if(ouicount > 0)		printf("OUI entires............: %d\n", ouicount);
-if(readcount > 0)		printf("total lines read.......: %ld\n", readcount);
+printf("\nOUI information file..........: %s\n", usedoui);
+if(ouicount > 0)		printf("OUI entires...................: %d\n", ouicount);
+if(readcount > 0)		printf("total lines read..............: %ld\n", readcount);
 if(flagvendorout == true)
 	{
 	printf("\n");
 	return;
 	}
-if(readerrorcount > 0)			printf("read errors............: %ld\n", readerrorcount);
-if(pmkideapolcount > 0)			printf("valid hash lines.......: %ld\n", pmkideapolcount);
-if(pmkidcount > 0)			printf("PMKID hash lines.......: %ld\n", pmkidcount);
-if(eapolcount > 0)			printf("EAPOL hash lines.......: %ld\n", eapolcount);
-if(essidlenmin != 0)			printf("filter by ESSID len min: %d\n", essidlenmin);
-if(essidlenmax != 32)			printf("filter by ESSID len max: %d\n", essidlenmax);
-if(filteressidptr != NULL)		printf("filter by ESSID........: %s\n", filteressidptr);
-if(filteressidpartptr != NULL)		printf("filter by part of ESSID: %s\n", filteressidpartptr);
+if(readerrorcount > 0)			printf("read errors...................: %ld\n", readerrorcount);
+if(pmkideapolcount > 0)			printf("valid hash lines..............: %ld\n", pmkideapolcount);
+if(pmkidcount > 0)			printf("PMKID hash lines..............: %ld\n", pmkidcount);
+if(eapolcount > 0)			printf("EAPOL hash lines..............: %ld\n", eapolcount);
+if(essidlenmin != 0)			printf("filter by ESSID len min.......: %d\n", essidlenmin);
+if(essidlenmax != 32)			printf("filter by ESSID len max.......: %d\n", essidlenmax);
+if(filteressidptr != NULL)		printf("filter by ESSID...............: %s\n", filteressidptr);
+if(filteressidpartptr != NULL)		printf("filter by part of ESSID.......: %s\n", filteressidpartptr);
 if(flagfiltermacap == true)
 	{
 	vendor = getvendor(filtermacap);
-	printf("filter by MAC..........: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacap[0], filtermacap[1], filtermacap[2], filtermacap[3], filtermacap[4], filtermacap[5], vendor);
+	printf("filter by MAC.................: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacap[0], filtermacap[1], filtermacap[2], filtermacap[3], filtermacap[4], filtermacap[5], vendor);
 	}
 if(flagfiltermacclient == true)
 	{
 	vendor = getvendor(filtermacclient);
-	printf("filter by MAC..........: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacclient[0], filtermacclient[1], filtermacclient[2], filtermacclient[3], filtermacclient[4], filtermacclient[5], vendor);
+	printf("filter by MAC.................: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacclient[0], filtermacclient[1], filtermacclient[2], filtermacclient[3], filtermacclient[4], filtermacclient[5], vendor);
 	}
 
 if(flagfilterouiap == true)
 	{
 	vendor = getvendor(filterouiap);
-	printf("filter AP by OUI.......: %02x%02x%02x (%s)\n", filterouiap[0], filterouiap[1], filterouiap[2], vendor);
+	printf("filter AP by OUI..............: %02x%02x%02x (%s)\n", filterouiap[0], filterouiap[1], filterouiap[2], vendor);
 	}
-if(filtervendorptr != NULL)		printf("filter AP and CLIENT by VENDOR....: %s\n", filtervendorptr);
-if(filtervendorapptr != NULL)		printf("filter AP by VENDOR....: %s\n", filtervendorapptr);
-if(filtervendorclientptr != NULL)	printf("filter CLIENT by VENDOR....: %s\n", filtervendorclientptr);
+if(filtervendorptr != NULL)		printf("filter AP and CLIENT by VENDOR: %s\n", filtervendorptr);
+if(filtervendorapptr != NULL)		printf("filter AP by VENDOR...........: %s\n", filtervendorapptr);
+if(filtervendorclientptr != NULL)	printf("filter CLIENT by VENDOR.......: %s\n", filtervendorclientptr);
 if(flagfilterouiclient == true)
 	{
 	vendor = getvendor(filterouiclient);
-	printf("filter CLIENT by OUI...: %02x%02x%02x (%s)\n", filterouiclient[0], filterouiclient[1], filterouiclient[2], vendor);
+	printf("filter CLIENT by OUI..........: %02x%02x%02x (%s)\n", filterouiclient[0], filterouiclient[1], filterouiclient[2], vendor);
 	}
-if(flagfilterapless == true)		printf("filter by M2...........: requested from client (AP-LESS)\n");
-if(flagfilterrcchecked == true)		printf("filter by replaycount..: checked\n");
-if(flagfilterauthorized == true)	printf("filter by status.......: authorized (M1M4, M2M3 or M3M4)\n");
-if(flagfilternotauthorized == true)	printf("filter by status.......: challenge (M1M2)\n");
-if(pmkidwrittencount > 0)		printf("PMKID written..........: %ld\n", pmkidwrittencount);
-if(eapolwrittencount > 0)		printf("EAPOL written..........: %ld\n", eapolwrittencount);
-if(hccapxwrittencount > 0)		printf("EAPOL written to hccapx: %ld\n", hccapxwrittencount);
-if(hccapwrittencount > 0)		printf("EAPOL written to hccap.: %ld\n", hccapwrittencount);
-if(johnwrittencount > 0)		printf("EAPOL written to john..: %ld\n", johnwrittencount);
-if(essidwrittencount > 0)		printf("ESSID (unique) written.: %ld\n", essidwrittencount);
+if(flagfilterapless == true)		printf("filter by M2..................: requested from client (AP-LESS)\n");
+if(flagfilterrcchecked == true)		printf("filter by replaycount.........: checked\n");
+if(flagfilterauthorized == true)	printf("filter by status..............: authorized (M1M4, M2M3 or M3M4)\n");
+if(flagfilternotauthorized == true)	printf("filter by status..............: challenge (M1M2)\n");
+if(pmkidwrittencount > 0)		printf("PMKID written.................: %ld\n", pmkidwrittencount);
+if(eapolwrittencount > 0)		printf("EAPOL written.................: %ld\n", eapolwrittencount);
+if(hccapxwrittencount > 0)		printf("EAPOL written to hccapx.......: %ld\n", hccapxwrittencount);
+if(hccapwrittencount > 0)		printf("EAPOL written to hccap........: %ld\n", hccapwrittencount);
+if(johnwrittencount > 0)		printf("EAPOL written to john.........: %ld\n", johnwrittencount);
+if(essidwrittencount > 0)		printf("ESSID (unique) written........: %ld\n", essidwrittencount);
 printf("\n");
 return;
 }
