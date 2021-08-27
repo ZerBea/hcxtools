@@ -2016,15 +2016,6 @@ else if(stat(ouinameuser, &statinfo) == 0) usedoui = ouinamesystemwide;
 else return;
 if((fh_oui = fopen(usedoui, "r")) == NULL) return;
 zeiger = ouilist;
-
-if(filtervendorptr != NULL)
-	{
-	len = strlen(filtervendorptr);
-	for(c = 0; c < len; c++)
-		{
-		if(islower(filtervendorptr[c])) filtervendorptr[c] = toupper(filtervendorptr[c]);
-		}
-	}
 while(1)
 	{
 	if((len = fgetline(fh_oui, OUI_LINE_LEN, linein)) == -1) break;
@@ -2522,6 +2513,16 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_FILTER_VENDOR:
 		filtervendorptr = optarg;
+		l = strlen(filtervendorptr);
+		if(l < 3)
+			{
+			fprintf(stderr, "at least three characters of the VENDOR name are mandatory\n");
+			exit(EXIT_FAILURE);
+			}
+		for(p1 = 0; p1 < l; p1++)
+			{
+			if(islower(filtervendorptr[p1])) filtervendorptr[p1] = toupper(filtervendorptr[p1]);
+			}
 		break;
 
 		case HCX_FILTER_RC:
