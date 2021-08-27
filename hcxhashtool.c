@@ -2006,15 +2006,15 @@ for(c = 7; c < len; c++)
 ret = 0;
 if(filtervendorptr != NULL)
 	{
-	if(strstr(&linein[7], filtervendorptr) != NULL) ret |= 3;
+	if(strstr(&linein[7], filtervendorptr) != NULL) ret |= TYPE_AP + TYPE_CLIENT;
 	}
 if(filtervendorapptr != NULL)
 	{
-	if(strstr(&linein[7], filtervendorapptr) != NULL) ret |= 1;
+	if(strstr(&linein[7], filtervendorapptr) != NULL) ret |= TYPE_AP;
 	}
 if(filtervendorclientptr != NULL)
 	{
-	if(strstr(&linein[7], filtervendorclientptr) != NULL) ret |= 2;
+	if(strstr(&linein[7], filtervendorclientptr) != NULL) ret |= TYPE_CLIENT;
 	}
 return ret;
 }
