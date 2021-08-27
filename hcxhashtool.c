@@ -151,7 +151,6 @@ static void printstatus()
 {
 static char *vendor;
 
-
 printf("\nOUI information file..........: %s\n", usedoui);
 if(ouicount > 0)		printf("OUI entires...................: %d\n", ouicount);
 if(readcount > 0)		printf("total lines read..............: %ld\n", readcount);
