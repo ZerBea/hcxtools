@@ -42,7 +42,7 @@ curl_easy_setopt(hnd, CURLOPT_URL, "http://standards-oui.ieee.org/oui/oui.txt");
 curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
 curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
 curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhoui);
-
+curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 0L);
 ret = curl_easy_perform(hnd);
 curl_easy_cleanup(hnd);
 fclose(fhoui);
