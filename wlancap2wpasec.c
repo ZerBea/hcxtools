@@ -61,10 +61,7 @@ static const char buf[] = "Expect:";
 printf("uploading %s to %s\n", sendcapname, wpasecurl);
 curl_global_init(CURL_GLOBAL_ALL);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
-if(emailheader != NULL)
-	{
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "email", CURLFORM_PTRCONTENTS, emailheader, CURLFORM_END);
-	}
+if(emailheader != NULL) curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "email", CURLFORM_PTRCONTENTS, emailheader, CURLFORM_END);
 
 curl = curl_easy_init();
 headerlist = curl_slist_append(headerlist, buf);
@@ -73,10 +70,7 @@ if(curl)
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-	if(keyheader)
-		{
-		curl_easy_setopt(curl, CURLOPT_COOKIE, keyheader);
-		}
+	if(keyheader) curl_easy_setopt(curl, CURLOPT_COOKIE, keyheader);
 	res = curl_easy_perform(curl);
 	if(res == CURLE_OK)
 		{
@@ -84,8 +78,7 @@ if(curl)
 		if(removeflag == true)
 			{
 			ret = remove(sendcapname);
-			if(ret != 0)
-				fprintf(stderr, "couldn't remove %s\n", sendcapname);
+			if(ret != 0) fprintf(stderr, "couldn't remove %s\n", sendcapname);
 			}
 		}
 	else
@@ -93,7 +86,6 @@ if(curl)
 		fprintf(stderr, "\n\x1B[31mupload to %s failed: %s\x1B[0m\n\n", wpasecurl, curl_easy_strerror(res));
 		uploadflag = false;
 		}
-
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
 	curl_slist_free_all(headerlist);
@@ -203,8 +195,7 @@ while ((auswahl = getopt(argc, argv, "k:u:t:e:Rhv")) != -1)
 		}
 	}
 
-if(testwpasec(timeout) != CURLE_OK)
-	return EXIT_SUCCESS;
+if(testwpasec(timeout) != CURLE_OK) return EXIT_SUCCESS;
 
 for(index = optind; index < argc; index++)
 	{
@@ -212,29 +203,16 @@ for(index = optind; index < argc; index++)
 		{
 		if(sendcap2wpasec(argv[index], timeout, keyheader, emailaddr) == false)
 			{
-			if(sendcap2wpasec(argv[index], 60, keyheader, emailaddr) == true)
-				{
-				uploadcountok++;
-				}
-			else
-				uploadcountfailed++;
+			if(sendcap2wpasec(argv[index], 60, keyheader, emailaddr) == true) uploadcountok++;
+			else uploadcountfailed++;
 			}
-		else
-			uploadcountok++;
+		else uploadcountok++;
 		}
 	}
 
-if(uploadcountok == 1)
-	printf("\x1B[32m%ld cap uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
-
-if(uploadcountok > 1)
-	printf("\x1B[32m%ld caps uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
-
-if(uploadcountfailed == 1)
-	printf("\x1B[31m%ld cap failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
-
-if(uploadcountfailed > 1)
-	printf("\x1B[31m%ld caps failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
-
+if(uploadcountok == 1) printf("\x1B[32m%ld cap uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
+if(uploadcountok > 1) printf("\x1B[32m%ld caps uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
+if(uploadcountfailed == 1) printf("\x1B[31m%ld cap failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
+if(uploadcountfailed > 1) printf("\x1B[31m%ld caps failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
 return EXIT_SUCCESS;
 }
