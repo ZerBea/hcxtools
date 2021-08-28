@@ -42,10 +42,13 @@
 #define HCX_PMK				28
 #define HCX_VENDOR_OUT			29
 #define HCX_INFO_OUT			30
-#define HCX_HCCAPX_OUT			31
-#define HCX_HCCAP_OUT			32
-#define HCX_HCCAP_SINGLE_OUT		33
-#define HCX_JOHN_OUT			34
+#define HCX_INFO_VENDOR_OUT		31
+#define HCX_INFO_VENDOR_AP_OUT		32
+#define HCX_INFO_VENDOR_CLIENT_OUT	33
+#define HCX_HCCAPX_OUT			34
+#define HCX_HCCAP_OUT			35
+#define HCX_HCCAP_SINGLE_OUT		36
+#define HCX_JOHN_OUT			37
 #define HCX_PMKIDEAPOL_IN		'i'
 #define HCX_PMKIDEAPOL_OUT		'o'
 #define HCX_ESSID_OUT			'E'

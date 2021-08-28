@@ -1,6 +1,27 @@
+28.08.2021
+==========
+hcxhashtool: added more info options (https://github.com/ZerBea/hcxtools/issues/195)
+--info=<file>                : output detailed information about content of hash file
+                               not in combination with --vendor, --vendor-ap or --vendor-client
+--info=stdout                : stdout output detailed information about content of hash file
+                               not in combination with --vendor, --vendor-ap or --vendor-client
+--info-vendor=<file>         : output detailed information about ACCESS POINT and CLIENT VENDORs
+                               not in combination with --vendor, --vendor-ap or --vendor-client
+--info-vendor-ap=<file>      : output detailed information about ACCESS POINT VENDORs
+                               not in combination with --vendor, --vendor-ap or --vendor-client
+--info-vendor-CLIENT=<file>  : output detailed information about ACCESS POINT VENDORs
+                               not in combination with --vendor, --vendor-ap or --vendor-client
+--info-vendor=stdout         : stdout output detailed information about ACCESS POINT and CLIENT VENDORs
+                               not in combination with --vendor, --vendor-ap or --vendor-client
+--info-vendor-ap=stdout      : stdout output detailed information about ACCESS POINT VENDORs
+                               not in combination with --vendor, --vendor-ap or --vendor-client
+--info-vendor-CLIENT=stdout  : stdout output detailed information about ACCESS POINT VENDORs
+                               not in combination with --vendor, --vendor-ap or --vendor-client
+
+
 27.08.2021
 ==========
-hcxhashtool: VENDOR search is not longer case sensitive
+hcxhashtool: VENDOR search is not longer case sensitive (https://github.com/ZerBea/hcxtools/issues/195)
 hcxhashtool: improved filtering by VENDOR
 --vendor=<VENDOR>            : filter AP or CLIENT by (part of) VENDOR name
 --vendor-ap=<VENDOR>         : filter AP by (part of) VENDOR name

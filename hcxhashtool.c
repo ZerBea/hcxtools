@@ -137,7 +137,7 @@ return true;
 static char *getvendor(uint8_t *mac)
 {
 static ouilist_t * zeiger;
-static char *unknown = "unknown";
+static char *unknown = "Unknown";
 
 for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
 	{
@@ -1464,6 +1464,90 @@ fprintf(fh_pmkideapol, "\n");
 return;
 }
 /*===========================================================================*/
+static void writevendorapinfofile(char *vendorinfooutname)
+{
+static char *vendor;
+static hashlist_t *zeiger;
+static FILE *fh_info;
+
+qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_macap);
+if(strcmp(vendorinfooutname, "stdout") != 0)
+	{
+	if((fh_info = fopen(vendorinfooutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", vendorinfooutname, strerror(errno));
+		return;
+		}
+	vendor = getvendor(hashlist->ap);
+	fprintf(stdout, "%02x%02x%02x\t%s\t[ACCESS POINT]\n", hashlist->ap[0], hashlist->ap[1], hashlist->ap[2], vendor);
+	for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
+		{
+		if(memcmp((zeiger -1)->ap, zeiger->ap, 3) != 0)
+			{
+			vendor = getvendor(zeiger->ap);
+			fprintf(fh_info, "%02x%02x%02x\t%s\t[ACCESS POINT]\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], vendor);
+			}
+		}
+	fclose(fh_info);
+	}
+else
+	{
+	vendor = getvendor(hashlist->ap);
+	fprintf(stdout, "%02x%02x%02x\t%s\t[ACCESS POINT]\n", hashlist->ap[0], hashlist->ap[1], hashlist->ap[2], vendor);
+	for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
+		{
+		if(memcmp((zeiger -1)->ap, zeiger->ap, 3) != 0)
+			{
+			vendor = getvendor(zeiger->ap);
+			fprintf(stdout, "%02x%02x%02x\t%s\t[ACCESS POINT]\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], vendor);
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
+static void writevendorclientinfofile(char *vendorinfooutname)
+{
+static char *vendor;
+static hashlist_t *zeiger;
+static FILE *fh_info;
+
+qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_macclient);
+if(strcmp(vendorinfooutname, "stdout") != 0)
+	{
+	if((fh_info = fopen(vendorinfooutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", vendorinfooutname, strerror(errno));
+		return;
+		}
+	vendor = getvendor(hashlist->client);
+	fprintf(stdout, "%02x%02x%02x\t%s\t[CLIENT]\n", hashlist->client[0], hashlist->client[1], hashlist->client[2], vendor);
+	for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
+		{
+		if(memcmp((zeiger -1)->client, zeiger->client, 3) != 0)
+			{
+			vendor = getvendor(zeiger->client);
+			fprintf(fh_info, "%02x%02x%02x\t%s\t[CLIENT]\n", zeiger->client[0], zeiger->client[1], zeiger->client[2], vendor);
+			}
+		}
+	fclose(fh_info);
+	}
+else
+	{
+	vendor = getvendor(hashlist->ap);
+	fprintf(stdout, "%02x%02x%02x\t%s\t[CLIENT]\n", hashlist->ap[0], hashlist->ap[1], hashlist->ap[2], vendor);
+	for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
+		{
+		if(memcmp((zeiger -1)->ap, zeiger->ap, 3) != 0)
+			{
+			vendor = getvendor(zeiger->ap);
+			fprintf(stdout, "%02x%02x%02x\t%s\t[CLIENT]\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], vendor);
+			}
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static void writeinfofile(char *infooutname)
 {
 static hashlist_t *zeiger;
@@ -2199,8 +2283,21 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--rc                         : filter EAPOL pairs by replaycount status checked\n"
 	"--apless                     : filter EAPOL pairs by status M1M2ROGUE (M2 requested from CLIENT)\n"
 	"--info=<file>                : output detailed information about content of hash file\n"
+	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
 	"--info=stdout                : stdout output detailed information about content of hash file\n"
-	"--vendorlist                 : stdout output VENDOR list sorted by OUI\n"
+	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"--info-vendor=<file>         : output detailed information about ACCESS POINT and CLIENT VENDORs\n"
+	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"--info-vendor-ap=<file>      : output detailed information about ACCESS POINT VENDORs\n"
+	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"--info-vendor-CLIENT=<file>  : output detailed information about ACCESS POINT VENDORs\n"
+	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"--info-vendor=stdout         : stdout output detailed information about ACCESS POINT and CLIENT VENDORs\n"
+	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"--info-vendor-ap=stdout      : stdout output detailed information about ACCESS POINT VENDORs\n"
+	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"--info-vendor-CLIENT=stdout  : stdout output detailed information about ACCESS POINT VENDORs\n"
+	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
 	"--psk=<PSK>                  : pre-shared key to test\n"
 	"                               due to PBKDF2 calculation this is a very slow process\n"
 	"                               no nonce error corrections\n"
@@ -2210,6 +2307,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--hccap=<file>               : output to ancient hccap file\n"
 	"--hccap-single               : output to ancient hccap single files (MAC + count)\n"
 	"--john=<file>                : output to deprecated john file\n"
+	"--vendorlist                 : stdout output complete OUI list sorted by OUI\n"
 	"--help                       : show this help\n"
 	"--version                    : show version\n"
 	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, ESSID_LEN_MIN, ESSID_LEN_MAX, ESSID_LEN_MIN, ESSID_LEN_MAX);
@@ -2245,6 +2343,9 @@ static char *hccapxoutname;
 static char *hccapoutname;
 static char *johnoutname;
 static char *infooutname;
+static char *infovendoroutname;
+static char *infovendorapoutname;
+static char *infovendorclientoutname;
 static char *ouiinstring;
 static char *macinstring;
 static char *pmkinstring;
@@ -2281,12 +2382,15 @@ static const struct option long_options[] =
 	{"apless",			no_argument,		NULL,	HCX_FILTER_M1M2ROGUE},
 	{"psk",				required_argument,	NULL,	HCX_PSK},
 	{"pmk",				required_argument,	NULL,	HCX_PMK},
-	{"vendorlist",			no_argument,		NULL,	HCX_VENDOR_OUT},
 	{"info",			required_argument,	NULL,	HCX_INFO_OUT},
+	{"info-vendor",			required_argument,	NULL,	HCX_INFO_VENDOR_OUT},
+	{"info-vendor-ap",		required_argument,	NULL,	HCX_INFO_VENDOR_AP_OUT},
+	{"info-vendor-client",		required_argument,	NULL,	HCX_INFO_VENDOR_CLIENT_OUT},
 	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT},
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT},
 	{"hccap-single",		no_argument,		NULL,	HCX_HCCAP_SINGLE_OUT},
 	{"john",			required_argument,	NULL,	HCX_JOHN_OUT},
+	{"vendorlist",			no_argument,		NULL,	HCX_VENDOR_OUT},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
 	{NULL,				0,			NULL,	0}
@@ -2304,6 +2408,9 @@ essidinname = NULL;
 macinname = NULL;
 macskipname = NULL;
 infooutname = NULL;
+infovendoroutname = NULL;
+infovendorapoutname = NULL;
+infovendorclientoutname = NULL;
 hccapxoutname = NULL;
 hccapoutname = NULL;
 johnoutname = NULL;
@@ -2362,6 +2469,18 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_INFO_OUT:
 		infooutname = optarg;
+		break;
+
+		case HCX_INFO_VENDOR_OUT:
+		infovendoroutname = optarg;
+		break;
+
+		case HCX_INFO_VENDOR_AP_OUT:
+		infovendorapoutname = optarg;
+		break;
+
+		case HCX_INFO_VENDOR_CLIENT_OUT:
+		infovendorclientoutname = optarg;
 		break;
 
 		case HCX_ESSID_GROUP:
@@ -2671,6 +2790,12 @@ if(argc < 2)
 
 if(initlists() == false) exit(EXIT_FAILURE);
 
+if((infooutname != NULL) || (infovendoroutname != NULL) || (infovendorapoutname != NULL) || (infovendorclientoutname != NULL))
+	{
+	filtervendorptr = NULL;
+	filtervendorapptr = NULL;
+	filtervendorclientptr = NULL;
+	}
 readoui();
 if((ouicount > 0) && (flagvendorout == true))
 	{
@@ -2701,7 +2826,6 @@ if((pmkideapolcount > 0) && (pmkideapoloutname != NULL) && (essidinname == NULL)
 	if((lcmin == 0) && (lcmax == 0)) writeeapolpmkidfile(pmkideapoloutname);
 	else writelceapolpmkidfile(pmkideapoloutname, lcmin, lcmax);
 	}
-if((pmkideapolcount > 0) && (infooutname != NULL)) writeinfofile(infooutname);
 if((pmkideapolcount > 0) && (flagessidgroup == true)) writeeapolpmkidessidgroups();
 if((pmkideapolcount > 0) && (flagmacapgroup == true)) writeeapolpmkidmacapgroups();
 if((pmkideapolcount > 0) && (flagmacclientgroup == true)) writeeapolpmkidmacclientgroups();
@@ -2714,8 +2838,16 @@ if((pmkideapolcount > 0) && (flaghccapsingleout == true)) writehccapsinglefile()
 if((pmkideapolcount > 0) && (johnoutname != NULL)) writejohnfile(johnoutname);
 if((pmkideapolcount > 0) && (pmkideapoloutname != NULL) && (essidinname != NULL)) processessidfile(essidinname, pmkideapoloutname);
 if((pmkideapolcount > 0) && (macinname != NULL)) processmacfile(macinname, pmkideapoloutname);
+if((pmkideapolcount > 0) && (infooutname != NULL)) writeinfofile(infooutname);
+if((pmkideapolcount > 0) && (infovendoroutname != NULL))
+	{
+	writevendorapinfofile(infovendoroutname);
+	writevendorclientinfofile(infovendoroutname);
+	}
+else if((pmkideapolcount > 0) && (infovendorapoutname != NULL)) writevendorapinfofile(infovendorapoutname);
+else if((pmkideapolcount > 0) && (infovendorclientoutname != NULL)) writevendorclientinfofile(infovendorclientoutname);
 
-printstatus();
+if((infooutname != NULL) || (infovendoroutname != NULL) || (infovendorapoutname != NULL) || (infovendorclientoutname != NULL)) printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 closelists();
 return EXIT_SUCCESS;
