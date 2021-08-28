@@ -2199,7 +2199,6 @@ if((fhoui = fopen(ouinameuserpath, "w")) == NULL)
 	}
 hnd = curl_easy_init ();
 curl_easy_setopt(hnd, CURLOPT_URL, "http://standards-oui.ieee.org/oui/oui.txt");
-curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
 curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
 curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhoui) ;
 curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 0L);
