@@ -18,10 +18,17 @@
 /*===========================================================================*/
 /* globale Konstante */
 
+struct memory
+{
+char *response;
+size_t size;
+};
+
 static long int uploadcountok;
 static long int uploadcountfailed;
 static const char *wpasecurl = "https://wpa-sec.stanev.org";
 static bool removeflag = false;
+struct memory *curlmem;
 /*===========================================================================*/
 static int testwpasec(long int timeout)
 {
@@ -46,6 +53,22 @@ curl_global_cleanup();
 return res;
 }
 /*===========================================================================*/
+static size_t cb(void *data, size_t size, size_t nmemb, void *userp)
+{
+char *ptr;
+size_t realsize = size *nmemb;
+
+curlmem = (struct memory *)userp;
+ 
+ptr = realloc(curlmem->response, curlmem->size +realsize +1);
+if(ptr == NULL) return 0;
+curlmem->response = ptr;
+memcpy(&(curlmem->response[curlmem->size]), data, realsize);
+curlmem->size += realsize;
+curlmem->response[curlmem->size] = 0;
+return realsize;
+}
+/*===========================================================================*/
 static bool sendcap2wpasec(char *sendcapname, long int timeout, char *keyheader, char *emailheader)
 {
 CURL *curl;
@@ -57,6 +80,7 @@ struct curl_httppost *formpost=NULL;
 struct curl_httppost *lastptr=NULL;
 struct curl_slist *headerlist=NULL;
 static const char buf[] = "Expect:";
+struct memory chunk = {0};
 
 printf("uploading %s to %s\n", sendcapname, wpasecurl);
 curl_global_init(CURL_GLOBAL_ALL);
@@ -67,6 +91,9 @@ curl = curl_easy_init();
 headerlist = curl_slist_append(headerlist, buf);
 if(curl)
 	{
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, cb);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
@@ -74,11 +101,16 @@ if(curl)
 	res = curl_easy_perform(curl);
 	if(res == CURLE_OK)
 		{
-		printf("\n\x1B[32mupload done\x1B[0m\n\n");
+		printf("upload done\n");
 		if(removeflag == true)
 			{
 			ret = remove(sendcapname);
 			if(ret != 0) fprintf(stderr, "couldn't remove %s\n", sendcapname);
+			}
+		if(curlmem->response != NULL)
+			{
+			printf("\n%s\n\n", curlmem->response);
+			free(curlmem->response);
 			}
 		}
 	else
