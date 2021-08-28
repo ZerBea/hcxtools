@@ -57,7 +57,6 @@ static size_t cb(void *data, size_t size, size_t nmemb, void *userp)
 {
 char *ptr;
 size_t realsize = size *nmemb;
-
 curlmem = (struct memory *)userp;
  
 ptr = realloc(curlmem->response, curlmem->size +realsize +1);
@@ -80,9 +79,10 @@ struct curl_httppost *formpost=NULL;
 struct curl_httppost *lastptr=NULL;
 struct curl_slist *headerlist=NULL;
 static const char buf[] = "Expect:";
-struct memory chunk = {0};
+struct memory chunk;
 
 printf("uploading %s to %s\n", sendcapname, wpasecurl);
+memset(&chunk, 0, sizeof(chunk));
 curl_global_init(CURL_GLOBAL_ALL);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
 if(emailheader != NULL) curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "email", CURLFORM_PTRCONTENTS, emailheader, CURLFORM_END);
@@ -240,6 +240,7 @@ for(index = optind; index < argc; index++)
 			}
 		else uploadcountok++;
 		}
+	else printf("file not found: %s\n", argv[index]);
 	}
 
 if(uploadcountok == 1) printf("\x1B[32m%ld cap uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
