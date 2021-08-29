@@ -2847,7 +2847,7 @@ if((pmkideapolcount > 0) && (infovendoroutname != NULL))
 else if((pmkideapolcount > 0) && (infovendorapoutname != NULL)) writevendorapinfofile(infovendorapoutname);
 else if((pmkideapolcount > 0) && (infovendorclientoutname != NULL)) writevendorclientinfofile(infovendorclientoutname);
 
-if((infooutname != NULL) || (infovendoroutname != NULL) || (infovendorapoutname != NULL) || (infovendorclientoutname != NULL)) printstatus();
+if((infooutname == NULL) && (infovendoroutname == NULL) && (infovendorapoutname == NULL) && (infovendorclientoutname == NULL)) printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 closelists();
 return EXIT_SUCCESS;
