@@ -1,5 +1,8 @@
 28.08.2021
 ==========
+wlancap2wpasec: added upload progress information
+whoismac: added download progress information
+hcxhashtool: added download progress information
 hcxhashtool: added more info options (https://github.com/ZerBea/hcxtools/issues/195)
 --info=<file>                : output detailed information about content of hash file
                                not in combination with --vendor, --vendor-ap or --vendor-client
