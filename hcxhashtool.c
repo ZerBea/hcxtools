@@ -46,6 +46,8 @@ static int ouicount;
 static int ouilistcount;
 static ouilist_t *ouilist;
 static hashlist_t *hashlist;
+static long int pbkdf2count;
+static long int pbkdf2readerrorcount;
 static long int hashlistcount;
 static long int readcount;
 static long int readerrorcount;
@@ -159,6 +161,8 @@ if(flagvendorout == true)
 	printf("\n");
 	return;
 	}
+if(pbkdf2count > 0)			printf("PBKDF2 results................: %ld\n", pbkdf2count);
+if(pbkdf2readerrorcount > 0)		printf("PBKDF2 errors.................: %ld\n", pbkdf2readerrorcount);
 if(readerrorcount > 0)			printf("read errors...................: %ld\n", readerrorcount);
 if(pmkideapolcount > 0)			printf("valid hash lines..............: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)			printf("PMKID hash lines..............: %ld\n", pmkidcount);
@@ -2079,13 +2083,27 @@ if((fh_pbkdf2 = fopen(pkdf2inname, "r")) == NULL)
 	printf("error opening file %s: %s\n", pkdf2inname, strerror(errno));
 	return false;
 	}
+
+pbkdf2count = 0;
+pbkdf2readerrorcount = 0;
 while(1)
 	{
 	if((len = fgetline(fh_pbkdf2, PBKDF2_LINE_LEN, linein)) == -1) break;
-
-
+	if(len < 76)
+		{
+		pbkdf2readerrorcount++;
+		continue;
+		}
+	if(linein[64] != '*')
+		{
+		pbkdf2readerrorcount++;
+		continue;
+		}
+	pbkdf2count++;
 	}
 fclose(fh_pbkdf2);
+
+
 return true;
 }
 /*===========================================================================*/
