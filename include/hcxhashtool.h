@@ -13,7 +13,9 @@
 #define HASHLIST_MAX		50000
 
 #define PBKDF2_LINE_LEN		1024
-
+#define PMK_LEN			32
+#define PSK_LEN_MIN		8
+#define PSK_LEN_MAX		63
 
 #define HCX_HASH_TYPE			1
 #define HCX_HASH_MIN			2
@@ -190,6 +192,18 @@ if(memcmp(ia->mac, ib->mac, 6) > 0) return 1;
 else if(memcmp(ia->mac, ib->mac, 6) < 0) return -1;
 return 0;
 }
+/*===========================================================================*/
+struct pmklist_s
+{
+ uint8_t	status;
+ uint8_t	essidlen;
+ uint8_t	psklen;
+ uint8_t	pmk[PMK_LEN];
+ uint8_t	essid[ESSID_LEN_MAX];
+ uint8_t	psk[PSK_LEN_MAX];
+};
+typedef struct pmklist_s pmklist_t;
+#define	PMKLIST_SIZE (sizeof(pmklist_t))
 /*===========================================================================*/
 
 
