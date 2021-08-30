@@ -2106,9 +2106,9 @@ while(1)
 		pbkdf2readerrorcount++;
 		continue;
 		}
+	pskpos[0] = 0;
 
-
-	printf("%s\n", pskpos +1);
+	printf("%s %s\n", &linein[65], pskpos +1);
 	pbkdf2count++;
 	}
 fclose(fh_pbkdf2);
