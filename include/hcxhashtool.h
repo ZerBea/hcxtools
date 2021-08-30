@@ -205,7 +205,3 @@ struct pmklist_s
 typedef struct pmklist_s pmklist_t;
 #define	PMKLIST_SIZE (sizeof(pmklist_t))
 /*===========================================================================*/
-
-
-
-
