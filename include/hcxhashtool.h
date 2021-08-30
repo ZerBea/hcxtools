@@ -12,6 +12,9 @@
 #define PMKIDEAPOL_BUFFER_LEN	1024
 #define HASHLIST_MAX		50000
 
+#define PBKDF2_LINE_LEN		1024
+
+
 #define HCX_HASH_TYPE			1
 #define HCX_HASH_MIN			2
 #define HCX_HASH_MAX			3
@@ -53,6 +56,7 @@
 #define HCX_PMKIDEAPOL_OUT		'o'
 #define HCX_ESSID_OUT			'E'
 #define HCX_DOWNLOAD_OUI		'd'
+#define HCX_PBKDF2_IN			'p'
 #define HCX_HELP			'h'
 #define HCX_VERSION			'v'
 /*===========================================================================*/

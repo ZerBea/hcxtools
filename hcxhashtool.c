@@ -2068,6 +2068,27 @@ while(1)
 return true;
 }
 /*===========================================================================*/
+static bool readbpkdf2file(char *pkdf2inname)
+{
+static int len;
+static FILE *fh_pbkdf2;
+static char linein[PBKDF2_LINE_LEN +1];
+
+if((fh_pbkdf2 = fopen(pkdf2inname, "r")) == NULL)
+	{
+	printf("error opening file %s: %s\n", pkdf2inname, strerror(errno));
+	return false;
+	}
+while(1)
+	{
+	if((len = fgetline(fh_pbkdf2, PBKDF2_LINE_LEN, linein)) == -1) break;
+
+
+	}
+fclose(fh_pbkdf2);
+return true;
+}
+/*===========================================================================*/
 static void showvendorlist()
 {
 static ouilist_t *zeiger;
@@ -2235,6 +2256,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"-d          : download http://standards-oui.ieee.org/oui.txt\n"
 	"              and save to ~/.hcxtools/oui.txt\n"
 	"              internet connection required\n"
+//	"-p          : input PBKDF2 file (hashcat potfile 22000 format)\n" 
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
@@ -2333,6 +2355,7 @@ static int p1, p2;
 static int hashtypein;
 static int essidlenin;
 static FILE *fh_pmkideapol;
+static char *pbkdf2inname;
 static char *pmkideapolinname;
 static char *pmkideapoloutname;
 static char *essidoutname;
@@ -2350,7 +2373,7 @@ static char *ouiinstring;
 static char *macinstring;
 static char *pmkinstring;
 
-static const char *short_options = "i:o:E:dhv";
+static const char *short_options = "i:o:E:dp:hv";
 static const struct option long_options[] =
 {
 	{"type",			required_argument,	NULL,	HCX_HASH_TYPE},
@@ -2400,6 +2423,7 @@ auswahl = -1;
 index = 0;
 optind = 1;
 optopt = 0;
+pbkdf2inname = NULL;
 fh_pmkideapol = NULL;
 pmkideapolinname = NULL;
 pmkideapoloutname = NULL;
@@ -2746,6 +2770,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		downloadoui();
 		break;
 
+		case HCX_PBKDF2_IN:
+		pbkdf2inname = optarg;
+		break;
+
 		case HCX_HCCAPX_OUT:
 		hccapxoutname = optarg;
 		break;
@@ -2789,6 +2817,8 @@ if(argc < 2)
 	}
 
 if(initlists() == false) exit(EXIT_FAILURE);
+
+if(pbkdf2inname != NULL) readbpkdf2file(pbkdf2inname);
 
 if((infooutname != NULL) || (infovendoroutname != NULL) || (infovendorapoutname != NULL) || (infovendorclientoutname != NULL))
 	{
