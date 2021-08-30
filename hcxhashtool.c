@@ -161,7 +161,7 @@ if(flagvendorout == true)
 	printf("\n");
 	return;
 	}
-if(pbkdf2count > 0)			printf("PBKDF2 results................: %ld\n", pbkdf2count);
+if(pbkdf2count > 0)			printf("PBKDF2 lines..................: %ld\n", pbkdf2count);
 if(pbkdf2readerrorcount > 0)		printf("PBKDF2 errors.................: %ld\n", pbkdf2readerrorcount);
 if(readerrorcount > 0)			printf("read errors...................: %ld\n", readerrorcount);
 if(pmkideapolcount > 0)			printf("valid hash lines..............: %ld\n", pmkideapolcount);
@@ -2075,6 +2075,7 @@ return true;
 static bool readbpkdf2file(char *pkdf2inname)
 {
 static int len;
+static char *pskpos;
 static FILE *fh_pbkdf2;
 static char linein[PBKDF2_LINE_LEN +1];
 
@@ -2099,6 +2100,15 @@ while(1)
 		pbkdf2readerrorcount++;
 		continue;
 		}
+	pskpos = strchr(&linein[65], ':');
+	if(pskpos == NULL)
+		{
+		pbkdf2readerrorcount++;
+		continue;
+		}
+
+
+	printf("%s\n", pskpos +1);
 	pbkdf2count++;
 	}
 fclose(fh_pbkdf2);
