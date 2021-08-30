@@ -1603,7 +1603,6 @@ while((lineptr[p] != '*') && (lineptr[p] != 0) && (p /2 <= bufflen))
 	idx1 = ((uint8_t)lineptr[p +1] &0x1F) ^0x10;
 	buff[p /2] = (uint8_t)(hashmap[idx0] <<4) | hashmap[idx1];
 	p += 2;
-	if((p /2) > PMKIDEAPOL_BUFFER_LEN) return 0;
 	}
 return p /2;
 }
