@@ -890,9 +890,9 @@ static maclist_t *zeigermac;
 if(fh_deviceinfo == NULL) return;
 for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	{
-//	if(zeigermac->model[0] == 0) continue;
-	if((zeigermac->model[0] == 0) && (zeigermac->serialnumber[0] == 0)) continue;
+	if((zeigermac->manufactorer[0] == 0) && (zeigermac->model[0] == 0) && (zeigermac->serialnumber[0] == 0)) continue;
 	for(p = 0; p< 6; p++) fprintf(fh_deviceinfo, "%02x", zeigermac->addr[p]);
+	fwritedeviceinfostr(zeigermac->manufactorerlen, zeigermac->manufactorer, fh_deviceinfo);
 	fwritedeviceinfostr(zeigermac->modellen, zeigermac->model, fh_deviceinfo);
 	fwritedeviceinfostr(zeigermac->serialnumberlen, zeigermac->serialnumber, fh_deviceinfo);
 	fprintf(fh_deviceinfo, "\n");
@@ -2693,6 +2693,11 @@ while(0 < wpslen)
 	{
 	if(wpslen == 4) return true;
 	wpsptr = (wpsie_t*)tagptr;
+	if((ntohs(wpsptr->type) == WPS_MANUFACTURER) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX -1)))
+		{
+		zeiger->manufactorerlen = ntohs(wpsptr->len);
+		memcpy(zeiger->manufactorer, wpsptr->data, zeiger->manufactorerlen);
+		}
 	if((ntohs(wpsptr->type) == WPS_MODELNAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX -1)))
 		{
 		zeiger->modellen = ntohs(wpsptr->len);
@@ -4031,6 +4036,8 @@ memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
+aplistptr->manufactorerlen = tags.manufactorerlen;
+memcpy(aplistptr->manufactorer, tags.manufactorer, tags.manufactorerlen);
 aplistptr->modellen = tags.modellen;
 memcpy(aplistptr->model, tags.model, tags.modellen);
 aplistptr->serialnumberlen = tags.serialnumberlen;
@@ -4131,6 +4138,8 @@ memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
+aplistptr->manufactorerlen = tags.manufactorerlen;
+memcpy(aplistptr->manufactorer, tags.manufactorer, tags.manufactorerlen);
 aplistptr->modellen = tags.modellen;
 memcpy(aplistptr->model, tags.model, tags.modellen);
 aplistptr->serialnumberlen = tags.serialnumberlen;
