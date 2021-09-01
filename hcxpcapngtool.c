@@ -6226,6 +6226,13 @@ if(usernameoutname != NULL)
 		if(statinfo.st_size == 0) remove(usernameoutname);
 		}
 	}
+if(deviceinfooutname != NULL)
+	{
+	if(stat(deviceinfooutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(deviceinfooutname);
+		}
+	}
 if(nmeaoutname != NULL)
 	{
 	if(stat(nmeaoutname, &statinfo) == 0)
