@@ -2798,7 +2798,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_PBKDF2_IN:
-		pbkdf2inname = optarg;
+//		pbkdf2inname = optarg;
 		break;
 
 		case HCX_HCCAPX_OUT:
