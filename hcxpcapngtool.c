@@ -890,9 +890,11 @@ static maclist_t *zeigermac;
 if(fh_deviceinfo == NULL) return;
 for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	{
-	if(zeigermac->modellen == 0) continue;
+//	if(zeigermac->model[0] == 0) continue;
+	if((zeigermac->model[0] == 0) && (zeigermac->serialnumber[0] == 0)) continue;
 	for(p = 0; p< 6; p++) fprintf(fh_deviceinfo, "%02x", zeigermac->addr[p]);
 	fwritedeviceinfostr(zeigermac->modellen, zeigermac->model, fh_deviceinfo);
+	fwritedeviceinfostr(zeigermac->serialnumberlen, zeigermac->serialnumber, fh_deviceinfo);
 	fprintf(fh_deviceinfo, "\n");
 	deviceinfocount++;
 	}
@@ -2696,6 +2698,11 @@ while(0 < wpslen)
 		zeiger->modellen = ntohs(wpsptr->len);
 		memcpy(zeiger->model, wpsptr->data, zeiger->modellen);
 		}
+	if((ntohs(wpsptr->type) == WPS_SERIALNUMBER) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX -1)))
+		{
+		zeiger->serialnumberlen = ntohs(wpsptr->len);
+		memcpy(zeiger->serialnumber, wpsptr->data, zeiger->serialnumberlen);
+		}
 	tagptr += ntohs(wpsptr->len) +WPSIE_SIZE;
 	wpslen -= ntohs(wpsptr->len) +WPSIE_SIZE;
 	}
@@ -4026,6 +4033,8 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 aplistptr->modellen = tags.modellen;
 memcpy(aplistptr->model, tags.model, tags.modellen);
+aplistptr->serialnumberlen = tags.serialnumberlen;
+memcpy(aplistptr->serialnumber, tags.serialnumber, tags.serialnumberlen);
 if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
@@ -4124,6 +4133,8 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 aplistptr->modellen = tags.modellen;
 memcpy(aplistptr->model, tags.model, tags.modellen);
+aplistptr->serialnumberlen = tags.serialnumberlen;
+memcpy(aplistptr->serialnumber, tags.serialnumber, tags.serialnumberlen);
 if(fh_csv != NULL) writecsv(beacontimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
@@ -4137,8 +4148,6 @@ static actvf_t *actvf;
 if(packetlen < ACTIONVENDORFRAME_SIZE) return;
 actvf = (actvf_t*)packetptr;
 if(memcmp(actvf->vendor, &ouiapple, 3) == 0) awdlcount++;
-
-
 return;
 }
 /*===========================================================================*/
