@@ -437,9 +437,16 @@ typedef struct wpaie_tag wpaie_t;
 /*===========================================================================*/
 struct wpsie_tag
 {
- uint16_t		type;
- uint16_t		len;
- uint8_t		data[1];
+ uint16_t			type;
+#define WPS_CONFIGMETHODS	0x1008
+#define WPS_DEVICENAME		0x1011
+#define WPS_MANUFACTURER	0x1021
+#define WPS_MODELNAME		0x1023
+#define WPS_SERIALNUMBER	0x1042
+#define WPS_STATE		0x1044
+#define WPS_VERSION		0x104a
+ uint16_t			len;
+ uint8_t			data[1];
 } __attribute__ ((packed));
 typedef struct wpsie_tag wpsie_t;
 #define	WPSIE_SIZE offsetof(wpsie_t, data)
