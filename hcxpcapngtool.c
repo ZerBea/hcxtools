@@ -2658,12 +2658,26 @@ else if(exteap->code == EAP_CODE_RESP)
 return;
 }
 /*===========================================================================*/
-static bool gettagwps(int wpslen, uint8_t *ieptr, tags_t *zeiger)
+static bool gettagwps(int wpslen, uint8_t *tagptr, tags_t *zeiger)
 {
-wpslen -= VENDORIE_SIZE;
-ieptr += VENDORIE_SIZE;
+static wpsie_t *wpsptr;
+
+wpslen -= WPSVENDOR_SIZE;
+tagptr += WPSVENDOR_SIZE;
 if(wpslen < (int)WPSIE_SIZE) return true;
 zeiger->wpsinfo = 1;
+
+while(0 < wpslen)
+	{
+	if(wpslen == 4) return true;
+	wpsptr = (wpsie_t*)tagptr;
+
+
+	tagptr += ntohs(wpsptr->len) +WPSIE_SIZE;
+	wpslen -= ntohs(wpsptr->len) +WPSIE_SIZE;
+	}
+if((wpslen != 0) && (wpslen != 4)) return false;
+
 return true;
 }
 /*===========================================================================*/

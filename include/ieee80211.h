@@ -435,6 +435,14 @@ typedef struct wpaie_tag wpaie_t;
 #define WPAIE_LEN_MIN	22
 #define OUI_SIZE	3
 /*===========================================================================*/
+struct wpsvendor_tag
+{
+ uint8_t	oui[3];
+ uint8_t	type;
+} __attribute__ ((packed));
+typedef struct wpsvendor_tag wpsvendor_t;
+#define	WPSVENDOR_SIZE sizeof(wpsvendor_t)
+/*===========================================================================*/
 struct wpsie_tag
 {
  uint16_t			type;
