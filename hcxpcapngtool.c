@@ -105,6 +105,7 @@ static FILE *fh_eapleap;
 static FILE *fh_tacacsp;
 static FILE *fh_essid;
 static FILE *fh_essidproberequest;
+static FILE *fh_deviceinfo;
 static FILE *fh_identity;
 static FILE *fh_username;
 static FILE *fh_nmea;
@@ -280,6 +281,7 @@ static uint64_t rcgapmax;
 static long int taglenerrorcount;
 static long int essidcount;
 static long int essiderrorcount;
+static long int deviceinfocount;
 static long int sequenceerrorcount;
 static long int essiddupemax;
 
@@ -570,6 +572,7 @@ usernamecount = 0;
 taglenerrorcount = 0;
 essidcount = 0;
 essiderrorcount = 0;
+deviceinfocount = 0;
 sequenceerrorcount = 0;
 essiddupemax = 0;
 rcgapmax = 0;
@@ -673,6 +676,7 @@ if(eapolrc4count > 0)			printf("EAPOL RC4 messages.......................: %ld\n
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n", eapolwpacount);
 if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
+if(deviceinfocount > 0)			printf("device information.......................: %ld\n", deviceinfocount);
 if(essiddupemax > 0)
 	{
 	if((essidsvalue > 1) || (donotcleanflag == true)) printf("ESSID changes (detected maximum).........: %ld\n", essiddupemax);
@@ -874,6 +878,23 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	if((fh_essidproberequest != NULL) && (zeigermac->status == ST_PROBE_REQ)) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essidproberequest);
 	essidcount++;
 	zeigermacold = zeigermac;
+	}
+return;
+}
+/*===========================================================================*/
+static void outputdeviceinfolist()
+{
+static int p;
+static maclist_t *zeigermac;
+
+if(fh_deviceinfo == NULL) return;
+for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
+	{
+	if(zeigermac->modellen == 0) continue;
+	for(p = 0; p< 6; p++) fprintf(fh_deviceinfo, "%02x", zeigermac->addr[p]);
+	fwritedeviceinfostr(zeigermac->modellen, zeigermac->model, fh_deviceinfo);
+	fprintf(fh_deviceinfo, "\n");
+	deviceinfocount++;
 	}
 return;
 }
@@ -2670,7 +2691,7 @@ while(0 < wpslen)
 	{
 	if(wpslen == 4) return true;
 	wpsptr = (wpsie_t*)tagptr;
-	if((ntohs(wpsptr->type) == WPS_MODELNAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < DEVICE_INFO_MAX))
+	if((ntohs(wpsptr->type) == WPS_MODELNAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX -1)))
 		{
 		zeiger->modellen = ntohs(wpsptr->len);
 		memcpy(zeiger->model, wpsptr->data, zeiger->modellen);
@@ -4649,6 +4670,7 @@ outputeapleaphashlist();
 outputeapmschapv2hashlist();
 outputtacacsplist();
 outputwordlists();
+outputdeviceinfolist();
 printcontentinfo();
 
 return;
@@ -5130,6 +5152,7 @@ printlinklayerinfo();
 cleanupmac();
 outputwpalists();
 outputwordlists();
+outputdeviceinfolist();
 outputeapmd5hashlist();
 outputeapleaphashlist();
 outputeapmschapv2hashlist();
@@ -5403,6 +5426,7 @@ printlinklayerinfo();
 cleanupmac();
 outputwpalists();
 outputwordlists();
+outputdeviceinfolist();
 outputeapmd5hashlist();
 outputeapleaphashlist();
 outputeapmschapv2hashlist();
@@ -5450,6 +5474,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"            retrieved from PROBEREQUEST frames only\n"
 	"-I <file> : output unsorted identity list to use as input wordlist for cracker\n"
 	"-U <file> : output unsorted username list to use as input wordlist for cracker\n"
+	"-D <file> : output device information list\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
@@ -5562,6 +5587,7 @@ static char *eapleapoutname;
 static char *tacacspoutname;
 static char *essidoutname;
 static char *essidproberequestoutname;
+static char *deviceinfooutname;
 static char *identityoutname;
 static char *usernameoutname;
 static char *nmeaoutname;
@@ -5585,6 +5611,7 @@ static const char *identitysuffix = ".identity";
 static const char *usernamesuffix = ".username";
 static const char *nmeasuffix = ".nmea";
 static const char *csvsuffix = ".csv";
+static const char *deviceinfosuffix = ".deviceinfo";
 
 static char pmkideapolprefix[PATH_MAX];
 static char eapmd5prefix[PATH_MAX];
@@ -5596,11 +5623,12 @@ static char identityprefix[PATH_MAX];
 static char usernameprefix[PATH_MAX];
 static char nmeaprefix[PATH_MAX];
 static char csvprefix[PATH_MAX];
+static char deviceinfoprefix[PATH_MAX];
 
 struct timeval tv;
 static struct stat statinfo;
 
-static const char *short_options = "o:E:R:I:U:hv";
+static const char *short_options = "o:E:R:I:U:D:hv";
 static const struct option long_options[] =
 {
 	{"all",				no_argument,		NULL,	HCX_CONVERT_ALL},
@@ -5647,6 +5675,7 @@ essidoutname = NULL;
 essidproberequestoutname = NULL;
 identityoutname = NULL;
 usernameoutname = NULL;
+deviceinfooutname = NULL;
 nmeaoutname = NULL;
 csvoutname = NULL;
 logoutname = NULL;
@@ -5665,6 +5694,7 @@ fh_eapleap = NULL;
 fh_tacacsp = NULL;
 fh_essid = NULL;
 fh_essidproberequest = NULL;
+fh_deviceinfo= NULL;
 fh_identity = NULL;
 fh_username = NULL;
 fh_nmea = NULL;
@@ -5745,6 +5775,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		usernameoutname = optarg;
 		break;
 
+		case HCX_DEVICEINFO_OUT:
+		deviceinfooutname = optarg;
+		break;
+
 		case HCX_NMEA_OUT:
 		nmeaoutname = optarg;
 		break;
@@ -5823,6 +5857,7 @@ if(testfilename(pmkideapoloutname, essidoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, identityoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapoloutname, deviceinfooutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, eapmd5outname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, eapleapoutname) == true) exit(EXIT_FAILURE);
@@ -5836,6 +5871,7 @@ if(testfilename(eapmd5outname, essidoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, identityoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapmd5outname, deviceinfooutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, eapleapoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapmd5outname, tacacspoutname) == true) exit(EXIT_FAILURE);
@@ -5848,6 +5884,7 @@ if(testfilename(eapleapoutname, essidoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, identityoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(eapleapoutname, deviceinfooutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, tacacspoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(eapleapoutname, nmeaoutname) == true) exit(EXIT_FAILURE);
@@ -5859,6 +5896,7 @@ if(testfilename(tacacspoutname, essidoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, identityoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(tacacspoutname, deviceinfooutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, nmeaoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(tacacspoutname, csvoutname) == true) exit(EXIT_FAILURE);
@@ -5869,6 +5907,7 @@ if(testfilename(nmeaoutname, essidoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(nmeaoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(nmeaoutname, identityoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(nmeaoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(nmeaoutname, deviceinfooutname) == true) exit(EXIT_FAILURE);
 if(testfilename(nmeaoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(nmeaoutname, rawoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(nmeaoutname, logoutname) == true) exit(EXIT_FAILURE);
@@ -5877,6 +5916,7 @@ if(testfilename(rawoutname, essidoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(rawoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(rawoutname, identityoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(rawoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(rawoutname, deviceinfooutname) == true) exit(EXIT_FAILURE);
 if(testfilename(rawoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(rawoutname, logoutname) == true) exit(EXIT_FAILURE);
 
@@ -5884,6 +5924,7 @@ if(testfilename(logoutname, essidoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(logoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(logoutname, identityoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(logoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(logoutname, deviceinfooutname) == true) exit(EXIT_FAILURE);
 if(testfilename(logoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 
 if(prefixoutname != NULL)
@@ -5907,6 +5948,10 @@ if(prefixoutname != NULL)
 	strncpy(usernameprefix, prefixoutname, PREFIX_BUFFER_MAX);
 	strncat(usernameprefix, usernamesuffix, PREFIX_BUFFER_MAX);
 	usernameoutname = usernameprefix;
+
+	strncpy(deviceinfoprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(deviceinfoprefix, deviceinfosuffix, PREFIX_BUFFER_MAX);
+	deviceinfooutname = deviceinfoprefix;
 
 	strncpy(eapmd5prefix, prefixoutname, PREFIX_BUFFER_MAX);
 	strncat(eapmd5prefix, eapmd5suffix, PREFIX_BUFFER_MAX);
@@ -6008,6 +6053,14 @@ if(usernameoutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
+if(deviceinfooutname != NULL)
+	{
+	if((fh_deviceinfo = fopen(deviceinfooutname, "a")) == NULL)
+		{
+		printf("error opening file %s: %s\n", deviceinfooutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
 if(nmeaoutname != NULL)
 	{
 	if((fh_nmea = fopen(nmeaoutname, "a")) == NULL)
@@ -6091,6 +6144,7 @@ if(fh_essid != NULL) fclose(fh_essid);
 if(fh_essidproberequest != NULL) fclose(fh_essidproberequest);
 if(fh_identity != NULL) fclose(fh_identity);
 if(fh_username != NULL) fclose(fh_username);
+if(fh_deviceinfo != NULL) fclose(fh_deviceinfo);
 if(fh_nmea != NULL) fclose(fh_nmea);
 if(fh_csv != NULL) fclose(fh_csv);
 if(fh_raw_out != NULL) fclose(fh_raw_out);

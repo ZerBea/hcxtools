@@ -88,14 +88,8 @@ void fwriteessidstr(uint8_t len, unsigned char *essidstr, FILE *fhd)
 {
 int p;
 
-if((len == 0) || (len > ESSID_LEN_MAX))
-	{
-	return;
-	}
-if(essidstr[0] == 0)
-	{
-	return;
-	}
+if((len == 0) || (len > ESSID_LEN_MAX)) return;
+if(essidstr[0] == 0) return;
 if(isasciistring(len, essidstr) != false)
 	{
 	fwrite(essidstr, len, 1, fhd);
@@ -109,6 +103,28 @@ else
 		fprintf(fhd, "%02x", essidstr[p]);
 		}
 	fprintf(fhd, "]\n");
+	}
+return;
+}
+/*===========================================================================*/
+void fwritedeviceinfostr(uint8_t len, unsigned char *deviceinfostr, FILE *fhd)
+{
+int p;
+
+fprintf(fhd, "\t");
+if(deviceinfostr[0] == 0) return;
+if(isasciistring(len, deviceinfostr) != false)
+	{
+	fprintf(fhd, "%s", deviceinfostr);
+	}
+else
+	{
+	fprintf(fhd, "$HEX[");
+	for(p = 0; p < len; p++)
+		{
+		fprintf(fhd, "%02x", deviceinfostr[p]);
+		}
+	fprintf(fhd, "]");
 	}
 return;
 }
