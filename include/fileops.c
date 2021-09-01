@@ -109,7 +109,7 @@ int p;
 
 fprintf(fhd, "\t");
 if(deviceinfostr[0] == 0) return;
-if(isasciistring(len, deviceinfostr) != false)
+if(isasciistring2(len, deviceinfostr) != false)
 	{
 	fprintf(fhd, "%s", deviceinfostr);
 	}
