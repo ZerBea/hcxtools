@@ -116,6 +116,9 @@ struct tags_s
  char		country[2];
  uint8_t	essidlen;
  uint8_t	essid[ESSID_LEN_MAX];
+#define DEVICE_INFO_MAX	64
+ uint8_t	modellen;
+ uint8_t	model[DEVICE_INFO_MAX];
 };
 typedef struct tags_s tags_t;
 #define	TAGS_SIZE (sizeof(tags_t))
@@ -146,6 +149,9 @@ struct maclist_s
  uint8_t		algorithm;
  uint8_t		essidlen;
  uint8_t		essid[ESSID_LEN_MAX];
+ uint8_t		modellen;
+ uint8_t		model[DEVICE_INFO_MAX];
+
 };
 typedef struct maclist_s maclist_t;
 #define	MACLIST_SIZE (sizeof(maclist_t))

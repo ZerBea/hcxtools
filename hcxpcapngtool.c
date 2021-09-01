@@ -2666,18 +2666,19 @@ wpslen -= WPSVENDOR_SIZE;
 tagptr += WPSVENDOR_SIZE;
 if(wpslen < (int)WPSIE_SIZE) return true;
 zeiger->wpsinfo = 1;
-
 while(0 < wpslen)
 	{
 	if(wpslen == 4) return true;
 	wpsptr = (wpsie_t*)tagptr;
-
-
+	if((ntohs(wpsptr->type) == WPS_MODELNAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < DEVICE_INFO_MAX))
+		{
+		zeiger->modellen = ntohs(wpsptr->len);
+		memcpy(zeiger->model, wpsptr->data, zeiger->modellen);
+		}
 	tagptr += ntohs(wpsptr->len) +WPSIE_SIZE;
 	wpslen -= ntohs(wpsptr->len) +WPSIE_SIZE;
 	}
 if((wpslen != 0) && (wpslen != 4)) return false;
-
 return true;
 }
 /*===========================================================================*/
@@ -4002,6 +4003,8 @@ memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
+aplistptr->modellen = tags.modellen;
+memcpy(aplistptr->model, tags.model, tags.modellen);
 if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
@@ -4098,6 +4101,8 @@ memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 aplistptr->groupcipher = tags.groupcipher;
 aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
+aplistptr->modellen = tags.modellen;
+memcpy(aplistptr->model, tags.model, tags.modellen);
 if(fh_csv != NULL) writecsv(beacontimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
