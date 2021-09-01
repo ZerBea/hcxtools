@@ -37,7 +37,6 @@
 #include "include/fileops.c"
 #include "include/ieee80211.h"
 #include "include/byteops.c"
-
 /*===========================================================================*/
 /* global var */
 
