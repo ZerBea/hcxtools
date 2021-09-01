@@ -1,7 +1,7 @@
 01.09.2021
 ==========
 hcxpcapngtool: added new option to retrieve information about the ACCESS POINT
-               As initial start, if transmitted, MAC_AP, MANUFACTURER, MODELNAME and SERIALNUMBER are stored (delimited by tab).
+               As initial start, if transmitted, MAC_AP, MANUFACTURER, MODELNAME, SERIALNUMBER and DEVICENAME are stored (delimited by tab).
 -D <file> : output device information list
 
 

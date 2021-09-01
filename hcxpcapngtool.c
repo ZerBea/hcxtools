@@ -890,11 +890,12 @@ static maclist_t *zeigermac;
 if(fh_deviceinfo == NULL) return;
 for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	{
-	if((zeigermac->manufactorer[0] == 0) && (zeigermac->model[0] == 0) && (zeigermac->serialnumber[0] == 0)) continue;
+	if((zeigermac->manufactorer[0] == 0) && (zeigermac->model[0] == 0) && (zeigermac->serialnumber[0] == 0) && (zeigermac->devicename[0] == 0)) continue;
 	for(p = 0; p< 6; p++) fprintf(fh_deviceinfo, "%02x", zeigermac->addr[p]);
 	fwritedeviceinfostr(zeigermac->manufactorerlen, zeigermac->manufactorer, fh_deviceinfo);
 	fwritedeviceinfostr(zeigermac->modellen, zeigermac->model, fh_deviceinfo);
 	fwritedeviceinfostr(zeigermac->serialnumberlen, zeigermac->serialnumber, fh_deviceinfo);
+	fwritedeviceinfostr(zeigermac->devicenamelen, zeigermac->devicename, fh_deviceinfo);
 	fprintf(fh_deviceinfo, "\n");
 	deviceinfocount++;
 	}
@@ -2708,6 +2709,11 @@ while(0 < wpslen)
 		zeiger->serialnumberlen = ntohs(wpsptr->len);
 		memcpy(zeiger->serialnumber, wpsptr->data, zeiger->serialnumberlen);
 		}
+	if((ntohs(wpsptr->type) == WPS_DEVICENAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX -1)))
+		{
+		zeiger->devicenamelen = ntohs(wpsptr->len);
+		memcpy(zeiger->devicename, wpsptr->data, zeiger->devicenamelen);
+		}
 	tagptr += ntohs(wpsptr->len) +WPSIE_SIZE;
 	wpslen -= ntohs(wpsptr->len) +WPSIE_SIZE;
 	}
@@ -4042,6 +4048,8 @@ aplistptr->modellen = tags.modellen;
 memcpy(aplistptr->model, tags.model, tags.modellen);
 aplistptr->serialnumberlen = tags.serialnumberlen;
 memcpy(aplistptr->serialnumber, tags.serialnumber, tags.serialnumberlen);
+aplistptr->devicenamelen = tags.devicenamelen;
+memcpy(aplistptr->devicename, tags.devicename, tags.devicenamelen);
 if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
@@ -4144,6 +4152,8 @@ aplistptr->modellen = tags.modellen;
 memcpy(aplistptr->model, tags.model, tags.modellen);
 aplistptr->serialnumberlen = tags.serialnumberlen;
 memcpy(aplistptr->serialnumber, tags.serialnumber, tags.serialnumberlen);
+aplistptr->devicenamelen = tags.devicenamelen;
+memcpy(aplistptr->devicename, tags.devicename, tags.devicenamelen);
 if(fh_csv != NULL) writecsv(beacontimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
@@ -5492,7 +5502,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"            retrieved from PROBEREQUEST frames only\n"
 	"-I <file> : output unsorted identity list to use as input wordlist for cracker\n"
 	"-U <file> : output unsorted username list to use as input wordlist for cracker\n"
-	"-D <file> : output device information list\n"
+	"-D <file> : output unsorted device information list\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
