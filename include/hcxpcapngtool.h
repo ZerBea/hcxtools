@@ -213,10 +213,10 @@ static int sort_maclist_by_manufacturer(const void *a, const void *b)
 const maclist_t *ia = (const maclist_t *)a;
 const maclist_t *ib = (const maclist_t *)b;
 
-if(ia->manufacturerlen > ib->manufacturerlen) return 1;
-else if(ia->manufacturerlen < ib->manufacturerlen) return -1;
 if(memcmp(ia->manufacturer, ib->manufacturer, ib->manufacturerlen) > 0) return 1;
 else if(memcmp(ia->manufacturer, ib->manufacturer, ib->manufacturerlen) < 0) return -1;
+if(ia->manufacturerlen > ib->manufacturerlen) return 1;
+else if(ia->manufacturerlen < ib->manufacturerlen) return -1;
 if(memcmp(ia->addr, ib->addr, 6) > 0) return 1;
 else if(memcmp(ia->addr, ib->addr, 6) < 0) return -1;
 return 0;
