@@ -118,8 +118,8 @@ struct tags_s
  uint8_t	essidlen;
  uint8_t	essid[ESSID_LEN_MAX];
 #define DEVICE_INFO_MAX	64
- uint8_t	manufactorerlen;
- uint8_t	manufactorer[DEVICE_INFO_MAX];
+ uint8_t	manufacturerlen;
+ uint8_t	manufacturer[DEVICE_INFO_MAX];
  uint8_t	modellen;
  uint8_t	model[DEVICE_INFO_MAX];
  uint8_t	serialnumberlen;
@@ -156,8 +156,8 @@ struct maclist_s
  uint8_t		algorithm;
  uint8_t		essidlen;
  uint8_t		essid[ESSID_LEN_MAX];
- uint8_t		manufactorerlen;
- uint8_t		manufactorer[DEVICE_INFO_MAX];
+ uint8_t		manufacturerlen;
+ uint8_t		manufacturer[DEVICE_INFO_MAX];
  uint8_t		modellen;
  uint8_t		model[DEVICE_INFO_MAX];
  uint8_t		serialnumberlen;
@@ -205,6 +205,20 @@ if(memcmp(ia->essid, ib->essid, ib->essidlen) > 0) return 1;
 else if(memcmp(ia->essid, ib->essid, ib->essidlen) < 0) return -1;
 if(ia->essidlen > ib->essidlen) return 1;
 else if(ia->essidlen < ib->essidlen) return -1;
+return 0;
+}
+
+static int sort_maclist_by_manufacturer(const void *a, const void *b)
+{
+const maclist_t *ia = (const maclist_t *)a;
+const maclist_t *ib = (const maclist_t *)b;
+
+if(ia->manufacturerlen > ib->manufacturerlen) return 1;
+else if(ia->manufacturerlen < ib->manufacturerlen) return -1;
+if(memcmp(ia->manufacturer, ib->manufacturer, ib->manufacturerlen) > 0) return 1;
+else if(memcmp(ia->manufacturer, ib->manufacturer, ib->manufacturerlen) < 0) return -1;
+if(memcmp(ia->addr, ib->addr, 6) > 0) return 1;
+else if(memcmp(ia->addr, ib->addr, 6) < 0) return -1;
 return 0;
 }
 /*===========================================================================*/
