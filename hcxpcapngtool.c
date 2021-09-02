@@ -676,7 +676,7 @@ if(eapolrc4count > 0)			printf("EAPOL RC4 messages.......................: %ld\n
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n", eapolwpacount);
 if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
-if(deviceinfocount > 0)			printf("device information.......................: %ld\n", deviceinfocount);
+if(deviceinfocount > 0)			printf("frames containing device information.....: %ld\n", deviceinfocount);
 if(essiddupemax > 0)
 	{
 	if((essidsvalue > 1) || (donotcleanflag == true)) printf("ESSID changes (detected maximum).........: %ld\n", essiddupemax);
