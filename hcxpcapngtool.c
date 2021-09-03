@@ -891,6 +891,7 @@ if(fh_deviceinfo == NULL) return;
 qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_manufacturer);
 for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	{
+	if((zeigermac->manufacturerlen == 0) && (zeigermac->modellen == 0) && (zeigermac->serialnumberlen == 0) &&  (zeigermac->devicenamelen == 0)) continue;
 	if((zeigermac->manufacturer[0] == 0) && (zeigermac->model[0] == 0) && (zeigermac->serialnumber[0] == 0) && (zeigermac->devicename[0] == 0)) continue;
 	for(p = 0; p< 6; p++) fprintf(fh_deviceinfo, "%02x", zeigermac->addr[p]);
 	fwritedeviceinfostr(zeigermac->manufacturerlen, zeigermac->manufacturer, fh_deviceinfo);
