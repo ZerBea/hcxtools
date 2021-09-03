@@ -2694,22 +2694,22 @@ zeiger->wpsinfo = 1;
 while(0 < wpslen)
 	{
 	wpsptr = (wpsie_t*)tagptr;
-	if((ntohs(wpsptr->type) == WPS_MANUFACTURER) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX -1)))
+	if((ntohs(wpsptr->type) == WPS_MANUFACTURER) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX)))
 		{
 		zeiger->manufacturerlen = ntohs(wpsptr->len);
 		memcpy(zeiger->manufacturer, wpsptr->data, zeiger->manufacturerlen);
 		}
-	if((ntohs(wpsptr->type) == WPS_MODELNAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX -1)))
+	if((ntohs(wpsptr->type) == WPS_MODELNAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX)))
 		{
 		zeiger->modellen = ntohs(wpsptr->len);
 		memcpy(zeiger->model, wpsptr->data, zeiger->modellen);
 		}
-	if((ntohs(wpsptr->type) == WPS_SERIALNUMBER) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX -1)))
+	if((ntohs(wpsptr->type) == WPS_SERIALNUMBER) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX)))
 		{
 		zeiger->serialnumberlen = ntohs(wpsptr->len);
 		memcpy(zeiger->serialnumber, wpsptr->data, zeiger->serialnumberlen);
 		}
-	if((ntohs(wpsptr->type) == WPS_DEVICENAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX -1)))
+	if((ntohs(wpsptr->type) == WPS_DEVICENAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX)))
 		{
 		zeiger->devicenamelen = ntohs(wpsptr->len);
 		memcpy(zeiger->devicename, wpsptr->data, zeiger->devicenamelen);
