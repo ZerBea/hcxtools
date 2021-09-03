@@ -8,7 +8,6 @@
 #include <sys/types.h>
 
 #include "fileops.h"
-
 /*===========================================================================*/
 int getmagicnumber(int fd)
 {
@@ -16,10 +15,7 @@ int res;
 magicnr_t mnr;
 
 res = read(fd, &mnr, 4);
-if(res != 4)
-	{
-	return 0;
-	}
+if(res != 4) return 0;
 return mnr.magic_number;
 }
 /*===========================================================================*/
@@ -37,10 +33,7 @@ if(tshigh != 0)
 	strftime(tmbuf, sizeof tmbuf, "%d%m%Y", pkttm);
 	fprintf(fhd, "%s:", tmbuf);
 	}
-else
-	{
-	fprintf(fhd, "00000000:");
-	}
+else fprintf(fhd, "00000000:");
 return;
 }
 /*===========================================================================*/
@@ -48,10 +41,7 @@ void fwriteaddr1(uint8_t *macw, FILE *fhd)
 {
 int p;
 
-for(p = 0; p< 6; p++)
-	{
-	fprintf(fhd, "%02x", macw[p]);
-	}
+for(p = 0; p< 6; p++) fprintf(fhd, "%02x", macw[p]);
 fprintf(fhd, ":");
 return;
 }
@@ -67,18 +57,11 @@ void fwriteessidstrnoret(uint8_t len, unsigned char *essidstr, FILE *fhd)
 {
 int p;
 
-if(isasciistring(len, essidstr) != false)
-	{
-	fwrite(essidstr, len, 1, fhd);
-	fprintf(fhd, ":");
-	}
+if(isasciistring(len, essidstr) != false) fprintf(fhd, "%.*s\n", len, essidstr);
 else
 	{
 	fprintf(fhd, "$HEX[");
-	for(p = 0; p < len; p++)
-		{
-		fprintf(fhd, "%02x", essidstr[p]);
-		}
+	for(p = 0; p < len; p++) fprintf(fhd, "%02x", essidstr[p]);
 	fprintf(fhd, "]:");
 	}
 return;
@@ -90,14 +73,11 @@ int p;
 
 if((len == 0) || (len > ESSID_LEN_MAX)) return;
 if(essidstr[0] == 0) return;
-if(isasciistring(len, essidstr) != false) fprintf(fhd, "%s\n", essidstr);
+if(isasciistring(len, essidstr) != false) fprintf(fhd, "%.*s\n", len, essidstr);
 else
 	{
 	fprintf(fhd, "$HEX[");
-	for(p = 0; p < len; p++)
-		{
-		fprintf(fhd, "%02x", essidstr[p]);
-		}
+	for(p = 0; p < len; p++) fprintf(fhd, "%02x", essidstr[p]);
 	fprintf(fhd, "]\n");
 	}
 return;
@@ -109,10 +89,7 @@ int p;
 
 fprintf(fhd, "\t");
 if(deviceinfostr[0] == 0) return;
-if(isasciistring2(len, deviceinfostr) != false)
-	{
-	fprintf(fhd, "%s", deviceinfostr);
-	}
+if(isasciistring2(len, deviceinfostr) != false) fprintf(fhd, "%.*s", len, deviceinfostr);
 else
 	{
 	fprintf(fhd, "$HEX[");
@@ -126,18 +103,11 @@ void fwritestring(uint8_t len, unsigned char *essidstr, FILE *fhd)
 {
 int p;
 
-if(isasciistring(len, essidstr) != false)
-	{
-	fwrite(essidstr, len, 1, fhd);
-	fprintf(fhd, "\n");
-	}
+if(isasciistring(len, essidstr) != false) fprintf(fhd, "%.*s\n", len, essidstr);
 else
 	{
 	fprintf(fhd, "$HEX[");
-	for(p = 0; p < len; p++)
-		{
-		fprintf(fhd, "%02x", essidstr[p]);
-		}
+	for(p = 0; p < len; p++) fprintf(fhd, "%02x", essidstr[p]);
 	fprintf(fhd, "]\n");
 	}
 return;
@@ -147,10 +117,7 @@ void fwritehexbuffraw(uint8_t bufflen, uint8_t *buff, FILE *fhd)
 {
 int p;
 
-for(p = 0; p < bufflen; p++)
-	{
-	fprintf(fhd, "%02x", buff[p]);
-	}
+for(p = 0; p < bufflen; p++) fprintf(fhd, "%02x", buff[p]);
 return;
 }
 /*===========================================================================*/
@@ -158,10 +125,7 @@ void fwritehexbuff(uint8_t bufflen, uint8_t *buff, FILE *fhd)
 {
 int p;
 
-for(p = 0; p < bufflen; p++)
-	{
-	fprintf(fhd, "%02x", buff[p]);
-	}
+for(p = 0; p < bufflen; p++) fprintf(fhd, "%02x", buff[p]);
 fprintf(fhd, "\n");
 return;
 }
@@ -170,15 +134,8 @@ void removeemptyfile(char *filenametoremove)
 {
 struct stat statinfo;
 
-if(filenametoremove == NULL)
-	{
-	return;
-	}
-if(stat(filenametoremove, &statinfo) != 0)
-	{
-	return;
-	}
-
+if(filenametoremove == NULL) return;
+if(stat(filenametoremove, &statinfo) != 0) return;
 if(statinfo.st_size == 0)
 	{
 	remove(filenametoremove);
