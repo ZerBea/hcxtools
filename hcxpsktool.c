@@ -2107,10 +2107,9 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 me = macaddr &0xffffff;
 fprintf(fhout, "05%6d\n", me);
-
 oui = macaddr &0xffffff000000L;
-nic = (macaddr -0x0f) &0xffffffL;
-for(c = 0; c < 0x10; c++) writebssid(fhout, oui +((nic +c) &0xffffffL));
+nic = (macaddr -0x10) &0xffffffL;
+for(c = 0; c <= 0x10; c++) writebssid(fhout, oui +((nic +c) &0xffffffL));
 swap = (nic >> 8) & 0xffff;
 	{
 	swap = (swap & 0xf000) >> 12 | (swap & 0x0f00) >> 4 | (swap & 0x00f0) << 4 | (swap & 0x000f) << 12;
@@ -2263,7 +2262,6 @@ while(1)
 		aktread++;
 		continue;
 		}
-
 	if(((linein[32] != ':') && (linein[45] != ':') && (linein[58] != ':')) && ((linein[32] != '*') && (linein[45] != '*') && (linein[58] != '*')))
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
@@ -2327,7 +2325,6 @@ while(1)
 		aktread++;
 		continue;
 		}
-
 	if((linein[3] != '*') && (linein[6] != '*') && (linein[39] != '*') && (linein[52] != '*') && (linein[65] != '*'))
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
@@ -2367,10 +2364,10 @@ static int getwpapskfmt(int lenlinein, char *linein)
 static int p;
 static const char *johnformat = "$WPAPSK$";
 
-	for(p = 0; p < lenlinein -8; p++)
-		{
-		if(memcmp(&linein[p], johnformat, 8) == 0) return p;
-		}
+for(p = 0; p < lenlinein -8; p++)
+	{
+	if(memcmp(&linein[p], johnformat, 8) == 0) return p;
+	}
 return 0;
 }
 /*===========================================================================*/
@@ -2503,7 +2500,6 @@ if(macapname != NULL)
 	macaddr = strtoull(macapname, &macaddrstop, 16);
 	if((macaddrstop -macapname) != 12) fprintf(stderr, "invalid MAC specified\n");
 	}
-
 memset(&essid, 0, ESSID_LEN_MAX);
 essidlen = strlen(essidname);
 if(essidname != NULL)
