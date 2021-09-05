@@ -89,8 +89,8 @@ struct tags_s
  uint8_t		kdversion;
 #define KV_RSNIE	1
 #define KV_WPAIE	2
- uint8_t	groupcipher;
- uint8_t	cipher;
+ uint8_t		groupcipher;
+ uint8_t		cipher;
 #define TCS_WEP40	0b00000001
 #define TCS_TKIP	0b00000010
 #define TCS_WRAP	0b00000100
@@ -98,7 +98,7 @@ struct tags_s
 #define TCS_WEP104	0b00010000
 #define TCS_BIP		0b00100000
 #define TCS_NOT_ALLOWED	0b01000000
- uint16_t	akm;
+ uint16_t		akm;
 #define	TAK_PMKSA	0b0000000000000001
 #define	TAK_PSK		0b0000000000000010
 #define TAK_FT		0b0000000000000100
@@ -112,20 +112,23 @@ struct tags_s
 #define	TAK_SAE_SHA256B	0b0000010000000000
 #define	TAK_SAE_SHA384B	0b0000100000000000
 #define TAK_OWE		0b0001000000000000
- uint8_t	pmkid[16];
- uint8_t	wpsinfo;
- char		country[2];
- uint8_t	essidlen;
- uint8_t	essid[ESSID_LEN_MAX];
-#define DEVICE_INFO_MAX	64
- uint8_t	manufacturerlen;
- uint8_t	manufacturer[DEVICE_INFO_MAX];
- uint8_t	modellen;
- uint8_t	model[DEVICE_INFO_MAX];
- uint8_t	serialnumberlen;
- uint8_t	serialnumber[DEVICE_INFO_MAX];
- uint8_t	devicenamelen;
- uint8_t	devicename[DEVICE_INFO_MAX];
+ uint8_t		pmkid[16];
+ uint8_t		wpsinfo;
+ char			country[2];
+ uint8_t		essidlen;
+ uint8_t		essid[ESSID_LEN_MAX];
+#define DEVICE_INFO_MAX		64
+ uint8_t		manufacturerlen;
+ uint8_t		manufacturer[DEVICE_INFO_MAX];
+ uint8_t		modellen;
+ uint8_t		model[DEVICE_INFO_MAX];
+ uint8_t		serialnumberlen;
+ uint8_t		serialnumber[DEVICE_INFO_MAX];
+ uint8_t		devicenamelen;
+ uint8_t		devicename[DEVICE_INFO_MAX];
+#define WPS_ENROLLEE_LEN	16
+ uint8_t		enrolleelen;
+ uint8_t		enrollee[WPS_ENROLLEE_LEN];
 };
 typedef struct tags_s tags_t;
 #define	TAGS_SIZE (sizeof(tags_t))
@@ -164,6 +167,8 @@ struct maclist_s
  uint8_t		serialnumber[DEVICE_INFO_MAX];
  uint8_t		devicenamelen;
  uint8_t		devicename[DEVICE_INFO_MAX];
+ uint8_t		enrolleelen;
+ uint8_t		enrollee[WPS_ENROLLEE_LEN];
 };
 typedef struct maclist_s maclist_t;
 #define	MACLIST_SIZE (sizeof(maclist_t))

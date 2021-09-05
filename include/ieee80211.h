@@ -452,6 +452,7 @@ struct wpsie_tag
 #define WPS_MODELNAME		0x1023
 #define WPS_SERIALNUMBER	0x1042
 #define WPS_STATE		0x1044
+#define WPS_UUIDE		0x1047
 #define WPS_VERSION		0x104a
  uint16_t			len;
  uint8_t			data[1];

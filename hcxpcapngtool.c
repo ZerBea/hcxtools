@@ -891,13 +891,18 @@ if(fh_deviceinfo == NULL) return;
 qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_manufacturer);
 for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 	{
-	if((zeigermac->manufacturerlen == 0) && (zeigermac->modellen == 0) && (zeigermac->serialnumberlen == 0) &&  (zeigermac->devicenamelen == 0)) continue;
+	if((zeigermac->manufacturerlen == 0) && (zeigermac->modellen == 0) && (zeigermac->serialnumberlen == 0) && (zeigermac->devicenamelen == 0) && (zeigermac->enrolleelen == 0)) continue;
 	if((zeigermac->manufacturer[0] == 0) && (zeigermac->model[0] == 0) && (zeigermac->serialnumber[0] == 0) && (zeigermac->devicename[0] == 0)) continue;
-	for(p = 0; p< 6; p++) fprintf(fh_deviceinfo, "%02x", zeigermac->addr[p]);
+	for(p = 0; p < 6; p++) fprintf(fh_deviceinfo, "%02x", zeigermac->addr[p]);
 	fwritedeviceinfostr(zeigermac->manufacturerlen, zeigermac->manufacturer, fh_deviceinfo);
 	fwritedeviceinfostr(zeigermac->modellen, zeigermac->model, fh_deviceinfo);
 	fwritedeviceinfostr(zeigermac->serialnumberlen, zeigermac->serialnumber, fh_deviceinfo);
 	fwritedeviceinfostr(zeigermac->devicenamelen, zeigermac->devicename, fh_deviceinfo);
+	if(zeigermac->enrolleelen != 0)
+		{
+		fprintf(fh_deviceinfo, "\t");
+		for(p = 0; p < zeigermac->enrolleelen; p++) fprintf(fh_deviceinfo, "%02x", zeigermac->enrollee[p]);
+		}
 	fprintf(fh_deviceinfo, "\n");
 	deviceinfocount++;
 	}
@@ -2701,25 +2706,30 @@ wpslen -= ntohs(wpsptr->len) +WPSIE_SIZE;
 while(0 < wpslen)
 	{
 	wpsptr = (wpsie_t*)tagptr;
-	if((ntohs(wpsptr->type) == WPS_MANUFACTURER) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX)))
+	if((ntohs(wpsptr->type) == WPS_MANUFACTURER) && (ntohs(wpsptr->len) > 0) && (ntohs(wpsptr->len) < DEVICE_INFO_MAX))
 		{
 		zeiger->manufacturerlen = ntohs(wpsptr->len);
 		memcpy(zeiger->manufacturer, wpsptr->data, zeiger->manufacturerlen);
 		}
-	if((ntohs(wpsptr->type) == WPS_MODELNAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX)))
+	else if((ntohs(wpsptr->type) == WPS_MODELNAME) && (ntohs(wpsptr->len) > 0) && (ntohs(wpsptr->len) < DEVICE_INFO_MAX))
 		{
 		zeiger->modellen = ntohs(wpsptr->len);
 		memcpy(zeiger->model, wpsptr->data, zeiger->modellen);
 		}
-	if((ntohs(wpsptr->type) == WPS_SERIALNUMBER) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX)))
+	else if((ntohs(wpsptr->type) == WPS_SERIALNUMBER) && (ntohs(wpsptr->len) > 0) && (ntohs(wpsptr->len) < DEVICE_INFO_MAX))
 		{
 		zeiger->serialnumberlen = ntohs(wpsptr->len);
 		memcpy(zeiger->serialnumber, wpsptr->data, zeiger->serialnumberlen);
 		}
-	if((ntohs(wpsptr->type) == WPS_DEVICENAME) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX)))
+	else if((ntohs(wpsptr->type) == WPS_DEVICENAME) && (ntohs(wpsptr->len) > 0) && (ntohs(wpsptr->len) < DEVICE_INFO_MAX))
 		{
 		zeiger->devicenamelen = ntohs(wpsptr->len);
 		memcpy(zeiger->devicename, wpsptr->data, zeiger->devicenamelen);
+		}
+	else if((ntohs(wpsptr->type) == WPS_UUIDE) && (ntohs(wpsptr->len) == WPS_ENROLLEE_LEN))
+		{
+		zeiger->enrolleelen = ntohs(wpsptr->len);
+		memcpy(zeiger->enrollee, wpsptr->data, wpsptr->len);
 		}
 	tagptr += ntohs(wpsptr->len) +WPSIE_SIZE;
 	wpslen -= ntohs(wpsptr->len) +WPSIE_SIZE;
@@ -4057,6 +4067,8 @@ aplistptr->serialnumberlen = tags.serialnumberlen;
 memcpy(aplistptr->serialnumber, tags.serialnumber, tags.serialnumberlen);
 aplistptr->devicenamelen = tags.devicenamelen;
 memcpy(aplistptr->devicename, tags.devicename, tags.devicenamelen);
+aplistptr->enrolleelen = tags.enrolleelen;
+memcpy(aplistptr->enrollee, tags.enrollee, tags.enrolleelen);
 if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
@@ -4161,6 +4173,8 @@ aplistptr->serialnumberlen = tags.serialnumberlen;
 memcpy(aplistptr->serialnumber, tags.serialnumber, tags.serialnumberlen);
 aplistptr->devicenamelen = tags.devicenamelen;
 memcpy(aplistptr->devicename, tags.devicename, tags.devicenamelen);
+aplistptr->enrolleelen = tags.enrolleelen;
+memcpy(aplistptr->enrollee, tags.enrollee, tags.enrolleelen);
 if(fh_csv != NULL) writecsv(beacontimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
