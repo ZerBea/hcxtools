@@ -3766,7 +3766,6 @@ for(c = 0; c < 20; c ++)
 	zeiger->groupcipher |= aplistptr->groupcipher;
 	zeiger->cipher |= aplistptr->cipher;
 	zeiger->akm |= aplistptr->akm;
-
 	if(zeiger->manufacturerlen == 0)
 		{
 		memcpy(zeiger->manufacturer, aplistptr->manufacturer, aplistptr->manufacturerlen);
