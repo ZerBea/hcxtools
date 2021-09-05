@@ -2692,14 +2692,15 @@ wpslen -= WPSVENDOR_SIZE;
 tagptr += WPSVENDOR_SIZE;
 if(wpslen < (int)WPSIE_SIZE) return true;
 zeiger->wpsinfo = 1;
+wpsptr = (wpsie_t*)tagptr;
+if(ntohs(wpsptr->type) != WPS_VERSION) return true;
+if(ntohs(wpsptr->len) != 1) return true;
+if(wpsptr->data[0] != 0x10) return true;
+tagptr += ntohs(wpsptr->len) +WPSIE_SIZE;
+wpslen -= ntohs(wpsptr->len) +WPSIE_SIZE;
 while(0 < wpslen)
 	{
 	wpsptr = (wpsie_t*)tagptr;
-	if(ntohs(wpsptr->type) == WPS_VERSION)
-		{
-		if(ntohs(wpsptr->len) != 1) return true;
-		if(wpsptr->data[0] != 0x10) return true;
-		}
 	if((ntohs(wpsptr->type) == WPS_MANUFACTURER) && (ntohs(wpsptr->len) > 0)  && (ntohs(wpsptr->len) < (DEVICE_INFO_MAX)))
 		{
 		zeiger->manufacturerlen = ntohs(wpsptr->len);
