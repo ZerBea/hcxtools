@@ -2429,6 +2429,31 @@ for(zeiger = aplist +1; zeiger < aplistptr; zeiger++)
 				zeigerold->groupcipher |= zeiger->groupcipher;
 				zeigerold->cipher |= zeiger->cipher;
 				zeigerold->akm |= zeiger->akm;
+				if(zeigerold->manufacturerlen == 0)
+					{
+					memcpy(zeigerold->manufacturer, zeiger->manufacturer, zeiger->manufacturerlen);
+					zeigerold->manufacturerlen = zeiger->manufacturerlen;
+					}
+				if(zeigerold->modellen == 0)
+					{
+					memcpy(zeigerold->model, zeiger->model, zeiger->modellen);
+					zeigerold->modellen = zeiger->modellen;
+					}
+				if(zeigerold->serialnumberlen == 0)
+					{
+					memcpy(zeigerold->serialnumber, zeiger->serialnumber, zeiger->serialnumberlen);
+					zeigerold->serialnumberlen = zeiger->serialnumberlen;
+					}
+				if(zeigerold->devicenamelen == 0)
+					{
+					memcpy(zeigerold->devicename, zeiger->devicename, zeiger->devicenamelen);
+					zeigerold->devicenamelen = zeiger->devicenamelen;
+					}
+				if(zeigerold->enrolleelen == 0) 
+					{
+					memcpy(zeigerold->enrollee, zeiger->enrollee, zeiger->enrolleelen);
+					zeigerold->enrolleelen = zeiger->enrolleelen;
+					}
 				zeiger->type = REMOVED;
 				continue;
 				}
@@ -2729,7 +2754,7 @@ while(0 < wpslen)
 	else if((ntohs(wpsptr->type) == WPS_UUIDE) && (ntohs(wpsptr->len) == WPS_ENROLLEE_LEN))
 		{
 		zeiger->enrolleelen = ntohs(wpsptr->len);
-		memcpy(zeiger->enrollee, wpsptr->data, wpsptr->len);
+		memcpy(zeiger->enrollee, wpsptr->data, zeiger->enrolleelen);
 		}
 	tagptr += ntohs(wpsptr->len) +WPSIE_SIZE;
 	wpslen -= ntohs(wpsptr->len) +WPSIE_SIZE;
@@ -3741,6 +3766,32 @@ for(c = 0; c < 20; c ++)
 	zeiger->groupcipher |= aplistptr->groupcipher;
 	zeiger->cipher |= aplistptr->cipher;
 	zeiger->akm |= aplistptr->akm;
+
+	if(zeiger->manufacturerlen == 0)
+		{
+		memcpy(zeiger->manufacturer, aplistptr->manufacturer, aplistptr->manufacturerlen);
+		zeiger->manufacturerlen = aplistptr->manufacturerlen;
+		}
+	if(zeiger->modellen == 0)
+		{
+		memcpy(zeiger->model, aplistptr->model, aplistptr->modellen);
+		zeiger->modellen = aplistptr->modellen;
+		}
+	if(zeiger->serialnumberlen == 0)
+		{
+		memcpy(zeiger->serialnumber, aplistptr->serialnumber, aplistptr->serialnumberlen);
+		zeiger->serialnumberlen = aplistptr->serialnumberlen;
+		}
+	if(zeiger->devicenamelen == 0)
+		{
+		memcpy(zeiger->devicename, aplistptr->devicename, aplistptr->devicenamelen);
+		zeiger->devicenamelen = aplistptr->devicenamelen;
+		}
+	if(zeiger->enrolleelen == 0) 
+		{
+		memcpy(zeiger->enrollee, aplistptr->enrollee, aplistptr->enrolleelen);
+		zeiger->enrolleelen = aplistptr->enrolleelen;
+		}
 	return true;
 	}
 return false;
@@ -4713,15 +4764,14 @@ printf("\nsummary capture file\n"
 
 printlinklayerinfo();
 cleanupmac();
+outputdeviceinfolist();
 outputwpalists();
 outputeapmd5hashlist();
 outputeapleaphashlist();
 outputeapmschapv2hashlist();
 outputtacacsplist();
 outputwordlists();
-outputdeviceinfolist();
 printcontentinfo();
-
 return;
 }
 /*===========================================================================*/
@@ -5199,15 +5249,14 @@ printf("\nsummary capture file\n"
 
 printlinklayerinfo();
 cleanupmac();
+outputdeviceinfolist();
 outputwpalists();
 outputwordlists();
-outputdeviceinfolist();
 outputeapmd5hashlist();
 outputeapleaphashlist();
 outputeapmschapv2hashlist();
 outputtacacsplist();
 printcontentinfo();
-
 return;
 }
 /*===========================================================================*/
@@ -5473,14 +5522,13 @@ printf("\nsummary raw file\n"
 
 printlinklayerinfo();
 cleanupmac();
+outputdeviceinfolist();
 outputwpalists();
 outputwordlists();
-outputdeviceinfolist();
 outputeapmd5hashlist();
 outputeapleaphashlist();
 outputeapmschapv2hashlist();
 printcontentinfo();
-
 fclose(fh_raw_in);
 return true ;
 }
