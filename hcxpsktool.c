@@ -1458,6 +1458,18 @@ for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "CG3000DV2%04X%c%c\n", k1, essid[
 return;
 }
 /*===========================================================================*/
+static void testcpsrf(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1;
+static char *cpcrf = "Coolpad Surf ";
+
+if(essidlen < 17) return;
+if(memcmp(essid, cpcrf, 13) != 0) return;
+if((!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15])) || (!isdigit(essid[16]))) return;
+for(k1 = 0; k1 < 10000; k1++) fprintf(fhout, "%04d%.*s\n", k1, 4, &essid[13]);
+return;
+}
+/*===========================================================================*/
 static void testeasybox(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int b;
@@ -1879,6 +1891,7 @@ testattwifi(fhout, essidlen, essid);
 testaxtelxtremo(fhout, essidlen, essid);
 testcabovisao(fhout, essidlen, essid);
 testcg3000dv2(fhout, essidlen, essid);
+testcpsrf(fhout, essidlen, essid);
 testeasybox(fhout, essidlen, essid);
 testglocal(fhout, essidlen, essid);
 testhotbox(fhout, essidlen, essid);
