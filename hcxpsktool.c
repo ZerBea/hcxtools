@@ -1461,12 +1461,23 @@ return;
 static void testcpsrf(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *cpcrf = "Coolpad Surf ";
+static char *cpcrf1 = "CoolpadSurf_";
+static char *cpcrf2 = "Coolpad Surf ";
 
+if(essidlen < 16) return;
+if(memcmp(essid, cpcrf1, 12) == 0)
+	{
+	if((!isdigit(essid[12])) || (!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15]))) return;
+	for(k1 = 0; k1 < 10000; k1++) fprintf(fhout, "%04d%.*s\n", k1, 4, &essid[12]);
+	return;
+	}
 if(essidlen < 17) return;
-if(memcmp(essid, cpcrf, 13) != 0) return;
-if((!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15])) || (!isdigit(essid[16]))) return;
-for(k1 = 0; k1 < 10000; k1++) fprintf(fhout, "%04d%.*s\n", k1, 4, &essid[13]);
+if(memcmp(essid, cpcrf2, 13) == 0)
+	{
+	if((!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15])) || (!isdigit(essid[16]))) return;
+	for(k1 = 0; k1 < 10000; k1++) fprintf(fhout, "%04d%.*s\n", k1, 4, &essid[13]);
+	return;
+	}
 return;
 }
 /*===========================================================================*/
