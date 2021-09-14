@@ -1,3 +1,10 @@
+14.09.2021
+==========
+release v6.2.4
+This is the last version, supporting OpenSSL 1.1
+Next version 6.3.0 will need OpenSSL 3.0.0
+
+
 01.09.2021
 ==========
 hcxpcapngtool: added new option to retrieve information about the ACCESS POINT
