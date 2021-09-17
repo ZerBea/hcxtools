@@ -95,7 +95,7 @@ static bool flagfilterouiclient;
 static uint8_t filterouiclient[3];
 
 static bool flagfilterauthorized;
-static bool flagfilternotauthorized;
+static bool flagfilterchallenge;
 static bool flagfilterrcchecked;
 static bool flagfilterapless;
 
@@ -197,7 +197,7 @@ if(flagfilterouiclient == true)
 if(flagfilterapless == true)		printf("filter by M2..................: requested from client (AP-LESS)\n");
 if(flagfilterrcchecked == true)		printf("filter by replaycount.........: checked\n");
 if(flagfilterauthorized == true)	printf("filter by status..............: authorized (M1M4, M2M3 or M3M4)\n");
-if(flagfilternotauthorized == true)	printf("filter by status..............: challenge (M1M2)\n");
+if(flagfilterchallenge == true)	printf("filter by status..............: challenge (M1M2)\n");
 if(pmkidwrittencount > 0)		printf("PMKID written.................: %ld\n", pmkidwrittencount);
 if(eapolwrittencount > 0)		printf("EAPOL written.................: %ld\n", eapolwrittencount);
 if(hccapxwrittencount > 0)		printf("EAPOL written to hccapx.......: %ld\n", hccapxwrittencount);
@@ -796,7 +796,7 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
-if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
+if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 memset(&hccap, 0, sizeof(hccap_t));
@@ -899,7 +899,7 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
-if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
+if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 memset(&hccap, 0, sizeof(hccap_t));
@@ -1024,7 +1024,7 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
-if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
+if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 memset (&hccapx, 0, sizeof(hccapx_t));
@@ -1136,7 +1136,7 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
-if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
+if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 if(zeiger->type == HCX_TYPE_PMKID)
 	{
 	fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -1417,7 +1417,7 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
 if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
-if((flagfilternotauthorized == true) && ((zeiger->mp &0x07) != 0x01)) return;
+if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 fprintf(fh_pmkideapol, "SSID.......: %.*s\n", zeiger->essidlen, zeiger->essid);
 vendor = getvendor(zeiger->ap);
@@ -2326,8 +2326,8 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--vendor=<VENDOR>            : filter AP or CLIENT by (part of) VENDOR name\n"
 	"--vendor-ap=<VENDOR>         : filter AP by (part of) VENDOR name\n"
 	"--vendor-client=<VENDOR>     : filter CLIENT by (part of) VENDOR name\n"
-	"--authorized                 : filter EAPOL pairs by status authorized\n"
-	"--notauthorized              : filter EAPOL pairs by status CHALLENGE (not authorized)\n"
+	"--authorized                 : filter EAPOL pairs by status authorized (M2M3, M3M4, M1M4)\n"
+	"--challenge                  : filter EAPOL pairs by status CHALLENGE (M1M2, M1M2ROGUE)\n"
 	"--rc                         : filter EAPOL pairs by replaycount status checked\n"
 	"--apless                     : filter EAPOL pairs by status M1M2ROGUE (M2 requested from CLIENT)\n"
 	"--info=<file>                : output detailed information about content of hash file\n"
@@ -2427,7 +2427,7 @@ static const struct option long_options[] =
 	{"vendor-client",		required_argument,	NULL,	HCX_FILTER_VENDOR_CLIENT},
 	{"rc",				no_argument,		NULL,	HCX_FILTER_RC},
 	{"authorized",			no_argument,		NULL,	HCX_FILTER_M12},
-	{"notauthorized",		no_argument,		NULL,	HCX_FILTER_M1234},
+	{"challenge",			no_argument,		NULL,	HCX_FILTER_M1234},
 	{"apless",			no_argument,		NULL,	HCX_FILTER_M1M2ROGUE},
 	{"psk",				required_argument,	NULL,	HCX_PSK},
 	{"pmk",				required_argument,	NULL,	HCX_PMK},
@@ -2477,7 +2477,7 @@ flagfiltermacclient = false;
 flagfilterouiap = false;
 flagfilterouiclient = false;
 flagfilterauthorized = false;
-flagfilternotauthorized = false;
+flagfilterchallenge = false;
 flagfilterrcchecked = false;
 flagfilterapless = false;
 flagpsk = false;
@@ -2764,7 +2764,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_FILTER_M1234:
-		flagfilternotauthorized = true;
+		flagfilterchallenge = true;
 		break;
 
 		case HCX_FILTER_M1M2ROGUE:

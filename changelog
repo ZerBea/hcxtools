@@ -1,3 +1,9 @@
+17.09.2021
+==========
+hcxhashtool: renamed option --notauthorized to --challenge
+             added additional information about filtered MESSAGE PAIRS for this options
+
+
 14.09.2021
 ==========
 release v6.2.4
