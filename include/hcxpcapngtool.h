@@ -148,7 +148,7 @@ struct maclist_s
 #define ST_PROBE_RESP	4
 #define ST_ASSOC_REQ	8
 #define ST_REASSOC_REQ	16
-#define ST_ACT_MRR	32
+#define ST_ACT_MR_REQ	32
  uint8_t		addr[6];
  uint8_t		kdversion;
  uint8_t		groupcipher;

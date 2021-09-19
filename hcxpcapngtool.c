@@ -876,7 +876,7 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		}
 	if(fh_essid != NULL) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essid);
 	if((fh_essidproberequest != NULL) && (zeigermac->status == ST_PROBE_REQ)) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essidproberequest);
-	if((fh_essidproberequest != NULL) && (zeigermac->status == ST_ACT_MRR)) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essidproberequest);
+	if((fh_essidproberequest != NULL) && (zeigermac->status == ST_ACT_MR_REQ)) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essidproberequest);
 	essidcount++;
 	zeigermacold = zeigermac;
 	}
@@ -4264,7 +4264,7 @@ if(aplistptr >= aplist +maclistmax)
 memset(aplistptr, 0, MACLIST_SIZE);
 aplistptr->timestamp = actiontimestamp;
 aplistptr->count = 1;
-aplistptr->status = ST_ACT_MRR;
+aplistptr->status = ST_ACT_MR_REQ;
 aplistptr->type = AP;
 memcpy(aplistptr->addr, macap, 6);
 aplistptr->essidlen = tags.essidlen;
