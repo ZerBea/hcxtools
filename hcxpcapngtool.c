@@ -4242,10 +4242,9 @@ static actmm_t *actmm;
 if((to_ds != 1) && (from_ds != 0)) return;
 if(packetlen < ACTIONMEASUREMENTFRAME_SIZE) return;
 actmm = (actmm_t*)packetptr;
-if(actmm->actioncode != ACT_MM_NRR) return;
+if(actmm->actioncode != ACT_MM_NRREQ) return;
 packetlen -= (int)ACTIONMEASUREMENTFRAME_SIZE;
 packetptr += (int)ACTIONMEASUREMENTFRAME_SIZE;
-
 if(packetlen < (int)IETAG_SIZE) return;
 if(gettags(packetlen, packetptr, &tags) == false) return; 
 if(tags.essidlen == 0) return;

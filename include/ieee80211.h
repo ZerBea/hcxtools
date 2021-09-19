@@ -602,7 +602,8 @@ struct actionmeasurement_frame
 {
  uint8_t	categoriecode;
  uint8_t	actioncode;
-#define ACT_MM_NRR	4
+#define ACT_MM_NRREQ	4
+#define ACT_MM_NRRESP	5
  uint8_t	dialogtoken;
 };
 typedef struct actionmeasurement_frame actmm_t;
