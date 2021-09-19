@@ -3069,8 +3069,6 @@ static ietag_t *tagptr;
 memset(zeiger, 0, TAGS_SIZE);
 while(0 < infolen)
 	{
-	printf("debug infolen %d\n", infolen);
-
 	if(infolen == 4) return true;
 	tagptr = (ietag_t*)infoptr;
 	if(tagptr->len == 0)
