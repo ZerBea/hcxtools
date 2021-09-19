@@ -876,6 +876,7 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		}
 	if(fh_essid != NULL) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essid);
 	if((fh_essidproberequest != NULL) && (zeigermac->status == ST_PROBE_REQ)) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essidproberequest);
+	if((fh_essidproberequest != NULL) && (zeigermac->status == ST_ACT_MRR)) fwriteessidstr(zeigermac->essidlen, zeigermac->essid, fh_essidproberequest);
 	essidcount++;
 	zeigermacold = zeigermac;
 	}
@@ -3068,6 +3069,8 @@ static ietag_t *tagptr;
 memset(zeiger, 0, TAGS_SIZE);
 while(0 < infolen)
 	{
+	printf("debug infolen %d\n", infolen);
+
 	if(infolen == 4) return true;
 	tagptr = (ietag_t*)infoptr;
 	if(tagptr->len == 0)
@@ -4231,6 +4234,48 @@ if(fh_nmea != NULL) writegpwpl(macap);
 return;
 }
 /*===========================================================================*/
+static void process80211actionmeasurement(uint64_t actiontimestamp, uint8_t *macap, uint8_t to_ds, uint8_t from_ds, uint32_t packetlen, uint8_t *packetptr)
+{
+static maclist_t *aplistnew;
+static tags_t tags;
+
+static actmm_t *actmm;
+
+if((to_ds != 1) && (from_ds != 0)) return;
+if(packetlen < ACTIONMEASUREMENTFRAME_SIZE) return;
+actmm = (actmm_t*)packetptr;
+if(actmm->actioncode != ACT_MM_NRR) return;
+packetlen -= (int)ACTIONMEASUREMENTFRAME_SIZE;
+packetptr += (int)ACTIONMEASUREMENTFRAME_SIZE;
+
+if(packetlen < (int)IETAG_SIZE) return;
+if(gettags(packetlen, packetptr, &tags) == false) return; 
+if(tags.essidlen == 0) return;
+if(tags.essid[0] == 0) return;
+if(aplistptr >= aplist +maclistmax)
+	{
+	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	if(aplistnew == NULL)
+		{
+		printf("failed to allocate memory for internal list\n");
+		exit(EXIT_FAILURE);
+		}
+	aplist = aplistnew;
+	aplistptr = aplistnew +maclistmax;
+	maclistmax += MACLIST_MAX;
+	}
+memset(aplistptr, 0, MACLIST_SIZE);
+aplistptr->timestamp = actiontimestamp;
+aplistptr->count = 1;
+aplistptr->status = ST_ACT_MRR;
+aplistptr->type = AP;
+memcpy(aplistptr->addr, macap, 6);
+aplistptr->essidlen = tags.essidlen;
+memcpy(aplistptr->essid, tags.essid, tags.essidlen);
+if(cleanbackmac() == false) aplistptr++;
+return;
+}
+/*===========================================================================*/
 static void process80211actionvendor(uint32_t packetlen, uint8_t *packetptr)
 {
 static actvf_t *actvf;
@@ -4241,7 +4286,7 @@ if(memcmp(actvf->vendor, &ouiapple, 3) == 0) awdlcount++;
 return;
 }
 /*===========================================================================*/
-static void process80211action(uint32_t packetlen, uint8_t *packetptr)
+static void process80211action(uint64_t actiontimestamp, uint8_t *macap, uint8_t to_ds, uint8_t from_ds, uint32_t packetlen, uint8_t *packetptr)
 {
 static actf_t *actf;
 
@@ -4249,6 +4294,7 @@ if(packetlen < ACTIONFRAME_SIZE) return;
 actf = (actf_t*)packetptr;
 actioncount++;
 if(actf->categoriecode == CAT_VENDOR) process80211actionvendor(packetlen, packetptr);
+else if(actf->categoriecode == CAT_RADIO_MEASUREMENT) process80211actionmeasurement(actiontimestamp, macap, to_ds, from_ds, packetlen, packetptr);
 return;
 }
 /*===========================================================================*/
@@ -4288,7 +4334,7 @@ if(macfrx->type == IEEE80211_FTYPE_MGMT)
 		if(memcmp(&mac_broadcast, macfrx->addr1, 6) == 0) process80211probe_req(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
 		else process80211probe_req_direct(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
 		}
-	else if(macfrx->subtype == IEEE80211_STYPE_ACTION) process80211action(payloadlen, payloadptr);
+	else if(macfrx->subtype == IEEE80211_STYPE_ACTION) process80211action(packetimestamp, macfrx->addr1, macfrx->to_ds, macfrx->from_ds, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_DEAUTH) deauthenticationcount++;
 	else if(macfrx->subtype == IEEE80211_STYPE_DISASSOC) disassociationcount++;
 	else if(macfrx->subtype == IEEE80211_STYPE_MGTRESERVED) mgtreservedcount++;

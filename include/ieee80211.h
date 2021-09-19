@@ -598,6 +598,16 @@ struct actionvendor_frame
 typedef struct actionvendor_frame actvf_t;
 #define ACTIONVENDORFRAME_SIZE (sizeof(actvf_t))
 /*===========================================================================*/
+struct actionmeasurement_frame
+{
+ uint8_t	categoriecode;
+ uint8_t	actioncode;
+#define ACT_MM_NRR	4
+ uint8_t	dialogtoken;
+};
+typedef struct actionmeasurement_frame actmm_t;
+#define ACTIONMEASUREMENTFRAME_SIZE (sizeof(actmm_t))
+/*===========================================================================*/
 struct eapauthentication_s
 {
  uint8_t		version;
