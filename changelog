@@ -91,6 +91,7 @@ hcxpsktool: added new option to use an exclude ESSID combinations
 ==========
 release v 6.2.0
 get ready for gcc 11.1.0
+fixed CVE-2021-32286
 
 
 12.05.2021
