@@ -4232,7 +4232,7 @@ if(fh_nmea != NULL) writegpwpl(macap);
 return;
 }
 /*===========================================================================*/
-static void process80211actionmeasurement(uint64_t actiontimestamp, uint8_t *macap, uint8_t to_ds, uint8_t from_ds, uint32_t packetlen, uint8_t *packetptr)
+static void process80211actionmeasurement(uint64_t actiontimestamp, uint8_t *macclient, uint8_t to_ds, uint8_t from_ds, uint32_t packetlen, uint8_t *packetptr)
 {
 static maclist_t *aplistnew;
 static tags_t tags;
@@ -4265,8 +4265,8 @@ memset(aplistptr, 0, MACLIST_SIZE);
 aplistptr->timestamp = actiontimestamp;
 aplistptr->count = 1;
 aplistptr->status = ST_ACT_MR_REQ;
-aplistptr->type = AP;
-memcpy(aplistptr->addr, macap, 6);
+aplistptr->type = CLIENT;
+memcpy(aplistptr->addr, macclient, 6);
 aplistptr->essidlen = tags.essidlen;
 memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 if(cleanbackmac() == false) aplistptr++;
@@ -4283,7 +4283,7 @@ if(memcmp(actvf->vendor, &ouiapple, 3) == 0) awdlcount++;
 return;
 }
 /*===========================================================================*/
-static void process80211action(uint64_t actiontimestamp, uint8_t *macap, uint8_t to_ds, uint8_t from_ds, uint32_t packetlen, uint8_t *packetptr)
+static void process80211action(uint64_t actiontimestamp, uint8_t *macclient, uint8_t to_ds, uint8_t from_ds, uint32_t packetlen, uint8_t *packetptr)
 {
 static actf_t *actf;
 
@@ -4291,7 +4291,7 @@ if(packetlen < ACTIONFRAME_SIZE) return;
 actf = (actf_t*)packetptr;
 actioncount++;
 if(actf->categoriecode == CAT_VENDOR) process80211actionvendor(packetlen, packetptr);
-else if(actf->categoriecode == CAT_RADIO_MEASUREMENT) process80211actionmeasurement(actiontimestamp, macap, to_ds, from_ds, packetlen, packetptr);
+else if(actf->categoriecode == CAT_RADIO_MEASUREMENT) process80211actionmeasurement(actiontimestamp, macclient, to_ds, from_ds, packetlen, packetptr);
 return;
 }
 /*===========================================================================*/
@@ -4331,7 +4331,7 @@ if(macfrx->type == IEEE80211_FTYPE_MGMT)
 		if(memcmp(&mac_broadcast, macfrx->addr1, 6) == 0) process80211probe_req(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
 		else process80211probe_req_direct(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
 		}
-	else if(macfrx->subtype == IEEE80211_STYPE_ACTION) process80211action(packetimestamp, macfrx->addr1, macfrx->to_ds, macfrx->from_ds, payloadlen, payloadptr);
+	else if(macfrx->subtype == IEEE80211_STYPE_ACTION) process80211action(packetimestamp, macfrx->addr2, macfrx->to_ds, macfrx->from_ds, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_DEAUTH) deauthenticationcount++;
 	else if(macfrx->subtype == IEEE80211_STYPE_DISASSOC) disassociationcount++;
 	else if(macfrx->subtype == IEEE80211_STYPE_MGTRESERVED) mgtreservedcount++;
