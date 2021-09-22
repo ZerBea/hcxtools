@@ -160,6 +160,7 @@ static long int beaconssidzeroedcount;
 static long int beaconssidoversizedcount;
 static long int beaconhcxcount;
 static long int beaconerrorcount;
+static long int broadcastmacerrorcount;
 static long int pagcount;
 static long int proberesponsecount;
 static long int proberesponsessidunsetcount;
@@ -455,6 +456,7 @@ beaconssidzeroedcount = 0;
 beaconssidoversizedcount = 0;
 beaconhcxcount = 0;
 beaconerrorcount = 0;
+broadcastmacerrorcount = 0;
 pagcount = 0;
 proberesponsecount = 0;
 proberesponsessidunsetcount = 0;
@@ -732,9 +734,11 @@ if(pcapreaderrors > 0)			printf("packet read error........................: %ld\
 if(radiotaperrorcount > 0)		printf("packet with damaged radiotap header......: %ld\n", radiotaperrorcount);
 if(zeroedtimestampcount > 0)		printf("packets with zeroed timestamps...........: %ld\n", zeroedtimestampcount);
 if(eapolmsgtimestamperrorcount > 0)	printf("EAPOL frames with wrong timestamp........: %ld\n", eapolmsgtimestamperrorcount);
-malformedcount = beaconerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount;
+malformedcount = beaconerrorcount +broadcastmacerrorcount +taglenerrorcount +essiderrorcount +eapolmsgerrorcount;
 if(malformedcount > 0)			printf("malformed packets (total)................: %ld\n", malformedcount);
-if(beaconerrorcount > 0)		printf("BROADCAST MAC error (malformed packets)..: %ld\n", beaconerrorcount);
+beaconerrorcount += broadcastmacerrorcount;
+if(beaconerrorcount > 0)		printf("BEACON error (total malformed packets)...: %ld\n", beaconerrorcount);
+if(broadcastmacerrorcount > 0)		printf("BROADCAST MAC error (malformed packets)..: %ld\n", broadcastmacerrorcount);
 if(taglenerrorcount > 0)		printf("IE TAG length error (malformed packets)..: %ld\n", taglenerrorcount);
 if(essiderrorcount > 0)			printf("ESSID error (malformed packets)..........: %ld\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
@@ -4162,7 +4166,7 @@ static tags_t tags;
 beaconcount++;
 if(memcmp(&mac_broadcast, macbc, 6) != 0)
 	{
-	beaconerrorcount++;
+	broadcastmacerrorcount++;
 	return;
 	}
 apinfoptr = beaconptr +CAPABILITIESAP_SIZE;
@@ -4232,14 +4236,13 @@ if(fh_nmea != NULL) writegpwpl(macap);
 return;
 }
 /*===========================================================================*/
-static void process80211actionmeasurement(uint64_t actiontimestamp, uint8_t *macclient, uint8_t to_ds, uint8_t from_ds, uint32_t packetlen, uint8_t *packetptr)
+static void process80211actionmeasurement(uint64_t actiontimestamp, uint8_t *macclient, uint32_t packetlen, uint8_t *packetptr)
 {
 static maclist_t *aplistnew;
 static tags_t tags;
 
 static actmm_t *actmm;
 
-if((to_ds != 1) && (from_ds != 0)) return;
 if(packetlen < ACTIONMEASUREMENTFRAME_SIZE) return;
 actmm = (actmm_t*)packetptr;
 if(actmm->actioncode != ACT_MM_NRREQ) return;
@@ -4283,7 +4286,7 @@ if(memcmp(actvf->vendor, &ouiapple, 3) == 0) awdlcount++;
 return;
 }
 /*===========================================================================*/
-static void process80211action(uint64_t actiontimestamp, uint8_t *macclient, uint8_t to_ds, uint8_t from_ds, uint32_t packetlen, uint8_t *packetptr)
+static void process80211action(uint64_t actiontimestamp, uint8_t *macclient, uint32_t packetlen, uint8_t *packetptr)
 {
 static actf_t *actf;
 
@@ -4291,7 +4294,7 @@ if(packetlen < ACTIONFRAME_SIZE) return;
 actf = (actf_t*)packetptr;
 actioncount++;
 if(actf->categoriecode == CAT_VENDOR) process80211actionvendor(packetlen, packetptr);
-else if(actf->categoriecode == CAT_RADIO_MEASUREMENT) process80211actionmeasurement(actiontimestamp, macclient, to_ds, from_ds, packetlen, packetptr);
+else if(actf->categoriecode == CAT_RADIO_MEASUREMENT) process80211actionmeasurement(actiontimestamp, macclient, packetlen, packetptr);
 return;
 }
 /*===========================================================================*/
@@ -4331,7 +4334,7 @@ if(macfrx->type == IEEE80211_FTYPE_MGMT)
 		if(memcmp(&mac_broadcast, macfrx->addr1, 6) == 0) process80211probe_req(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
 		else process80211probe_req_direct(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
 		}
-	else if(macfrx->subtype == IEEE80211_STYPE_ACTION) process80211action(packetimestamp, macfrx->addr2, macfrx->to_ds, macfrx->from_ds, payloadlen, payloadptr);
+	else if(macfrx->subtype == IEEE80211_STYPE_ACTION) process80211action(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
 	else if(macfrx->subtype == IEEE80211_STYPE_DEAUTH) deauthenticationcount++;
 	else if(macfrx->subtype == IEEE80211_STYPE_DISASSOC) disassociationcount++;
 	else if(macfrx->subtype == IEEE80211_STYPE_MGTRESERVED) mgtreservedcount++;
