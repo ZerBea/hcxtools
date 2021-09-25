@@ -34,6 +34,8 @@ Read this post: New attack on WPA/WPA2 using PMKID (https://hashcat.net/forum/th
 
 Read this post: Hash mode 22000 explained (https://hashcat.net/forum/thread-10253.html)
 
+Read this wiki: https://hashcat.net/wiki/doku.php?id=cracking_wpawpa2
+
 
 Detailed description
 --------------
