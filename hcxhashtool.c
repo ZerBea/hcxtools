@@ -97,6 +97,7 @@ static uint8_t filterouiclient[3];
 static bool flagfilterauthorized;
 static bool flagfilterchallenge;
 static bool flagfilterrcchecked;
+static bool flagfilterrcnotchecked;
 static bool flagfilterapless;
 
 static int pskptrlen;
@@ -196,6 +197,7 @@ if(flagfilterouiclient == true)
 	}
 if(flagfilterapless == true)		printf("filter by M2..................: requested from client (AP-LESS)\n");
 if(flagfilterrcchecked == true)		printf("filter by replaycount.........: checked\n");
+if(flagfilterrcnotchecked == true)		printf("filter by replaycount.........: not checked\n");
 if(flagfilterauthorized == true)	printf("filter by status..............: authorized (M1M4, M2M3 or M3M4)\n");
 if(flagfilterchallenge == true)	printf("filter by status..............: challenge (M1M2)\n");
 if(pmkidwrittencount > 0)		printf("PMKID written.................: %ld\n", pmkidwrittencount);
@@ -794,7 +796,8 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
-if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) == 0x80)) return;
+if((flagfilterrcnotchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
 if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
@@ -897,7 +900,8 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
-if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) == 0x80)) return;
+if((flagfilterrcnotchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
 if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
@@ -1022,7 +1026,8 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
-if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) == 0x80)) return;
+if((flagfilterrcnotchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
 if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
@@ -1134,7 +1139,8 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
-if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) == 0x80)) return;
+if((flagfilterrcnotchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
 if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 if(zeiger->type == HCX_TYPE_PMKID)
@@ -1415,7 +1421,8 @@ if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclie
 	if(isoui(zeiger->ap, zeiger->client) == false) return;
 	}
 if((flagfilterapless == true) && ((zeiger->mp &0x10) != 0x10)) return;
-if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) != 0x00)) return;
+if((flagfilterrcchecked == true) && ((zeiger->mp &0x80) == 0x80)) return;
+if((flagfilterrcnotchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
 if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
@@ -2329,6 +2336,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--authorized                 : filter EAPOL pairs by status authorized (M2M3, M3M4, M1M4)\n"
 	"--challenge                  : filter EAPOL pairs by status CHALLENGE (M1M2, M1M2ROGUE)\n"
 	"--rc                         : filter EAPOL pairs by replaycount status checked\n"
+	"--rc-not                     : filter EAPOL pairs by replaycount status not checked\n"
 	"--apless                     : filter EAPOL pairs by status M1M2ROGUE (M2 requested from CLIENT)\n"
 	"--info=<file>                : output detailed information about content of hash file\n"
 	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
@@ -2426,6 +2434,7 @@ static const struct option long_options[] =
 	{"vendor-ap",			required_argument,	NULL,	HCX_FILTER_VENDOR_AP},
 	{"vendor-client",		required_argument,	NULL,	HCX_FILTER_VENDOR_CLIENT},
 	{"rc",				no_argument,		NULL,	HCX_FILTER_RC},
+	{"rc-not",			no_argument,		NULL,	HCX_FILTER_RC_NOT},
 	{"authorized",			no_argument,		NULL,	HCX_FILTER_M12},
 	{"challenge",			no_argument,		NULL,	HCX_FILTER_M1234},
 	{"apless",			no_argument,		NULL,	HCX_FILTER_M1M2ROGUE},
@@ -2479,6 +2488,7 @@ flagfilterouiclient = false;
 flagfilterauthorized = false;
 flagfilterchallenge = false;
 flagfilterrcchecked = false;
+flagfilterrcnotchecked = false;
 flagfilterapless = false;
 flagpsk = false;
 flagpmk = false;
@@ -2757,6 +2767,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_FILTER_RC:
 		flagfilterrcchecked = true;
+		break;
+
+		case HCX_FILTER_RC_NOT:
+		flagfilterrcnotchecked = true;
 		break;
 
 		case HCX_FILTER_M12:

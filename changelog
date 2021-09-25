@@ -1,3 +1,9 @@
+25.09.2021
+==========
+hcxhashtool: added new option ti filter by replay count not checked (nonce-error-corrections mandatory)
+--rc-not                     : filter EAPOL pairs by replaycount status not checked
+
+
 17.09.2021
 ==========
 hcxhashtool: renamed option --notauthorized to --challenge
