@@ -67,7 +67,7 @@
 #define MSCHAPV2_RESERVED_LEN_MAX	8
 #define MSCHAPV2_NTRESPONSE_LEN_MAX	24
 
-#define TACACSPLIST_MAX		1000
+#define TACACSPLIST_MAX			1000
 
 #define ESSIDSMAX			1
 #define EAPOLTIMEOUT			5000000
@@ -81,6 +81,10 @@
 #define	MESSAGE_PAIR_M32E3		3
 #define	MESSAGE_PAIR_M34E3		4
 #define	MESSAGE_PAIR_M34E4		5
+
+#define CHANNEL_MAX			255
+#define GHZ24				1
+#define GHZ5				2
 /*===========================================================================*/
 /*===========================================================================*/
 struct tags_s

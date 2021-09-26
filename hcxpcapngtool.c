@@ -336,6 +336,8 @@ static char gpwplold[OPTIONLEN_MAX];
 static char zeroedpsk[8];
 static uint8_t zeroedpmk[32];
 static uint8_t calculatedpmk[32];
+
+static uint8_t beaconchannel[CHANNEL_MAX];
 /*===========================================================================*/
 /*
 static inline void debugprint(int len, uint8_t *ptr)
@@ -587,11 +589,13 @@ captimestampold = 0;
 
 memset(&zeroedpsk, 0, 8);
 memset(&zeroedpmk, 0, 32);
+memset(&beaconchannel, 0, sizeof(beaconchannel));
 return true;
 }
 /*===========================================================================*/
 static void printcontentinfo()
 {
+static uint8_t i;
 if(nmeacount > 0)			printf("NMEA sentence............................: %ld\n", nmeacount);
 if(nmeaerrorcount > 0)			printf("NMEA sentence checksum errors............: %ld\n", nmeaerrorcount);
 if(endianess == 0)			printf("endianess (capture system)...............: little endian\n");
@@ -600,7 +604,27 @@ if(rawpacketcount > 0)			printf("packets inside...........................: %ld\
 if(skippedpacketcount > 0)		printf("skipped packets..........................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			printf("frames with correct FCS..................: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM.............: %ld\n", wdscount);
-if(beaconcount > 0)			printf("BEACON (total)...........................: %ld\n", beaconcount);
+if(beaconcount > 0)
+	{
+	printf("BEACON (total)...........................: %ld\n", beaconcount);
+	if((beaconchannel[0] &GHZ24) == GHZ24)
+		{
+		printf("BEACON (detected channels 2.4GHz)........: ");
+		for(i = 1; i <= 14; i++)
+			{
+			if(beaconchannel[i] != 0) printf("%d ", i);
+			}
+		}
+	if((beaconchannel[0] &GHZ5) == GHZ5)
+		{
+		printf("\nBEACON (detected channels 5GHz)..........: ");
+		for(i = 15; i < CHANNEL_MAX; i++)
+			{
+			if(beaconchannel[i] != 0) printf("%d ", i);
+			}
+		}
+	if(beaconchannel[0] != 0) printf("\n");
+	}
 if(beaconssidunsetcount > 0)		printf("BEACON (SSID unset)......................: %ld\n", beaconssidunsetcount);
 if(beaconssidzeroedcount > 0)		printf("BEACON (SSID zeroed).....................: %ld\n", beaconssidzeroedcount);
 if(beaconssidoversizedcount > 0)	printf("BEACON (oversized SSID length)...........: %ld\n", beaconssidoversizedcount);
@@ -4195,6 +4219,17 @@ if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
 	{
 	beaconssidzeroedcount++;
 	return;
+	}
+
+if((tags.channel > 0) && (tags.channel <= 14))
+	{
+	beaconchannel[0] |= GHZ24;
+	beaconchannel[tags.channel]++;
+	}
+if((tags.channel > 14) && (tags.channel < CHANNEL_MAX))
+	{
+	beaconchannel[0] |= GHZ5;
+	beaconchannel[tags.channel]++;
 	}
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
