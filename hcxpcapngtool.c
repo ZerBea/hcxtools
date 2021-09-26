@@ -614,16 +614,17 @@ if(beaconcount > 0)
 			{
 			if(beaconchannel[i] != 0) printf("%d ", i);
 			}
+		printf("\n");
 		}
 	if((beaconchannel[0] &GHZ5) == GHZ5)
 		{
-		printf("\nBEACON (detected channels 5GHz)..........: ");
+		printf("BEACON (detected channels 5GHz)..........: ");
 		for(i = 15; i < CHANNEL_MAX; i++)
 			{
 			if(beaconchannel[i] != 0) printf("%d ", i);
 			}
+		printf("\n");
 		}
-	if(beaconchannel[0] != 0) printf("\n");
 	}
 if(beaconssidunsetcount > 0)		printf("BEACON (SSID unset)......................: %ld\n", beaconssidunsetcount);
 if(beaconssidzeroedcount > 0)		printf("BEACON (SSID zeroed).....................: %ld\n", beaconssidzeroedcount);
