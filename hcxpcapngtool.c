@@ -609,7 +609,7 @@ if(beaconcount > 0)
 	printf("BEACON (total)...........................: %ld\n", beaconcount);
 	if((beaconchannel[0] &GHZ24) == GHZ24)
 		{
-		printf("BEACON (detected channels 2.4GHz)........: ");
+		printf("BEACON (detected on 2.4GHz channel)......: ");
 		for(i = 1; i <= 14; i++)
 			{
 			if(beaconchannel[i] != 0) printf("%d ", i);
@@ -618,7 +618,7 @@ if(beaconcount > 0)
 		}
 	if((beaconchannel[0] &GHZ5) == GHZ5)
 		{
-		printf("BEACON (detected channels 5GHz)..........: ");
+		printf("BEACON (detected on 5GHz channel)........: ");
 		for(i = 15; i < CHANNEL_MAX; i++)
 			{
 			if(beaconchannel[i] != 0) printf("%d ", i);
