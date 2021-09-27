@@ -153,6 +153,7 @@ static long int zeroedtimestampcount;
 static long int fcsframecount;
 static long int wdscount;
 static long int actioncount;
+static long int actionessidcount;
 static long int awdlcount;
 static long int beaconcount;
 static long int beaconssidunsetcount;
@@ -451,6 +452,7 @@ zeroedtimestampcount = 0;
 fcsframecount = 0;
 wdscount = 0;
 actioncount = 0;
+actionessidcount = 0;
 awdlcount = 0;
 beaconcount = 0;
 beaconssidunsetcount = 0;
@@ -632,6 +634,7 @@ if(beaconssidoversizedcount > 0)	printf("BEACON (oversized SSID length).........
 if(pagcount > 0)			printf("BEACON (pwnagotchi)......................: %ld\n", pagcount);
 if(beaconhcxcount > 0)			printf("BEACON (hcxhash2cap).....................: %ld\n", beaconhcxcount);
 if(actioncount > 0)			printf("ACTION (total)...........................: %ld\n", actioncount);
+if(actionessidcount > 0)		printf("ACTION (containing ESSID)................: %ld\n", actionessidcount);
 if(awdlcount > 0)			printf("AWDL (Apple Wireless Direct Link)........: %ld\n", awdlcount);
 if(proberequestcount > 0)		printf("PROBEREQUEST.............................: %ld\n", proberequestcount);
 if(proberequestdirectedcount > 0)	printf("PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
@@ -4309,6 +4312,7 @@ memcpy(aplistptr->addr, macclient, 6);
 aplistptr->essidlen = tags.essidlen;
 memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 if(cleanbackmac() == false) aplistptr++;
+actionessidcount++;
 return;
 }
 /*===========================================================================*/
