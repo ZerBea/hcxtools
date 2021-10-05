@@ -22,9 +22,9 @@ or plainmasterkey was transmitted unencrypted.
 Brief description
 --------------
 
-Multiple stand-alone binaries - designed to run on  Arch Linux.
+Multiple stand-alone binaries - designed to run on Arch Linux, but other Linux distributions should work, too.
 
-All of these utils are designed to execute only one specific function.
+All of these utilities are designed to execute only one specific function.
 
 hcxdumptool moved to: https://github.com/ZerBea/hcxdumptool
 
