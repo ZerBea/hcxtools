@@ -36,6 +36,8 @@ Read this post: Hash mode 22000 explained (https://hashcat.net/forum/thread-1025
 
 Read this wiki: https://hashcat.net/wiki/doku.php?id=cracking_wpawpa2
 
+Unsupported: Windows OS, macOS, Android, emulators or wrappers and NETLINK!
+
 
 Detailed description
 --------------
