@@ -1674,6 +1674,24 @@ if((isxdigit(essid[6])) && (isxdigit(essid[7])) && (isxdigit(essid[8])) && (isxd
 return;
 }
 /*===========================================================================*/
+static void testnetv(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k;
+static const char *net2g = "Net-Virtua";
+
+if(essidlen < 15) return;
+if(memcmp(essid, net2g, 10) != 0) return;
+if((isdigit(essid[11])) && (isdigit(essid[12])) && (isdigit(essid[13])) && (isdigit(essid[14])))
+	{
+	for(k = 0; k < 0x1000; k++)
+		{
+		fprintf(fhout, "%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+		fprintf(fhout, "71%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static void testpoda(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k;
@@ -1909,6 +1927,7 @@ testhotbox(fhout, essidlen, essid);
 testmtel(fhout, essidlen, essid);
 testmywifi(fhout, essidlen, essid);
 testnet2g(fhout, essidlen, essid);
+testnetv(fhout, essidlen, essid);
 testpoda(fhout, essidlen, essid);
 testroamingman(fhout, essidlen, essid);
 testrtk(fhout, essidlen, essid);
