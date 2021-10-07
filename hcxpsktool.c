@@ -1683,11 +1683,24 @@ if(essidlen < 15) return;
 if(memcmp(essid, net2g, 10) != 0) return;
 if((isdigit(essid[11])) && (isdigit(essid[12])) && (isdigit(essid[13])) && (isdigit(essid[14])))
 	{
-	for(k = 0; k < 0x1000; k++)
-		{
-		fprintf(fhout, "%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-		fprintf(fhout, "71%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-		}
+    for(k = 0; k < 1000; k++)
+	    {
+	    fprintf(fhout,   "%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "15%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "16%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "24%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "31%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "33%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "37%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "38%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "40%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "61%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "71%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    }
+    for(k = 0; k < 10000; k++)
+	    {
+	    fprintf(fhout, "%04d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    }
 	}
 return;
 }
