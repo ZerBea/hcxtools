@@ -2164,8 +2164,8 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 me = macaddr &0xffffff;
 fprintf(fhout, "05%6d\n", me);
 oui = macaddr &0xffffff000000L;
-nic = (macaddr -0x10) &0xffffffL;
-for(c = 0; c <= 0x10; c++) writebssid(fhout, oui +((nic +c) &0xffffffL));
+nic = (macaddr -0x20) &0xffffffL;
+for(c = 0; c <= 0x20; c++) writebssid(fhout, oui +((nic +c) &0xffffffL));
 swap = (nic >> 8) & 0xffff;
 	{
 	swap = (swap & 0xf000) >> 12 | (swap & 0x0f00) >> 4 | (swap & 0x00f0) << 4 | (swap & 0x000f) << 12;
