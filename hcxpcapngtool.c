@@ -606,6 +606,13 @@ if(rawpacketcount > 0)			printf("packets inside...........................: %ld\
 if(skippedpacketcount > 0)		printf("skipped packets..........................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			printf("frames with correct FCS..................: %ld\n", fcsframecount);
 if(wdscount > 0)			printf("WIRELESS DISTRIBUTION SYSTEM.............: %ld\n", wdscount);
+if(deviceinfocount > 0)			printf("frames containing device information.....: %ld\n", deviceinfocount);
+if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
+if(essiddupemax > 0)
+	{
+	if((essidsvalue > 1) || (donotcleanflag == true)) printf("ESSID changes (detected maximum).........: %ld\n", essiddupemax);
+	else printf("ESSID changes (detected maximum).........: %ld (information: option --max-essids=%ld and --all recommended)\n", essiddupemax, essiddupemax +1);
+	}
 if(beaconcount > 0)
 	{
 	printf("BEACON (total)...........................: %ld\n", beaconcount);
@@ -705,13 +712,6 @@ if(eapolmsgcount > 0)			printf("EAPOL messages (total)...................: %ld\n
 if(eapolrc4count > 0)			printf("EAPOL RC4 messages.......................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			printf("EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			printf("EAPOL WPA messages.......................: %ld\n", eapolwpacount);
-if(essidcount > 0)			printf("ESSID (total unique).....................: %ld\n", essidcount);
-if(deviceinfocount > 0)			printf("frames containing device information.....: %ld\n", deviceinfocount);
-if(essiddupemax > 0)
-	{
-	if((essidsvalue > 1) || (donotcleanflag == true)) printf("ESSID changes (detected maximum).........: %ld\n", essiddupemax);
-	else printf("ESSID changes (detected maximum).........: %ld (information: option --max-essids=%ld and --all recommended)\n", essiddupemax, essiddupemax +1);
-	}
 if(eaptimegapmax > 0) printf("EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
 if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
