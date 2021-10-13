@@ -160,6 +160,8 @@ Most output files will be appended to existing files (with the exception of pcap
 
 It is recommended to use hash mode 22000 (22001) instead of deprecated hash modes 2500 (2501) and 16800 (16801)
 
+hcxtools are designed to be analysis tools. This means that everything is converted by default and unwanted information must be filtered out! 
+
 
 Bitmask message pair field (hcxpcapngtool)
 --------------
