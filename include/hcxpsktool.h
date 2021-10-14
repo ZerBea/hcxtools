@@ -7,7 +7,7 @@
 #define HCXD_MACONLY			1
 #define HCXD_NOESSIDCOMBINATION		2
 #define HCXD_NETGEAR			3
-#define HCXD_ASKEYARRIS			4
+#define HCXD_SPECTRUM			4
 #define HCXD_PHOME			5
 #define HCXD_TENDA			6
 #define HCXD_EE				7

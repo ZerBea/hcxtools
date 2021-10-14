@@ -32,7 +32,7 @@ static int apessidcount;
 static unsigned int thisyear;
 
 static bool airtelflag;
-static bool askeyarrisflag;
+static bool spectrumflag;
 static bool digit10flag;
 static bool easyboxflag;
 static bool eeflag;
@@ -284,7 +284,7 @@ for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 return;
 }
 /*===========================================================================*/
-static void keywriteaskeyarris(FILE *fhout)
+static void keywritespectrum(FILE *fhout)
 {
 static size_t ca, cs;
 static int cn;
@@ -2201,7 +2201,7 @@ return;
 static void processadditionals(FILE *fhout)
 {
 if(netgearflag == true) keywritenetgear(fhout);
-if(askeyarrisflag == true) keywriteaskeyarris(fhout);
+if(spectrumflag == true) keywritespectrum(fhout);
 if(digit10flag == true) keywritedigit10(fhout);
 if(phomeflag == true) keywritephome(fhout);
 if(tendaflag == true)
@@ -2605,7 +2605,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--maconly           : print only candidates based on ACCESS POINT MAC\n"
 	"--noessidcombination: exclude ESSID combinations\n"
 	"--netgear           : include weak NETGEAR / ORBI / NTGR_VMB candidates\n"
-	"--askeyarris        : include weak MySpectrumWiFI / SpectrumSetup / MyCharterWiFI candidates\n"
+	"--spectrum          : include weak MySpectrumWiFI / SpectrumSetup / MyCharterWiFI candidates\n"
 	"                      list will be > 3.5GB\n"
 	"--digit10           : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"                      list will be > 1GB\n"
@@ -2649,7 +2649,7 @@ static char *macapname = NULL;
 static char *pskname = NULL;
 
 airtelflag = false;
-askeyarrisflag = false;
+spectrumflag = false;
 digit10flag = false;
 easyboxflag = false;
 eeflag = false;
@@ -2673,7 +2673,7 @@ static const struct option long_options[] =
 	{"maconly",			no_argument,		NULL,	HCXD_MACONLY},
 	{"noessidcombination",		no_argument,		NULL,	HCXD_NOESSIDCOMBINATION},
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
-	{"askeyarris",			no_argument,		NULL,	HCXD_ASKEYARRIS},
+	{"spectrum",			no_argument,		NULL,	HCXD_SPECTRUM},
 	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
 	{"phome",			no_argument,		NULL,	HCXD_PHOME},
 	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
@@ -2704,12 +2704,12 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		netgearflag = true;
 		break;
 
-		case HCXD_NOESSIDCOMBINATION:
-		noessidcombinationflag = true;
+		case HCXD_SPECTRUM:
+		spectrumflag = true;
 		break;
 
-		case HCXD_ASKEYARRIS:
-		askeyarrisflag = true;
+		case HCXD_NOESSIDCOMBINATION:
+		noessidcombinationflag = true;
 		break;
 
 		case HCXD_DIGIT10:

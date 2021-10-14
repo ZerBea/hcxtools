@@ -1,3 +1,8 @@
+14.10.2021
+==========
+hcxpsktool: renamed option --askeyarris to --spectrum
+
+
 25.09.2021
 ==========
 hcxhashtool: added new option to filter by replay count not checked (nonce-error-corrections mandatory)
