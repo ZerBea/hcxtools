@@ -23,17 +23,18 @@ DEFS		+= -DWANTZLIB
 
 INSTALL		?= install
 INSTFLAGS	=
+PKG_CONFIG ?= pkg-config
 
 ifeq ($(HOSTOS), Linux)
 INSTFLAGS += -D
 endif
 
-OPENSSL_LIBS=$(shell pkg-config --libs openssl)
-OPENSSL_CFLAGS=$(shell pkg-config --cflags openssl)
-CURL_LIBS=$(shell pkg-config --libs libcurl)
-CURL_CFLAGS=$(shell pkg-config --cflags libcurl)
-Z_LIBS=$(shell pkg-config --libs zlib)
-Z_CFLAGS=$(shell pkg-config --cflags zlib)
+OPENSSL_LIBS=$(shell $(PKG_CONFIG) --libs openssl)                                              
+OPENSSL_CFLAGS=$(shell $(PKG_CONFIG) --cflags openssl)                                          
+CURL_LIBS=$(shell $(PKG_CONFIG) --libs libcurl)                                                 
+CURL_CFLAGS=$(shell $(PKG_CONFIG) --cflags libcurl)                                             
+Z_LIBS=$(shell $(PKG_CONFIG) --libs zlib)
+Z_CFLAGS=$(shell $(PKG_CONFIG) --cflags zlib)
 
 TOOLS=
 TOOLS+=hcxpcapngtool
