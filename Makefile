@@ -29,10 +29,10 @@ ifeq ($(HOSTOS), Linux)
 INSTFLAGS += -D
 endif
 
-OPENSSL_LIBS=$(shell $(PKG_CONFIG) --libs openssl)                                              
-OPENSSL_CFLAGS=$(shell $(PKG_CONFIG) --cflags openssl)                                          
-CURL_LIBS=$(shell $(PKG_CONFIG) --libs libcurl)                                                 
-CURL_CFLAGS=$(shell $(PKG_CONFIG) --cflags libcurl)                                             
+OPENSSL_LIBS=$(shell $(PKG_CONFIG) --libs openssl)
+OPENSSL_CFLAGS=$(shell $(PKG_CONFIG) --cflags openssl)
+CURL_LIBS=$(shell $(PKG_CONFIG) --libs libcurl)
+CURL_CFLAGS=$(shell $(PKG_CONFIG) --cflags libcurl)
 Z_LIBS=$(shell $(PKG_CONFIG) --libs zlib)
 Z_CFLAGS=$(shell $(PKG_CONFIG) --cflags zlib)
 
