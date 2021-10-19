@@ -361,8 +361,9 @@ static const char *wordlist[] =
 "uneven", "unicorn", "union", "unit", "unite", "unusual", "urban", "useful",
 "valley", "vanilla", "vase", "vast", "verse", "violet", "violin", "voyage",
 "wagon", "walnut", "warm", "watch", "water", "watery", "way", "weakly",
-"wealth", "weekly", "west", "whale", "wide", "wild", "wind", "window",
-"windy", "wine", "witty", "wolf", "wonderful", "wooden", "world", "writer",
+"wealth", "week", "weekly", "west", "whale", "wide", "wild", "wind",
+"window", "windy", "wine", "witty", "wolf", "wonderful", "wooden", "world",
+"writer",
 "yacht", "yard", "year", "yellow", "young",
 "zany", "zeal", "zebra", "zone", "zoo"
 };
