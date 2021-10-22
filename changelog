@@ -1,6 +1,7 @@
 22.10.2021
 ==========
 removed manpages, because help is much better
+moved installation path from /usr/local/bin to /usr/bin
 
 
 14.10.2021
