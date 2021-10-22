@@ -101,18 +101,6 @@ $(1).clean:
 $(1).uninstall:
 	rm -rf $$(BINDIR)/$(1)
 
-ifneq ($(wildcard manpages/$(1).1),)
-.PHONY: $(1).man-install
-$(1).install: $(1).man-install
-$(1).man-install:
-	$$(INSTALL) $$(INSTFLAGS) -m 0644 manpages/$(1).1 $$(MANDIR)/man1/$(1).1
-
-.PHONY: $(1).man-uninstall
-$(1).uninstall: $(1).man-uninstall
-$(1).man-uninstall:
-	rm -rf $$(MANDIR)/man1/$(1).1
-endif
-
 endef
 
 $(foreach tool,$(TOOLS),$(eval $(call tool-build,$(tool))))
