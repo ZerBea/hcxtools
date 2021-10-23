@@ -1,0 +1,26 @@
+.\" Manpage for hcxtools.
+.\" Contact https://github.com/ZerBea to correct errors or typos.
+.TH man 1 "23 October 2021" "1.0" "hcxtools man page"
+.SH NAME
+hcxtools
+.SH DESCRIPTION
+Small set of tools convert packets from WiFi captures to detect weak points within own WiFi networks by analyzing the hashes.
+.SH TOOLS
+.nf
+| hcxpcapngtool  | Provide new hashcat format 22000                                                                       |
+| hcxhashtool    | Provide various filter operations on new PMKID/EAPOL hash line                                         |
+| hcxpsktool     | Calculates candidates for hashcat and john based on based on hcxpcapngtool output or commandline input |
+| hcxpmktool     | Calculate and verify a PSK and/or a PMK                                                                |
+| hcxeiutool     | Prepare -E -I -U output of hcxpcapngtool for use by hashcat + rule or JtR + rule                       |
+| hcxwltool      | Calculates candidates for hashcat and john based on mixed wordlists                                    |
+| hcxhash2cap    | Converts hash file (PMKID&EAPOL, PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap                 |
+| wlancap2wpasec | Upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org             |
+| whoismac       | Show vendor information and/or download oui reference list                                             |
+.SH OPTIONS
+help menu (-h or --help) of each tool will list all available options
+.SH RELATED TOOLS
+hcxdumptool, hcxpioff
+.SH BUGS
+no known bugs.
+.SH AUTHOR
+ZeroBeat (https://github.com/ZerBea)
