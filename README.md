@@ -3,20 +3,20 @@ hcxtools
 
 Small set of tools convert packets from captures (h = hash, c = capture, convert and
 calculate candidates, x = different hashtypes) for the use with latest hashcat
-or John the Ripper. The tools are 100% compatible to hashcat and John the Ripper
-and recommended by hashcat. This branch is pretty closely synced to hashcat git branch
-(that means: latest hcxtools matching on latest hashcat beta) and John the Ripper
-git branch ("bleeding-jumbo").
+or John the Ripper. 
+The tools are 100% compatible to hashcat and John the Ripper and recommended by hashcat.
+This branch is pretty closely synced to hashcat git and John the Ripper git.
 
-Support for hashcat hash-modes: 4800, 5500, 2200x, 16100, 250x (deprecated), 1680x (deprecated)
+Support of hashcat hash-modes: 4800, 5500, 2200x, 16100, 250x (deprecated), 1680x (deprecated)
   
-Support for John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm, tacacs-plus
+Support of John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netntlm, tacacs-plus
 
-After capturing, upload the "uncleaned" dump file (pcapng, pcap, cap) here https://wpa-sec.stanev.org/?submit
-to see if your ap or the client is vulnerable by using common wordlists.
-To reduce dump file size, gzip (.gz) compression is supported.
-Convert the dump file to WPA-PBKDF2-PMKID+EAPOL hash file and check if wlan-key
-or plainmasterkey was transmitted unencrypted.
+Support of gzip (.gz) single file compression.
+
+Main purpose is detect weak point within own WiFi networks by analyzing the hashes.
+Therefore convert the dump file to WPA-PBKDF2-PMKID+EAPOL hash file and check if wlan-key or plainmasterkey was transmitted unencrypted.
+Or upload the "uncleaned" dump file (pcapng, pcap, cap) here https://wpa-sec.stanev.org/?submit
+to find out if your ap or the client is vulnerable by using common wordlists or a weak password generation algorithm.
 
 
 Brief description
