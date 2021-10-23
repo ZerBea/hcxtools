@@ -13,7 +13,7 @@ Support of John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netnt
 
 Support of gzip (.gz) single file compression.
 
-Main purpose is detect weak point within own WiFi networks by analyzing the hashes.
+Main purpose is to detect weak point within own WiFi networks by analyzing the hashes.
 Therefore convert the dump file to WPA-PBKDF2-PMKID+EAPOL hash file and check if wlan-key or plainmasterkey was transmitted unencrypted.
 Or upload the "uncleaned" dump file (pcapng, pcap, cap) here https://wpa-sec.stanev.org/?submit
 to find out if your ap or the client is vulnerable by using common wordlists or a weak password generation algorithm.
