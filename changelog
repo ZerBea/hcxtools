@@ -1,6 +1,6 @@
 22.10.2021
 ==========
-removed manpages, because help is much better
+removed manpages, because they are only a duplicate of the help menu
 moved installation path from /usr/local/bin to /usr/bin
 
 
