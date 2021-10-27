@@ -84,13 +84,13 @@ for(p = 0; p < l; p++)
 	{
 	if(islower((unsigned char)pskstring[p]))
 		{
-		upperpskstring[p] = toupper(pskstring[p]);
+		upperpskstring[p] = toupper((unsigned char)pskstring[p]);
 		uflag = true;
 		}
 	else upperpskstring[p] = pskstring[p];
 	if(isupper((unsigned char)pskstring[p]))
 		{
-		lowerpskstring[p] = tolower(pskstring[p]);
+		lowerpskstring[p] = tolower((unsigned char)pskstring[p]);
 		lflag = true;
 		}
 	else lowerpskstring[p] = pskstring[p];
@@ -101,7 +101,7 @@ if(uflag == true) fprintf(fhout,"%s\n", upperpskstring);
 if(lflag == true) fprintf(fhout,"%s\n", lowerpskstring);
 if((lowerpskstring[0] >= 'a') && (lowerpskstring[0] <= 'z'))
 	{
-	lowerpskstring[0] = toupper(lowerpskstring[0]);
+	lowerpskstring[0] = toupper((unsigned char)lowerpskstring[0]);
 	fprintf(fhout,"%s\n", lowerpskstring);
 	}
 return;

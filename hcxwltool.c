@@ -34,7 +34,7 @@ for(p = 0; p < len; p++)
 	{
 	if(isupper((unsigned char)linein[p]))
 		{
-		lineout[p] = tolower(linein[p]);
+		lineout[p] = tolower((unsigned char)linein[p]);
 		}
 	else
 		{
@@ -65,7 +65,7 @@ for(p = 0; p < len; p++)
 	{
 	if(islower((unsigned char)linein[p]))
 		{
-		lineout[p] = toupper(linein[p]);
+		lineout[p] = toupper((unsigned char)linein[p]);
 		}
 	else
 		{
@@ -96,7 +96,7 @@ for(p = 0; p < len; p++)
 	{
 	if(isupper((unsigned char)linein[p]))
 		{
-		lineout[p] = tolower(linein[p]);
+		lineout[p] = tolower((unsigned char)linein[p]);
 		}
 	else
 		{
@@ -111,7 +111,7 @@ lineout[p] = 0;
 
 if((p != px) && ((lineout[0] >= 'a') && (lineout[0] <= 'z')))
 	{
-	lineout[0] = toupper(linein[0]);
+	lineout[0] = toupper((unsigned char)linein[0]);
 	fprintf(fh_out, "%s\n", lineout);
 	}
 return;
@@ -196,7 +196,7 @@ for(p = 0; p < len; p++)
 	{
 	if(isupper((unsigned char)linein[p]))
 		{
-		lineout[p] = tolower(linein[p]);
+		lineout[p] = tolower((unsigned char)linein[p]);
 		}
 	else
 		{
@@ -227,7 +227,7 @@ for(p = 0; p < len; p++)
 	{
 	if(islower((unsigned char)linein[p]))
 		{
-		lineout[p] = toupper(linein[p]);
+		lineout[p] = toupper((unsigned char)linein[p]);
 		}
 	else
 		{

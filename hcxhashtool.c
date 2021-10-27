@@ -2137,7 +2137,7 @@ static int ret;
 
 for(c = 7; c < len; c++)
 	{
-	if(islower((unsigned char)linein[c])) linein[c] = toupper(linein[c]);
+	if(islower((unsigned char)linein[c])) linein[c] = toupper((unsigned char)linein[c]);
 	}
 
 ret = 0;
@@ -2733,7 +2733,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			}
 		for(p1 = 0; p1 < l; p1++)
 			{
-			if(islower((unsigned char)filtervendorptr[p1])) filtervendorptr[p1] = toupper(filtervendorptr[p1]);
+			if(islower((unsigned char)filtervendorptr[p1])) filtervendorptr[p1] = toupper((unsigned char)filtervendorptr[p1]);
 			}
 		break;
 
@@ -2747,7 +2747,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			}
 		for(p1 = 0; p1 < l; p1++)
 			{
-			if(islower((unsigned char)filtervendorapptr[p1])) filtervendorapptr[p1] = toupper(filtervendorapptr[p1]);
+			if(islower((unsigned char)filtervendorapptr[p1])) filtervendorapptr[p1] = toupper((unsigned char)filtervendorapptr[p1]);
 			}
 		break;
 
@@ -2761,7 +2761,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			}
 		for(p1 = 0; p1 < l; p1++)
 			{
-			if(islower((unsigned char)filtervendorclientptr[p1])) filtervendorclientptr[p1] = toupper(filtervendorclientptr[p1]);
+			if(islower((unsigned char)filtervendorclientptr[p1])) filtervendorclientptr[p1] = toupper((unsigned char)filtervendorclientptr[p1]);
 			}
 		break;
 

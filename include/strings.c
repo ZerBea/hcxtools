@@ -116,7 +116,7 @@ for (i = 0; i < size; i++)
 		fprintf(stderr, "failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
-    for (j = 0; j <= len; j++) to[i][j] = toupper(from[i][j]);
+    for (j = 0; j <= len; j++) to[i][j] = toupper((unsigned char)from[i][j]);
     }
 return to;
 }
