@@ -1602,8 +1602,8 @@ memset(buff, 0, bufflen);
 p = 0;
 while((lineptr[p] != '*') && (lineptr[p] != 0) && (p /2 <= bufflen))
 	{
-	if(!isxdigit(lineptr[p +0])) return 0;
-	if(!isxdigit(lineptr[p +1])) return 0;
+	if(!isxdigit((unsigned char)lineptr[p +0])) return 0;
+	if(!isxdigit((unsigned char)lineptr[p +1])) return 0;
 	if((lineptr[p +1] == '*') && (lineptr[p +1] == 0)) return 0;
 	idx0 = ((uint8_t)lineptr[p +0] &0x1F) ^0x10;
 	idx1 = ((uint8_t)lineptr[p +1] &0x1F) ^0x10;
@@ -1677,7 +1677,7 @@ while(1)
 		p2 = 0;
 		for(p1 = 0; p1 < 17; p1++)
 			{
-			if(isxdigit(linein[p1]))
+			if(isxdigit((unsigned char)linein[p1]))
 				{
 				linein[p2] = linein[p1];
 				p2++;
@@ -1782,7 +1782,7 @@ while(1)
 		p2 = 0;
 		for(p1 = 0; p1 < 17; p1++)
 			{
-			if(isxdigit(linein[p1]))
+			if(isxdigit((unsigned char)linein[p1]))
 				{
 				linein[p2] = linein[p1];
 				p2++;
@@ -2636,7 +2636,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		p2 = 0;
 		for(p1 = 0; p1 < l; p1++)
 			{
-			if(isxdigit(optarg[p1]))
+			if(isxdigit((unsigned char)optarg[p1]))
 				{
 				optarg[p2] = optarg[p1];
 				p2++;
@@ -2657,7 +2657,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		p2 = 0;
 		for(p1 = 0; p1 < l; p1++)
 			{
-			if(isxdigit(optarg[p1]))
+			if(isxdigit((unsigned char)optarg[p1]))
 				{
 				optarg[p2] = optarg[p1];
 				p2++;
@@ -2678,7 +2678,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		p2 = 0;
 		for(p1 = 0; p1 < l; p1++)
 			{
-			if(isxdigit(optarg[p1]))
+			if(isxdigit((unsigned char)optarg[p1]))
 				{
 				optarg[p2] = optarg[p1];
 				p2++;
@@ -2707,7 +2707,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		p2 = 0;
 		for(p1 = 0; p1 < l; p1++)
 			{
-			if(isxdigit(optarg[p1]))
+			if(isxdigit((unsigned char)optarg[p1]))
 				{
 				optarg[p2] = optarg[p1];
 				p2++;
