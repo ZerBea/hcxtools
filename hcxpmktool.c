@@ -407,8 +407,8 @@ memset(buff, 0, bufflen);
 p = 0;
 while((lineptr[p] != '*') && (lineptr[p] != 0) && (p /2 <= bufflen))
 	{
-	if(!isxdigit(lineptr[p +0])) return 0;
-	if(!isxdigit(lineptr[p +1])) return 0;
+	if(!isxdigit((unsigned char)lineptr[p +0])) return 0;
+	if(!isxdigit((unsigned char)lineptr[p +1])) return 0;
 	if((lineptr[p +1] == '*') && (lineptr[p +1] == 0)) return 0;
 	idx0 = ((uint8_t)lineptr[p +0] &0x1F) ^0x10;
 	idx1 = ((uint8_t)lineptr[p +1] &0x1F) ^0x10;
@@ -438,7 +438,7 @@ if(len < 69) return false;
 if((hashlinestring[3] != '*') || (hashlinestring[6] != '*') || (hashlinestring[39] != '*') || (hashlinestring[52] != '*') || (hashlinestring[65] != '*'))
 for(p = 7; p < len; p++)
 	{
-	if((!isxdigit(hashlinestring[p])) && (hashlinestring[p] != '*')) return false;
+	if((!isxdigit((unsigned char)hashlinestring[p])) && (hashlinestring[p] != '*')) return false;
 	}
 hashlinedupa = strndup(hashlinestring, len +1);
 if(hashlinedupa == NULL) return false;

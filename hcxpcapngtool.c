@@ -4175,7 +4175,7 @@ for(p = 2; p < vendorlen -75 ; p++)
 		{
 		for(c = 0; c < 64; c++)
 			{
-			if(!isxdigit(ieptr[p +11 +c])) return false;
+			if(!isxdigit((unsigned char)ieptr[p +11 +c])) return false;
 			}
 		pagcount++;
 		return true;

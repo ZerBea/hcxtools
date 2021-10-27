@@ -40,7 +40,7 @@ for(p = 0; p < len; p++)
 		{
 		lineout[p] = linein[p];
 		}
-	if(isxdigit(lineout[p]))
+	if(isxdigit((unsigned char)lineout[p]))
 		{
 		px++;
 		}
@@ -71,7 +71,7 @@ for(p = 0; p < len; p++)
 		{
 		lineout[p] = linein[p];
 		}
-	if(isxdigit(lineout[p]))
+	if(isxdigit((unsigned char)lineout[p]))
 		{
 		px++;
 		}
@@ -102,7 +102,7 @@ for(p = 0; p < len; p++)
 		{
 		lineout[p] = linein[p];
 		}
-	if(isxdigit(lineout[p]))
+	if(isxdigit((unsigned char)lineout[p]))
 		{
 		px++;
 		}
@@ -202,7 +202,7 @@ for(p = 0; p < len; p++)
 		{
 		lineout[p] = linein[p];
 		}
-	if(isdigit(lineout[p]))
+	if(isdigit((unsigned char)lineout[p]))
 		{
 		pd++;
 		}
@@ -233,7 +233,7 @@ for(p = 0; p < len; p++)
 		{
 		lineout[p] = linein[p];
 		}
-	if(isdigit(lineout[p]))
+	if(isdigit((unsigned char)lineout[p]))
 		{
 		pd++;
 		}
@@ -254,7 +254,7 @@ static int p, pd;
 pd = 0;
 for(p = 0; p < len; p++)
 	{
-	if(isdigit(linein[p]))
+	if(isdigit((unsigned char)linein[p]))
 		{
 		pd++;
 		}
@@ -303,7 +303,7 @@ static char lineout[LINEIN_MAX] = {};
 o = 0;
 for(i = 0; i < len; i++)
 	{
-	if(isxdigit(linein[i]))
+	if(isxdigit((unsigned char)linein[i]))
 		{
 		lineout[o] = linein[i];
 		o++;
@@ -363,7 +363,7 @@ static char lineout[LINEIN_MAX] = {};
 o = 0;
 for(i = 0; i < len; i++)
 	{
-	if(isdigit(linein[i]))
+	if(isdigit((unsigned char)linein[i]))
 		{
 		lineout[o] = linein[i];
 		o++;

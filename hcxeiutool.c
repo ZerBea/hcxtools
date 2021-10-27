@@ -39,7 +39,7 @@ for(c = 0; c < len; c++)
 		word[DIGITWORD][cd] = line[c];
 		cd++;
 		}
-	if(isxdigit(line[c]))
+	if(isxdigit((unsigned char)line[c]))
 		{
 		word[XDIGITWORD][cx] = line[c];
 		cx++;

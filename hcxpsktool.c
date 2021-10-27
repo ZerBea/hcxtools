@@ -992,7 +992,7 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if(essidlen >= 4)
 	{
-	if((isxdigit(essid[essidlen -4])) && (isxdigit(essid[essidlen -3])) && (isxdigit(essid[essidlen -2])) && (isxdigit(essid[essidlen -1])))
+	if((isxdigit((unsigned char)essid[essidlen -4])) && (isxdigit((unsigned char)essid[essidlen -3])) && (isxdigit((unsigned char)essid[essidlen -2])) && (isxdigit((unsigned char)essid[essidlen -1])))
 		{
 		ev = (char*)(essid +7);
 		ek = strtol(ev, NULL, 16);
@@ -1304,7 +1304,7 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if(essidlen != 21) return;
 if(memcmp(essid, ali, 17) != 0) return;
-if((!isdigit(essid[17])) || (!isdigit(essid[18])) || (!isdigit(essid[19])) || (!isdigit(essid[20]))) return;
+if((!isdigit((unsigned char)essid[17])) || (!isdigit((unsigned char)essid[18])) || (!isdigit((unsigned char)essid[19])) || (!isdigit((unsigned char)essid[20]))) return;
 for(k1 = 0; k1 < 10000; k1++)
 	{
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "%04d%c%c%c%c", k1, essid[17], essid[18], essid[19], essid[20]);
@@ -1328,7 +1328,7 @@ static int fixseed2[] =
 
 if(essidlen < 9) return;
 if(memcmp(essid, izzi, 5) != 0) return;
-if((!isxdigit(essid[5])) || (!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8]))) return;
+if((!isxdigit((unsigned char)essid[5])) || (!isxdigit((unsigned char)essid[6])) || (!isxdigit((unsigned char)essid[7])) || (!isxdigit((unsigned char)essid[8]))) return;
 for(i = 0; i < FIXSEED2_SIZE; i++)
 	{
 	for(c = 0; c < 0x100; c++) fprintf(fhout, "%06X%02X%C%C%C%C\n", fixseed2[i], c, essid[5], essid[6], essid[7], essid[8]);
@@ -1348,7 +1348,7 @@ static char *tg1672g = "TG1672G";
 
 if(essidlen >= 8)
 	{
-	if((!isxdigit(essid[6])) || (!isxdigit(essid[7]))) return;
+	if((!isxdigit((unsigned char)essid[6])) || (!isxdigit((unsigned char)essid[7]))) return;
 	if(memcmp(essid, dg860A, 6) == 0)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "DG860A%04X%c%c\n", k1, essid[6], essid[7]);
@@ -1367,7 +1367,7 @@ if(essidlen >= 8)
 	}
 if(essidlen >= 9)
 	{
-	if((!isxdigit(essid[7])) || (!isxdigit(essid[8]))) return;
+	if((!isxdigit((unsigned char)essid[7])) || (!isxdigit((unsigned char)essid[8]))) return;
 	if(memcmp(essid, dg1670A, 7) == 0) 
 		{
 		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "DG1670A%04X%c%c\n", k1, essid[7], essid[8]);
@@ -1396,7 +1396,7 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if(essidlen != 17) return;
 if(memcmp(essid, axtelxtremo, 13) != 0) return;
-if((!isxdigit(essid[13])) || (!isxdigit(essid[14])) || (!isxdigit(essid[15])) || (!isxdigit(essid[16]))) return;
+if((!isxdigit((unsigned char)essid[13])) || (!isxdigit((unsigned char)essid[14])) || (!isxdigit((unsigned char)essid[15])) || (!isxdigit((unsigned char)essid[16]))) return;
 for(k1 = 0; k1 < 10000; k1++)
 	{
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "%04d%c%c%c%c", k1, essid[13], essid[14], essid[15], essid[16]);
@@ -1414,7 +1414,7 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if(essidlen != 13) return;
 if(memcmp(essid, attwifi, 9) != 0) return;
-if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12]))) return;
+if((!isdigit((unsigned char)essid[9])) || (!isdigit((unsigned char)essid[10])) || (!isdigit((unsigned char)essid[11])) || (!isdigit((unsigned char)essid[12]))) return;
 for(k1 = 0; k1 < 10; k1++)
 	for(k2 = 0; k2 < 10; k2++)
 		for(k3 = 0; k3 < 10; k3++)
@@ -1435,7 +1435,7 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if(essidlen != 14) return;
 if(memcmp(essid, cabovisao, 10) != 0) return;
-if((!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isxdigit(essid[12])) || (!isxdigit(essid[13]))) return;
+if((!isxdigit((unsigned char)essid[10])) || (!isxdigit((unsigned char)essid[11])) || (!isxdigit((unsigned char)essid[12])) || (!isxdigit((unsigned char)essid[13]))) return;
 for(k1 = 0; k1 < 0x100; k1++)
 	{
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "2ce412%02x%c%c%c%c", k1, essid[10], essid[11], essid[12], essid[13]);
@@ -1455,7 +1455,7 @@ static char *cg3000dv2 = "CG3000DV2";
 
 if(essidlen < 11) return;
 if(memcmp(essid, cg3000dv2, 9) != 0) return;
-if((!isxdigit(essid[9])) || (!isxdigit(essid[10]))) return;
+if((!isxdigit((unsigned char)essid[9])) || (!isxdigit((unsigned char)essid[10]))) return;
 for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "CG3000DV2%04X%c%c\n", k1, essid[9], essid[10]);
 return;
 }
@@ -1469,14 +1469,14 @@ static char *cpcrf2 = "Coolpad Surf ";
 if(essidlen < 16) return;
 if(memcmp(essid, cpcrf1, 12) == 0)
 	{
-	if((!isdigit(essid[12])) || (!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15]))) return;
+	if((!isdigit((unsigned char)essid[12])) || (!isdigit((unsigned char)essid[13])) || (!isdigit((unsigned char)essid[14])) || (!isdigit((unsigned char)essid[15]))) return;
 	for(k1 = 0; k1 < 10000; k1++) fprintf(fhout, "%04d%.*s\n", k1, 4, &essid[12]);
 	return;
 	}
 if(essidlen < 17) return;
 if(memcmp(essid, cpcrf2, 13) == 0)
 	{
-	if((!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15])) || (!isdigit(essid[16]))) return;
+	if((!isdigit((unsigned char)essid[13])) || (!isdigit((unsigned char)essid[14])) || (!isdigit((unsigned char)essid[15])) || (!isdigit((unsigned char)essid[16]))) return;
 	for(k1 = 0; k1 < 10000; k1++) fprintf(fhout, "%04d%.*s\n", k1, 4, &essid[13]);
 	return;
 	}
@@ -1496,7 +1496,7 @@ static const char *easybox = "EasyBox-";
 if(easyboxflag == true) return;
 if(essidlen != 14) return;
 if(memcmp(essid, easybox, 8) != 0) return;
-if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13]))) return;
+if((!isxdigit((unsigned char)essid[8])) || (!isxdigit((unsigned char)essid[9])) || (!isxdigit((unsigned char)essid[10])) || (!isxdigit((unsigned char)essid[11])) || (!isdigit((unsigned char)essid[12])) || (!isdigit((unsigned char)essid[13]))) return;
 for (b = 0; b <= 0xffff; b++)
 	{
 	m12 =  b &0x000f;
@@ -1531,7 +1531,7 @@ static const char *glocalme = "GlocalMe_";
 
 if(essidlen != 14) return;
 if(memcmp(essid, glocalme , 9) != 0) return;
-if((!isdigit(essid[9])) || (!isdigit(essid[10])) || (!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13]))) return;
+if((!isdigit((unsigned char)essid[9])) || (!isdigit((unsigned char)essid[10])) || (!isdigit((unsigned char)essid[11])) || (!isdigit((unsigned char)essid[12])) || (!isdigit((unsigned char)essid[13]))) return;
 k2 = essid[11];
 k3 = essid[12];
 for(k1 = 0; k1 < 100000; k1++)
@@ -1560,7 +1560,7 @@ if(hb5flag == false)
 hb5flag = true;
 if(essidlen != 11) return;
 if(essid[6] != '-') return;
-if((!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10]))) return;
+if((!isxdigit((unsigned char)essid[7])) || (!isxdigit((unsigned char)essid[8])) || (!isxdigit((unsigned char)essid[9])) || (!isxdigit((unsigned char)essid[10]))) return;
 ev = (char*)(essid +7);
 k2 = strtol(ev, NULL, 16);
 for(k1 = 0; k1 < 0x100; k1++)
@@ -1606,7 +1606,7 @@ if(essidlen == 7)
 	{
 	if(memcmp(essid, a1, 3) == 0)
 		{
-		if((isxdigit(essid[3])) && (isxdigit(essid[4])) && (isxdigit(essid[5])) && (isxdigit(essid[6])))
+		if((isxdigit((unsigned char)essid[3])) && (isxdigit((unsigned char)essid[4])) && (isxdigit((unsigned char)essid[5])) && (isxdigit((unsigned char)essid[6])))
 			{
 			for(k1 = 0; k1 < 0x100; k1++)
 				for(k2 = 0; k2 < 0x100; k2++)
@@ -1622,7 +1622,7 @@ if(essidlen == 10)
 	{
 	if(memcmp(essid, mtel, 6) == 0)
 		{
-		if((isxdigit(essid[6])) && (isxdigit(essid[7])) && (isxdigit(essid[8])) && (isxdigit(essid[9])))
+		if((isxdigit((unsigned char)essid[6])) && (isxdigit((unsigned char)essid[7])) && (isxdigit((unsigned char)essid[8])) && (isxdigit((unsigned char)essid[9])))
 			{
 			for(k1 = 0; k1 < 0x100; k1++)
 				{
@@ -1665,7 +1665,7 @@ static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
 if(essidlen < 12) return;
 if(memcmp(essid, net2g, 6) != 0) return;
-if((isxdigit(essid[6])) && (isxdigit(essid[7])) && (isxdigit(essid[8])) && (isxdigit(essid[9])) && (isxdigit(essid[10])) && (isxdigit(essid[11])))
+if((isxdigit((unsigned char)essid[6])) && (isxdigit((unsigned char)essid[7])) && (isxdigit((unsigned char)essid[8])) && (isxdigit((unsigned char)essid[9])) && (isxdigit((unsigned char)essid[10])) && (isxdigit((unsigned char)essid[11])))
 	{
 	for(k = 0; k < 0x100; k++)
 		{
@@ -1683,7 +1683,7 @@ static const char *net2g = "Net-Virtua";
 
 if(essidlen < 15) return;
 if(memcmp(essid, net2g, 10) != 0) return;
-if((isdigit(essid[11])) && (isdigit(essid[12])) && (isdigit(essid[13])) && (isdigit(essid[14])))
+if((isdigit((unsigned char)essid[11])) && (isdigit((unsigned char)essid[12])) && (isdigit((unsigned char)essid[13])) && (isdigit((unsigned char)essid[14])))
 	{
     for(k = 0; k < 1000; k++)
 	    {
@@ -1727,7 +1727,7 @@ static char *ev;
 static const char *roamingman =  "Roamingman_";
 
 if(essidlen != 16) return;
-if((!isdigit(essid[11])) || (!isdigit(essid[12])) || (!isdigit(essid[13])) || (!isdigit(essid[14])) || (!isdigit(essid[15]))) return;
+if((!isdigit((unsigned char)essid[11])) || (!isdigit((unsigned char)essid[12])) || (!isdigit((unsigned char)essid[13])) || (!isdigit((unsigned char)essid[14])) || (!isdigit((unsigned char)essid[15]))) return;
 if(memcmp(essid, roamingman, 11) != 0) return;
 ev = (char*)(essid +11);
 k2 = strtol(ev, NULL, 10);
@@ -1750,7 +1750,7 @@ static const char *rtk = "RTK-";
 
 if(essidlen == 10)
 	{
-	if((isxdigit(essid[4])) && (isxdigit(essid[5])) && (isxdigit(essid[6])) && (isxdigit(essid[7])) && (isxdigit(essid[8])) && (isxdigit(essid[9])))
+	if((isxdigit((unsigned char)essid[4])) && (isxdigit((unsigned char)essid[5])) && (isxdigit((unsigned char)essid[6])) && (isxdigit((unsigned char)essid[7])) && (isxdigit((unsigned char)essid[8])) && (isxdigit((unsigned char)essid[9])))
 		{
 		if(memcmp(essid, rtk, 4) == 0)
 			{
@@ -1777,7 +1777,7 @@ static const char *tc8717t = "TC8717T";
 
 if(essidlen >= 9)
 	{
-	if((!isxdigit(essid[7])) || (!isxdigit(essid[8]))) return;
+	if((!isxdigit((unsigned char)essid[7])) || (!isxdigit((unsigned char)essid[8]))) return;
 	if(memcmp(essid, tc8715d, 7) == 0)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "TC8715D%04X%c%c\n", k1, essid[7], essid[8]);
@@ -1805,7 +1805,7 @@ static uint32_t fix[] =
 
 if(essidlen < 12) return;
 if(memcmp(essid, telered, 8) != 0) return;
-if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11]))) return;
+if((!isxdigit((unsigned char)essid[8])) || (!isxdigit((unsigned char)essid[9])) || (!isxdigit((unsigned char)essid[10])) || (!isxdigit((unsigned char)essid[11]))) return;
 
 for(i = 0; i < FIX_SIZE; i++)
 	{
@@ -1844,7 +1844,7 @@ if(essidlen < 10) return;
 if(memcmp(essid, wifirsu, 8) != 0) return;
 if(essidlen == 10)
 	{
-	if((!isxdigit(essid[8])) || (!isxdigit(essid[9]))) return;
+	if((!isxdigit((unsigned char)essid[8])) || (!isxdigit((unsigned char)essid[9]))) return;
 	for(k1 = 0; k1 < 0x10000; k1++)
 		{
 		snprintf(essidtmp, PSKSTRING_LEN_MAX, "88%04x%c%c", k1, essid[8], essid[9]);
@@ -1854,7 +1854,7 @@ if(essidlen == 10)
 	}
 if(essidlen == 13)
 	{
-	if((!isxdigit(essid[8])) || (!isxdigit(essid[9])) || (!isxdigit(essid[10])) || (!isxdigit(essid[11])) || (!isxdigit(essid[12]))) return;
+	if((!isxdigit((unsigned char)essid[8])) || (!isxdigit((unsigned char)essid[9])) || (!isxdigit((unsigned char)essid[10])) || (!isxdigit((unsigned char)essid[11])) || (!isxdigit((unsigned char)essid[12]))) return;
 	for(k1 = 0; k1 < 0x10; k1++)
 		{
 		snprintf(essidtmp, PSKSTRING_LEN_MAX, "88%x%c%c%c%c%c", k1, essid[8], essid[9], essid[10], essid[11], essid[12]);
@@ -1874,7 +1874,7 @@ static const char hextable[] = "0123456789ABCDEF";
 
 if(essidlen != 11) return;
 if(memcmp(essid, wifirsu, 5) != 0) return;
-if((!isxdigit(essid[5])) || (!isxdigit(essid[6])) || (!isxdigit(essid[7])) || (!isxdigit(essid[8])) || (!isdigit(essid[9])) || (!isdigit(essid[10]))) return;
+if((!isxdigit((unsigned char)essid[5])) || (!isxdigit((unsigned char)essid[6])) || (!isxdigit((unsigned char)essid[7])) || (!isxdigit((unsigned char)essid[8])) || (!isdigit((unsigned char)essid[9])) || (!isdigit((unsigned char)essid[10]))) return;
 k1 = essid[9];
 k2 = 0;
 k3 = essid[10];
@@ -1915,7 +1915,7 @@ static char *x2g = "_2G";
 
 if(essidlen < 9) return;
 if(memcmp(&essid[essidlen -9], x2g, 2) != 0) return;
-if((!isdigit(essid[essidlen -1])) || (!isdigit(essid[essidlen -2])) || (!isdigit(essid[essidlen -3])) || (!isdigit(essid[essidlen -4])) || (!isdigit(essid[essidlen -5])) || (!isdigit(essid[essidlen -6]))) return;
+if((!isdigit((unsigned char)essid[essidlen -1])) || (!isdigit((unsigned char)essid[essidlen -2])) || (!isdigit((unsigned char)essid[essidlen -3])) || (!isdigit((unsigned char)essid[essidlen -4])) || (!isdigit((unsigned char)essid[essidlen -5])) || (!isdigit((unsigned char)essid[essidlen -6]))) return;
 for(k = 0; k < 0x100; k++) fprintf(fhout, "%02X%s\n", k, &essid[essidlen -6]);
 return;
 }
