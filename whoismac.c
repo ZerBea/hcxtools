@@ -106,7 +106,7 @@ if((l %2) != 0)
 	}
 for(p = 0; p < l; p++)
 	{
-	if(!isxdigit(essidname[p]))
+	if(!isxdigit((unsigned char)essidname[p]))
 		{
 		fprintf(stderr, "not a valid hex string\n");
 		return;
@@ -482,7 +482,7 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 		p2 = 0;
 		for(p1 = 0; p1 < l; p1++)
 			{
-			if(isxdigit(optarg[p1]))
+			if(isxdigit((unsigned char)optarg[p1]))
 				{
 				optarg[p2] = optarg[p1];
 				p2++;
@@ -491,7 +491,7 @@ while ((auswahl = getopt(argc, argv, "m:v:p:P:e:x:dh")) != -1)
 		optarg[6] = 0;
 		for(p1 = 0; p1 < 6; p1++)
 			{
-			if(!isxdigit(optarg[p1]))
+			if(!isxdigit((unsigned char)optarg[p1]))
 				{
 				fprintf(stderr, "error wrong oui %s (need eg. 11:22:33:44:55:aa or 112233)\n", optarg);
 				exit(EXIT_FAILURE);

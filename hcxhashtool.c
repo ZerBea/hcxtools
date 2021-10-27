@@ -2137,7 +2137,7 @@ static int ret;
 
 for(c = 7; c < len; c++)
 	{
-	if(islower(linein[c])) linein[c] = toupper(linein[c]);
+	if(islower((unsigned char)linein[c])) linein[c] = toupper(linein[c]);
 	}
 
 ret = 0;
