@@ -32,7 +32,7 @@ static char lineout[LINEIN_MAX] = {};
 px = 0;
 for(p = 0; p < len; p++)
 	{
-	if(isupper(linein[p]))
+	if(isupper((unsigned char)linein[p]))
 		{
 		lineout[p] = tolower(linein[p]);
 		}
@@ -63,7 +63,7 @@ static char lineout[LINEIN_MAX] = {};
 px = 0;
 for(p = 0; p < len; p++)
 	{
-	if(islower(linein[p]))
+	if(islower((unsigned char)linein[p]))
 		{
 		lineout[p] = toupper(linein[p]);
 		}
@@ -94,7 +94,7 @@ static char lineout[LINEIN_MAX] = {};
 px = 0;
 for(p = 0; p < len; p++)
 	{
-	if(isupper(linein[p]))
+	if(isupper((unsigned char)linein[p]))
 		{
 		lineout[p] = tolower(linein[p]);
 		}
@@ -194,7 +194,7 @@ static char lineout[LINEIN_MAX] = {};
 pd = 0;
 for(p = 0; p < len; p++)
 	{
-	if(isupper(linein[p]))
+	if(isupper((unsigned char)linein[p]))
 		{
 		lineout[p] = tolower(linein[p]);
 		}
@@ -225,7 +225,7 @@ static char lineout[LINEIN_MAX] = {};
 pd = 0;
 for(p = 0; p < len; p++)
 	{
-	if(islower(linein[p]))
+	if(islower((unsigned char)linein[p]))
 		{
 		lineout[p] = toupper(linein[p]);
 		}

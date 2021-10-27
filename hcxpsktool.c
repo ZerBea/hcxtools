@@ -82,13 +82,13 @@ if((l < 8) || (l > PSKSTRING_LEN_MAX)) return;
 fprintf(fhout,"%s\n", pskstring);
 for(p = 0; p < l; p++)
 	{
-	if(islower(pskstring[p]))
+	if(islower((unsigned char)pskstring[p]))
 		{
 		upperpskstring[p] = toupper(pskstring[p]);
 		uflag = true;
 		}
 	else upperpskstring[p] = pskstring[p];
-	if(isupper(pskstring[p]))
+	if(isupper((unsigned char)pskstring[p]))
 		{
 		lowerpskstring[p] = tolower(pskstring[p]);
 		lflag = true;
