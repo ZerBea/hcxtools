@@ -291,122 +291,136 @@ static int cn;
 
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-static const char *wordlist[] =
-{ 
-"absent", "absurd", "acre", "ad", "adorable", "advice", "agency", "ago",
-"airplane", "album", "anchor", "ancient", "angry", "apart", "apple", "aquatic",
-"author", "away",
-"bakery", "ball", "balloon", "banana", "barrel", "basic", "basket", "bench",
-"berry", "better", "bike", "bird", "black", "blue", "boat", "bold",
-"bolt", "book", "boot", "botany", "bowl", "box", "brain", "brave",
-"bread", "breeze", "breezy", "brew", "bridge", "brief", "bright", "broad",
-"bubble", "bug", "bunny", "bus", "butter",
-"calm", "camera", "canoe", "car", "carrot", "cartoon", "cello", "chair",
-"check", "cheerful", "cheese", "chilly", "choice", "chorus", "chummy", "city",
-"classy", "clean", "clerk", "clever", "clock", "close", "cloudy", "clumsy",
-"coat", "coconut", "coffee", "cold", "comet", "content", "cool", "cosmic",
-"country", "cow", "cream", "crispy", "crown", "curly", "curtain",
-"daily", "daisy", "damp", "darken", "data", "deep", "deer", "degree",
-"desert", "desk", "diamond", "dirt", "dizzy", "dog", "doll", "domain",
-"dusty", "duty", "dynamic",
-"eager", "eagle", "earth", "easy", "effort", "either", "elated", "elegant",
-"empty", "energy", "engine", "epic", "errand", "error", "event", "excited",
-"exotic",
-"famous", "fancy", "farmer", "fast", "fearless", "festive", "field", "fight",
-"finch", "finish", "fire", "fish", "fit", "flower", "fluent", "fluffy",
-"flute", "formal", "fox", "free", "fresh", "friend", "fruit", "funny",
-"furry", "fuzzy",
-"gadfly", "gallon", "garden", "gate", "genius", "gentle", "giant", "giddy",
-"gifted", "global", "gold", "goofy", "grain", "grand", "great", "green",
-"grumpy", "guitar", "guppy",
-"hair", "hall", "hand", "happy", "harbor", "hat", "hearty", "heat",
-"heavy", "height", "helpful", "hill", "hippo", "hockey", "honest", "honor",
-"horse", "hotel", "house", "hungry", "husky",
-"icy", "idea", "imaginary", "immune", "ink", "input", "invent", "iris",
-"island",
-"jacket", "jade", "jagged", "jazz", "jeans", "jet", "jewel", "jog",
-"jolly", "joyous", "judge", "jungle",
-"kangaroo", "kayak", "kettle", "key", "kind", "kite", "knight", "known",
-"ladder", "lake", "large", "latter", "law", "lawn", "lazy", "leader",
-"left", "lemon", "light", "lion", "little", "lively", "long", "lost",
-"lotus", "loud", "loyal", "lucky",
-"magical", "major", "mango", "manic", "marble", "market", "mellow", "melodic",
-"mesa", "method", "mighty", "mint", "mirror", "misty", "mobile", "modern",
-"month", "moon", "most", "museum",
-"narrow", "nature", "nest", "new", "nifty", "noble", "noisy", "north",
-"oasis", "object", "oboe", "ocean", "octopus", "odd", "olive", "onion",
-"orange", "owl", "owner", "oxygen",
-"palm", "panda", "pant", "paper", "parade", "park", "pastel", "patron",
-"peach", "pear", "pencil", "people", "perfect", "phobic", "phoenix", "phone",
-"piano", "pink", "pizza", "plain", "plane", "planet", "pledge", "plum",
-"pocket", "poem", "polite", "pond", "poodle", "potato", "prairie", "praise",
-"precious", "prose", "proud", "puppy", "purple",
-"quail", "quaint", "quick", "quiet", "quote",
-"rabbit", "raccoon", "raft", "rain", "rainy", "rapid", "raven", "ready", 
-"reason", "red", "remedy", "review", "reward", "rich", "river", "road",
-"robin", "rock", "rocket", "rocky", "role", "rose", "rosebud", "round",
-"royal", "runner", "rustic",
-"safety", "salute", "scary", "scout", "sea", "sector", "seed", "select",
-"shark", "sheep", "shelf", "shiny", "ship", "shirt", "shoe", "short",
-"shrub", "silent", "silky", "silly", "silver", "skates", "sky", "sled",
-"sleepy", "slow", "small", "smart", "smiley", "smiling", "smooth", "snail",
-"snake", "soccer", "socks", "sofa", "space", "spark", "sparrow", "spider",
-"spirit", "spoon", "square", "squash", "squirrel", "stable", "star", "state",
-"statue", "stealth", "still", "stove", "straw", "street", "strong", "studio",
-"study", "summit", "sun", "sunny", "super", "sweet", "swift",
-"table", "tablet", "tall", "teal", "teapot", "tent", "terrific", "theory",
-"think", "thirsty", "this", "tiger", "tight", "timber", "tiny", "tomato",
-"topic", "town", "trail", "train", "tree", "truck", "trumpet", "tuba",
-"tulip", "turkey", "turtle", "two",
-"uneven", "unicorn", "union", "unique", "unit", "unite", "unusual", "upset",
-"urban", "useful",
-"valley", "vanilla", "vase", "vast", "verse", "violet", "violin", "voyage",
-"wagon", "walnut", "warm", "watch", "water", "watery", "way", "weakly",
-"wealth", "week", "weekly", "west", "whale", "wide", "wild", "wind",
-"window", "windy", "wine", "witty", "wolf", "wonderful", "wooden", "world",
-"writer",
-"yacht", "yard", "year", "yellow", "young",
-"zany", "zeal", "zebra", "zone", "zoo"
+static const char *firstword[] =
+{
+"absurd", "acre", "adorable", "agency", "ago", "album", "alter", "anchor",
+"ancient", "angry", "apart", "aquatic", "author", "away", "bakery", "barrel",
+"basic", "basket", "bench", "better", "black", "blue", "bold", "botany",
+"brave", "breezy", "brew", "bridge", "brief", "bright", "broad", "brown",
+"calm", "camera", "check", "chilly", "choice", "chorus", "chummy", "classy",
+"clean", "clerk", "clever", "close", "cloudy", "clumsy", "coffee", "cold",
+"content", "cool", "cosmic", "crispy", "curly", "daily", "damp", "decent",
+"deep", "degree", "desert", "dizzy", "domain", "dusty", "duty", "dutym",
+"dynamic", "eager", "eagle", "easy", "elated", "elegant", "empty", "energy",
+"engine", "epic", "errand", "excited", "exotic", "famous", "fancy", "farmer",
+"fast", "fearless", "festive", "Festive", "finish", "fit", "fluent", "fluffy",
+"formal", "free", "fresh", "friend", "funny", "furry", "fuzzy", "gallon",
+"genius", "gentle", "giddy", "gifted", "global", "gold", "goofy", "grain",
+"grand", "great", "green", "grumpy", "guitar", "happy", "harbor", "hearty",
+"heavy", "height", "helpful", "hockey", "honest", "honor", "hotel", "hungry",
+"husky", "icy", "idea", "immune", "input", "invent", "island", "jacket",
+"jagged", "jazz", "jeans", "jewel", "jolly", "joyous", "judge", "kettle",
+"key", "kind", "kite", "knight", "known", "ladder", "large", "latter",
+"lazy", "leader", "left", "light", "little", "lively", "long", "lost",
+"lotus", "loud", "loyal", "lucky", "magical", "major", "manic", "marble",
+"market", "mellow", "melodic", "middle", "mighty", "mirror", "misty", "mobile",
+"modern", "month", "museum", "narrow", "nature", "nest", "new", "nice",
+"nifty", "nine", "noble", "noisy", "north", "oasis", "object", "ocean",
+"odd", "olive", "orange", "oxygen", "palm", "parade", "pastel", "patron",
+"perfect", "phobic", "phoney", "pink", "plain", "plane", "pledge", "pocket",
+"polite", "praise", "precious", "prose", "proud", "purple", "quaint", "quick",
+"quiet", "quote", "rain", "rainy", "rapid", "ready", "reason", "red",
+"remedy", "review", "reward", "rich", "rocket", "rocky", "round", "royal",
+"runner", "rustic", "safety", "salute", "scary", "scout", "select", "shelf",
+"shiny", "short", "silent", "silky", "silly", "silver", "sleepy", "slow",
+"small", "smart", "smiley", "smiling", "smooth", "soccer", "space", "square",
+"stable", "statue", "stealth", "street", "strong", "studio", "summit", "sunny",
+"super", "sweet", "swift", "tablet", "tall", "teal", "terrific", "theory",
+"thirsty", "this", "tight", "timber", "tiny", "town", "turtle", "uneven",
+"union", "unique", "unite", "unusual", "upset", "urban", "useful", "usual",
+"valley", "vanilla", "vast", "verse", "violet", "violin", "voyage", "wagon",
+"walnut", "warm", "watch", "watery", "weekly", "west", "wide", "windy",
+"wine", "witty", "wonderful", "wooden", "writer", "yacht", "yard", "year",
+"yellow", "young", "zany", "zeal", "zebra", "zone"
 };
 
-for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
+static const char *secondword[] =
+{
+"acre", "ad", "advice", "agency", "airplane", "album", "anchor", "apple",
+"ard", "author", "ave", "bakery", "ball", "balloon", "banana", "barrel",
+"basket", "beach", "bear", "bench", "berry", "bike", "bird", "boat",
+"bolt", "book", "boot", "botany", "box", "brain", "bread", "breeze",
+"bridge", "bubble", "bug", "bunny", "bus", "butter", "camera", "canoe",
+"car", "carrot", "cartoon", "cello", "chair", "check", "cheese", "chorus",
+"city", "clerk", "clock", "coat", "coconut", "coffee", "comet", "cosmic",
+"country", "cow", "cream", "crown", "curtain", "daisy", "data", "deer",
+"degree", "desert", "desk", "diamond", "dirt", "dog", "doll", "domain",
+"duty", "eagle", "earth", "effort", "energy", "engine", "epic", "errand",
+"error", "famous", "farmer", "field", "finch", "finish", "fire", "fish",
+"flower", "fluent", "flute", "formal", "fox", "friend", "gadfly", "gallon",
+"garden", "gate", "genius", "giant", "global", "grain", "guitar", "guppy",
+"hair", "hall", "hand", "harbor", "hat", "height", "hill", "hippo",
+"hockey", "honor", "horse", "hotel", "house", "idea", "immune", "ink",
+"input", "invent", "iris", "irror", "island", "jacket", "jade", "jazz",
+"jeans", "jet", "jewel", "judge", "jungle", "kayak", "kettle", "key",
+"kite", "knight", "ladder", "lake", "law", "lawn", "leader", "lemon",
+"light", "lion", "lotus", "loyal", "major", "mango", "marble", "market",
+"mesa", "method", "mint", "mirror", "mobile", "month", "moon", "mud",
+"museum", "nature", "nest", "noble", "north", "oasis", "object", "oboe",
+"ocean", "octopus", "onion", "orange", "owl", "owner", "oxygen", "palm",
+"panda", "pant", "paper", "parade", "park", "patron", "peach", "pear",
+"pencil", "people", "phoenix", "phone", "piano", "pizza", "planet", "pledge",
+"plum", "pocket", "poem", "poetry", "pond", "poodle", "potato", "prairie",
+"praise", "prose", "puppy", "quail", "quaint", "quick", "quote", "rabbit",
+"raccoon", "raft", "rain", "raven", "reason", "remedy", "review", "reward",
+"river", "road", "robin", "rock", "rocket", "role", "rose", "rosebud",
+"runner", "safety", "salute", "scout", "sea", "seed", "shark", "sheep",
+"shelf", "ship", "shoe", "shrub", "skates", "sky", "sled", "snail",
+"snake", "soccer", "socks", "sofa", "space", "spark", "sparrow", "spider",
+"spoon", "squash", "squirrel", "stable", "star", "state", "statue", "storm",
+"stove", "straw", "street", "studio", "study", "summit", "sun", "table",
+"tablet", "teapot", "teen", "tent", "theory", "tiger", "timber", "tomato",
+"topic", "town", "trail", "train", "tree", "truck", "trumpet", "truth",
+"tuba", "tulip", "turkey", "turtle", "two", "unicorn", "union", "unit",
+"unite", "urban", "useful", "valley", "vase", "verse", "violet", "violin",
+"voyage", "wagon", "walnut", "watch", "wate", "water", "wealth", "week",
+"west", "whale", "wind", "window", "windy", "wolf", "world", "writer",
+"yacht", "yard", "year", "zeal", "zebra", "zone", "zoo"
+};
+
+
+for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
-	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
+	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
 		{
+		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
 		for (cn = 0; cn < 1000; cn++)
 			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", wordlist[ca], wordlist[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", firstword[ca], secondword[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
 	}
-for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
+for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
-	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
+	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
 		{
+		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
 		for (cn = 0; cn < 100; cn++)
 			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%02d", wordlist[ca], wordlist[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%02d", firstword[ca], secondword[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
 	}
-for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
+for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
-	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
+	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
 		{
+		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
 		for (cn = 0; cn < 10; cn++)
 			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%d", wordlist[ca], wordlist[cs], cn);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%d", firstword[ca], secondword[cs], cn);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
 	}
-for(ca = 0; ca < (sizeof(wordlist) / sizeof(char *)); ca++)
+for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
-	for(cs = 0; cs < (sizeof(wordlist) / sizeof(char *)); cs++)
+	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
 		{
-		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s", wordlist[ca], wordlist[cs]);
+		if(strcmp(firstword[ca], secondword[cs]) == 0) continue;
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s", firstword[ca], secondword[cs]);
 		fprintf(fhout,"%s\n", pskstring);
 		}
 	}
@@ -2608,7 +2622,7 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--noessidcombination: exclude ESSID combinations\n"
 	"--netgear           : include weak NETGEAR / ORBI / NTGR_VMB candidates\n"
 	"--spectrum          : include weak MySpectrumWiFI / SpectrumSetup / MyCharterWiFI candidates\n"
-	"                      list will be > 3.5GB\n"
+	"                      list will be > 1.5GB\n"
 	"--digit10           : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"                      list will be > 1GB\n"
 	"--phome             : include weak PEGATRON HOME candidates\n"
