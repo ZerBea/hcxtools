@@ -1661,7 +1661,7 @@ static char linein[PMKIDEAPOL_BUFFER_LEN];
 
 maclistskipmax = 1000;
 if((maclistskip = (maclist_t*)calloc(maclistskipmax, MACLIST_SIZE)) == NULL) return;
-if((fh_maclistin = fopen(macskipname, "rb")) == NULL)
+if((fh_maclistin = fopen(macskipname, "r")) == NULL)
 	{
 	printf("error opening file %s: %s\n", macskipname, strerror(errno));
 	return;
@@ -1767,7 +1767,7 @@ static char linein[PMKIDEAPOL_BUFFER_LEN];
 
 maclistinmax = 1000;
 if((maclistin = (maclist_t*)calloc(maclistinmax, MACLIST_SIZE)) == NULL) return;
-if((fh_maclistin = fopen(maclistinname, "rb")) == NULL)
+if((fh_maclistin = fopen(maclistinname, "r")) == NULL)
 	{
 	printf("error opening file %s: %s\n", maclistinname, strerror(errno));
 	return;
@@ -1873,7 +1873,7 @@ static char linein[PMKIDEAPOL_BUFFER_LEN];
 
 essidlistinmax = 1000;
 if((essidlistin = (essidlist_t*)calloc(essidlistinmax, ESSIDLIST_SIZE)) == NULL) return;
-if((fh_essidlistin = fopen(essidlistinname, "rb")) == NULL)
+if((fh_essidlistin = fopen(essidlistinname, "r")) == NULL)
 	{
 	printf("error opening file %s: %s\n", essidlistinname, strerror(errno));
 	return;
