@@ -35,14 +35,14 @@ strm.next_in = in;
 strm.avail_in = 0;
 inflateInit2(& strm, windowBits | ENABLE_ZLIB_GZIP);
 printf("decompressing %s to %s\n", basename(gzname), tmpoutname);
-fhin = fopen (gzname, "rb");
+fhin = fopen (gzname, "r");
 if(fhin == NULL)
 	{
 	printf("failed to decompress%s\n", gzname);
 	return false;
 	}
 
-fhout = fopen (tmpoutname, "wb");
+fhout = fopen (tmpoutname, "w");
 if(fhin == NULL)
 	{
 	printf("failed to decompress%s\n", tmpoutname);

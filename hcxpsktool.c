@@ -2536,7 +2536,7 @@ if((statinfo.st_size %HCCAPX_SIZE) != 0)
 	fprintf(stderr, "file corrupt\n");
 	return;
 	}
-if((fhhcx = fopen(hccapxname, "rb")) == NULL)
+if((fhhcx = fopen(hccapxname, "r")) == NULL)
 	{
 	fprintf(stderr, "error opening file %s", hccapxname);
 	return;
