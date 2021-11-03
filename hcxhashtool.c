@@ -1489,7 +1489,7 @@ if(strcmp(vendorinfooutname, "stdout") != 0)
 		return;
 		}
 	vendor = getvendor(hashlist->ap);
-	fprintf(stdout, "%02x%02x%02x\t%s\t[ACCESS POINT]\n", hashlist->ap[0], hashlist->ap[1], hashlist->ap[2], vendor);
+	fprintf(fh_info, "%02x%02x%02x\t%s\t[ACCESS POINT]\n", hashlist->ap[0], hashlist->ap[1], hashlist->ap[2], vendor);
 	for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 		{
 		if(memcmp((zeiger -1)->ap, zeiger->ap, 3) != 0)
@@ -1531,7 +1531,7 @@ if(strcmp(vendorinfooutname, "stdout") != 0)
 		return;
 		}
 	vendor = getvendor(hashlist->client);
-	fprintf(stdout, "%02x%02x%02x\t%s\t[CLIENT]\n", hashlist->client[0], hashlist->client[1], hashlist->client[2], vendor);
+	fprintf(fh_info, "%02x%02x%02x\t%s\t[CLIENT]\n", hashlist->client[0], hashlist->client[1], hashlist->client[2], vendor);
 	for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 		{
 		if(memcmp((zeiger -1)->client, zeiger->client, 3) != 0)
@@ -2339,21 +2339,21 @@ printf("%s %s (C) %s ZeroBeat\n"
 	"--rc-not                     : filter EAPOL pairs by replaycount status not checked\n"
 	"--apless                     : filter EAPOL pairs by status M1M2ROGUE (M2 requested from CLIENT)\n"
 	"--info=<file>                : output detailed information about content of hash file\n"
-	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"                               no filter options available\n"
 	"--info=stdout                : stdout output detailed information about content of hash file\n"
-	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"                               no filter options available\n"
 	"--info-vendor=<file>         : output detailed information about ACCESS POINT and CLIENT VENDORs\n"
-	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"                               no filter options available\n"
 	"--info-vendor-ap=<file>      : output detailed information about ACCESS POINT VENDORs\n"
-	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"                               no filter options available\n"
 	"--info-vendor-client=<file>  : output detailed information about ACCESS POINT VENDORs\n"
-	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"                               no filter options available\n"
 	"--info-vendor=stdout         : stdout output detailed information about ACCESS POINT and CLIENT VENDORs\n"
-	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"                               no filter options available\n"
 	"--info-vendor-ap=stdout      : stdout output detailed information about ACCESS POINT VENDORs\n"
-	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"                               no filter options available\n"
 	"--info-vendor-client=stdout  : stdout output detailed information about ACCESS POINT VENDORs\n"
-	"                               not in combination with --vendor, --vendor-ap or --vendor-client\n"
+	"                               no filter options available\n"
 	"--psk=<PSK>                  : pre-shared key to test\n"
 	"                               due to PBKDF2 calculation this is a very slow process\n"
 	"                               no nonce error corrections\n"
@@ -2886,38 +2886,69 @@ if(pmkideapolinname != NULL)
 	}
 
 if(fh_pmkideapol != NULL) readpmkideapolfile(fh_pmkideapol);
-if((pmkideapolcount > 0) && (macskipname != NULL)) removepmkideapol(macskipname);
+
+if(pmkideapolcount == 0)
+	{
+	printf("no hashes loaded\n");
+	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+	closelists();
+	return EXIT_SUCCESS;
+	}
+if(infooutname != NULL)
+	{
+	writeinfofile(infooutname);
+	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+	closelists();
+	return EXIT_SUCCESS;
+	}
+
+if(infovendoroutname != NULL)
+	{
+	writevendorapinfofile(infovendoroutname);
+	writevendorclientinfofile(infovendoroutname);
+	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+	closelists();
+	return EXIT_SUCCESS;
+	}
+else if(infovendorapoutname != NULL)
+	{
+	writevendorapinfofile(infovendorapoutname);
+	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+	closelists();
+	return EXIT_SUCCESS;
+	}
+else if(infovendorclientoutname != NULL)
+	{
+	writevendorclientinfofile(infovendorclientoutname);
+	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+	closelists();
+	return EXIT_SUCCESS;
+	}
+
+if(macskipname != NULL) removepmkideapol(macskipname);
 
 if(hashtypein > 0) hashtype = hashtypein;
 
-if((pmkideapolcount > 0) && (essidoutname != NULL)) processessid(essidoutname);
-if((pmkideapolcount > 0) && (pmkideapoloutname != NULL) && (essidinname == NULL))
+if(essidoutname != NULL) processessid(essidoutname);
+if((pmkideapoloutname != NULL) && (essidinname == NULL))
 	{
 	if((lcmin == 0) && (lcmax == 0)) writeeapolpmkidfile(pmkideapoloutname);
 	else writelceapolpmkidfile(pmkideapoloutname, lcmin, lcmax);
 	}
-if((pmkideapolcount > 0) && (flagessidgroup == true)) writeeapolpmkidessidgroups();
-if((pmkideapolcount > 0) && (flagmacapgroup == true)) writeeapolpmkidmacapgroups();
-if((pmkideapolcount > 0) && (flagmacclientgroup == true)) writeeapolpmkidmacclientgroups();
-if((pmkideapolcount > 0) && (flagouigroup == true)) writeeapolpmkidouigroups();
-if((pmkideapolcount > 0) && (flagpsk == true)) testhashfilepsk();
-if((pmkideapolcount > 0) && (flagpmk == true)) testhashfilepmk();
-if((pmkideapolcount > 0) && (hccapxoutname != NULL)) writehccapxfile(hccapxoutname);
-if((pmkideapolcount > 0) && (hccapoutname != NULL)) writehccapfile(hccapoutname);
-if((pmkideapolcount > 0) && (flaghccapsingleout == true)) writehccapsinglefile();
-if((pmkideapolcount > 0) && (johnoutname != NULL)) writejohnfile(johnoutname);
-if((pmkideapolcount > 0) && (pmkideapoloutname != NULL) && (essidinname != NULL)) processessidfile(essidinname, pmkideapoloutname);
-if((pmkideapolcount > 0) && (macinname != NULL)) processmacfile(macinname, pmkideapoloutname);
-if((pmkideapolcount > 0) && (infooutname != NULL)) writeinfofile(infooutname);
-if((pmkideapolcount > 0) && (infovendoroutname != NULL))
-	{
-	writevendorapinfofile(infovendoroutname);
-	writevendorclientinfofile(infovendoroutname);
-	}
-else if((pmkideapolcount > 0) && (infovendorapoutname != NULL)) writevendorapinfofile(infovendorapoutname);
-else if((pmkideapolcount > 0) && (infovendorclientoutname != NULL)) writevendorclientinfofile(infovendorclientoutname);
+if(flagessidgroup == true) writeeapolpmkidessidgroups();
+if(flagmacapgroup == true) writeeapolpmkidmacapgroups();
+if(flagmacclientgroup == true) writeeapolpmkidmacclientgroups();
+if(flagouigroup == true) writeeapolpmkidouigroups();
+if(flagpsk == true) testhashfilepsk();
+if(flagpmk == true) testhashfilepmk();
+if(hccapxoutname != NULL) writehccapxfile(hccapxoutname);
+if(hccapoutname != NULL) writehccapfile(hccapoutname);
+if(flaghccapsingleout == true) writehccapsinglefile();
+if(johnoutname != NULL) writejohnfile(johnoutname);
+if((pmkideapoloutname != NULL) && (essidinname != NULL)) processessidfile(essidinname, pmkideapoloutname);
+if(macinname != NULL) processmacfile(macinname, pmkideapoloutname);
 
-if((infooutname == NULL) && (infovendoroutname == NULL) && (infovendorapoutname == NULL) && (infovendorclientoutname == NULL)) printstatus();
+printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 closelists();
 return EXIT_SUCCESS;
