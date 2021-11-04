@@ -122,6 +122,16 @@ Or install via packet manager of your distribution
 Requirements
 --------------
 
+* knowledge of radiofrequency technology
+
+* knowledge of electromagnetic-wave engineering
+
+* detailed knowledge of 802.11 protocol
+
+* detailed knowledge of key derivation functions
+
+* detailed kowlege of Linux
+
 * Linux (recommended Arch Linux, but other distros should work, too (no support for other distributions).
 
 * gcc >= 11 recommended (deprecated versions are not supported: https://gcc.gnu.org/)
@@ -141,6 +151,9 @@ Requirements
 To install requirements on Kali use the following 'apt-get install pkg-config libcurl4-openssl-dev libssl-dev zlib1g-dev'
 
 If you decide to compile latest git head, make sure that your distribution is updated on latest version.
+
+
+
 
 
 Useful scripts
