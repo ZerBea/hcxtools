@@ -131,7 +131,7 @@ for(c = 0; c < pmkcountthread; c++)
 		{
 		if(PKCS5_PBKDF2_HMAC_SHA1((const char*)zeiger->psk, zeiger->psklen, (unsigned char*)zeiger->essid, zeiger->essidlen, 4096, 32, zeiger->pmk) == 0)
 			{
-			printf("failed to calculate PMK\n");
+			fprintf(stdout, "failed to calculate PMK\n");
 			exit(EXIT_FAILURE);
 			}
 		}
@@ -155,7 +155,7 @@ if(cpucount > 16)
 	cpucount = 16;
 	}
 zeiger = pmkliste;
-printf("threads started.......: %llu (be patient!)\n", cpucount);
+fprintf(stdout, "threads started.......: %llu (be patient!)\n", cpucount);
 ct = pmkcount/cpucount;
 if(ct > 1600)
 	{
@@ -166,7 +166,7 @@ if(ct > 1600)
 		ret = pthread_create( &thread[c], NULL, &calculatethread, &args[c]);
 		if(ret != 0)
 			{
-			printf("failed to create thread\n");
+			fprintf(stdout, "failed to create thread\n");
 			exit(EXIT_FAILURE);
 			}
 		zeiger += ct;
@@ -191,7 +191,7 @@ if(ct > 0)
 			{
 			if(PKCS5_PBKDF2_HMAC_SHA1((const char*)zeiger->psk, zeiger->psklen, (unsigned char*)zeiger->essid, zeiger->essidlen, 4096, 32, zeiger->pmk) == 0)
 				{
-				printf("failed to calculate PMK\n");
+				fprintf(stdout, "failed to calculate PMK\n");
 				exit(EXIT_FAILURE);
 				}
 			}
@@ -211,7 +211,7 @@ if(pmkliste == NULL)
 	pmkliste = malloc(PMKLIST_SIZE);
 	if(pmkliste == NULL)
 		{
-		printf("failed to allocate memory\n");
+		fprintf(stdout, "failed to allocate memory\n");
 		exit(EXIT_FAILURE);
 		}
 	memset(pmkliste, 0, PMKLIST_SIZE);
@@ -241,7 +241,7 @@ for(c = 0; c < pmkcount; c++)
 zeiger = realloc(pmkliste, (pmkcount +1) *PMKLIST_SIZE);
 if(zeiger == NULL)
 	{
-	printf("failed to allocate memory\n");
+	fprintf(stderr, "failed to allocate memory\n");
 	exit(EXIT_FAILURE);
 	}
 pmkliste = zeiger;
@@ -269,24 +269,24 @@ memset(&pmktmp, 0, PMKLIST_SIZE);
 
 if(potlinelen < 59)
 	{
-	printf("line length exception: %s\n", potline);
+	fprintf(stdout, "line length exception: %s\n", potline);
 	return;
 	}
 if((potline[32] != ':') && (potline[32]  != '*'))
 	{
-	printf("sperator doesn't match: %s\n", potline);
+	fprintf(stdout, "sperator doesn't match: %s\n", potline);
 	return;
 	}
 
 if((potline[45] != ':') && (potline[45]  != '*'))
 	{
-	printf("sperator doesn't match: %s\n", potline);
+	fprintf(stdout, "sperator doesn't match: %s\n", potline);
 	return;
 	}
 
 if((potline[58] != ':') && (potline[58]  != '*'))
 	{
-	printf("sperator doesn't match: %s\n", potline);
+	fprintf(stdout, "sperator doesn't match: %s\n", potline);
 	return;
 	}
 
@@ -294,7 +294,7 @@ essidptr = potline +59;
 pskptr = strchr(potline +59, ':');
 if (pskptr == NULL)
 	{
-	printf("sperator doesn't match: %s\n", potline);
+	fprintf(stdout, "sperator doesn't match: %s\n", potline);
 	return;
 	}
 pskptr[0] = 0;
@@ -306,7 +306,7 @@ if(potline[58] == ':')
 		{
 		if(hex2bin(essidptr +5, pmktmp.essid, essidlen) == false)
 			{
-			printf("%s\n", potline);
+			fprintf(stdout, "%s\n", potline);
 			return;
 			}
 		pmktmp.essidflag = true;
@@ -316,7 +316,7 @@ if(potline[58] == ':')
 		essidlen = strlen(essidptr);
 		if((essidlen < 1) || (essidlen > 32))
 			{
-			printf("%s\n", potline);
+			fprintf(stdout, "%s\n", potline);
 			return;
 			}
 		memcpy(&pmktmp.essid, essidptr, essidlen);
@@ -329,14 +329,14 @@ else if(potline[58] == '*')
 	essidlen = strlen(essidptr) /2;
 	if(hex2bin(essidptr, pmktmp.essid, essidlen) == false)
 		{
-		printf("%s\n", potline);
+		fprintf(stdout, "%s\n", potline);
 		return;
 		}
 	pmktmp.essidlen = essidlen;
 	}
 else
 	{
-	printf("sperator doesn't match: %s\n", potline);
+	fprintf(stdout, "sperator doesn't match: %s\n", potline);
 	return;
 	}
 
@@ -345,7 +345,7 @@ if((psklen > 0) && (psklen <= 63))
 	{
 	if(hex2bin(pskptr +5, pmktmp.psk, psklen) == false)
 		{
-		printf("%s\n", potline);
+		fprintf(stdout, "%s\n", potline);
 		return;
 		}
 	pmktmp.pskflag = true;
@@ -355,7 +355,7 @@ else
 	psklen = strlen(pskptr);
 	if((psklen < 1) || (psklen > 64))
 		{
-		printf("%s\n", potline);
+		fprintf(stdout, "%s\n", potline);
 		return;
 		}
 	memcpy(&pmktmp.psk, pskptr, psklen);
@@ -507,7 +507,7 @@ while((potlinelen = fgetline(fhpot, 256, potline)) != -1)
 	potcount++;
 	}
 
-printf("POT file lines read...: %llu (%llu skipped)\n",
+fprintf(stdout, "POT file lines read...: %llu (%llu skipped)\n",
 	potcount, potcount -(pmkcount -pmkoldcount));
 fclose(fhpot);
 return;
@@ -531,7 +531,7 @@ while((pmklinelen = fgetline(fhpmk, 256, pmkline)) != -1)
 	pmkoldcount++;
 	}
 
-printf("PMK file lines read...: %llu (%llu skipped)\n", pmkoldcount, pmkoldcount - pmkcount);
+fprintf(stdout, "PMK file lines read...: %llu (%llu skipped)\n", pmkoldcount, pmkoldcount - pmkcount);
 fclose(fhpmk);
 return;
 }
@@ -546,7 +546,7 @@ if(pmkliste != NULL)
 	{
 	calculatepmk();
 	writenewpmkfile(pmkname);
-	printf("total PMKs calculated.: %llu\n", pmkcount);
+	fprintf(stdout, "total PMKs calculated.: %llu\n", pmkcount);
 	free(pmkliste);
 	}
 return;
@@ -555,14 +555,14 @@ return;
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
 void usage(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"usage:\n"
 	"%s <options>\n"
 	"\n"
@@ -579,7 +579,7 @@ exit(EXIT_SUCCESS);
 __attribute__ ((noreturn))
 void usageerror(char *eigenname)
 {
-printf("%s %s (C) %s by ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s by ZeroBeat\n"
 	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
