@@ -151,6 +151,9 @@ static long int pcapreaderrors;
 static long int skippedpacketcount;
 static long int zeroedtimestampcount;
 static long int fcsframecount;
+static long int band24count;
+static long int band5count;
+static long int band6count;
 static long int wdscount;
 static long int actioncount;
 static long int actionessidcount;
@@ -450,6 +453,9 @@ pcapreaderrors = 0;
 skippedpacketcount = 0;
 zeroedtimestampcount = 0;
 fcsframecount = 0;
+band24count = 0;
+band5count = 0;
+band6count = 0;
 wdscount = 0;
 actioncount = 0;
 actionessidcount = 0;
@@ -605,6 +611,9 @@ else					fprintf(stdout, "endianess (capture system)...............: big endian\
 if(rawpacketcount > 0)			fprintf(stdout, "packets inside...........................: %ld\n", rawpacketcount);
 if(skippedpacketcount > 0)		fprintf(stdout, "skipped packets..........................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			fprintf(stdout, "frames with correct FCS..................: %ld\n", fcsframecount);
+if(band24count > 0)			fprintf(stdout, "packets received on 2.4 GHz..............: %ld\n", band24count);
+if(band5count > 0)			fprintf(stdout, "packets received on 5 GHz................: %ld\n", band5count);
+if(band6count > 0)			fprintf(stdout, "packets received on 6 GHz................: %ld\n", band6count);
 if(wdscount > 0)			fprintf(stdout, "WIRELESS DISTRIBUTION SYSTEM.............: %ld\n", wdscount);
 if(deviceinfocount > 0)			fprintf(stdout, "frames containing device information.....: %ld\n", deviceinfocount);
 if(essidcount > 0)			fprintf(stdout, "ESSID (total unique).....................: %ld\n", essidcount);
@@ -618,7 +627,8 @@ if(beaconcount > 0)
 	fprintf(stdout, "BEACON (total)...........................: %ld\n", beaconcount);
 	if((beaconchannel[0] &GHZ24) == GHZ24)
 		{
-		fprintf(stdout, "BEACON (detected on 2.4GHz channel)......: ");
+		fprintf(stdout, "BEACON (detected on 2.4 GHz channel).....: ");
+
 		for(i = 1; i <= 14; i++)
 			{
 			if(beaconchannel[i] != 0) fprintf(stdout, "%d ", i);
@@ -627,7 +637,7 @@ if(beaconcount > 0)
 		}
 	if((beaconchannel[0] &GHZ5) == GHZ5)
 		{
-		fprintf(stdout, "BEACON (detected on 5GHz channel)........: ");
+		fprintf(stdout, "BEACON (detected on 5/6 GHz channel).....: ");
 		for(i = 15; i < CHANNEL_MAX; i++)
 			{
 			if(beaconchannel[i] != 0) fprintf(stdout, "%d ", i);
@@ -4481,9 +4491,27 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	{
 	if(pf > caplen) return;
 	frequency = (capptr[pf +1] << 8) + capptr[pf];
-	if((frequency >= 2407) && (frequency <= 2474)) interfacechannel = (frequency -2407)/5;
-	else if((frequency >= 2481) && (frequency <= 2487)) interfacechannel = (frequency -2412)/5;
-	else if((frequency >= 5150) && (frequency <= 5875)) interfacechannel = (frequency -5000)/5;
+	if((frequency >= 2407) && (frequency <= 2474))
+		{
+		interfacechannel = (frequency -2407)/5;
+		band24count++;
+		}
+	else if((frequency >= 2481) && (frequency <= 2487)) 
+		{
+		interfacechannel = (frequency -2412)/5;
+		band24count++;
+		}
+	else if((frequency >= 5005) && (frequency <= 5980))
+		{
+		interfacechannel = (frequency -5000)/5;
+		band5count++;
+		}
+	else if((frequency >= 5955) && (frequency <= 6415))
+		{
+		interfacechannel = (frequency -5950)/5;
+		band6count++;
+		}
+
 	pf += 4;
 	}
 if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS) pf += 2;
