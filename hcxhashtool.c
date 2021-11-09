@@ -153,60 +153,60 @@ static void printstatus()
 {
 static char *vendor;
 
-printf("\nOUI information file..........: %s\n", usedoui);
-if(ouicount > 0)		printf("OUI entires...................: %d\n", ouicount);
-if(readcount > 0)		printf("total lines read..............: %ld\n", readcount);
+fprintf(stdout, "\nOUI information file..........: %s\n", usedoui);
+if(ouicount > 0)		fprintf(stdout, "OUI entires...................: %d\n", ouicount);
+if(readcount > 0)		fprintf(stdout, "total lines read..............: %ld\n", readcount);
 if(flagvendorout == true)
 	{
-	printf("\n");
+	fprintf(stdout, "\n");
 	return;
 	}
-if(pbkdf2count > 0)			printf("PBKDF2 lines..................: %ld\n", pbkdf2count);
-if(pbkdf2readerrorcount > 0)		printf("PBKDF2 errors.................: %ld\n", pbkdf2readerrorcount);
-if(readerrorcount > 0)			printf("read errors...................: %ld\n", readerrorcount);
-if(pmkideapolcount > 0)			printf("valid hash lines..............: %ld\n", pmkideapolcount);
-if(pmkidcount > 0)			printf("PMKID hash lines..............: %ld\n", pmkidcount);
-if(eapolcount > 0)			printf("EAPOL hash lines..............: %ld\n", eapolcount);
-if(essidlenmin != 0)			printf("filter by ESSID len min.......: %d\n", essidlenmin);
-if(essidlenmax != 32)			printf("filter by ESSID len max.......: %d\n", essidlenmax);
-if(filteressidptr != NULL)		printf("filter by ESSID...............: %s\n", filteressidptr);
-if(filteressidpartptr != NULL)		printf("filter by part of ESSID.......: %s\n", filteressidpartptr);
+if(pbkdf2count > 0)			fprintf(stdout, "PBKDF2 lines..................: %ld\n", pbkdf2count);
+if(pbkdf2readerrorcount > 0)		fprintf(stdout, "PBKDF2 errors.................: %ld\n", pbkdf2readerrorcount);
+if(readerrorcount > 0)			fprintf(stdout, "read errors...................: %ld\n", readerrorcount);
+if(pmkideapolcount > 0)			fprintf(stdout, "valid hash lines..............: %ld\n", pmkideapolcount);
+if(pmkidcount > 0)			fprintf(stdout, "PMKID hash lines..............: %ld\n", pmkidcount);
+if(eapolcount > 0)			fprintf(stdout, "EAPOL hash lines..............: %ld\n", eapolcount);
+if(essidlenmin != 0)			fprintf(stdout, "filter by ESSID len min.......: %d\n", essidlenmin);
+if(essidlenmax != 32)			fprintf(stdout, "filter by ESSID len max.......: %d\n", essidlenmax);
+if(filteressidptr != NULL)		fprintf(stdout, "filter by ESSID...............: %s\n", filteressidptr);
+if(filteressidpartptr != NULL)		fprintf(stdout, "filter by part of ESSID.......: %s\n", filteressidpartptr);
 if(flagfiltermacap == true)
 	{
 	vendor = getvendor(filtermacap);
-	printf("filter by MAC.................: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacap[0], filtermacap[1], filtermacap[2], filtermacap[3], filtermacap[4], filtermacap[5], vendor);
+	fprintf(stdout, "filter by MAC.................: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacap[0], filtermacap[1], filtermacap[2], filtermacap[3], filtermacap[4], filtermacap[5], vendor);
 	}
 if(flagfiltermacclient == true)
 	{
 	vendor = getvendor(filtermacclient);
-	printf("filter by MAC.................: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacclient[0], filtermacclient[1], filtermacclient[2], filtermacclient[3], filtermacclient[4], filtermacclient[5], vendor);
+	fprintf(stdout, "filter by MAC.................: %02x%02x%02x%02x%02x%02x (%s)\n", filtermacclient[0], filtermacclient[1], filtermacclient[2], filtermacclient[3], filtermacclient[4], filtermacclient[5], vendor);
 	}
 
 if(flagfilterouiap == true)
 	{
 	vendor = getvendor(filterouiap);
-	printf("filter AP by OUI..............: %02x%02x%02x (%s)\n", filterouiap[0], filterouiap[1], filterouiap[2], vendor);
+	fprintf(stdout, "filter AP by OUI..............: %02x%02x%02x (%s)\n", filterouiap[0], filterouiap[1], filterouiap[2], vendor);
 	}
-if(filtervendorptr != NULL)		printf("filter AP and CLIENT by VENDOR: %s\n", filtervendorptr);
-if(filtervendorapptr != NULL)		printf("filter AP by VENDOR...........: %s\n", filtervendorapptr);
-if(filtervendorclientptr != NULL)	printf("filter CLIENT by VENDOR.......: %s\n", filtervendorclientptr);
+if(filtervendorptr != NULL)		fprintf(stdout, "filter AP and CLIENT by VENDOR: %s\n", filtervendorptr);
+if(filtervendorapptr != NULL)		fprintf(stdout, "filter AP by VENDOR...........: %s\n", filtervendorapptr);
+if(filtervendorclientptr != NULL)	fprintf(stdout, "filter CLIENT by VENDOR.......: %s\n", filtervendorclientptr);
 if(flagfilterouiclient == true)
 	{
 	vendor = getvendor(filterouiclient);
-	printf("filter CLIENT by OUI..........: %02x%02x%02x (%s)\n", filterouiclient[0], filterouiclient[1], filterouiclient[2], vendor);
+	fprintf(stdout, "filter CLIENT by OUI..........: %02x%02x%02x (%s)\n", filterouiclient[0], filterouiclient[1], filterouiclient[2], vendor);
 	}
-if(flagfilterapless == true)		printf("filter by M2..................: requested from client (AP-LESS)\n");
-if(flagfilterrcchecked == true)		printf("filter by replaycount.........: checked\n");
-if(flagfilterrcnotchecked == true)		printf("filter by replaycount.........: not checked\n");
-if(flagfilterauthorized == true)	printf("filter by status..............: authorized (M1M4, M2M3 or M3M4)\n");
-if(flagfilterchallenge == true)	printf("filter by status..............: challenge (M1M2)\n");
-if(pmkidwrittencount > 0)		printf("PMKID written.................: %ld\n", pmkidwrittencount);
-if(eapolwrittencount > 0)		printf("EAPOL written.................: %ld\n", eapolwrittencount);
-if(hccapxwrittencount > 0)		printf("EAPOL written to hccapx.......: %ld\n", hccapxwrittencount);
-if(hccapwrittencount > 0)		printf("EAPOL written to hccap........: %ld\n", hccapwrittencount);
-if(johnwrittencount > 0)		printf("EAPOL written to john.........: %ld\n", johnwrittencount);
-if(essidwrittencount > 0)		printf("ESSID (unique) written........: %ld\n", essidwrittencount);
-printf("\n");
+if(flagfilterapless == true)		fprintf(stdout, "filter by M2..................: requested from client (AP-LESS)\n");
+if(flagfilterrcchecked == true)		fprintf(stdout, "filter by replaycount.........: checked\n");
+if(flagfilterrcnotchecked == true)	fprintf(stdout, "filter by replaycount.........: not checked\n");
+if(flagfilterauthorized == true)	fprintf(stdout, "filter by status..............: authorized (M1M4, M2M3 or M3M4)\n");
+if(flagfilterchallenge == true)	fprintf(stdout, "filter by status..............: challenge (M1M2)\n");
+if(pmkidwrittencount > 0)		fprintf(stdout, "PMKID written.................: %ld\n", pmkidwrittencount);
+if(eapolwrittencount > 0)		fprintf(stdout, "EAPOL written.................: %ld\n", eapolwrittencount);
+if(hccapxwrittencount > 0)		fprintf(stdout, "EAPOL written to hccapx.......: %ld\n", hccapxwrittencount);
+if(hccapwrittencount > 0)		fprintf(stdout, "EAPOL written to hccap........: %ld\n", hccapwrittencount);
+if(johnwrittencount > 0)		fprintf(stdout, "EAPOL written to john.........: %ld\n", johnwrittencount);
+if(essidwrittencount > 0)		fprintf(stdout, "ESSID (unique) written........: %ld\n", essidwrittencount);
+fprintf(stdout, "\n");
 return;
 }
 /*===========================================================================*/
@@ -843,7 +843,7 @@ if(johnoutname != NULL)
 	{
 	if((fh_john = fopen(johnoutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", johnoutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", johnoutname, strerror(errno));
 		return;
 		}
 	}
@@ -963,7 +963,7 @@ if(hccapoutname != NULL)
 	{
 	if((fh_hccap = fopen(hccapoutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", hccapoutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", hccapoutname, strerror(errno));
 		return;
 		}
 	}
@@ -1066,7 +1066,7 @@ if(hccapxoutname != NULL)
 	{
 	if((fh_hccapx = fopen(hccapxoutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", hccapxoutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", hccapxoutname, strerror(errno));
 		return;
 		}
 	}
@@ -1091,7 +1091,7 @@ static struct stat statinfo;
 
 if((fh_essid = fopen(essidoutname, "a")) == NULL)
 	{
-	printf("error opening file %s: %s\n", essidoutname, strerror(errno));
+	fprintf(stdout, "error opening file %s: %s\n", essidoutname, strerror(errno));
 	return;
 	}
 zeigerold = NULL;
@@ -1208,7 +1208,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	strcat(&groupoutname[ceo], ".22000");
 	if((fh_pmkideapol = fopen(groupoutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", groupoutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", groupoutname, strerror(errno));
 		return;
 		}
 	writepmkideapolhashline(fh_pmkideapol, zeiger);
@@ -1238,7 +1238,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	snprintf(groupoutname, PATH_MAX -1, "%02x%02x%02x.22000", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2]);
 	if((fh_pmkideapol = fopen(groupoutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", groupoutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", groupoutname, strerror(errno));
 		return;
 		}
 	writepmkideapolhashline(fh_pmkideapol, zeiger);
@@ -1268,7 +1268,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	snprintf(groupoutname, PATH_MAX -1, "%02x%02x%02x%02x%02x%02x.22000", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5]);
 	if((fh_pmkideapol = fopen(groupoutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", groupoutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", groupoutname, strerror(errno));
 		return;
 		}
 	writepmkideapolhashline(fh_pmkideapol, zeiger);
@@ -1298,7 +1298,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	snprintf(groupoutname, PATH_MAX -1, "%02x%02x%02x%02x%02x%02x.22000", zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5]);
 	if((fh_pmkideapol = fopen(groupoutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", groupoutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", groupoutname, strerror(errno));
 		return;
 		}
 	writepmkideapolhashline(fh_pmkideapol, zeiger);
@@ -1331,7 +1331,7 @@ if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
 		return;
 		}
 	}
@@ -1377,7 +1377,7 @@ if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
 		return;
 		}
 	}
@@ -1485,7 +1485,7 @@ if(strcmp(vendorinfooutname, "stdout") != 0)
 	{
 	if((fh_info = fopen(vendorinfooutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", vendorinfooutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", vendorinfooutname, strerror(errno));
 		return;
 		}
 	vendor = getvendor(hashlist->ap);
@@ -1527,7 +1527,7 @@ if(strcmp(vendorinfooutname, "stdout") != 0)
 	{
 	if((fh_info = fopen(vendorinfooutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", vendorinfooutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", vendorinfooutname, strerror(errno));
 		return;
 		}
 	vendor = getvendor(hashlist->client);
@@ -1567,7 +1567,7 @@ if(strcmp(infooutname, "stdout") != 0)
 	{
 	if((fh_info = fopen(infooutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", infooutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", infooutname, strerror(errno));
 		return;
 		}
 	for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++) writepmkideapolhashlineinfo(fh_info, zeiger);
@@ -1663,7 +1663,7 @@ maclistskipmax = 1000;
 if((maclistskip = (maclist_t*)calloc(maclistskipmax, MACLIST_SIZE)) == NULL) return;
 if((fh_maclistin = fopen(macskipname, "r")) == NULL)
 	{
-	printf("error opening file %s: %s\n", macskipname, strerror(errno));
+	fprintf(stdout, "error opening file %s: %s\n", macskipname, strerror(errno));
 	return;
 	}
 
@@ -1695,7 +1695,7 @@ while(1)
 		maclistskipnew = realloc(maclistskip, maclistskipmax *MACLIST_SIZE);
 		if(maclistskipnew == NULL)
 			{
-			printf("failed to allocate memory for internal list\n");
+			fprintf(stderr, "failed to allocate memory for internal list\n");
 			exit(EXIT_FAILURE);
 			}
 		maclistskip = maclistskipnew;
@@ -1769,7 +1769,7 @@ maclistinmax = 1000;
 if((maclistin = (maclist_t*)calloc(maclistinmax, MACLIST_SIZE)) == NULL) return;
 if((fh_maclistin = fopen(maclistinname, "r")) == NULL)
 	{
-	printf("error opening file %s: %s\n", maclistinname, strerror(errno));
+	fprintf(stdout, "error opening file %s: %s\n", maclistinname, strerror(errno));
 	return;
 	}
 zeiger = maclistin;
@@ -1800,7 +1800,7 @@ while(1)
 		maclistinnew = realloc(maclistin, maclistinmax *MACLIST_SIZE);
 		if(maclistinnew == NULL)
 			{
-			printf("failed to allocate memory for internal list\n");
+			fprintf(stdout, "failed to allocate memory for internal list\n");
 			exit(EXIT_FAILURE);
 			}
 		maclistin = maclistinnew;
@@ -1814,7 +1814,7 @@ if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
 		{
-		printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
 		free(maclistin);
 		return;
 		}
@@ -1875,7 +1875,7 @@ essidlistinmax = 1000;
 if((essidlistin = (essidlist_t*)calloc(essidlistinmax, ESSIDLIST_SIZE)) == NULL) return;
 if((fh_essidlistin = fopen(essidlistinname, "r")) == NULL)
 	{
-	printf("error opening file %s: %s\n", essidlistinname, strerror(errno));
+	fprintf(stdout, "error opening file %s: %s\n", essidlistinname, strerror(errno));
 	return;
 	}
 
@@ -1904,7 +1904,7 @@ while(1)
 		essidlistinnew = realloc(essidlistin, essidlistinmax *ESSIDLIST_SIZE);
 		if(essidlistinnew == NULL)
 			{
-			printf("failed to allocate memory for internal list\n");
+			fprintf(stderr, "failed to allocate memory for internal list\n");
 			exit(EXIT_FAILURE);
 			}
 		essidlistin = essidlistinnew;
@@ -1921,7 +1921,7 @@ if(pmkideapoloutname == NULL)
 	}
 if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
 	{
-	printf("error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+	fprintf(stdout, "error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
 	free(essidlistin);
 	return;
 	}
@@ -2067,7 +2067,7 @@ while(1)
 		hashlistnew = realloc(hashlist, hashlistcount *HASHLIST_SIZE);
 		if(hashlistnew == NULL)
 			{
-			printf("failed to allocate memory for internal list\n");
+			fprintf(stderr, "failed to allocate memory for internal list\n");
 			exit(EXIT_FAILURE);
 			}
 		hashlist = hashlistnew;
@@ -2086,7 +2086,7 @@ static char linein[PBKDF2_LINE_LEN +1];
 
 if((fh_pbkdf2 = fopen(pkdf2inname, "r")) == NULL)
 	{
-	printf("error opening file %s: %s\n", pkdf2inname, strerror(errno));
+	fprintf(stdout, "error opening file %s: %s\n", pkdf2inname, strerror(errno));
 	return false;
 	}
 
@@ -2112,8 +2112,7 @@ while(1)
 		continue;
 		}
 	pskpos[0] = 0;
-
-	printf("%s %s\n", &linein[65], pskpos +1);
+	fprintf(stdout, "%s %s\n", &linein[65], pskpos +1);
 	pbkdf2count++;
 	}
 fclose(fh_pbkdf2);
@@ -2207,7 +2206,7 @@ while(1)
 		ouilistnew = realloc(ouilist, ouilistcount *OUILIST_SIZE);
 		if(ouilistnew == NULL)
 			{
-			printf("failed to allocate memory for internal list\n");
+			fprintf(stderr, "failed to allocate memory for internal list\n");
 			exit(EXIT_FAILURE);
 			}
 		ouilist = ouilistnew;
@@ -2245,10 +2244,10 @@ if(stat(ouinameuserpath, &statinfo) == -1)
 		}
 	}
 strncat(ouinameuserpath, ouiname, PATH_MAX -1);
-printf("start downloading oui from http://standards-oui.ieee.org to: %s\n", ouinameuserpath);
+fprintf(stdout, "start downloading oui from http://standards-oui.ieee.org to: %s\n", ouinameuserpath);
 if((fhoui = fopen(ouinameuserpath, "w")) == NULL)
 	{
-	fprintf(stderr, "error creating file %s", ouiname);
+	fprintf(stdout, "error creating file %s", ouiname);
 	return;
 	}
 hnd = curl_easy_init ();
@@ -2261,24 +2260,24 @@ curl_easy_cleanup(hnd);
 fclose(fhoui);
 if(ret != 0)
 	{
-	fprintf(stderr, "download not successful");
+	fprintf(stdout, "download not successful");
 	return;
 	}
-printf("download finished\n");
+fprintf(stdout, "download finished\n");
 return;
 }
 /*===========================================================================*/
 __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"usage:\n"
 	"%s <options>\n"
 	"\n"
@@ -2373,7 +2372,7 @@ exit(EXIT_SUCCESS);
 __attribute__ ((noreturn))
 static void usageerror(char *eigenname)
 {
-printf("%s %s (C) %s by ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s by ZeroBeat\n"
 	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -2879,7 +2878,7 @@ if(pmkideapolinname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapolinname, "r")) == NULL)
 		{
-		printf("error opening file %s: %s\n", pmkideapolinname, strerror(errno));
+		fprintf(stdout, "error opening file %s: %s\n", pmkideapolinname, strerror(errno));
 		closelists();
 		exit(EXIT_FAILURE);
 		}
@@ -2889,7 +2888,7 @@ if(fh_pmkideapol != NULL) readpmkideapolfile(fh_pmkideapol);
 
 if(pmkideapolcount == 0)
 	{
-	printf("no hashes loaded\n");
+	fprintf(stdout, "no hashes loaded\n");
 	if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 	closelists();
 	return EXIT_SUCCESS;
