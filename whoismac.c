@@ -29,7 +29,7 @@ static CURL *hnd;
 
 static FILE* fhoui;
 
-printf("start downloading oui from http://standards-oui.ieee.org to: %s\n", ouiname);
+fprintf(stdout, "start downloading oui from http://standards-oui.ieee.org to: %s\n", ouiname);
 
 if((fhoui = fopen(ouiname, "w")) == NULL)
 	{
@@ -52,7 +52,7 @@ if(ret != 0)
 	exit(EXIT_FAILURE);
 	}
 
-printf("download finished\n");
+fprintf(stdout, "download finished\n");
 return true;
 }
 /*===========================================================================*/
@@ -417,7 +417,7 @@ return;
 __attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
