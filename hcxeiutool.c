@@ -135,14 +135,14 @@ return;
 __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"usage:\n"
 	"%s <options>\n"
 	"\n"
@@ -175,7 +175,7 @@ exit(EXIT_SUCCESS);
 __attribute__ ((noreturn))
 static void usageerror(char *eigenname)
 {
-printf("%s %s (C) %s by ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s by ZeroBeat\n"
 	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -261,7 +261,7 @@ if(wordlistinname == NULL)
 
 if((fh_wordlistin = fopen(wordlistinname, "r")) == NULL)
 	{
-	printf("error opening file %s: %s\n", wordlistinname, strerror(errno));
+	fprintf(stderr, "error opening file %s: %s\n", wordlistinname, strerror(errno));
 	exit(EXIT_FAILURE);
 	}
 
@@ -269,7 +269,7 @@ if(digitname != NULL)
 	{
 	if((fh_digitlist = fopen(digitname, "a+")) == NULL)
 		{
-		printf("error opening file %s: %s\n", digitname, strerror(errno));
+		fprintf(stderr, "error opening file %s: %s\n", digitname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -278,7 +278,7 @@ if(xdigitname != NULL)
 	{
 	if((fh_xdigitlist = fopen(xdigitname, "a+")) == NULL)
 		{
-		printf("error opening file %s: %s\n", xdigitname, strerror(errno));
+		fprintf(stderr, "error opening file %s: %s\n", xdigitname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -287,7 +287,7 @@ if(charname != NULL)
 	{
 	if((fh_charlist = fopen(charname, "a+")) == NULL)
 		{
-		printf("error opening file %s: %s\n", charname, strerror(errno));
+		fprintf(stderr, "error opening file %s: %s\n", charname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -296,7 +296,7 @@ if(csname != NULL)
 	{
 	if((fh_cslist = fopen(csname, "a+")) == NULL)
 		{
-		printf("error opening file %s: %s\n", csname, strerror(errno));
+		fprintf(stderr, "error opening file %s: %s\n", csname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
