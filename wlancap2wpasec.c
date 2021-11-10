@@ -35,7 +35,7 @@ static int testwpasec(long int timeout)
 CURL *curl;
 CURLcode res = 0;
 
-printf("connecting to %s\n", wpasecurl);
+fprintf(stdout, "connecting to %s\n", wpasecurl);
 curl_global_init(CURL_GLOBAL_ALL);
 curl = curl_easy_init();
 if(curl)
@@ -49,7 +49,6 @@ if(curl)
 	curl_easy_cleanup(curl);
 	}
 curl_global_cleanup();
-
 return res;
 }
 /*===========================================================================*/
@@ -81,7 +80,7 @@ struct curl_slist *headerlist=NULL;
 static const char buf[] = "Expect:";
 struct memory chunk;
 
-printf("uploading %s to %s\n", sendcapname, wpasecurl);
+fprintf(stdout, "uploading %s to %s\n", sendcapname, wpasecurl);
 memset(&chunk, 0, sizeof(chunk));
 curl_global_init(CURL_GLOBAL_ALL);
 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
@@ -101,15 +100,15 @@ if(curl)
 	res = curl_easy_perform(curl);
 	if(res == CURLE_OK)
 		{
-		printf("upload done\n");
+		fprintf(stdout, "upload done\n");
 		if(removeflag == true)
 			{
 			ret = remove(sendcapname);
-			if(ret != 0) fprintf(stderr, "couldn't remove %s\n", sendcapname);
+			if(ret != 0) fprintf(stdout, "couldn't remove %s\n", sendcapname);
 			}
 		if(curlmem->response != NULL)
 			{
-			printf("\n%s\n\n", curlmem->response);
+			fprintf(stdout, "\n%s\n\n", curlmem->response);
 			free(curlmem->response);
 			}
 		}
@@ -128,14 +127,14 @@ return uploadflag;
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>  [input.pcapng] [input.pcap] [input.cap] [input.pcapng.gz]...\n"
 	"       %s <options> *.pcapng\n"
 	"       %s <options> *.gz\n"
@@ -184,11 +183,11 @@ while ((auswahl = getopt(argc, argv, "k:u:t:e:Rhv")) != -1)
 		if((strlen(optarg) == 32) && (optarg[strspn(optarg, "0123456789abcdefABCDEF")] == 0))
 			{
 			snprintf(keyheader, sizeof(keyheader), "key=%s", optarg);
-			printf("\x1B[32muser key set\x1B[0m\n");
+			fprintf(stdout, "\x1B[32muser key set\x1B[0m\n");
 			}
 		else
 			{
-			fprintf(stderr, "wrong user key value\n");
+			fprintf(stdout, "wrong user key value\n");
 			}
 		break;
 
@@ -200,7 +199,7 @@ while ((auswahl = getopt(argc, argv, "k:u:t:e:Rhv")) != -1)
 		timeout = strtol(optarg, NULL, 10);
 		if(timeout < 1)
 			{
-			fprintf(stderr, "wrong connection timeout\nsetting connection timeout to 30 seconds\n");
+			fprintf(stdout, "wrong connection timeout\nsetting connection timeout to 30 seconds\n");
 			timeout = 30;
 			}
 		break;
@@ -240,12 +239,12 @@ for(index = optind; index < argc; index++)
 			}
 		else uploadcountok++;
 		}
-	else printf("file not found: %s\n", argv[index]);
+	else fprintf(stdout, "file not found: %s\n", argv[index]);
 	}
 
-if(uploadcountok == 1) printf("\x1B[32m%ld cap uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
-if(uploadcountok > 1) printf("\x1B[32m%ld caps uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
-if(uploadcountfailed == 1) printf("\x1B[31m%ld cap failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
-if(uploadcountfailed > 1) printf("\x1B[31m%ld caps failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
+if(uploadcountok == 1) fprintf(stdout, "\x1B[32m%ld cap uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
+if(uploadcountok > 1) fprintf(stdout, "\x1B[32m%ld caps uploaded to %s\x1B[0m\n", uploadcountok, wpasecurl);
+if(uploadcountfailed == 1) fprintf(stdout, "\x1B[31m%ld cap failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
+if(uploadcountfailed > 1) fprintf(stdout, "\x1B[31m%ld caps failed to upload to %s\x1B[0m\n", uploadcountfailed, wpasecurl);
 return EXIT_SUCCESS;
 }
