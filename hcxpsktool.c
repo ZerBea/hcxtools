@@ -554,7 +554,9 @@ static void keywriteee(FILE *fhout)
 {
 static size_t w3, w4, w5;
 
-static char pskstring[15] = {};
+static char pskstring[16] = {};
+
+const char *pskmask = "%s-%s-%s\n";
 
 char** uword3;
 char** uword4;
@@ -674,59 +676,59 @@ for(w3 = 0; w3 < (sizeof(word3) / sizeof(char *)); w3++)
 		{
 		for(w5 = 0; w5 < (sizeof(word5) / sizeof(char *)); w5++)
 			{
-			snprintf(pskstring, 15, "%s-%s-%s",  word3[w3],  word4[w4],  word5[w5]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s", uword3[w3],  word4[w4],  word5[w5]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word3[w3], uword4[w4],  word5[w5]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word3[w3],  word4[w4], uword5[w5]);
-			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4],  word5[w5]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask, uword3[w3],  word4[w4],  word5[w5]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word3[w3], uword4[w4],  word5[w5]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4], uword5[w5]);
+			fputs(pskstring, fhout);
 
-			snprintf(pskstring, 15, "%s-%s-%s",  word3[w3],  word5[w5],  word4[w4]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s", uword3[w3],  word5[w5],  word4[w4]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word3[w3], uword5[w5],  word4[w4]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word3[w3],  word5[w5], uword4[w4]);
-			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5],  word4[w4]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask, uword3[w3],  word5[w5],  word4[w4]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word3[w3], uword5[w5],  word4[w4]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5], uword4[w4]);
+			fputs(pskstring, fhout);
 
-			snprintf(pskstring, 15, "%s-%s-%s",  word4[w4],  word3[w3],  word5[w5]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s", uword4[w4],  word3[w3],  word5[w5]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word4[w4], uword3[w3],  word5[w5]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word4[w4],  word3[w3], uword5[w5]);
-			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3],  word5[w5]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask, uword4[w4],  word3[w3],  word5[w5]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word4[w4], uword3[w3],  word5[w5]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3], uword5[w5]);
+			fputs(pskstring, fhout);
 
-			snprintf(pskstring, 15, "%s-%s-%s",  word4[w4],  word5[w5],  word3[w3]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s", uword4[w4],  word5[w5],  word3[w3]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word4[w4], uword5[w5],  word3[w3]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word4[w4],  word5[w5], uword3[w3]);
-			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5],  word3[w3]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask, uword4[w4],  word5[w5],  word3[w3]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word4[w4], uword5[w5],  word3[w3]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5], uword3[w3]);
+			fputs(pskstring, fhout);
 
-			snprintf(pskstring, 15, "%s-%s-%s",  word5[w5],  word3[w3],  word4[w4]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s", uword5[w5],  word3[w3],  word4[w4]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word5[w5], uword3[w3],  word4[w4]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word5[w5],  word3[w3], uword4[w4]);
-			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3],  word4[w4]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask, uword5[w5],  word3[w3],  word4[w4]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word5[w5], uword3[w3],  word4[w4]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3], uword4[w4]);
+			fputs(pskstring, fhout);
 
-			snprintf(pskstring, 15, "%s-%s-%s",  word5[w5],  word4[w4],  word3[w3]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s", uword5[w5],  word4[w4],  word3[w3]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word5[w5], uword4[w4],  word3[w3]);
-			fprintf(fhout,"%s\n", pskstring);
-			snprintf(pskstring, 15, "%s-%s-%s",  word5[w5],  word4[w4], uword3[w3]);
-			fprintf(fhout,"%s\n", pskstring);
+			snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4],  word3[w3]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask, uword5[w5],  word4[w4],  word3[w3]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word5[w5], uword4[w4],  word3[w3]);
+			fputs(pskstring, fhout);
+			snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4], uword3[w3]);
+			fputs(pskstring, fhout);
 			}
 		}
 	}
