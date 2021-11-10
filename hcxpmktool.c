@@ -507,68 +507,68 @@ size_t essidlen;
 
 if(gethashlinefields(hashlinestring) == false)
 	{
-	printf("hash line exception\n");
+	fprintf(stdout, "hash line exception\n");
 	return;
 	}
 
 essidlen = strlen(essidstring);
 if((essidlen == 0) || (essidlen > ESSID_LEN_MAX))
 	{
-	fprintf(stderr, "ESSID length exception\n");
+	fprintf(stdout, "ESSID length exception\n");
 	return;
 	}
 
 psklen = strlen(pskstring);
 if((psklen == 63) || (psklen > 63))
 	{
-	fprintf(stderr, "PSK length exception\n");
+	fprintf(stdout, "PSK length exception\n");
 	return;
 	}
 
 if(dopbkdf2(psklen, pskstring, essidlen, (uint8_t*)essidstring) == false) 
 	{
-	fprintf(stderr, "PBKDF2 calculation error\n");
+	fprintf(stdout, "PBKDF2 calculation error\n");
 	return;
 	}
 
 if(calculatepmkid(pmkcalculated) == false)
 	{
-	fprintf(stderr, "MIC calculation error\n");
+	fprintf(stdout, "MIC calculation error\n");
 	return;
 	}
 else if(hashlist.type == HS_EAPOL)
 	{
 	if(calculatemic(pmkcalculated) == false)
 		{
-		fprintf(stderr, "MIC calculation error\n");
+		fprintf(stdout, "MIC calculation error\n");
 		return;
 		}
 	}
-printf("ESSID (option)....: %s\n", essidstring);
-printf("ESSID (hash line).: %.*s\n", hashlist.essidlen, hashlist.essid);
-printf("PSK...............: %s\n", pskstring);
-printf("PMK (ESSID option): ");
-for(p = 0; p < PMK_LEN; p++) printf("%02x", pmkcalculated[p]);
-printf("\n");
-printf("PMKID (calculated): ");
-for(p = 0; p < HASH_LEN; p++) printf("%02x", pmkidcalculated[p]);
-printf("\n");
+fprintf(stdout, "ESSID (option)....: %s\n", essidstring);
+fprintf(stdout, "ESSID (hash line).: %.*s\n", hashlist.essidlen, hashlist.essid);
+fprintf(stdout, "PSK...............: %s\n", pskstring);
+fprintf(stdout, "PMK (ESSID option): ");
+for(p = 0; p < PMK_LEN; p++) fprintf(stdout, "%02x", pmkcalculated[p]);
+fprintf(stdout, "\n");
+fprintf(stdout, "PMKID (calculated): ");
+for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", pmkidcalculated[p]);
+fprintf(stdout, "\n");
 if(hashlist.type == HS_PMKID)
 	{
-	printf("PMKID (hash line).: ");
-	for(p = 0; p < HASH_LEN; p++) printf("%02x", hashlist.hash[p]);
-	if(memcmp(&pmkidcalculated, &hashlist.hash, HASH_LEN) == 0) printf(" (equal)\n");
-	else printf(" (not equal)\n");
+	fprintf(stdout, "PMKID (hash line).: ");
+	for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", hashlist.hash[p]);
+	if(memcmp(&pmkidcalculated, &hashlist.hash, HASH_LEN) == 0) fprintf(stdout, " (equal)\n");
+	else fprintf(stdout, " (not equal)\n");
 	}
 else if(hashlist.type == HS_EAPOL)
 	{
-	printf("MIC (calculated)..: ");
-	for(p = 0; p < HASH_LEN; p++) printf("%02x", miccalculated[p]);
-	printf("\n");
-	printf("MIC (hash line)...: ");
-	for(p = 0; p < HASH_LEN; p++) printf("%02x", hashlist.hash[p]);
-	if(memcmp(&miccalculated, &hashlist.hash, HASH_LEN) == 0) printf(" (equal)\n");
-	else printf(" (not equal)\n");
+	fprintf(stdout, "MIC (calculated)..: ");
+	for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", miccalculated[p]);
+	fprintf(stdout, "\n");
+	fprintf(stdout, "MIC (hash line)...: ");
+	for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", hashlist.hash[p]);
+	if(memcmp(&miccalculated, &hashlist.hash, HASH_LEN) == 0) fprintf(stdout, " (equal)\n");
+	else fprintf(stdout, " (not equal)\n");
 	}
 return;
 }
@@ -580,60 +580,60 @@ size_t pmklen;
 
 if(gethashlinefields(hashlinestring) == false)
 	{
-	printf("hash line exception\n");
+	fprintf(stdout, "hash line exception\n");
 	return;
 	}
 
 pmklen = strlen(pmkstring);
 if(pmklen != 64)
 	{
-	fprintf(stderr, "PMK length exception\n");
+	fprintf(stdout, "PMK length exception\n");
 	return;
 	}
 
 if(getfield(pmkstring, 32, pmkopt) != 32)
 	{
-	fprintf(stderr, "PMK length exception\n");
+	fprintf(stdout, "PMK length exception\n");
 	return;
 	}
 
 if(calculatepmkid(pmkopt) == false)
 	{
-	fprintf(stderr, "MIC calculation error\n");
+	fprintf(stdout, "MIC calculation error\n");
 	return;
 	}
 else if(hashlist.type == HS_EAPOL)
 	{
 	if(calculatemic(pmkopt) == false)
 		{
-		fprintf(stderr, "MIC calculation error\n");
+		fprintf(stdout, "MIC calculation error\n");
 		return;
 		}
 	}
 
-printf("ESSID.............: %.*s\n", hashlist.essidlen, hashlist.essid);
-printf("PMK...............: ");
-for(p = 0; p < PMK_LEN; p++) printf("%02x", pmkopt[p]);
-printf("\n");
-printf("PMKID (calculated): ");
-for(p = 0; p < HASH_LEN; p++) printf("%02x", pmkidcalculated[p]);
-printf("\n");
+fprintf(stdout, "ESSID.............: %.*s\n", hashlist.essidlen, hashlist.essid);
+fprintf(stdout, "PMK...............: ");
+for(p = 0; p < PMK_LEN; p++) fprintf(stdout, "%02x", pmkopt[p]);
+fprintf(stdout, "\n");
+fprintf(stdout, "PMKID (calculated): ");
+for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", pmkidcalculated[p]);
+fprintf(stdout, "\n");
 if(hashlist.type == HS_PMKID)
 	{
-	printf("PMKID (hash line).: ");
-	for(p = 0; p < HASH_LEN; p++) printf("%02x", hashlist.hash[p]);
-	if(memcmp(&pmkidcalculated, &hashlist.hash, HASH_LEN) == 0) printf(" (equal)\n");
-	else printf(" (not equal)\n");
+	fprintf(stdout, "PMKID (hash line).: ");
+	for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", hashlist.hash[p]);
+	if(memcmp(&pmkidcalculated, &hashlist.hash, HASH_LEN) == 0) fprintf(stdout, " (equal)\n");
+	else fprintf(stdout, " (not equal)\n");
 	}
 else if(hashlist.type == HS_EAPOL)
 	{
-	printf("MIC (calculated)..: ");
-	for(p = 0; p < HASH_LEN; p++) printf("%02x", miccalculated[p]);
-	printf("\n");
-	printf("MIC (hash line)...: ");
-	for(p = 0; p < HASH_LEN; p++) printf("%02x", hashlist.hash[p]);
-	if(memcmp(&miccalculated, &hashlist.hash, HASH_LEN) == 0) printf(" (equal)\n");
-	else printf(" (not equal)\n");
+	fprintf(stdout, "MIC (calculated)..: ");
+	for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", miccalculated[p]);
+	fprintf(stdout, "\n");
+	fprintf(stdout, "MIC (hash line)...: ");
+	for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", hashlist.hash[p]);
+	if(memcmp(&miccalculated, &hashlist.hash, HASH_LEN) == 0) fprintf(stdout, " (equal)\n");
+	else fprintf(stdout, " (not equal)\n");
 	}
 
 return;
@@ -646,60 +646,60 @@ size_t psklen;
 
 if(gethashlinefields(hashlinestring) == false)
 	{
-	printf("hash line exception\n");
+	fprintf(stdout, "hash line exception\n");
 	return;
 	}
 
 psklen = strlen(pskstring);
 if((psklen == 63) || (psklen > 63))
 	{
-	fprintf(stderr, "PSK length exception\n");
+	fprintf(stdout, "PSK length exception\n");
 	return;
 	}
 
 if(dopbkdf2(psklen, pskstring, hashlist.essidlen, hashlist.essid) == false) 
 	{
-	fprintf(stderr, "PBKDF2 calculation error\n");
+	fprintf(stdout, "PBKDF2 calculation error\n");
 	return;
 	}
 
 if(calculatepmkid(pmkcalculated) == false)
 	{
-	fprintf(stderr, "MIC calculation error\n");
+	fprintf(stdout, "MIC calculation error\n");
 	return;
 	}
 else if(hashlist.type == HS_EAPOL)
 	{
 	if(calculatemic(pmkcalculated) == false)
 		{
-		fprintf(stderr, "MIC calculation error\n");
+		fprintf(stdout, "MIC calculation error\n");
 		return;
 		}
 	}
-printf("ESSID.............: %.*s\n", hashlist.essidlen, hashlist.essid);
-printf("PSK  .............: %s\n", pskstring);
-printf("PMK...............: ");
-for(p = 0; p < PMK_LEN; p++) printf("%02x", pmkcalculated[p]);
-printf("\n");
-printf("PMKID (calculated): ");
-for(p = 0; p < HASH_LEN; p++) printf("%02x", pmkidcalculated[p]);
-printf("\n");
+fprintf(stdout, "ESSID.............: %.*s\n", hashlist.essidlen, hashlist.essid);
+fprintf(stdout, "PSK  .............: %s\n", pskstring);
+fprintf(stdout, "PMK...............: ");
+for(p = 0; p < PMK_LEN; p++) fprintf(stdout, "%02x", pmkcalculated[p]);
+fprintf(stdout, "\n");
+fprintf(stdout, "PMKID (calculated): ");
+for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", pmkidcalculated[p]);
+fprintf(stdout, "\n");
 if(hashlist.type == HS_PMKID)
 	{
-	printf("PMKID (hash line).: ");
-	for(p = 0; p < HASH_LEN; p++) printf("%02x", hashlist.hash[p]);
-	if(memcmp(&pmkidcalculated, &hashlist.hash, HASH_LEN) == 0) printf(" (equal)\n");
-	else printf(" (not equal)\n");
+	fprintf(stdout, "PMKID (hash line).: ");
+	for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", hashlist.hash[p]);
+	if(memcmp(&pmkidcalculated, &hashlist.hash, HASH_LEN) == 0) fprintf(stdout, " (equal)\n");
+	else fprintf(stdout, " (not equal)\n");
 	}
 else if(hashlist.type == HS_EAPOL)
 	{
-	printf("MIC (calculated)..: ");
-	for(p = 0; p < HASH_LEN; p++) printf("%02x", miccalculated[p]);
-	printf("\n");
-	printf("MIC (hash line)...: ");
-	for(p = 0; p < HASH_LEN; p++) printf("%02x", hashlist.hash[p]);
-	if(memcmp(&miccalculated, &hashlist.hash, HASH_LEN) == 0) printf(" (equal)\n");
-	else printf(" (not equal)\n");
+	fprintf(stdout, "MIC (calculated)..: ");
+	for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", miccalculated[p]);
+	fprintf(stdout, "\n");
+	fprintf(stdout, "MIC (hash line)...: ");
+	for(p = 0; p < HASH_LEN; p++) fprintf(stdout, "%02x", hashlist.hash[p]);
+	if(memcmp(&miccalculated, &hashlist.hash, HASH_LEN) == 0) fprintf(stdout, " (equal)\n");
+	else fprintf(stdout, " (not equal)\n");
 	}
 return;
 }
@@ -715,32 +715,32 @@ static char *baseline;
 essidlen = strlen(essidstring);
 if((essidlen == 0) || (essidlen > ESSID_LEN_MAX))
 	{
-	fprintf(stderr, "ESSID length exception\n");
+	fprintf(stdout, "ESSID length exception\n");
 	return;
 	}
 
 pmklen = strlen(pmkstring);
 if(pmklen != 64)
 	{
-	fprintf(stderr, "PMK length exception\n");
+	fprintf(stdout, "PMK length exception\n");
 	return;
 	}
 
 if(getfield(pmkstring, 32, pmkopt) != 32)
 	{
-	fprintf(stderr, "PMK length exception\n");
+	fprintf(stdout, "PMK length exception\n");
 	return;
 	}
 
-printf("ESSID............: %s\n", essidstring);
-printf("PMK..............: ");
-for(p = 0; p < PMK_LEN; p++) printf("%02x", pmkopt[p]);
-printf("\n");
+fprintf(stdout, "ESSID............: %s\n", essidstring);
+fprintf(stdout, "PMK..............: ");
+for(p = 0; p < PMK_LEN; p++) fprintf(stdout, "%02x", pmkopt[p]);
+fprintf(stdout, "\n");
 base64((unsigned char*)essidstring, essidlen, &baseline);
-printf("PBKDF2-HMAC-SHA1.: sha1:4096:%s:", baseline);
+fprintf(stdout, "PBKDF2-HMAC-SHA1.: sha1:4096:%s:", baseline);
 free(baseline);
 base64((unsigned char*)pmkopt, 32, &baseline);
-printf("%s\n\nuse hashcat -m 12000 to recover the PSK\n", baseline);
+fprintf(stdout, "%s\n\nuse hashcat -m 12000 to recover the PSK\n", baseline);
 free(baseline);
 return;
 }
@@ -755,44 +755,44 @@ static size_t psklen;
 essidlen = strlen(essidstring);
 if((essidlen == 0) || (essidlen > ESSID_LEN_MAX))
 	{
-	fprintf(stderr, "ESSID length exception\n");
+	fprintf(stdout, "ESSID length exception\n");
 	return;
 	}
 
 psklen = strlen(pskstring);
 if((psklen == 63) || (psklen > 63))
 	{
-	fprintf(stderr, "PSK length exception\n");
+	fprintf(stdout, "PSK length exception\n");
 	return;
 	}
 
 pmklen = strlen(pmkstring);
 if(pmklen != 64)
 	{
-	fprintf(stderr, "PMK length exception\n");
+	fprintf(stdout, "PMK length exception\n");
 	return;
 	}
 
 if(getfield(pmkstring, 32, pmkopt) != 32)
 	{
-	fprintf(stderr, "PMK length exception\n");
+	fprintf(stdout, "PMK length exception\n");
 	return;
 	}
 
 if(dopbkdf2(psklen, pskstring, essidlen, (uint8_t*)essidstring) == false) 
 	{
-	fprintf(stderr, "PBKDF2 calculation error\n");
+	fprintf(stdout, "PBKDF2 calculation error\n");
 	return;
 	}
-printf("ESSID............: %s\n", essidstring);
-printf("PSK..............: %s\n", pskstring);
-printf("PMK (calculated).: ");
-for(p = 0; p < PMK_LEN; p++) printf("%02x", pmkcalculated[p]);
-printf("\n");
-printf("PMK (from option): ");
-for(p = 0; p < PMK_LEN; p++) printf("%02x", pmkopt[p]);
-if(memcmp(&pmkcalculated, &pmkopt, PMK_LEN) == 0) printf(" (equal)\n");
-else printf(" (not equal)\n");
+fprintf(stdout, "ESSID............: %s\n", essidstring);
+fprintf(stdout, "PSK..............: %s\n", pskstring);
+fprintf(stdout, "PMK (calculated).: ");
+for(p = 0; p < PMK_LEN; p++) fprintf(stdout, "%02x", pmkcalculated[p]);
+fprintf(stdout, "\n");
+fprintf(stdout, "PMK (from option): ");
+for(p = 0; p < PMK_LEN; p++) fprintf(stdout, "%02x", pmkopt[p]);
+if(memcmp(&pmkcalculated, &pmkopt, PMK_LEN) == 0) fprintf(stdout, " (equal)\n");
+else fprintf(stdout, " (not equal)\n");
 return;
 }
 /*===========================================================================*/
@@ -805,41 +805,41 @@ static size_t psklen;
 essidlen = strlen(essidstring);
 if((essidlen == 0) || (essidlen > ESSID_LEN_MAX))
 	{
-	fprintf(stderr, "ESSID length exception\n");
+	fprintf(stdout, "ESSID length exception\n");
 	return;
 	}
 
 psklen = strlen(pskstring);
 if((psklen == 63) || (psklen > 63))
 	{
-	fprintf(stderr, "PSK length exception\n");
+	fprintf(stdout, "PSK length exception\n");
 	return;
 	}
 
 if(dopbkdf2(psklen, pskstring, essidlen, (uint8_t*)essidstring) == false) 
 	{
-	fprintf(stderr, "PBKDF2 calculation error\n");
+	fprintf(stdout, "PBKDF2 calculation error\n");
 	return;
 	}
-printf("ESSID: %s\n", essidstring);
-printf("PSK..: %s\n", pskstring);
-printf("PMK..: ");
-for(p = 0; p < PMK_LEN; p++) printf("%02x", pmkcalculated[p]);
-printf("\n");
+fprintf(stdout, "ESSID: %s\n", essidstring);
+fprintf(stdout, "PSK..: %s\n", pskstring);
+fprintf(stdout, "PMK..: ");
+for(p = 0; p < PMK_LEN; p++) fprintf(stdout, "%02x", pmkcalculated[p]);
+fprintf(stdout, "\n");
 return;
 }
 /*===========================================================================*/
 __attribute__ ((noreturn))
 static inline void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
 static inline void usage(char *eigenname)
 {
-printf("%s %s  (C) %s ZeroBeat\n"
+fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"usage  : %s <options>\n"
 	"\n"
 	"short options:\n"
@@ -858,7 +858,7 @@ exit(EXIT_SUCCESS);
 __attribute__ ((noreturn))
 static inline void usageerror(char *eigenname)
 {
-printf("%s %s (C) %s by ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s by ZeroBeat\n"
 	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
@@ -925,7 +925,7 @@ while((auswahl = getopt_long(argc, argv, short_options, long_options, &index)) !
 
 ERR_load_crypto_strings();
 OpenSSL_add_all_algorithms();
-printf("\n");
+fprintf(stdout, "\n");
 if((essidstring != NULL) && (pskstring != NULL) && (pmkstring == NULL) && (hashlinestring == NULL))
 	{
 	showstandardinfo(pskstring, essidstring);
@@ -955,7 +955,7 @@ else if((essidstring != NULL) && (pskstring != NULL) && (pmkstring == NULL) && (
 	showstandardinfohashlineessidpsk(hashlinestring, essidstring, pskstring);
 	}
 
-printf("\n");
+fprintf(stdout, "\n");
 EVP_cleanup();
 CRYPTO_cleanup_all_ex_data();
 ERR_free_strings();
