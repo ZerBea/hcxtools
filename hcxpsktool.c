@@ -2515,7 +2515,7 @@ while(1)
 		aktread++;
 		continue;
 		}
-	printf("%llx %.*s\n", macaddr, essidlen,  linein);
+	fprintf(stdout, "%llx %.*s\n", macaddr, essidlen,  linein);
 	addapessid(macaddr, essidlen, (uint8_t*)linein);
 	aktread++;
 	}
@@ -2599,14 +2599,14 @@ return;
 __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n", eigenname, VERSION_TAG, VERSION_YEAR);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
 __attribute__ ((noreturn))
 static void usage(char *eigenname)
 {
-printf("%s %s (C) %s ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"usage:\n"
 	"%s <options>\n"
 	"\n"
@@ -2651,7 +2651,7 @@ exit(EXIT_SUCCESS);
 __attribute__ ((noreturn))
 static void usageerror(char *eigenname)
 {
-printf("%s %s (C) %s by ZeroBeat\n"
+fprintf(stdout, "%s %s (C) %s by ZeroBeat\n"
 	"usage: %s -h for help\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_FAILURE);
 }
