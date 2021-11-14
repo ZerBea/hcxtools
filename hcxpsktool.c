@@ -2182,10 +2182,13 @@ static void preparebssid(FILE *fhout, unsigned long long int macaddr)
 static int c;
 static unsigned long long int oui;
 static unsigned long long int nic;
+unsigned int nici;
 static int swap;
 static int me;
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
+nici = ~macaddr &0xffffff;
+fprintf(fhout, "wlan%06x\n", nici);
 me = macaddr &0xffffff;
 fprintf(fhout, "05%6d\n", me);
 oui = macaddr &0xffffff000000L;
