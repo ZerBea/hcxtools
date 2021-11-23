@@ -324,19 +324,19 @@ static const char *firstword[] =
 "plane", "pledge", "pocket", "polite", "praise", "precious", "prior", "prize",
 "proper", "prose", "proud", "purple", "quaint", "quick", "quiet", "quote",
 "rain", "rainy", "rapid", "rare", "ready", "reason", "red", "remedy",
-"resh", "review", "reward", "rich", "rocket", "rocky", "round", "royal",
-"runner", "rustic", "safety", "salt", "salute", "scary", "scout", "select",
-"shelf", "shiny", "short", "silent", "silky", "silly", "silver", "sleepy",
-"slow", "small", "smart", "smiley", "smiling", "smooth", "soccer", "some",
-"space", "spare", "square", "stable", "statue", "stealth", "stock", "street",
-"strict", "strong", "studio", "such", "sudden", "summit", "sunny", "super",
-"sweet", "swift", "tablet", "tall", "teal", "terrific", "theory", "thick",
-"thirsty", "this", "tight", "timber", "tiny", "town", "turtle", "uneven",
-"union", "unique", "unite", "unusual", "upset", "urban", "useful", "usual",
-"valley", "vanilla", "vast", "verse", "violet", "violin", "voyage", "wagon",
-"walnut", "warm", "watch", "watery", "weekly", "west", "wide", "windy",
-"wine", "witty", "wonderful", "wooden", "writer", "yacht", "yard", "year",
-"yellow", "young", "zany", "zeal", "zebra", "zone"
+"review", "reward", "rich", "rocket", "rocky", "round", "royal", "runner",
+"rustic", "safety", "salt", "salute", "scary", "scout", "select", "shelf",
+"shiny", "short", "silent", "silky", "silly", "silver", "sleepy", "slow",
+"small", "smart", "smiley", "smiling", "smooth", "soccer", "some", "space",
+"spare", "square", "stable", "statue", "stealth", "stock", "street", "strict",
+"strong", "studio", "such", "sudden", "summit", "sunny", "super", "sweet",
+"swift", "tablet", "tall", "teal", "terrific", "theory", "thick", "thirsty",
+"this", "tight", "timber", "tiny", "town", "turtle", "uneven", "union",
+"unique", "unite", "unusual", "upset", "urban", "useful", "usual", "valley",
+"vanilla", "vast", "verse", "violet", "violin", "voyage", "wagon", "walnut",
+"warm", "watch", "watery", "weekly", "west", "wide", "windy", "wine",
+"witty", "wonderful", "wooden", "writer", "yacht", "yard", "year", "yellow",
+"young", "zany", "zeal", "zebra", "zone"
 };
 
 static const char *secondword[] =
@@ -384,6 +384,7 @@ static const char *secondword[] =
 "window", "windy", "wolf", "world", "writer", "yacht", "yard", "year",
 "zeal", "zebra", "zone", "zoo"
 };
+
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
