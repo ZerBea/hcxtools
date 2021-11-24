@@ -888,7 +888,7 @@ for(c = 0; c < iface; c++)
 		if(dltlinktype[c] == dltlinktype[c -1]) continue;
 		}
 	if(dltlinktype[c] == DLT_IEEE802_11_RADIO)	fprintf(stdout, "link layer header type...................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype[c]);
-	if(dltlinktype[c] == DLT_IEEE802_11)		fprintf(stdout, "link layer header type...................: DLT_IEEE802_11 (%d)\n", dltlinktype[c]);
+	if(dltlinktype[c] == DLT_IEEE802_11)		fprintf(stdout, "link layer header type...................: DLT_IEEE802_11 (%d) very basic format without any additional information about the quality\n", dltlinktype[c]);
 	if(dltlinktype[c] == DLT_PPI)			fprintf(stdout, "link layer header type...................: DLT_PPI (%d)\n", dltlinktype[c]);
 	if(dltlinktype[c] == DLT_PRISM_HEADER)		fprintf(stdout, "link layer header type...................: DLT_PRISM_HEADER (%d)\n", dltlinktype[c]);
 	if(dltlinktype[c] == DLT_IEEE802_11_RADIO_AVS)	fprintf(stdout, "link layer header type...................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype[c]);
