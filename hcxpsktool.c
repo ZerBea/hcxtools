@@ -174,7 +174,7 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 static const char *firstword[] =
 { 
 "ancient", "aquatic",
-"basic", "black", "blue", "bold", "brave", "breezy", "bright",
+"basic", "black", "blue", "bold", "brave", "breezy", "bright", "brown",
 "calm", "cheerful", "chummy", "classy", "clever", "cloudy", "cool", "crispy",
 "curly",
 "daily", "deep", "delightful", "dizzy", "dynamic",
@@ -213,7 +213,7 @@ static const char *secondword[] =
 "earth", "ecasa", "elephant",
 "finch", "fire", "fish", "flamingo", "flower", "flute",
 "gadfly", "giant", "grasshopper",
-"hat", "hill", "hippo",
+"hat", "hill", "hippo", "house",
 "ink", "iris",
 "jade", "jet", "jetcar", "jungle",
 "kangaroo", "kayak",
