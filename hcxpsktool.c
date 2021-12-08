@@ -185,7 +185,7 @@ static const char *firstword[] =
 "icy", "imaginary",
 "jagged", "jolly", "joyous",
 "kind",
-"large", "little", "lively", "lucky",
+"large", "little", "lively", "lucky", "lunar",
 "magical", "manic", "melodic", "mighty", "misty", "modern",
 "narrow", "new", "nifty", "noisy",
 "odd", "orange",
