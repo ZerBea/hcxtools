@@ -304,7 +304,7 @@ static const char *firstword[] =
 "direct", "dizzy", "domain", "due", "dusty", "duty", "dynamic", "each",
 "eager", "eagle", "easy", "elated", "elegant", "empty", "energy", "engine",
 "entire", "epic", "errand", "even", "exact", "excited", "exotic", "fair",
-"famous", "fancy", "farmer", "fast", "fearless", "festive", "Festive", "finish",
+"famous", "fancy", "farmer", "fast", "fearless", "festive", "few", "finish",
 "first", "fit", "fluent", "fluffy", "formal", "free", "fresh", "friend",
 "front", "funny", "furry", "future", "fuzzy", "gallon", "genius", "gentle",
 "giddy", "gifted", "global", "gold", "goofy", "grain", "grand", "great",
@@ -384,6 +384,7 @@ static const char *secondword[] =
 "west", "whale", "wind", "window", "windy", "wolf", "world", "writer",
 "yacht", "yard", "year", "zeal", "zebra", "zone", "zoo"
 };
+
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
