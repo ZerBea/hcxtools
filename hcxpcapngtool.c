@@ -192,6 +192,7 @@ static long int associationrequestsae384bcount;
 static long int associationrequestowecount;
 static long int reassociationrequestcount;
 static long int reassociationrequestpskcount;
+static long int reassociationrequestftpskcount;
 static long int reassociationrequestpsk256count;
 static long int reassociationrequestsae256count;
 static long int reassociationrequestsae384bcount;
@@ -678,6 +679,7 @@ if(associationrequestsae384bcount > 0)	fprintf(stdout, "ASSOCIATIONREQUEST (SAE 
 if(associationrequestowecount > 0)	fprintf(stdout, "ASSOCIATIONREQUEST (OWE).................: %ld\n", associationrequestowecount);
 if(reassociationrequestcount > 0)	fprintf(stdout, "REASSOCIATIONREQUEST (total).............: %ld\n", reassociationrequestcount);
 if(reassociationrequestpskcount > 0)	fprintf(stdout, "REASSOCIATIONREQUEST (PSK)...............: %ld\n", reassociationrequestpskcount);
+if(reassociationrequestftpskcount > 0)	fprintf(stdout, "REASSOCIATIONREQUEST (FT using PSK)......: %ld\n", reassociationrequestftpskcount);
 if(reassociationrequestpsk256count > 0)	fprintf(stdout, "REASSOCIATIONREQUEST (PSK SHA256)........: %ld\n", reassociationrequestpsk256count);
 if(reassociationrequestsae256count > 0)	fprintf(stdout, "REASSOCIATIONREQUEST (SAE SHA256)........: %ld\n", reassociationrequestsae256count);
 if(reassociationrequestsae384bcount > 0)fprintf(stdout, "REASSOCIATIONREQUEST (SAE SHA384 SUITE B): %ld\n", reassociationrequestsae384bcount);
@@ -2404,7 +2406,7 @@ if(zeigermacold->type == AP)
 			}
 		else
 			{
-			if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+			if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_FT_PSK) == TAK_FT_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 				{
 				zeigerpmkidakt = getpmkid(zeigermacold, zeigerpmkidakt);
 				zeigerhsakt = gethandshake(zeigermacold, zeigerhsakt);
@@ -2438,7 +2440,7 @@ for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 		}
 	else
 		{
-		if(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+		if(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_FT_PSK) == TAK_FT_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 			{
 			zeigerpmkidakt = getpmkid(zeigermac, zeigerpmkidakt);
 			zeigerhsakt = gethandshake(zeigermac, zeigerhsakt);
@@ -3062,7 +3064,7 @@ if(rsnpmkidcount == 0) return true;
 rsnlen -= RSNPMKIDLIST_SIZE;
 ieptr += RSNPMKIDLIST_SIZE;
 if(rsnlen < 16) return true;
-if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_FT_PSK) == TAK_FT_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
 	if(memcmp(&zeroed32, ieptr, 16) == 0) return true;
 	for(c = 0; c < 12; c++)
@@ -3519,7 +3521,7 @@ infolen = ntohs(wpak->wpadatalen);
 if(infolen >= RSNIE_LEN_MIN)
 	{
 	if(gettags(infolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
-	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256))
+	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_FT_PSK) != TAK_FT_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256))
 		{
 		if(ignoreieflag == false) return;
 		}
@@ -3880,11 +3882,12 @@ if(ignoreieflag == true)
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
-else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
 if((tags.akm &TAK_PSK) == TAK_PSK) reassociationrequestpskcount++; 
+else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) reassociationrequestftpskcount++; 
 else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) reassociationrequestpsk256count++; 
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) reassociationrequestsae256count++; 
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) reassociationrequestsae384bcount++; 
