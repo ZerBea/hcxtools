@@ -2406,7 +2406,7 @@ if(zeigermacold->type == AP)
 			}
 		else
 			{
-			if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_FT_PSK) == TAK_FT_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+			if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 				{
 				zeigerpmkidakt = getpmkid(zeigermacold, zeigerpmkidakt);
 				zeigerhsakt = gethandshake(zeigermacold, zeigerhsakt);
@@ -2440,7 +2440,7 @@ for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 		}
 	else
 		{
-		if(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_FT_PSK) == TAK_FT_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+		if(((zeigermac->akm &TAK_PSK) == TAK_PSK) || ((zeigermac->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 			{
 			zeigerpmkidakt = getpmkid(zeigermac, zeigerpmkidakt);
 			zeigerhsakt = gethandshake(zeigermac, zeigerhsakt);
@@ -3064,7 +3064,7 @@ if(rsnpmkidcount == 0) return true;
 rsnlen -= RSNPMKIDLIST_SIZE;
 ieptr += RSNPMKIDLIST_SIZE;
 if(rsnlen < 16) return true;
-if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_FT_PSK) == TAK_FT_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
 	if(memcmp(&zeroed32, ieptr, 16) == 0) return true;
 	for(c = 0; c < 12; c++)
@@ -3521,7 +3521,7 @@ infolen = ntohs(wpak->wpadatalen);
 if(infolen >= RSNIE_LEN_MIN)
 	{
 	if(gettags(infolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
-	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_FT_PSK) != TAK_FT_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256))
+	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256))
 		{
 		if(ignoreieflag == false) return;
 		}
@@ -3882,7 +3882,7 @@ if(ignoreieflag == true)
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
-else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
