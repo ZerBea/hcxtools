@@ -3886,6 +3886,8 @@ else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PS
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
+else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) reassociationrequestftpskcount++;
+
 if((tags.akm &TAK_PSK) == TAK_PSK) reassociationrequestpskcount++; 
 else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) reassociationrequestftpskcount++; 
 else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) reassociationrequestpsk256count++; 
