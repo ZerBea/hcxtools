@@ -255,6 +255,7 @@ static long int eapolm1ancount;
 static long int eapolm1errorcount;
 static long int eapolm2count;
 static long int eapolm2kdv0count;
+static long int eapolm2ftpskcount;
 static long int eapolm2errorcount;
 static long int eapolm3count;
 static long int eapolm3kdv0count;
@@ -557,6 +558,7 @@ eapolm1ancount = 0;
 eapolm1errorcount = 0;
 eapolm2count = 0;
 eapolm2kdv0count = 0;
+eapolm2ftpskcount = 0;
 eapolm2errorcount = 0;
 eapolm3count = 0;
 eapolm3kdv0count = 0;
@@ -740,6 +742,7 @@ if(eapolm1count > 0)			fprintf(stdout, "EAPOL M1 messages (total)...............
 if(eapolm1kdv0count > 0)		fprintf(stdout, "EAPOL M1 messages (KDV:0 AKM defined)....: %ld\n", eapolm1kdv0count);
 if(eapolm2count > 0)			fprintf(stdout, "EAPOL M2 messages (total)................: %ld\n", eapolm2count);
 if(eapolm2kdv0count > 0)		fprintf(stdout, "EAPOL M2 messages (KDV:0 AKM defined)....: %ld\n", eapolm2kdv0count);
+if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK).........: %ld\n", eapolm2ftpskcount);
 if(eapolm3count > 0)			fprintf(stdout, "EAPOL M3 messages (total)................: %ld\n", eapolm3count);
 if(eapolm3kdv0count > 0)		fprintf(stdout, "EAPOL M3 messages (KDV:0 AKM defined)....: %ld\n", eapolm3kdv0count);
 if(eapolm4count > 0)			fprintf(stdout, "EAPOL M4 messages (total)................: %ld\n", eapolm4count);
@@ -3536,6 +3539,7 @@ infolen = ntohs(wpak->wpadatalen);
 if(infolen >= RSNIE_LEN_MIN)
 	{
 	if(gettags(infolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
+	if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) eapolm2ftpskcount++;
 	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256))
 		{
 		if(ignoreieflag == false) return;
