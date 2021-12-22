@@ -760,8 +760,8 @@ else
 	if(eapolmpbestcount > 0)		fprintf(stdout, "EAPOL pairs (useful).....................: %ld\n", eapolmpbestcount);
 	}
 if(eapolaplesscount > 0)		fprintf(stdout, "EAPOL ROGUE pairs........................: %ld\n", eapolaplesscount);
-if(eapolwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to combi hash file...: %ld (RC checked)\n", eapolwrittencount);
-if(eapolncwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to combi hash file...: %ld (RC not checked)\n", eapolncwrittencount);
+if(eapolwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 22000 hash file...: %ld (RC checked)\n", eapolwrittencount);
+if(eapolncwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 22000 hash file...: %ld (RC not checked)\n", eapolncwrittencount);
 if(eapolwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccapx.: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
 if(eapolncwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccapx.: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
 if(eapolwrittenhcpcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccap..: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
@@ -785,7 +785,7 @@ else
 	if(pmkidbestcount > 0)			fprintf(stdout, "PMKID (useful)...........................: %ld\n", pmkidbestcount);
 	}
 if(pmkidroguecount > 0)			fprintf(stdout, "PMKID ROGUE..............................: %ld\n", pmkidroguecount);
-if(pmkidwrittenhcount > 0)		fprintf(stdout, "PMKID written to combi hash file.........: %ld\n", pmkidwrittenhcount);
+if(pmkidwrittenhcount > 0)		fprintf(stdout, "PMKID written to 22000 hash file.........: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	fprintf(stdout, "PMKID written to old format JtR..........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	fprintf(stdout, "PMKID written to old format (1680x)......: %ld\n", pmkidwrittencountdeprecated);
 if(pcapreaderrors > 0)			fprintf(stdout, "packet read error........................: %ld\n", pcapreaderrors);
