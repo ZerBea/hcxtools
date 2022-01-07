@@ -309,6 +309,7 @@ static int nmealen;
 static bool ignoreieflag;
 static bool donotcleanflag;
 static bool ancientdumpfileformat;
+static bool radiotappresent;
 
 static const uint8_t fakenonce1[] =
 {
@@ -821,6 +822,15 @@ if(ancientdumpfileformat == true)
 		"https://github.com/pcapng/pcapng\n");
 	}
 
+if(radiotappresent == false)
+	{
+	fprintf(stdout, "\nWarning: radiotap header is missing!\n"
+		"Radiotap is a de facto standard for 802.11 frame injection and reception.\n"
+		"The radiotap header format is a mechanism to supply additional information about frames,\n"
+		"from the driver to userspace applications.\n"
+		"https://www.radiotap.org/\n");
+	}
+
 if(sequenceerrorcount > 0)
 	{
 	fprintf(stdout, "\nWarning: out of sequence timestamps!\n"
@@ -905,6 +915,7 @@ static struct timeval tvmax;
 static char timestringmin[32];
 static char timestringmax[32];
 
+radiotappresent = false;
 tvmin.tv_sec = timestampmin /1000000;
 tvmin.tv_usec = timestampmin %1000000;
 strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmin.tv_sec));
@@ -920,13 +931,17 @@ for(c = 0; c < iface; c++)
 		{
 		if(dltlinktype[c] == dltlinktype[c -1]) continue;
 		}
-	if(dltlinktype[c] == DLT_IEEE802_11_RADIO)	fprintf(stdout, "link layer header type...................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype[c]);
-	if(dltlinktype[c] == DLT_IEEE802_11)		fprintf(stdout, "link layer header type...................: DLT_IEEE802_11 (%d) very basic format without any additional information about the quality\n", dltlinktype[c]);
-	if(dltlinktype[c] == DLT_PPI)			fprintf(stdout, "link layer header type...................: DLT_PPI (%d)\n", dltlinktype[c]);
-	if(dltlinktype[c] == DLT_PRISM_HEADER)		fprintf(stdout, "link layer header type...................: DLT_PRISM_HEADER (%d)\n", dltlinktype[c]);
-	if(dltlinktype[c] == DLT_IEEE802_11_RADIO_AVS)	fprintf(stdout, "link layer header type...................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype[c]);
-	if(dltlinktype[c] == DLT_EN10MB)		fprintf(stdout, "link layer header type...................: DLT_EN10MB (%d)\n", dltlinktype[c]);
-	if(dltlinktype[c] == DLT_NULL)			fprintf(stdout, "link layer header type...................: DLT_NULL (BSD LO) (%d)\n", dltlinktype[c]);
+	if(dltlinktype[c] == DLT_IEEE802_11_RADIO)
+		{
+		fprintf(stdout, "link layer header type...................: DLT_IEEE802_11_RADIO (%d)\n", dltlinktype[c]);
+		radiotappresent = true;
+		}
+	else if(dltlinktype[c] == DLT_IEEE802_11)		fprintf(stdout, "link layer header type...................: DLT_IEEE802_11 (%d) very basic format without any additional information about the quality\n", dltlinktype[c]);
+	else if(dltlinktype[c] == DLT_PPI)			fprintf(stdout, "link layer header type...................: DLT_PPI (%d)\n", dltlinktype[c]);
+	else if(dltlinktype[c] == DLT_PRISM_HEADER)		fprintf(stdout, "link layer header type...................: DLT_PRISM_HEADER (%d)\n", dltlinktype[c]);
+	else if(dltlinktype[c] == DLT_IEEE802_11_RADIO_AVS)	fprintf(stdout, "link layer header type...................: DLT_IEEE802_11_RADIO_AVS (%d)\n", dltlinktype[c]);
+	else if(dltlinktype[c] == DLT_EN10MB)			fprintf(stdout, "link layer header type...................: DLT_EN10MB (%d)\n", dltlinktype[c]);
+	else if(dltlinktype[c] == DLT_NULL)			fprintf(stdout, "link layer header type...................: DLT_NULL (BSD LO) (%d)\n", dltlinktype[c]);
 	}
 return;
 }
@@ -5431,6 +5446,7 @@ pcaptempnameptr = NULL;
 pcapnameptr = pcapinname;
 #ifdef WANTZLIB
 ancientdumpfileformat = false;
+radiotappresent = false;
 if(testgzipfile(pcapinname) == true)
 	{
 	memset(&tmpoutname, 0, PATH_MAX);
