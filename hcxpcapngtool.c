@@ -308,6 +308,7 @@ static int nmealen;
 
 static bool ignoreieflag;
 static bool donotcleanflag;
+static bool ancientdumpfileformat;
 
 static const uint8_t fakenonce1[] =
 {
@@ -808,6 +809,18 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 	{
 	printf( "\nInformation: no hashes written to hash files\n");
 	}
+
+if(ancientdumpfileformat == true) 
+	{
+	fprintf(stdout, "\nWarning: limited dump file format detected!\n"
+		"This file format is a very basic format to save captured network data.\n"
+		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
+		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
+		"of the currently widely used (but limited) libpcap (cap, pcap) format.\n"
+		"https://wiki.wireshark.org/Development/PcapNg\n"
+		"https://wiki.wireshark.org/FileFormatReference\n");
+	}
+
 if(sequenceerrorcount > 0)
 	{
 	fprintf(stdout, "\nWarning: out of sequence timestamps!\n"
@@ -4775,6 +4788,7 @@ static pcaprec_hdr_t pcaprhdr;
 static uint64_t timestampcap;
 static uint8_t packet[MAXPACPSNAPLEN];
 
+ancientdumpfileformat = true;
 fprintf(stdout, "%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(pcapinname));
 iface = 1;
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
@@ -5084,6 +5098,7 @@ static int interfaceid[MAX_INTERFACE_ID];
 static uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 static uint8_t packet[MAXPACPSNAPLEN];
 
+ancientdumpfileformat = false;
 fprintf(stdout, "%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(pcapinname));
 iface = 0;
 nmealen = 0;
@@ -5415,6 +5430,7 @@ pcaptempnameptr = NULL;
 #endif
 pcapnameptr = pcapinname;
 #ifdef WANTZLIB
+ancientdumpfileformat = false;
 if(testgzipfile(pcapinname) == true)
 	{
 	memset(&tmpoutname, 0, PATH_MAX);
