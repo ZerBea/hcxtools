@@ -379,11 +379,11 @@ static const char *secondword[] =
 "teapot", "teen", "tent", "theory", "tiger", "timber", "tomato", "tooth",
 "topic", "town", "trail", "train", "tree", "truck", "trumpet", "truth",
 "tuba", "tulip", "turkey", "turtle", "two", "unicorn", "union", "unit",
-"unite", "urban", "useful", "valley", "vase", "verse", "video", "violet",
-"violin", "volume", "voyage", "wagon", "walnut", "watch", "wate", "water",
-"wealth", "week", "west", "whale", "wind", "window", "windy", "wolf",
-"world", "writer", "yacht", "yard", "year", "zeal", "zebra", "zone",
-"zoo"
+"unite", "urban", "useful", "valley", "value", "vase", "verse", "video",
+"violet", "violin", "volume", "voyage", "wagon", "walnut", "watch", "wate",
+"water", "wealth", "week", "west", "whale", "wind", "window", "windy",
+"wolf", "world", "writer", "yacht", "yard", "year", "zeal", "zebra",
+"zone", "zoo"
 };
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
