@@ -650,7 +650,7 @@ if(beaconcount > 0)
 		fprintf(stdout, "\n");
 		}
 	}
-if(beaconssidunsetcount > 0)		fprintf(stdout, "BEACON (SSID unset)......................: %ld\n", beaconssidunsetcount);
+if(beaconssidunsetcount > 0)		fprintf(stdout, "BEACON (SSID wildcard/unset).............: %ld\n", beaconssidunsetcount);
 if(beaconssidzeroedcount > 0)		fprintf(stdout, "BEACON (SSID zeroed).....................: %ld\n", beaconssidzeroedcount);
 if(beaconssidoversizedcount > 0)	fprintf(stdout, "BEACON (oversized SSID length)...........: %ld\n", beaconssidoversizedcount);
 if(pagcount > 0)			fprintf(stdout, "BEACON (pwnagotchi)......................: %ld\n", pagcount);
