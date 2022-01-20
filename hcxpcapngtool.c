@@ -186,6 +186,7 @@ static long int authnetworkeapcount;
 static long int authunknowncount;
 static long int associationrequestcount;
 static long int associationrequestpskcount;
+static long int associationrequestftpskcount;
 static long int associationrequestpsk256count;
 static long int associationrequestsae256count;
 static long int associationrequestsae384bcount;
@@ -492,6 +493,7 @@ authnetworkeapcount = 0;
 authunknowncount = 0;
 associationrequestcount = 0;
 associationrequestpskcount = 0;
+associationrequestftpskcount = 0;
 associationrequestpsk256count = 0;
 associationrequestsae256count = 0;
 associationrequestsae384bcount = 0;
@@ -677,6 +679,7 @@ if(authnetworkeapcount > 0)		fprintf(stdout, "AUTHENTICATION (NETWORK EAP)......
 if(authunknowncount > 0)		fprintf(stdout, "AUTHENTICATION (unknown).................: %ld\n", authunknowncount);
 if(associationrequestcount > 0)		fprintf(stdout, "ASSOCIATIONREQUEST (total)...............: %ld\n", associationrequestcount);
 if(associationrequestpskcount > 0)	fprintf(stdout, "ASSOCIATIONREQUEST (PSK).................: %ld\n", associationrequestpskcount);
+if(associationrequestftpskcount > 0)	fprintf(stdout, "ASSOCIATIONREQUEST (FT using PSK)........: %ld\n", associationrequestftpskcount);
 if(associationrequestpsk256count > 0)	fprintf(stdout, "ASSOCIATIONREQUEST (PSK SHA256)..........: %ld\n", associationrequestpsk256count);
 if(associationrequestsae256count > 0)	fprintf(stdout, "ASSOCIATIONREQUEST (SAE SHA256)..........: %ld\n", associationrequestsae256count);
 if(associationrequestsae384bcount > 0)	fprintf(stdout, "ASSOCIATIONREQUEST (SAE SHA384 SUITE B)..: %ld\n", associationrequestsae384bcount);
@@ -4015,7 +4018,8 @@ else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PS
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
 	}
-if((tags.akm &TAK_PSK) == TAK_PSK) associationrequestpskcount++; 
+if((tags.akm &TAK_PSK) == TAK_PSK) associationrequestpskcount++;
+else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) associationrequestftpskcount++; 
 else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) associationrequestpsk256count++; 
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) associationrequestsae256count++; 
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) associationrequestsae384bcount++; 
