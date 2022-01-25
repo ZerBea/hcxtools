@@ -816,7 +816,7 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 
 if(ancientdumpfileformat == true) 
 	{
-	fprintf(stdout, "\nWarning: limited dump file format detected!\n"
+	fprintf(stdout, "\nInformation: limited dump file format detected!\n"
 		"This file format is a very basic format to save captured network data.\n"
 		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
 		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
@@ -827,7 +827,7 @@ if(ancientdumpfileformat == true)
 
 if(radiotappresent == false)
 	{
-	fprintf(stdout, "\nWarning: radiotap header is missing!\n"
+	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
 		"Radiotap is a de facto standard for 802.11 frame injection and reception.\n"
 		"The radiotap header format is a mechanism to supply additional information about frames,\n"
 		"from the driver to userspace applications.\n"
