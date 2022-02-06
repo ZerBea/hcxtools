@@ -813,27 +813,6 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 	{
 	printf( "\nInformation: no hashes written to hash files\n");
 	}
-
-if(ancientdumpfileformat == true) 
-	{
-	fprintf(stdout, "\nInformation: limited dump file format detected!\n"
-		"This file format is a very basic format to save captured network data.\n"
-		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
-		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
-		"of the currently widely used (but limited) libpcap (cap, pcap) format.\n"
-		"https://www.wireshark.org/docs/wsug_html_chunked/AppFiles.html#ChAppFilesCaptureFilesSection\n"
-		"https://github.com/pcapng/pcapng\n");
-	}
-
-if(radiotappresent == false)
-	{
-	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
-		"Radiotap is a de facto standard for 802.11 frame injection and reception.\n"
-		"The radiotap header format is a mechanism to supply additional information about frames,\n"
-		"from the driver to userspace applications.\n"
-		"https://www.radiotap.org/\n");
-	}
-
 if(sequenceerrorcount > 0)
 	{
 	fprintf(stdout, "\nWarning: out of sequence timestamps!\n"
@@ -870,10 +849,27 @@ if((deauthenticationcount +disassociationcount) > 10000)
 		"This could prevent to calculate a valid EAPOL MESSAGE PAIR\n"
 		"or to get a valid PMKID.\n");
 	}
-
+if(ancientdumpfileformat == true) 
+	{
+	fprintf(stdout, "\nInformation: limited dump file format detected!\n"
+		"This file format is a very basic format to save captured network data.\n"
+		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
+		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
+		"of the currently widely used (but limited) libpcap (cap, pcap) format.\n"
+		"https://www.wireshark.org/docs/wsug_html_chunked/AppFiles.html#ChAppFilesCaptureFilesSection\n"
+		"https://github.com/pcapng/pcapng\n");
+	}
+if(radiotappresent == false)
+	{
+	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
+		"Radiotap is a de facto standard for 802.11 frame injection and reception.\n"
+		"The radiotap header format is a mechanism to supply additional information about frames,\n"
+		"from the driver to userspace applications.\n"
+		"https://www.radiotap.org/\n");
+	}
 if(proberequestcount == 0)
 	{
-	fprintf(stdout, "\nWarning: missing frames!\n"
+	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain undirected proberequest frames.\n"
 		"An undirected proberequest may contain information about the PSK.\n"
 		"It always happens if the capture file was cleaned or\n"
@@ -882,7 +878,7 @@ if(proberequestcount == 0)
 	}
 if((authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
 	{
-	fprintf(stdout, "\nWarning: missing frames!\n"
+	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain important frames like\n"
 		"authentication, association or reassociation.\n"
 		"It always happens if the capture file was cleaned or\n"
@@ -891,7 +887,7 @@ if((authenticationcount +associationrequestcount +reassociationrequestcount) == 
 	}
 if(eapolm1ancount <= 1)
 	{
-	fprintf(stdout, "\nWarning: missing frames!\n"
+	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain enough EAPOL M1 frames.\n"
 		"It always happens if the capture file was cleaned or\n"
 		"it could happen if filter options are used during capturing.\n"
@@ -899,7 +895,7 @@ if(eapolm1ancount <= 1)
 	}
 if(malformedcount > 5)
 	{
-	printf( "\nWarning: malformed packets detected!\n"   
+	printf( "\nInformation: malformed packets detected!\n"   
 		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
 		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
 		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
