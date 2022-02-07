@@ -1013,9 +1013,22 @@ static void preparebssidessid(FILE *fhout, unsigned long long int macaddr, uint8
 static int k2;
 static int ek;
 static char *ev;
+static unsigned int oui;
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
+if(essidlen >= 6)
+	{
+	if((isxdigit((unsigned char)essid[essidlen -6])) && (isxdigit((unsigned char)essid[essidlen -5])) && (isxdigit((unsigned char)essid[essidlen -4])) && (isxdigit((unsigned char)essid[essidlen -3])) && (isxdigit((unsigned char)essid[essidlen -2])) && (isxdigit((unsigned char)essid[essidlen -1])))
+		{
+		ev = (char*)(essid +essidlen -6);
+		ek = strtol(ev, NULL, 16);
+		oui = (macaddr &0xffffff000000L) >> 24;
+		snprintf(essidtmp, PSKSTRING_LEN_MAX, "%06x%06x\n", oui, ek);
+		writepsk(fhout, essidtmp);
+		}
+	}
+return;
 if(essidlen >= 4)
 	{
 	if((isxdigit((unsigned char)essid[essidlen -4])) && (isxdigit((unsigned char)essid[essidlen -3])) && (isxdigit((unsigned char)essid[essidlen -2])) && (isxdigit((unsigned char)essid[essidlen -1])))
