@@ -1024,7 +1024,7 @@ if(essidlen >= 6)
 		ev = (char*)(essid +essidlen -6);
 		ek = strtol(ev, NULL, 16);
 		oui = (macaddr &0xffffff000000L) >> 24;
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "%06x%06x\n", oui, ek);
+		snprintf(essidtmp, PSKSTRING_LEN_MAX, "%06x%06x", oui, ek);
 		writepsk(fhout, essidtmp);
 		}
 	}
