@@ -3479,7 +3479,7 @@ static uint8_t keyver;
 static uint64_t rc;
 static uint64_t rcgap;
 static uint8_t mpfield;
-static int infolen;
+static uint16_t wpainfolen;
 static tags_t tags;
 
 static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
@@ -3498,7 +3498,8 @@ if((keyver == 0) || (keyver > 3))
 	eapolm2kdv0count++;
 	return;
 	}
-if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
+wpainfolen = ntohs(wpak->wpadatalen);
+if(wpainfolen > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
 	{
 	if(fh_log != NULL) fprintf(fh_log, "EAPOL M2 wpa data len > eap authentication len: %ld\n", rawpacketcount);
 	eapolm2errorcount++;
@@ -3562,10 +3563,9 @@ zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
 zeiger->eapauthlen = authlen +EAPAUTH_SIZE;
 memcpy(zeiger->eapol, eapauthptr, zeiger->eapauthlen);
-infolen = ntohs(wpak->wpadatalen);
-if(infolen >= RSNIE_LEN_MIN)
+if(wpainfolen >= RSNIE_LEN_MIN)
 	{
-	if(gettags(infolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
+	if(gettags(wpainfolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
 	if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) eapolm2ftpskcount++;
 	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256))
 		{
