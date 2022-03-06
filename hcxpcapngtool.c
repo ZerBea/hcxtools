@@ -867,23 +867,14 @@ if(radiotappresent == false)
 		"from the driver to userspace applications.\n"
 		"https://www.radiotap.org/\n");
 	}
-if(beaconcount == 0)
+if((beaconcount + proberesponsecount) == 0)
 	{
 	fprintf(stdout, "\nInformation: missing frames!\n"
-		"This dump file does not contain BEACON frames.\n"
-		"A BEACON frame contain the ESSID which is mandatory to calculate a PMK.\n"
+		"This dump file does not contain BEACON or PROBERESPONSE frames.\n"
+		"This frames contain the ESSID which is mandatory to calculate a PMK.\n"
 		"It always happens if the capture file was cleaned or\n"
 		"it could happen if filter options are used during capturing.\n"
-		"That makes it impossibleto recover the PSK.\n");
-	}
-if(proberesponsecount == 0)
-	{
-	fprintf(stdout, "\nInformation: missing frames!\n"
-		"This dump file does not contain PROBERESPONSE frames.\n"
-		"A PROBERESPONSE frame contain the ESSID which is mandatory to calculate a PMK.\n"
-		"It always happens if the capture file was cleaned or\n"
-		"it could happen if filter options are used during capturing.\n"
-		"That makes it impossibleto recover the PSK.\n");
+		"That makes it impossible to recover the PSK.\n");
 	}
 if(proberequestcount == 0)
 	{
