@@ -479,6 +479,7 @@ struct suite_s
 #define CS_WEP104	5
 #define CS_BIP		6
 #define CS_NOT_ALLOWED	7
+#define	CS_GCMP		9
 #define	AK_PMKSA	1
 #define	AK_PSK		2
 #define AK_FT		3

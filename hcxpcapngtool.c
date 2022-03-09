@@ -3033,6 +3033,7 @@ if(memcmp(gsuiteptr->oui, &suiteoui, 3) == 0)
 	if(gsuiteptr->type == CS_TKIP) zeiger->groupcipher |= TCS_TKIP;
 	if(gsuiteptr->type == CS_WRAP) zeiger->groupcipher |= TCS_WRAP;
 	if(gsuiteptr->type == CS_CCMP) zeiger->groupcipher |= TCS_CCMP;
+	if(gsuiteptr->type == CS_GCMP) zeiger->groupcipher |= TCS_GCMP;
 	if(gsuiteptr->type == CS_WEP104) zeiger->groupcipher |= TCS_WEP104;
 	if(gsuiteptr->type == CS_BIP) zeiger->groupcipher |= TCS_BIP;
 	if(gsuiteptr->type == CS_NOT_ALLOWED) zeiger->groupcipher |= TCS_NOT_ALLOWED;
@@ -3061,6 +3062,7 @@ for(c = 0; c < csuitecount; c++)
 		if(csuiteptr->type == CS_TKIP) zeiger->cipher |= TCS_TKIP;
 		if(csuiteptr->type == CS_WRAP) zeiger->cipher |= TCS_WRAP;
 		if(csuiteptr->type == CS_CCMP) zeiger->cipher |= TCS_CCMP;
+		if(csuiteptr->type == CS_GCMP) zeiger->cipher |= TCS_GCMP;
 		if(csuiteptr->type == CS_WEP104) zeiger->cipher |= TCS_WEP104;
 		if(csuiteptr->type == CS_BIP) zeiger->cipher |= TCS_BIP;
 		if(csuiteptr->type == CS_NOT_ALLOWED) zeiger->cipher |= TCS_NOT_ALLOWED;
