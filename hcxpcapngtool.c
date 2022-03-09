@@ -867,7 +867,7 @@ if(radiotappresent == false)
 		"from the driver to userspace applications.\n"
 		"https://www.radiotap.org/\n");
 	}
-if((beaconcount + proberesponsecount) == 0)
+if(((beaconcount + proberesponsecount) == 0) && ((associationrequestcount + reassociationrequestcount) == 0))
 	{
 	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain BEACON or PROBERESPONSE frames.\n"
