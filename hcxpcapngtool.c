@@ -305,6 +305,8 @@ static uint64_t eapoltimeoutvalue;
 static uint64_t ncvalue;
 static int essidsvalue;
 
+static uint16_t frequency;
+
 static int nmealen;
 
 static bool ignoreieflag;
@@ -345,6 +347,8 @@ static char gpwplold[OPTIONLEN_MAX];
 static char zeroedpsk[8];
 static uint8_t zeroedpmk[32];
 static uint8_t calculatedpmk[32];
+
+static uint16_t usedfrequency[0xffff];
 
 static uint8_t beaconchannel[CHANNEL_MAX];
 /*===========================================================================*/
@@ -605,12 +609,17 @@ captimestampold = 0;
 memset(&zeroedpsk, 0, 8);
 memset(&zeroedpmk, 0, 32);
 memset(&beaconchannel, 0, sizeof(beaconchannel));
+
+memset(&usedfrequency, 0, sizeof(usedfrequency));
 return true;
 }
 /*===========================================================================*/
 static void printcontentinfo()
 {
+static int c;
 static uint8_t i;
+static uint16_t p;
+
 if(nmeacount > 0)			fprintf(stdout, "NMEA sentence............................: %ld\n", nmeacount);
 if(nmeaerrorcount > 0)			fprintf(stdout, "NMEA sentence checksum errors............: %ld\n", nmeaerrorcount);
 if(endianess == 0)			fprintf(stdout, "endianess (capture system)...............: little endian\n");
@@ -806,6 +815,21 @@ if(taglenerrorcount > 0)		fprintf(stdout, "IE TAG length error (malformed packet
 if(essiderrorcount > 0)			fprintf(stdout, "ESSID error (malformed packets)..........: %ld\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		fprintf(stdout, "EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
+
+c = 0;
+fprintf(stdout, "\nfrequency statistics (frequency: packet count)\n"
+		"----------------------------------------------\n");
+for(p = 0; p < 0xffff; p ++)
+	{
+	if(usedfrequency[p] != 0)
+		{
+		fprintf(stdout, "% 5d: %d\t", p, usedfrequency[p]);
+		c++;
+		if((c %4) == 0) fprintf(stdout, "\n");
+		}
+	}
+if(c == 0) fprintf(stdout, "not available due to missing radiotap header");
+fprintf(stdout, "\n");
 
 if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eapolncwrittenhcpxcountdeprecated +eapolwrittenhcpcountdeprecated 
 	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
@@ -4529,8 +4553,8 @@ static int i;
 static uint16_t pf;
 static rth_t *rth;
 static uint32_t *pp;
-static uint16_t frequency;
 
+frequency = 0;
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
 if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) != IEEE80211_RADIOTAP_DBM_ANTSIGNAL) return;
@@ -4554,6 +4578,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	if(pf > caplen) return;
 	if((pf %2) != 0) pf += 1; 
 	frequency = (capptr[pf +1] << 8) + capptr[pf];
+	usedfrequency[frequency] += 1;
 	if((frequency >= 2407) && (frequency <= 2474))
 		{
 		interfacechannel = (frequency -2407)/5;
