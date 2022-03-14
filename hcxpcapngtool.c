@@ -817,8 +817,8 @@ eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +e
 if(eapolmsgerrorcount > 0)		fprintf(stdout, "EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 
 c = 0;
-fprintf(stdout, "\nfrequency statistics (frequency: packet count)\n"
-		"----------------------------------------------\n");
+fprintf(stdout, "\nfrequency statistics (frequency: received packets)\n"
+		"--------------------------------------------------\n");
 for(p = 0; p < 0xffff; p ++)
 	{
 	if(usedfrequency[p] != 0)
