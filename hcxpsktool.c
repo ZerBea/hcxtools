@@ -1959,6 +1959,18 @@ for(k = 0; k < 0x100; k++) fprintf(fhout, "%02X%s\n", k, &essid[essidlen -6]);
 return;
 }
 /*===========================================================================*/
+static void testzhone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k;
+static char *zhone = "Zhone-";
+
+if(essidlen < 6) return;
+if(memcmp(essid, zhone, 6) == 0) return;
+for(k = 0; k < 0x10000000; k++) fprintf(fhout, "znid30%07d\n", k);
+for(k = 0; k < 0x10000000; k++) fprintf(fhout, "znid31%07d\n", k);
+return;
+}
+/*===========================================================================*/
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int pi, po;
@@ -1990,6 +2002,7 @@ testtelered(fhout, essidlen, essid);
 testukrtelecom(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 testwlan(fhout, essidlen, essid);
+testzhone(fhout, essidlen, essid);
 
 if(noessidcombinationflag == true) return;
 writeessidsweeped(fhout, essidlen, essid);
