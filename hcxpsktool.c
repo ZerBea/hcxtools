@@ -1966,8 +1966,8 @@ static char *zhone = "Zhone-";
 
 if(essidlen < 6) return;
 if(memcmp(essid, zhone, 6) == 0) return;
-for(k = 0; k < 0x10000000; k++) fprintf(fhout, "znid30%07d\n", k);
-for(k = 0; k < 0x10000000; k++) fprintf(fhout, "znid31%07d\n", k);
+for(k = 0; k < 10000000; k++) fprintf(fhout, "znid30%07d\n", k);
+for(k = 0; k < 10000000; k++) fprintf(fhout, "znid31%07d\n", k);
 return;
 }
 /*===========================================================================*/
