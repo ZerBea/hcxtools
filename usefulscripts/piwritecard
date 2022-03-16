@@ -4,7 +4,7 @@ lsblk
 printf "\nchoose device: "
 read DEVICE
 
-printf "\033[0;31m o p n p 1 <ret> +100M t c n p 2 <ret> <ret> w \033[1;0m\n"
+printf "\033[0;31m o p n p 1 <ret> +256M t c n p 2 <ret> <ret> w \033[1;0m\n"
 sudo fdisk /dev/$DEVICE
 
 echo "build filesystem boot"
