@@ -1962,10 +1962,10 @@ return;
 static void testzhone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k;
-static char *zhone = "Zhone-";
+static char *zhone = "Zhone_";
 
 if(essidlen < 6) return;
-if(memcmp(essid, zhone, 6) == 0) return;
+if(memcmp(essid, zhone, 6) != 0) return;
 for(k = 0; k < 10000000; k++) fprintf(fhout, "znid30%07d\n", k);
 for(k = 0; k < 10000000; k++) fprintf(fhout, "znid31%07d\n", k);
 return;
