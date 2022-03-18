@@ -819,7 +819,7 @@ if(eapolmsgerrorcount > 0)		fprintf(stdout, "EAPOL messages (malformed packets).
 c = 0;
 fprintf(stdout, "\nfrequency statistics (frequency: received packets)\n"
 		"--------------------------------------------------\n");
-for(p = 0; p < 0xffff; p ++)
+for(p = 2400; p < 7000; p ++)
 	{
 	if(usedfrequency[p] != 0)
 		{
