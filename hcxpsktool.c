@@ -39,8 +39,8 @@ static bool eeflag;
 static bool egnflag;
 static bool eudateflag;
 static bool hb5flag;
-static bool netgearflag;
 static bool maconlyflag;
+static bool netgearflag;
 static bool noessidcombinationflag;
 static bool phomeflag;
 static bool podaflag;
@@ -49,6 +49,7 @@ static bool ukrtelecomflag;
 static bool usdateflag;
 static bool weakpassflag;
 static bool wpskeysflag;
+static bool znidflag;
 
 uint8_t essidglen;
 /*===========================================================================*/
@@ -1964,10 +1965,12 @@ static void testzhone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k;
 static char *zhone = "Zhone_";
 
+if(znidflag == true) return;
 if(essidlen < 6) return;
 if(memcmp(essid, zhone, 6) != 0) return;
 for(k = 0; k < 10000000; k++) fprintf(fhout, "znid30%07d\n", k);
 for(k = 0; k < 10000000; k++) fprintf(fhout, "znid31%07d\n", k);
+znidflag = true;
 return;
 }
 /*===========================================================================*/
@@ -2729,6 +2732,7 @@ ukrtelecomflag = false;
 usdateflag = false;
 weakpassflag = false;
 wpskeysflag = false;
+znidflag = false;
 
 static const char *short_options = "c:i:j:z:o:e:b:o:hv";
 static const struct option long_options[] =
