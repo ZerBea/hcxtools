@@ -32,6 +32,7 @@ static int apessidcount;
 static unsigned int thisyear;
 
 static bool airtelflag;
+static bool alticeoptimumflag;
 static bool spectrumflag;
 static bool digit10flag;
 static bool easyboxflag;
@@ -740,6 +741,109 @@ for(w3 = 0; w3 < (sizeof(word3) / sizeof(char *)); w3++)
 free_array(uword3, sizeof(word3) / sizeof(char *));
 free_array(uword4, sizeof(word4) / sizeof(char *));
 free_array(uword5, sizeof(word5) / sizeof(char *));
+
+return;
+}
+/*===========================================================================*/
+/* source: soxrok2212, https://github.com/soxrok2212/PSKracker/tree/master/dicts/altice-optimum */
+static void keywritealticeoptimum(FILE *fhout)
+{
+static unsigned int w, i, j; // w1
+
+static const char *word[] =
+{
+"amaranth", "amber", "amethyst", "apricot", "aquamarine", "azure",
+"baby", "beige", "brick", "black", "blue", "blue-green", "blue-violet", "blush",
+"bronze", "brown", "burgundy", "byzantium", "carmine",
+"cerise", "cerulean", "champagne", "chartreuse", "chocolate", "cobalt", "coffee", "copper",
+"cordovan", "coral", "crimson", "cyan",
+"desert",
+"electric", "emerald", "erin",
+"gold", "gray", "green",
+"harlequin",
+"indigo", "ivory",
+"jade", "jungle",
+"lavender", "lemon", "lilac", "lime",
+"magenta", "maroon", "mauve",
+"navy",
+"ochre", "olive", "orange", "orange-red", "orchid",
+"peach", "pear", "periwinkle", "persian", "pink", "plum", "prussian", "puce",
+"purple",
+"raspberry", "red", "red-violet", "rose", "ruby",
+"salmon", "sangria", "sapphire", "scarlet", "silver", "slate", "spring",
+"tan", "taupe", "teal", "turquoise",
+"ultramarine",
+"violet", "viridian",
+"white",
+"yellow"
+};
+
+for (w = 0; w < (sizeof(word) / sizeof(char *)); w++ )
+	{
+	for (i = 0; i < 10000; i++)
+		{
+		for (j = 0; j < 10000; j++)
+			{
+			// 2-2
+			if (i < 100 && j < 100)
+				{
+				fprintf(fhout, "%s-%02d-%02d\n", word[w], i, j);
+				}
+			// 2-3
+			if (i < 100 && j < 1000)
+				{
+				fprintf(fhout, "%s-%02d-%03d\n", word[w], i, j);
+				/*
+				fprintf(fhout, "%02d-%s-%03d\n", i, word[w], j); // test
+				fprintf(fhout, "%02d-%03d-%s\n", i, j, word[w]); // test
+				*/
+				}
+			// 2-4
+			if (i < 100  && j < 10000)
+				{
+				fprintf(fhout, "%s-%02d-%04d\n", word[w], i, j);
+				fprintf(fhout, "%02d-%s-%04d\n", i, word[w], j);
+				fprintf(fhout, "%02d-%04d-%s\n", i, j, word[w]);
+				}
+			// 3-2 test
+			/*
+			if (i < 1000 && j < 100)
+				{
+				fprintf(fhout, "%s-%03d-%02d\n", word[w], i, j);
+				fprintf(fhout, "%03d-%s-%02d\n", i, word[w], j);
+				fprintf(fhout, "%03d-%02d-%s\n", i, j, word[w]);
+				}
+			*/
+			// 3-3
+			if (i < 1000 && j < 1000)
+				{
+				fprintf(fhout, "%s-%03d-%03d\n", word[w], i, j);
+				fprintf(fhout, "%03d-%s-%03d\n", i, word[w], j);
+				fprintf(fhout, "%03d-%03d-%s\n", i, j, word[w]);
+				}
+			// 4-2
+			if (i < 10000 && j < 100)
+				{
+				fprintf(fhout, "%s-%04d-%02d\n", word[w], i, j);
+				fprintf(fhout, "%04d-%s-%02d\n", i, word[w], j);
+				fprintf(fhout, "%04d-%02d-%s\n", i, j, word[w]);
+				}
+			}
+		}
+
+		// test two words
+		/*
+		for (w1 = 0; w1 < (sizeof(word) / sizeof(char *)); w1++ )
+			{
+			//if (w == w1) continue;
+
+			if (i < 10)    fprintf(fhout, "%s-%01d-%s\n", word[w], i, word[w1]);
+			if (i < 100)   fprintf(fhout, "%s-%02d-%s\n", word[w], i, word[w1]);
+			if (i < 1000)  fprintf(fhout, "%s-%03d-%s\n", word[w], i, word[w1]);
+			if (i < 10000) fprintf(fhout, "%s-%04d-%s\n", word[w], i, word[w1]);
+			}
+		*/
+	}
 
 return;
 }
@@ -2276,6 +2380,7 @@ if(tendaflag == true)
 	keywritetenda2(fhout);
 	}
 if(eeflag == true) keywriteee(fhout);
+if(alticeoptimumflag == true) keywritealticeoptimum(fhout);
 if(weakpassflag == true) keywriteweakpass(fhout);
 if(eudateflag == true) keywriteeudate(fhout);
 if(usdateflag == true) keywriteusdate(fhout);
@@ -2679,6 +2784,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--tenda             : include weak TENDA candidates\n"
 	"--ee                : include weak EE BrightBox candidates\n"
 	"                      list will be > 3GB\n"
+	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice)\n"
 	"--weakpass          : include weak password candidates\n"
 	"--eudate            : include complete european dates\n"
 	"--usdate            : include complete american dates\n"
@@ -2715,6 +2821,7 @@ static char *macapname = NULL;
 static char *pskname = NULL;
 
 airtelflag = false;
+alticeoptimumflag = false;
 spectrumflag = false;
 digit10flag = false;
 easyboxflag = false;
@@ -2745,6 +2852,7 @@ static const struct option long_options[] =
 	{"phome",			no_argument,		NULL,	HCXD_PHOME},
 	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
 	{"ee",				no_argument,		NULL,	HCXD_EE},
+	{"alticeoptimum",				no_argument,		NULL,	HCXD_ALTICEOPTIMUM},
 	{"weakpass",			no_argument,		NULL,	HCXD_WEAKPASS},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
@@ -2793,6 +2901,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_EE:
 		eeflag = true;
+		break;
+
+		case HCXD_ALTICEOPTIMUM:
+		alticeoptimumflag = true;
 		break;
 
 		case HCXD_WEAKPASS:
