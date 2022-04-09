@@ -11,12 +11,13 @@
 #define HCXD_PHOME			5
 #define HCXD_TENDA			6
 #define HCXD_EE				7
-#define HCXD_WEAKPASS			8
-#define HCXD_EUDATE			9
-#define HCXD_USDATE			10
-#define HCXD_WPSKEYS			11
-#define HCXD_DIGIT10			12
-#define HCXD_EGN			13
+#define HCXD_ALTICEOPTIMUM			8
+#define HCXD_WEAKPASS			9
+#define HCXD_EUDATE			10
+#define HCXD_USDATE			11
+#define HCXD_WPSKEYS			12
+#define HCXD_DIGIT10			13
+#define HCXD_EGN			14
 #define HCXD_HELP			'h'
 #define HCXD_VERSION			'v'
 
