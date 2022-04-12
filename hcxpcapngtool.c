@@ -643,8 +643,7 @@ if(beaconcount > 0)
 	fprintf(stdout, "BEACON (total)...........................: %ld\n", beaconcount);
 	if((beaconchannel[0] &GHZ24) == GHZ24)
 		{
-		fprintf(stdout, "BEACON (detected on 2.4 GHz channel).....: ");
-
+		fprintf(stdout, "BEACON on 2.4 GHz channel (from IE_TAG)..: ");
 		for(i = 1; i <= 14; i++)
 			{
 			if(beaconchannel[i] != 0) fprintf(stdout, "%d ", i);
@@ -653,7 +652,7 @@ if(beaconcount > 0)
 		}
 	if((beaconchannel[0] &GHZ5) == GHZ5)
 		{
-		fprintf(stdout, "BEACON (detected on 5/6 GHz channel).....: ");
+		fprintf(stdout, "BEACON on 5/6 GHz channel (from IE-TAG)..: ");
 		for(i = 15; i < CHANNEL_MAX; i++)
 			{
 			if(beaconchannel[i] != 0) fprintf(stdout, "%d ", i);
@@ -817,8 +816,8 @@ eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +e
 if(eapolmsgerrorcount > 0)		fprintf(stdout, "EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 
 c = 0;
-fprintf(stdout, "\nfrequency statistics (frequency: received packets)\n"
-		"--------------------------------------------------\n");
+fprintf(stdout, "\nfrequency statistics from radiotap header (frequency: received packets)\n"
+		"-----------------------------------------------------------------------\n");
 for(p = 2400; p < 7000; p ++)
 	{
 	if(usedfrequency[p] != 0)
