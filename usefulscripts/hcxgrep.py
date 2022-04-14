@@ -1,15 +1,14 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 '''
 greps inside hccapx/pmkid structs by essid, mac_ap or mac_sta
 
-This software is Copyright (c) 2019-2020, Alex Stanev <alex at stanev.org> and it is
-hereby released to the general public under the following terms:
+This software is Copyright (c) 2019-2022, Alex Stanev <alex at stanev.org>
+and it is hereby released to the general public under the following terms:
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted.
 '''
 
-from __future__ import print_function
 import argparse
 import os
 import sys
@@ -18,10 +17,8 @@ import struct
 import re
 import sre_constants
 
-try:
-    from string import maketrans
-except ImportError:
-    maketrans = bytearray.maketrans  # pylint: disable=no-member
+maketrans = bytearray.maketrans
+
 
 def parse_hccapx(hccapx):
     '''hccapx decompose
@@ -54,9 +51,9 @@ def parse_hccapx(hccapx):
          keyver, keymic,
          mac_ap, nonce_ap, mac_sta, nonce_sta,
          eapol_len, eapol) = struct.unpack(hccapx_fmt, hccapx)
-    except struct.error as ex:
-        sys.stderr.write(str(ex + '\n'))
-        exit(1)
+    except struct.error:
+        sys.stderr.write('Can\'t parse hcccapx struct!\n')
+        sys.exit(1)
 
     # fixup
     res = ''
@@ -68,6 +65,7 @@ def parse_hccapx(hccapx):
         res = binascii.hexlify(mac_sta).zfill(12)
 
     return res
+
 
 def parse_pmkid(pmkid):
     '''pmkid decompose
@@ -86,11 +84,12 @@ def parse_pmkid(pmkid):
                 res = arr[1]
             elif args.t == 'mac_sta':
                 res = arr[2]
-        except TypeError as ex:
-            sys.stderr.write(str(ex + '\n'))
-            exit(1)
+        except TypeError:
+            sys.stderr.write('Can\'t decode: {}\n'.format(arr[3].strip().decode()))
+            sys.exit(1)
 
     return res
+
 
 def parse_combined(hashline):
     '''m22000 hashline decompose
@@ -109,16 +108,15 @@ def parse_combined(hashline):
                 res = arr[3]
             elif args.t == 'mac_sta':
                 res = arr[4]
-        except TypeError as ex:
-            sys.stderr.write(str(ex + '\n'))
-            exit(1)
+        except TypeError:
+            sys.stderr.write('Can\'t decode: {}\n'.format(arr[5].strip().decode()))
+            sys.exit(1)
 
     return res
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Extract records from wpa combined hashline/hccapx/pmkid file based on regexp')
-    #group = parser.add_mutually_exclusive_group(required=True)
+        description='Extract records from m22000 hashline/hccapx/pmkid file with regexp')
     parser.add_argument(
         '-f', '--file', type=argparse.FileType('r'),
         help='Obtain patterns from FILE, one per line.')
@@ -130,7 +128,8 @@ if __name__ == "__main__":
         '-v', '--invert-match', dest='v', action='store_true',
         help='Invert the sense of matching, to select non-matching nets')
     parser.add_argument(
-        '-t', '--type', dest='t', choices=['essid','mac_ap','mac_sta'], default='essid',
+        '-t', '--type', dest='t',
+        choices=['essid', 'mac_ap', 'mac_sta'], default='essid',
         help='Field to apply matching, default essid')
     parser.add_argument(
         'infile', type=str, nargs='?',
@@ -141,11 +140,6 @@ if __name__ == "__main__":
     except IOError as ex:
         parser.error(str(ex))
 
-    # workaround encoding issues with python2
-    if sys.version_info[0] == 2:
-        reload(sys)                         # pylint: disable=undefined-variable
-        sys.setdefaultencoding('utf-8')     # pylint: disable=no-member
-
     # shift parameters
     if args.file and args.PATTERNS:
         args.infile = args.PATTERNS
@@ -155,7 +149,7 @@ if __name__ == "__main__":
     if args.PATTERNS is None and args.file is None:
         parser.print_help(sys.stderr)
         sys.stderr.write('You must provide PATTERNS or -f FILE\n')
-        exit(1)
+        sys.exit(1)
 
     # read patterns from file
     if args.PATTERNS is None:
@@ -163,22 +157,22 @@ if __name__ == "__main__":
 
     try:
         regexp = re.compile(args.PATTERNS)
-    except sre_constants.error as e:
-        sys.stderr.write('Wrong regexp {0}: {1} \n'.format(args.PATTERNS, e))
-        exit(1)
+    except sre_constants.error as ex:
+        sys.stderr.write('Wrong regexp {0}: {1} \n'.format(args.PATTERNS, ex))
+        sys.exit(1)
 
     if args.infile is not None and os.path.isfile(args.infile):
         fd = open(args.infile, 'rb')
     else:
         fd = sys.stdin
-    
+
     structformat = ''
     while True:
         buf = fd.read(4)
-        if buf == 'WPA*':
+        if buf == b'WPA*':
             buf = buf + fd.readline()
             structformat = 'combined'
-        elif buf == 'HCPX':
+        elif buf == b'HCPX':
             buf = buf + fd.read(393 - 4)
             structformat = 'hccapx'
         else:
@@ -196,9 +190,8 @@ if __name__ == "__main__":
             target = parse_pmkid(buf)
         else:
             sys.stderr.write('Unrecognized input format\n')
-            exit(1)
+            sys.exit(1)
 
         res = regexp.search(str(target))
         if (res is not None and not args.v) or (res is None and args.v):
-            sys.stdout.write(buf)
-
+            sys.stdout.buffer.write(buf)
