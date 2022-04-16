@@ -43,28 +43,24 @@ def parse_hccapx(hccapx):
     } __attribute__((packed));
     '''
 
-    hccapx_fmt = '< 4x 4x B B 32s B 16s 6s 32s 6s 32s H 256s'
+    hccapx_fmt = '< 4x 4x x B 32s x 16x 6s 32x 6s 32x 2x 256x'
 
     try:
-        (message_pair,
-         essid_len, essid,
-         keyver, keymic,
-         mac_ap, nonce_ap, mac_sta, nonce_sta,
-         eapol_len, eapol) = struct.unpack(hccapx_fmt, hccapx)
+        (essid_len, essid,
+         mac_ap, mac_sta) = struct.unpack(hccapx_fmt, hccapx)
     except struct.error:
         sys.stderr.write('Can\'t parse hcccapx struct!\n')
         sys.exit(1)
 
     # fixup
-    res = ''
     if args.t == 'essid':
-        res = essid[:essid_len]
-    elif args.t == 'mac_ap':
-        res = binascii.hexlify(mac_ap).zfill(12)
-    elif args.t == 'mac_sta':
-        res = binascii.hexlify(mac_sta).zfill(12)
+        return essid[:essid_len]
+    if args.t == 'mac_ap':
+        return binascii.hexlify(mac_ap).zfill(12)
+    if args.t == 'mac_sta':
+        return binascii.hexlify(mac_sta).zfill(12)
 
-    return res
+    return None
 
 
 def parse_pmkid(pmkid):
@@ -75,20 +71,19 @@ def parse_pmkid(pmkid):
     '''
 
     arr = pmkid.split(b'*', 4)
-    res = ''
     if len(arr) == 4:
         try:
             if args.t == 'essid':
-                res = binascii.unhexlify(arr[3].strip())
-            elif args.t == 'mac_ap':
-                res = arr[1]
-            elif args.t == 'mac_sta':
-                res = arr[2]
+                return binascii.unhexlify(arr[3].strip())
+            if args.t == 'mac_ap':
+                return arr[1]
+            if args.t == 'mac_sta':
+                return arr[2]
         except TypeError:
             sys.stderr.write('Can\'t decode: {}\n'.format(arr[3].strip().decode()))
             sys.exit(1)
 
-    return res
+    return None
 
 
 def parse_combined(hashline):
@@ -99,20 +94,19 @@ def parse_combined(hashline):
     '''
 
     arr = hashline.split(b'*', 9)
-    res = ''
     if len(arr) == 9:
         try:
             if args.t == 'essid':
-                res = binascii.unhexlify(arr[5].strip())
-            elif args.t == 'mac_ap':
-                res = arr[3]
-            elif args.t == 'mac_sta':
-                res = arr[4]
+                return binascii.unhexlify(arr[5].strip())
+            if args.t == 'mac_ap':
+                return arr[3]
+            if args.t == 'mac_sta':
+                return arr[4]
         except TypeError:
             sys.stderr.write('Can\'t decode: {}\n'.format(arr[5].strip().decode()))
             sys.exit(1)
 
-    return res
+    return None
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -166,31 +160,24 @@ if __name__ == "__main__":
     else:
         fd = sys.stdin
 
-    structformat = ''
     while True:
         buf = fd.read(4)
         if buf == b'WPA*':
             buf = buf + fd.readline()
-            structformat = 'combined'
+            target = parse_combined(buf)
         elif buf == b'HCPX':
             buf = buf + fd.read(393 - 4)
-            structformat = 'hccapx'
+            target = parse_hccapx(buf)
         else:
             buf = buf + fd.readline()
-            structformat = 'pmkid'
+            arget = parse_pmkid(buf)
+
+        if target is None:
+            sys.stderr.write('Unrecognized input format\n')
+            sys.exit(1)
 
         if not buf:
             break
-
-        if structformat == 'combined':
-            target = parse_combined(buf)
-        elif structformat == 'hccapx':
-            target = parse_hccapx(buf)
-        elif structformat == 'pmkid':
-            target = parse_pmkid(buf)
-        else:
-            sys.stderr.write('Unrecognized input format\n')
-            sys.exit(1)
 
         res = regexp.search(str(target))
         if (res is not None and not args.v) or (res is None and args.v):
