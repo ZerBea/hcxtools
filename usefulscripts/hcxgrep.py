@@ -170,14 +170,14 @@ if __name__ == "__main__":
             target = parse_hccapx(buf)
         else:
             buf = buf + fd.readline()
-            arget = parse_pmkid(buf)
+            target = parse_pmkid(buf)
+
+        if not buf:
+            break
 
         if target is None:
             sys.stderr.write('Unrecognized input format\n')
             sys.exit(1)
-
-        if not buf:
-            break
 
         res = regexp.search(str(target))
         if (res is not None and not args.v) or (res is None and args.v):
