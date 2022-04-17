@@ -63,7 +63,7 @@ Detailed description
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |
 
 
-Work flow
+Workflow
 --------------
 
 hcxdumptool -> hcxpcapngtool -> hcxhashtool (additional hcxpsktool/hcxeiutool) -> hashcat or JtR
@@ -106,13 +106,15 @@ Or install via packet manager of your distribution
 [Arch Linux ARM ](https://archlinuxarm.org/) 
 `pacman -S hcxtools`
 
-### Black Arch
+### BlackArch
 [Black Arch](https://blackarch.org/) is an Arch Linux-based penetration testing distribution for penetration testers and security researchers  
 `pacman -S hcxtools`
 
 ### Kali Linux
 `apt install hcxtools`
 
+### OpenWRT
+`opkg install hcxtools`
 
 ### macOS
 [Homebrew](https://brew.sh/) is 3-rd party package manager for macOS  
@@ -123,38 +125,22 @@ Requirements
 --------------
 
 * knowledge of radio technology
-
 * knowledge of electromagnetic-wave engineering
-
 * detailed knowledge of 802.11 protocol
-
 * detailed knowledge of key derivation functions
-
 * detailed knowledge of Linux
-
 * Linux (recommended Arch Linux, but other distros should work, too (no support for other distributions).
-
 * gcc >= 11 recommended (deprecated versions are not supported: https://gcc.gnu.org/)
-
 * libopenssl and openssl-dev installed
-
 * librt and librt-dev installed (should be installed by default)
-
 * zlib and zlib-dev installed (for gzip compressed cap/pcap/pcapng files)
-
 * libcurl and curl-dev installed (used by whoismac and wlancap2wpasec)
-
 * libpthread and pthread-dev installed (used by hcxhashcattool)
-
 * pkg-config installed
 
 To install requirements on Kali use the following 'apt-get install pkg-config libcurl4-openssl-dev libssl-dev zlib1g-dev'
 
 If you decide to compile latest git head, make sure that your distribution is updated on latest version.
-
-
-
-
 
 Useful scripts
 --------------
@@ -163,7 +149,7 @@ Useful scripts
 | ------------ | -------------------------------------------------------- |
 | piwritecard  | Example script to restore SD-Card                        |
 | piwreadcard  | Example script to backup SD-Card                         |
-| hcxgrep.py   | Extract records from hccapx/pmkid file based on regexp   |
+| hcxgrep.py   | Extract records from m22000 hashline/hccapx/pmkid file based on regexp   |
 
 
 Notice
@@ -187,11 +173,11 @@ bit 0-2
 
 010 = M2+M3, EAPOL from M2 (authorized)
 
-011 = M2+M3, EAPOL from M3 (authorized) - unused"
+011 = M2+M3, EAPOL from M3 (authorized) - unused
 
-100 = M3+M4, EAPOL from M3 (authorized) - unused"
+100 = M3+M4, EAPOL from M3 (authorized) - unused
 
-101 = M3+M4, EAPOL from M4 if not zeroed (authorized)"
+101 = M3+M4, EAPOL from M4 if not zeroed (authorized)
 
 3: reserved
 
