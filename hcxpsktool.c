@@ -752,25 +752,26 @@ static unsigned int w, i, j; // w1
 
 static const char *word[] =
 {
-"amaranth", "amber", "amethyst", "apricot", "aquamarine", "azure",
-"baby", "beige", "brick", "black", "blue", "blue-green", "blue-violet", "blush",
-"bronze", "brown", "burgundy", "byzantium", "carmine",
-"cerise", "cerulean", "champagne", "chartreuse", "chocolate", "cobalt", "coffee", "copper",
-"cordovan", "coral", "crimson", "cyan",
+"amaranth", "amber", "amethyst", "apricot", "aqua", "aquamarine", "azure",
+"baby", "beige", "brick", "black", "blue", "blush", "bronze", "brown",
+"burgundy", "byzantium",
+"carmine", "cerise", "cerulean", "champagne", "chartreuse", "chestnut", "chocolate", "cobalt",
+"coffee", "copper", "cordovan", "coral", "crimson", "cyan",
 "desert",
 "electric", "emerald", "erin",
-"gold", "gray", "green",
+"garnet", "gold", "gray", "green",
 "harlequin",
 "indigo", "ivory",
 "jade", "jungle",
 "lavender", "lemon", "lilac", "lime",
 "magenta", "maroon", "mauve",
 "navy",
-"ochre", "olive", "orange", "orange-red", "orchid",
+"ochre", "olive", "orange", "orchid",
 "peach", "pear", "periwinkle", "persian", "pink", "plum", "prussian", "puce",
 "purple",
-"raspberry", "red", "red-violet", "rose", "ruby",
-"salmon", "sangria", "sapphire", "scarlet", "silver", "slate", "spring",
+"raspberry", "red", "rose", "ruby",
+"sage", "salmon", "sangria", "sapphire", "scarlet", "sepia", "silver", "slate",
+"spring",
 "tan", "taupe", "teal", "turquoise",
 "ultramarine",
 "violet", "viridian",
@@ -829,20 +830,40 @@ for (w = 0; w < (sizeof(word) / sizeof(char *)); w++ )
 				fprintf(fhout, "%04d-%02d-%s\n", i, j, word[w]);
 				}
 			}
-		}
 
 		// test two words
 		/*
-		for (w1 = 0; w1 < (sizeof(word) / sizeof(char *)); w1++ )
-			{
-			//if (w == w1) continue;
+			for (w1 = 0; w1 < (sizeof(word) / sizeof(char *)); w1++ )
+				{
+				//if (w == w1) continue;
 
-			if (i < 10)    fprintf(fhout, "%s-%01d-%s\n", word[w], i, word[w1]);
-			if (i < 100)   fprintf(fhout, "%s-%02d-%s\n", word[w], i, word[w1]);
-			if (i < 1000)  fprintf(fhout, "%s-%03d-%s\n", word[w], i, word[w1]);
-			if (i < 10000) fprintf(fhout, "%s-%04d-%s\n", word[w], i, word[w1]);
-			}
+				if (i < 10)
+					{
+					fprintf(fhout, "%s-%01d-%s\n", word[w], i, word[w1]);
+					fprintf(fhout, "%01d-%s-%s\n", i, word[w], word[w1]);
+					fprintf(fhout, "%s-%s-%01d\n", word[w], word[w1], i);
+					}
+				if (i < 100)
+					{
+					fprintf(fhout, "%s-%02d-%s\n", word[w], i, word[w1]);
+					fprintf(fhout, "%02d-%s-%s\n", i, word[w], word[w1]);
+					fprintf(fhout, "%s-%s-%02d\n", word[w], word[w1], i);
+					}
+				if (i < 1000)
+					{
+					fprintf(fhout, "%s-%03d-%s\n", word[w], i, word[w1]);
+					fprintf(fhout, "%03d-%s-%s\n", i, word[w], word[w1]);
+					fprintf(fhout, "%s-%s-%03d\n", word[w], word[w1], i);
+					}
+				if (i < 10000)
+					{
+					fprintf(fhout, "%s-%04d-%s\n", word[w], i, word[w1]);
+					fprintf(fhout, "%04d-%s-%s\n", i, word[w], word[w1]);
+					fprintf(fhout, "%s-%s-%04d\n", word[w], word[w1], i);
+					}
+				}
 		*/
+		}
 	}
 
 return;
