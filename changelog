@@ -2,7 +2,8 @@
 ==========
 release v6.2.6
 still supporting OpenSSL 1.1
-
+hcxpcapngtool: added new option
+--essid             : let user define ESSID of Beacon, useful for cloaked ESSID
 
 09.04.2022
 ==========

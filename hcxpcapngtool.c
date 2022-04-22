@@ -97,6 +97,7 @@ static eapmschapv2msglist_t *eapmschapv2msglist;
 static tacacsplist_t *tacacsplist, *tacacsplistptr;
 
 static char *jtrbasenamedeprecated;
+static char *customessidname;
 
 static FILE *fh_pmkideapol;
 static FILE *fh_eapmd5;
@@ -3194,6 +3195,11 @@ while(0 < infolen)
 	{
 	if(infolen == 4) return true;
 	tagptr = (ietag_t*)infoptr;
+	if(tagptr->id == TAG_SSID && customessidname != NULL)
+		{
+			strncpy((char *)zeiger->essid,customessidname,sizeof(zeiger->essid)-1);
+			zeiger->essidlen = strlen(customessidname);
+		}
 	if(tagptr->len == 0)
 		{
 		infoptr += tagptr->len +IETAG_SIZE;
@@ -3208,11 +3214,14 @@ while(0 < infolen)
 			taglenerrorcount++;
 			return false;
 			}
-		if(isessidvalid(tagptr->len, &tagptr->data[0]) == false) return false;
+		if(customessidname == NULL)
 			{
-			memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
-			zeiger->essidlen = tagptr->len;
-			}
+			if(isessidvalid(tagptr->len, &tagptr->data[0]) == false) return false;
+				{
+				memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
+				zeiger->essidlen = tagptr->len;
+				}
+			}		
 		}
 	else if(tagptr->id == TAG_CHAN)
 		{
@@ -5780,6 +5789,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"-U <file> : output unsorted username list to use as input wordlist for cracker\n"
 	"-D <file> : output device information list\n"
 	"            format MAC MANUFACTURER MODELNAME SERIALNUMBER DEVICENAME UUID\n"
+	"-e <essid>: let user define ESSID of Beacon, useful for cloaked ESSID\n"
 	"-h        : show this help\n"
 	"-v        : show version\n"
 	"\n"
@@ -5840,6 +5850,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                                     --eapleap=<file.5500>      : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"                                     --tacacs-plus=<file.16100> : output TACACS+ (hashcat -m 16100, john tacacs-plus)\n"
 	"                                     --nmea=<file.nmea>         : output GPS data in NMEA format\n"
+	"--essid=<essid>                    : let user define ESSID of Beacon, useful for cloaked ESSID\n"
 	"--help                             : show this help\n"
 	"--version                          : show version\n"
 	"\n"
@@ -5933,7 +5944,7 @@ static char deviceinfoprefix[PATH_MAX];
 struct timeval tv;
 static struct stat statinfo;
 
-static const char *short_options = "o:E:R:I:U:D:hv";
+static const char *short_options = "e:o:E:R:I:U:D:hv";
 static const struct option long_options[] =
 {
 	{"all",				no_argument,		NULL,	HCX_CONVERT_ALL},
@@ -5955,6 +5966,7 @@ static const struct option long_options[] =
 	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT_DEPRECATED},
 	{"john",			required_argument,	NULL,	HCX_PMKIDEAPOLJTR_OUT_DEPRECATED},
 	{"prefix",			required_argument,	NULL,	HCX_PREFIX_OUT},
+	{"essid",			required_argument,  NULL,   HCX_CUSTOM_ESSID},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
 	{"help",			no_argument,		NULL,	HCX_HELP},
 	{NULL,				0,			NULL,	0}
@@ -5984,6 +5996,7 @@ deviceinfooutname = NULL;
 nmeaoutname = NULL;
 csvoutname = NULL;
 logoutname = NULL;
+customessidname = NULL;
 rawoutname = NULL;
 rawinname = NULL;
 prefixoutname = NULL;
@@ -6102,6 +6115,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_LOG_OUT:
 		logoutname = optarg;
+		break;
+
+		case HCX_CUSTOM_ESSID_SHORT:
+		case HCX_CUSTOM_ESSID:
+		customessidname = optarg;
 		break;
 
 		case HCX_PMKIDEAPOLJTR_OUT_DEPRECATED:
