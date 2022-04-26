@@ -2055,10 +2055,7 @@ for(k2 = 0; k2 < 10; k2++)
 		{
 		for(k6 = 0; k6 <= 0x0f; k6++)
 			{
-			for(k7 = 0; k7 < 100; k7++)
-				{
-				fprintf(fhout, "%c%d%c%02d%02d%02d%02d%d%02d%02d\n", k1, k2, k3, k4, hextable[k5], hextable[k6], k7, k2, k8, k9);
-				}
+			for(k7 = 0; k7 < 100; k7++) fprintf(fhout, "%c%d%c%02d%02d%02d%02d%d%02d%02d\n", k1, k2, k3, k4, hextable[k5], hextable[k6], k7, k2, k8, k9);
 			}
 		}
 	}
@@ -2249,7 +2246,7 @@ pin = (macaddr & 0xffffff) % 10000000;
 pin = ((pin * 10) + wpspinchecksum(pin));
 fprintf(fhout, "%08d\n", pin);
 
-pin = (((macaddr) >> 24 &0xff) * 256 * 256) + (((macaddr) >> 16&0xff) * 256) + ((macaddr >> 8) &0xff);
+pin = (((macaddr >> 24) &0xff) *256 *256) +(((macaddr >> 16) &0xff) *256) + ((macaddr >> 8) &0xff);
 pin = pin % 10000000;
 pin = ((pin * 10) + wpspinchecksum(pin));
 fprintf(fhout, "%08d\n", pin);
