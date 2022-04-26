@@ -2248,6 +2248,11 @@ static int pin;
 pin = (macaddr & 0xffffff) % 10000000;
 pin = ((pin * 10) + wpspinchecksum(pin));
 fprintf(fhout, "%08d\n", pin);
+
+pin = (((macaddr) >> 24 &0xff) * 256 * 256) + (((macaddr) >> 16&0xff) * 256) + ((macaddr >> 8) &0xff);
+pin = pin % 10000000;
+pin = ((pin * 10) + wpspinchecksum(pin));
+fprintf(fhout, "%08d\n", pin);
 return;
 }
 /*===========================================================================*/
