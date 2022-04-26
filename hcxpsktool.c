@@ -2341,7 +2341,7 @@ static int swap;
 static int me;
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-fprintf(stdout, "%012llX\n", macaddr &0xffffffffff);
+fprintf(fhout, "%012llX\n", macaddr &0xffffffffff);
 
 nici = ~macaddr &0xffffff;
 fprintf(fhout, "wlan%06x\n", nici);
