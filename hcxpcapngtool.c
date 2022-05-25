@@ -3188,8 +3188,10 @@ return true;
 static bool gettags(int infolen, uint8_t *infoptr, tags_t *zeiger)
 {
 static ietag_t *tagptr;
+static bool ef;
 
 memset(zeiger, 0, TAGS_SIZE);
+ef = false;
 while(0 < infolen)
 	{
 	if(infolen == 4) return true;
@@ -3200,7 +3202,11 @@ while(0 < infolen)
 		infolen -= tagptr->len +IETAG_SIZE;
 		continue;
 		}
-	if(tagptr->len > infolen) return false;
+	if(tagptr->len > infolen)
+		{
+		if(ef == false) return false;
+		return true;
+		}
 	if(tagptr->id == TAG_SSID)
 		{
 		if(tagptr->len > ESSID_LEN_MAX)
@@ -3210,6 +3216,7 @@ while(0 < infolen)
 			}
 		if(isessidvalid(tagptr->len, &tagptr->data[0]) == false) return false;
 			{
+			ef = true;
 			memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
 			zeiger->essidlen = tagptr->len;
 			}
@@ -3243,7 +3250,7 @@ while(0 < infolen)
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
 	}
-if((infolen != 0) && (infolen != 4)) return false;
+if((infolen != 0) && (infolen != 4) && (ef == false)) return false;
 return true;
 }
 /*===========================================================================*/
@@ -4320,7 +4327,6 @@ if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
 	beaconssidzeroedcount++;
 	return;
 	}
-
 if((tags.channel > 0) && (tags.channel <= 14))
 	{
 	beaconchannel[0] |= GHZ24;
