@@ -3202,11 +3202,7 @@ while(0 < infolen)
 		infolen -= tagptr->len +IETAG_SIZE;
 		continue;
 		}
-	if(tagptr->len > infolen)
-		{
-		if(ef == false) return false;
-		return true;
-		}
+	if(tagptr->len > infolen) return false;
 	if(tagptr->id == TAG_SSID)
 		{
 		if(tagptr->len > ESSID_LEN_MAX)
