@@ -2343,20 +2343,23 @@ fprintf(fhout, "%012llX\n", macaddr &0xffffffffff);
 nici = ~macaddr &0xffffff;
 fprintf(fhout, "wlan%06x\n", nici);
 
-nici = ~(macaddr -4) &0xffffff;
-fprintf(fhout, "wlan%06x\n", nici);
-
 nici = ~macaddr &0xffffffff;
-fprintf(fhout, "%08x\n", nici);
-
-nici = ~(macaddr -4) &0xffffffff;
 fprintf(fhout, "%08x\n", nici);
 
 nici = (~macaddr >> 8) &0xffffffff;
 fprintf(fhout, "%08x\n", nici);
 
-nici = ((~macaddr -4) >> 8) &0xffffffff;
-fprintf(fhout, "%08x\n", nici);
+for (c = 0x01; c < 0x10; c ++)
+	{
+	nici = ~(macaddr -c) &0xffffff;
+	fprintf(fhout, "wlan%06x\n", nici);
+
+	nici = ~(macaddr -c) &0xffffffff;
+	fprintf(fhout, "%08x\n", nici);
+
+	nici = ((~macaddr -c) >> 8) &0xffffffff;
+	fprintf(fhout, "%08x\n", nici);
+	}
 
 me = macaddr &0xffffff;
 fprintf(fhout, "05%6d\n", me);
