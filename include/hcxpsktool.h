@@ -4,20 +4,21 @@
 #define JOHN_LINE_LEN 1024
 #define PSKSTRING_LEN_MAX 64
 
-#define HCXD_MACONLY			1
-#define HCXD_NOESSIDCOMBINATION		2
-#define HCXD_NETGEAR			3
-#define HCXD_SPECTRUM			4
-#define HCXD_PHOME			5
-#define HCXD_TENDA			6
-#define HCXD_EE				7
-#define HCXD_ALTICEOPTIMUM			8
-#define HCXD_WEAKPASS			9
-#define HCXD_EUDATE			10
-#define HCXD_USDATE			11
-#define HCXD_WPSKEYS			12
-#define HCXD_DIGIT10			13
-#define HCXD_EGN			14
+#define HCXD_ALTICEOPTIMUM			1
+#define HCXD_ASUS			2
+#define HCXD_DIGIT10			3
+#define HCXD_EE				4
+#define HCXD_EGN			5
+#define HCXD_EUDATE			6
+#define HCXD_MACONLY			7
+#define HCXD_NETGEAR			8
+#define HCXD_NOESSIDCOMBINATION		9
+#define HCXD_PHOME			10
+#define HCXD_SPECTRUM			11
+#define HCXD_TENDA			12
+#define HCXD_USDATE			13
+#define HCXD_WEAKPASS			14
+#define HCXD_WPSKEYS			15
 #define HCXD_HELP			'h'
 #define HCXD_VERSION			'v'
 
