@@ -815,26 +815,45 @@ if(essiderrorcount > 0)			fprintf(stdout, "ESSID error (malformed packets)......
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		fprintf(stdout, "EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 
-c = 0;
-fprintf(stdout, "\nfrequency statistics from radiotap header (frequency: received packets)\n"
-		"-----------------------------------------------------------------------\n");
-for(p = 2400; p < 7000; p ++)
+if(radiotappresent == true)
 	{
-	if(usedfrequency[p] != 0)
+	c = 0;
+	fprintf(stdout, "\nfrequency statistics from radiotap header (frequency: received packets)\n"
+			"-----------------------------------------------------------------------\n");
+	for(p = 2400; p < 7000; p ++)
 		{
-		fprintf(stdout, "% 5d: %d\t", p, usedfrequency[p]);
-		c++;
-		if((c %4) == 0) fprintf(stdout, "\n");
+		if(usedfrequency[p] != 0)
+			{
+			fprintf(stdout, "% 5d: %d\t", p, usedfrequency[p]);
+			c++;
+			if((c %4) == 0) fprintf(stdout, "\n");
+			}
 		}
+	fprintf(stdout, "\n");
 	}
-if(c == 0) fprintf(stdout, "not available due to missing radiotap header");
-fprintf(stdout, "\n");
-
 if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eapolncwrittenhcpxcountdeprecated +eapolwrittenhcpcountdeprecated
 	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
 	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount +eapmschapv2writtencount +tacacspwrittencount) == 0)
 	{
 	printf( "\nInformation: no hashes written to hash files\n");
+	}
+if(ancientdumpfileformat == true)
+	{
+	fprintf(stdout, "\nInformation: limited dump file format detected!\n"
+		"This file format is a very basic format to save captured network data.\n"
+		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
+		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
+		"of the currently widely used (but limited) libpcap (cap, pcap) format.\n"
+		"https://www.wireshark.org/docs/wsug_html_chunked/AppFiles.html#ChAppFilesCaptureFilesSection\n"
+		"https://github.com/pcapng/pcapng\n");
+	}
+if(radiotappresent == false)
+	{
+	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
+		"Radiotap is a de facto standard for 802.11 frame injection and reception.\n"
+		"The radiotap header format is a mechanism to supply additional information about frames,\n"
+		"from the driver to userspace applications.\n"
+		"https://www.radiotap.org/\n");
 	}
 if(sequenceerrorcount > 0)
 	{
@@ -871,24 +890,6 @@ if((deauthenticationcount +disassociationcount) > 10000)
 		"renew ANONCE and set PMKID to zero.\n"
 		"This could prevent to calculate a valid EAPOL MESSAGE PAIR\n"
 		"or to get a valid PMKID.\n");
-	}
-if(ancientdumpfileformat == true)
-	{
-	fprintf(stdout, "\nInformation: limited dump file format detected!\n"
-		"This file format is a very basic format to save captured network data.\n"
-		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
-		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
-		"of the currently widely used (but limited) libpcap (cap, pcap) format.\n"
-		"https://www.wireshark.org/docs/wsug_html_chunked/AppFiles.html#ChAppFilesCaptureFilesSection\n"
-		"https://github.com/pcapng/pcapng\n");
-	}
-if(radiotappresent == false)
-	{
-	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
-		"Radiotap is a de facto standard for 802.11 frame injection and reception.\n"
-		"The radiotap header format is a mechanism to supply additional information about frames,\n"
-		"from the driver to userspace applications.\n"
-		"https://www.radiotap.org/\n");
 	}
 if(((beaconcount + proberesponsecount) == 0) && ((associationrequestcount + reassociationrequestcount) == 0))
 	{
