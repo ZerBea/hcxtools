@@ -4559,7 +4559,7 @@ static uint32_t *pp;
 frequency = 0;
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
-if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) != IEEE80211_RADIOTAP_DBM_ANTSIGNAL) return;
+if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) != IEEE80211_RADIOTAP_CHANNEL) return;
 if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
 	{
 	pp = (uint32_t*)capptr;
@@ -4581,22 +4581,22 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	if((pf %2) != 0) pf += 1;
 	frequency = (capptr[pf +1] << 8) + capptr[pf];
 	usedfrequency[frequency] += 1;
-	if((frequency >= 2407) && (frequency <= 2474))
+	if((frequency >= 2412) && (frequency <= 2472))
 		{
 		interfacechannel = (frequency -2407)/5;
 		band24count++;
 		}
-	else if((frequency >= 2481) && (frequency <= 2487))
+	else if((frequency == 2484) && (frequency <= 2487))
 		{
 		interfacechannel = (frequency -2412)/5;
 		band24count++;
 		}
-	else if((frequency >= 5005) && (frequency <= 5980))
+	else if((frequency >=  5180) && (frequency <= 5905))
 		{
 		interfacechannel = (frequency -5000)/5;
 		band5count++;
 		}
-	else if((frequency >= 5955) && (frequency <= 6415))
+	else if((frequency >= 5955) && (frequency <= 7115))
 		{
 		interfacechannel = (frequency -5950)/5;
 		band6count++;
