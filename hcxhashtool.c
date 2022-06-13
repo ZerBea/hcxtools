@@ -775,7 +775,6 @@ static int i;
 static unsigned char *hcpos;
 static hccap_t hccap;
 
-if(zeiger->type == HCX_TYPE_PMKID) return;
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
 if(flagfiltermacap == true) if(memcmp(&filtermacap, zeiger->ap, 6) != 0) return;
@@ -801,6 +800,18 @@ if((flagfilterrcnotchecked == true) && ((zeiger->mp &0x80) != 0x80)) return;
 if((flagfilterauthorized == true) && ((zeiger->mp &0x07) == 0x00)) return;
 if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
+if(zeiger->type == HCX_TYPE_PMKID)
+	{
+	fprintf(fh_john, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15],
+		zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5],
+		zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5]);
+	for(i = 0; i < zeiger->essidlen; i++) fprintf(fh_john, "%02x", zeiger->essid[i]);
+	fprintf(fh_john, "\n");
+	johnwrittencount++;
+	return;
+	}
 wpak = (wpakey_t*)(zeiger->eapol +EAPAUTH_SIZE);
 memset(&hccap, 0, sizeof(hccap_t));
 memcpy(&hccap.essid, zeiger->essid, zeiger->essidlen);
