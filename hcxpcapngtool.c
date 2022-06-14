@@ -820,7 +820,7 @@ if(radiotappresent == true)
 	c = 0;
 	fprintf(stdout, "\nfrequency statistics from radiotap header (frequency: received packets)\n"
 			"-----------------------------------------------------------------------\n");
-	for(p = 2400; p < 7000; p ++)
+	for(p = 2412; p <= 7115; p ++)
 		{
 		if(usedfrequency[p] != 0)
 			{
