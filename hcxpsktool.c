@@ -334,13 +334,13 @@ static const char *firstword[] =
 "smiley", "smiling", "smooth", "soccer", "some", "space", "spare", "square",
 "stable", "statue", "stealt", "stealth", "stock", "street", "strict", "strong",
 "studio", "such", "sudden", "summit", "sunny", "super", "sweet", "swift",
-"swifts", "tablet", "tall", "teal", "terrific", "theory", "thick", "thirsty",
-"this", "tight", "timber", "tiny", "town", "turtle", "uneven", "union",
-"unique", "unite", "unusual", "upset", "urban", "useful", "usual", "valley",
-"vanilla", "vast", "verse", "violet", "violin", "voyage", "wagon", "walnut",
-"warm", "warmw", "watch", "watery", "weekly", "west", "wide", "windy",
-"wine", "witty", "Witty", "wonderful", "wooden", "writer", "yacht", "yard",
-"year", "yellow", "young", "zany", "zeal", "zebra", "zone"
+"tablet", "tall", "teal", "terrific", "theory", "thick", "thirsty", "this",
+"tight", "timber", "tiny", "town", "turtle", "uneven", "union", "unique",
+"unite", "unusual", "upset", "urban", "useful", "usual", "valley", "vanilla",
+"vast", "verse", "violet", "violin", "voyage", "wagon", "walnut", "warm",
+"warmw", "watch", "watery", "weekly", "west", "wide", "windy", "wine",
+"witty", "Witty", "wonderful", "wooden", "writer", "yacht", "yard", "year",
+"yellow", "young", "zany", "zeal", "zebra", "zone"
 };
 
 static const char *secondword[] =
@@ -375,23 +375,23 @@ static const char *secondword[] =
 "parade", "park", "patron", "peach", "pear", "pencil", "people", "phoenix",
 "phone", "piano", "pizza", "place", "planet", "player", "pledge", "plum",
 "pocket", "poem", "poet", "poetry", "pond", "poodle", "potato", "prairie",
-"praise", "prose", "puppy", "quail", "quaint", "quick", "quirrel", "quote",
-"rabbit", "raccoon", "raft", "rain", "raven", "reason", "remedy", "review",
-"reward", "river", "road", "robin", "rock", "rocket", "role", "rose",
-"rosebud", "runner", "safety", "salute", "scout", "sea", "sector", "seed",
-"series", "shark", "sheep", "shelf", "ship", "shoe", "shrub", "singer",
-"skates", "sky", "sled", "snail", "snake", "snall", "soccer", "socks",
-"sofa", "space", "spark", "sparrow", "spider", "spoon", "squash", "squirrel",
-"stable", "star", "state", "statue", "storm", "stove", "straw", "street",
-"studio", "study", "summit", "sun", "table", "tablet", "tea", "teapot",
-"teapoty", "teen", "tent", "theory", "tiger", "timber", "tomato", "tooth",
-"topic", "town", "trail", "train", "tree", "truck", "trumpet", "truth",
-"tuba", "tulip", "turkey", "turtle", "two", "unicorn", "union", "unit",
-"unite", "urban", "useful", "valley", "value", "vase", "verse", "video",
-"violet", "violin", "volume", "voyage", "wagon", "walnut", "watch", "water",
-"wealth", "week", "west", "whale", "wind", "window", "windy", "wolf",
-"world", "writer", "yacht", "yard", "year", "youth", "zeal", "zebra",
-"zone", "zoo"
+"praise", "prose", "puppy", "quail", "quaint", "quick", "quote", "rabbit",
+"raccoon", "raft", "rain", "raven", "reason", "remedy", "review", "reward",
+"river", "road", "robin", "rock", "rocket", "role", "rose", "rosebud",
+"runner", "safety", "salute", "scout", "sea", "sector", "seed", "series",
+"shark", "sheep", "shelf", "ship", "shoe", "shrub", "singer", "skates",
+"sky", "sled", "snail", "snake", "snall", "soccer", "socks", "sofa",
+"space", "spark", "sparrow", "spider", "spoon", "squash", "squirrel", "stable",
+"star", "state", "statue", "storm", "stove", "straw", "street", "studio",
+"study", "summit", "sun", "table", "tablet", "tea", "teapot", "teapoty",
+"teen", "tent", "theory", "tiger", "timber", "tomato", "tooth", "topic",
+"town", "trail", "train", "tree", "truck", "trumpet", "truth", "tuba",
+"tulip", "turkey", "turtle", "two", "unicorn", "union", "unit", "unite",
+"urban", "useful", "valley", "value", "vase", "verse", "video", "violet",
+"violin", "volume", "voyage", "wagon", "walnut", "watch", "water", "wealth",
+"week", "west", "whale", "wind", "window", "windy", "wolf", "world",
+"writer", "yacht", "yard", "year", "youth", "zeal", "zebra", "zone",
+"zoo"
 };
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
