@@ -206,7 +206,7 @@ if(flagfilterchallenge == true)	fprintf(stdout, "filter by status..............:
 if(pmkidwrittencount > 0)		fprintf(stdout, "PMKID written.................: %ld\n", pmkidwrittencount);
 if(eapolwrittencount > 0)		fprintf(stdout, "EAPOL written.................: %ld\n", eapolwrittencount);
 if(johnpmkidwrittencount > 0)		fprintf(stdout, "PMKID written to john.........: %ld\n", johnpmkidwrittencount);
-if(johneapolwrittencount > 0)		fprintf(stdout, "EAPOL written to john......-..: %ld\n", johneapolwrittencount);
+if(johneapolwrittencount > 0)		fprintf(stdout, "EAPOL written to john.........: %ld\n", johneapolwrittencount);
 if(hccapxwrittencount > 0)		fprintf(stdout, "EAPOL written to hccapx.......: %ld\n", hccapxwrittencount);
 if(hccapwrittencount > 0)		fprintf(stdout, "EAPOL written to hccap........: %ld\n", hccapwrittencount);
 if(essidwrittencount > 0)		fprintf(stdout, "ESSID (unique) written........: %ld\n", essidwrittencount);
