@@ -1026,6 +1026,7 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 		fprintf(fh_deviceinfo, "\t");
 		for(p = 0; p < zeigermac->enrolleelen; p++) fprintf(fh_deviceinfo, "%02x", zeigermac->enrollee[p]);
 		}
+	fwritedeviceinfostr(zeigermac->essidlen, zeigermac->essid, fh_deviceinfo);
 	fprintf(fh_deviceinfo, "\n");
 	deviceinfocount++;
 	}
