@@ -1,3 +1,13 @@
+10.07.2022
+==========
+hcxpcapngtool: added option to add a timestamp to the converted 22000 hash line
+--add-timestamp   : add date/time to hash line
+                    this must be filtered out before feeding hashcat with the hash, e.g. by awk:
+                    cat hash.hc22000 | awk '{print $1}' > hashremovedtimestamp.hc22000
+
+Warning: hashcat doesn't accept this hash line - the time stamp must be removed before running hashcat on it
+
+
 01.06.2022
 ==========
 hcxpsktool: added new option
