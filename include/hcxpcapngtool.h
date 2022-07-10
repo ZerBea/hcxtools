@@ -278,6 +278,7 @@ return 0;
 struct handshakelist_s
 {
  uint64_t		timestampgap;
+ uint64_t		timestamp;
  uint8_t		status;
  uint8_t		messageap;
  uint8_t		messageclient;

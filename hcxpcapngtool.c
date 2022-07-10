@@ -2609,6 +2609,7 @@ for(c = 0; c < 20; c ++)
 	if(zeiger->status < handshakelistptr->status) zeiger->status = handshakelistptr->status;
 	zeiger->messageap |= handshakelistptr->messageap;
 	zeiger->messageclient |= handshakelistptr->messageclient;
+	zeiger->timestamp |= handshakelistptr->timestamp;
 	return true;
 	}
 return false;
@@ -2658,6 +2659,7 @@ if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, m
 	memcpy(handshakelistptr->pmkid, msgap->pmkid, 32);
 	handshakelistptr->eapauthlen = msgclient->eapauthlen;
 	memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
+	handshakelistptr->timestamp = msgclient->timestamp;
 	if(cleanbackhandshake() == false) handshakelistptr++;
 	}
 else
@@ -2690,6 +2692,7 @@ else
 		memcpy(handshakelistptr->pmkid, msgap->pmkid, 32);
 		handshakelistptr->eapauthlen = msgclient->eapauthlen;
 		memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
+		handshakelistptr->timestamp = msgclient->timestamp;
 		if(cleanbackhandshake() == false) handshakelistptr++;
 		}
 	}
@@ -2715,7 +2718,7 @@ for(c = 0; c < 20; c ++)
 return false;
 }
 /*===========================================================================*/
-static void addpmkid(uint8_t *macclient, uint8_t *macap, uint8_t *pmkid)
+static void addpmkid(uint8_t timestamp, uint8_t *macclient, uint8_t *macap, uint8_t *pmkid)
 {
 static pmkidlist_t *pmkidlistnew;
 
@@ -2738,6 +2741,7 @@ if(testpmkid(zeroedpmk, macclient, macap, pmkid) == false)
 	memcpy(pmkidlistptr->ap, macap, 6);
 	memcpy(pmkidlistptr->client, macclient, 6);
 	memcpy(pmkidlistptr->pmkid, pmkid, 16);
+	pmkidlistptr->timestamp = timestamp;
 	if(cleanbackpmkid() == false) pmkidlistptr++;
 	}
 else
@@ -3614,7 +3618,7 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 		{
 		zeiger->message |= HS_PMKID;
 		memcpy(zeiger->pmkid, tags.pmkid, 16);
-		addpmkid(macclient, macap, tags.pmkid);
+		addpmkid(eaptimestamp, macclient, macap, tags.pmkid);
 		}
 	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
@@ -3772,7 +3776,7 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 					}
 				}
 			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-			addpmkid(macclient, macsrc, pmkid->pmkid);
+			addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid);
 			}
 		}
 	else pmkiduselesscount++;
@@ -3965,11 +3969,11 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(ignoreieflag == true)
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid);
 	}
 else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid);
 	}
 else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) reassociationrequestftpskcount++;
 
@@ -4047,11 +4051,11 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(ignoreieflag == true)
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid);
 	}
 else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid);
 	}
 if((tags.akm &TAK_PSK) == TAK_PSK) associationrequestpskcount++;
 else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) associationrequestftpskcount++;
