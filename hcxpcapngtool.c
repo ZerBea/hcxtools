@@ -741,6 +741,7 @@ if(eapolrc4count > 0)			fprintf(stdout, "EAPOL RC4 messages.....................
 if(eapolrsncount > 0)			fprintf(stdout, "EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			fprintf(stdout, "EAPOL WPA messages.......................: %ld\n", eapolwpacount);
 if(eaptimegapmax > 0) fprintf(stdout, "EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
+if(rcgapmax > 1024) rcgapmax = 1024;
 if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
 	printf ("EAPOL ANONCE error corrections (NC)......: working\n");
