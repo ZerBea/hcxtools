@@ -38,7 +38,7 @@ if((fhoui = fopen(ouiname, "w")) == NULL)
 	}
 
 hnd = curl_easy_init ();
-curl_easy_setopt(hnd, CURLOPT_URL, "http://standards-oui.ieee.org/oui/oui.txt");
+curl_easy_setopt(hnd, CURLOPT_URL, "https://standards-oui.ieee.org/oui/oui.txt");
 curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
 curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
 curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhoui);
@@ -421,7 +421,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-d            : download http://standards-oui.ieee.org/oui/oui.txt\n"
+	"-d            : download https://standards-oui.ieee.org/oui/oui.txt\n"
 	"              : and save to ~/.hcxtools/oui.txt\n"
 	"              : internet connection required\n"
 	"-m <mac>      : mac (six bytes of mac addr) or \n"

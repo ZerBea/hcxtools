@@ -2259,14 +2259,14 @@ if(stat(ouinameuserpath, &statinfo) == -1)
 		}
 	}
 strncat(ouinameuserpath, ouiname, PATH_MAX -1);
-fprintf(stdout, "start downloading oui from http://standards-oui.ieee.org to: %s\n", ouinameuserpath);
+fprintf(stdout, "start downloading oui from https://standards-oui.ieee.org to: %s\n", ouinameuserpath);
 if((fhoui = fopen(ouinameuserpath, "w")) == NULL)
 	{
 	fprintf(stdout, "error creating file %s", ouiname);
 	return;
 	}
 hnd = curl_easy_init ();
-curl_easy_setopt(hnd, CURLOPT_URL, "http://standards-oui.ieee.org/oui/oui.txt");
+curl_easy_setopt(hnd, CURLOPT_URL, "https://standards-oui.ieee.org/oui/oui.txt");
 curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
 curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhoui) ;
 curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 0L);
@@ -2300,7 +2300,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"-i <file>   : input PMKID/EAPOL hash file\n"
 	"-o <file>   : output PMKID/EAPOL hash file\n"
 	"-E <file>   : output ESSID list (autohex enabled)\n"
-	"-d          : download http://standards-oui.ieee.org/oui.txt\n"
+	"-d          : download https://standards-oui.ieee.org/oui.txt\n"
 	"              and save to ~/.hcxtools/oui.txt\n"
 	"              internet connection required\n"
 //	"-p          : input PBKDF2 file (hashcat potfile 22000 format)\n" 
