@@ -29,7 +29,7 @@ static CURL *hnd;
 
 static FILE* fhoui;
 
-fprintf(stdout, "start downloading oui from http://standards-oui.ieee.org to: %s\n", ouiname);
+fprintf(stdout, "start downloading oui from https://standards-oui.ieee.org to: %s\n", ouiname);
 
 if((fhoui = fopen(ouiname, "w")) == NULL)
 	{
@@ -608,7 +608,7 @@ if(ouiname == NULL)
 	{
 	fprintf(stderr, "failed read oui.txt\n"
 			"use download option -d to download it\n"
-			"or download file http://standards-oui.ieee.org/oui/oui.txt\n"
+			"or download file https://standards-oui.ieee.org/oui/oui.txt\n"
 			"and save it to ~/.hcxtools/oui.txt\n");
 	exit(EXIT_FAILURE);
 	}
@@ -616,7 +616,7 @@ if(stat(ouiname, &statinfo) < 0)
 	{
 	fprintf(stderr, "failed read oui.txt\n"
 			"use download option -d to download it\n"
-			"or download file http://standards-oui.ieee.org/oui/oui.txt\n"
+			"or download file https://standards-oui.ieee.org/oui/oui.txt\n"
 			"and save it to ~/.hcxtools/oui.txt\n");
 	exit(EXIT_FAILURE);
 	}
