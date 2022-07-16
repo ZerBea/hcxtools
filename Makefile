@@ -16,7 +16,8 @@ HOSTOS		:= $(shell uname -s)
 
 CC		?= gcc
 CFLAGS		?= -O3 -Wall -Wextra
-CFLAGS		+= -std=gnu99
+CFLAGS		+= -Wno-error=deprecated-declarations
+DCFLAGS		+= -std=gnu99
 DEFS		= -DVERSION_TAG=\"$(VERSION_TAG)\" -DVERSION_YEAR=\"$(VERSION_YEAR)\"
 DEFS		+= -DWANTZLIB
 
