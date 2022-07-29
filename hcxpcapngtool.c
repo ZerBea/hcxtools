@@ -238,6 +238,7 @@ static long int pmkidcount;
 static long int pmkidbestcount;
 static long int pmkidroguecount;
 static long int pmkiduselesscount;
+static long int pmkidakmcount;
 static long int pmkidwrittenhcount;
 static long int pmkidwrittenjcountdeprecated;
 static long int pmkidwrittencountdeprecated;
@@ -548,6 +549,7 @@ pmkidcount = 0;
 pmkidbestcount = 0;
 pmkidroguecount = 0;
 pmkiduselesscount = 0;
+pmkidakmcount = 0;
 pmkidwrittenhcount = 0;
 eapolwrittenjcountdeprecated = 0;
 pmkidwrittenjcountdeprecated = 0;
@@ -791,6 +793,7 @@ if(pmkiduselesscount > 0)		fprintf(stdout, "PMKID (useless).....................
 if(pmkidcount > 0)			fprintf(stdout, "PMKID (total)............................: %ld\n", pmkidcount);
 if(zeroedpmkidpskcount > 0)		fprintf(stdout, "PMKID (from zeroed PSK)..................: %ld\n", zeroedpmkidpskcount);
 if(zeroedpmkidpmkcount > 0)		fprintf(stdout, "PMKID (from zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
+if(pmkidakmcount > 0)			fprintf(stdout, "PMKID (AKM defined - not recoverable)....: %ld\n", pmkidakmcount);
 if(donotcleanflag == false)
 	{
 	if(pmkidbestcount > 0)			fprintf(stdout, "PMKID (best).............................: %ld\n", pmkidbestcount);
@@ -3718,6 +3721,19 @@ keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 if((keyver == 0) || (keyver > 3))
 	{
 	eapolm1kdv0count++;
+	if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
+		{
+		pmkid = (pmkid_t*)(wpakptr +WPAKEY_SIZE);
+		if(pmkid->id != TAG_VENDOR) return;
+		if((pmkid->len == 0x14) && (pmkid->type == 0x04))
+			{
+			if(memcmp(&zeroed32, pmkid->pmkid, 16) == 0)
+				{
+				pmkiduselesscount++;
+				}
+			else pmkidakmcount++;
+			}
+		}
 	return;
 	}
 if(ntohs(wpak->wpadatalen) > (restlen -EAPAUTH_SIZE -WPAKEY_SIZE))
