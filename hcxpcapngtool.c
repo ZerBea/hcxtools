@@ -793,7 +793,6 @@ if(pmkiduselesscount > 0)		fprintf(stdout, "PMKID (useless).....................
 if(pmkidcount > 0)			fprintf(stdout, "PMKID (total)............................: %ld\n", pmkidcount);
 if(zeroedpmkidpskcount > 0)		fprintf(stdout, "PMKID (from zeroed PSK)..................: %ld\n", zeroedpmkidpskcount);
 if(zeroedpmkidpmkcount > 0)		fprintf(stdout, "PMKID (from zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
-if(pmkidakmcount > 0)			fprintf(stdout, "PMKID (KDV:0 AKM defined)................: %ld (PMK not recoverable)\n", pmkidakmcount);
 if(donotcleanflag == false)
 	{
 	if(pmkidbestcount > 0)			fprintf(stdout, "PMKID (best).............................: %ld\n", pmkidbestcount);
@@ -803,6 +802,7 @@ else
 	if(pmkidbestcount > 0)			fprintf(stdout, "PMKID (useful)...........................: %ld\n", pmkidbestcount);
 	}
 if(pmkidroguecount > 0)			fprintf(stdout, "PMKID ROGUE..............................: %ld\n", pmkidroguecount);
+if(pmkidakmcount > 0)			fprintf(stdout, "PMKID (KDV:0 AKM defined)................: %ld (PMK not recoverable)\n", pmkidakmcount);
 if(pmkidwrittenhcount > 0)		fprintf(stdout, "PMKID written to 22000 hash file.........: %ld\n", pmkidwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	fprintf(stdout, "PMKID written to old format JtR..........: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	fprintf(stdout, "PMKID written to old format (1680x)......: %ld\n", pmkidwrittencountdeprecated);
@@ -3731,7 +3731,11 @@ if((keyver == 0) || (keyver > 3))
 				{
 				pmkiduselesscount++;
 				}
-			else pmkidakmcount++;
+			else
+				{
+				pmkidakmcount++;
+				pmkidcount++;
+				}
 			}
 		}
 	return;
