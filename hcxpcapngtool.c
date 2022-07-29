@@ -756,14 +756,14 @@ if(eapolnccount == 0)
 	if(rcgapmax > 0) fprintf(stdout, "REPLAYCOUNT gap (measured maximum).......: %" PRIu64 "\n", rcgapmax);
 	}
 if(eapolm1count > 0)			fprintf(stdout, "EAPOL M1 messages (total)................: %ld\n", eapolm1count);
-if(eapolm1kdv0count > 0)		fprintf(stdout, "EAPOL M1 messages (KDV:0 AKM defined)....: %ld\n", eapolm1kdv0count);
+if(eapolm1kdv0count > 0)		fprintf(stdout, "EAPOL M1 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm1kdv0count);
 if(eapolm2count > 0)			fprintf(stdout, "EAPOL M2 messages (total)................: %ld\n", eapolm2count);
-if(eapolm2kdv0count > 0)		fprintf(stdout, "EAPOL M2 messages (KDV:0 AKM defined)....: %ld\n", eapolm2kdv0count);
-if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK).........: %ld\n", eapolm2ftpskcount);
+if(eapolm2kdv0count > 0)		fprintf(stdout, "EAPOL M2 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm2kdv0count);
+if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK).........: %ld (PMK not recoverable)\n", eapolm2ftpskcount);
 if(eapolm3count > 0)			fprintf(stdout, "EAPOL M3 messages (total)................: %ld\n", eapolm3count);
-if(eapolm3kdv0count > 0)		fprintf(stdout, "EAPOL M3 messages (KDV:0 AKM defined)....: %ld\n", eapolm3kdv0count);
+if(eapolm3kdv0count > 0)		fprintf(stdout, "EAPOL M3 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm3kdv0count);
 if(eapolm4count > 0)			fprintf(stdout, "EAPOL M4 messages (total)................: %ld\n", eapolm4count);
-if(eapolm4kdv0count > 0)		fprintf(stdout, "EAPOL M4 messages (KDV:0 AKM defined)....: %ld\n", eapolm4kdv0count);
+if(eapolm4kdv0count > 0)		fprintf(stdout, "EAPOL M4 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm4kdv0count);
 if(eapolmpcount > 0)			fprintf(stdout, "EAPOL pairs (total)......................: %ld\n", eapolmpcount);
 if(zeroedeapolpskcount > 0)		fprintf(stdout, "EAPOL (from zeroed PSK)..................: %ld\n", zeroedeapolpskcount);
 if(zeroedeapolpmkcount > 0)		fprintf(stdout, "EAPOL (from zeroed PMK)..................: %ld\n", zeroedeapolpmkcount);
@@ -793,7 +793,7 @@ if(pmkiduselesscount > 0)		fprintf(stdout, "PMKID (useless).....................
 if(pmkidcount > 0)			fprintf(stdout, "PMKID (total)............................: %ld\n", pmkidcount);
 if(zeroedpmkidpskcount > 0)		fprintf(stdout, "PMKID (from zeroed PSK)..................: %ld\n", zeroedpmkidpskcount);
 if(zeroedpmkidpmkcount > 0)		fprintf(stdout, "PMKID (from zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
-if(pmkidakmcount > 0)			fprintf(stdout, "PMKID (AKM defined - not recoverable)....: %ld\n", pmkidakmcount);
+if(pmkidakmcount > 0)			fprintf(stdout, "PMKID (KDV:0 AKM defined)................: %ld (PMK not recoverable)\n", pmkidakmcount);
 if(donotcleanflag == false)
 	{
 	if(pmkidbestcount > 0)			fprintf(stdout, "PMKID (best).............................: %ld\n", pmkidbestcount);
