@@ -623,8 +623,8 @@ static int c;
 static uint8_t i;
 static uint16_t p;
 
-if(nmeacount > 0)			fprintf(stdout, "NMEA sentence............................: %ld\n", nmeacount);
-if(nmeaerrorcount > 0)			fprintf(stdout, "NMEA sentence checksum errors............: %ld\n", nmeaerrorcount);
+if(nmeacount > 0)			fprintf(stdout, "NMEA PROTOCOL............................: %ld\n", nmeacount);
+if(nmeaerrorcount > 0)			fprintf(stdout, "NMEA PROTOCOL checksum errors............: %ld\n", nmeaerrorcount);
 if(endianess == 0)			fprintf(stdout, "endianess (capture system)...............: little endian\n");
 else					fprintf(stdout, "endianess (capture system)...............: big endian\n");
 if(rawpacketcount > 0)			fprintf(stdout, "packets inside...........................: %ld\n", rawpacketcount);
@@ -5851,7 +5851,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--eapmd5-john=<file>               : output EAP MD5 CHALLENGE (john chap)\n"
 	"--eapleap=<file>                   : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"--tacacs-plus=<file>               : output TACACS PLUS (hashcat -m 16100, john tacacs-plus)\n"
-	"--nmea=<file>                      : output GPS data in NMEA format\n"
+	"--nmea=<file>                      : output GPS data in NMEA 0183 format\n"
 	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
 	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx,gpxver=1.1 -F hcxdumptool.gpx\n"
@@ -5886,7 +5886,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                                     --eapmd5=<file.4800>       : output EAP MD5 CHALLENGE (hashcat -m 4800)\n"
 	"                                     --eapleap=<file.5500>      : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"                                     --tacacs-plus=<file.16100> : output TACACS+ (hashcat -m 16100, john tacacs-plus)\n"
-	"                                     --nmea=<file.nmea>         : output GPS data in NMEA format\n"
+	"                                     --nmea=<file.nmea>         : output GPS data in NMEA 0183 format\n"
 	"--add-timestamp                    : add date/time to hash line\n"
 	"                                     this must be filtered out before feeding hashcat with the hash, e.g. by awk:\n"
 	"                                     cat hash.hc22000 | awk '{print $1}' > hashremovedtimestamp.hc22000\n"
