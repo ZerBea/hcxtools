@@ -848,7 +848,7 @@ if(ancientdumpfileformat == true)
 		"This file format is a very basic format to save captured network data.\n"
 		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
 		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
-		"of the currently widely used (but limited) libpcap (cap, pcap) format.\n"
+		"of the currently widely used (but very limited) libpcap (cap, pcap) format.\n"
 		"https://www.wireshark.org/docs/wsug_html_chunked/AppFiles.html#ChAppFilesCaptureFilesSection\n"
 		"https://github.com/pcapng/pcapng\n");
 	}
