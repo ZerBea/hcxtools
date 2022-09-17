@@ -1760,11 +1760,15 @@ ev = (char*)(essid +7);
 k2 = strtol(ev, NULL, 16);
 for(k1 = 0; k1 < 0x100; k1++)
 	{
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "086a0a%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "2ce412%02x%04x", k1, k2);
 	writepsk(fhout, essidtmp);
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "4c17eb%02x%04x", k1, k2);
 	writepsk(fhout, essidtmp);
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "6c2e85%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "700b01%02x%04x", k1, k2);
 	writepsk(fhout, essidtmp);
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "7c034c%02x%04x", k1, k2);
 	writepsk(fhout, essidtmp);
@@ -1781,6 +1785,8 @@ for(k1 = 0; k1 < 0x100; k1++)
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "d8fb5e%02x%04x", k1, k2);
 	writepsk(fhout, essidtmp);
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "e0cec3%02x%04x", k1, k2);
+	writepsk(fhout, essidtmp);
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "e8d11b%02x%04x", k1, k2);
 	writepsk(fhout, essidtmp);
 	snprintf(essidtmp, PSKSTRING_LEN_MAX, "fcb4e6%02x%04x", k1, k2);
 	writepsk(fhout, essidtmp);
