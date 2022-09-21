@@ -110,6 +110,9 @@ Or install via packet manager of your distribution
 [Black Arch](https://blackarch.org/) is an Arch Linux-based penetration testing distribution for penetration testers and security researchers  
 `pacman -S hcxtools`
 
+### Fedora/CentOS
+`dnf install hcxtools`
+
 ### Kali Linux
 `apt install hcxtools`
 
