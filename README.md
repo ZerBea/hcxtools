@@ -141,7 +141,7 @@ Requirements
 * libpthread and pthread-dev installed (used by hcxhashcattool)
 * pkg-config installed
 
-To install requirements on Debian based distributions (e.g. Kali, Ubuntu)  use the following 'apt-get install pkg-config libcurl4-openssl-dev libssl-dev zlib1g-dev'
+To install requirements on Debian based distributions >= bullseye (e.g. Kali, Ubuntu)  use the following 'apt-get install pkg-config libcurl4-openssl-dev libssl-dev zlib1g-dev'
 
 If you decide to compile latest git head, make sure that your distribution is updated on latest version.
 
