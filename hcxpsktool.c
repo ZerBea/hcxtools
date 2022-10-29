@@ -2384,6 +2384,9 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 fprintf(fhout, "%012llX\n", macaddr &0xffffffffff);
 
+nici = macaddr &0xffffff;
+fprintf(fhout, "SPN3983%06X\n", nici);
+
 nici = ~macaddr &0xffffff;
 fprintf(fhout, "wlan%06x\n", nici);
 
