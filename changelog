@@ -1,3 +1,10 @@
+12.11.2022
+==========
+start moving to OpenSSL 3.0 EVP API
+this is a huge step forward an will break backward compatibility
+https://wiki.openssl.org/index.php/OpenSSL_3.0
+
+
 10.07.2022
 ==========
 hcxpcapngtool: added option to add a timestamp to the converted 22000 hash line
