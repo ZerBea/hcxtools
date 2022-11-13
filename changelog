@@ -10,6 +10,97 @@ removed deprecated tools:
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |
 
 
+improved hcxpmktool (tool to verify a single hc22000 hash):
+$ hcxpmktool --help
+hcxpmktool 6.2.7-51-g60b1801  (C) 2022 ZeroBeat
+usage  : hcxpmktool <options>
+
+short options:
+-l <hash line> : input hashcat hash line (-m 22000)
+-e <ESSID>     : input Network Name (ESSID)
+-p <PSK>       : input Pre Shared Key (PSK)
+-m <PMK>       : input Plain Master KEY (PMK)
+
+long options:
+--help         : show this help
+--version      : show version
+
+exit codes:
+0 = PSK/PMK unconfirmed
+1 = ERROR occurred
+2 = PSK/PMK confirmed
+
+examples:
+get 22000 hashes from here:
+https://hashcat.net/wiki/doku.php?id=example_hashes
+
+verify PMKID hash (WPA*01) by PSK
+$ hcxpmktool -l WPA*01*4d4fe7aac3a2cecab195321ceb99a7d0*fc690c158264*f4747f87f9f4*686173686361742d6573736964*** -p hashcat!
+
+HASH FORMAT.: PMKID (WPA*01)
+ESSID.......: hashcat-essid
+MAC_AP......: fc690c158264
+MAC_CLIENT..: f4747f87f9f4
+PSK.........: hashcat!
+PMK.........: 88f43854ae7b1624fc2ab7724859e795130f4843c7535729e819cf92f39535dc (calculated)
+PMKID.......: 4d4fe7aac3a2cecab195321ceb99a7d0 (confirmed)
+
+
+verify PMKID hash (WPA*01) by PMK
+$ hcxpmktool -l WPA*01*4d4fe7aac3a2cecab195321ceb99a7d0*fc690c158264*f4747f87f9f4*686173686361742d6573736964*** -p 88f43854ae7b1624fc2ab7724859e795130f4843c7535729e819cf92f39535dc
+
+HASH FORMAT.: PMKID (WPA*01)
+ESSID.......: hashcat-essid
+MAC_AP......: fc690c158264
+MAC_CLIENT..: f4747f87f9f4
+PMK.........: 88f43854ae7b1624fc2ab7724859e795130f4843c7535729e819cf92f39535dc
+PMKID.......: 4d4fe7aac3a2cecab195321ceb99a7d0 (confirmed)
+
+
+verify EAPOL hash (WPA*02) by PSK
+$ hcxpmktool -l WPA*02*024022795224bffca545276c3762686f*6466b38ec3fc*225edc49b7aa*54502d4c494e4b5f484153484341545f54455354*10e3be3b005a629e89de088d6a2fdc489db83ad4764f2d186b9cde15446e972e*0103007502010a0000000000000000000148ce2ccba9c1fda130ff2fbbfb4fd3b063d1a93920b0f7df54a5cbf787b16171000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001630140100000fac040100000fac040100000fac028000*a2 -p hashcat!
+
+HASH FORMAT.: EAPOL (WPA*02)
+ESSID.......: TP-LINK_HASHCAT_TEST
+MAC_AP......: 6466b38ec3fc
+MAC_CLIENT..: 225edc49b7aa
+PSK.........: hashcat!
+PMK.........: 0857172bd4d3ebb34cf00f3619726008d27558926d963a547332fab033023b82 (calculated)
+KEY VERSION.: WPA2
+NONCE AP....: 10e3be3b005a629e89de088d6a2fdc489db83ad4764f2d186b9cde15446e972e
+NONCE CLIENT: 48ce2ccba9c1fda130ff2fbbfb4fd3b063d1a93920b0f7df54a5cbf787b16171
+KCK.........: 57d0f2ff5faef56f9b94390aebf4474d (calculated)
+KEK.........: 9913af266f6e00225edc49b7aa6466b3 (calculated)
+TK..........: 8ec3fc10e3be3b005a629e89de088d6a (calculated)
+TKIP TX MIC.: 2fdc489db83ad476 (calculated)
+TKIP RX MIC.: 4f2d186b9cde1544 (calculated)
+MIC.........: 024022795224bffca545276c3762686f (confirmed)
+
+
+verify EAPOL hash (WPA*02) by PMK
+$ hcxpmktool -l WPA*02*024022795224bffca545276c3762686f*6466b38ec3fc*225edc49b7aa*54502d4c494e4b5f484153484341545f54455354*10e3be3b005a629e89de088d6a2fdc489db83ad4764f2d186b9cde15446e972e*0103007502010a0000000000000000000148ce2ccba9c1fda130ff2fbbfb4fd3b063d1a93920b0f7df54a5cbf787b16171000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001630140100000fac040100000fac040100000fac028000*a2 -p 0857172bd4d3ebb34cf00f3619726008d27558926d963a547332fab033023b82
+
+HASH FORMAT.: EAPOL (WPA*02)
+ESSID.......: TP-LINK_HASHCAT_TEST
+MAC_AP......: 6466b38ec3fc
+MAC_CLIENT..: 225edc49b7aa
+PMK.........: 0857172bd4d3ebb34cf00f3619726008d27558926d963a547332fab033023b82
+KEY VERSION.: WPA2
+NONCE AP....: 10e3be3b005a629e89de088d6a2fdc489db83ad4764f2d186b9cde15446e972e
+NONCE CLIENT: 48ce2ccba9c1fda130ff2fbbfb4fd3b063d1a93920b0f7df54a5cbf787b16171
+KCK.........: 57d0f2ff5faef56f9b94390aebf4474d (calculated)
+KEK.........: 9913af266f6e00225edc49b7aa6466b3 (calculated)
+TK..........: 8ec3fc10e3be3b005a629e89de088d6a (calculated)
+TKIP TX MIC.: 2fdc489db83ad476 (calculated)
+TKIP RX MIC.: 4f2d186b9cde1544 (calculated)
+MIC.........: 024022795224bffca545276c3762686f (confirmed)
+
+
+if either PMKID or MIC is confirmed, exit code is 2
+$ echo $?
+2
+
+
 12.11.2022
 ==========
 start moving to OpenSSL 3.0 EVP API
