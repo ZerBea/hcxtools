@@ -18,8 +18,9 @@ usage  : hcxpmktool <options>
 short options:
 -l <hash line> : input hashcat hash line (-m 22000)
 -e <ESSID>     : input Network Name (ESSID)
--p <PSK>       : input Pre Shared Key (PSK)
--m <PMK>       : input Plain Master KEY (PMK)
+-p <PSK>       : input Pre Shared Key (PSK) or Plain Master Key (PMK)
+-p -           : read Pre Shared Key (PSK) from stdin
+               : small lists only
 
 long options:
 --help         : show this help
