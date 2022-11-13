@@ -130,9 +130,6 @@ if(ctxcmac != NULL)
 EVP_cleanup();
 CRYPTO_cleanup_all_ex_data();
 ERR_free_strings();
-EVP_cleanup();
-CRYPTO_cleanup_all_ex_data();
-ERR_free_strings();
 return;
 }
 /*===========================================================================*/
@@ -187,8 +184,6 @@ ctxhmac = EVP_MAC_CTX_new(hmac);
 if(ctxhmac == NULL) return false;
 ctxcmac = EVP_MAC_CTX_new(cmac);
 if(ctxcmac == NULL) return false;
-
-
 return true;
 }
 /*===========================================================================*/
@@ -648,18 +643,15 @@ static void testpmkidpmk(hashlist_t *zeiger)
 {
 static int p;
 static char *pmkname = "PMK Name";
-
-static uint8_t message[32];
-static uint8_t testpmkid[EVP_MAX_MD_SIZE];
+static uint8_t message[20];
 
 memcpy(message, pmkname, 8);
 memcpy(&message[8], zeiger->ap, 6);
 memcpy(&message[14], zeiger->client, 6);
-if(!EVP_MAC_init(ctxhmac, message, 32, paramssha1)) return;
+if(!EVP_MAC_init(ctxhmac, pmk, 32, paramssha1)) return;
 if(!EVP_MAC_update(ctxhmac, message, 20)) return;
 if(!EVP_MAC_final(ctxhmac, message, NULL, 20)) return;
-
-if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
+if(memcmp(message, zeiger->hash, 16) == 0)
 	{
 	for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->client[p]);
 	fprintf(stdout, ":");
