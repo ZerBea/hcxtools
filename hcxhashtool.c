@@ -39,7 +39,6 @@
 #include "include/byteops.c"
 /*===========================================================================*/
 /* global var */
-
 static const char *usedoui;
 static int ouicount;
 static int ouilistcount;
@@ -60,6 +59,15 @@ static long int hccapxwrittencount;
 static long int hccapwrittencount;
 static long int johnpmkidwrittencount;
 static long int johneapolwrittencount;
+
+static EVP_MAC *hmac;
+static EVP_MAC *cmac;
+static EVP_MAC_CTX *ctxhmac;
+static EVP_MAC_CTX *ctxcmac;
+static OSSL_PARAM paramsmd5[3];
+static OSSL_PARAM paramssha1[3];
+static OSSL_PARAM paramssha256[3];
+static OSSL_PARAM paramsaes128[3];
 
 static int hashtype;
 static int essidlen;
@@ -109,6 +117,19 @@ static void closelists()
 {
 if(hashlist != NULL) free(hashlist);
 if(ouilist != NULL) free(ouilist);
+if(ctxhmac != NULL)
+	{
+	EVP_MAC_CTX_free(ctxhmac);
+	EVP_MAC_free(hmac);
+	}
+if(ctxcmac != NULL)
+	{
+	EVP_MAC_CTX_free(ctxcmac);
+	EVP_MAC_free(cmac);
+	}
+EVP_cleanup();
+CRYPTO_cleanup_all_ex_data();
+ERR_free_strings();
 EVP_cleanup();
 CRYPTO_cleanup_all_ex_data();
 ERR_free_strings();
@@ -132,10 +153,42 @@ johnpmkidwrittencount = 0;
 johneapolwrittencount = 0;
 hccapxwrittencount = 0;
 hccapwrittencount = 0;
-ERR_load_crypto_strings();
-OpenSSL_add_all_algorithms();
 if((hashlist = (hashlist_t*)calloc(hashlistcount, HASHLIST_SIZE)) == NULL) return false;
 if((ouilist = (ouilist_t*)calloc(ouilistcount, OUILIST_SIZE)) == NULL) return false;
+
+ERR_load_crypto_strings();
+OpenSSL_add_all_algorithms();
+hmac = NULL;
+ctxhmac = NULL;
+cmac = NULL;
+ctxcmac = NULL;
+
+ERR_load_crypto_strings();
+OpenSSL_add_all_algorithms();
+
+hmac = EVP_MAC_fetch(NULL, "hmac", NULL);
+if(hmac == NULL) return false;
+cmac = EVP_MAC_fetch(NULL, "cmac", NULL);
+if(cmac == NULL) return false;
+
+paramsmd5[0] = OSSL_PARAM_construct_utf8_string("digest", "md5", 0);
+paramsmd5[1] = OSSL_PARAM_construct_end();
+
+paramssha1[0] = OSSL_PARAM_construct_utf8_string("digest", "sha1", 0);
+paramssha1[1] = OSSL_PARAM_construct_end();
+
+paramssha256[0] = OSSL_PARAM_construct_utf8_string("digest", "sha256", 0);
+paramssha256[1] = OSSL_PARAM_construct_end();
+
+paramsaes128[0] = OSSL_PARAM_construct_utf8_string("cipher", "aes-128-cbc", 0);
+paramsaes128[1] = OSSL_PARAM_construct_end();
+
+ctxhmac = EVP_MAC_CTX_new(hmac);
+if(ctxhmac == NULL) return false;
+ctxcmac = EVP_MAC_CTX_new(cmac);
+if(ctxcmac == NULL) return false;
+
+
 return true;
 }
 /*===========================================================================*/
@@ -594,46 +647,18 @@ return;
 static void testpmkidpmk(hashlist_t *zeiger)
 {
 static int p;
-static size_t testpmkidlen;
-static EVP_MD_CTX *mdctx;
-static EVP_PKEY *pkey;
 static char *pmkname = "PMK Name";
 
 static uint8_t message[32];
 static uint8_t testpmkid[EVP_MAX_MD_SIZE];
 
-memcpy(&message, pmkname, 8);
+memcpy(message, pmkname, 8);
 memcpy(&message[8], zeiger->ap, 6);
 memcpy(&message[14], zeiger->client, 6);
-testpmkidlen = 16;
-mdctx = EVP_MD_CTX_new();
-if(mdctx == 0) return;
-pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, pmk, 32);
-if(pkey == NULL)
-	{
-	EVP_MD_CTX_free(mdctx);
-	return;
-	}
-if(EVP_DigestSignInit(mdctx, NULL, EVP_sha1(), NULL, pkey) != 1)
-	{
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
-	return;
-	}
-if(EVP_DigestSignUpdate(mdctx, message, 20) != 1)
-	{
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
-	return;
-	}
-if(EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen) <= 0)
-	{
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
-	return;
-	}
-EVP_PKEY_free(pkey);
-EVP_MD_CTX_free(mdctx);
+if(!EVP_MAC_init(ctxhmac, message, 32, paramssha1)) return;
+if(!EVP_MAC_update(ctxhmac, message, 20)) return;
+if(!EVP_MAC_final(ctxhmac, message, NULL, 20)) return;
+
 if(memcmp(&testpmkid, zeiger->hash, 16) == 0)
 	{
 	for(p = 0; p < 6; p++) fprintf(stdout, "%02x", zeiger->client[p]);
