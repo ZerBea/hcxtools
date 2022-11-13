@@ -276,16 +276,14 @@ static char *pmkname = "PMK Name";
 memcpy(pmkidcalculated, pmkname, 8);
 memcpy(pmkidcalculated +8, macap, 6);
 memcpy(pmkidcalculated +14, macclient, 6);
-
 if(!EVP_MAC_init(ctxhmac, pmkcalculated, 32, paramssha1)) return false;
 if(!EVP_MAC_update(ctxhmac, pmkidcalculated, 20)) return false;
 if(!EVP_MAC_final(ctxhmac, pmkidcalculated, NULL, 20)) return false;
-
 status |= HAS_PMKID_CALC;
 return true;
 }
 /*===========================================================================*/
-static bool genpmk(size_t psklen, char *psk)
+static bool genpmk(char *psk)
 {
 memset(pmkcalculated, 0, 32);
 if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmkcalculated) == 0) return false;
@@ -412,6 +410,39 @@ if(memcmp(wpa2, hashlinestring, 7) == 0)
 return false;
 }
 /*===========================================================================*/
+static size_t chop(char *buffer, size_t len)
+{
+static char *ptr;
+
+ptr = buffer +len -1;
+while(len)
+	{
+	if (*ptr != '\n') break;
+	*ptr-- = 0;
+	len--;
+	}
+while(len)
+	{
+	if (*ptr != '\r') break;
+	*ptr-- = 0;
+	len--;
+	}
+return len;
+}
+/*---------------------------------------------------------------------------*/
+static size_t fgetline(FILE *inputstream, size_t size, char *buffer)
+{
+static size_t len;
+static char *buffptr;
+
+if(feof(inputstream)) return 0;
+buffptr = fgets (buffer, size, inputstream);
+if(buffptr == NULL) return 0;
+len = strlen(buffptr);
+len = chop(buffptr, len);
+return len;
+}
+/*===========================================================================*/
 static bool evpdeinitwpa()
 {
 if(ctxhmac != NULL)
@@ -481,6 +512,7 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"-l <hash line> : input hashcat hash line (-m 22000)\n"
 	"-e <ESSID>     : input Network Name (ESSID)\n"
 	"-p <PSK>       : input Pre Shared Key (PSK)\n"
+	"-p -           : read Pre Shared Key (PSK) from stdin\n"
 	"-m <PMK>       : input Plain Master KEY (PMK)\n"
 	"\n"
 	"long options:\n"
@@ -507,6 +539,7 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static char *hashlinestring;
+static char pskbuffer[128];
 
 static const char *short_options = "l:e:p:m:a:c:hv";
 static const struct option long_options[] =
@@ -577,7 +610,7 @@ if(pskstring != NULL)
 		status |= HAS_PSK;
 		if((status & HAS_ESSID) == HAS_ESSID)
 			{
-			if(genpmk(psklen, pskstring) == false)
+			if(genpmk(pskstring) == false)
 				{
 				fprintf(stderr, "\nPMK error\n");
 				return EXIT_FAILURE;
@@ -592,6 +625,74 @@ if(pskstring != NULL)
 			return EXIT_FAILURE;
 			}
 		status |= HAS_PMK;
+		}
+	else if(strncmp(pskstring, "-", 1) == 0)
+		{
+		if((status & HAS_ESSID) == HAS_ESSID)
+			{
+			while(1)
+				{
+				if((psklen = fgetline(stdin, 128, pskbuffer)) == 0) break;
+					{
+					if((psklen < 8) || (psklen > 63)) continue;
+					if(genpmk(pskbuffer) == false)
+						{
+						fprintf(stderr, "\nPMK error\n");
+						exit(EXIT_FAILURE);
+						}
+					if((status & HAS_PMKID) == HAS_PMKID)
+						{
+						if(genpmkid() == false)
+							{
+							fprintf(stderr, "\nPMK error\n");
+							exit(EXIT_FAILURE);
+							}
+						if(memcmp(pmkid, pmkidcalculated, 16) == 0)
+							{
+							fprintf(stdout,"PSK: %s\n", pskbuffer);
+							exit(EXIT_SUCCESS_CONFIRMED);
+							}
+						}
+					if((status & HAS_MIC) == HAS_MIC)
+						{
+						if(keyversion == 2)
+							{
+							if(genptkwpa12() == false) exit(EXIT_FAILURE);
+							if(genmicwpa2() == false) exit(EXIT_FAILURE);
+							if(genpmkid() == false) exit(EXIT_FAILURE);
+							if(memcmp(mic, miccalculated, 16) == 0)
+								{
+								fprintf(stdout,"PSK: %s\n", pskbuffer);
+								exit(EXIT_SUCCESS_CONFIRMED);
+								}
+							}
+						else if(keyversion == 1)
+							{
+							if(genptkwpa12() == false) exit(EXIT_FAILURE);
+							if(genmicwpa1() == false) exit(EXIT_FAILURE);
+							if(genpmkid() == false) exit(EXIT_FAILURE);
+							if(memcmp(mic, miccalculated, 16) == 0)
+								{
+								fprintf(stdout,"PSK: %s\n", pskbuffer);
+								exit(EXIT_SUCCESS_CONFIRMED);
+								}
+							}
+						else if(keyversion == 3)
+							{
+							if(genptkwpa2kv3() == false) exit(EXIT_FAILURE);
+							if(genmicwpa2kv3() == false) exit(EXIT_FAILURE);
+							if(genpmkid() == false) exit(EXIT_FAILURE);
+							if(memcmp(mic, miccalculated, 16) == 0)
+								{
+								fprintf(stdout,"PSK: %s\n", pskbuffer);
+								exit(EXIT_SUCCESS_CONFIRMED);
+								}
+							}
+						}
+					}
+				}
+			}
+		exit(exitcode);
 		}
 	else
 		{
@@ -652,8 +753,8 @@ showresult();
 if(evpdeinitwpa() == false)
 	{
 	fprintf(stdout, "EVP API error\n");
-	return EXIT_FAILURE;
+	exit(EXIT_FAILURE);
 	}
-return exitcode;
+exit(exitcode);
 }
 /*===========================================================================*/
