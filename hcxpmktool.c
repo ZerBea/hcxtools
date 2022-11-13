@@ -60,7 +60,6 @@ static int keyversion;
 /*===========================================================================*/
 static void showresult()
 {
-
 fprintf(stdout, "\n");
 if((status & HAS_PMKID_LINE) == HAS_PMKID_LINE)
 	{
@@ -150,7 +149,7 @@ if((status & HAS_MIC) == HAS_MIC)
 		fprintf(stdout, " (confirmed)\n");
 		if(status & HAS_PMKID_CALC)
 			{
-			fprintf(stdout, "PMKID.......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x (calculated)",
+			fprintf(stdout, "PMKID.......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x (calculated)\n",
 			pmkidcalculated[0], pmkidcalculated[1], pmkidcalculated[2], pmkidcalculated[3], pmkidcalculated[4], pmkidcalculated[5], pmkidcalculated[6], pmkidcalculated[7], pmkidcalculated[8], pmkidcalculated[9], pmkidcalculated[10], pmkidcalculated[11], pmkidcalculated[12], pmkidcalculated[13], pmkidcalculated[14], pmkidcalculated[15]);
 			}
 		exitcode = EXIT_SUCCESS_CONFIRMED;
