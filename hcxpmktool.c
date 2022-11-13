@@ -653,7 +653,7 @@ if(pskstring != NULL)
 							exit(EXIT_SUCCESS_CONFIRMED);
 							}
 						}
-					if((status & HAS_MIC) == HAS_MIC)
+					else if((status & HAS_MIC) == HAS_MIC)
 						{
 						if(keyversion == 2)
 							{
