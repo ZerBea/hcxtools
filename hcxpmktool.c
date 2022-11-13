@@ -692,7 +692,7 @@ if(pskstring != NULL)
 					}
 				}
 			}
-		exit(exitcode);
+		exit(EXIT_SUCCESS);
 		}
 	else
 		{
