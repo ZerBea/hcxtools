@@ -432,13 +432,13 @@ return true;
 /*===========================================================================*/
 static bool evpinitwpa()
 {
+ERR_load_crypto_strings();
+OpenSSL_add_all_algorithms();
+
 hmac = NULL;
 ctxhmac = NULL;
 cmac = NULL;
 ctxcmac = NULL;
-
-ERR_load_crypto_strings();
-OpenSSL_add_all_algorithms();
 
 hmac = EVP_MAC_fetch(NULL, "hmac", NULL);
 if(hmac == NULL) return false;

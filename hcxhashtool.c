@@ -155,13 +155,11 @@ if((ouilist = (ouilist_t*)calloc(ouilistcount, OUILIST_SIZE)) == NULL) return fa
 
 ERR_load_crypto_strings();
 OpenSSL_add_all_algorithms();
+
 hmac = NULL;
 ctxhmac = NULL;
 cmac = NULL;
 ctxcmac = NULL;
-
-ERR_load_crypto_strings();
-OpenSSL_add_all_algorithms();
 
 hmac = EVP_MAC_fetch(NULL, "hmac", NULL);
 if(hmac == NULL) return false;
@@ -750,8 +748,8 @@ return false;
 static bool ispartof(int plen, uint8_t *pbuff, int slen, uint8_t *sbuff)
 {
 static int p;
-if(plen > slen) return false;
 
+if(plen > slen) return false;
 for(p = 0; p <= slen -plen; p++)
 	{
 	if(memcmp(&sbuff[p], pbuff, plen) == 0) return true;
@@ -962,7 +960,6 @@ static int c;
 static FILE *fh_hccap;
 static hashlist_t *zeiger;
 static struct stat statinfo;
-
 static char groupoutname[PATH_MAX];
 
 for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
@@ -1217,7 +1214,6 @@ static int ceo;
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
 static struct stat statinfo;
-
 static const char digit[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
 static char groupoutname[PATH_MAX];
@@ -1261,7 +1257,6 @@ static void writeeapolpmkidouigroups()
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
 static struct stat statinfo;
-
 static char groupoutname[PATH_MAX];
 
 qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_essid);
@@ -1291,7 +1286,6 @@ static void writeeapolpmkidmacapgroups()
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
 static struct stat statinfo;
-
 static char groupoutname[PATH_MAX];
 
 qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_essid);
@@ -1321,7 +1315,6 @@ static void writeeapolpmkidmacclientgroups()
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
 static struct stat statinfo;
-
 static char groupoutname[PATH_MAX];
 
 qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_essid);
@@ -1358,7 +1351,6 @@ static struct stat statinfo;
 
 if(lcmax == 0) lcmax = pmkideapolcount;
 if(lcmin > lcmax) return;
-
 if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
@@ -1368,7 +1360,6 @@ if(pmkideapoloutname != NULL)
 		}
 	}
 qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_essid);
-
 zeigerbegin = hashlist;
 lc = 0;
 for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
@@ -1617,7 +1608,6 @@ static uint16_t getfield(char *lineptr, size_t bufflen, uint8_t *buff)
 static size_t p;
 static uint8_t idx0;
 static uint8_t idx1;
-
 static const uint8_t hashmap[] =
 {
 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
@@ -1684,11 +1674,9 @@ static int len;
 static int p1, p2;
 static FILE *fh_maclistin;
 static long int i, f, r;
-
 static int maclistskipcount, maclistskipmax;
 static maclist_t *maclistskip, *zeiger, *maclistskipnew;
 static hashlist_t *zeigerhash;
-
 static char linein[PMKIDEAPOL_BUFFER_LEN];
 
 maclistskipmax = 1000;
@@ -1698,7 +1686,6 @@ if((fh_maclistin = fopen(macskipname, "r")) == NULL)
 	fprintf(stdout, "error opening file %s: %s\n", macskipname, strerror(errno));
 	return;
 	}
-
 zeiger = maclistskip;
 maclistskipcount = 0;
 while(1)
@@ -1789,7 +1776,6 @@ static int p1, p2;
 static FILE *fh_maclistin;
 static FILE *fh_pmkideapol;
 static struct stat statinfo;
-
 static int maclistincount, maclistinmax;
 static maclist_t *maclistin, *zeiger, *maclistinnew;
 static hashlist_t *zeigerhash;
@@ -1841,7 +1827,6 @@ while(1)
 	}
 if(fh_maclistin != NULL) fclose(fh_maclistin);
 qsort(maclistin, maclistincount, MACLIST_SIZE, sort_maclistin);
-
 if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
@@ -1900,7 +1885,6 @@ static int essidlistincount, essidlistinmax;
 static essidlist_t *essidlistin, *zeiger, *essidlistinnew;
 static hashlist_t *zeigerhash;
 static char hexpfx[] = { "$HEX[" };
-
 static char linein[PMKIDEAPOL_BUFFER_LEN];
 
 essidlistinmax = 1000;
@@ -1910,7 +1894,6 @@ if((fh_essidlistin = fopen(essidlistinname, "r")) == NULL)
 	fprintf(stdout, "error opening file %s: %s\n", essidlistinname, strerror(errno));
 	return;
 	}
-
 zeiger = essidlistin;
 essidlistincount = 0;
 while(1)
@@ -1959,7 +1942,6 @@ if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
 	}
 zeiger = essidlistin;
 zeigerhash = hashlist;
-
 o = 0;
 for(i = 0; i < essidlistincount; i++)
 	{
@@ -1997,7 +1979,6 @@ static uint16_t noncelen;
 static uint16_t eapauthlen;
 static uint16_t mplen;
 static hashlist_t *zeiger, *hashlistnew;
-
 static const char wpa01[] = { "WPA*01*" };
 static const char wpa02[] = { "WPA*02*" };
 
@@ -2156,6 +2137,7 @@ return true;
 static void showvendorlist()
 {
 static ouilist_t *zeiger;
+
 fprintf(stdout, "\n");
 for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++) fprintf(stdout, "%02x%02x%02x %s\n", zeiger->oui[0], zeiger->oui[1], zeiger->oui[2], zeiger->vendor); 
 return;
@@ -2170,7 +2152,6 @@ for(c = 7; c < len; c++)
 	{
 	if(islower((unsigned char)linein[c])) linein[c] = toupper((unsigned char)linein[c]);
 	}
-
 ret = 0;
 if(filtervendorptr != NULL)
 	{
@@ -2199,7 +2180,6 @@ static char *vendorptr;
 static const char *ouinameuser = "/.hcxtools/oui.txt";
 static const char *ouinamesystemwide = "/usr/share/ieee-data/oui.txt";
 static const char *ouina = "N/A";
-
 static char ouinameuserpath[PATH_MAX +1];
 static char linein[OUI_LINE_LEN +1];
 
