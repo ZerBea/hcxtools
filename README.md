@@ -55,14 +55,6 @@ Detailed description
 | whoismac       | Show vendor information and/or download oui reference list                                                             |
 
 
-| deprecated     | obsolete and - no longer under maintenance - will be removed, when OpenSSL switching to version 3.0.0                  |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format     |
-| hcxpmkidtool   | CPU based tools to verify a PMKID                                                                                      |
-| hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                        |
-| hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |
-
-
 Workflow
 --------------
 

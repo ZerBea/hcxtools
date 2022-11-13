@@ -1,3 +1,15 @@
+13.11.2022
+==========
+removed deprecated tools:
+
+| deprecated     | obsolete and - no longer under maintenance - will be removed, when OpenSSL switching to version 3.0.0                  |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format     |
+| hcxpmkidtool   | CPU based tools to verify a PMKID                                                                                      |
+| hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                        |
+| hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |
+
+
 12.11.2022
 ==========
 start moving to OpenSSL 3.0 EVP API

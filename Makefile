@@ -58,15 +58,6 @@ TOOLS+=whoismac
 whoismac_libs=$(OPENSSL_LIBS) $(CURL_LIBS)
 whoismac_cflags=$(OPENSSL_CFLAGS) $(CURL_CFLAGS)
 
-TOOLS+=hcxpmkidtool
-TOOLS+=hcxhashcattool
-hcxhashcattool_libs=-lpthread $(OPENSSL_LIBS)
-hcxhashcattool_cflags=$(OPENSSL_CFLAGS)
-hcxpmkidtool_libs=-lpthread $(OPENSSL_LIBS)
-hcxpmkidtool_cflags=$(OPENSSL_CFLAGS)
-TOOLS+=hcxmactool
-TOOLS+=hcxessidtool
-
 .PHONY: all build install clean uninstall
 
 all: build
