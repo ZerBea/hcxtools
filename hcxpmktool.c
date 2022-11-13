@@ -148,6 +148,11 @@ if((status & HAS_MIC) == HAS_MIC)
 	if(memcmp(mic, miccalculated, 16) == 0)
 		{
 		fprintf(stdout, " (confirmed)\n");
+		if(status & HAS_PMKID_CALC)
+			{
+			fprintf(stdout, "PMKID.......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x (calculated)",
+			pmkidcalculated[0], pmkidcalculated[1], pmkidcalculated[2], pmkidcalculated[3], pmkidcalculated[4], pmkidcalculated[5], pmkidcalculated[6], pmkidcalculated[7], pmkidcalculated[8], pmkidcalculated[9], pmkidcalculated[10], pmkidcalculated[11], pmkidcalculated[12], pmkidcalculated[13], pmkidcalculated[14], pmkidcalculated[15]);
+			}
 		exitcode = EXIT_SUCCESS_CONFIRMED;
 		}
 	else fprintf(stdout, " (not confirmed)\n");
@@ -617,21 +622,28 @@ if((status & HAS_EAPOL_LINE) == HAS_EAPOL_LINE)
 		if(keyversion < 3)
 			{
 			if(genptkwpa12() == false) return false;
-			status |= HAS_PTK_CALC;
 			if(keyversion == 2)
 				{
 				if(genmicwpa2() == false) return false;
+				if(genpmkid() == false) return false;
+				status |= HAS_PTK_CALC;
+				status |= HAS_PMKID_CALC;
 				}
 			if(keyversion == 1)
 				{
 				if(genmicwpa1() == false) return false;
+				if(genpmkid() == false) return false;
+				status |= HAS_PTK_CALC;
+				status |= HAS_PMKID_CALC;
 				}
 			}
 		else
 			{
 			if(genptkwpa2kv3() == false) return false;
-			status |= HAS_PTK_CALC;
 			if(genmicwpa2kv3() == false) return false;
+			if(genpmkid() == false) return false;
+			status |= HAS_PTK_CALC;
+			status |= HAS_PMKID_CALC;
 			}
 		}
 	}
