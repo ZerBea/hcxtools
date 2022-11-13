@@ -9,7 +9,6 @@ removed deprecated tools:
 | hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                        |
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                              |
 
-
 improved hcxpmktool (tool to verify a single hc22000 hash):
 $ hcxpmktool --help
 hcxpmktool 6.2.7-51-g60b1801  (C) 2022 ZeroBeat
