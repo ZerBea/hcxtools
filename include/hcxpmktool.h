@@ -18,6 +18,7 @@
 #define HAS_MIC_CALC	0b0000100000000000
 #define HAS_PTK_CALC	0b0001000000000000
 
-#define EAPOL_AUTHLEN_MAX	256
-#define EXIT_SUCCESS_CONFIRMED	2
+#define EAPOL_AUTHLEN_MAX		256
+#define EXIT_SUCCESS_CONFIRMED		0
+#define EXIT_SUCCESS_UNCONFIRMED	2
 /*===========================================================================*/

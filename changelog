@@ -26,9 +26,9 @@ long options:
 --version      : show version
 
 exit codes:
-0 = PSK/PMK unconfirmed
+0 = PSK/PMK confirmed
 1 = ERROR occurred
-2 = PSK/PMK confirmed
+2 = PSK/PMK unconfirmed
 
 examples:
 get 22000 hashes from here:

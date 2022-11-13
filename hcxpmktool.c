@@ -487,9 +487,9 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"--help         : show this help\n"
 	"--version      : show version\n\n"
 	"exit codes:\n"
-	"0 = PSK/PMK unconfirmed\n"
+	"0 = PSK/PMK confirmed\n"
 	"1 = ERROR occurred\n"
-	"2 = PSK/PMK confirmed\n",
+	"2 = PSK/PMK unconfirmed\n",
 	eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -520,7 +520,7 @@ auswahl = -1;
 index = 0;
 optind = 1;
 optopt = 0;
-exitcode = EXIT_SUCCESS;
+exitcode = EXIT_SUCCESS_UNCONFIRMED;
 status = 0;
 essidlen = 0;
 hashlinestring = NULL;
