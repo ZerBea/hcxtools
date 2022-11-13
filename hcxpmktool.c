@@ -35,6 +35,7 @@ static EVP_MAC_CTX *ctxhmac;
 static EVP_MAC_CTX *ctxcmac;
 static OSSL_PARAM paramsmd5[3];
 static OSSL_PARAM paramssha1[3];
+static OSSL_PARAM paramssha256[3];
 static OSSL_PARAM paramsaes128[3];
 static uint8_t pmkcalculated[128];
 static uint8_t pmkidcalculated[128];
@@ -155,13 +156,54 @@ fprintf(stdout, "\n");
 return;
 }
 /*===========================================================================*/
-static int8_t genptkwpa2kv3()
+static bool genmicwpa2kv3()
+{
+static uint8_t eapoltmp[1024];
+
+memset(eapoltmp, 0, 1024);
+memcpy(eapoltmp, eapol, eapollen);
+if(!EVP_MAC_init(ctxcmac, ptkcalculated, 16, paramsaes128)) return false;
+if(!EVP_MAC_update(ctxcmac, eapoltmp, eapollen)) return false;
+if(!EVP_MAC_final(ctxcmac, eapoltmp, NULL, eapollen)) return false;
+memcpy(miccalculated, eapoltmp, 16);
+return true;
+}
+/*===========================================================================*/
+static bool genmicwpa1()
+{
+static uint8_t eapoltmp[1024];
+
+memset(eapoltmp, 0, 1024);
+memcpy(eapoltmp, eapol, eapollen);
+if(!EVP_MAC_init(ctxhmac, ptkcalculated, 16, paramsmd5)) return false;
+if(!EVP_MAC_update(ctxhmac, eapoltmp, eapollen)) return false;
+if(!EVP_MAC_final(ctxhmac, eapoltmp, NULL, eapollen)) return false;
+memcpy(miccalculated, eapoltmp, 16);
+return true;
+}
+/*===========================================================================*/
+static bool genmicwpa2()
+{
+static uint8_t eapoltmp[1024];
+
+memset(eapoltmp, 0, 1024);
+memcpy(eapoltmp, eapol, eapollen);
+if(!EVP_MAC_init(ctxhmac, ptkcalculated, 16, paramssha1)) return false;
+if(!EVP_MAC_update(ctxhmac, eapoltmp, eapollen)) return false;
+if(!EVP_MAC_final(ctxhmac, eapoltmp, NULL, eapollen)) return false;
+memcpy(miccalculated, eapoltmp, 16);
+return true;
+}
+/*===========================================================================*/
+static bool genptkwpa2kv3()
 {
 static uint8_t *pkeptr;
 
-memset(ptkcalculated, 0, sizeof(ptkcalculated));
 pkeptr = ptkcalculated;
-memcpy(pkeptr, "Pairwise key expansion", 23);
+pkeptr[0] = 1;
+pkeptr[1] = 0;
+pkeptr += 2;
+memcpy(pkeptr, "Pairwise key expansion", 22);
 if(memcmp(macap, macclient, 6) < 0)
 	{
 	memcpy(pkeptr +22, macap, 6);
@@ -184,45 +226,9 @@ else
 	}
 ptkcalculated[100] = 0x80;
 ptkcalculated[101] = 1;
-if(!EVP_MAC_init(ctxhmac, pmkcalculated, 64, paramssha1)) return -1;
-if(!EVP_MAC_update(ctxhmac, ptkcalculated, 102)) return -1;
-if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 102)) return -1;
-return 0;
-}
-/*===========================================================================*/
-static bool genmicwpa2kv3()
-{
-static uint8_t eapoltmp[1024];
-
-memcpy(eapoltmp, eapol, eapollen);
-if(!EVP_MAC_init(ctxhmac, ptkcalculated, 16, paramsaes128)) return false;
-if(!EVP_MAC_update(ctxhmac, eapoltmp, eapollen)) return false;
-if(!EVP_MAC_final(ctxhmac, eapoltmp, NULL, eapollen)) return false;
-memcpy(miccalculated, eapoltmp, 16);
-return true;
-}
-/*===========================================================================*/
-static bool genmicwpa1()
-{
-static uint8_t eapoltmp[1024];
-
-memcpy(eapoltmp, eapol, eapollen);
-if(!EVP_MAC_init(ctxhmac, ptkcalculated, 16, paramsmd5)) return false;
-if(!EVP_MAC_update(ctxhmac, eapoltmp, eapollen)) return false;
-if(!EVP_MAC_final(ctxhmac, eapoltmp, NULL, eapollen)) return false;
-memcpy(miccalculated, eapoltmp, 16);
-return true;
-}
-/*===========================================================================*/
-static bool genmicwpa2()
-{
-static uint8_t eapoltmp[1024];
-
-memcpy(eapoltmp, eapol, eapollen);
-if(!EVP_MAC_init(ctxhmac, ptkcalculated, 16, paramssha1)) return false;
-if(!EVP_MAC_update(ctxhmac, eapoltmp, eapollen)) return false;
-if(!EVP_MAC_final(ctxhmac, eapoltmp, NULL, eapollen)) return false;
-memcpy(miccalculated, eapoltmp, 16);
+if(!EVP_MAC_init(ctxhmac, pmkcalculated, 32, paramssha256)) return false;
+if(!EVP_MAC_update(ctxhmac, ptkcalculated, 102)) return false;
+if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 64)) return false;
 return true;
 }
 /*===========================================================================*/
@@ -230,7 +236,6 @@ static bool genptkwpa12()
 {
 static uint8_t *pkeptr;
 
-memset(ptkcalculated, 0, sizeof(ptkcalculated));
 pkeptr = ptkcalculated;
 memcpy(pkeptr, "Pairwise key expansion", 23);
 if(memcmp(macap, macclient, 6) < 0)
@@ -256,7 +261,7 @@ else
 
 if(!EVP_MAC_init(ctxhmac, pmkcalculated, 32, paramssha1)) return false;
 if(!EVP_MAC_update(ctxhmac, ptkcalculated, 100)) return false;
-if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 100)) return false;
+if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 256)) return false;
 return true;
 }
 /*===========================================================================*/
@@ -442,6 +447,9 @@ paramsmd5[1] = OSSL_PARAM_construct_end();
 paramssha1[0] = OSSL_PARAM_construct_utf8_string("digest", "sha1", 0);
 paramssha1[1] = OSSL_PARAM_construct_end();
 
+paramssha256[0] = OSSL_PARAM_construct_utf8_string("digest", "sha256", 0);
+paramssha256[1] = OSSL_PARAM_construct_end();
+
 paramsaes128[0] = OSSL_PARAM_construct_utf8_string("cipher", "aes-128-cbc", 0);
 paramsaes128[1] = OSSL_PARAM_construct_end();
 
@@ -623,10 +631,7 @@ if((status & HAS_EAPOL_LINE) == HAS_EAPOL_LINE)
 			{
 			if(genptkwpa2kv3() == false) return false;
 			status |= HAS_PTK_CALC;
-			if(keyversion == 1)
-				{
-				if(genmicwpa2kv3() == false) return false;
-				}
+			if(genmicwpa2kv3() == false) return false;
 			}
 		}
 	}
