@@ -126,7 +126,7 @@ Requirements
 * detailed knowledge of Linux
 * Linux (recommended Arch Linux, but other distros should work, too (no support for other distributions).
 * gcc >= 11 recommended (deprecated versions are not supported: https://gcc.gnu.org/)
-* libopenssl and openssl-dev installed
+* libopenssl (>= v3.0) and openssl-dev installed
 * librt and librt-dev installed (should be installed by default)
 * zlib and zlib-dev installed (for gzip compressed cap/pcap/pcapng files)
 * libcurl and curl-dev installed (used by whoismac and wlancap2wpasec)
