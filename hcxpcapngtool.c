@@ -6205,8 +6205,8 @@ timestampstart = ((uint64_t)tv.tv_sec *1000000) + tv.tv_usec;
 
 if(argc < 2)
 	{
-	fprintf(stdout, "no option selected\n");
-	return EXIT_SUCCESS;
+	fprintf(stderr, "no option selected\nrun %s --help to get more information\n", (basename(argv[0])));
+	exit(EXIT_FAILURE);
 	}
 
 if((optind == argc) && (rawinname == NULL))
