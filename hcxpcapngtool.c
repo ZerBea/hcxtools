@@ -1872,7 +1872,6 @@ return;
 static bool testpmkid(uint8_t *testpmk, uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
 static char *pmkname = "PMK Name";
-
 static uint8_t pmkidcalc[64];
 
 memcpy(pmkidcalc, pmkname, 8);
@@ -1890,26 +1889,18 @@ static bool testeapolpmk(uint8_t *testpmk, uint8_t keyver, uint8_t *macsta, uint
 {
 static uint8_t *pkeptr;
 static wpakey_t *wpakzero, *wpak;
-
-static size_t testptklen;
-static size_t testmiclen;
-static EVP_MD_CTX *mdctx;
-static EVP_PKEY *pkey;
-
 static uint8_t pkedata[102];
-static uint8_t testptk[EVP_MAX_MD_SIZE];
-static uint8_t eapoldata[0xff];
-static uint8_t testmic[EVP_MAX_MD_SIZE];
+static uint8_t eapoltmp[1024];
 
-memcpy(&eapoldata, eapolmessage, eapollen);
-wpakzero = (wpakey_t*)(eapoldata +EAPAUTH_SIZE);
-memset(wpakzero->keymic, 0, 16);
+memset(eapoltmp, 0, sizeof(eapoltmp));
+memcpy(eapoltmp, eapolmessage, eapollen);
+wpakzero = (wpakey_t*)(eapoltmp +EAPAUTH_SIZE);
 wpak = (wpakey_t*)(eapolmessage +EAPAUTH_SIZE);
-if(keyver == 2)
+memset(wpakzero->keymic, 0, 16);
+
+if((keyver == 1) || (keyver == 2))
 	{
 	memset(&pkedata, 0, sizeof(pkedata));
-	memset(&testptk, 0, sizeof(testptk));
-	memset(&testmic, 0, sizeof(testptk));
 	pkeptr = pkedata;
 	memcpy(pkeptr, "Pairwise key expansion", 23);
 	if(memcmp(macap, macsta, 6) < 0)
@@ -1922,7 +1913,6 @@ if(keyver == 2)
 		memcpy(pkeptr +23, macsta, 6);
 		memcpy(pkeptr +29, macap, 6);
 		}
-
 	if(memcmp(nonceap, wpak->nonce, 32) < 0)
 		{
 		memcpy (pkeptr +35, nonceap, 32);
@@ -1933,157 +1923,25 @@ if(keyver == 2)
 		memcpy (pkeptr +35, wpak->nonce, 32);
 		memcpy (pkeptr +67, nonceap, 32);
 		}
-	testptklen = 32;
-	mdctx = EVP_MD_CTX_new();
-	if(mdctx == 0) return false;
-	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmk, 32);
-	if(pkey == NULL)
+	if(!EVP_MAC_init(ctxhmac, testpmk, 32, paramssha1)) return false;
+	if(!EVP_MAC_update(ctxhmac, pkedata, 100)) return false;
+	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 256)) return false;
+	if(keyver == 2)
 		{
-		EVP_MD_CTX_free(mdctx);
-		return false;
+		if(!EVP_MAC_init(ctxhmac, pkedata, 16, paramssha1)) return false;
+		if(!EVP_MAC_update(ctxhmac, eapoltmp, eapollen)) return false;
+		if(!EVP_MAC_final(ctxhmac, eapoltmp, NULL, eapollen)) return false;
 		}
-	if(EVP_DigestSignInit(mdctx, NULL, EVP_sha1(), NULL, pkey) != 1)
+	if(keyver == 1)
 		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
+		if(!EVP_MAC_init(ctxhmac, pkedata, 16, paramsmd5)) return false;
+		if(!EVP_MAC_update(ctxhmac, eapoltmp, eapollen)) return false;
+		if(!EVP_MAC_final(ctxhmac, eapoltmp, NULL, eapollen)) return false;
 		}
-	if(EVP_DigestSignUpdate(mdctx, pkedata, 100) != 1)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignFinal(mdctx, testptk, &testptklen) <= 0)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_reset(mdctx);
-	testmiclen = 16;
-	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
-	if(pkey == NULL)
-		{
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignInit(mdctx, NULL, EVP_sha1(), NULL, pkey) != 1)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignUpdate(mdctx, eapoldata, eapollen) != 1)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignFinal(mdctx, testmic, &testmiclen) <= 0)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
-	if(memcmp(&testmic, wpak->keymic, 16) == 0) return true;
-	}
-else if(keyver == 1)
-	{
-	memset(&pkedata, 0, sizeof(pkedata));
-	memset(&testptk, 0, sizeof(testptk));
-	memset(&testmic, 0, sizeof(testptk));
-	pkeptr = pkedata;
-	memcpy(pkeptr, "Pairwise key expansion", 23);
-	if(memcmp(macap, macsta, 6) < 0)
-		{
-		memcpy(pkeptr +23, macap, 6);
-		memcpy(pkeptr +29, macsta, 6);
-		}
-	else
-		{
-		memcpy(pkeptr +23, macsta, 6);
-		memcpy(pkeptr +29, macap, 6);
-		}
-
-	if(memcmp(nonceap, wpak->nonce, 32) < 0)
-		{
-		memcpy (pkeptr +35, nonceap, 32);
-		memcpy (pkeptr +67, wpak->nonce, 32);
-		}
-	else
-		{
-		memcpy (pkeptr +35, wpak->nonce, 32);
-		memcpy (pkeptr +67, nonceap, 32);
-		}
-	testptklen = 32;
-	mdctx = EVP_MD_CTX_new();
-	if(mdctx == 0) return false;
-	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmk, 32);
-	if(pkey == NULL)
-		{
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignInit(mdctx, NULL, EVP_sha1(), NULL, pkey) != 1)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignUpdate(mdctx, pkedata, 100) != 1)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignFinal(mdctx, testptk, &testptklen) <= 0)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_reset(mdctx);
-	testmiclen = 16;
-	mdctx = EVP_MD_CTX_new();
-	if(mdctx == 0) return false;
-	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testptk, 16);
-	if(pkey == NULL)
-		{
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignInit(mdctx, NULL, EVP_md5(), NULL, pkey) != 1)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignUpdate(mdctx, eapoldata, eapollen) != 1)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignFinal(mdctx, testmic, &testmiclen) <= 0)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
-	if(memcmp(&testmic, wpak->keymic, 16) == 0) return true;
 	}
 else if(keyver == 3)
 	{
 	memset(&pkedata, 0, sizeof(pkedata));
-	memset(&testptk, 0, sizeof(testptk));
-	memset(&testmic, 0, sizeof(testptk));
 	pkedata[0] = 1;
 	pkedata[1] = 0;
 	pkeptr = pkedata +2;
@@ -2110,66 +1968,14 @@ else if(keyver == 3)
 		}
 	pkedata[100] = 0x80;
 	pkedata[101] = 1;
-	testptklen = 32;
-	mdctx = EVP_MD_CTX_new();
-	if(mdctx == 0) return false;
-	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmk, 32);
-	if(pkey == NULL)
-		{
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignInit(mdctx, NULL, EVP_sha256(), NULL, pkey) <= 0)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignUpdate(mdctx, pkedata, 102) <= 0)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignFinal(mdctx, testptk, &testptklen) <= 0)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_reset(mdctx);
-	testmiclen = 16;
-	mdctx = EVP_MD_CTX_new();
-	if(mdctx == 0) return false;
-	pkey = EVP_PKEY_new_CMAC_key(NULL, testptk, 16, EVP_aes_128_cbc());
-	if(pkey == NULL)
-		{
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignInit(mdctx, NULL, NULL, NULL, pkey) != 1)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignUpdate(mdctx, eapoldata, eapollen) != 1)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	if(EVP_DigestSignFinal(mdctx, testmic, &testmiclen) <= 0)
-		{
-		EVP_PKEY_free(pkey);
-		EVP_MD_CTX_free(mdctx);
-		return false;
-		}
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
-	if(memcmp(&testmic, wpak->keymic, 16) == 0) return true;
+	if(!EVP_MAC_init(ctxhmac, testpmk, 32, paramssha256)) return false;
+	if(!EVP_MAC_update(ctxhmac, pkedata, 102)) return false;
+	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 64)) return false;
+	if(!EVP_MAC_init(ctxcmac, pkedata, 16, paramsaes128)) return false;
+	if(!EVP_MAC_update(ctxcmac, eapoltmp, eapollen)) return false;
+	if(!EVP_MAC_final(ctxcmac, eapoltmp, NULL, eapollen)) return false;
 	}
+if(memcmp(wpak->keymic, eapoltmp, 16) == 0) return true;
 return false;
 }
 /*===========================================================================*/
@@ -6680,8 +6486,6 @@ if(gzipstat > 0)		fprintf(stdout, "gzip compressed dump files............: %d\n"
 if(pcapngstat > 0)		fprintf(stdout, "processed pcapng files................: %d\n", pcapngstat);
 if(capstat > 0)			fprintf(stdout, "processed cap files...................: %d\n", capstat);
 fprintf(stdout, "\n");
-
-
 if(evpdeinitwpa() == false) exit(EXIT_FAILURE);
 return exitcode;
 }
