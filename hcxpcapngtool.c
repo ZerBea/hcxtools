@@ -1925,7 +1925,7 @@ if((keyver == 1) || (keyver == 2))
 		}
 	if(!EVP_MAC_init(ctxhmac, testpmk, 32, paramssha1)) return false;
 	if(!EVP_MAC_update(ctxhmac, pkedata, 100)) return false;
-	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 256)) return false;
+	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 100)) return false;
 	if(keyver == 2)
 		{
 		if(!EVP_MAC_init(ctxhmac, pkedata, 16, paramssha1)) return false;
@@ -1970,7 +1970,7 @@ else if(keyver == 3)
 	pkedata[101] = 1;
 	if(!EVP_MAC_init(ctxhmac, testpmk, 32, paramssha256)) return false;
 	if(!EVP_MAC_update(ctxhmac, pkedata, 102)) return false;
-	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 64)) return false;
+	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 102)) return false;
 	if(!EVP_MAC_init(ctxcmac, pkedata, 16, paramsaes128)) return false;
 	if(!EVP_MAC_update(ctxcmac, eapoltmp, eapollen)) return false;
 	if(!EVP_MAC_final(ctxcmac, eapoltmp, NULL, eapollen)) return false;

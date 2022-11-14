@@ -300,7 +300,7 @@ if((keyver == 1) || (keyver == 2))
 		}
 	if(!EVP_MAC_init(ctxhmac, pmk, 32, paramssha1)) return;
 	if(!EVP_MAC_update(ctxhmac, pkedata, 100)) return;
-	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 256)) return;
+	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 100)) return;
 	fprintf(stdout, "\n");
 	if(keyver == 2)
 		{
@@ -350,7 +350,7 @@ else if(keyver == 3)
 	pkedata[101] = 1;
 	if(!EVP_MAC_init(ctxhmac, pmk, 32, paramssha256)) return;
 	if(!EVP_MAC_update(ctxhmac, pkedata, 102)) return;
-	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 64)) return;
+	if(!EVP_MAC_final(ctxhmac, pkedata, NULL, 102)) return;
 	memset(eapoltmp, 0, 1024);
 	memcpy(eapoltmp, zeiger->eapol, zeiger->eapauthlen);
 	if(!EVP_MAC_init(ctxcmac, pkedata, 16, paramsaes128)) return;
