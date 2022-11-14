@@ -84,6 +84,15 @@ typedef struct hccapx_s hccapx_t;
 /*===========================================================================*/
 /* global var */
 
+static EVP_MAC *hmac;
+static EVP_MAC *cmac;
+static EVP_MAC_CTX *ctxhmac;
+static EVP_MAC_CTX *ctxcmac;
+static OSSL_PARAM paramsmd5[3];
+static OSSL_PARAM paramssha1[3];
+static OSSL_PARAM paramssha256[3];
+static OSSL_PARAM paramsaes128[3];
+
 static maclist_t *aplist, *aplistptr;
 static messagelist_t *messagelist;
 static handshakelist_t *handshakelist, *handshakelistptr;
@@ -383,23 +392,12 @@ if(eapleaphashlist != NULL) free(eapleaphashlist);
 if(eapmschapv2msglist != NULL) free(eapmschapv2msglist);
 if(eapmschapv2hashlist != NULL) free(eapmschapv2hashlist);
 if(tacacsplist != NULL) free(tacacsplist);
-
-EVP_cleanup();
-CRYPTO_cleanup_all_ex_data();
-ERR_free_strings();
 return;
 }
 /*===========================================================================*/
 static bool initlists()
 {
-static unsigned long opensslversion;
 static const char nastring[] = { "N/A" };
-
-ERR_load_crypto_strings();
-OpenSSL_add_all_algorithms();
-opensslversion = OpenSSL_version_num();
-opensslversionmajor = (opensslversion & 0x10000000L) >> 28;
-opensslversionminor = (opensslversion & 0x01100000L) >> 20;
 
 maclistmax = MACLIST_MAX;
 if((aplist = (maclist_t*)calloc((maclistmax +1), MACLIST_SIZE)) == NULL) return false;
@@ -1873,48 +1871,19 @@ return;
 /*===========================================================================*/
 static bool testpmkid(uint8_t *testpmk, uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
-static size_t testpmkidlen;
-static EVP_MD_CTX *mdctx;
-static EVP_PKEY *pkey;
 static char *pmkname = "PMK Name";
 
-static uint8_t message[32];
-static uint8_t testpmkid[EVP_MAX_MD_SIZE];
+static uint8_t pmkidcalc[64];
 
-memcpy(&message, pmkname, 8);
-memcpy(&message[8], macap, 6);
-memcpy(&message[14], macsta, 6);
-testpmkidlen = 16;
-mdctx = EVP_MD_CTX_new();
-if(mdctx == 0) return false;
-pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, testpmk, 32);
-if(pkey == NULL)
-	{
-	EVP_MD_CTX_free(mdctx);
-	return false;
-	}
-if(EVP_DigestSignInit(mdctx, NULL, EVP_sha1(), NULL, pkey) != 1)
-	{
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
-	return false;
-	}
-if(EVP_DigestSignUpdate(mdctx, message, 20) != 1)
-	{
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
-	return false;
-	}
-if(EVP_DigestSignFinal(mdctx, testpmkid, &testpmkidlen) <= 0)
-	{
-	EVP_PKEY_free(pkey);
-	EVP_MD_CTX_free(mdctx);
-	return false;
-	}
-EVP_PKEY_free(pkey);
-EVP_MD_CTX_free(mdctx);
-if(memcmp(&testpmkid, pmkid, 16) == 0) return true;
-return false;
+memcpy(pmkidcalc, pmkname, 8);
+memcpy(&pmkidcalc[8], macap, 6);
+memcpy(&pmkidcalc[14], macsta, 6);
+
+if(!EVP_MAC_init(ctxhmac, testpmk, 32, paramssha1)) return false;
+if(!EVP_MAC_update(ctxhmac, pmkidcalc, 20)) return false;
+if(!EVP_MAC_final(ctxhmac, pmkidcalc, NULL, 20)) return false;
+if(memcmp(pmkid, pmkidcalc, 16) != 0) return false;
+return true;
 }
 /*===========================================================================*/
 static bool testeapolpmk(uint8_t *testpmk, uint8_t keyver, uint8_t *macsta, uint8_t *macap, uint8_t *nonceap, uint8_t eapollen, uint8_t *eapolmessage)
@@ -5796,6 +5765,66 @@ fprintf(stdout, "same file names for different file types is not allowed: %s - %
 return true;
 }
 /*===========================================================================*/
+static bool evpdeinitwpa()
+{
+if(ctxhmac != NULL)
+	{
+	EVP_MAC_CTX_free(ctxhmac);
+	EVP_MAC_free(hmac);
+	}
+if(ctxcmac != NULL)
+	{
+	EVP_MAC_CTX_free(ctxcmac);
+	EVP_MAC_free(cmac);
+	}
+EVP_cleanup();
+CRYPTO_cleanup_all_ex_data();
+ERR_free_strings();
+return true;
+}
+/*===========================================================================*/
+static bool evpinitwpa()
+{
+static unsigned long opensslversion;
+
+ERR_load_crypto_strings();
+OpenSSL_add_all_algorithms();
+ERR_load_crypto_strings();
+OpenSSL_add_all_algorithms();
+opensslversion = OpenSSL_version_num();
+opensslversionmajor = (opensslversion & 0x10000000L) >> 28;
+opensslversionminor = (opensslversion & 0x01100000L) >> 20;
+
+
+hmac = NULL;
+ctxhmac = NULL;
+cmac = NULL;
+ctxcmac = NULL;
+
+hmac = EVP_MAC_fetch(NULL, "hmac", NULL);
+if(hmac == NULL) return false;
+cmac = EVP_MAC_fetch(NULL, "cmac", NULL);
+if(cmac == NULL) return false;
+
+paramsmd5[0] = OSSL_PARAM_construct_utf8_string("digest", "md5", 0);
+paramsmd5[1] = OSSL_PARAM_construct_end();
+
+paramssha1[0] = OSSL_PARAM_construct_utf8_string("digest", "sha1", 0);
+paramssha1[1] = OSSL_PARAM_construct_end();
+
+paramssha256[0] = OSSL_PARAM_construct_utf8_string("digest", "sha256", 0);
+paramssha256[1] = OSSL_PARAM_construct_end();
+
+paramsaes128[0] = OSSL_PARAM_construct_utf8_string("cipher", "aes-128-cbc", 0);
+paramsaes128[1] = OSSL_PARAM_construct_end();
+
+ctxhmac = EVP_MAC_CTX_new(hmac);
+if(ctxhmac == NULL) return false;
+ctxcmac = EVP_MAC_CTX_new(cmac);
+if(ctxcmac == NULL) return false;
+return true;
+}
+/*===========================================================================*/
 __attribute__ ((noreturn))
 void version(char *eigenname)
 {
@@ -6214,6 +6243,8 @@ if((optind == argc) && (rawinname == NULL))
 	fprintf(stdout, "no input file(s) selected\n");
 	exit(EXIT_FAILURE);
 	}
+
+if(evpinitwpa() == false) exit(EXIT_FAILURE);
 
 if(testfilename(pmkideapoloutname, essidoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
@@ -6649,6 +6680,9 @@ if(gzipstat > 0)		fprintf(stdout, "gzip compressed dump files............: %d\n"
 if(pcapngstat > 0)		fprintf(stdout, "processed pcapng files................: %d\n", pcapngstat);
 if(capstat > 0)			fprintf(stdout, "processed cap files...................: %d\n", capstat);
 fprintf(stdout, "\n");
+
+
+if(evpdeinitwpa() == false) exit(EXIT_FAILURE);
 return exitcode;
 }
 /*===========================================================================*/
