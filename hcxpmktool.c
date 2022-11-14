@@ -649,7 +649,9 @@ if(pskstring != NULL)
 							}
 						if(memcmp(pmkid, pmkidcalculated, 16) == 0)
 							{
-							fprintf(stdout,"PSK: %s\n", pskbuffer);
+							pskstring = pskbuffer;
+							status |= HAS_PSK;
+							showresult();
 							exit(EXIT_SUCCESS_CONFIRMED);
 							}
 						}
@@ -675,7 +677,11 @@ if(pskstring != NULL)
 						if(memcmp(mic, miccalculated, 16) == 0)
 							{
 							if(genpmkid() == false) exit(EXIT_FAILURE);
-							fprintf(stdout,"PSK: %s\n", pskbuffer);
+							pskstring = pskbuffer;
+							status |= HAS_PSK;
+							status |= HAS_PTK_CALC;
+							status |= HAS_PMKID_CALC;
+							showresult();
 							exit(EXIT_SUCCESS_CONFIRMED);
 							}
 						}
@@ -694,7 +700,11 @@ if(pskstring != NULL)
 						if(memcmp(mic, miccalculated, 16) == 0)
 							{
 							if(genpmkid() == false) exit(EXIT_FAILURE);
-							fprintf(stdout,"PSK: %s\n", pskbuffer);
+							pskstring = pskbuffer;
+							status |= HAS_PSK;
+							status |= HAS_PTK_CALC;
+							status |= HAS_PMKID_CALC;
+							showresult();
 							exit(EXIT_SUCCESS_CONFIRMED);
 							}
 						}
@@ -713,7 +723,11 @@ if(pskstring != NULL)
 						if(memcmp(mic, miccalculated, 16) == 0)
 							{
 							if(genpmkid() == false) exit(EXIT_FAILURE);
-							fprintf(stdout,"PSK: %s\n", pskbuffer);
+							pskstring = pskbuffer;
+							status |= HAS_PSK;
+							status |= HAS_PTK_CALC;
+							status |= HAS_PMKID_CALC;
+							showresult();
 							exit(EXIT_SUCCESS_CONFIRMED);
 							}
 						}
