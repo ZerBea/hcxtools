@@ -630,18 +630,18 @@ if(pskstring != NULL)
 		{
 		if((status & HAS_ESSID) == HAS_ESSID)
 			{
-			while(1)
+			if((status & HAS_PMKID) == HAS_PMKID)
 				{
-				if((psklen = fgetline(stdin, 128, pskbuffer)) == 0) break;
+				while(1)
 					{
+					if((psklen = fgetline(stdin, 128, pskbuffer)) == 0) break;
 					if((psklen < 8) || (psklen > 63)) continue;
-					if(genpmk(pskbuffer) == false)
 						{
-						fprintf(stderr, "\nPMK error\n");
-						exit(EXIT_FAILURE);
-						}
-					if((status & HAS_PMKID) == HAS_PMKID)
-						{
+						if(genpmk(pskbuffer) == false)
+							{
+							fprintf(stderr, "\nPMK error\n");
+							exit(EXIT_FAILURE);
+							}
 						if(genpmkid() == false)
 							{
 							fprintf(stderr, "\nPMK error\n");
@@ -653,51 +653,77 @@ if(pskstring != NULL)
 							exit(EXIT_SUCCESS_CONFIRMED);
 							}
 						}
-					else if((status & HAS_MIC) == HAS_MIC)
+					}
+				if(evpdeinitwpa() == false)
+					{
+					fprintf(stdout, "EVP API error\n");
+					exit(EXIT_FAILURE);
+					}
+				exit(EXIT_SUCCESS);
+				}
+			if((status & HAS_MIC) == HAS_MIC)
+				{
+				if(keyversion == 2)
+					{
+					while(1)
 						{
-						if(keyversion == 2)
+						if((psklen = fgetline(stdin, 128, pskbuffer)) == 0) break;
+						if((psklen < 8) || (psklen > 63)) continue;
+						if(genpmk(pskbuffer) == false) exit(EXIT_FAILURE);
+						if(genptkwpa12() == false) exit(EXIT_FAILURE);
+						if(genmicwpa2() == false) exit(EXIT_FAILURE);
+						if(memcmp(mic, miccalculated, 16) == 0)
 							{
-							if(genptkwpa12() == false) exit(EXIT_FAILURE);
-							if(genmicwpa2() == false) exit(EXIT_FAILURE);
 							if(genpmkid() == false) exit(EXIT_FAILURE);
-							if(memcmp(mic, miccalculated, 16) == 0)
-								{
-								fprintf(stdout,"PSK: %s\n", pskbuffer);
-								exit(EXIT_SUCCESS_CONFIRMED);
-								}
-							}
-						else if(keyversion == 1)
-							{
-							if(genptkwpa12() == false) exit(EXIT_FAILURE);
-							if(genmicwpa1() == false) exit(EXIT_FAILURE);
-							if(genpmkid() == false) exit(EXIT_FAILURE);
-							if(memcmp(mic, miccalculated, 16) == 0)
-								{
-								fprintf(stdout,"PSK: %s\n", pskbuffer);
-								exit(EXIT_SUCCESS_CONFIRMED);
-								}
-							}
-						else if(keyversion == 3)
-							{
-							if(genptkwpa2kv3() == false) exit(EXIT_FAILURE);
-							if(genmicwpa2kv3() == false) exit(EXIT_FAILURE);
-							if(genpmkid() == false) exit(EXIT_FAILURE);
-							if(memcmp(mic, miccalculated, 16) == 0)
-								{
-								fprintf(stdout,"PSK: %s\n", pskbuffer);
-								exit(EXIT_SUCCESS_CONFIRMED);
-								}
+							fprintf(stdout,"PSK: %s\n", pskbuffer);
+							exit(EXIT_SUCCESS_CONFIRMED);
 							}
 						}
+					if(evpdeinitwpa() == false) exit(EXIT_FAILURE);
+					exit(EXIT_SUCCESS);
 					}
+				if(keyversion == 1)
+					{
+					while(1)
+						{
+						if((psklen = fgetline(stdin, 128, pskbuffer)) == 0) break;
+						if((psklen < 8) || (psklen > 63)) continue;
+						if(genpmk(pskbuffer) == false) exit(EXIT_FAILURE);
+						if(genptkwpa12() == false) exit(EXIT_FAILURE);
+						if(genmicwpa1() == false) exit(EXIT_FAILURE);
+						if(memcmp(mic, miccalculated, 16) == 0)
+							{
+							if(genpmkid() == false) exit(EXIT_FAILURE);
+							fprintf(stdout,"PSK: %s\n", pskbuffer);
+							exit(EXIT_SUCCESS_CONFIRMED);
+							}
+						}
+					if(evpdeinitwpa() == false) exit(EXIT_FAILURE);
+					exit(EXIT_SUCCESS);
+					}
+				if(keyversion == 3)
+					{
+					while(1)
+						{
+						if((psklen = fgetline(stdin, 128, pskbuffer)) == 0) break;
+						if((psklen < 8) || (psklen > 63)) continue;
+						if(genpmk(pskbuffer) == false) exit(EXIT_FAILURE);
+						if(genptkwpa2kv3() == false) exit(EXIT_FAILURE);
+						if(genmicwpa2kv3() == false) exit(EXIT_FAILURE);
+						if(memcmp(mic, miccalculated, 16) == 0)
+							{
+							if(genpmkid() == false) exit(EXIT_FAILURE);
+							fprintf(stdout,"PSK: %s\n", pskbuffer);
+							exit(EXIT_SUCCESS_CONFIRMED);
+							}
+						}
+					if(evpdeinitwpa() == false) exit(EXIT_FAILURE);
+					exit(EXIT_SUCCESS);
+					}
+				if(evpdeinitwpa() == false) exit(EXIT_FAILURE);
+				exit(EXIT_SUCCESS);
 				}
 			}
-		exit(EXIT_SUCCESS);
-		}
-	else
-		{
-		fprintf(stderr, "\nPSK error\n");
-		return EXIT_FAILURE;
 		}
 	}
 
