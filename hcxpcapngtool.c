@@ -220,6 +220,8 @@ static long int protochaprespcount;
 static long int protochapsuccesscount;
 static long int protopapcount;
 static long int tacacspcount;
+static long int tacacsp2count;
+static long int tacacsp3count;
 static long int tacacspwrittencount;
 static long int wepenccount;
 static long int wpaenccount;
@@ -324,6 +326,8 @@ static bool ignoreieflag;
 static bool donotcleanflag;
 static bool ancientdumpfileformat;
 static bool radiotappresent;
+static bool ieee80211flag;
+
 
 static const uint8_t fakenonce1[] =
 {
@@ -453,6 +457,8 @@ memcpy(&pcapngapplinfo, nastring, 3);
 memcpy(&pcapngoptioninfo, nastring, 3);
 memcpy(&pcapngweakcandidate, nastring, 3);
 
+ieee80211flag = false;
+
 radiotaperrorcount = 0;
 nmeacount = 0;
 nmeaerrorcount = 0;
@@ -521,6 +527,8 @@ protochaprespcount = 0;
 protochapsuccesscount = 0;
 protopapcount = 0;
 tacacspcount = 0;
+tacacsp2count = 0;
+tacacsp3count = 0;
 tacacspwrittencount = 0;
 wepenccount = 0;
 wpaenccount = 0;
@@ -715,7 +723,9 @@ if(protochapreqcount > 0)		fprintf(stdout, "PPP-CHAP request....................
 if(protochaprespcount > 0)		fprintf(stdout, "PPP-CHAP response........................: %ld\n", protochaprespcount);
 if(protochapsuccesscount > 0)		fprintf(stdout, "PPP-CHAP success.........................: %ld\n", protochapsuccesscount);
 if(protopapcount > 0)			fprintf(stdout, "PPP-PAP..................................: %ld\n", protopapcount);
-if(tacacspcount > 0)			fprintf(stdout, "TACACS+..................................: %ld\n", tacacspcount);
+if(tacacspcount > 0)			fprintf(stdout, "TACACS+ v1...............................: %ld\n", tacacspcount);
+if(tacacsp2count > 0)			fprintf(stdout, "TACACS+ v2...............................: %ld (unsupported)\n", tacacsp2count);
+if(tacacsp3count > 0)			fprintf(stdout, "TACACS+ v3...............................: %ld (unsupported)\n", tacacsp3count);
 if(tacacspwrittencount > 0)		fprintf(stdout, "TACACS+ written..........................: %ld\n", tacacspwrittencount);
 if(identitycount > 0)			fprintf(stdout, "IDENTITIES...............................: %ld\n", identitycount);
 if(usernamecount > 0)			fprintf(stdout, "USERNAMES................................: %ld\n", usernamecount);
@@ -818,6 +828,23 @@ if(essiderrorcount > 0)			fprintf(stdout, "ESSID error (malformed packets)......
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		fprintf(stdout, "EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 
+if(ancientdumpfileformat == true)
+	{
+	fprintf(stdout, "\nInformation: limited dump file format detected!\n"
+		"This file format is a very basic format to save captured network data.\n"
+		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
+		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
+		"of the currently widely used (but very limited) libpcap (cap, pcap) format.\n"
+		"https://www.wireshark.org/docs/wsug_html_chunked/AppFiles.html#ChAppFilesCaptureFilesSection\n"
+		"https://github.com/pcapng/pcapng\n");
+	}
+
+if(ieee80211flag == false)
+	{
+	fprintf(stdout, "\n");
+	return;
+	}
+
 if(radiotappresent == true)
 	{
 	c = 0;
@@ -840,16 +867,8 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 	{
 	printf( "\nInformation: no hashes written to hash files\n");
 	}
-if(ancientdumpfileformat == true)
-	{
-	fprintf(stdout, "\nInformation: limited dump file format detected!\n"
-		"This file format is a very basic format to save captured network data.\n"
-		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
-		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
-		"of the currently widely used (but very limited) libpcap (cap, pcap) format.\n"
-		"https://www.wireshark.org/docs/wsug_html_chunked/AppFiles.html#ChAppFilesCaptureFilesSection\n"
-		"https://github.com/pcapng/pcapng\n");
-	}
+
+
 if(radiotappresent == false)
 	{
 	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
@@ -1253,6 +1272,16 @@ static tacacsplist_t *tacacsplistnew;
 
 if(restlen < (uint32_t)TACACSP_SIZE) return;
 tacacsp = (tacacsp_t*)tacacspptr;
+if(tacacsp->type == TACACS2_AUTHENTICATION)
+	{
+	tacacsp2count++;
+	return;
+	}
+if(tacacsp->type == TACACS3_AUTHENTICATION)
+	{
+	tacacsp3count++;
+	return;
+	}
 if(tacacsp->type != TACACS_AUTHENTICATION) return;
 authlen = ntohl(tacacsp->len);
 if((authlen > restlen -TACACSP_SIZE) || (authlen > TACACSPMAX_LEN)) return;
@@ -4262,6 +4291,8 @@ static llc_t *llc;
 static uint8_t *mpduptr;
 static mpdu_t *mpdu;
 
+ieee80211flag = true;
+
 if(packetlen < (int)MAC_SIZE_NORM) return;
 macfrx = (mac_t*)packetptr;
 
@@ -4476,6 +4507,7 @@ if(fh_raw_out != NULL)
 		}
 	fprintf(fh_raw_out, "*%02x\n", cs);
 	}
+
 if(captimestamp < captimestampold) sequenceerrorcount++;
 captimestampold = captimestamp;
 if(timestampmin == 0) timestampmin = captimestamp;

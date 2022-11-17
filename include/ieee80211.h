@@ -940,6 +940,8 @@ struct tacacsp_frame
 #define TACACSP_VERSION 0xc0
  uint8_t	type;
 #define TACACS_AUTHENTICATION 1
+#define TACACS2_AUTHENTICATION 2
+#define TACACS3_AUTHENTICATION 3
  uint8_t	sequencenr;
  uint8_t	flags;
  uint32_t	sessionid;
