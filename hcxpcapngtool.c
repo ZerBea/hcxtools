@@ -828,6 +828,12 @@ if(essiderrorcount > 0)			fprintf(stdout, "ESSID error (malformed packets)......
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		fprintf(stdout, "EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 
+if(sequenceerrorcount > 0)
+	{
+	fprintf(stdout, "\nWarning: out of sequence timestamps!\n"
+		"This dump file contains frames with out of sequence timestamps.\n"
+		"That is a bug of the capturing tool.\n");
+	}
 if(ancientdumpfileformat == true)
 	{
 	fprintf(stdout, "\nInformation: limited dump file format detected!\n"
@@ -838,13 +844,11 @@ if(ancientdumpfileformat == true)
 		"https://www.wireshark.org/docs/wsug_html_chunked/AppFiles.html#ChAppFilesCaptureFilesSection\n"
 		"https://github.com/pcapng/pcapng\n");
 	}
-
 if(ieee80211flag == false)
 	{
 	fprintf(stdout, "\n");
 	return;
 	}
-
 if(radiotappresent == true)
 	{
 	c = 0;
@@ -867,8 +871,6 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 	{
 	printf( "\nInformation: no hashes written to hash files\n");
 	}
-
-
 if(radiotappresent == false)
 	{
 	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
@@ -876,12 +878,6 @@ if(radiotappresent == false)
 		"The radiotap header format is a mechanism to supply additional information about frames,\n"
 		"from the driver to userspace applications.\n"
 		"https://www.radiotap.org/\n");
-	}
-if(sequenceerrorcount > 0)
-	{
-	fprintf(stdout, "\nWarning: out of sequence timestamps!\n"
-		"This dump file contains frames with out of sequence timestamps.\n"
-		"That is a bug of the capturing tool.\n");
 	}
 if(zeroedtimestampcount > 0)
 	{
@@ -5717,7 +5713,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--eapmd5=<file>                    : output EAP MD5 CHALLENGE (hashcat -m 4800)\n"
 	"--eapmd5-john=<file>               : output EAP MD5 CHALLENGE (john chap)\n"
 	"--eapleap=<file>                   : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
-	"--tacacs-plus=<file>               : output TACACS PLUS (hashcat -m 16100, john tacacs-plus)\n"
+	"--tacacs-plus=<file>               : output TACACS PLUS v1 (hashcat -m 16100, john tacacs-plus)\n"
 	"--nmea=<file>                      : output GPS data in NMEA 0183 format\n"
 	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
