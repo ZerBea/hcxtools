@@ -1,3 +1,10 @@
+25.11.2022
+==========
+hcxhashtool: added new option --essid-partx to filter case insensitive
+more information here:
+https://hashcat.net/forum/thread-6661-post-56782.html#pid56782
+
+
 17.11.2022
 ==========
 hcxpcapngtool: added detection of TACAS plus v2 and v3

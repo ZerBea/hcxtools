@@ -90,6 +90,7 @@ static bool flagmacclientgroup;
 static bool flagouigroup;
 static bool flagvendorout;
 static bool flaghccapsingleout;
+static bool caseflag;
 
 static bool flagfiltermacap;
 static uint8_t filtermacap[6];
@@ -505,11 +506,37 @@ return false;
 static bool ispartof(int plen, uint8_t *pbuff, int slen, uint8_t *sbuff)
 {
 static int p;
+static uint8_t buffers[32];
+static uint8_t bufferp[32];
 
 if(plen > slen) return false;
-for(p = 0; p <= slen -plen; p++)
+if(caseflag == false)
 	{
-	if(memcmp(&sbuff[p], pbuff, plen) == 0) return true;
+	for(p = 0; p <= slen -plen; p++)
+		{
+		if(memcmp(&sbuff[p], pbuff, plen) == 0) return true;
+		}
+	return false;
+	}
+else
+	{
+	memset(buffers, 0, 32);
+	for(p = 0; p < slen; p++)
+		{
+		if(isupper(sbuff[p])) buffers[p] = tolower(sbuff[p]);
+		else buffers[p] = sbuff[p];
+		}
+	memset(bufferp, 0, 32);
+	for(p = 0; p < plen; p++)
+		{
+		if(isupper(pbuff[p])) bufferp[p] = tolower(pbuff[p]);
+		else bufferp[p] = pbuff[p];
+		}
+	for(p = 0; p <= slen -plen; p++)
+		{
+		if(memcmp(&buffers[p], bufferp, plen) == 0) return true;
+		}
+	return false;
 	}
 return false;
 }
@@ -2084,7 +2111,9 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--essid-max                  : filter by ESSID maximum length\n"
 	"                               default ESSID maximum length: %d\n"
 	"--essid=<ESSID>              : filter by ESSID\n"
-	"--essid-part=<part of ESSID> : filter by part of ESSID\n"
+	"--essid-part=<part of ESSID> : filter by part of ESSID (case sensitive)\n"
+	"--essid-partx=<part of ESSID>: filter by part of ESSID (case insensitive)\n"
+	"                               locale and wide characters are ignored\n"
 	"--essid-list=<file>          : filter by ESSID file\n"
 	"--mac-ap=<MAC>               : filter AP by MAC\n"
 	"                               format: 001122334455, 00:11:22:33:44:55, 00-11-22-33-44-55 (hex)\n"
@@ -2188,6 +2217,7 @@ static const struct option long_options[] =
 	{"essid-max",			required_argument,	NULL,	HCX_ESSID_MAX},
 	{"essid",			required_argument,	NULL,	HCX_FILTER_ESSID},
 	{"essid-part",			required_argument,	NULL,	HCX_FILTER_ESSID_PART},
+	{"essid-partx",			required_argument,	NULL,	HCX_FILTER_ESSID_PARTX},
 	{"essid-list",			required_argument,	NULL,	HCX_FILTER_ESSID_LIST_IN},
 	{"mac-ap",			required_argument,	NULL,	HCX_FILTER_MAC_AP},
 	{"mac-client",			required_argument,	NULL,	HCX_FILTER_MAC_CLIENT},
@@ -2266,6 +2296,7 @@ flagmacclientgroup = false;
 flagouigroup = false;
 flagvendorout = false;
 flaghccapsingleout = false;
+caseflag = false;
 hashtypein = 0;
 hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL;
 essidlenin = ESSID_LEN_MAX;
@@ -2373,6 +2404,18 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			fprintf(stderr, "only values 0...32 allowed\n");
 			exit(EXIT_FAILURE);
 			}
+		caseflag = false;
+		break;
+
+		case HCX_FILTER_ESSID_PARTX:
+		filteressidpartptr = optarg;
+		filteressidpartlen = strlen(filteressidpartptr);
+		if((filteressidpartlen  < 1) || (filteressidpartlen > ESSID_LEN_MAX))
+			{
+			fprintf(stderr, "only values 0...32 allowed\n");
+			exit(EXIT_FAILURE);
+			}
+		caseflag = true;
 		break;
 
 		case HCX_FILTER_ESSID_LIST_IN:
