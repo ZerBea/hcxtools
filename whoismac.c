@@ -21,6 +21,8 @@
 
 #define LINEBUFFER 256
 
+const char *ouiurl = "https://standards-oui.ieee.org/oui/oui.txt";
+
 /*===========================================================================*/
 static bool downloadoui(char *ouiname)
 {
@@ -430,7 +432,6 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"-P <hashline> : input EAPOL hashline from potfile (hashcat <= 5.1.0)\n"
 	"-e <ESSID>    : input ESSID\n"
 	"-x <xdigit>   : input ESSID in hex\n"
-	"-e <ESSID>    : input ESSID\n"
 	"-v <vendor>   : vendor name\n"
 	"-h            : this help screen\n"
 	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
