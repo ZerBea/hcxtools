@@ -130,7 +130,6 @@ Requirements
 * librt and librt-dev installed (should be installed by default)
 * zlib and zlib-dev installed (for gzip compressed cap/pcap/pcapng files)
 * libcurl and curl-dev installed (used by whoismac and wlancap2wpasec)
-* libpthread and pthread-dev installed (used by hcxhashcattool)
 * pkg-config installed
 
 To install requirements on Debian based distributions >= bookworm (e.g. Kali, Ubuntu)  use the following 'apt-get install pkg-config libcurl4-openssl-dev libssl-dev zlib1g-dev'
