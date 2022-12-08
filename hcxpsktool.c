@@ -610,8 +610,8 @@ static const char *word4[] =
     "dame", "damp", "dare", "dash", "date", "days", "deaf", "deal", "desk", "dive", "door", "dove",
     "down", "draw", "drop",
     "each", "east", "edge", "edit", "epic", "even", "ever", "exit",
-    "face", "fair", "fake", "fall", "fast", "fine", "firm", "flag", "flee", "foam", "fold", "foot",
-    "four", "full", "fuse",
+    "face", "fair", "fake", "fall", "fame", "fast", "fine", "firm", "flag", "flee", "foam", "fold",
+    "foot", "four", "full", "fuse",
     "gaps", "gate", "gave", "gift", "gown", "gray",
     "half", "hang", "hard", "hats", "head", "heat", "hide", "high", "hint", "hire", "hold", "hook",
     "huge", "hurt", "hymn",
@@ -619,8 +619,8 @@ static const char *word4[] =
     "jets", "joke", "judo",
     "keen", "kiss",
     "lace", "lack", "land", "late", "lawn", "lazy", "less", "link", "live", "loaf", "loan", "logo",
-    "lord", "loss", "loud",
-    "menu", "mill", "mine", "mint", "mist", "most", "move", "much",
+    "look", "lord", "loss", "loud",
+    "menu", "mere", "mill", "mine", "mint", "mist", "most", "move", "much",
     "name", "neat", "need", "nest", "noon", "nude",
     "oars", "oust",
     "pads", "page", "paid", "pain", "pale", "pane", "pars", "part", "pass", "past", "pear", "pegs",
@@ -656,7 +656,7 @@ static const char *word5[] =
     "laces", "large", "learn", "light", "lilac", "linen", "loose", "lucky", "lunar", "lyric",
     "madam", "major", "malts", "manor", "maple", "marry", "merit", "moist", "molar", "motto", "mourn", "mouse",
     "muddy",
-    "nacho", "novel",
+    "nacho", "novel", "nurse",
     "optic",
     "pages", "panda", "pause", "pedal", "pesto", "piece", "piety", "pings", "pious", "pivot", "place", "plant",
     "pound", "prime", "prize", "probe", "prose", "prune", "puppy", "pylon",
@@ -2860,7 +2860,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--phome             : include weak PEGATRON HOME candidates\n"
 	"--tenda             : include weak TENDA candidates\n"
 	"--ee                : include weak EE BrightBox candidates\n"
-	"                      list will be > 3GB\n"
+	"                      list will be > 3.5GB\n"
 	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice)\n"
 	"--asus              : include weak ASUS RT-AC58U candidates (ASUS_XX)\n"
 	"--weakpass          : include weak password candidates\n"
