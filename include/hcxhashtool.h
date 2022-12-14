@@ -59,6 +59,7 @@
 #define HCX_PMKIDEAPOL_IN		'i'
 #define HCX_PMKIDEAPOL_OUT		'o'
 #define HCX_ESSID_OUT			'E'
+#define HCX_ESSID_RAW_OUT		'L'
 #define HCX_DOWNLOAD_OUI		'd'
 #define HCX_PBKDF2_IN			'p'
 #define HCX_HELP			'h'

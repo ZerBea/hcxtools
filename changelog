@@ -1,3 +1,8 @@
+14.12.2022
+==========
+hcxhashtool: added new option -L to write unfiltered and unsorted ESSID list (usefull for hashcat -a9 option)
+
+
 25.11.2022
 ==========
 hcxhashtool: added new option --essid-partx to filter case insensitive

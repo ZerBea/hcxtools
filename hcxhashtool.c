@@ -55,6 +55,7 @@ static long int eapolcount;
 static long int pmkidwrittencount;
 static long int eapolwrittencount;
 static long int essidwrittencount;
+static long int essidrawwrittencount;
 static long int hccapxwrittencount;
 static long int hccapwrittencount;
 static long int johnpmkidwrittencount;
@@ -147,6 +148,7 @@ eapolcount = 0;
 pmkidwrittencount = 0;
 eapolwrittencount = 0;
 essidwrittencount = 0;
+essidrawwrittencount = 0;
 johnpmkidwrittencount = 0;
 johneapolwrittencount = 0;
 hccapxwrittencount = 0;
@@ -257,6 +259,7 @@ if(johneapolwrittencount > 0)		fprintf(stdout, "EAPOL written to john.........: 
 if(hccapxwrittencount > 0)		fprintf(stdout, "EAPOL written to hccapx.......: %ld\n", hccapxwrittencount);
 if(hccapwrittencount > 0)		fprintf(stdout, "EAPOL written to hccap........: %ld\n", hccapwrittencount);
 if(essidwrittencount > 0)		fprintf(stdout, "ESSID (unique) written........: %ld\n", essidwrittencount);
+if(essidrawwrittencount > 0)		fprintf(stdout, "ESSID written.................: %ld\n", essidrawwrittencount);
 fprintf(stdout, "\n");
 return;
 }
@@ -891,6 +894,32 @@ if(hccapxoutname != NULL)
 		{
 		if(statinfo.st_size == 0) remove(hccapxoutname);
 		}
+	}
+return;
+}
+/*===========================================================================*/
+static void processessidraw(char *essidrawoutname)
+{
+static long int pc;
+static hashlist_t *zeiger;
+static FILE *fh_essid;
+static struct stat statinfo;
+
+if((fh_essid = fopen(essidrawoutname, "a")) == NULL)
+	{
+	fprintf(stdout, "error opening file %s: %s\n", essidrawoutname, strerror(errno));
+	return;
+	}
+for(pc = 0; pc < pmkideapolcount; pc++)
+	{
+	zeiger = hashlist +pc;
+	fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_essid);
+	essidrawwrittencount++;
+	}
+fclose(fh_essid);
+if(stat(essidrawoutname, &statinfo) == 0)
+	{
+	if(statinfo.st_size == 0) remove(essidrawoutname);
 	}
 return;
 }
@@ -2081,6 +2110,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"-i <file>   : input PMKID/EAPOL hash file\n"
 	"-o <file>   : output PMKID/EAPOL hash file\n"
 	"-E <file>   : output ESSID list (autohex enabled)\n"
+	"-L <file>   : output ESSID list (unfiltered and unsorted)\n"
 	"-d          : download https://standards-oui.ieee.org/oui.txt\n"
 	"              and save to ~/.hcxtools/oui.txt\n"
 	"              internet connection required\n"
@@ -2190,6 +2220,7 @@ static char *pbkdf2inname;
 static char *pmkideapolinname;
 static char *pmkideapoloutname;
 static char *essidoutname;
+static char *essidrawoutname;
 static char *essidinname;
 static char *macinname;
 static char *macskipname;
@@ -2204,7 +2235,7 @@ static char *ouiinstring;
 static char *macinstring;
 static char *pmkinstring;
 
-static const char *short_options = "i:o:E:dp:hv";
+static const char *short_options = "i:o:E:L:dp:hv";
 static const struct option long_options[] =
 {
 	{"type",			required_argument,	NULL,	HCX_HASH_TYPE},
@@ -2261,6 +2292,7 @@ fh_pmkideapol = NULL;
 pmkideapolinname = NULL;
 pmkideapoloutname = NULL;
 essidoutname = NULL;
+essidrawoutname = NULL;
 essidinname = NULL;
 macinname = NULL;
 macskipname = NULL;
@@ -2320,6 +2352,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_ESSID_OUT:
 		essidoutname = optarg;
+		break;
+
+		case HCX_ESSID_RAW_OUT:
+		essidrawoutname = optarg;
 		break;
 
 		case HCX_VENDOR_OUT:
@@ -2668,9 +2704,7 @@ if(argc < 2)
 	}
 
 if(initlists() == false) exit(EXIT_FAILURE);
-
 if(pbkdf2inname != NULL) readbpkdf2file(pbkdf2inname);
-
 if((infooutname != NULL) || (infovendoroutname != NULL) || (infovendorapoutname != NULL) || (infovendorclientoutname != NULL))
 	{
 	filtervendorptr = NULL;
@@ -2685,7 +2719,6 @@ if((ouicount > 0) && (flagvendorout == true))
 	closelists();
 	return EXIT_SUCCESS;
 	}
-
 if(pmkideapolinname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapolinname, "r")) == NULL)
@@ -2695,7 +2728,6 @@ if(pmkideapolinname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
-
 if(fh_pmkideapol != NULL) readpmkideapolfile(fh_pmkideapol);
 
 if(pmkideapolcount == 0)
@@ -2705,6 +2737,10 @@ if(pmkideapolcount == 0)
 	closelists();
 	return EXIT_SUCCESS;
 	}
+
+if(essidrawoutname != 0) processessidraw(essidrawoutname);
+
+
 if(infooutname != NULL)
 	{
 	writeinfofile(infooutname);
