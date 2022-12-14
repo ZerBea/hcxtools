@@ -89,7 +89,7 @@ int p;
 
 fprintf(fhd, "\t");
 if(deviceinfostr[0] == 0) return;
-if(isasciistring2(len, deviceinfostr) != false) fprintf(fhd, "%.*s", len, deviceinfostr);
+if(isasciistring(len, deviceinfostr) != false) fprintf(fhd, "%.*s", len, deviceinfostr);
 else
 	{
 	fprintf(fhd, "$HEX[");
