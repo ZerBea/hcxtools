@@ -756,18 +756,20 @@ static unsigned int w, i, j; // w1
 
 static const char *word[] =
 {
-"amber", "aqua",
-"brick", "bronze", "burgundy",
+"amber", "aqua", "auburn",
+"blue", "brick", "bronze", "burgundy",
 "chestnut", "cobalt", "copper", "coral", "cordovan", "crimson", "cyan",
 "emerald",
 "garnet", "gold", "green", "grey",
 "indigo",
-"lavender", "lemon",
-"magenta",
+"jade",
+"lavender", "lemon", "lime",
+"magenta", "maroon",
+"navy",
 "olive", "orchid",
 "peach", "periwinkle", "pewter", "plum", "purple",
 "rose",
-"sage", "sepia", "silver",
+"sage", "sepia", "silver", "slate",
 "teal", "turquoise"
 };
 
