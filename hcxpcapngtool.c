@@ -2292,7 +2292,8 @@ else qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, s
 zeigerhsakt = handshakelist;
 zeigerpmkidakt = pmkidlist;
 zeigermacold = aplist;
-if(zeigermacold->type == AP)
+
+if((zeigermacold->type & AP) == AP)
 	{
 	if(zeigermacold->essidlen != 0)
 		{
@@ -2315,12 +2316,12 @@ essiddupecount = 0;
 for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 	{
 	if(zeigermac->essidlen == 0) continue;
-	if(zeigermac->type != AP)
+	if((zeigermac->type & AP) != AP)
 		{
 		essiddupecount = 0;
 		continue;
 		}
-	if(zeigermacold->type == AP)
+	if((zeigermacold->type & AP) == AP)
 		{
 		if(memcmp(zeigermacold->addr, zeigermac->addr, 6) == 0)
 			{
@@ -4218,7 +4219,6 @@ static void process80211actionmeasurement(uint64_t actiontimestamp, uint8_t *mac
 {
 static maclist_t *aplistnew;
 static tags_t tags;
-
 static actmm_t *actmm;
 
 if(packetlen < ACTIONMEASUREMENTFRAME_SIZE) return;
@@ -4815,7 +4815,6 @@ fprintf(stdout, "\nsummary capture file\n"
 	"version (pcap/cap).......................: %d.%d (very basic format without any additional information)\n"
 	, basename(pcaporgname), versionmajor, versionminor
 	);
-
 printlinklayerinfo();
 cleanupmac();
 outputdeviceinfolist();
