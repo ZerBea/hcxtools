@@ -3656,11 +3656,6 @@ if(authlen > eapauthlen)
 	eapolmsgerrorcount++;
 	return;
 	}
-if(authlen < WPAKEY_SIZE)
-	{
-	eapolmsgerrorcount++;
-	return;
-	}
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
@@ -3672,6 +3667,11 @@ if(wpak->keydescriptor == EAP_KDT_RC4)
 else if(wpak->keydescriptor == EAP_KDT_WPA) eapolwpacount++;
 else if(wpak->keydescriptor == EAP_KDT_RSN) eapolrsncount++;
 else return;
+if(authlen < WPAKEY_SIZE)
+	{
+	eapolmsgerrorcount++;
+	return;
+	}
 keylen = ntohs(wpak->keylen);
 if((keylen != 0) && (keylen != 16) && (keylen != 32))
 	{
