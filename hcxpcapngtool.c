@@ -797,23 +797,23 @@ if(eapolm32e2count > 0)			fprintf(stdout, "EAPOL M32E2 (authorized).............
 if(eapolm32e3count > 0)			fprintf(stdout, "EAPOL M32E3 (authorized).................: %ld\n", eapolm32e3count);
 if(eapolm34e3count > 0)			fprintf(stdout, "EAPOL M34E3 (authorized).................: %ld\n", eapolm34e3count);
 if(eapolm34e4count > 0)			fprintf(stdout, "EAPOL M34E4 (authorized).................: %ld\n", eapolm34e4count);
-if(pmkiduselesscount > 0)		fprintf(stdout, "PMKID (useless)..........................: %ld\n", pmkiduselesscount);
-if(pmkidcount > 0)			fprintf(stdout, "PMKID (total)............................: %ld\n", pmkidcount);
-if(zeroedpmkidpskcount > 0)		fprintf(stdout, "PMKID (from zeroed PSK)..................: %ld\n", zeroedpmkidpskcount);
-if(zeroedpmkidpmkcount > 0)		fprintf(stdout, "PMKID (from zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
+if(pmkiduselesscount > 0)		fprintf(stdout, "RSN PMKID (useless)......................: %ld\n", pmkiduselesscount);
+if(pmkidcount > 0)			fprintf(stdout, "RSN PMKID (total)........................: %ld\n", pmkidcount);
+if(zeroedpmkidpskcount > 0)		fprintf(stdout, "RSN PMKID (from zeroed PSK)..............: %ld\n", zeroedpmkidpskcount);
+if(zeroedpmkidpmkcount > 0)		fprintf(stdout, "RSN PMKID (from zeroed PMK)..............: %ld\n", zeroedpmkidpmkcount);
 if(donotcleanflag == false)
 	{
-	if(pmkidbestcount > 0)			fprintf(stdout, "PMKID (best).............................: %ld\n", pmkidbestcount);
+	if(pmkidbestcount > 0)			fprintf(stdout, "RSN PMKID (best).........................: %ld\n", pmkidbestcount);
 	}
 else
 	{
-	if(pmkidbestcount > 0)			fprintf(stdout, "PMKID (useful)...........................: %ld\n", pmkidbestcount);
+	if(pmkidbestcount > 0)			fprintf(stdout, "RSN PMKID (useful).......................: %ld\n", pmkidbestcount);
 	}
-if(pmkidroguecount > 0)			fprintf(stdout, "PMKID ROGUE..............................: %ld\n", pmkidroguecount);
-if(pmkidakmcount > 0)			fprintf(stdout, "PMKID (KDV:0 AKM defined)................: %ld (PMK not recoverable)\n", pmkidakmcount);
-if(pmkidwrittenhcount > 0)		fprintf(stdout, "PMKID written to 22000 hash file.........: %ld\n", pmkidwrittenhcount);
-if(pmkidwrittenjcountdeprecated > 0)	fprintf(stdout, "PMKID written to old format JtR..........: %ld\n", pmkidwrittenjcountdeprecated);
-if(pmkidwrittencountdeprecated > 0)	fprintf(stdout, "PMKID written to old format (1680x)......: %ld\n", pmkidwrittencountdeprecated);
+if(pmkidroguecount > 0)			fprintf(stdout, "RSN PMKID ROGUE..........................: %ld\n", pmkidroguecount);
+if(pmkidakmcount > 0)			fprintf(stdout, "RSN PMKID (KDV:0 AKM defined)............: %ld (PMK not recoverable)\n", pmkidakmcount);
+if(pmkidwrittenhcount > 0)		fprintf(stdout, "RSN PMKID written to 22000 hash file.....: %ld\n", pmkidwrittenhcount);
+if(pmkidwrittenjcountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format JtR......: %ld\n", pmkidwrittenjcountdeprecated);
+if(pmkidwrittencountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format (1680x)..: %ld\n", pmkidwrittencountdeprecated);
 if(pcapreaderrors > 0)			fprintf(stdout, "packet read error........................: %ld\n", pcapreaderrors);
 if(radiotaperrorcount > 0)		fprintf(stdout, "packet with damaged radiotap header......: %ld\n", radiotaperrorcount);
 if(zeroedtimestampcount > 0)		fprintf(stdout, "packets with zeroed timestamps...........: %ld\n", zeroedtimestampcount);
