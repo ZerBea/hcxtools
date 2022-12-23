@@ -1,3 +1,9 @@
+23.12.2022
+==========
+wlancap2wpasec: moved to curl_mime_xxx
+from now on curl >= 7.56 is mandatory
+
+
 14.12.2022
 ==========
 hcxhashtool: added new option -L to write unfiltered and unsorted ESSID list (usefull for hashcat -a9 option)
