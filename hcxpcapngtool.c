@@ -240,6 +240,7 @@ static long int eapexpandedcount;
 static long int eapidcount;
 static long int eapcodereqcount;
 static long int eapcoderespcount;
+static long int radiusauthenticationcount;
 static long int zeroedpmkidpskcount;
 static long int zeroedpmkidpmkcount;
 static long int zeroedeapolpskcount;
@@ -547,6 +548,7 @@ eapexpandedcount = 0;
 eapidcount = 0;
 eapcodereqcount = 0;
 eapcoderespcount = 0;
+radiusauthenticationcount = 0;
 zeroedpmkidpskcount = 0;
 zeroedpmkidpmkcount = 0;
 zeroedeapolpskcount = 0;
@@ -729,6 +731,7 @@ if(tacacsp3count > 0)			fprintf(stdout, "TACACS+ v3.............................
 if(tacacspwrittencount > 0)		fprintf(stdout, "TACACS+ written..........................: %ld\n", tacacspwrittencount);
 if(identitycount > 0)			fprintf(stdout, "IDENTITIES...............................: %ld\n", identitycount);
 if(usernamecount > 0)			fprintf(stdout, "USERNAMES................................: %ld\n", usernamecount);
+if(radiusauthenticationcount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (total)............: %ld\n", radiusauthenticationcount);
 if(eapcount > 0)			fprintf(stdout, "EAP (total)..............................: %ld\n", eapcount);
 if(eapexpandedcount > 0)		fprintf(stdout, "EAP-EXPANDED.............................: %ld\n", eapexpandedcount);
 if(eapcodereqcount > 0)			fprintf(stdout, "EAP CODE request.........................: %ld\n", eapcodereqcount);
@@ -1355,12 +1358,15 @@ static void processudppacket(uint64_t timestamp, uint32_t restlen, uint8_t *udpp
 {
 static udp_t *udp;
 static uint16_t udplen;
-
+static uint16_t udpdestinationport;
 if(restlen < UDP_SIZE) return;
 udp = (udp_t*)udpptr;
 udplen = ntohs(udp->len);
 if(restlen < udplen) return;
 udpcount++;
+
+udpdestinationport = ntohs(udp->destinationport);
+if(udpdestinationport == UDP_RADIUS_DESTINATIONPORT) radiusauthenticationcount++;
 //dummy code to satisfy gcc untill full code is implemented
 timestamp = timestamp;
 return;
