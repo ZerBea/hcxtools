@@ -859,7 +859,7 @@ struct udp_frame
 #define UDP_DHCP_CLIENTPORT 68
 #define UDP_DHCP6_SERVERPORT 547
 #define UDP_DHCP6_CLIENTPORT 546
-#define UDP_RADIUS_DESTINATIONPORT 1812
+#define UDP_RADIUS_PORT 1812
 #define UDP_TZSP_DESTINATIONPORT 37008
  uint16_t	len;
  uint16_t	checksum;
@@ -956,16 +956,22 @@ typedef struct tacacsp_frame tacacsp_t;
 #define RADIUS_HEADER_LENGTH 20
 #define RADIUS_MAX_SIZE 1000
 #define RADIUS_MAX_ATTRIBUTE_SIZE 253
+#define RADIUS_ACCESS_REQUEST 1
+#define RADIUS_ACCESS_ACCEPT 2
+#define RADIUS_ACCESS_REJECT 3
+#define RADIUS_ACCESS_CHALLENGE 11
+
 struct radius_frame_t
 {
  uint8_t	code;
  uint8_t	id;
- uint16_t	length;
+ uint16_t	len;
  uint8_t	authenticator[RADIUS_AUTHENTICATOR_LENGTH];
  uint8_t	attrs[RADIUS_MAX_SIZE -RADIUS_HEADER_LENGTH];
  uint8_t	data[1];
 } __attribute__ ((packed));
 typedef struct radius_frame_t radius_t;
+#define	RADIUS_MIN_SIZE 4
 #define	RADIUS_SIZE offsetof(radius_t, data)
 /*===========================================================================*/
 /* global var */

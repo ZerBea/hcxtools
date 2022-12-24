@@ -240,7 +240,10 @@ static long int eapexpandedcount;
 static long int eapidcount;
 static long int eapcodereqcount;
 static long int eapcoderespcount;
-static long int radiusauthenticationcount;
+static long int radiusrequestcount;
+static long int radiuschallengecount;
+static long int radiusacceptcount;
+static long int radiusrejectcount;
 static long int zeroedpmkidpskcount;
 static long int zeroedpmkidpmkcount;
 static long int zeroedeapolpskcount;
@@ -548,7 +551,10 @@ eapexpandedcount = 0;
 eapidcount = 0;
 eapcodereqcount = 0;
 eapcoderespcount = 0;
-radiusauthenticationcount = 0;
+radiusrequestcount = 0;
+radiuschallengecount = 0;
+radiusacceptcount = 0;
+radiusrejectcount = 0;
 zeroedpmkidpskcount = 0;
 zeroedpmkidpmkcount = 0;
 zeroedeapolpskcount = 0;
@@ -731,7 +737,10 @@ if(tacacsp3count > 0)			fprintf(stdout, "TACACS+ v3.............................
 if(tacacspwrittencount > 0)		fprintf(stdout, "TACACS+ written..........................: %ld\n", tacacspwrittencount);
 if(identitycount > 0)			fprintf(stdout, "IDENTITIES...............................: %ld\n", identitycount);
 if(usernamecount > 0)			fprintf(stdout, "USERNAMES................................: %ld\n", usernamecount);
-if(radiusauthenticationcount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (total)............: %ld\n", radiusauthenticationcount);
+if(radiusrequestcount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (REQUEST)..........: %ld\n", radiusrequestcount);
+if(radiuschallengecount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (CHALLENGE)........: %ld\n", radiuschallengecount);
+if(radiusacceptcount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (ACCEPT)...........: %ld\n", radiusacceptcount);
+if(radiusrejectcount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (REJECT)...........: %ld\n", radiusrejectcount);
 if(eapcount > 0)			fprintf(stdout, "EAP (total)..............................: %ld\n", eapcount);
 if(eapexpandedcount > 0)		fprintf(stdout, "EAP-EXPANDED.............................: %ld\n", eapexpandedcount);
 if(eapcodereqcount > 0)			fprintf(stdout, "EAP CODE request.........................: %ld\n", eapcodereqcount);
@@ -1354,21 +1363,38 @@ grecount++;
 return;
 }
 /*===========================================================================*/
+static void processradiuspacket(uint64_t timestamp, uint32_t restlen, uint8_t *radiusptr)
+{
+static radius_t *radius;
+static uint16_t radiuslen;
+
+if(restlen < RADIUS_MIN_SIZE) return;
+radius = (radius_t*)radiusptr;
+radiuslen = ntohs(radius->len);
+if(restlen != radiuslen) return;
+if(radius->code ==RADIUS_ACCESS_REQUEST) radiusrequestcount++;
+else if(radius->code == RADIUS_ACCESS_ACCEPT) radiusacceptcount++;
+else if(radius->code == RADIUS_ACCESS_REJECT) radiusrejectcount++;
+else if(radius->code == RADIUS_ACCESS_CHALLENGE) radiuschallengecount++;
+timestamp = timestamp;
+return;
+}
+/*===========================================================================*/
 static void processudppacket(uint64_t timestamp, uint32_t restlen, uint8_t *udpptr)
 {
 static udp_t *udp;
 static uint16_t udplen;
+static uint16_t udpsourceport;
 static uint16_t udpdestinationport;
+
 if(restlen < UDP_SIZE) return;
 udp = (udp_t*)udpptr;
 udplen = ntohs(udp->len);
 if(restlen < udplen) return;
 udpcount++;
-
+udpsourceport = ntohs(udp->sourceport);
 udpdestinationport = ntohs(udp->destinationport);
-if(udpdestinationport == UDP_RADIUS_DESTINATIONPORT) radiusauthenticationcount++;
-//dummy code to satisfy gcc untill full code is implemented
-timestamp = timestamp;
+if((udpsourceport == UDP_RADIUS_PORT) || (udpdestinationport == UDP_RADIUS_PORT)) processradiuspacket(timestamp, restlen -UDP_SIZE, udpptr +UDP_SIZE);
 return;
 }
 /*===========================================================================*/
