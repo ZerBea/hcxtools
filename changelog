@@ -1,3 +1,11 @@
+24.12.2022
+==========
+hcxpcapngtool: added detection of entire RADIUS detection
+RADIUS AUTHENTICATION (REQUEST)..........: 2
+RADIUS AUTHENTICATION (CHALLENGE)........: 1
+RADIUS AUTHENTICATION (ACCEPT)...........: 1
+
+
 23.12.2022
 ==========
 wlancap2wpasec: moved to curl_mime_xxx
