@@ -240,6 +240,10 @@ static long int eapexpandedcount;
 static long int eapidcount;
 static long int eapcodereqcount;
 static long int eapcoderespcount;
+static long int radiusrequestcount;
+static long int radiuschallengecount;
+static long int radiusacceptcount;
+static long int radiusrejectcount;
 static long int zeroedpmkidpskcount;
 static long int zeroedpmkidpmkcount;
 static long int zeroedeapolpskcount;
@@ -547,6 +551,10 @@ eapexpandedcount = 0;
 eapidcount = 0;
 eapcodereqcount = 0;
 eapcoderespcount = 0;
+radiusrequestcount = 0;
+radiuschallengecount = 0;
+radiusacceptcount = 0;
+radiusrejectcount = 0;
 zeroedpmkidpskcount = 0;
 zeroedpmkidpmkcount = 0;
 zeroedeapolpskcount = 0;
@@ -729,6 +737,10 @@ if(tacacsp3count > 0)			fprintf(stdout, "TACACS+ v3.............................
 if(tacacspwrittencount > 0)		fprintf(stdout, "TACACS+ written..........................: %ld\n", tacacspwrittencount);
 if(identitycount > 0)			fprintf(stdout, "IDENTITIES...............................: %ld\n", identitycount);
 if(usernamecount > 0)			fprintf(stdout, "USERNAMES................................: %ld\n", usernamecount);
+if(radiusrequestcount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (REQUEST)..........: %ld\n", radiusrequestcount);
+if(radiuschallengecount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (CHALLENGE)........: %ld\n", radiuschallengecount);
+if(radiusacceptcount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (ACCEPT)...........: %ld\n", radiusacceptcount);
+if(radiusrejectcount > 0)	fprintf(stdout, "RADIUS AUTHENTICATION (REJECT)...........: %ld\n", radiusrejectcount);
 if(eapcount > 0)			fprintf(stdout, "EAP (total)..............................: %ld\n", eapcount);
 if(eapexpandedcount > 0)		fprintf(stdout, "EAP-EXPANDED.............................: %ld\n", eapexpandedcount);
 if(eapcodereqcount > 0)			fprintf(stdout, "EAP CODE request.........................: %ld\n", eapcodereqcount);
@@ -797,23 +809,23 @@ if(eapolm32e2count > 0)			fprintf(stdout, "EAPOL M32E2 (authorized).............
 if(eapolm32e3count > 0)			fprintf(stdout, "EAPOL M32E3 (authorized).................: %ld\n", eapolm32e3count);
 if(eapolm34e3count > 0)			fprintf(stdout, "EAPOL M34E3 (authorized).................: %ld\n", eapolm34e3count);
 if(eapolm34e4count > 0)			fprintf(stdout, "EAPOL M34E4 (authorized).................: %ld\n", eapolm34e4count);
-if(pmkiduselesscount > 0)		fprintf(stdout, "PMKID (useless)..........................: %ld\n", pmkiduselesscount);
-if(pmkidcount > 0)			fprintf(stdout, "PMKID (total)............................: %ld\n", pmkidcount);
-if(zeroedpmkidpskcount > 0)		fprintf(stdout, "PMKID (from zeroed PSK)..................: %ld\n", zeroedpmkidpskcount);
-if(zeroedpmkidpmkcount > 0)		fprintf(stdout, "PMKID (from zeroed PMK)..................: %ld\n", zeroedpmkidpmkcount);
+if(pmkiduselesscount > 0)		fprintf(stdout, "RSN PMKID (useless)......................: %ld\n", pmkiduselesscount);
+if(pmkidcount > 0)			fprintf(stdout, "RSN PMKID (total)........................: %ld\n", pmkidcount);
+if(zeroedpmkidpskcount > 0)		fprintf(stdout, "RSN PMKID (from zeroed PSK)..............: %ld\n", zeroedpmkidpskcount);
+if(zeroedpmkidpmkcount > 0)		fprintf(stdout, "RSN PMKID (from zeroed PMK)..............: %ld\n", zeroedpmkidpmkcount);
 if(donotcleanflag == false)
 	{
-	if(pmkidbestcount > 0)			fprintf(stdout, "PMKID (best).............................: %ld\n", pmkidbestcount);
+	if(pmkidbestcount > 0)			fprintf(stdout, "RSN PMKID (best).........................: %ld\n", pmkidbestcount);
 	}
 else
 	{
-	if(pmkidbestcount > 0)			fprintf(stdout, "PMKID (useful)...........................: %ld\n", pmkidbestcount);
+	if(pmkidbestcount > 0)			fprintf(stdout, "RSN PMKID (useful).......................: %ld\n", pmkidbestcount);
 	}
-if(pmkidroguecount > 0)			fprintf(stdout, "PMKID ROGUE..............................: %ld\n", pmkidroguecount);
-if(pmkidakmcount > 0)			fprintf(stdout, "PMKID (KDV:0 AKM defined)................: %ld (PMK not recoverable)\n", pmkidakmcount);
-if(pmkidwrittenhcount > 0)		fprintf(stdout, "PMKID written to 22000 hash file.........: %ld\n", pmkidwrittenhcount);
-if(pmkidwrittenjcountdeprecated > 0)	fprintf(stdout, "PMKID written to old format JtR..........: %ld\n", pmkidwrittenjcountdeprecated);
-if(pmkidwrittencountdeprecated > 0)	fprintf(stdout, "PMKID written to old format (1680x)......: %ld\n", pmkidwrittencountdeprecated);
+if(pmkidroguecount > 0)			fprintf(stdout, "RSN PMKID ROGUE..........................: %ld\n", pmkidroguecount);
+if(pmkidakmcount > 0)			fprintf(stdout, "RSN PMKID (KDV:0 AKM defined)............: %ld (PMK not recoverable)\n", pmkidakmcount);
+if(pmkidwrittenhcount > 0)		fprintf(stdout, "RSN PMKID written to 22000 hash file.....: %ld\n", pmkidwrittenhcount);
+if(pmkidwrittenjcountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format JtR......: %ld\n", pmkidwrittenjcountdeprecated);
+if(pmkidwrittencountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format (1680x)..: %ld\n", pmkidwrittencountdeprecated);
 if(pcapreaderrors > 0)			fprintf(stdout, "packet read error........................: %ld\n", pcapreaderrors);
 if(radiotaperrorcount > 0)		fprintf(stdout, "packet with damaged radiotap header......: %ld\n", radiotaperrorcount);
 if(zeroedtimestampcount > 0)		fprintf(stdout, "packets with zeroed timestamps...........: %ld\n", zeroedtimestampcount);
@@ -1351,18 +1363,38 @@ grecount++;
 return;
 }
 /*===========================================================================*/
+static void processradiuspacket(uint64_t timestamp, uint32_t restlen, uint8_t *radiusptr)
+{
+static radius_t *radius;
+static uint16_t radiuslen;
+
+if(restlen < RADIUS_MIN_SIZE) return;
+radius = (radius_t*)radiusptr;
+radiuslen = ntohs(radius->len);
+if(restlen != radiuslen) return;
+if(radius->code ==RADIUS_ACCESS_REQUEST) radiusrequestcount++;
+else if(radius->code == RADIUS_ACCESS_ACCEPT) radiusacceptcount++;
+else if(radius->code == RADIUS_ACCESS_REJECT) radiusrejectcount++;
+else if(radius->code == RADIUS_ACCESS_CHALLENGE) radiuschallengecount++;
+timestamp = timestamp;
+return;
+}
+/*===========================================================================*/
 static void processudppacket(uint64_t timestamp, uint32_t restlen, uint8_t *udpptr)
 {
 static udp_t *udp;
 static uint16_t udplen;
+static uint16_t udpsourceport;
+static uint16_t udpdestinationport;
 
 if(restlen < UDP_SIZE) return;
 udp = (udp_t*)udpptr;
 udplen = ntohs(udp->len);
 if(restlen < udplen) return;
 udpcount++;
-//dummy code to satisfy gcc untill full code is implemented
-timestamp = timestamp;
+udpsourceport = ntohs(udp->sourceport);
+udpdestinationport = ntohs(udp->destinationport);
+if((udpsourceport == UDP_RADIUS_PORT) || (udpdestinationport == UDP_RADIUS_PORT)) processradiuspacket(timestamp, restlen -UDP_SIZE, udpptr +UDP_SIZE);
 return;
 }
 /*===========================================================================*/
@@ -2292,7 +2324,8 @@ else qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, s
 zeigerhsakt = handshakelist;
 zeigerpmkidakt = pmkidlist;
 zeigermacold = aplist;
-if(zeigermacold->type == AP)
+
+if((zeigermacold->type & AP) == AP)
 	{
 	if(zeigermacold->essidlen != 0)
 		{
@@ -2315,12 +2348,12 @@ essiddupecount = 0;
 for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 	{
 	if(zeigermac->essidlen == 0) continue;
-	if(zeigermac->type != AP)
+	if((zeigermac->type & AP) != AP)
 		{
 		essiddupecount = 0;
 		continue;
 		}
-	if(zeigermacold->type == AP)
+	if((zeigermacold->type & AP) == AP)
 		{
 		if(memcmp(zeigermacold->addr, zeigermac->addr, 6) == 0)
 			{
@@ -3655,11 +3688,6 @@ if(authlen > eapauthlen)
 	eapolmsgerrorcount++;
 	return;
 	}
-if(authlen < WPAKEY_SIZE)
-	{
-	eapolmsgerrorcount++;
-	return;
-	}
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
@@ -3671,6 +3699,11 @@ if(wpak->keydescriptor == EAP_KDT_RC4)
 else if(wpak->keydescriptor == EAP_KDT_WPA) eapolwpacount++;
 else if(wpak->keydescriptor == EAP_KDT_RSN) eapolrsncount++;
 else return;
+if(authlen < WPAKEY_SIZE)
+	{
+	eapolmsgerrorcount++;
+	return;
+	}
 keylen = ntohs(wpak->keylen);
 if((keylen != 0) && (keylen != 16) && (keylen != 32))
 	{
@@ -4218,7 +4251,6 @@ static void process80211actionmeasurement(uint64_t actiontimestamp, uint8_t *mac
 {
 static maclist_t *aplistnew;
 static tags_t tags;
-
 static actmm_t *actmm;
 
 if(packetlen < ACTIONMEASUREMENTFRAME_SIZE) return;
@@ -4815,7 +4847,6 @@ fprintf(stdout, "\nsummary capture file\n"
 	"version (pcap/cap).......................: %d.%d (very basic format without any additional information)\n"
 	, basename(pcaporgname), versionmajor, versionminor
 	);
-
 printlinklayerinfo();
 cleanupmac();
 outputdeviceinfolist();

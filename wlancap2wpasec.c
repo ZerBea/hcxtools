@@ -71,11 +71,12 @@ static bool sendcap2wpasec(char *sendcapname, long int timeout, char *keyheader,
 {
 CURL *curl;
 CURLcode res;
+curl_mime *mime;
+curl_mimepart *part;
+
 bool uploadflag = true;
 int ret;
 
-struct curl_httppost *formpost=NULL;
-struct curl_httppost *lastptr=NULL;
 struct curl_slist *headerlist=NULL;
 static const char buf[] = "Expect:";
 struct memory chunk;
@@ -83,10 +84,21 @@ struct memory chunk;
 fprintf(stdout, "uploading %s to %s\n", sendcapname, wpasecurl);
 memset(&chunk, 0, sizeof(chunk));
 curl_global_init(CURL_GLOBAL_ALL);
-curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE, sendcapname, CURLFORM_END);
-if(emailheader != NULL) curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "email", CURLFORM_PTRCONTENTS, emailheader, CURLFORM_END);
 
 curl = curl_easy_init();
+mime = curl_mime_init(curl);
+part = curl_mime_addpart(mime);
+
+curl_mime_filedata(part, sendcapname);
+curl_mime_type(part, "file");
+curl_mime_name(part, "file");
+
+if(emailheader != NULL)
+	{
+	curl_mime_data(part, emailheader, CURL_ZERO_TERMINATED);
+	curl_mime_name(part, "email");
+	}
+
 headerlist = curl_slist_append(headerlist, buf);
 if(curl)
 	{
@@ -95,7 +107,7 @@ if(curl)
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 	curl_easy_setopt(curl, CURLOPT_URL, wpasecurl);
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
-	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+	curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
 	if(keyheader) curl_easy_setopt(curl, CURLOPT_COOKIE, keyheader);
 	res = curl_easy_perform(curl);
 	if(res == CURLE_OK)
@@ -118,7 +130,7 @@ if(curl)
 		uploadflag = false;
 		}
 	curl_easy_cleanup(curl);
-	curl_formfree(formpost);
+	curl_mime_free(mime);
 	curl_slist_free_all(headerlist);
 	}
 return uploadflag;

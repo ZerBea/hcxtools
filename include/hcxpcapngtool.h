@@ -146,8 +146,8 @@ struct maclist_s
  int			count;
  uint8_t		type;
 #define	REMOVED		0
-#define	CLIENT		1
-#define	AP		2
+#define	CLIENT		0b00000001
+#define	AP		0b00000010
  uint8_t		status;
 #define ST_PROBE_REQ	1
 #define ST_BEACON	2
