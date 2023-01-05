@@ -132,7 +132,9 @@ Requirements
 * libcurl (>= 7.56) and curl-dev installed (used by whoismac and wlancap2wpasec)
 * pkg-config installed
 
-To install requirements on Debian based distributions >= bookworm (e.g. Kali, Ubuntu)  use the following 'apt-get install pkg-config libcurl4-openssl-dev libssl-dev zlib1g-dev'
+Debian (e.g. Kali, Ubuntu) release requirements >= bookworm (testing/Debian 12)  
+To install use the following:  
+`apt-get install pkg-config libcurl4-openssl-dev libssl-dev zlib1g-dev make gcc`
 
 If you decide to compile latest git head, make sure that your distribution is updated on latest version.
 
