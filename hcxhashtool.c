@@ -1518,6 +1518,7 @@ while(1)
 		linein[p2] = 0;
 		len = p2;
 		}
+	if(getfield(linein, 6, zeiger->mac) != 6) continue;
 	maclistskipcount++;
 	if(maclistskipcount >= maclistskipmax)
 		{
