@@ -1504,6 +1504,7 @@ maclistskipcount = 0;
 while(1)
 	{
 	if((len = fgetline(fh_maclistin, PMKIDEAPOL_BUFFER_LEN, linein)) == -1) break;
+	if(len < 12) continue;
 	if(len > 17)
 		{
 		p2 = 0;
@@ -1518,6 +1519,7 @@ while(1)
 		linein[p2] = 0;
 		len = p2;
 		}
+	linein[12] = 0;
 	if(getfield(linein, 6, zeiger->mac) != 6) continue;
 	maclistskipcount++;
 	if(maclistskipcount >= maclistskipmax)
