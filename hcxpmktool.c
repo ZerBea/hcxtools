@@ -265,7 +265,7 @@ else
 
 if(!EVP_MAC_init(ctxhmac, pmkcalculated, 32, paramssha1)) return false;
 if(!EVP_MAC_update(ctxhmac, ptkcalculated, 100)) return false;
-if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 256)) return false;
+if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 64)) return false;
 return true;
 }
 /*===========================================================================*/
@@ -621,7 +621,7 @@ if(pskstring != NULL)
 		{
 		if(hex2bin(pskstring, pmkcalculated, 32) != 32)
 			{
-			fprintf(stderr, "\nPMK error %ld\n", strlen(pskstring));
+			fprintf(stderr, "\nPMK error\n");
 			return EXIT_FAILURE;
 			}
 		status |= HAS_PMK;
