@@ -5245,8 +5245,9 @@ while(1)
 
 		if(timeresolval[pcapngepb->interface_id] == TSRESOL_NSEC)
 			{
-			timestamppcapng = pcapngepb->timestamp_high / 1000;
+			timestamppcapng = pcapngepb->timestamp_high;
 			timestamppcapng = (timestamppcapng << 32) +pcapngepb->timestamp_low;
+			timestamppcapng /= 1000;
 			}
 		if(pcapngepb->caplen != pcapngepb->len)
 			{
