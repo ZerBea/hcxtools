@@ -972,18 +972,16 @@ return;
 static void printlinklayerinfo()
 {
 static uint32_t c;
-static struct timespec tvmin;
-static struct timespec tvmax;
+static time_t tvmin;
+static time_t tvmax;
 static char timestringmin[32];
 static char timestringmax[32];
 
 radiotappresent = false;
-tvmin.tv_sec = timestampmin /1000000000;
-tvmin.tv_nsec = timestampmin %1000000000;
-strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmin.tv_sec));
-tvmax.tv_sec = timestampmax /1000000000;
-tvmax.tv_nsec = timestampmax %1000000000;
-strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmax.tv_sec));
+tvmin = timestampmin /1000000000;
+strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmin));
+tvmax = timestampmax /1000000000;
+strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmax));
 fprintf(stdout, "timestamp minimum (GMT)..................: %s\n", timestringmin);
 fprintf(stdout, "timestamp maximum (GMT)..................: %s\n", timestringmax);
 fprintf(stdout, "used capture interfaces..................: %d\n", iface);
