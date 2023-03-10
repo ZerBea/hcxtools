@@ -762,7 +762,7 @@ if(eapolmsgcount > 0)			fprintf(stdout, "EAPOL messages (total).................
 if(eapolrc4count > 0)			fprintf(stdout, "EAPOL RC4 messages.......................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			fprintf(stdout, "EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			fprintf(stdout, "EAPOL WPA messages.......................: %ld\n", eapolwpacount);
-if(eaptimegapmax > 0) fprintf(stdout, "EAPOLTIME gap (measured maximum usec)....: %" PRId64 "\n", eaptimegapmax);
+if(eaptimegapmax > 0) fprintf(stdout, "EAPOLTIME gap (measured maximum msec)....: %" PRIu64 "\n", eaptimegapmax / 1000);
 if(rcgapmax > 1024) rcgapmax = 1024;
 if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
@@ -4837,6 +4837,7 @@ while(1)
 	if(pcaprhdr.incl_len > 0)
 		{
 		timestampcap = ((uint64_t)pcaprhdr.ts_sec *1000000) + pcaprhdr.ts_usec;
+		timestampcap *= 1000;
 		processlinktype(timestampcap, pcapfhdr.network, pcaprhdr.incl_len, packet);
 		}
 	}
@@ -5243,11 +5244,11 @@ while(1)
 		timestamppcapng = pcapngepb->timestamp_high;
 		timestamppcapng = (timestamppcapng << 32) +pcapngepb->timestamp_low;
 
-		if(timeresolval[pcapngepb->interface_id] == TSRESOL_NSEC)
+		if(timeresolval[pcapngepb->interface_id] == TSRESOL_USEC)
 			{
 			timestamppcapng = pcapngepb->timestamp_high;
 			timestamppcapng = (timestamppcapng << 32) +pcapngepb->timestamp_low;
-			timestamppcapng /= 1000;
+			timestamppcapng *= 1000;
 			}
 		if(pcapngepb->caplen != pcapngepb->len)
 			{
@@ -5731,7 +5732,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                                     use hcxhashtool to filter hashes\n"
 	"                                     need hashcat --nonce-error-corrections >= 8\n"
 	"--eapoltimeout=<digit>             : set EAPOL TIMEOUT (milliseconds)\n"
-	"                                   : default: %d ms\n"
+	"                                   : default: %llu ms\n"
 	"--nonce-error-corrections=<digit>  : set nonce error correction\n"
 	"                                     warning: values > 0 can lead to uncrackable handshakes\n"
 	"                                   : default: %d\n"
@@ -5813,7 +5814,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"Recommended tool to calculate wordlists based on ESSID: hcxeiutool\n"
 	"Recommended tools to retrieve PSK from hash: hashcat, JtR\n"
 	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname, eigenname, eigenname, eigenname, eigenname,
-	EAPOLTIMEOUT /1000, NONCEERRORCORRECTION, ESSIDSMAX,
+	EAPOLTIMEOUT / 1000000, NONCEERRORCORRECTION, ESSIDSMAX,
 	eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -5973,7 +5974,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 			fprintf(stderr, "EAPOL TIMEOUT must be > 0\n");
 			exit(EXIT_FAILURE);
 			}
-		eapoltimeoutvalue *= 1000;
+		eapoltimeoutvalue *= 1000000;
 		break;
 
 		case HCX_NC:
