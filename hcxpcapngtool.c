@@ -762,7 +762,7 @@ if(eapolmsgcount > 0)			fprintf(stdout, "EAPOL messages (total).................
 if(eapolrc4count > 0)			fprintf(stdout, "EAPOL RC4 messages.......................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			fprintf(stdout, "EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			fprintf(stdout, "EAPOL WPA messages.......................: %ld\n", eapolwpacount);
-if(eaptimegapmax > 0) fprintf(stdout, "EAPOLTIME gap (measured maximum msec)....: %" PRIu64 "\n", eaptimegapmax / 1000);
+if(eaptimegapmax > 0) fprintf(stdout, "EAPOLTIME gap (measured maximum msec)....: %" PRIu64 "\n", eaptimegapmax / 1000000);
 if(rcgapmax > 1024) rcgapmax = 1024;
 if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
