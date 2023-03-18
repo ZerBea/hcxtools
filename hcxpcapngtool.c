@@ -886,9 +886,10 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 if(radiotappresent == false)
 	{
 	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
-		"Radiotap is a de facto standard for 802.11 frame injection and reception.\n"
-		"The radiotap header format is a mechanism to supply additional information about frames,\n"
-		"from the driver to userspace applications.\n"
+		"Radiotap is a de facto standard for 802.11 frame injection and\n"
+		"reception. The radiotap header format is a mechanism to supply\n"
+		"additional information about frames, rom the driver to userspace\n"
+		"applications.\n"
 		"https://www.radiotap.org/\n");
 	}
 if(zeroedtimestampcount > 0)
