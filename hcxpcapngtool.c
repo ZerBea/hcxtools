@@ -669,7 +669,7 @@ if(beaconcount > 0)
 		}
 	if((beaconchannel[0] &GHZ5) == GHZ5)
 		{
-		fprintf(stdout, "BEACON on 5/6 GHz channel (from IE-TAG)..: ");
+		fprintf(stdout, "BEACON on 5/6 GHz channel (from IE_TAG)..: ");
 		for(i = 15; i < CHANNEL_MAX; i++)
 			{
 			if(beaconchannel[i] != 0) fprintf(stdout, "%d ", i);
