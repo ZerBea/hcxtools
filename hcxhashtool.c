@@ -206,7 +206,7 @@ static void printstatus()
 static char *vendor;
 
 fprintf(stdout, "\nOUI information file..........: %s\n", usedoui);
-if(ouicount > 0)		fprintf(stdout, "OUI entires...................: %d\n", ouicount);
+if(ouicount > 0)		fprintf(stdout, "OUI entries...................: %d\n", ouicount);
 if(readcount > 0)		fprintf(stdout, "total lines read..............: %ld\n", readcount);
 if(flagvendorout == true)
 	{
