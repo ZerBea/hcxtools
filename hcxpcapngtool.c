@@ -2069,16 +2069,15 @@ static uint8_t keyvertemp;
 static uint8_t eapoltemp[EAPOL_AUTHLEN_MAX];
 static hccapx_t hccapx;
 static hccap_t hccap;
+static time_t tvhs;
 
-static struct timeval tvhs;
 static char timestringhs[32];
 
 zeigerhsold = NULL;
 for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	{
-	tvhs.tv_sec = zeigerhs->timestamp /1000000;
-	tvhs.tv_usec = zeigerhs->timestamp %1000000;
-	strftime(timestringhs, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvhs.tv_sec));
+	tvhs = zeigerhs->timestamp /1000000000;
+	strftime(timestringhs, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvhs));
 	if(donotcleanflag == false)
 		{
 		if(memcmp(&mac_broadcast, zeigerhs->client, 6) == 0) continue;
@@ -2138,7 +2137,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
 			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", eapoltemp[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapol, "*%02x\n", zeigerhs->status);
-			else fprintf(fh_pmkideapol, "*%02x\t%s\n", zeigerhs->status, timestringhs);
+			else fprintf(fh_pmkideapol, "*%02x:%s %" PRIu64 "\n", zeigerhs->status, timestringhs, zeigerhs->timestampgap);
 			if(zeigerhs->rcgap == 0) eapolwrittencount++;
 			else eapolncwrittencount++;
 			}
@@ -2229,15 +2228,14 @@ static pmkidlist_t *getpmkid(maclist_t *zeigermac, pmkidlist_t *zeigerpmkidakt)
 {
 static int p;
 static pmkidlist_t *zeigerpmkid, *zeigerpmkidold;
-static struct timeval tvhs;
+static time_t tvhs;
 static char timestringhs[32];
 
 zeigerpmkidold = NULL;
 for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 	{
-	tvhs.tv_sec = zeigerpmkid->timestamp /1000000;
-	tvhs.tv_usec = zeigerpmkid->timestamp %1000000;
-	strftime(timestringhs, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvhs.tv_sec));
+	tvhs = zeigerpmkid->timestamp /1000000000;
+	strftime(timestringhs, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvhs));
 	if(donotcleanflag == false)
 		{
 		if(memcmp(&mac_broadcast, zeigerpmkid->client, 6) == 0) continue;
@@ -2273,7 +2271,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapol, "***\n");
-			else fprintf(fh_pmkideapol, "***\t%s\n", timestringhs);
+			else fprintf(fh_pmkideapol, "***:%s\n", timestringhs);
 			pmkidwrittenhcount++;
 			}
 		if(fh_pmkideapoljtrdeprecated != 0)
@@ -5782,7 +5780,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                                     --eapleap=<file.5500>      : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"                                     --tacacs-plus=<file.16100> : output TACACS+ (hashcat -m 16100, john tacacs-plus)\n"
 	"                                     --nmea=<file.nmea>         : output GPS data in NMEA 0183 format\n"
-	"--add-timestamp                    : add date/time to hash line\n"
+	"--add-timestamp                    : add date/time and EAPOL TIME gap (time between two EAPOL MESSAGEs in nsec) to hash line\n"
 	"                                     this must be filtered out before feeding hashcat with the hash, e.g. by awk:\n"
 	"                                     cat hash.hc22000 | awk '{print $1}' > hashremovedtimestamp.hc22000\n"
 	"--help                             : show this help\n"
