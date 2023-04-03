@@ -2137,7 +2137,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
 			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", eapoltemp[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapol, "*%02x\n", zeigerhs->status);
-			else fprintf(fh_pmkideapol, "*%02x:%s %" PRIu64 "\n", zeigerhs->status, timestringhs, zeigerhs->timestampgap);
+			else fprintf(fh_pmkideapol, "*%02x\t%s %" PRIu64 "\n", zeigerhs->status, timestringhs, zeigerhs->timestampgap);
 			if(zeigerhs->rcgap == 0) eapolwrittencount++;
 			else eapolncwrittencount++;
 			}
@@ -2271,7 +2271,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapol, "***\n");
-			else fprintf(fh_pmkideapol, "***:%s\n", timestringhs);
+			else fprintf(fh_pmkideapol, "***\t%s\n", timestringhs);
 			pmkidwrittenhcount++;
 			}
 		if(fh_pmkideapoljtrdeprecated != 0)
