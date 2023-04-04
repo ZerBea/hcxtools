@@ -733,7 +733,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		sweeplen = strtol(optarg, NULL, 10);
 		if((sweeplen < 8) || (sweeplen > 32))
 			{
-			fprintf(stderr, "only 8...32 alowed\n");
+			fprintf(stderr, "only 8...32 allowed\n");
 			exit(EXIT_FAILURE);
 			}
 		break;
