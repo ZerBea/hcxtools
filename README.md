@@ -96,7 +96,7 @@ or install to `/usr/local/bin`:
 make install PREFIX=/usr/local (as super user)
 ```
 
-Or install via packet manager of your distribution
+Or install via package manager of your distribution
 --------------
 
 ### Arch Linux
