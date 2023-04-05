@@ -1439,7 +1439,7 @@ while((lineptr[p] != '*') && (lineptr[p] != 0) && (p /2 <= bufflen))
 	{
 	if(!isxdigit((unsigned char)lineptr[p +0])) return 0;
 	if(!isxdigit((unsigned char)lineptr[p +1])) return 0;
-	if((lineptr[p +1] == '*') && (lineptr[p +1] == 0)) return 0;
+	if((lineptr[p +1] == '*') || (lineptr[p +1] == 0)) return 0;
 	idx0 = ((uint8_t)lineptr[p +0] &0x1F) ^0x10;
 	idx1 = ((uint8_t)lineptr[p +1] &0x1F) ^0x10;
 	buff[p /2] = (uint8_t)(hashmap[idx0] <<4) | hashmap[idx1];
