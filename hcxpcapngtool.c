@@ -4456,20 +4456,31 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	if((pf %2) != 0) pf += 1;
 	frequency = (capptr[pf +1] << 8) + capptr[pf];
 	usedfrequency[frequency] += 1;
-	if((frequency >= 2412) && (frequency <= 2472))
-		{
-		interfacechannel = (frequency -2407)/5;
-		band24count++;
-		}
-	else if(frequency == 2484)
+	if(frequency == 2484)
 		{
 		interfacechannel = 14;
 		band24count++;
 		}
-	else if((frequency >=  5180) && (frequency <= 5905))
+	else if(frequency < 2484)
+		{
+		interfacechannel = (frequency -2407)/5;
+		band24count++;
+		}
+
+	else if(frequency >= 4910 && frequency <= 4980) 
+		{
+		interfacechannel = (frequency - 4000)/5;
+		band5count++;
+		}
+	else if(frequency < 5925)
 		{
 		interfacechannel = (frequency -5000)/5;
 		band5count++;
+		}
+	else if(frequency == 5935)
+		{
+		interfacechannel = 2;
+		band6count++;
 		}
 	else if((frequency >= 5955) && (frequency <= 7115))
 		{
