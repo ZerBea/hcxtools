@@ -516,6 +516,7 @@ static const char *word1[] =
 "lock",
 "mail",
 "name",
+"pace",
 "rose", "rush"
 };
 
@@ -552,22 +553,25 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *word1[] =
 {
-"above", "apple",
-"calm", "carry",
+"able", "above", "apple",
+"bean", "bird",
+"cake", "calm", "carry", "come",
 "done",
-"each", "east", "easy",
+"each", "east", "easy", "exit",
 "fast",
-"game", "girl", "give",
-"hard",
-"join",
-"lable", "lack", "light",
-"near", "north",
+"game", "girl", "give", "guide",
+"hard", "have", "head",
+"jade", "join", "joke",
+"lable", "lack", "lake", "land", "light", "lock",
+"mail", "major", "make",
+"near", "nine", "north",
 "ocean",
-"pace", "pain",
+"pace", "pain", "path",
 "quick", "quit", "quite",
-"salt", "south",
-"take", "tale", "talk",
-"west", "wind", "word"
+"reach", "ride", "rope",
+"salt", "same", "south",
+"take", "tale", "talk", "tell",
+"weak", "west", "where", "wind", "word"
 };
 
 for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
