@@ -4461,7 +4461,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 		interfacechannel = (frequency -2407)/5;
 		band24count++;
 		}
-	else if((frequency == 2484) && (frequency <= 2487))
+	else if(frequency == 2484)
 		{
 		interfacechannel = (frequency -2412)/5;
 		band24count++;
