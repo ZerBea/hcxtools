@@ -80,11 +80,20 @@ git clone https://github.com/ZerBea/hcxtools.git
 cd hcxtools
 ```
 
-Compile
+Compile & install
 --------------
 ```
 make
+```
+
+install to `/usr/bin`:
+```
 make install (as super user)
+```
+
+or install to `/usr/local/bin`:
+```
+make install PREFIX=/usr/local (as super user)
 ```
 
 Or install via packet manager of your distribution
