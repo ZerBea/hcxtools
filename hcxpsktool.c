@@ -517,7 +517,8 @@ static const char *word1[] =
 "mail",
 "name",
 "pace",
-"rose", "rush"
+"rose", "rush",
+"tell"
 };
 
 static const char *word2[] =
@@ -527,7 +528,7 @@ static const char *word2[] =
 "meet", "more", "mouth",
 "ride", "road",
 "think",
-"wind"
+"what", "wind"
 };
 
 for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
@@ -558,17 +559,17 @@ static const char *word1[] =
 "cake", "calm", "carry", "come",
 "done",
 "each", "east", "easy", "exit",
-"fast",
+"fact", "fast", "feed",
 "game", "girl", "give", "guide",
 "hard", "have", "head",
 "jade", "join", "joke",
 "lable", "lack", "lake", "land", "light", "lock",
 "mail", "major", "make",
-"near", "nine", "north",
+"name", "near", "nine", "north",
 "ocean",
 "pace", "pain", "path",
 "quick", "quit", "quite",
-"reach", "ride", "rope",
+"reach", "ride", "road", "rope", "rose",
 "salt", "same", "south",
 "take", "tale", "talk", "tell",
 "weak", "west", "where", "wind", "word"
