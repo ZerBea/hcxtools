@@ -171,7 +171,6 @@ static void keywritenetgear(FILE *fhout)
 {
 static size_t ca, cs;
 static int cn;
-
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *firstword[] =
@@ -291,7 +290,6 @@ static void keywritespectrum(FILE *fhout)
 {
 static size_t ca, cs;
 static int cn;
-
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *firstword[] =
@@ -327,20 +325,20 @@ static const char *firstword[] =
 "phobic", "phone", "pink", "plain", "plane", "pledge", "pocket", "polite",
 "praise", "precious", "prior", "prize", "proper", "prose", "proud", "purple",
 "quaint", "quick", "quiet", "quote", "rain", "rainy", "rapid", "rare",
-"ready", "reason", "red", "remedy", "review", "reward", "ric", "rich",
-"rocket", "rocky", "round", "royal", "runner", "rustic", "safety", "salt",
-"salute", "scary", "scout", "select", "shelf", "shiny", "short", "silent",
-"silky", "silly", "silver", "sleepy", "slow", "small", "smart", "smiley",
-"smiling", "smooth", "soccer", "some", "space", "spare", "square", "stable",
-"statue", "stealth", "stock", "street", "strict", "strong", "studio", "such",
-"sudden", "summit", "sunny", "super", "sweet", "swift", "tablet", "tall",
-"teal", "terrific", "theory", "thick", "thirsty", "this", "tight", "timber",
-"tiny", "town", "train", "turtle", "uneven", "union", "unique", "unite",
-"unusual", "upset", "urban", "useful", "usual", "valley", "vanilla", "vast",
-"verse", "violet", "violin", "voyage", "wagon", "walnut", "warm", "warmw",
-"watch", "watery", "weekly", "west", "wide", "windy", "wine", "witty",
-"wonderful", "wooden", "writer", "yacht", "yard", "year", "yellow", "young",
-"zany", "zeal", "zebra", "zone"
+"ready", "reason", "red", "remedy", "review", "reward", "rich", "rocket",
+"rocky", "round", "royal", "runner", "rustic", "safety", "salt", "salute",
+"scary", "scout", "select", "shelf", "shiny", "short", "silent", "silky",
+"silly", "silver", "sleepy", "slow", "small", "smart", "smiley", "smiling",
+"smooth", "soccer", "some", "space", "spare", "square", "stable", "statue",
+"stealth", "stock", "street", "strict", "strong", "studio", "such", "sudden",
+"summit", "sunny", "super", "sweet", "swift", "tablet", "tall", "teal",
+"terrific", "theory", "thick", "thirsty", "this", "tight", "timber", "tiny",
+"town", "train", "turtle", "uneven", "union", "unique", "unite", "unusual",
+"upset", "urban", "useful", "usual", "valley", "vanilla", "vast", "verse",
+"violet", "violin", "voyage", "wagon", "walnut", "warm", "warmw", "watch",
+"watery", "weekly", "west", "wide", "wides", "windy", "wine", "winter",
+"witty", "wonderful", "wooden", "writer", "yacht", "yard", "year", "yellow",
+"young", "zany", "zeal", "zebra", "zone"
 };
 
 static const char *secondword[] =
@@ -361,15 +359,15 @@ static const char *secondword[] =
 "finch", "finish", "fire", "fish", "flo", "flower", "fluent", "flute",
 "form", "formal", "fox", "friend", "gadfly", "gallon", "garden", "gate",
 "genius", "giant", "global", "goal", "grain", "green", "guitar", "guppy",
-"hair", "hairplane", "hale", "hall", "hand", "harbor", "hat", "height",
-"hill", "hippo", "hockey", "home", "honor", "horse", "hotel", "house",
-"idea", "idol", "immune", "income", "ink", "input", "invent", "iris",
-"island", "jacket", "jade", "jazz", "jeans", "jet", "jewel", "judge",
-"jungle", "kayak", "kettle", "key", "kite", "knight", "ladder", "lake",
-"law", "lawn", "leader", "lemon", "length", "light", "lion", "lotus",
-"loyal", "major", "mango", "map", "marble", "market", "math", "menu",
-"mesa", "method", "mint", "mirror", "mobile", "month", "moon", "mud",
-"museum", "music", "nation", "nature", "nest", "noble", "north", "oasis",
+"hair", "hale", "hall", "hand", "harbor", "hat", "height", "hill",
+"hippo", "hockey", "home", "honor", "horse", "hotel", "house", "idea",
+"idol", "immune", "income", "ink", "input", "invent", "iris", "island",
+"jacket", "jade", "jazz", "jeans", "jet", "jewel", "judge", "jungle",
+"kayak", "kettle", "key", "kite", "knight", "ladder", "lake", "law",
+"lawn", "leader", "lemon", "length", "light", "lion", "lotus", "loyal",
+"major", "mango", "map", "marble", "market", "math", "menu", "mesa",
+"method", "mint", "mirror", "mobile", "month", "moon", "mud", "museum",
+"music", "nail", "nation", "nature", "nest", "noble", "north", "oasis",
 "object", "oboe", "ocean", "octopus", "office", "onion", "orange", "outlet",
 "owl", "own", "owner", "oxygen", "palm", "panda", "pant", "paper",
 "parade", "park", "patron", "peach", "pear", "pencil", "people", "phoenix",
