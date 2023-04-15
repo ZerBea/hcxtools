@@ -963,7 +963,7 @@ if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0))
 	}
 if(malformedcount > 5)
 	{
-	printf( "\nInformation: malformed packets detected!\n"
+	fprintf(stdout, "\nInformation: malformed packets detected!\n"
 		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
 		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
 		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
@@ -974,7 +974,7 @@ if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eap
 	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
 	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount +eapmschapv2writtencount +tacacspwrittencount) == 0)
 	{
-	printf( "\nInformation: no hashes written to hash files\n");
+	fprintf(stdout, "\nInformation: no hashes written to hash files\n");
 	}
 fprintf(stdout, "\n");
 return;
