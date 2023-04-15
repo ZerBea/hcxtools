@@ -278,6 +278,7 @@ static long int eapolm3count;
 static long int eapolm3kdv0count;
 static long int eapolm3errorcount;
 static long int eapolm4count;
+static long int eapolm4zeroedcount;
 static long int eapolm4kdv0count;
 static long int eapolm4errorcount;
 static long int eapolwrittencount;
@@ -589,6 +590,7 @@ eapolm3count = 0;
 eapolm3kdv0count = 0;
 eapolm3errorcount = 0;
 eapolm4count = 0;
+eapolm4zeroedcount = 0;
 eapolm4kdv0count = 0;
 eapolm4errorcount = 0;
 eapolwrittencount = 0;
@@ -783,6 +785,7 @@ if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK)....
 if(eapolm3count > 0)			fprintf(stdout, "EAPOL M3 messages (total)................: %ld\n", eapolm3count);
 if(eapolm3kdv0count > 0)		fprintf(stdout, "EAPOL M3 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm3kdv0count);
 if(eapolm4count > 0)			fprintf(stdout, "EAPOL M4 messages (total)................: %ld\n", eapolm4count);
+if(eapolm4zeroedcount > 0)		fprintf(stdout, "EAPOL M4 messages (zeroed NONCE).........: %ld\n", eapolm4zeroedcount);
 if(eapolm4kdv0count > 0)		fprintf(stdout, "EAPOL M4 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm4kdv0count);
 if(eapolmpcount > 0)			fprintf(stdout, "EAPOL pairs (total)......................: %ld\n", eapolmpcount);
 if(zeroedeapolpskcount > 0)		fprintf(stdout, "EAPOL (from zeroed PSK)..................: %ld (not converted by default options - use --all if needed)\n", zeroedeapolpskcount);
@@ -877,12 +880,6 @@ if(radiotappresent == true)
 		}
 	fprintf(stdout, "\n");
 	}
-if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eapolncwrittenhcpxcountdeprecated +eapolwrittenhcpcountdeprecated
-	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
-	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount +eapmschapv2writtencount +tacacspwrittencount) == 0)
-	{
-	printf( "\nInformation: no hashes written to hash files\n");
-	}
 if(radiotappresent == false)
 	{
 	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
@@ -957,6 +954,12 @@ if(eapolm1ancount <= 1)
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to calculate nonce-error-correction values.\n");
 	}
+if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0))
+	{
+	fprintf(stdout, "\nInformation: missing EAPOL M3 frames!\n"
+		"This dump file does not contain EAPOL M3 frames (possibel packet loss).\n"
+		"It is recommended to use --all option.\n");
+	}
 if(malformedcount > 5)
 	{
 	printf( "\nInformation: malformed packets detected!\n"
@@ -965,6 +968,12 @@ if(malformedcount > 5)
 		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
 		"a bit error in the payload it can lead to unexpected results.\n"
 		"Please analyze the dump file with tshark or Wireshark or make a better capture!\n");
+	}
+if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eapolncwrittenhcpxcountdeprecated +eapolwrittenhcpcountdeprecated
+	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
+	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount +eapmschapv2writtencount +tacacspwrittencount) == 0)
+	{
+	printf( "\nInformation: no hashes written to hash files\n");
 	}
 fprintf(stdout, "\n");
 return;
@@ -3171,7 +3180,11 @@ if(memcmp(&zeroed32, wpak->keyid, 8) != 0)
 	eapolm4errorcount++;
 	return;
 	}
-if(memcmp(&zeroed32, wpak->nonce, 32) == 0) return;
+if(memcmp(&zeroed32, wpak->nonce, 32) == 0)
+	{
+	eapolm4zeroedcount++;
+	return;
+	}
 if((memcmp(&fakenonce1, wpak->nonce, 32) == 0) && (rc == 17)) return;
 if((memcmp(&fakenonce2, wpak->nonce, 32) == 0) && (rc == 17)) return;
 zeiger = messagelist +MESSAGELIST_MAX;
