@@ -958,7 +958,8 @@ if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0))
 	{
 	fprintf(stdout, "\nInformation: missing EAPOL M3 frames!\n"
 		"This dump file does not contain EAPOL M3 frames (possibel packet loss).\n"
-		"It is recommended to use --all option.\n");
+		"It strongly recommended to recapture the traffic or\n"
+		"to use --all option to convert all possible EAPOL MESSAGE PAIRs.\n");
 	}
 if(malformedcount > 5)
 	{
