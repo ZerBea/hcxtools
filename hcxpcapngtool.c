@@ -140,7 +140,7 @@ static int pcapngstat;
 static int capstat;
 static int pcapngstat;
 
-static int endianess;
+static int endianness;
 static uint16_t versionmajor;
 static uint16_t versionminor;
 
@@ -466,7 +466,7 @@ ieee80211flag = false;
 radiotaperrorcount = 0;
 nmeacount = 0;
 nmeaerrorcount = 0;
-endianess = 0;
+endianness = 0;
 rawpacketcount = 0;
 pcapreaderrors = 0;
 skippedpacketcount = 0;
@@ -639,8 +639,8 @@ static uint16_t p;
 
 if(nmeacount > 0)			fprintf(stdout, "NMEA PROTOCOL............................: %ld\n", nmeacount);
 if(nmeaerrorcount > 0)			fprintf(stdout, "NMEA PROTOCOL checksum errors............: %ld\n", nmeaerrorcount);
-if(endianess == 0)			fprintf(stdout, "endianess (capture system)...............: little endian\n");
-else					fprintf(stdout, "endianess (capture system)...............: big endian\n");
+if(endianness == 0)			fprintf(stdout, "endianness (capture system)..............: little endian\n");
+else					fprintf(stdout, "endianness (capture system)..............: big endian\n");
 if(rawpacketcount > 0)			fprintf(stdout, "packets inside...........................: %ld\n", rawpacketcount);
 if(skippedpacketcount > 0)		fprintf(stdout, "skipped packets..........................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			fprintf(stdout, "frames with correct FCS..................: %ld\n", fcsframecount);
@@ -4759,7 +4759,7 @@ if(pcapfhdr.magic_number == PCAPMAGICNUMBERBE)
 	pcapfhdr.sigfigs	= byte_swap_32(pcapfhdr.sigfigs);
 	pcapfhdr.snaplen	= byte_swap_32(pcapfhdr.snaplen);
 	pcapfhdr.network	= byte_swap_32(pcapfhdr.network);
-	endianess = 1;
+	endianness = 1;
 	}
 
 versionmajor = pcapfhdr.version_major;
@@ -4805,7 +4805,7 @@ while(1)
 	pcaprhdr.incl_len	= byte_swap_32(pcaprhdr.incl_len);
 	pcaprhdr.orig_len	= byte_swap_32(pcaprhdr.orig_len);
 	#endif
-	if(endianess == 1)
+	if(endianness == 1)
 		{
 		pcaprhdr.ts_sec		= byte_swap_32(pcaprhdr.ts_sec);
 		pcaprhdr.ts_usec	= byte_swap_32(pcaprhdr.ts_usec);
@@ -4882,7 +4882,7 @@ while(0 < restlen)
 	option->option_code = byte_swap_16(option->option_code);
 	option->option_length = byte_swap_16(option->option_length);
 	#endif
-	if(endianess == 1)
+	if(endianness == 1)
 		{
 		option->option_code = byte_swap_16(option->option_code);
 		option->option_length = byte_swap_16(option->option_length);
@@ -4959,7 +4959,7 @@ while(0 < restlen)
 			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x02] & 0xff);
 			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x01] & 0xff);
 			myaktreplaycount = (myaktreplaycount << 8) + (option->data[0x00] & 0xff);
-			if(endianess == 1) myaktreplaycount = byte_swap_64(myaktreplaycount);
+			if(endianness == 1) myaktreplaycount = byte_swap_64(myaktreplaycount);
 			}
 		}
 	else if(option->option_code == OPTIONCODE_ANONCE)
@@ -5096,9 +5096,9 @@ while(1)
 	#endif
 	if(blocktype == PCAPNGBLOCKTYPE)
 		{
-		if(blockmagic == PCAPNGMAGICNUMBERBE) endianess = 1;
+		if(blockmagic == PCAPNGMAGICNUMBERBE) endianness = 1;
 		}
-	if(endianess == 1)
+	if(endianness == 1)
 		{
 		blocktype = byte_swap_32(blocktype);
 		blocklen = byte_swap_32(blocklen);
@@ -5141,7 +5141,7 @@ while(1)
 		pcapngshb->minor_version	= byte_swap_16(pcapngshb->minor_version);
 		pcapngshb->section_length	= byte_swap_64(pcapngshb->section_length);
 		#endif
-		if(endianess == 1)
+		if(endianness == 1)
 			{
 			pcapngshb->major_version	= byte_swap_16(pcapngshb->major_version);
 			pcapngshb->minor_version	= byte_swap_16(pcapngshb->minor_version);
@@ -5172,7 +5172,7 @@ while(1)
 		pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
 		pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
 		#endif
-		if(endianess == 1)
+		if(endianness == 1)
 			{
 			pcapngidb->linktype	= byte_swap_16(pcapngidb->linktype);
 			pcapngidb->snaplen	= byte_swap_32(pcapngidb->snaplen);
@@ -5202,7 +5202,7 @@ while(1)
 		#ifdef BIG_ENDIAN_HOST
 		pcapngpb->caplen = byte_swap_32(pcapngpb->caplen);
 		#endif
-		if(endianess == 1) pcapngpb->caplen	= byte_swap_32(pcapngpb->caplen);
+		if(endianness == 1) pcapngpb->caplen	= byte_swap_32(pcapngpb->caplen);
 		timestamppcapng = 0;
 		if(pcapngpb->caplen > MAXPACPSNAPLEN)
 			{
@@ -5234,7 +5234,7 @@ while(1)
 		pcapngepb->caplen		= byte_swap_32(pcapngepb->caplen);
 		pcapngepb->len			= byte_swap_32(pcapngepb->len);
 		#endif
-		if(endianess == 1)
+		if(endianness == 1)
 			{
 			pcapngepb->interface_id		= byte_swap_32(pcapngepb->interface_id);
 			pcapngepb->timestamp_high	= byte_swap_32(pcapngepb->timestamp_high);
@@ -5411,7 +5411,7 @@ if(magicnumber == PCAPNGBLOCKTYPE)
 	}
 else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	{
-	if(magicnumber == PCAPMAGICNUMBERBE) endianess = 1;
+	if(magicnumber == PCAPMAGICNUMBERBE) endianness = 1;
 	if(initlists() == true)
 		{
 		processcap(fd_pcap, eigenname, pcapinname, pcapnameptr);
