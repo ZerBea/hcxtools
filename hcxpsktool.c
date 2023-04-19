@@ -508,23 +508,35 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 static const char *word1[] =
 {
 "card", "cash",
+"dark",
+"early", "envy",
 "feed",
 "good",
+"hard",
 "jade",
 "lock",
 "mail",
 "name",
-"pace",
+"pace", "pain", "pink",
 "rose", "rush",
-"tell"
+"sick",
+"tell",
+"upper",
+"what"
 };
 
 static const char *word2[] =
 {
+"child",
 "dash",
 "earth", "each", "exit",
-"meet", "more", "mouth",
+"fact",
+"hike",
+"meet", "more", "mouth", "much",
+"name",
+"part",
 "ride", "road",
+"safe",
 "think",
 "what", "wind"
 };
@@ -552,25 +564,27 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *word1[] =
 {
-"able", "above", "again", "apple",
-"bean", "bird",
-"cake", "calm", "card", "carry", "come",
-"done",
-"each", "east", "easy", "exit",
-"fact", "fast", "feed",
-"game", "girl", "give", "guide",
-"hard", "have", "head",
-"jade", "join", "joke", "july",
-"lable", "lack", "lake", "land", "light", "lock",
-"mail", "major", "make",
-"name", "near", "nine", "north",
-"ocean",
+"able", "above", "actor", "again", "apple",
+"back", "bath", "bean", "bird", "blue", "body",
+"cake", "calm", "card", "carry", "chair", "child", "cold", "come",
+"daily", "done", "down", "duty",
+"each", "early", "east", "easy", "even", "exit", "envy",
+"fact", "fast", "feed", "feel",
+"game", "ghost", "girl", "giude", "give", "green",
+"hand", "hard", "have", "head", "hike",
+"jade", "join", "joke", "july", "june",
+"keep", "kind",
+"lable", "lack", "lake", "land", "light", "like", "lock",
+"mail", "major", "make", "more",
+"name", "near", "nine", "north", "nose",
+"occur", "ocean",
 "pace", "pain", "path",
-"quick", "quit", "quite",
-"reach", "ride", "road", "room", "rope", "rose",
-"safe", "salt", "same", "south",
-"take", "tale", "talk", "tell", "think",
-"weak", "west", "where", "wind", "word"
+"quest", "quick", "quit", "quite",
+"rainy", "reach", "ride", "road", "room", "rope", "rose", "rush",
+"safe", "salt", "same", "soup", "south",
+"take", "tale", "talk", "tall", "team", "tell", "think",
+"upper",
+"water", "weak", "west", "where", "wind", "word"
 };
 
 for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
