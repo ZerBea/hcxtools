@@ -507,17 +507,19 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *word1[] =
 {
+"after",
 "card", "cash",
 "dark",
 "early", "envy",
 "feed",
 "good",
-"hard",
+"hand", "hard", "house",
 "jade",
 "lock",
-"mail",
+"mail", "meet",
 "name",
-"pace", "pain", "pink",
+"occur",
+"pace", "pain", "pass", "pink",
 "rose", "rush",
 "sick",
 "tell",
@@ -527,11 +529,13 @@ static const char *word1[] =
 
 static const char *word2[] =
 {
-"child",
-"dash",
+"best",
+"calm", "child",
+"dash", "door",
 "earth", "each", "exit",
 "fact",
-"hike",
+"girl",
+"happy", "have", "haven", "hike",
 "meet", "more", "mouth", "much",
 "name",
 "part",
@@ -564,27 +568,27 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *word1[] =
 {
-"able", "above", "actor", "again", "apple",
-"back", "bath", "bean", "bird", "blue", "body",
-"cake", "calm", "card", "carry", "chair", "child", "cold", "come",
+"able", "above", "actor", "again", "also", "apple",
+"back", "bath", "bean", "bird", "blue", "body", "book",
+"cake", "calm", "card", "carry", "chair", "child", "cold", "come", "cool",
 "daily", "done", "down", "duty",
-"each", "early", "east", "easy", "even", "exit", "envy",
-"fact", "fast", "feed", "feel",
-"game", "ghost", "girl", "giude", "give", "green",
-"hand", "hard", "have", "head", "hike",
-"jade", "join", "joke", "july", "june",
+"each", "early", "east", "easy", "edit", "envy", "even", "exist", "exit",
+"face", "fact", "fast", "feed", "feel", "fill",  "five",
+"game", "ghost", "girl", "giude", "give", "green", "guest",
+"hair", "hand", "hard", "have", "head", "high", "hike", "horse", "house",
+"jade", "jeep", "join", "joke", "juice", "july", "june",
 "keep", "kind",
-"lable", "lack", "lake", "land", "light", "like", "lock",
-"mail", "major", "make", "more",
+"lable", "lack", "lake", "land", "light", "like", "lock", "lose",
+"mail", "major", "make", "more", "most",
 "name", "near", "nine", "north", "nose",
-"occur", "ocean",
-"pace", "pain", "path",
+"occur", "ocean", "open",
+"pace", "pain", "park", "pass", "path",
 "quest", "quick", "quit", "quite",
-"rainy", "reach", "ride", "road", "room", "rope", "rose", "rush",
-"safe", "salt", "same", "soup", "south",
+"rainy", "reach", "read", "ride", "road", "room", "rope", "rose", "rush",
+"safe", "said", "salt", "same", "soup", "south",
 "take", "tale", "talk", "tall", "team", "tell", "think",
-"upper",
-"water", "weak", "west", "where", "wind", "word"
+"under", "upper",
+"water", "weak", "week", "west", "where", "wind", "word"
 };
 
 for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
