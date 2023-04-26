@@ -329,16 +329,16 @@ static const char *firstword[] =
 "rocky", "round", "royal", "runner", "rustic", "safety", "salt", "salute",
 "scary", "scout", "select", "shelf", "shiny", "short", "silent", "silky",
 "silly", "silver", "sleepy", "slow", "small", "smart", "smiley", "smiling",
-"smooth", "soccer", "some", "space", "spare", "square", "stable", "statue",
-"stealth", "stock", "street", "strict", "strong", "studio", "such", "sudden",
-"summit", "sunny", "super", "sweet", "swift", "tablet", "tall", "teal",
-"terrific", "theory", "thick", "thirsty", "this", "tight", "timber", "tiny",
-"town", "train", "turtle", "uneven", "union", "unique", "unite", "unusual",
-"upset", "urban", "useful", "usual", "valley", "vanilla", "vast", "verse",
-"violet", "violin", "voyage", "wagon", "walnut", "warm", "warmw", "watch",
-"watery", "weekly", "west", "wide", "windy", "wine", "winter", "witty",
-"wonderful", "wooden", "writer", "yacht", "yard", "year", "yellow", "young",
-"zany", "zeal", "zebra", "zone"
+"smooth", "soccer", "solid", "some", "space", "spare", "square", "stable",
+"statue", "stealth", "stock", "street", "strict", "strong", "studio", "such",
+"sudden", "summit", "sunny", "super", "sweet", "swift", "tablet", "tall",
+"teal", "terrific", "theory", "thick", "thirsty", "this", "tight", "timber",
+"tiny", "town", "train", "turtle", "uneven", "union", "unique", "unite",
+"unusual", "upset", "urban", "useful", "usual", "valley", "vanilla", "vast",
+"verse", "violet", "violin", "voyage", "wagon", "walnut", "warm", "warmw",
+"watch", "watery", "weekly", "west", "wide", "windy", "wine", "winter",
+"witty", "wonderful", "wooden", "writer", "yacht", "yard", "year", "yellow",
+"young", "zany", "zeal", "zebra", "zone"
 };
 
 static const char *secondword[] =
@@ -390,7 +390,7 @@ static const char *secondword[] =
 "water", "wealth", "week", "west", "whale", "wind", "window", "windy",
 "wolf", "world", "writer", "yacht", "yard", "year", "youth", "zeal",
 "zebra", "zone", "zoo"
-};
+}
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
