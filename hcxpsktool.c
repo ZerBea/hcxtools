@@ -390,7 +390,7 @@ static const char *secondword[] =
 "water", "wealth", "week", "west", "whale", "wind", "window", "windy",
 "wolf", "world", "writer", "yacht", "yard", "year", "youth", "zeal",
 "zebra", "zone", "zoo"
-}
+};
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
