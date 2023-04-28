@@ -2083,6 +2083,19 @@ ukrtelecomflag = true;
 return;
 }
 /*===========================================================================*/
+static void testwe(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1;
+
+if(essidlen != 8) return;
+if(essid[0] != 'W') return;
+if(essid[1] != 'E') return;
+if(!isxdigit((unsigned char)essid[6])) return;
+if(!isxdigit((unsigned char)essid[7])) return;
+for(k1 = 0; k1 < 0x100000; k1++) fprintf(fhout, "%c%c0%05x\n", tolower(essid[6]), tolower(essid[7]), k1);
+return;
+}
+/*===========================================================================*/
 static void testwifirsu(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
@@ -2209,11 +2222,11 @@ testrtk(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
 testtelered(fhout, essidlen, essid);
 testukrtelecom(fhout, essidlen, essid);
+testwe(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 testwlan(fhout, essidlen, essid);
 testx2g(fhout, essidlen, essid);
 testzhone(fhout, essidlen, essid);
-
 if(noessidcombinationflag == true) return;
 writeessidsweeped(fhout, essidlen, essid);
 po = 0;
