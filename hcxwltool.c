@@ -640,8 +640,8 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--version        : show version\n"
 	"\n"
 	"examples:\n"
-	"hcxwltool -i wordlist --straight | sort | uniq |  | sort | uniq | hashcat -m 22000 hashfile.hc22000\n"
-	"hcxwltool -i wordlist --digit --length=10 | sort | uniq |  | sort | uniq | hashcat -m 22000 hashfile.hc22000\n"
+	"hcxwltool -i wordlist --straight | sort | uniq | hashcat -m 22000 hashfile.hc22000\n"
+	"hcxwltool -i wordlist --digit --length=10 | sort | uniq | hashcat -m 22000 hashfile.hc22000\n"
 	"hcxwltool -i wordlist --digit | sort | uniq | hashcat -m 22000 hashfile.hc22000\n"
 	"hcxwltool -i wordlist --xdigit | sort | uniq | john --stdin --format=wpapsk-opencl john.hashfile\n"
 	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
@@ -733,7 +733,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		sweeplen = strtol(optarg, NULL, 10);
 		if((sweeplen < 8) || (sweeplen > 32))
 			{
-			fprintf(stderr, "only 8...32 alowed\n");
+			fprintf(stderr, "only 8...32 allowed\n");
 			exit(EXIT_FAILURE);
 			}
 		break;

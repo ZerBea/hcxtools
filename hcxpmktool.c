@@ -127,20 +127,15 @@ if((status & HAS_MIC) == HAS_MIC)
 	wpak->nonce[16], wpak->nonce[17], wpak->nonce[18], wpak->nonce[19], wpak->nonce[20], wpak->nonce[21], wpak->nonce[22], wpak->nonce[23], wpak->nonce[24], wpak->nonce[25], wpak->nonce[26], wpak->nonce[27], wpak->nonce[28], wpak->nonce[29], wpak->nonce[30], wpak->nonce[31]);
 	if((status & HAS_PTK_CALC) == HAS_PTK_CALC)
 		{
+		fprintf(stdout, "PTK.........: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x (calculated)\n",
+		ptkcalculated[0], ptkcalculated[1], ptkcalculated[2], ptkcalculated[3], ptkcalculated[4], ptkcalculated[5], ptkcalculated[6], ptkcalculated[7], ptkcalculated[8], ptkcalculated[9], ptkcalculated[10], ptkcalculated[11], ptkcalculated[12], ptkcalculated[13], ptkcalculated[14], ptkcalculated[15],
+		ptkcalculated[16], ptkcalculated[17], ptkcalculated[18], ptkcalculated[19], ptkcalculated[20], ptkcalculated[21], ptkcalculated[22], ptkcalculated[23], ptkcalculated[24], ptkcalculated[25], ptkcalculated[26], ptkcalculated[27], ptkcalculated[28], ptkcalculated[29], ptkcalculated[30], ptkcalculated[31]);
+
 		fprintf(stdout, "KCK.........: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x (calculated)\n",
 		ptkcalculated[0], ptkcalculated[1], ptkcalculated[2], ptkcalculated[3], ptkcalculated[4], ptkcalculated[5], ptkcalculated[6], ptkcalculated[7], ptkcalculated[8], ptkcalculated[9], ptkcalculated[10], ptkcalculated[11], ptkcalculated[12], ptkcalculated[13], ptkcalculated[14], ptkcalculated[15]);
 
 		fprintf(stdout, "KEK.........: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x (calculated)\n",
 		ptkcalculated[16], ptkcalculated[17], ptkcalculated[18], ptkcalculated[19], ptkcalculated[20], ptkcalculated[21], ptkcalculated[22], ptkcalculated[23], ptkcalculated[24], ptkcalculated[25], ptkcalculated[26], ptkcalculated[27], ptkcalculated[28], ptkcalculated[29], ptkcalculated[30], ptkcalculated[31]);
-
-		fprintf(stdout, "TK..........: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x (calculated)\n",
-		ptkcalculated[32], ptkcalculated[33], ptkcalculated[34], ptkcalculated[35], ptkcalculated[36], ptkcalculated[37], ptkcalculated[38], ptkcalculated[39], ptkcalculated[40], ptkcalculated[41], ptkcalculated[42], ptkcalculated[43], ptkcalculated[44], ptkcalculated[45], ptkcalculated[46], ptkcalculated[47]);
-
-		fprintf(stdout, "TKIP TX MIC.: %02x%02x%02x%02x%02x%02x%02x%02x (calculated)\n",
-		ptkcalculated[48], ptkcalculated[49], ptkcalculated[50], ptkcalculated[51], ptkcalculated[52], ptkcalculated[53], ptkcalculated[54], ptkcalculated[55]);
-
-		fprintf(stdout, "TKIP RX MIC.: %02x%02x%02x%02x%02x%02x%02x%02x (calculated)\n",
-		ptkcalculated[56], ptkcalculated[57], ptkcalculated[58], ptkcalculated[59], ptkcalculated[60], ptkcalculated[61], ptkcalculated[62], ptkcalculated[63]);
 		}
 	fprintf(stdout, "MIC.........: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 	mic[0], mic[1], mic[2], mic[3], mic[4], mic[5], mic[6], mic[7], mic[8], mic[9], mic[10], mic[11], mic[12], mic[13], mic[14], mic[15]);
@@ -203,6 +198,7 @@ static bool genptkwpa2kv3()
 {
 static uint8_t *pkeptr;
 
+memset(&ptkcalculated, 0, 128);
 pkeptr = ptkcalculated;
 pkeptr[0] = 1;
 pkeptr[1] = 0;
@@ -228,11 +224,12 @@ else
 	memcpy (pkeptr +34, wpak->nonce, 32);
 	memcpy (pkeptr +66, anonce, 32);
 	}
+
 ptkcalculated[100] = 0x80;
 ptkcalculated[101] = 1;
 if(!EVP_MAC_init(ctxhmac, pmkcalculated, 32, paramssha256)) return false;
 if(!EVP_MAC_update(ctxhmac, ptkcalculated, 102)) return false;
-if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 64)) return false;
+if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 128)) return false;
 return true;
 }
 /*===========================================================================*/
@@ -265,7 +262,7 @@ else
 
 if(!EVP_MAC_init(ctxhmac, pmkcalculated, 32, paramssha1)) return false;
 if(!EVP_MAC_update(ctxhmac, ptkcalculated, 100)) return false;
-if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 256)) return false;
+if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 128)) return false;
 return true;
 }
 /*===========================================================================*/
@@ -621,7 +618,7 @@ if(pskstring != NULL)
 		{
 		if(hex2bin(pskstring, pmkcalculated, 32) != 32)
 			{
-			fprintf(stderr, "\nPMK error %ld\n", strlen(pskstring));
+			fprintf(stderr, "\nPMK error\n");
 			return EXIT_FAILURE;
 			}
 		status |= HAS_PMK;

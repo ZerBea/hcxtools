@@ -80,14 +80,23 @@ git clone https://github.com/ZerBea/hcxtools.git
 cd hcxtools
 ```
 
-Compile
+Compile & install
 --------------
 ```
 make
+```
+
+install to `/usr/bin`:
+```
 make install (as super user)
 ```
 
-Or install via packet manager of your distribution
+or install to `/usr/local/bin`:
+```
+make install PREFIX=/usr/local (as super user)
+```
+
+Or install via package manager of your distribution
 --------------
 
 ### Arch Linux
@@ -156,6 +165,8 @@ Most output files will be appended to existing files (with the exception of pcap
 It is recommended to use hash mode 22000 (22001) instead of deprecated hash modes 2500 (2501) and 16800 (16801)
 
 hcxtools are designed to be analysis tools. This means that everything is converted by default and unwanted information must be filtered out! 
+
+Warning: do not merge (pcapng) dump files, because this destroys hash values, assigned by custom blocks.
 
 
 Bitmask message pair field (hcxpcapngtool)

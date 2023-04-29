@@ -1,5 +1,5 @@
-PRODUCTION		:= 0
-PRODUCTION_VERSION	:= 6.2.7
+PRODUCTION		:= 1
+PRODUCTION_VERSION	:= 6.2.9
 PRODUCTION_YEAR		:= 2023
 
 ifeq ($(PRODUCTION),1)
@@ -16,7 +16,7 @@ HOSTOS		:= $(shell uname -s)
 
 CC		?= gcc
 CFLAGS		?= -O3 -Wall -Wextra
-DCFLAGS		+= -std=gnu99
+CFLAGS		+= -std=gnu99
 DEFS		= -DVERSION_TAG=\"$(VERSION_TAG)\" -DVERSION_YEAR=\"$(VERSION_YEAR)\"
 DEFS		+= -DWANTZLIB
 

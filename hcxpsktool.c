@@ -171,7 +171,6 @@ static void keywritenetgear(FILE *fhout)
 {
 static size_t ca, cs;
 static int cn;
-
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *firstword[] =
@@ -291,7 +290,6 @@ static void keywritespectrum(FILE *fhout)
 {
 static size_t ca, cs;
 static int cn;
-
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *firstword[] =
@@ -327,20 +325,20 @@ static const char *firstword[] =
 "phobic", "phone", "pink", "plain", "plane", "pledge", "pocket", "polite",
 "praise", "precious", "prior", "prize", "proper", "prose", "proud", "purple",
 "quaint", "quick", "quiet", "quote", "rain", "rainy", "rapid", "rare",
-"ready", "reason", "red", "remedy", "review", "reward", "ric", "rich",
-"rocket", "rocky", "round", "royal", "runner", "rustic", "safety", "salt",
-"salute", "scary", "scout", "select", "shelf", "shiny", "short", "silent",
-"silky", "silly", "silver", "sleepy", "slow", "small", "smart", "smiley",
-"smiling", "smooth", "soccer", "some", "space", "spare", "square", "stable",
+"ready", "reason", "red", "remedy", "review", "reward", "rich", "rocket",
+"rocky", "round", "royal", "runner", "rustic", "safety", "salt", "salute",
+"scary", "scout", "select", "shelf", "shiny", "short", "silent", "silky",
+"silly", "silver", "sleepy", "slow", "small", "smart", "smiley", "smiling",
+"smooth", "soccer", "solid", "some", "space", "spare", "square", "stable",
 "statue", "stealth", "stock", "street", "strict", "strong", "studio", "such",
 "sudden", "summit", "sunny", "super", "sweet", "swift", "tablet", "tall",
 "teal", "terrific", "theory", "thick", "thirsty", "this", "tight", "timber",
 "tiny", "town", "train", "turtle", "uneven", "union", "unique", "unite",
 "unusual", "upset", "urban", "useful", "usual", "valley", "vanilla", "vast",
 "verse", "violet", "violin", "voyage", "wagon", "walnut", "warm", "warmw",
-"watch", "watery", "weekly", "west", "wide", "windy", "wine", "witty",
-"wonderful", "wooden", "writer", "yacht", "yard", "year", "yellow", "young",
-"zany", "zeal", "zebra", "zone"
+"watch", "watery", "weekly", "west", "wide", "windy", "wine", "winter",
+"witty", "wonderful", "wooden", "writer", "yacht", "yard", "year", "yellow",
+"young", "zany", "zeal", "zebra", "zone"
 };
 
 static const char *secondword[] =
@@ -361,37 +359,37 @@ static const char *secondword[] =
 "finch", "finish", "fire", "fish", "flo", "flower", "fluent", "flute",
 "form", "formal", "fox", "friend", "gadfly", "gallon", "garden", "gate",
 "genius", "giant", "global", "goal", "grain", "green", "guitar", "guppy",
-"hair", "hairplane", "hale", "hall", "hand", "harbor", "hat", "height",
-"hill", "hippo", "hockey", "home", "honor", "horse", "hotel", "house",
-"idea", "idol", "immune", "income", "ink", "input", "invent", "iris",
-"island", "jacket", "jade", "jazz", "jeans", "jet", "jewel", "judge",
-"jungle", "kayak", "kettle", "key", "kite", "knight", "ladder", "lake",
-"law", "lawn", "leader", "lemon", "length", "light", "lion", "lotus",
-"loyal", "major", "mango", "map", "marble", "market", "math", "menu",
-"mesa", "method", "mint", "mirror", "mobile", "month", "moon", "mud",
-"museum", "music", "nation", "nature", "nest", "noble", "north", "oasis",
-"object", "oboe", "ocean", "octopus", "office", "onion", "orange", "outlet",
-"owl", "own", "owner", "oxygen", "palm", "panda", "pant", "paper",
-"parade", "park", "patron", "peach", "pear", "pencil", "people", "phoenix",
-"phone", "piano", "pizza", "place", "planet", "player", "pledge", "plum",
-"pocket", "poem", "poet", "poetry", "pond", "poodle", "potato", "prairie",
-"praise", "prose", "puppy", "quail", "quaint", "quick", "quote", "rabbit",
-"raccoon", "radio", "raft", "rain", "ratio", "raven", "reason", "remedy",
-"review", "reward", "river", "road", "robin", "rock", "rocket", "role",
-"rose", "rosebud", "runner", "safety", "salute", "scout", "sea", "sector",
-"seed", "series", "shark", "sheep", "shelf", "ship", "shoe", "shrub",
-"singer", "skates", "sky", "sled", "snail", "snake", "snall", "soccer",
-"socks", "sofa", "space", "spark", "sparrow", "speech", "spider", "spoon",
-"squash", "squirrel", "stable", "star", "state", "statue", "storm", "stove",
-"straw", "street", "studio", "study", "summit", "sun", "table", "tablet",
-"tea", "teapot", "teapoty", "teen", "tent", "theory", "tiger", "timber",
-"tomato", "tooth", "topic", "town", "trail", "train", "tree", "truck",
-"trumpet", "truth", "tuba", "tulip", "turkey", "turtle", "two", "unicorn",
-"union", "unit", "unite", "urban", "useful", "valley", "value", "vase",
-"verse", "video", "violet", "violin", "volume", "voyage", "wagon", "walnut",
-"watch", "water", "wealth", "week", "west", "whale", "wind", "window",
-"windy", "wolf", "world", "writer", "yacht", "yard", "year", "youth",
-"zeal", "zebra", "zone", "zoo"
+"hair", "hale", "hall", "hand", "harbor", "hat", "height", "hill",
+"hippo", "hockey", "home", "honor", "horse", "hotel", "house", "idea",
+"idol", "immune", "income", "ink", "input", "invent", "iris", "island",
+"jacket", "jade", "jazz", "jeans", "jet", "jewel", "judge", "jungle",
+"kayak", "kettle", "key", "kite", "knight", "ladder", "lake", "law",
+"lawn", "leader", "lemon", "length", "light", "lion", "lotus", "loyal",
+"major", "mango", "map", "marble", "market", "math", "menu", "mesa",
+"method", "mint", "mirror", "mobile", "month", "moon", "mud", "museum",
+"music", "nation", "nature", "nest", "noble", "north", "oasis", "object",
+"oboe", "ocean", "octopus", "office", "onion", "orange", "outlet", "owl",
+"own", "owner", "oxygen", "palm", "panda", "pant", "paper", "parade",
+"park", "patron", "peach", "pear", "pencil", "people", "phoenix", "phone",
+"piano", "pizza", "place", "planet", "player", "pledge", "plum", "pocket",
+"poem", "poet", "poetry", "pond", "poodle", "potato", "prairie", "praise",
+"prose", "puppy", "quail", "quaint", "quick", "quote", "rabbit", "raccoon",
+"radio", "raft", "rain", "ratio", "raven", "reason", "remedy", "review",
+"reward", "river", "road", "robin", "rock", "rocket", "role", "rose",
+"rosebud", "runner", "safety", "salute", "scout", "sea", "sector", "seed",
+"series", "shark", "sheep", "shelf", "ship", "shoe", "shrub", "singer",
+"skates", "sky", "sled", "snail", "snake", "snall", "soccer", "socks",
+"sofa", "space", "spark", "sparrow", "speech", "spider", "spoon", "squash",
+"squirrel", "stable", "star", "state", "statue", "storm", "stove", "straw",
+"street", "studio", "study", "summit", "sun", "table", "tablet", "tea",
+"teapot", "teapoty", "teen", "tent", "theory", "tiger", "timber", "tomato",
+"tooth", "topic", "town", "trail", "train", "tree", "truck", "trumpet",
+"truth", "tuba", "tulip", "turkey", "turtle", "two", "unicorn", "union",
+"unit", "unite", "urban", "useful", "valley", "value", "vase", "verse",
+"video", "violet", "violin", "volume", "voyage", "wagon", "walnut", "watch",
+"water", "wealth", "week", "west", "whale", "wind", "window", "windy",
+"wolf", "world", "writer", "yacht", "yard", "year", "youth", "zeal",
+"zebra", "zone", "zoo"
 };
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
@@ -507,16 +505,49 @@ static int cn;
 
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-static const char *word1[] = { "card", "cash",
-	"feed",
-	"jade",
-	"name" };
+static const char *word1[] =
+{
+"after",
+"book",
+"card", "cash",
+"dark",
+"early", "edit", "envy",
+"fall", "feed",
+"good",
+"hand", "hard", "house",
+"jade",
+"lock",
+"mail", "meet",
+"name", "note",
+"occur",
+"pace", "pain", "pass", "path", "pink",
+"rose", "rush",
+"sale", "sick",
+"tell",
+"upper",
+"what"
+};
 
-static const char *word2[] = { "dash",
-	"more",
-	"ride",
-	"think",
-	"wind" };
+static const char *word2[] =
+{
+"again",
+"best", "blue",
+"calm", "child",
+"dash", "dear", "door",
+"earth", "each", "easy", "exit",
+"fact",
+"girl",
+"happy", "have", "haven", "hike",
+"light",
+"meet", "more", "most", "mouth", "much",
+"name",
+"over",
+"part",
+"ride", "road",
+"safe",
+"think",
+"what", "wind"
+};
 
 for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
 	{
@@ -539,14 +570,30 @@ static int cn;
 
 static char pskstring[PSKSTRING_LEN_MAX] = {};
 
-static const char *word1[] = { "apple",
-	"east",
-	"give",
-	"lable", "light",
-	"north",
-	"pace",
-	"south",
-	"west" };
+static const char *word1[] =
+{
+"able", "above", "actor", "again", "also", "apple",
+"back", "bath", "bean", "bike", "bird", "blue", "body", "book",
+"cake", "calm", "card", "carry", "chair", "child", "cold", "come", "cool",
+"daily", "dark", "dear", "done", "down", "duty",
+"each", "early", "east", "easy", "edit", "envy", "even", "exist", "exit",
+"face", "fact", "fall", "fast", "feed", "feel", "fill",  "five",
+"game", "ghost", "girl", "giude", "give", "green", "guest",
+"hair", "hand", "hard", "have", "head", "high", "hike", "horse", "house",
+"jade", "jean", "jeep", "join", "joke", "juice", "july", "june",
+"keep", "kind",
+"lable", "lack", "lake", "land", "light", "like", "live", "lock", "lose", 
+"mail", "main", "major", "make", "math", "more", "most",
+"name", "near", "nine", "north", "nose", "note",
+"occur", "ocean", "open", "over",
+"pace", "pain", "park", "pass", "path",
+"quest", "quick", "quit", "quite",
+"rainy", "reach", "read", "ride", "road", "room", "rope", "rose", "rush",
+"safe", "said", "sale", "salt", "same", "soup", "south",
+"take", "tale", "talk", "tall", "team", "tell", "think",
+"under", "upper",
+"water", "weak", "week", "west", "where", "wind", "word"
+};
 
 for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
 	{
@@ -573,106 +620,106 @@ char** uword5;
 
 static const char *word3[] =
 {
-    "abs", "ace", "act", "add", "ado", "age", "ago", "aid", "ail", "aim", "all", "amp",
-    "any", "ape", "apt", "art", "ask",
-    "bad", "bay", "beg", "bet", "bid", "big", "bow", "box", "bud", "bun", "bus", "buy",
-    "cad", "cam", "can", "cog", "cop", "cud", "cup", "cut",
-    "dam", "did", "die", "dig", "dim", "dip", "dog", "dry", "dub", "due", "dug",
-    "ear", "ego", "elk", "end", "era", "eye",
-    "fab", "fan", "far", "fat", "fax", "fee", "few", "fit", "fix", "fly", "fog", "fox",
-    "fry",
-    "gap", "gel", "gem", "get", "god",
-    "hem", "hid", "hip", "hit", "hop", "hot", "how", "hub",
-    "icy", "ink", "inn",
-    "jar", "job", "jog", "jot",
-    "key",
-    "lay", "led", "leg", "let", "lid", "lie", "lip", "lit", "lob", "lot", "low",
-    "mad", "map", "max", "mid", "mix", "mob", "mop", "mow", "mud", "mug",
-    "nag", "nap", "net", "new", "nod", "nor", "not", "now",
-    "oar", "oat", "odd", "off", "oil", "old", "one", "opt", "our", "out", "owe", "own",
-    "pal", "pay", "pea", "pen", "per", "pet", "pie", "pin", "ply", "pop", "pub", "put",
-    "ran", "rat", "raw", "red", "rid", "rig", "rob", "rot", "run",
-    "sad", "set", "sew", "shy", "sim", "sin", "sip", "sir", "sit", "six", "sow", "spy",
-    "tad", "tag", "tap", "tax", "ten", "tic", "tip", "ton", "top", "tow", "toy", "try",
-    "two",
-    "use",
-    "vex", "vow",
-    "wet", "win", "won"
+"abs", "ace", "act", "add", "ado", "age", "ago", "aid", "ail", "aim", "all", "amp",
+"any", "ape", "apt", "art", "ask",
+"bad", "bay", "beg", "bet", "bid", "big", "bow", "box", "bud", "bun", "bus", "buy",
+"cad", "cam", "can", "cog", "cop", "cud", "cup", "cut",
+"dam", "did", "die", "dig", "dim", "dip", "dog", "dry", "dub", "due", "dug",
+"ear", "ego", "elk", "end", "era", "eye",
+"fab", "fan", "far", "fat", "fax", "fee", "few", "fit", "fix", "fly", "fog", "fox",
+"fry",
+"gap", "gel", "gem", "get", "god",
+"hem", "hid", "hip", "hit", "hop", "hot", "how", "hub",
+"icy", "ink", "inn",
+"jar", "job", "jog", "jot",
+"key",
+"lay", "led", "leg", "let", "lid", "lie", "lip", "lit", "lob", "lot", "low",
+"mad", "map", "max", "mid", "mix", "mob", "mop", "mow", "mud", "mug",
+"nag", "nap", "net", "new", "nod", "nor", "not", "now",
+"oar", "oat", "odd", "off", "oil", "old", "one", "opt", "our", "out", "owe", "own",
+"pal", "pay", "pea", "pen", "per", "pet", "pie", "pin", "ply", "pop", "pub", "put",
+"ran", "rat", "raw", "red", "rid", "rig", "rob", "rot", "run",
+"sad", "set", "sew", "shy", "sim", "sin", "sip", "sir", "sit", "six", "sow", "spy",
+"tad", "tag", "tap", "tax", "ten", "tic", "tip", "ton", "top", "tow", "toy", "try",
+"two",
+"use",
+"vex", "vow",
+"wet", "win", "won"
 };
 
 static const char *word4[] =
 {
-    "able", "acre", "aqua",
-    "bait", "bake", "bald", "ball", "bark", "base", "bath", "bats", "bead", "bell", "best", "boat",
-    "boil", "bold", "bore", "both", "busy",
-    "calm", "camp", "cape", "card", "case", "cash", "cent", "chef", "city", "clad", "clay", "club",
-    "clue", "coat", "cool", "cope", "copy", "cute",
-    "dame", "damp", "dare", "dash", "date", "days", "deaf", "deal", "desk", "dive", "door", "dove",
-    "down", "draw", "drop",
-    "each", "east", "edge", "edit", "epic", "even", "ever", "exit",
-    "face", "fair", "fake", "fall", "fame", "fast", "fine", "firm", "flag", "flee", "foam", "fold",
-    "foot", "four", "full", "fuse",
-    "gaps", "gate", "gave", "gift", "gown", "gray",
-    "half", "hang", "hard", "hats", "head", "heat", "hide", "high", "hint", "hire", "hold", "hook",
-    "huge", "hurt", "hymn",
-    "idea", "iron",
-    "jets", "joke", "judo",
-    "keen", "kiss",
-    "lace", "lack", "land", "late", "lawn", "lazy", "less", "link", "live", "loaf", "loan", "logo",
-    "look", "lord", "loss", "loud",
-    "menu", "mere", "mill", "mine", "mint", "mist", "most", "move", "much",
-    "name", "neat", "need", "nest", "noon", "nude",
-    "oars", "oust",
-    "pads", "page", "paid", "pain", "pale", "pane", "pars", "part", "pass", "past", "pear", "pegs",
-    "pens", "pier", "pine", "pins", "pint", "pity", "plan", "poem", "poet", "pond", "pool", "poor",
-    "post", "pure",
-    "rare", "real", "rest", "rich", "riot", "ripe", "road", "roam", "room", "root", "rude",
-    "safe", "sail", "sale", "same", "sand", "save", "scan", "seal", "seat", "seem", "send", "sent",
-    "shin", "shop", "sick", "side", "sift", "sign", "silk", "sing", "skip", "slim", "slip", "slum",
-    "soap", "solo", "sore", "sour", "spit", "stew", "sure",
-    "tall", "teak", "team", "tear", "tent", "then", "tide", "time", "tone", "tour", "trim", "trod",
-    "true", "tune", "turn",
-    "used",
-    "vain", "vast", "vend", "vote",
-    "wait", "want", "warn", "wave", "west", "wild", "wind", "wing", "wise", "worm"
+"able", "acre", "aqua",
+"bait", "bake", "bald", "ball", "bark", "base", "bath", "bats", "bead", "bell", "best", "boat",
+"boil", "bold", "bore", "both", "busy",
+"calm", "camp", "cape", "card", "case", "cash", "cent", "chef", "city", "clad", "clay", "club",
+"clue", "coat", "cool", "cope", "copy", "cute",
+"dame", "damp", "dare", "dash", "date", "days", "deaf", "deal", "desk", "dive", "door", "dove",
+"down", "draw", "drop",
+"each", "east", "edge", "edit", "epic", "even", "ever", "exit",
+"face", "fair", "fake", "fall", "fame", "fast", "fine", "firm", "flag", "flee", "foam", "fold",
+"foot", "four", "full", "fuse",
+"gaps", "gate", "gave", "gift", "gown", "gray",
+"half", "hang", "hard", "hats", "head", "heat", "hide", "high", "hint", "hire", "hold", "hook",
+"huge", "hurt", "hymn",
+"idea", "iron",
+"jets", "joke", "judo",
+"keen", "kiss",
+"lace", "lack", "land", "late", "lawn", "lazy", "less", "link", "live", "loaf", "loan", "logo",
+"look", "lord", "loss", "loud",
+"menu", "mere", "mill", "mine", "mint", "mist", "most", "move", "much",
+"name", "neat", "need", "nest", "noon", "nude",
+"oars", "oust",
+"pads", "page", "paid", "pain", "pale", "pane", "pars", "part", "pass", "past", "pear", "pegs",
+"pens", "pier", "pine", "pins", "pint", "pity", "plan", "poem", "poet", "pond", "pool", "poor",
+"post", "pure",
+"rare", "real", "rest", "rich", "riot", "ripe", "road", "roam", "room", "root", "rude",
+"safe", "sail", "sale", "same", "sand", "save", "scan", "seal", "seat", "seem", "send", "sent",
+"shin", "shop", "sick", "side", "sift", "sign", "silk", "sing", "skip", "slim", "slip", "slum",
+"soap", "solo", "sore", "sour", "spit", "stew", "sure",
+"tall", "teak", "team", "tear", "tent", "then", "tide", "time", "tone", "tour", "trim", "trod",
+"true", "tune", "turn",
+"used",
+"vain", "vast", "vend", "vote",
+"wait", "want", "warn", "wave", "west", "wild", "wind", "wing", "wise", "worm"
 };
 
 static const char *word5[] =
 {
-    "aback", "acres", "adapt", "agent", "agony", "ahead", "alarm", "alert", "alien", "allot", "amble", "angle",
-    "ankle", "armed", "arrow", "audio",
-    "beams", "bland", "blank", "boast", "boost", "bored", "bread", "broke",
-    "cable", "cakes", "cards", "cargo", "cause", "chair", "cheap", "chips", "choke", "climb", "clove", "coact",
-    "coins", "comic", "count", "cover", "crane", "crash", "crude", "cruel", "cubic", "curry",
-    "dance", "dense", "desks", "diner", "dines", "dozen", "draft", "dream", "drink", "drown", "drunk", "dusty",
-    "early", "elder", "enter", "equal", "equip", "erode", "evens", "event", "exact", "excel", "extra",
-    "fancy", "fares", "fence", "fibre", "fifty", "filed", "files", "final", "floor", "flour", "flute", "focus",
-    "foggy", "front", "fruit",
-    "genie", "giant", "glare", "gleam", "glows", "grave", "great", "grids", "group", "grove", "guess", "guest",
-    "harps", "hawks", "heavy", "house", "humor",
-    "ideal", "index", "inked", "ivory",
-    "judge",
-    "knock",
-    "laces", "large", "learn", "light", "lilac", "linen", "loose", "lucky", "lunar", "lyric",
-    "madam", "major", "malts", "manor", "maple", "marry", "merit", "moist", "molar", "motto", "mourn", "mouse",
-    "muddy",
-    "nacho", "novel", "nurse",
-    "optic",
-    "pages", "panda", "pause", "pedal", "pesto", "piece", "piety", "pings", "pious", "pivot", "place", "plant",
-    "pound", "prime", "prize", "probe", "prose", "prune", "puppy", "pylon",
-    "quiet",
-    "rally", "refer", "remit", "renew", "repel", "roach", "rocky", "roofs", "rooks", "rough", "royal", "rusty",
-    "salad", "scarf", "scoop", "scoot", "scope", "score", "scorn", "shaft", "sharp", "sheds", "shine", "shiny",
-    "shirt", "shore", "shrub", "silly", "sixty", "skate", "socks", "sound", "spade", "spare", "spend", "spent",
-    "squad", "stack", "stand", "stars", "start", "stats", "steam", "stick", "stoop", "storm", "story", "sunny",
-    "sweat", "swift", "swing", "sword",
-    "tally", "tempt", "tents", "these", "thick", "thief", "tidal", "tiger", "title", "today", "track", "train",
-    "trick", "trust", "tuned", "twigs", "twist",
-    "unbid", "unbox", "uncap", "upend", "upper", "upset",
-    "valid", "vends", "vines", "visit",
-    "weary", "wheel", "whole", "worth", "wound", "wrist",
-    "yeast",
-    "zooms"
+"aback", "acres", "adapt", "agent", "agony", "ahead", "alarm", "alert", "alien", "allot", "amble", "angle",
+"ankle", "armed", "arrow", "audio",
+"beams", "bland", "blank", "boast", "boost", "bored", "bread", "broke",
+"cable", "cakes", "cards", "cargo", "cause", "chair", "cheap", "chips", "choke", "climb", "clove", "coact",
+"coins", "comic", "count", "cover", "crane", "crash", "crude", "cruel", "cubic", "curry",
+"dance", "dense", "desks", "diner", "dines", "dozen", "draft", "dream", "drink", "drown", "drunk", "dusty",
+"early", "elder", "enter", "equal", "equip", "erode", "evens", "event", "exact", "excel", "extra",
+"fancy", "fares", "fence", "fibre", "fifty", "filed", "files", "final", "floor", "flour", "flute", "focus",
+"foggy", "front", "fruit",
+"genie", "giant", "glare", "gleam", "glows", "grave", "great", "grids", "group", "grove", "guess", "guest",
+"harps", "hawks", "heavy", "house", "humor",
+"ideal", "index", "inked", "ivory",
+"judge",
+"knock",
+"laces", "large", "learn", "light", "lilac", "linen", "loose", "lucky", "lunar", "lyric",
+"madam", "major", "malts", "manor", "maple", "marry", "merit", "moist", "molar", "motto", "mourn", "mouse",
+"muddy",
+"nacho", "novel", "nurse",
+"optic",
+"pages", "panda", "pause", "pedal", "pesto", "piece", "piety", "pings", "pious", "pivot", "place", "plant",
+"pound", "prime", "prize", "probe", "prose", "prune", "puppy", "pylon",
+"quiet",
+"rally", "refer", "remit", "renew", "repel", "roach", "rocky", "roofs", "rooks", "rough", "royal", "rusty",
+"salad", "scarf", "scoop", "scoot", "scope", "score", "scorn", "shaft", "sharp", "sheds", "shine", "shiny",
+"shirt", "shore", "shrub", "silly", "sixty", "skate", "socks", "sound", "spade", "spare", "spend", "spent",
+"squad", "stack", "stand", "stars", "start", "stats", "steam", "stick", "stoop", "storm", "story", "sunny",
+"sweat", "swift", "swing", "sword",
+"tally", "tempt", "tents", "these", "thick", "thief", "tidal", "tiger", "title", "today", "track", "train",
+"trick", "trust", "tuned", "twigs", "twist",
+"unbid", "unbox", "uncap", "upend", "upper", "upset",
+"valid", "vends", "vines", "visit",
+"weary", "wheel", "whole", "worth", "wound", "wrist",
+"yeast",
+"zooms"
 };
 
 uword3 = create_upper_array(word3, sizeof(word3) / sizeof(char *));
@@ -2036,6 +2083,19 @@ ukrtelecomflag = true;
 return;
 }
 /*===========================================================================*/
+static void testwe(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1;
+
+if(essidlen != 8) return;
+if(essid[0] != 'W') return;
+if(essid[1] != 'E') return;
+if(!isxdigit((unsigned char)essid[6])) return;
+if(!isxdigit((unsigned char)essid[7])) return;
+for(k1 = 0; k1 < 0x100000; k1++) fprintf(fhout, "%c%c0%05x\n", tolower(essid[6]), tolower(essid[7]), k1);
+return;
+}
+/*===========================================================================*/
 static void testwifirsu(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
@@ -2162,11 +2222,11 @@ testrtk(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
 testtelered(fhout, essidlen, essid);
 testukrtelecom(fhout, essidlen, essid);
+testwe(fhout, essidlen, essid);
 testwifirsu(fhout, essidlen, essid);
 testwlan(fhout, essidlen, essid);
 testx2g(fhout, essidlen, essid);
 testzhone(fhout, essidlen, essid);
-
 if(noessidcombinationflag == true) return;
 writeessidsweeped(fhout, essidlen, essid);
 po = 0;

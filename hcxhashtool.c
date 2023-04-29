@@ -206,7 +206,7 @@ static void printstatus()
 static char *vendor;
 
 fprintf(stdout, "\nOUI information file..........: %s\n", usedoui);
-if(ouicount > 0)		fprintf(stdout, "OUI entires...................: %d\n", ouicount);
+if(ouicount > 0)		fprintf(stdout, "OUI entries...................: %d\n", ouicount);
 if(readcount > 0)		fprintf(stdout, "total lines read..............: %ld\n", readcount);
 if(flagvendorout == true)
 	{
@@ -1439,7 +1439,7 @@ while((lineptr[p] != '*') && (lineptr[p] != 0) && (p /2 <= bufflen))
 	{
 	if(!isxdigit((unsigned char)lineptr[p +0])) return 0;
 	if(!isxdigit((unsigned char)lineptr[p +1])) return 0;
-	if((lineptr[p +1] == '*') && (lineptr[p +1] == 0)) return 0;
+	if((lineptr[p +1] == '*') || (lineptr[p +1] == 0)) return 0;
 	idx0 = ((uint8_t)lineptr[p +0] &0x1F) ^0x10;
 	idx1 = ((uint8_t)lineptr[p +1] &0x1F) ^0x10;
 	buff[p /2] = (uint8_t)(hashmap[idx0] <<4) | hashmap[idx1];
@@ -1504,7 +1504,8 @@ maclistskipcount = 0;
 while(1)
 	{
 	if((len = fgetline(fh_maclistin, PMKIDEAPOL_BUFFER_LEN, linein)) == -1) break;
-	if(len == 17)
+	if(len < 12) continue;
+	if(len > 17)
 		{
 		p2 = 0;
 		for(p1 = 0; p1 < 17; p1++)
@@ -1518,7 +1519,7 @@ while(1)
 		linein[p2] = 0;
 		len = p2;
 		}
-	if(len != 12) continue;
+	linein[12] = 0;
 	if(getfield(linein, 6, zeiger->mac) != 6) continue;
 	maclistskipcount++;
 	if(maclistskipcount >= maclistskipmax)
@@ -2111,7 +2112,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"-o <file>   : output PMKID/EAPOL hash file\n"
 	"-E <file>   : output ESSID list (autohex enabled)\n"
 	"-L <file>   : output ESSID list (unfiltered and unsorted)\n"
-	"              usefull in combination with hashcat -a9 option\n"
+	"              useful in combination with hashcat -a9 option\n"
 	"-d          : download https://standards-oui.ieee.org/oui.txt\n"
 	"              and save to ~/.hcxtools/oui.txt\n"
 	"              internet connection required\n"
@@ -2174,13 +2175,13 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                               no filter options available\n"
 	"--info-vendor-ap=<file>      : output detailed information about ACCESS POINT VENDORs\n"
 	"                               no filter options available\n"
-	"--info-vendor-client=<file>  : output detailed information about ACCESS POINT VENDORs\n"
+	"--info-vendor-client=<file>  : output detailed information about CLIENT VENDORs\n"
 	"                               no filter options available\n"
 	"--info-vendor=stdout         : stdout output detailed information about ACCESS POINT and CLIENT VENDORs\n"
 	"                               no filter options available\n"
 	"--info-vendor-ap=stdout      : stdout output detailed information about ACCESS POINT VENDORs\n"
 	"                               no filter options available\n"
-	"--info-vendor-client=stdout  : stdout output detailed information about ACCESS POINT VENDORs\n"
+	"--info-vendor-client=stdout  : stdout output detailed information about CLIENT VENDORs\n"
 	"                               no filter options available\n"
 	"--psk=<PSK>                  : pre-shared key to test\n"
 	"                               due to PBKDF2 calculation this is a very slow process\n"
