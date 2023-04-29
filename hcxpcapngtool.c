@@ -893,7 +893,7 @@ if(magicblockcount > 1)
 	{
 	fprintf(stdout, "\nWarning: this dump file contains more than one custom block!\n"
 		"This always happens if dump files are merged!\n"
-		"Do not merge dump files, because this destroys assigned hash values\n");
+		"Do not merge dump files, because this destroys assigned hash values!\n");
 	}
 if(zeroedtimestampcount > 0)
 	{
