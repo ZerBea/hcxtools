@@ -166,6 +166,8 @@ It is recommended to use hash mode 22000 (22001) instead of deprecated hash mode
 
 hcxtools are designed to be analysis tools. This means that everything is converted by default and unwanted information must be filtered out! 
 
+Warning: do not merge (pcapng) dump files, because this destroys hash values, assigned by custom blocks.
+
 
 Bitmask message pair field (hcxpcapngtool)
 --------------
