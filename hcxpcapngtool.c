@@ -83,7 +83,6 @@ typedef struct hccapx_s hccapx_t;
 /*===========================================================================*/
 /*===========================================================================*/
 /* global var */
-
 static EVP_MAC *hmac;
 static EVP_MAC *cmac;
 static EVP_MAC_CTX *ctxhmac;
@@ -93,6 +92,7 @@ static OSSL_PARAM paramssha1[3];
 static OSSL_PARAM paramssha256[3];
 static OSSL_PARAM paramsaes128[3];
 
+static size_t magicblockcount;
 static maclist_t *aplist, *aplistptr;
 static messagelist_t *messagelist;
 static handshakelist_t *handshakelist, *handshakelistptr;
@@ -888,6 +888,12 @@ if(radiotappresent == false)
 		"additional information about frames, rom the driver to userspace\n"
 		"applications.\n"
 		"https://www.radiotap.org/\n");
+	}
+if(magicblockcount > 1)
+	{
+	fprintf(stdout, "\nWarning: this dump file contains more than one custom block!\n"
+		"This always happens if dump files are merged!\n"
+		"Do not merge dump files, because this destroys assigned hash values\n");
 	}
 if(zeroedtimestampcount > 0)
 	{
@@ -5052,6 +5058,7 @@ static int interfaceid[MAX_INTERFACE_ID];
 static uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 static uint8_t packet[MAXPACPSNAPLEN];
 
+magicblockcount = 0;
 ancientdumpfileformat = false;
 fprintf(stdout, "%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(pcapinname));
 iface = 0;
@@ -5317,6 +5324,7 @@ while(1)
 			skippedpacketcount++;
 			continue;
 			}
+		magicblockcount++;
 		if(pcapngoptionwalk(blocktype, pcapngcb->data, blocklen -CB_SIZE) != 0) pcapreaderrors++;
 		}
 	else
@@ -5324,7 +5332,6 @@ while(1)
 		skippedpacketcount++;
 		}
 	}
-
 fprintf(stdout, "\nsummary capture file\n"
 	"--------------------\n"
 	"file name................................: %s\n"
