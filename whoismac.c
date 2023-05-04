@@ -50,13 +50,13 @@ ret = curl_easy_perform(hnd);
 curl_easy_cleanup(hnd);
 if(ret != 0)
 	{
-	fprintf(stderr, "download not successful\n");
+	fprintf(stderr, "\ndownload not successful\n");
 	exit(EXIT_FAILURE);
 	}
 rewind(fhouitmp);
 if((fhoui = fopen(ouiname, "w")) == NULL)
 	{
-	fprintf(stderr, "error creating file %s\n", ouiname);
+	fprintf(stderr, "\nerror creating file %s\n", ouiname);
 	exit(EXIT_FAILURE);
 	}
 while (!feof(fhouitmp))
@@ -65,7 +65,7 @@ while (!feof(fhouitmp))
 	if(bread > 0) fwrite(ouibuff, 1, bread, fhoui);
 	}
 fclose(fhoui);
-fprintf(stdout, "download finished\n");
+fprintf(stdout, "\ndownload finished\n");
 return true;
 }
 /*===========================================================================*/

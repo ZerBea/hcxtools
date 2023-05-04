@@ -2076,7 +2076,7 @@ strncat(ouinameuserpath, ouiname, PATH_MAX -1);
 fprintf(stdout, "start downloading oui from https://standards-oui.ieee.org to: %s\n", ouinameuserpath);
 if((fhouitmp = tmpfile()) == NULL)
 	{
-	fprintf(stderr, "failed to create temporary download file\n");
+	fprintf(stderr, "\nfailed to create temporary download file\n");
 	return;
 	}
 hnd = curl_easy_init ();
@@ -2088,13 +2088,13 @@ ret = curl_easy_perform(hnd);
 curl_easy_cleanup(hnd);
 if(ret != 0)
 	{
-	fprintf(stderr, "download not successful\n");
+	fprintf(stderr, "\ndownload not successful\n");
 	return;
 	}
 rewind(fhouitmp);
 if((fhoui = fopen(ouinameuserpath, "w")) == NULL)
 	{
-	fprintf(stderr, "failed to create %s\n", ouiname);
+	fprintf(stderr, "\nfailed to create %s\n", ouiname);
 	return;
 	}
 while (!feof(fhouitmp))
@@ -2103,7 +2103,7 @@ while (!feof(fhouitmp))
 	if(bread > 0) fwrite(ouibuff, 1, bread, fhoui);
 	}
 fclose(fhoui);
-fprintf(stdout, "download finished\n");
+fprintf(stdout, "\ndownload finished\n");
 return;
 }
 /*===========================================================================*/
