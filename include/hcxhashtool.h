@@ -1,5 +1,6 @@
 #define OUILIST_MAX		50000
 #define OUI_LINE_LEN		50000
+#define OUIBUFFER_MAX		8192
 
 #define HCX_TYPE_PMKID		1
 #define HCX_TYPE_EAPOL		2

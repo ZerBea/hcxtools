@@ -2047,14 +2047,17 @@ return;
 static void downloadoui()
 {
 static uid_t uid;
+static size_t bread;
 static struct passwd *pwd;
 static CURLcode ret;
 static CURL *hnd;
 static FILE* fhoui;
+static FILE* fhouitmp;
 static struct stat statinfo;
 static const char *ouipath = "/.hcxtools";
 static const char *ouiname = "/oui.txt";
 static char ouinameuserpath[PATH_MAX];
+static char ouibuff[OUIBUFFER_MAX];
 
 uid = getuid();
 pwd = getpwuid(uid);
@@ -2071,24 +2074,35 @@ if(stat(ouinameuserpath, &statinfo) == -1)
 	}
 strncat(ouinameuserpath, ouiname, PATH_MAX -1);
 fprintf(stdout, "start downloading oui from https://standards-oui.ieee.org to: %s\n", ouinameuserpath);
-if((fhoui = fopen(ouinameuserpath, "w")) == NULL)
+if((fhouitmp = tmpfile()) == NULL)
 	{
-	fprintf(stdout, "error creating file %s", ouiname);
+	fprintf(stdout, "failed to create temporyry download file\n");
 	return;
 	}
 hnd = curl_easy_init ();
 curl_easy_setopt(hnd, CURLOPT_URL, "https://standards-oui.ieee.org/oui/oui.txt");
 curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
-curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhoui) ;
+curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhouitmp) ;
 curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 0L);
 ret = curl_easy_perform(hnd);
 curl_easy_cleanup(hnd);
-fclose(fhoui);
 if(ret != 0)
 	{
-	fprintf(stdout, "download not successful");
+	fprintf(stdout, "download not successful\n");
 	return;
 	}
+rewind(fhouitmp);
+if((fhoui = fopen(ouinameuserpath, "w")) == NULL)
+	{
+	fprintf(stdout, "error creating file %s", ouiname);
+	return;
+	}
+while (!feof(fhouitmp))
+	{
+	bread = fread(ouibuff, 1, sizeof(ouibuff), fhouitmp);
+	if(bread > 0) fwrite(ouibuff, 1, bread, fhoui);
+	}
+fclose(fhoui);
 fprintf(stdout, "download finished\n");
 return;
 }
