@@ -37,7 +37,7 @@ static char ouibuff[OUIBUFFER_MAX];
 fprintf(stdout, "start downloading oui from https://standards-oui.ieee.org to: %s\n", ouiname);
 if((fhouitmp = tmpfile()) == NULL)
 	{
-	fprintf(stdout, "failed to create temporyry download file\n");
+	fprintf(stderr, "failed to create temporary download file\n");
 	return false;
 	}
 hnd = curl_easy_init ();
@@ -56,7 +56,7 @@ if(ret != 0)
 rewind(fhouitmp);
 if((fhoui = fopen(ouiname, "w")) == NULL)
 	{
-	fprintf(stderr, "error creating file %s", ouiname);
+	fprintf(stderr, "error creating file %s\n", ouiname);
 	exit(EXIT_FAILURE);
 	}
 while (!feof(fhouitmp))
@@ -65,7 +65,6 @@ while (!feof(fhouitmp))
 	if(bread > 0) fwrite(ouibuff, 1, bread, fhoui);
 	}
 fclose(fhoui);
-
 fprintf(stdout, "download finished\n");
 return true;
 }
