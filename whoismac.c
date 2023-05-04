@@ -19,40 +19,52 @@
 
 #include "include/strings.c"
 
-#define LINEBUFFER 256
+#define LINEBUFFER_MAX	256
+#define OUIBUFFER_MAX	8192
 
 const char *ouiurl = "https://standards-oui.ieee.org/oui/oui.txt";
 
 /*===========================================================================*/
 static bool downloadoui(char *ouiname)
 {
+static size_t bread;
 static CURLcode ret;
 static CURL *hnd;
-
-static FILE* fhoui;
+static FILE *fhoui;
+static FILE *fhouitmp;
+static char ouibuff[OUIBUFFER_MAX];
 
 fprintf(stdout, "start downloading oui from https://standards-oui.ieee.org to: %s\n", ouiname);
-
-if((fhoui = fopen(ouiname, "w")) == NULL)
+if((fhouitmp = tmpfile()) == NULL)
 	{
-	fprintf(stderr, "error creating file %s", ouiname);
-	exit(EXIT_FAILURE);
+	fprintf(stdout, "failed to create temporyry download file\n");
+	return false;
 	}
-
 hnd = curl_easy_init ();
 curl_easy_setopt(hnd, CURLOPT_URL, "https://standards-oui.ieee.org/oui/oui.txt");
 curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
 curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
-curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhoui);
+curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhouitmp);
 curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 0L);
 ret = curl_easy_perform(hnd);
 curl_easy_cleanup(hnd);
-fclose(fhoui);
 if(ret != 0)
 	{
 	fprintf(stderr, "download not successful\n");
 	exit(EXIT_FAILURE);
 	}
+rewind(fhouitmp);
+if((fhoui = fopen(ouiname, "w")) == NULL)
+	{
+	fprintf(stderr, "error creating file %s", ouiname);
+	exit(EXIT_FAILURE);
+	}
+while (!feof(fhouitmp))
+	{
+	bread = fread(ouibuff, 1, sizeof(ouibuff), fhouitmp);
+	if(bread > 0) fwrite(ouibuff, 1, bread, fhoui);
+	}
+fclose(fhoui);
 
 fprintf(stdout, "download finished\n");
 return true;
@@ -152,7 +164,7 @@ static unsigned long long int ouiap;
 static unsigned long long int ouista;
 static unsigned long long int vendoroui;
 
-static char linein[LINEBUFFER];
+static char linein[LINEBUFFER_MAX];
 static uint8_t essidbuffer[66];
 static char vendorapname[256];
 static char vendorstaname[256];
@@ -195,7 +207,7 @@ if ((fhoui = fopen(ouiname, "r")) == NULL)
 strncpy(vendorapname, "unknown", 8);
 strncpy(vendorstaname, "unknown", 8);
 
-while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
+while((len = fgetline(fhoui, LINEBUFFER_MAX, linein)) != -1)
 	{
 	if (len < 10)
 		continue;
@@ -254,7 +266,7 @@ static unsigned long long int ouiap;
 static unsigned long long int ouista;
 static unsigned long long int vendoroui;
 
-static char linein[LINEBUFFER];
+static char linein[LINEBUFFER_MAX];
 static uint8_t essidbuffer[72];
 static char vendorapname[256];
 static char vendorstaname[256];
@@ -295,7 +307,7 @@ if ((fhoui = fopen(ouiname, "r")) == NULL)
 strncpy(vendorapname, "unknown", 8);
 strncpy(vendorstaname, "unknown", 8);
 
-while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
+while((len = fgetline(fhoui, LINEBUFFER_MAX, linein)) != -1)
 	{
 	if (len < 10)
 		continue;
@@ -337,7 +349,7 @@ static int len;
 static FILE* fhoui;
 static char *vendorptr;
 static unsigned long long int vendoroui;
-static char linein[LINEBUFFER];
+static char linein[LINEBUFFER_MAX];
 static char vendorapname[256];
 #ifdef BIG_ENDIAN_HOST
 int lsb = oui & 0xf;
@@ -352,7 +364,7 @@ if ((fhoui = fopen(ouiname, "r")) == NULL)
 	}
 
 strncpy(vendorapname, "unknown", 8);
-while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
+while((len = fgetline(fhoui, LINEBUFFER_MAX, linein)) != -1)
 	{
 	if (len < 10)
 		continue;
@@ -388,7 +400,7 @@ static FILE* fhoui;
 static char *vendorptr;
 static unsigned long long int vendoroui;
 
-char linein[LINEBUFFER];
+char linein[LINEBUFFER_MAX];
 
 
 if ((fhoui = fopen(ouiname, "r")) == NULL)
@@ -397,7 +409,7 @@ if ((fhoui = fopen(ouiname, "r")) == NULL)
 	exit (EXIT_FAILURE);
 	}
 
-while((len = fgetline(fhoui, LINEBUFFER, linein)) != -1)
+while((len = fgetline(fhoui, LINEBUFFER_MAX, linein)) != -1)
 	{
 	if (len < 10)
 		continue;
