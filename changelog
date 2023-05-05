@@ -1,3 +1,9 @@
+05.05.2023
+==========
+release v6.3.0
+hcxhashtool/whoismac: do not overwrite oui.txt in case of download ERROR
+
+
 10.03.2023
 ==========
 release v6.2.9
