@@ -13,7 +13,7 @@ hcxpcapngtool moved default timestamp from usec to nsec (timeval to timespec)
 10.03.2023
 ==========
 release v6.2.8
-move dot EVP API 3.0 (from now on OpenSSL >= 3.0 is mandatory)
+moved to EVP API 3.0 (from now on OpenSSL >= 3.0 is mandatory)
 hcxpcapngtool: handle nsec timestamps 
 
 
