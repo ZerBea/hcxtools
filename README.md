@@ -133,8 +133,9 @@ Requirements
 * detailed knowledge of 802.11 protocol
 * detailed knowledge of key derivation functions
 * detailed knowledge of Linux
-* Linux (recommended Arch Linux, but other distros should work, too (no support for other distributions).
-* gcc >= 11 recommended (deprecated versions are not supported: https://gcc.gnu.org/)
+* operating system: Linux
+* distribution: recommended Arch Linux, but other distros should work, too (no support for other distributions).
+* gcc >= 12 recommended (deprecated versions are not supported: https://gcc.gnu.org/)
 * libopenssl (>= 3.0) and openssl-dev installed
 * librt and librt-dev installed (should be installed by default)
 * zlib and zlib-dev installed (for gzip compressed cap/pcap/pcapng files)
