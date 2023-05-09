@@ -1100,7 +1100,6 @@ static char timestring[24];
 
 if(tags->essidlen == 0) return;
 if(tags->essid[0] == 0) return;
-
 tvo = timestamp /1000000000;
 strftime(timestring, 24, "%Y-%m-%d\t%H:%M:%S", gmtime(&tvo));
 if((tags->essidlen != 0) && (tags->essid[0] != 0)) fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], tags->essidlen, tags->essid);
