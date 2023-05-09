@@ -1082,7 +1082,7 @@ static void writecsv(uint64_t timestamp, uint8_t *mac, tags_t *tags)
 {
 static int c;
 static int p;
-static struct timeval tvo;
+static time_t tvo;
 static float latitude;
 static char ew;
 static float longitude;
@@ -1100,9 +1100,9 @@ static char timestring[24];
 
 if(tags->essidlen == 0) return;
 if(tags->essid[0] == 0) return;
-tvo.tv_sec = timestamp /1000000;
-tvo.tv_usec = 0;
-strftime(timestring, 24, "%Y-%m-%d\t%H:%M:%S", gmtime(&tvo.tv_sec));
+
+tvo = timestamp /1000000000;
+strftime(timestring, 24, "%Y-%m-%d\t%H:%M:%S", gmtime(&tvo));
 if((tags->essidlen != 0) && (tags->essid[0] != 0)) fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t%.*s\t", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], tags->essidlen, tags->essid);
 else fprintf(fh_csv, "%s\t%02x:%02x:%02x:%02x:%02x:%02x\t<HIDDEN ESSID>\t", timestring, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 if(tags->kdversion == 0) fprintf(fh_csv, "OPEN");
