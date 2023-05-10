@@ -336,8 +336,8 @@ struct pmkidlist_s
 {
  uint64_t		timestamp;
  uint8_t		status;
-#define PMKID_AP	0b00000000
-#define PMKID_CLIENT	0b00000001
+#define PMKID_AP	0b00000001
+#define PMKID_CLIENT	0b00010000
  uint8_t		ap[6];
  uint8_t		client[6];
  uint8_t		anonce[32];

@@ -4,6 +4,10 @@ hcxpcapngtool: added new option store PMKIDs coming from a CLIENT to a separate 
 --pmkid-client=<file>              : output WPA-(MESH/REPEATER)-PMKID hash file (hashcat -m 22000)
 to sucessfully recover the PSK from this PMKIDs, it is mandatory to store all PMKIDs coming from a CLIENT to this file
 
+added information about source to the end of WPA*01 hash line:
+PMKID from ACCESS POINT: WPA*01*PMKID*MAC_AP*MAC_CLIENT*ESSID***01
+PMKID from CLIENT      : WPA*01*PMKID*MAC_AP*MAC_CLIENT*ESSID***10
+
 
 05.05.2023
 ==========
