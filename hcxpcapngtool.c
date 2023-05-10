@@ -2293,7 +2293,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			else fprintf(fh_pmkideapol, "***%02x\t%s\n",  zeigerpmkid->status, timestringhs);
 			pmkidwrittenhcount++;
 			}
-		if((fh_pmkideapolclient != 0) && (zeigerpmkid->status != 0))
+		if((fh_pmkideapolclient != 0) && ((zeigerpmkid->status & PMKID_CLIENT) == PMKID_CLIENT))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 			fprintf(fh_pmkideapolclient, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
