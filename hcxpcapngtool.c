@@ -6487,6 +6487,13 @@ if(pmkideapoloutname != NULL)
 		if(statinfo.st_size == 0) remove(pmkideapoloutname);
 		}
 	}
+if(pmkidclientoutname != NULL)
+	{
+	if(stat(pmkidclientoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(pmkidclientoutname);
+		}
+	}
 if(eapmd5outname != NULL)
 	{
 	if(stat(eapmd5outname, &statinfo) == 0)
