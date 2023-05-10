@@ -2594,6 +2594,7 @@ for(c = 0; c < 20; c ++)
 	if(memcmp(zeiger->ap, pmkidlistptr->ap, 6) != 0) continue;
 	if(memcmp(zeiger->client, pmkidlistptr->client, 6) != 0) continue;
 	if(memcmp(zeiger->pmkid, pmkidlistptr->pmkid, 16) != 0) continue;
+	zeiger->status |= pmkidlistptr->status;
 	return true;
 	}
 return false;
