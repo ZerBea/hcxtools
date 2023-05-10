@@ -108,6 +108,7 @@ static tacacsplist_t *tacacsplist, *tacacsplistptr;
 static char *jtrbasenamedeprecated;
 
 static FILE *fh_pmkideapol;
+static FILE *fh_pmkideapolclient;
 static FILE *fh_eapmd5;
 static FILE *fh_eapmd5john;
 static FILE *fh_eapleap;
@@ -255,6 +256,7 @@ static long int pmkidroguecount;
 static long int pmkiduselesscount;
 static long int pmkidakmcount;
 static long int pmkidwrittenhcount;
+static long int pmkidclientwrittenhcount;
 static long int pmkidwrittenjcountdeprecated;
 static long int pmkidwrittencountdeprecated;
 static long int eapolrc4count;
@@ -566,6 +568,7 @@ pmkidroguecount = 0;
 pmkiduselesscount = 0;
 pmkidakmcount = 0;
 pmkidwrittenhcount = 0;
+pmkidclientwrittenhcount = 0;
 eapolwrittenjcountdeprecated = 0;
 pmkidwrittenjcountdeprecated = 0;
 pmkidwrittencountdeprecated = 0;
@@ -827,6 +830,7 @@ else
 if(pmkidroguecount > 0)			fprintf(stdout, "RSN PMKID ROGUE..........................: %ld\n", pmkidroguecount);
 if(pmkidakmcount > 0)			fprintf(stdout, "RSN PMKID (KDV:0 AKM defined)............: %ld (PMK not recoverable)\n", pmkidakmcount);
 if(pmkidwrittenhcount > 0)		fprintf(stdout, "RSN PMKID written to 22000 hash file.....: %ld\n", pmkidwrittenhcount);
+if(pmkidclientwrittenhcount > 0)	fprintf(stdout, "RSN PMKID written to 22000 hash file.....: %ld (possible MESH/REPEATER PMKIDs)\n", pmkidclientwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format JtR......: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format (1680x)..: %ld\n", pmkidwrittencountdeprecated);
 if(pcapreaderrors > 0)			fprintf(stdout, "packet read error........................: %ld\n", pcapreaderrors);
@@ -2288,6 +2292,20 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			if(addtimestampflag == false) fprintf(fh_pmkideapol, "***\n");
 			else fprintf(fh_pmkideapol, "***\t%s\n", timestringhs);
 			pmkidwrittenhcount++;
+			}
+		if((fh_pmkideapolclient != 0) && (zeigerpmkid->status != 0))
+			{
+			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
+			fprintf(fh_pmkideapolclient, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+				HCX_TYPE_PMKID,
+				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
+				zeigerpmkid->pmkid[8], zeigerpmkid->pmkid[9], zeigerpmkid->pmkid[10], zeigerpmkid->pmkid[11], zeigerpmkid->pmkid[12], zeigerpmkid->pmkid[13], zeigerpmkid->pmkid[14], zeigerpmkid->pmkid[15],
+				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
+				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
+			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolclient, "%02x", zeigermac->essid[p]);
+			if(addtimestampflag == false) fprintf(fh_pmkideapolclient, "***\n");
+			else fprintf(fh_pmkideapolclient, "***\t%s\n", timestringhs);
+			pmkidclientwrittenhcount++;
 			}
 		if(fh_pmkideapoljtrdeprecated != 0)
 			{
@@ -5800,6 +5818,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
 	"--raw-in=<file>                    : input frames in HEX ASCII\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
+	"--pmkid-client=<file>              : output WPA-(MESH/REPEATER)-PMKID hash file (hashcat -m 22000)\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimiter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file\n"
@@ -5863,6 +5882,7 @@ static int auswahl;
 static int index;
 static int exitcode;
 static char *pmkideapoloutname;
+static char *pmkidclientoutname;
 static char *eapmd5outname;
 static char *eapmd5johnoutname;
 static char *eapleapoutname;
@@ -5923,6 +5943,7 @@ static const struct option long_options[] =
 	{"raw-out",			required_argument,	NULL,	HCX_RAW_OUT},
 	{"raw-in",			required_argument,	NULL,	HCX_RAW_IN},
 	{"log",				required_argument,	NULL,	HCX_LOG_OUT},
+	{"pmkid-client",		required_argument,	NULL,	HCX_PMKID_CLIENT_OUT},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
 	{"eapmd5",			required_argument,	NULL,	HCX_EAPMD5_OUT},
 	{"eapmd5-john",			required_argument,	NULL,	HCX_EAPMD5_JOHN_OUT},
@@ -5972,6 +5993,7 @@ hccapxoutnamedeprecated = NULL;
 hccapoutnamedeprecated = NULL;
 
 fh_pmkideapol = NULL;
+fh_pmkideapolclient = NULL;
 fh_eapmd5 = NULL;
 fh_eapmd5john = NULL;
 fh_eapleap = NULL;
@@ -6025,6 +6047,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_PMKIDEAPOL_OUT:
 		pmkideapoloutname = optarg;
+		break;
+
+		case HCX_PMKID_CLIENT_OUT:
+		pmkidclientoutname = optarg;
 		break;
 
 		case HCX_EAPMD5_OUT:
@@ -6384,6 +6410,15 @@ if(logoutname != NULL)
 		}
 	}
 
+if(pmkidclientoutname != NULL)
+	{
+	if((fh_pmkideapolclient = fopen(pmkidclientoutname, "a")) == NULL)
+		{
+		fprintf(stdout, "error opening file %s: %s\n", pmkidclientoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
+
 if(pmkideapoljtroutnamedeprecated != NULL)
 	{
 	if((fh_pmkideapoljtrdeprecated = fopen(pmkideapoljtroutnamedeprecated, "a")) == NULL)
@@ -6426,6 +6461,7 @@ for(index = optind; index < argc; index++)
 if(rawinname != NULL) processrawfile(rawinname);
 
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+if(fh_pmkideapolclient != NULL) fclose(fh_pmkideapolclient);
 if(fh_eapmd5 != NULL) fclose(fh_eapmd5);
 if(fh_eapmd5john != NULL) fclose(fh_eapmd5john);
 if(fh_eapleap != NULL) fclose(fh_eapleap);

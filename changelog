@@ -1,7 +1,7 @@
 10.05.2023
 ==========
 hcxpcapngtool: added new option store PMKIDs coming from a CLIENT to a separate hash file.
---pmkid-client=<file>              : output WPA-(MESH)-PMKID hash file (hashcat -m 22000)
+--pmkid-client=<file>              : output WPA-(MESH/REPEATER)-PMKID hash file (hashcat -m 22000)
 to sucessfully recover the PSK from this PMKIDs, it is mandatory to store all PMKIDs coming from a CLIENT to this file
 
 
