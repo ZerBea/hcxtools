@@ -2581,7 +2581,7 @@ for(c = 0; c < 20; c ++)
 return false;
 }
 /*===========================================================================*/
-static void addpmkid(uint64_t timestamp, uint8_t *macclient, uint8_t *macap, uint8_t *pmkid)
+static void addpmkid(uint64_t timestamp, uint8_t *macclient, uint8_t *macap, uint8_t *pmkid, uint8_t pmkidstatus)
 {
 static pmkidlist_t *pmkidlistnew;
 
@@ -2605,6 +2605,7 @@ if(testpmkid(zeroedpmk, macclient, macap, pmkid) == false)
 	memcpy(pmkidlistptr->client, macclient, 6);
 	memcpy(pmkidlistptr->pmkid, pmkid, 16);
 	pmkidlistptr->timestamp = timestamp;
+	pmkidlistptr->status |= pmkidstatus;
 	if(cleanbackpmkid() == false) pmkidlistptr++;
 	}
 else
@@ -2628,6 +2629,7 @@ else
 		memcpy(pmkidlistptr->ap, macap, 6);
 		memcpy(pmkidlistptr->client, macclient, 6);
 		memcpy(pmkidlistptr->pmkid, pmkid, 16);
+		pmkidlistptr->status |= pmkidstatus;
 		if(cleanbackpmkid() == false) pmkidlistptr++;
 		}
 	}
@@ -3485,7 +3487,7 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 		{
 		zeiger->message |= HS_PMKID;
 		memcpy(zeiger->pmkid, tags.pmkid, 16);
-		addpmkid(eaptimestamp, macclient, macap, tags.pmkid);
+		addpmkid(eaptimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 		}
 	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
@@ -3660,7 +3662,7 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 					}
 				}
 			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-			addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid);
+			addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid, PMKID_AP);
 			}
 		}
 	else pmkiduselesscount++;
@@ -3853,11 +3855,11 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(ignoreieflag == true)
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 	}
 else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 	}
 else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) reassociationrequestftpskcount++;
 
@@ -3935,11 +3937,11 @@ aplistptr->cipher = tags.cipher;
 aplistptr->akm = tags.akm;
 if(ignoreieflag == true)
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 	}
 else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 	}
 if((tags.akm &TAK_PSK) == TAK_PSK) associationrequestpskcount++;
 else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) associationrequestftpskcount++;
