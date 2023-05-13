@@ -509,13 +509,13 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *word1[] =
 {
-"above", "after", "again", "also", "apple",
+"able", "above", "after", "again", "also", "apple",
 "back", "bean", "best", "bike", "blue", "body", "book",
-"cake", "calm", "card", "cash", "cold", "cool",
+"cake", "calm", "card", "cash", "chair", "cold", "cool",
 "dark", "dash", "dear", "done", "down",
-"early", "earth", "easy", "edit", "envy", "exist",
+"early", "earth", "easy", "edit", "envy", "exit", "exist",
 "face", "fall", "feed", "five",
-"game", "ghost", "girl", "give", "good",
+"game", "ghost", "girl", "give", "good", "guest",
 "hand", "hard", "have", "head", "horse", "house",
 "jade", "juice", "july",
 "keep", "kind",
@@ -529,32 +529,32 @@ static const char *word1[] =
 "sale", "sick", "south", "sunny",
 "table", "take", "tale", "talk", "tall", "team", "tell", "think",
 "unit", "upper",
-"water", "what", "wind", "word"
+"walk", "water", "what", "wind", "word"
 };
 
 static const char *word2[] =
 {
 "about", "above", "again", "also", "apple",
 "baby", "back", "bean", "best", "bike", "bird", "blue", "body", "book",
-"calm", "child", "cool",
+"calm", "cash", "child", "cool",
 "daily", "dark", "dash", "dear", "desk", "door",
-"each", "earth", "easy", "edit", "exit",
-"fact", "fall", "fast", "feel", "five",
+"each", "earth", "easy", "edit", "every", "exit",
+"fact", "fall", "fast", "feel", "fish", "five",
 "game", "ghost", "girl", "give", "green", "guest",
 "hand", "happy", "hard", "have", "haven", "hike", "horse", "house",
-"jean", "joke", "july", "june",
+"jazz", "jean", "joke", "july", "june",
 "keep",
-"land", "light", "lock",
+"labor", "land", "light", "lock",
 "mail", "main", "major", "make", "meet", "milk", "more", "most", "mouth", "much",
 "name", "north", "nose", "note",
 "occur", "over",
-"park", "part", "past", "path", "photo",
-"queen", "quest", "quick",
+"park", "part", "pass", "past", "path", "photo",
+"queen", "quest", "quick", "quite",
 "reach", "rice", "ride", "road", "rope", "rule",
 "safe", "salt", "sick", "sunny",
 "team", "tell", "think",
 "unit",
-"water", "week", "west", "what", "where", "wind", "word"
+"walk", "water", "week", "west", "what", "where", "wind", "word"
 };
 
 for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
@@ -584,13 +584,13 @@ static const char *word1[] =
 "baby", "back", "bath", "bean", "best", "bike", "bird", "blue", "body", "book",
 "cake", "calm", "card", "carry", "cash", "chair", "child", "cold", "come", "cool",
 "daily", "dark", "dash", "dear", "desk", "done", "door", "down", "duty",
-"each", "early", "earth", "east", "easy", "edit", "envy", "even", "exist", "exit",
-"face", "fact", "fall", "fast", "feed", "feel", "fill", "five",
+"each", "early", "earth", "east", "easy", "edit", "envy", "even", "every", "exist", "exit",
+"face", "fact", "fall", "fast", "feed", "feel", "fill", "fish", "five",
 "game", "ghost", "girl", "giude", "give", "good", "green", "group", "guest",
 "hair", "hand", "happy", "hard", "have", "haven", "head", "high", "hike", "horse", "house",
-"jade", "jean", "jeep", "join", "joke", "juice", "july", "june",
+"jade", "jazz", "jean", "jeep", "join", "joke", "juice", "july", "june",
 "keep", "kind",
-"lable", "lack", "lake", "land", "light", "like", "live", "lock", "lose",
+"lable", "labor", "lack", "lake", "land", "light", "like", "live", "lock", "lose",
 "mail", "main", "major", "make", "math", "meet", "milk", "more", "most", "mouth", "much",
 "name", "near", "nine", "north", "nose", "note",
 "occur", "ocean", "open", "over",
@@ -600,7 +600,7 @@ static const char *word1[] =
 "safe", "said", "sale", "salt", "same", "sick", "soup", "south", "sunny",
 "table", "take", "tale", "talk", "tall", "team", "tell", "think",
 "under", "unit", "upper",
-"water", "weak", "week", "west", "what", "where", "wind", "word"
+"walk", "water", "weak", "week", "west", "what", "where", "wind", "word"
 };
 
 for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
