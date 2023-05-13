@@ -1,3 +1,10 @@
+13.05.2023
+==========
+hcxhashtool: allow to print ESSID list to stdout
+-E <file>   : output ESSID list (autohex enabled)
+-E stdout   : output ESSID list to stdout (autohex enabled)
+
+
 10.05.2023
 ==========
 hcxpcapngtool: added new option store PMKIDs coming from a CLIENT to a separate hash file.

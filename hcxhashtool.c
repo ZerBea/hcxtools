@@ -92,6 +92,7 @@ static bool flagouigroup;
 static bool flagvendorout;
 static bool flaghccapsingleout;
 static bool caseflag;
+static bool statusflag;
 
 static bool flagfiltermacap;
 static uint8_t filtermacap[6];
@@ -931,28 +932,48 @@ static hashlist_t *zeiger, *zeigerold;
 static FILE *fh_essid;
 static struct stat statinfo;
 
-if((fh_essid = fopen(essidoutname, "a")) == NULL)
+if(strcmp(essidoutname, "stdout") != 0)
 	{
-	fprintf(stdout, "error opening file %s: %s\n", essidoutname, strerror(errno));
-	return;
-	}
-zeigerold = NULL;
-qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_essid);
-for(pc = 0; pc < pmkideapolcount; pc++)
-	{
-	zeiger = hashlist +pc;
-	if(zeigerold != NULL)
+	if((fh_essid = fopen(essidoutname, "a")) == NULL)
 		{
-		if(memcmp(zeiger->essid, zeigerold->essid, ESSID_LEN_MAX) == 0) continue;
+		fprintf(stdout, "error opening file %s: %s\n", essidoutname, strerror(errno));
+		return;
 		}
-	fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_essid);
-	essidwrittencount++;
-	zeigerold = zeiger;
+	zeigerold = NULL;
+	qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_essid);
+	for(pc = 0; pc < pmkideapolcount; pc++)
+		{
+		zeiger = hashlist +pc;
+		if(zeigerold != NULL)
+			{
+			if(memcmp(zeiger->essid, zeigerold->essid, ESSID_LEN_MAX) == 0) continue;
+			}
+		fwriteessidstr(zeiger->essidlen, zeiger->essid, fh_essid);
+		essidwrittencount++;
+		zeigerold = zeiger;
+		}
+	fclose(fh_essid);
+	if(stat(essidoutname, &statinfo) == 0)
+		{
+		if(statinfo.st_size == 0) remove(essidoutname);
+		}
 	}
-fclose(fh_essid);
-if(stat(essidoutname, &statinfo) == 0)
+else
 	{
-	if(statinfo.st_size == 0) remove(essidoutname);
+	statusflag = false;
+	zeigerold = NULL;
+	qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_essid);
+	for(pc = 0; pc < pmkideapolcount; pc++)
+		{
+		zeiger = hashlist +pc;
+		if(zeigerold != NULL)
+			{
+			if(memcmp(zeiger->essid, zeigerold->essid, ESSID_LEN_MAX) == 0) continue;
+			}
+		fwriteessidstr(zeiger->essidlen, zeiger->essid, stdout);
+		essidwrittencount++;
+		zeigerold = zeiger;
+		}
 	}
 return;
 }
@@ -2125,6 +2146,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"-i <file>   : input PMKID/EAPOL hash file\n"
 	"-o <file>   : output PMKID/EAPOL hash file\n"
 	"-E <file>   : output ESSID list (autohex enabled)\n"
+	"-E stdout   : output ESSID list to stdout (autohex enabled)\n"
 	"-L <file>   : output ESSID list (unfiltered and unsorted)\n"
 	"              useful in combination with hashcat -a9 option\n"
 	"-d          : download https://standards-oui.ieee.org/oui.txt\n"
@@ -2353,6 +2375,7 @@ essidlenmin = ESSID_LEN_MIN;
 essidlenmax = ESSID_LEN_MAX;
 lcmin = 0;
 lcmax = 0;
+statusflag = true;
 
 while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) != -1)
 	{
@@ -2811,7 +2834,7 @@ if(johnoutname != NULL) writejohnfile(johnoutname);
 if((pmkideapoloutname != NULL) && (essidinname != NULL)) processessidfile(essidinname, pmkideapoloutname);
 if(macinname != NULL) processmacfile(macinname, pmkideapoloutname);
 
-printstatus();
+if(statusflag == true) printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
 closelists();
 return EXIT_SUCCESS;
