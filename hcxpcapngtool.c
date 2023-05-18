@@ -847,11 +847,25 @@ if(essiderrorcount > 0)			fprintf(stdout, "ESSID error (malformed packets)......
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		fprintf(stdout, "EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
 
+if(zeroedtimestampcount > 0)
+	{
+	fprintf(stdout, "\nWarning: missing timestamps!\n"
+		"This dump file contains frames with zeroed timestamps.\n"
+		"It prevent calculation of EAPOL TIMEOUT values.\n"
+		"That is a bug of the capturing/cleaning.\n");
+	}
+if(eapolmsgtimestamperrorcount > 0)
+	{
+	fprintf(stdout, "\nWarning: wrong timestamps!\n"
+		"This dump file contains frames with wrong timestamps.\n"
+		"It prevent calculation of EAPOL TIMEOUT values.\n"
+		"That is a bug of the capturing/cleaning tool.\n");
+	}
 if(sequenceerrorcount > 0)
 	{
 	fprintf(stdout, "\nWarning: out of sequence timestamps!\n"
 		"This dump file contains frames with out of sequence timestamps.\n"
-		"That is a bug of the capturing tool.\n");
+		"That is a bug of the capturing/cleaning tool.\n");
 	}
 if(ancientdumpfileformat == true)
 	{
@@ -898,20 +912,6 @@ if(magicblockcount > 1)
 	fprintf(stdout, "\nWarning: this dump file contains more than one custom block!\n"
 		"This always happens if dump files are merged!\n"
 		"Do not merge dump files, because this destroys assigned hash values!\n");
-	}
-if(zeroedtimestampcount > 0)
-	{
-	fprintf(stdout, "\nWarning: missing timestamps!\n"
-		"This dump file contains frames with zeroed timestamps.\n"
-		"It prevent calculation of EAPOL TIMEOUT values.\n"
-		"That is a bug of the capturing/cleaning tool.\n");
-	}
-if(eapolmsgtimestamperrorcount > 0)
-	{
-	fprintf(stdout, "\nWarning: wrong timestamps!\n"
-		"This dump file contains frames with wrong timestamps.\n"
-		"It prevent calculation of EAPOL TIMEOUT values.\n"
-		"That is a bug of the capturing tool.\n");
 	}
 if(((deauthenticationcount +disassociationcount) >= 100) && ((deauthenticationcount +disassociationcount) <= 10000))
 	{
