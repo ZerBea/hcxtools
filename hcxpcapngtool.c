@@ -846,7 +846,22 @@ if(taglenerrorcount > 0)		fprintf(stdout, "IE TAG length error (malformed packet
 if(essiderrorcount > 0)			fprintf(stdout, "ESSID error (malformed packets)..........: %ld\n", essiderrorcount);
 eapolmsgerrorcount = eapolmsgerrorcount +eapolm1errorcount +eapolm2errorcount +eapolm3errorcount +eapolm4errorcount;
 if(eapolmsgerrorcount > 0)		fprintf(stdout, "EAPOL messages (malformed packets).......: %ld\n", eapolmsgerrorcount);
-
+if(radiotappresent == true)
+	{
+	c = 0;
+	fprintf(stdout, "\nfrequency statistics from radiotap header (frequency: received packets)\n"
+			"-----------------------------------------------------------------------\n");
+	for(p = 2412; p <= 7115; p ++)
+		{
+		if(usedfrequency[p] != 0)
+			{
+			fprintf(stdout, "% 5d: %d\t", p, usedfrequency[p]);
+			c++;
+			if((c %4) == 0) fprintf(stdout, "\n");
+			}
+		}
+	fprintf(stdout, "\n");
+	}
 if(zeroedtimestampcount > 0)
 	{
 	fprintf(stdout, "\nWarning: missing timestamps!\n"
@@ -881,22 +896,6 @@ if(ieee80211flag == false)
 	{
 	fprintf(stdout, "\n");
 	return;
-	}
-if(radiotappresent == true)
-	{
-	c = 0;
-	fprintf(stdout, "\nfrequency statistics from radiotap header (frequency: received packets)\n"
-			"-----------------------------------------------------------------------\n");
-	for(p = 2412; p <= 7115; p ++)
-		{
-		if(usedfrequency[p] != 0)
-			{
-			fprintf(stdout, "% 5d: %d\t", p, usedfrequency[p]);
-			c++;
-			if((c %4) == 0) fprintf(stdout, "\n");
-			}
-		}
-	fprintf(stdout, "\n");
 	}
 if(radiotappresent == false)
 	{
