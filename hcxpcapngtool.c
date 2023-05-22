@@ -179,7 +179,7 @@ static long int pagcount;
 static long int proberesponsecount;
 static long int proberesponsessidunsetcount;
 static long int proberesponsessidzeroedcount;
-static long int proberequestcount;
+static long int proberequestundirectedcount;
 static long int proberequestdirectedcount;
 static long int mgtreservedcount;
 static long int deauthenticationcount;
@@ -493,7 +493,7 @@ pagcount = 0;
 proberesponsecount = 0;
 proberesponsessidunsetcount = 0;
 proberesponsessidzeroedcount = 0;
-proberequestcount = 0;
+proberequestundirectedcount = 0;
 proberequestdirectedcount = 0;
 mgtreservedcount = 0;
 deauthenticationcount = 0;
@@ -690,7 +690,7 @@ if(beaconhcxcount > 0)			fprintf(stdout, "BEACON (hcxhash2cap)..................
 if(actioncount > 0)			fprintf(stdout, "ACTION (total)...........................: %ld\n", actioncount);
 if(actionessidcount > 0)		fprintf(stdout, "ACTION (containing ESSID)................: %ld\n", actionessidcount);
 if(awdlcount > 0)			fprintf(stdout, "AWDL (Apple Wireless Direct Link)........: %ld\n", awdlcount);
-if(proberequestcount > 0)		fprintf(stdout, "PROBEREQUEST.............................: %ld\n", proberequestcount);
+if(proberequestundirectedcount > 0)	fprintf(stdout, "PROBEREQUEST (undirected)................: %ld\n", proberequestundirectedcount);
 if(proberequestdirectedcount > 0)	fprintf(stdout, "PROBEREQUEST (directed)..................: %ld\n", proberequestdirectedcount);
 if(proberesponsecount > 0)		fprintf(stdout, "PROBERESPONSE (total)....................: %ld\n", proberesponsecount);
 if(proberesponsessidunsetcount > 0)	fprintf(stdout, "PROBERESPONSE (SSID unset)...............: %ld\n", proberesponsessidunsetcount);
@@ -937,7 +937,7 @@ if(((beaconcount + proberesponsecount) == 0) && ((associationrequestcount + reas
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to recover the PSK.\n");
 	}
-if(proberequestcount == 0)
+if(proberequestundirectedcount == 0)
 	{
 	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain undirected proberequest frames.\n"
@@ -4076,7 +4076,7 @@ static void process80211probe_req(uint64_t proberequesttimestamp, uint8_t *maccl
 static maclist_t *aplistnew;
 static tags_t tags;
 
-proberequestcount++;
+proberequestundirectedcount++;
 if(proberequestlen < (int)IETAG_SIZE) return;
 if(gettags(proberequestlen, proberequestptr, &tags) == false) return;
 if(tags.essidlen == 0) return;
