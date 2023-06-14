@@ -2876,9 +2876,9 @@ if(macapname != NULL)
 	if((macaddrstop -macapname) != 12) fprintf(stderr, "invalid MAC specified\n");
 	}
 memset(&essid, 0, ESSID_LEN_MAX);
-essidlen = strlen(essidname);
 if(essidname != NULL)
 	{
+	essidlen = strlen(essidname);
 	essidlenuh = ishexify(essidname);
 	if((essidlenuh > 0) && (essidlenuh <= ESSID_LEN_MAX))
 		{
