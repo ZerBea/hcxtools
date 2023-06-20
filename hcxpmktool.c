@@ -591,7 +591,6 @@ if(evpinitwpa() == false)
 	fprintf(stderr, "\nEVP API error\n");
 	return EXIT_FAILURE;
 	}
-
 if(hashlinestring != NULL)
 	{
 	if(parsehashlinestring(hashlinestring) == false)
@@ -600,7 +599,6 @@ if(hashlinestring != NULL)
 		return EXIT_FAILURE;
 		}
 	}
-
 if(pskstring != NULL)
 	{
 	psklen = strlen(pskstring);
