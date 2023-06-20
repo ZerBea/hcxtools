@@ -290,7 +290,7 @@ return true;
 /*===========================================================================*/
 static size_t hex2bin(const char *str, uint8_t *bytes, size_t blen)
 {
-uint8_t pos;
+size_t pos;
 uint8_t idx0;
 uint8_t idx1;
 
@@ -591,6 +591,7 @@ if(evpinitwpa() == false)
 	fprintf(stderr, "\nEVP API error\n");
 	return EXIT_FAILURE;
 	}
+
 if(hashlinestring != NULL)
 	{
 	if(parsehashlinestring(hashlinestring) == false)
@@ -599,6 +600,7 @@ if(hashlinestring != NULL)
 		return EXIT_FAILURE;
 		}
 	}
+
 if(pskstring != NULL)
 	{
 	psklen = strlen(pskstring);
