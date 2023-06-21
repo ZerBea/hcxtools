@@ -259,7 +259,6 @@ else
 	memcpy (pkeptr +35, wpak->nonce, 32);
 	memcpy (pkeptr +67, anonce, 32);
 	}
-
 if(!EVP_MAC_init(ctxhmac, pmkcalculated, 32, paramssha1)) return false;
 if(!EVP_MAC_update(ctxhmac, ptkcalculated, 100)) return false;
 if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 128)) return false;
@@ -518,8 +517,12 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"exit codes:\n"
 	"0 = PSK/PMK confirmed\n"
 	"1 = ERROR occurred\n"
-	"2 = PSK/PMK unconfirmed\n",
-	eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
+	"2 = PSK/PMK unconfirmed\n"
+	"\n"
+	"Important notice:\n"
+	"%s does not do NONCE ERROR CORRECTIONS\n"
+	"in case of a packet loss, you get  a wrong PTK\n", 
+	eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
