@@ -521,7 +521,8 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"\n"
 	"Important notice:\n"
 	"%s does not do NONCE ERROR CORRECTIONS\n"
-	"in case of a packet loss, you get  a wrong PTK\n", 
+	"in case of a packet loss, you get a wrong PTK\n"
+	"\n",
 	eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname);
 exit(EXIT_SUCCESS);
 }

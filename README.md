@@ -197,3 +197,9 @@ bit 0-2
 
 7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely necessary
 
+
+Important notice:
+--------------
+tools do not do NONCE ERROR CORRECTIONS
+in case of a packet loss, you get a wrong PTK
+
