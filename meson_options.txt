@@ -1,0 +1,11 @@
+option('curl', type: 'feature',
+  description: 'Build tools relying on libcurl',
+)
+
+option('openssl', type: 'feature',
+  description: 'Build tools relying on OpenSSL',
+)
+
+option('zlib', type: 'feature',
+  description: 'Build with zlib support for hcxpcapngtool',
+)
