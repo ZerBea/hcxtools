@@ -23,11 +23,9 @@
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <openssl/ssl.h>
-#if defined (__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
+#if defined (__APPLE__) || defined(__OpenBSD__)
 #include <sys/socket.h>
-#else
-#include <stdio_ext.h>
 #endif
 #ifdef __linux__
 #include <linux/limits.h>

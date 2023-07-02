@@ -16,11 +16,7 @@
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 
-#if defined(__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
-#else
-#include <stdio_ext.h>
-#endif
 #include "include/hcxpsktool.h"
 #include "include/hashcatops.h"
 #include "include/strings.c"

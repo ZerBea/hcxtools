@@ -14,11 +14,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#if defined (__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
-#else
-#include <stdio_ext.h>
-#endif
 #include "include/hcxhash2cap.h"
 #include "include/hashcatops.h"
 #include "include/pcap.c"

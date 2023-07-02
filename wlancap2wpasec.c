@@ -8,11 +8,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#if defined (__APPLE__) || defined(__OpenBSD__)
 #include <libgen.h>
-#else
-#include <stdio_ext.h>
-#endif
 #include <curl/curl.h>
 
 /*===========================================================================*/
