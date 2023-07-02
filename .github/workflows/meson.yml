@@ -1,0 +1,127 @@
+name: On PRs - meson
+
+on: pull_request
+
+concurrency:
+  group: ${{github.workflow}}-${{github.head_ref}}
+  cancel-in-progress: true
+
+jobs:
+  Ubuntu:
+    runs-on: ubuntu-22.04
+    name: Linux-GCC${{matrix.cc}}-deps=${{matrix.deps}}
+    strategy:
+      matrix:
+        cc: ['9', '12']
+        deps: ['enabled', 'disabled']
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install packages
+        run: |
+          sudo apt install -y gcc-${{matrix.cc}} libcurl4-gnutls-dev
+          python3 -m pip install meson ninja
+
+      - name: Compile and Test
+        env:
+          CC: gcc-${{matrix.cc}}
+        run: |
+          meson setup "${{github.workspace}}/build" -Dauto_features=${{matrix.deps}} -Dwarning_level=3
+          meson compile -C "${{github.workspace}}/build" --verbose
+          meson test -C "${{github.workspace}}/build" --verbose
+  Ubuntu-clang:
+    runs-on: ubuntu-22.04
+    name: Linux-Clang${{matrix.cc}}-deps=${{matrix.deps}}
+    strategy:
+      matrix:
+        cc: ['11', '15']
+        deps: ['enabled', 'disabled']
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install packages
+        run: |
+          sudo apt install -y clang-${{matrix.cc}} lld-${{matrix.cc}} libcurl4-gnutls-dev
+          python3 -m pip install meson ninja
+
+      - name: Compile and Test
+        env:
+          CC: clang-${{matrix.cc}}
+          CC_LD: lld-${{matrix.cc}}
+        run: |
+          meson setup "${{github.workspace}}/build" -Dauto_features=${{matrix.deps}} -Dwarning_level=3 -Dc_std=c17
+          meson compile -C "${{github.workspace}}/build" --verbose
+          meson test -C "${{github.workspace}}/build" --verbose
+  MSYS2:
+    runs-on: windows-latest
+    name: MSYS2-${{matrix.platform}}-deps=${{matrix.deps}}
+    strategy:
+      matrix:
+        deps: ['enabled', 'disabled']
+        platform: ['MINGW32', 'MINGW64', 'UCRT64', 'CLANG32', 'CLANG64']
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.platform}}
+          pacboy: >-
+            cc:p
+            curl:p
+            meson:p
+            ninja:p
+            pkgconf:p
+
+      - name: Compile and Test
+        shell: msys2 {0}
+        run: |
+          meson setup "${{github.workspace}}/build" -Dauto_features=${{matrix.deps}} -Dwarning_level=3 -Dc_std=c17
+          meson compile -C "${{github.workspace}}/build" --verbose
+          meson test -C "${{github.workspace}}/build" --verbose
+  MacOS:
+    runs-on: macos-latest
+    name: macOS-deps=${{matrix.deps}}
+    strategy:
+      matrix:
+        deps: ['enabled', 'disabled']
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install packages
+        run: |
+          brew install curl openssl@3
+          python3 -m pip install meson ninja
+
+      - name: Compile and Test
+        run: |
+          meson setup "${{github.workspace}}/build" -Dauto_features=${{matrix.deps}} -Dwarning_level=3 -Dc_std=c17 -Dpkg_config_path=/usr/local/opt/openssl@3/lib/pkgconfig
+          meson compile -C "${{github.workspace}}/build" --verbose
+          meson test -C "${{github.workspace}}/build" --verbose
+  FreeBSD:
+    runs-on: macos-latest
+    name: FreeBSD
+    steps:
+      - uses: actions/checkout@v3
+      - name: FreeBSD
+        uses: vmactions/freebsd-vm@v0
+        with:
+          prepare: |
+            pkg install -y curl ninja meson pkgconf
+          run: |
+            meson setup "${{github.workspace}}/build" -Dwarning_level=3 -Dc_std=c17
+            meson compile -C "${{github.workspace}}/build" --verbose
+            meson test -C "${{github.workspace}}/build" --verbose
+  OpenBSD:
+    runs-on: macos-latest
+    name: OpenBSD
+    steps:
+      - uses: actions/checkout@v3
+      - name: OpenBSD
+        uses: vmactions/openbsd-vm@v0
+        with:
+          prepare: |
+            pkg_add curl ninja meson pkgconf
+          run: |
+            meson setup "${{github.workspace}}/build" -Dwarning_level=3 -Dc_std=c17
+            meson compile -C "${{github.workspace}}/build" --verbose
+            meson test -C "${{github.workspace}}/build" --verbose
