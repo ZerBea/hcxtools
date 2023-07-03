@@ -1535,7 +1535,7 @@ return;
 static void testairtel(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k;
-static char *air = "Airtel_";
+static const char *air = "Airtel_";
 
 if(airtelflag == true) return;
 if(essidlen < 7) return;
@@ -1549,7 +1549,7 @@ return;
 static void testalcatellinkzone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *ali = "Alcatel LINKZONE ";
+static const char *ali = "Alcatel LINKZONE ";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
@@ -1568,7 +1568,7 @@ static void testarrisizzi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int c;
 static uint32_t i;
-static char *izzi = "IZZI-";
+static const char *izzi = "IZZI-";
 
 static int fixseed2[] =
 {
@@ -1590,12 +1590,12 @@ return;
 static void testarristg(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *dg860A = "DG860A";
-static char *tg852g = "TG852G";
-static char *tg862g = "TG862G";
-static char *dg1670A = "DG1670A";
-static char *sbg6580 = "SBG6580";
-static char *tg1672g = "TG1672G";
+static const char *dg860A = "DG860A";
+static const char *tg852g = "TG852G";
+static const char *tg862g = "TG862G";
+static const char *dg1670A = "DG1670A";
+static const char *sbg6580 = "SBG6580";
+static const char *tg1672g = "TG1672G";
 
 if(essidlen >= 8)
 	{
@@ -1641,7 +1641,7 @@ return;
 static void testaxtelxtremo(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *axtelxtremo = "AXTEL XTREMO-";
+static const char *axtelxtremo = "AXTEL XTREMO-";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
@@ -1659,7 +1659,7 @@ return;
 static void testattwifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2, k3, k4;
-static char *attwifi = "ATT-WIFI-";
+static const char *attwifi = "ATT-WIFI-";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
@@ -1680,7 +1680,7 @@ return;
 static void testcabovisao(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *cabovisao = "Cabovisao-";
+static const char *cabovisao = "Cabovisao-";
 
 static char essidtmp[PSKSTRING_LEN_MAX] = {};
 
@@ -1702,7 +1702,7 @@ return;
 static void testcg3000dv2(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *cg3000dv2 = "CG3000DV2";
+static const char *cg3000dv2 = "CG3000DV2";
 
 if(essidlen < 11) return;
 if(memcmp(essid, cg3000dv2, 9) != 0) return;
@@ -1714,8 +1714,8 @@ return;
 static void testcpsrf(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
-static char *cpcrf1 = "CoolpadSurf_";
-static char *cpcrf2 = "Coolpad Surf ";
+static const char *cpcrf1 = "CoolpadSurf_";
+static const char *cpcrf2 = "Coolpad Surf ";
 
 if(essidlen < 16) return;
 if(memcmp(essid, cpcrf1, 12) == 0)
@@ -2178,7 +2178,7 @@ return;
 static void testx2g(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k;
-static char *x2g = "_2G";
+static const char *x2g = "_2G";
 
 if(essidlen < 9) return;
 if(memcmp(&essid[essidlen -9], x2g, 2) != 0) return;
@@ -2190,7 +2190,7 @@ return;
 static void testzhone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k;
-static char *zhone = "Zhone_";
+static const char *zhone = "Zhone_";
 
 if(znidflag == true) return;
 if(essidlen < 6) return;

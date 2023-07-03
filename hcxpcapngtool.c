@@ -1943,7 +1943,7 @@ return;
 /*===========================================================================*/
 static bool testpmkid(uint8_t *testpmk, uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
-static char *pmkname = "PMK Name";
+static const char *pmkname = "PMK Name";
 static uint8_t pmkidcalc[64];
 
 memcpy(pmkidcalc, pmkname, 8);
@@ -5719,16 +5719,20 @@ if(hmac == NULL) return false;
 cmac = EVP_MAC_fetch(NULL, "cmac", NULL);
 if(cmac == NULL) return false;
 
-paramsmd5[0] = OSSL_PARAM_construct_utf8_string("digest", "md5", 0);
+char md5[] = "md5";
+paramsmd5[0] = OSSL_PARAM_construct_utf8_string("digest", md5, 0);
 paramsmd5[1] = OSSL_PARAM_construct_end();
 
-paramssha1[0] = OSSL_PARAM_construct_utf8_string("digest", "sha1", 0);
+char sha1[] = "sha1";
+paramssha1[0] = OSSL_PARAM_construct_utf8_string("digest", sha1, 0);
 paramssha1[1] = OSSL_PARAM_construct_end();
 
-paramssha256[0] = OSSL_PARAM_construct_utf8_string("digest", "sha256", 0);
+char sha256[] = "sha256";
+paramssha256[0] = OSSL_PARAM_construct_utf8_string("digest", sha256, 0);
 paramssha256[1] = OSSL_PARAM_construct_end();
 
-paramsaes128[0] = OSSL_PARAM_construct_utf8_string("cipher", "aes-128-cbc", 0);
+char aes[] = "aes-1280-cbc";
+paramsaes128[0] = OSSL_PARAM_construct_utf8_string("cipher", aes, 0);
 paramsaes128[1] = OSSL_PARAM_construct_end();
 
 ctxhmac = EVP_MAC_CTX_new(hmac);
