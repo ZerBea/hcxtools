@@ -27,7 +27,7 @@ struct memory *curlmem;
 static int testwpasec(long int timeout)
 {
 CURL *curl;
-CURLcode res = 0;
+CURLcode res = CURLE_OK;
 
 fprintf(stdout, "connecting to %s\n", wpasecurl);
 curl_global_init(CURL_GLOBAL_ALL);
@@ -52,7 +52,7 @@ char *ptr;
 size_t realsize = size *nmemb;
 curlmem = (struct memory *)userp;
  
-ptr = realloc(curlmem->response, curlmem->size +realsize +1);
+ptr = (char*)realloc(curlmem->response, curlmem->size +realsize +1);
 if(ptr == NULL) return 0;
 curlmem->response = ptr;
 memcpy(&(curlmem->response[curlmem->size]), data, realsize);

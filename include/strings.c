@@ -89,7 +89,7 @@ size_t i;
 uint8_t j;
 char** to;
 
-to = malloc(size * sizeof(char *));
+to = (char**)malloc(size * sizeof(char *));
 if(to == NULL)
 	{
 	fprintf(stderr, "failed to allocate memory\n");
@@ -99,7 +99,7 @@ if(to == NULL)
 for (i = 0; i < size; i++)
     {
     len = strlen(from[i]);
-    to[i] = malloc(len * sizeof(char) + 1);
+    to[i] = (char*)malloc(len * sizeof(char) + 1);
 	if(to[i] == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory\n");

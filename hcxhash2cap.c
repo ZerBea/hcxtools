@@ -1296,7 +1296,7 @@ static uint8_t keyver;
 static uint64_t rc;
 
 
-static const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+static const char itoa64[65] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 static char singlecapname[PATH_MAX +2];
 static char linein[JOHN_LINE_LEN];

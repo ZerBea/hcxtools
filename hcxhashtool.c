@@ -547,7 +547,7 @@ return false;
 /*===========================================================================*/
 static void hccap2base(unsigned char *in, unsigned char b, FILE *fh_john)
 {
-static const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+static const char itoa64[65] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 fprintf(fh_john, "%c", (itoa64[in[0] >> 2]));
 fprintf(fh_john, "%c", (itoa64[((in[0] & 0x03) << 4) | (in[1] >> 4)]));
@@ -1546,7 +1546,7 @@ while(1)
 	if(maclistskipcount >= maclistskipmax)
 		{
 		maclistskipmax += 1000;
-		maclistskipnew = realloc(maclistskip, maclistskipmax *MACLIST_SIZE);
+		maclistskipnew = (maclist_t*)realloc(maclistskip, maclistskipmax *MACLIST_SIZE);
 		if(maclistskipnew == NULL)
 			{
 			fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -1650,7 +1650,7 @@ while(1)
 	if(maclistincount >= maclistinmax)
 		{
 		maclistinmax += 1000;
-		maclistinnew = realloc(maclistin, maclistinmax *MACLIST_SIZE);
+		maclistinnew = (maclist_t*)realloc(maclistin, maclistinmax *MACLIST_SIZE);
 		if(maclistinnew == NULL)
 			{
 			fprintf(stdout, "failed to allocate memory for internal list\n");
@@ -1751,7 +1751,7 @@ while(1)
 	if(essidlistincount >= essidlistinmax)
 		{
 		essidlistinmax += 1000;
-		essidlistinnew = realloc(essidlistin, essidlistinmax *ESSIDLIST_SIZE);
+		essidlistinnew = (essidlist_t*)realloc(essidlistin, essidlistinmax *ESSIDLIST_SIZE);
 		if(essidlistinnew == NULL)
 			{
 			fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -1912,7 +1912,7 @@ while(1)
 	if(pmkideapolcount >= hashlistcount)
 		{
 		hashlistcount += HASHLIST_MAX;
-		hashlistnew = realloc(hashlist, hashlistcount *HASHLIST_SIZE);
+		hashlistnew = (hashlist_t*)realloc(hashlist, hashlistcount *HASHLIST_SIZE);
 		if(hashlistnew == NULL)
 			{
 			fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -2050,7 +2050,7 @@ while(1)
 	if(ouicount >= ouilistcount)
 		{
 		ouilistcount += OUILIST_MAX;
-		ouilistnew = realloc(ouilist, ouilistcount *OUILIST_SIZE);
+		ouilistnew = (ouilist_t*)realloc(ouilist, ouilistcount *OUILIST_SIZE);
 		if(ouilistnew == NULL)
 			{
 			fprintf(stderr, "failed to allocate memory for internal list\n");
