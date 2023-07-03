@@ -2544,7 +2544,7 @@ static apessidl_t *zeiger;
 if(essidlen > ESSID_LEN_MAX) return;
 if(apessidliste == NULL)
 	{
-	apessidliste = malloc(APESSIDLIST_SIZE);
+	apessidliste = (apessidl_t*)malloc(APESSIDLIST_SIZE);
 	if(apessidliste == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory\n");
@@ -2559,7 +2559,7 @@ if(apessidliste == NULL)
 	}
 zeiger = apessidliste +apessidcount -1;
 if((zeiger->macaddr == macaddr) && (zeiger->essidlen == essidlen) && (memcmp(zeiger->essid, essid, essidlen) == 0)) return;
-zeiger = realloc(apessidliste, (apessidcount +1) *APESSIDLIST_SIZE);
+zeiger = (apessidl_t*)realloc(apessidliste, (apessidcount +1) *APESSIDLIST_SIZE);
 if(zeiger == NULL)
 	{
 	fprintf(stderr, "failed to allocate memory\n");

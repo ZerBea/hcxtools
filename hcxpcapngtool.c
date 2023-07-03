@@ -139,7 +139,6 @@ static int fd_pcap;
 static int gzipstat;
 static int pcapngstat;
 static int capstat;
-static int pcapngstat;
 
 static int endianness;
 static uint16_t versionmajor;
@@ -249,7 +248,6 @@ static long int zeroedpmkidpskcount;
 static long int zeroedpmkidpmkcount;
 static long int zeroedeapolpskcount;
 static long int zeroedeapolpmkcount;
-static long int zeroedeapolpskcount;
 static long int pmkidcount;
 static long int pmkidbestcount;
 static long int pmkidroguecount;
@@ -1312,7 +1310,7 @@ authlen = ntohl(tacacsp->len);
 if((authlen > restlen -TACACSP_SIZE) || (authlen > TACACSPMAX_LEN)) return;
 if(tacacsplistptr >= tacacsplist +tacacsplistmax)
 	{
-	tacacsplistnew = realloc(tacacsplist, (tacacsplistmax +TACACSPLIST_MAX) *TACACSPLIST_SIZE);
+	tacacsplistnew = (tacacsplist_t*)realloc(tacacsplist, (tacacsplistmax +TACACSPLIST_MAX) *TACACSPLIST_SIZE);
 	if(tacacsplistnew == NULL)
 		{
 		printf("failed to allocate memory for internal list\n");
@@ -1526,7 +1524,7 @@ static inline size_t mschapv2_username_clean(uint8_t *username, size_t usernamel
 {
 static char *ptr;
 
-ptr = memchr(username, '\\', usernamelen);
+ptr = (char*)memchr(username, '\\', usernamelen);
 if(ptr == NULL)
 	{
 	memcpy(usernameclean, username, usernamelen);
@@ -1573,7 +1571,7 @@ static eapmschapv2hashlist_t *eapmschapv2hashlistnew;
 eapmschapv2hashcount++;
 if(eapmschapv2hashlistptr >= eapmschapv2hashlist +eapmschapv2hashlistmax)
 	{
-	eapmschapv2hashlistnew = realloc(eapmschapv2hashlist, (eapmschapv2hashlistmax +EAPMSCHAPV2HASHLIST_MAX) *EAPMSCHAPV2HASHLIST_SIZE);
+	eapmschapv2hashlistnew = (eapmschapv2hashlist_s*)realloc(eapmschapv2hashlist, (eapmschapv2hashlistmax +EAPMSCHAPV2HASHLIST_MAX) *EAPMSCHAPV2HASHLIST_SIZE);
 	if(eapmschapv2hashlistnew == NULL)
 		{
 		printf("failed to allocate memory for internal list\n");
@@ -1712,7 +1710,7 @@ static eapleaphashlist_t *eapleaphashlistnew;
 eapleaphashcount++;
 if(eapleaphashlistptr >= eapleaphashlist +eapleaphashlistmax)
 	{
-	eapleaphashlistnew = realloc(eapleaphashlist, (eapleaphashlistmax +EAPLEAPHASHLIST_MAX) *EAPLEAPHASHLIST_SIZE);
+	eapleaphashlistnew = (eapleaphashlist_t*)realloc(eapleaphashlist, (eapleaphashlistmax +EAPLEAPHASHLIST_MAX) *EAPLEAPHASHLIST_SIZE);
 	if(eapleaphashlistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -1863,7 +1861,7 @@ static eapmd5hashlist_t *eapmd5hashlistnew;
 eapmd5hashcount++;
 if(eapmd5hashlistptr >= eapmd5hashlist +eapmd5hashlistmax)
 	{
-	eapmd5hashlistnew = realloc(eapmd5hashlist, (eapmd5hashlistmax +EAPMD5HASHLIST_MAX) *EAPMD5HASHLIST_SIZE);
+	eapmd5hashlistnew = (eapmd5hashlist_t*)realloc(eapmd5hashlist, (eapmd5hashlistmax +EAPMD5HASHLIST_MAX) *EAPMD5HASHLIST_SIZE);
 	if(eapmd5hashlistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -1930,7 +1928,7 @@ return;
 /*===========================================================================*/
 static void hccap2base(unsigned char *in, unsigned char b)
 {
-static const char itoa64[64] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+static const char itoa64[65] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 fprintf(fh_pmkideapoljtrdeprecated, "%c", (itoa64[in[0] >> 2]));
 fprintf(fh_pmkideapoljtrdeprecated, "%c", (itoa64[((in[0] & 0x03) << 4) | (in[1] >> 4)]));
@@ -2516,7 +2514,7 @@ if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, m
 	{
 	if(handshakelistptr >= handshakelist +handshakelistmax)
 		{
-		handshakelistnew = realloc(handshakelist, (handshakelistmax +HANDSHAKELIST_MAX) *HANDSHAKELIST_SIZE);
+		handshakelistnew = (handshakelist_s*)realloc(handshakelist, (handshakelistmax +HANDSHAKELIST_MAX) *HANDSHAKELIST_SIZE);
 		if(handshakelistnew == NULL)
 			{
 			fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -2549,7 +2547,7 @@ else
 		{
 		if(handshakelistptr >= handshakelist +handshakelistmax)
 			{
-			handshakelistnew = realloc(handshakelist, (handshakelistmax +HANDSHAKELIST_MAX) *HANDSHAKELIST_SIZE);
+			handshakelistnew = (handshakelist_s*)realloc(handshakelist, (handshakelistmax +HANDSHAKELIST_MAX) *HANDSHAKELIST_SIZE);
 			if(handshakelistnew == NULL)
 				{
 				fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -2608,7 +2606,7 @@ if(testpmkid(zeroedpmk, macclient, macap, pmkid) == false)
 	{
 	if(pmkidlistptr >= pmkidlist +pmkidlistmax)
 		{
-		pmkidlistnew = realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
+		pmkidlistnew = (pmkidlist_s*)realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
 		if(pmkidlistnew == NULL)
 			{
 			fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -2633,7 +2631,7 @@ else
 		{
 		if(pmkidlistptr >= pmkidlist +pmkidlistmax)
 			{
-			pmkidlistnew = realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
+			pmkidlistnew = (pmkidlist_s*)realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
 			if(pmkidlistnew == NULL)
 				{
 				fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -3850,7 +3848,7 @@ if(tags.essidlen == 0) return;
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -3890,7 +3888,7 @@ else if((tags.akm &TAK_OWE) == TAK_OWE) reassociationrequestowecount++;
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -3932,7 +3930,7 @@ if(tags.essidlen == 0) return;
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -3970,7 +3968,7 @@ else if((tags.akm &TAK_OWE) == TAK_OWE) associationrequestowecount++;
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -4028,7 +4026,7 @@ if(tags.essidlen == 0) return;
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -4049,7 +4047,7 @@ memcpy(aplistptr->essid, tags.essid, tags.essidlen);
 if(cleanbackmac() == false) aplistptr++;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -4083,7 +4081,7 @@ if(tags.essidlen == 0) return;
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -4130,7 +4128,7 @@ if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -4246,7 +4244,7 @@ if((tags.channel > 14) && (tags.channel < CHANNEL_MAX))
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");
@@ -4300,7 +4298,7 @@ if(tags.essidlen == 0) return;
 if(tags.essid[0] == 0) return;
 if(aplistptr >= aplist +maclistmax)
 	{
-	aplistnew = realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
+	aplistnew = (maclist_s*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
 	if(aplistnew == NULL)
 		{
 		fprintf(stderr, "failed to allocate memory for internal list\n");

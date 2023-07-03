@@ -387,17 +387,17 @@ return;
 static int handleignore(int len, char *linein)
 {
 
-static char *wlan = "WLAN-";
-static char *skyroam = "#Skyroam_";
-static char *huitube3 = "3HuiTube_";
-static char *pocket3 = "3Pocket_";
-static char *mobilewifi3 = "3MobileWiFi-";
-static char *tube3 = "3Tube_";
-static char *web3 = "3Web";
-static char *webcube = "WebCube";
-static char *neo3 = "3neo_";
+static const char *wlan = "WLAN-";
+static const char *skyroam = "#Skyroam_";
+static const char *huitube3 = "3HuiTube_";
+static const char *pocket3 = "3Pocket_";
+static const char *mobilewifi3 = "3MobileWiFi-";
+static const char *tube3 = "3Tube_";
+static const char *web3 = "3Web";
+static const char *webcube = "WebCube";
+static const char *neo3 = "3neo_";
 
-static char *wifi4g = "4G Wi-Fi 3Danmark-";
+static const char *wifi4g = "4G Wi-Fi 3Danmark-";
 
 if(len == 11)
 	{
@@ -511,7 +511,7 @@ return len;
 /*===========================================================================*/
 static int handlehex(int len, char *line)
 {
-static char *token = "$HEX[";
+static const char *token = "$HEX[";
 
 if(len >= 6)
 	{
