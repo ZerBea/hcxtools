@@ -463,9 +463,9 @@ static char *essidname = NULL;
 static char *hash16800line = NULL;
 static char *hash2500line = NULL;
 static char *ouiname = NULL;
-static char *confdirname = ".hcxtools";
-static char *ouinameuser = ".hcxtools/oui.txt";
-static char *ouinamesystemwide = "/usr/share/ieee-data/oui.txt";
+static char confdirname[] = ".hcxtools";
+static char ouinameuser[] = ".hcxtools/oui.txt";
+static char ouinamesystemwide[] = "/usr/share/ieee-data/oui.txt";
 
 static char pmkidtype[] = {"WPA*01*" };
 static char eapoltype[] = {"WPA*02*" };
