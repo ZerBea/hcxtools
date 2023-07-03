@@ -2,14 +2,11 @@
 #include <libgen.h>
 #include <ctype.h>
 #include <getopt.h>
-#include <stdarg.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <stdbool.h>
+#include <unistd.h>
 
 #include "include/hcxeiutool.h"
 

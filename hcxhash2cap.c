@@ -1,6 +1,5 @@
 #define _GNU_SOURCE
 #include <getopt.h>
-#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,11 +9,11 @@
 #include <unistd.h>
 #include <time.h>
 #include <limits.h>
-#include <netinet/in.h>
 #include <sys/time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <libgen.h>
+#include <arpa/inet.h>
+
 #include "include/hcxhash2cap.h"
 #include "include/hashcatops.h"
 #include "include/pcap.c"

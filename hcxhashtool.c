@@ -1,40 +1,34 @@
 #define _GNU_SOURCE
-#include <fcntl.h>
 #include <errno.h>
 #include <getopt.h>
-#include <stdarg.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
-#include <time.h>
 #include <limits.h>
 #include <inttypes.h>
 #include <pwd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <curl/curl.h>
-#include <arpa/inet.h>  
-#include <openssl/conf.h>
+#include <arpa/inet.h>
 #include <openssl/err.h>
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
-#include <openssl/ssl.h>
 #include <libgen.h>
+#include <openssl/core.h>
+#include <openssl/params.h>
+#include <openssl/types.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <sys/socket.h>
-#endif
-#ifdef __linux__
-#include <linux/limits.h>
 #endif
 #include "include/hcxhashtool.h"
 #include "include/strings.c"
 #include "include/fileops.c"
 #include "include/ieee80211.h"
 #include "include/byteops.c"
+
 /*===========================================================================*/
 /* global var */
 static const char *usedoui;

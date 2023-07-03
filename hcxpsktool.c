@@ -1,6 +1,5 @@
 #define _GNU_SOURCE
 #include <getopt.h>
-#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,14 +8,13 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <openssl/conf.h>
 #include <openssl/err.h>
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
-
 #include <libgen.h>
+#include <openssl/types.h>
+
 #include "include/hcxpsktool.h"
 #include "include/hashcatops.h"
 #include "include/strings.c"
