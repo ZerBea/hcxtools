@@ -10,19 +10,26 @@
 #include <limits.h>
 #include <inttypes.h>
 #include <pwd.h>
+#include <libgen.h>
 #include <sys/stat.h>
 #include <curl/curl.h>
-#include <arpa/inet.h>
 #include <openssl/err.h>
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
-#include <libgen.h>
 #include <openssl/core.h>
 #include <openssl/params.h>
 #include <openssl/types.h>
+
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <sys/socket.h>
 #endif
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <arpa/inet.h>
+#endif
+
 #include "include/hcxhashtool.h"
 #include "include/strings.c"
 #include "include/fileops.c"

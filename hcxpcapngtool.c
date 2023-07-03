@@ -17,12 +17,17 @@
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <libgen.h>
-#include <arpa/inet.h>
 #include <openssl/core.h>
 #include <openssl/params.h>
 #include <openssl/types.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <sys/socket.h>
+#endif
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <arpa/inet.h>
 #endif
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__

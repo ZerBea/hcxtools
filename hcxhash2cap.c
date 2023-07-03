@@ -12,7 +12,12 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <libgen.h>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "include/hcxhash2cap.h"
 #include "include/hashcatops.h"
