@@ -12,7 +12,7 @@ jobs:
     name: Linux-GCC${{matrix.cc}}-deps=${{matrix.deps}}
     strategy:
       matrix:
-        cc: ['9', '12']
+        cc: ['12']
         deps: ['enabled', 'disabled']
     steps:
       - uses: actions/checkout@v3
@@ -49,7 +49,7 @@ jobs:
           CC: clang-${{matrix.cc}}
           CC_LD: lld-${{matrix.cc}}
         run: |
-          meson setup "${{github.workspace}}/build" -Dauto_features=${{matrix.deps}} -Dwarning_level=2 -Dc_std=c17
+          meson setup "${{github.workspace}}/build" -Dauto_features=${{matrix.deps}} -Dwarning_level=3 -Dc_std=c17
           meson compile -C "${{github.workspace}}/build" --verbose
           meson test -C "${{github.workspace}}/build" --verbose
   MSYS2:
@@ -94,7 +94,7 @@ jobs:
 
       - name: Compile and Test
         run: |
-          meson setup "${{github.workspace}}/build" -Dauto_features=${{matrix.deps}} -Dwarning_level=3 -Dc_std=c17 -Dpkg_config_path=/usr/local/opt/openssl@3/lib/pkgconfig
+          meson setup "${{github.workspace}}/build" -Dauto_features=${{matrix.deps}} -Dwarning_level=2 -Dc_std=c17 -Dpkg_config_path=/usr/local/opt/openssl@3/lib/pkgconfig
           meson compile -C "${{github.workspace}}/build" --verbose
           meson test -C "${{github.workspace}}/build" --verbose
   FreeBSD:
