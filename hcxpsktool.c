@@ -452,11 +452,11 @@ static char pskstring[PSKSTRING_LEN_MAX] = {};
 
 static const char *five[] =
 {
-"about", "again", "aisle", "alley", "amaze", "angle", "apron", "attic", "award",
-"bacon", "badge", "bagel", "beard", "begin", "being", "berry", "bloom", "board", "bread", "brick", "bring",
+"about", "again", "ahead", "aisle", "alert", "alley", "amaze", "angle", "apron", "attic", "award",
+"bacon", "badge", "bagel", "beard", "begin", "being", "berry", "block", "bloom", "board", "bread", "brick", "bring",
 "brush", "brook", "build", "built",
-"cause", "chair", "charm", "chart", "charm", "chase", "check", "chime", "chord", "chore", "chose", "cough",
-"class", "clear", "coast", "cough", "cover", "court", "creak", "curve",
+"cause", "chair", "canal", "charm", "chart", "charm", "chase", "check", "chime", "chord", "chore", "chose", "cough",
+"class", "clear", "coast", "cocoa", "cough", "cover", "count", "court", "creak", "creek", "crumb", "curve",
 "daily", "daisy", "dance", "diner", "dodge", "dough", "dozed", "drain", "drink",
 "eager", "eagle", "earth", "eight", "elect", "empty", "enter", "equal", "event", "exact",
 "fancy", "favor", "feast", "fence", "fever", "field", "fifty"
@@ -464,14 +464,15 @@ static const char *five[] =
 
 static const char *six[] =
 {
-"across", "action", "always", "amount", "animal", "answer", "anyone", "appear", "arctic", "autumn",
-"basket", "become", "beside", "better", "bottle", "breezy", "bridge", "bright", "button",
-"cactus", "called", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery", "cellar",
-"chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "collar", "column", "comedy", "copied",
-"county", "create",
+"across", "action", "always", "amount", "anchor", "animal", "answer", "anyone", "appear", "arctic", "arrive",
+"artist", "autumn",
+"basket", "become", "beside", "better", "bottle", "breezy", "bridge", "bright", "buckle", "button",
+"cactus", "called", "career", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery",
+"cellar", "chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "collar", "column", "comedy",
+"common", "copied", "county", "create",
 "degree", "depend", "design", "detail", "dimmed", "dinner", "direct",
-"effect", "eighty", "eleven", "engine",
-"factor", "famous", "filter", "finish", "flight", "flower", "follow", "forest",
+"effect", "eighty", "eleven", "engine", "escape",
+"factor", "famous", "filter", "finish", "flight", "flower", "folded", "follow", "forest",
 "garden", "gather",
 "harbor", "hardly", "health"
 };
@@ -550,7 +551,7 @@ static const char *word2[] =
 "name", "near", "need", "north", "nose", "note",
 "occur", "over",
 "park", "part", "pass", "past", "path", "photo",
-"queen", "quest", "quick", "quite",
+"queen", "quest", "quick", "quit", "quite",
 "reach", "rice", "ride", "road", "rope", "rule",
 "safe", "salt", "sick", "soul", "sunny",
 "team", "tell", "think", "ture",
@@ -592,7 +593,7 @@ static const char *word1[] =
 "into",
 "jade", "jazz", "jean", "jeep", "join", "joke", "juice", "july", "june",
 "keep", "kind",
-"lable", "labor", "lack", "lake", "land", "light", "like", "live", "lock", "lose",
+"lable", "labor", "lack", "lake", "land", "light", "like", "live", "lock", "loop", "lose",
 "mail", "main", "major", "make", "math", "meet", "milk", "more", "most", "mouth", "much",
 "name", "near", "need", "nine", "north", "nose", "note",
 "occur", "ocean", "open", "over",
@@ -2926,10 +2927,11 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--noessidcombination: exclude ESSID combinations\n"
 	"--netgear           : include weak NETGEAR / ORBI / NTGR_VMB / ARLO_VMB candidates\n"
 	"--spectrum          : include weak MySpectrumWiFi / SpectrumSetup / MyCharterWiFi candidates\n"
-	"                      list will be > 1.7GB\n"
+	"                      list will be > 2.1GB\n"
 	"--digit10           : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"                      list will be > 1GB\n"
-	"--phome             : include weak PEGATRON HOME candidates\n"
+	"--phome             : include weak PEGATRON / Vantiva candidates (HOME, CBCI, XFSETUP)\n"
+	"                      list will be > 1.8GB\n"
 	"--tenda             : include weak TENDA candidates\n"
 	"--ee                : include weak EE BrightBox candidates\n"
 	"                      list will be > 3.5GB\n"
