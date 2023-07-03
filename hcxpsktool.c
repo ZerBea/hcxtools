@@ -1,18 +1,20 @@
 #define _GNU_SOURCE
+#include <ctype.h>
 #include <getopt.h>
+#include <libgen.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <time.h>
 #include <sys/stat.h>
-#include <openssl/err.h>
+#include <time.h>
+#include <unistd.h>
+
 #include <openssl/crypto.h>
+#include <openssl/err.h>
 #include <openssl/evp.h>
-#include <libgen.h>
 #include <openssl/types.h>
 
 #include "include/hcxpsktool.h"

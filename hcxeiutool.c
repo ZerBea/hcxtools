@@ -1,11 +1,11 @@
 #define _GNU_SOURCE
-#include <libgen.h>
 #include <ctype.h>
+#include <errno.h>
 #include <getopt.h>
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <unistd.h>
 
 #include "include/hcxeiutool.h"

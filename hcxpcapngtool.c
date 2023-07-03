@@ -1,25 +1,19 @@
 #define _GNU_SOURCE
 #include <ctype.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <getopt.h>
+#include <inttypes.h>
+#include <libgen.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <getopt.h>
-#include <time.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/time.h>
 #include <sys/stat.h>
-#include <openssl/err.h>
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
-#include <libgen.h>
-#include <openssl/core.h>
-#include <openssl/params.h>
-#include <openssl/types.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <sys/socket.h>
 #endif
@@ -29,6 +23,13 @@
 #else
 #include <arpa/inet.h>
 #endif
+
+#include <openssl/core.h>
+#include <openssl/crypto.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/params.h>
+#include <openssl/types.h>
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST

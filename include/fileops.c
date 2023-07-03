@@ -1,11 +1,11 @@
 #define _GNU_SOURCE
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <fcntl.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "fileops.h"
 /*===========================================================================*/

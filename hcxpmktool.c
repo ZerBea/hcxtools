@@ -1,24 +1,25 @@
 #define _GNU_SOURCE
 #include <getopt.h>
 #include <libgen.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/core.h>
-#include <openssl/crypto.h>
-#include <openssl/params.h>
-#include <openssl/types.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
 #else
 #include <arpa/inet.h>
 #endif
+
+#include <openssl/core.h>
+#include <openssl/crypto.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/params.h>
+#include <openssl/types.h>
 
 #include "include/hcxpmktool.h"
 #include "include/ieee80211.h"

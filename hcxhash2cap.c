@@ -1,17 +1,17 @@
 #define _GNU_SOURCE
+#include <ctype.h>
 #include <getopt.h>
+#include <libgen.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <time.h>
-#include <limits.h>
-#include <sys/time.h>
 #include <sys/stat.h>
-#include <libgen.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
 
 #ifdef _WIN32
 #include <winsock2.h>

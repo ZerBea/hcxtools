@@ -2,13 +2,14 @@
 #include <ctype.h>
 #include <libgen.h>
 #include <pwd.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
 #include <curl/curl.h>
 
 #include "include/strings.c"

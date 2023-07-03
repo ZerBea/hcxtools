@@ -1,24 +1,17 @@
 #define _GNU_SOURCE
+#include <ctype.h>
 #include <errno.h>
 #include <getopt.h>
+#include <inttypes.h>
+#include <libgen.h>
+#include <limits.h>
+#include <pwd.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <pwd.h>
-#include <libgen.h>
 #include <sys/stat.h>
-#include <curl/curl.h>
-#include <openssl/err.h>
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
-#include <openssl/core.h>
-#include <openssl/params.h>
-#include <openssl/types.h>
+#include <unistd.h>
 
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <sys/socket.h>
@@ -29,6 +22,14 @@
 #else
 #include <arpa/inet.h>
 #endif
+
+#include <curl/curl.h>
+#include <openssl/core.h>
+#include <openssl/crypto.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/params.h>
+#include <openssl/types.h>
 
 #include "include/hcxhashtool.h"
 #include "include/strings.c"
