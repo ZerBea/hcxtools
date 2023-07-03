@@ -115,7 +115,7 @@ static int pskptrlen;
 static char *pskptr;
 static uint8_t pmk[32];
 /*===========================================================================*/
-static void closelists()
+static void closelists(void)
 {
 if(hashlist != NULL) free(hashlist);
 if(ouilist != NULL) free(ouilist);
@@ -135,7 +135,7 @@ ERR_free_strings();
 return;
 }
 /*===========================================================================*/
-static bool initlists()
+static bool initlists(void)
 {
 ouicount = 0;
 ouilistcount = OUILIST_MAX;
@@ -201,7 +201,7 @@ for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
 return unknown;
 }
 /*===========================================================================*/
-static void printstatus()
+static void printstatus(void)
 {
 static char *vendor;
 
@@ -446,7 +446,7 @@ if(memcmp(message, zeiger->hash, 16) == 0)
 return;
 }
 /*===========================================================================*/
-static void testhashfilepmk()
+static void testhashfilepmk(void)
 {
 static hashlist_t *zeiger;
 
@@ -464,7 +464,7 @@ if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmk) == 0) ret
 return true;
 }
 /*===========================================================================*/
-static void testhashfilepsk()
+static void testhashfilepsk(void)
 {
 static hashlist_t *zeiger, *zeigerold;
 
@@ -741,7 +741,7 @@ hccapwrittencount++;
 return;
 }
 /*===========================================================================*/
-static void writehccapsinglefile()
+static void writehccapsinglefile(void)
 {
 static int c;
 static FILE *fh_hccap;
@@ -1040,7 +1040,7 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidessidgroups()
+static void writeeapolpmkidessidgroups(void)
 {
 static int cei;
 static int ceo;
@@ -1085,7 +1085,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidouigroups()
+static void writeeapolpmkidouigroups(void)
 {
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
@@ -1114,7 +1114,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidmacapgroups()
+static void writeeapolpmkidmacapgroups(void)
 {
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
@@ -1143,7 +1143,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidmacclientgroups()
+static void writeeapolpmkidmacclientgroups(void)
 {
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
@@ -1968,7 +1968,7 @@ fclose(fh_pbkdf2);
 return true;
 }
 /*===========================================================================*/
-static void showvendorlist()
+static void showvendorlist(void)
 {
 static ouilist_t *zeiger;
 
@@ -2002,7 +2002,7 @@ if(filtervendorclientptr != NULL)
 return ret;
 }
 /*===========================================================================*/
-static void readoui()
+static void readoui(void)
 {
 static int len;
 static uid_t uid;
@@ -2064,7 +2064,7 @@ qsort(ouilist, ouicount, OUILIST_SIZE, sort_ouilist_by_oui);
 return;
 }
 /*===========================================================================*/
-static void downloadoui()
+static void downloadoui(void)
 {
 static uid_t uid;
 static size_t bread;

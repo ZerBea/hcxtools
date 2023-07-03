@@ -49,7 +49,7 @@ static unsigned long long int johnwritten;
 static unsigned long long int johnskipped;
 
 /*===========================================================================*/
-static void globalinit()
+static void globalinit(void)
 {
 
 srand(time(NULL));

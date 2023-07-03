@@ -58,7 +58,7 @@ static size_t eapauthlen;
 static wpakey_t *wpak;
 static int keyversion;
 /*===========================================================================*/
-static void showresult()
+static void showresult(void)
 {
 fprintf(stdout, "\n");
 if((status & HAS_PMKID_LINE) == HAS_PMKID_LINE)
@@ -155,7 +155,7 @@ fprintf(stdout, "\n");
 return;
 }
 /*===========================================================================*/
-static bool genmicwpa2kv3()
+static bool genmicwpa2kv3(void)
 {
 static uint8_t eapoltmp[1024];
 
@@ -168,7 +168,7 @@ memcpy(miccalculated, eapoltmp, 16);
 return true;
 }
 /*===========================================================================*/
-static bool genmicwpa1()
+static bool genmicwpa1(void)
 {
 static uint8_t eapoltmp[1024];
 
@@ -181,7 +181,7 @@ memcpy(miccalculated, eapoltmp, 16);
 return true;
 }
 /*===========================================================================*/
-static bool genmicwpa2()
+static bool genmicwpa2(void)
 {
 static uint8_t eapoltmp[1024];
 
@@ -194,7 +194,7 @@ memcpy(miccalculated, eapoltmp, 16);
 return true;
 }
 /*===========================================================================*/
-static bool genptkwpa2kv3()
+static bool genptkwpa2kv3(void)
 {
 static uint8_t *pkeptr;
 
@@ -233,7 +233,7 @@ if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 128)) return false;
 return true;
 }
 /*===========================================================================*/
-static bool genptkwpa12()
+static bool genptkwpa12(void)
 {
 static uint8_t *pkeptr;
 
@@ -265,7 +265,7 @@ if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 128)) return false;
 return true;
 }
 /*===========================================================================*/
-static bool genpmkid()
+static bool genpmkid(void)
 {
 static char *pmkname = "PMK Name";
 
@@ -439,7 +439,7 @@ len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
-static bool evpdeinitwpa()
+static bool evpdeinitwpa(void)
 {
 if(ctxhmac != NULL)
 	{
@@ -457,7 +457,7 @@ ERR_free_strings();
 return true;
 }
 /*===========================================================================*/
-static bool evpinitwpa()
+static bool evpinitwpa(void)
 {
 ERR_load_crypto_strings();
 OpenSSL_add_all_algorithms();

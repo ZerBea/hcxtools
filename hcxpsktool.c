@@ -49,7 +49,7 @@ static bool znidflag;
 
 uint8_t essidglen;
 /*===========================================================================*/
-static void globalinit()
+static void globalinit(void)
 {
 static time_t t;
 static struct tm *tm;
