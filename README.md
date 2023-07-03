@@ -36,7 +36,7 @@ Read this post: Hash mode 22000 explained (https://hashcat.net/forum/thread-1025
 
 Read this wiki: https://hashcat.net/wiki/doku.php?id=cracking_wpawpa2
 
-Unsupported: Windows OS, macOS, Android, emulators or wrappers and NETLINK!
+Unsupported: Windows OS, macOS, Android, emulators or wrappers!
 
 
 Detailed description
@@ -133,7 +133,7 @@ Requirements
 * detailed knowledge of 802.11 protocol
 * detailed knowledge of key derivation functions
 * detailed knowledge of Linux
-* operating system: Linux
+* operating system: Linux (strict)
 * distribution: recommended Arch Linux, but other distros should work, too (no support for other distributions).
 * gcc >= 12 recommended (deprecated versions are not supported: https://gcc.gnu.org/)
 * libopenssl (>= 3.0) and openssl-dev installed
