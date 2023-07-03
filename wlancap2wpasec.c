@@ -1,18 +1,12 @@
 #define _GNU_SOURCE
-#include <stdarg.h>
-#include <stdint.h>
+#include <libgen.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <unistd.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
-#if defined (__APPLE__) || defined(__OpenBSD__)
-#include <libgen.h>
-#else
-#include <stdio_ext.h>
-#endif
 #include <curl/curl.h>
 
 /*===========================================================================*/

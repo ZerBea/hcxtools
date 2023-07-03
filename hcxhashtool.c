@@ -1,42 +1,42 @@
 #define _GNU_SOURCE
-#include <fcntl.h>
+#include <ctype.h>
 #include <errno.h>
 #include <getopt.h>
-#include <stdarg.h>
-#include <stdint.h>
+#include <inttypes.h>
+#include <libgen.h>
+#include <limits.h>
+#include <pwd.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <time.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <pwd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <curl/curl.h>
-#include <arpa/inet.h>  
-#include <openssl/conf.h>
-#include <openssl/err.h>
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
-#include <openssl/ssl.h>
+#include <unistd.h>
+
 #if defined (__APPLE__) || defined(__OpenBSD__)
-#include <libgen.h>
 #include <sys/socket.h>
+#endif
+
+#ifdef _WIN32
+#include <winsock2.h>
 #else
-#include <stdio_ext.h>
+#include <arpa/inet.h>
 #endif
-#ifdef __linux__
-#include <linux/limits.h>
-#endif
+
+#include <curl/curl.h>
+#include <openssl/core.h>
+#include <openssl/crypto.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/params.h>
+#include <openssl/types.h>
+
 #include "include/hcxhashtool.h"
 #include "include/strings.c"
 #include "include/fileops.c"
 #include "include/ieee80211.h"
 #include "include/byteops.c"
+
 /*===========================================================================*/
 /* global var */
 static const char *usedoui;
@@ -116,7 +116,7 @@ static int pskptrlen;
 static char *pskptr;
 static uint8_t pmk[32];
 /*===========================================================================*/
-static void closelists()
+static void closelists(void)
 {
 if(hashlist != NULL) free(hashlist);
 if(ouilist != NULL) free(ouilist);
@@ -136,7 +136,7 @@ ERR_free_strings();
 return;
 }
 /*===========================================================================*/
-static bool initlists()
+static bool initlists(void)
 {
 ouicount = 0;
 ouilistcount = OUILIST_MAX;
@@ -202,7 +202,7 @@ for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
 return unknown;
 }
 /*===========================================================================*/
-static void printstatus()
+static void printstatus(void)
 {
 static char *vendor;
 
@@ -447,7 +447,7 @@ if(memcmp(message, zeiger->hash, 16) == 0)
 return;
 }
 /*===========================================================================*/
-static void testhashfilepmk()
+static void testhashfilepmk(void)
 {
 static hashlist_t *zeiger;
 
@@ -465,7 +465,7 @@ if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmk) == 0) ret
 return true;
 }
 /*===========================================================================*/
-static void testhashfilepsk()
+static void testhashfilepsk(void)
 {
 static hashlist_t *zeiger, *zeigerold;
 
@@ -742,7 +742,7 @@ hccapwrittencount++;
 return;
 }
 /*===========================================================================*/
-static void writehccapsinglefile()
+static void writehccapsinglefile(void)
 {
 static int c;
 static FILE *fh_hccap;
@@ -1041,7 +1041,7 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidessidgroups()
+static void writeeapolpmkidessidgroups(void)
 {
 static int cei;
 static int ceo;
@@ -1086,7 +1086,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidouigroups()
+static void writeeapolpmkidouigroups(void)
 {
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
@@ -1115,7 +1115,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidmacapgroups()
+static void writeeapolpmkidmacapgroups(void)
 {
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
@@ -1144,7 +1144,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static void writeeapolpmkidmacclientgroups()
+static void writeeapolpmkidmacclientgroups(void)
 {
 static hashlist_t *zeiger;
 static FILE *fh_pmkideapol;
@@ -1969,7 +1969,7 @@ fclose(fh_pbkdf2);
 return true;
 }
 /*===========================================================================*/
-static void showvendorlist()
+static void showvendorlist(void)
 {
 static ouilist_t *zeiger;
 
@@ -2003,7 +2003,7 @@ if(filtervendorclientptr != NULL)
 return ret;
 }
 /*===========================================================================*/
-static void readoui()
+static void readoui(void)
 {
 static int len;
 static uid_t uid;
@@ -2065,7 +2065,7 @@ qsort(ouilist, ouicount, OUILIST_SIZE, sort_ouilist_by_oui);
 return;
 }
 /*===========================================================================*/
-static void downloadoui()
+static void downloadoui(void)
 {
 static uid_t uid;
 static size_t bread;

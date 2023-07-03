@@ -1,26 +1,22 @@
 #define _GNU_SOURCE
+#include <ctype.h>
 #include <getopt.h>
-#include <stdarg.h>
+#include <libgen.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <openssl/conf.h>
-#include <openssl/err.h>
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
+#include <time.h>
+#include <unistd.h>
 
-#if defined(__APPLE__) || defined(__OpenBSD__)
-#include <libgen.h>
-#else
-#include <stdio_ext.h>
-#endif
+#include <openssl/crypto.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/types.h>
+
 #include "include/hcxpsktool.h"
 #include "include/hashcatops.h"
 #include "include/strings.c"
@@ -55,7 +51,7 @@ static bool znidflag;
 
 uint8_t essidglen;
 /*===========================================================================*/
-static void globalinit()
+static void globalinit(void)
 {
 static time_t t;
 static struct tm *tm;

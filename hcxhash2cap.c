@@ -1,24 +1,24 @@
 #define _GNU_SOURCE
+#include <ctype.h>
 #include <getopt.h>
-#include <stdarg.h>
+#include <libgen.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <time.h>
-#include <limits.h>
-#include <netinet/in.h>
-#include <sys/time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#if defined (__APPLE__) || defined(__OpenBSD__)
-#include <libgen.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+
+#ifdef _WIN32
+#include <winsock2.h>
 #else
-#include <stdio_ext.h>
+#include <arpa/inet.h>
 #endif
+
 #include "include/hcxhash2cap.h"
 #include "include/hashcatops.h"
 #include "include/pcap.c"
@@ -49,7 +49,7 @@ static unsigned long long int johnwritten;
 static unsigned long long int johnskipped;
 
 /*===========================================================================*/
-static void globalinit()
+static void globalinit(void)
 {
 
 srand(time(NULL));

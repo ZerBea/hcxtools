@@ -1,13 +1,12 @@
 #define _GNU_SOURCE
-#include <stdbool.h>
-#include <stdint.h>
 #include <fcntl.h>
-#include <string.h>
 #include <stdbool.h>
-#include <unistd.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "pcap.h"
 

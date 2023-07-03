@@ -1,36 +1,35 @@
 #define _GNU_SOURCE
 #include <ctype.h>
 #include <errno.h>
-#include <stdarg.h>
-#include <stdint.h>
+#include <fcntl.h>
+#include <getopt.h>
+#include <inttypes.h>
+#include <libgen.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <getopt.h>
-#include <time.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <sys/time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <openssl/conf.h>
-#include <openssl/err.h>
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
-#include <openssl/ssl.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
 #if defined (__APPLE__) || defined(__OpenBSD__)
-#include <libgen.h>
 #include <sys/socket.h>
+#endif
+
+#ifdef _WIN32
+#include <winsock2.h>
 #else
-#include <stdio_ext.h>
+#include <arpa/inet.h>
 #endif
-#ifdef __linux__
-#include <linux/limits.h>
-#endif
+
+#include <openssl/core.h>
+#include <openssl/crypto.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/params.h>
+#include <openssl/types.h>
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define BIG_ENDIAN_HOST
@@ -44,6 +43,7 @@
 #include "include/hashops.c"
 #include "include/pcap.c"
 #include "include/gzops.c"
+
 /*===========================================================================*/
 struct hccap_s
 {
@@ -390,7 +390,7 @@ return;
 }
 */
 /*===========================================================================*/
-static void closelists()
+static void closelists(void)
 {
 if(aplist != NULL) free(aplist);
 if(messagelist != NULL) free(messagelist);
@@ -406,7 +406,7 @@ if(tacacsplist != NULL) free(tacacsplist);
 return;
 }
 /*===========================================================================*/
-static bool initlists()
+static bool initlists(void)
 {
 static const char nastring[] = { "N/A" };
 
@@ -636,7 +636,7 @@ memset(&usedfrequency, 0, sizeof(usedfrequency));
 return true;
 }
 /*===========================================================================*/
-static void printcontentinfo()
+static void printcontentinfo(void)
 {
 static int c;
 static uint8_t i;
@@ -989,7 +989,7 @@ fprintf(stdout, "\n");
 return;
 }
 /*===========================================================================*/
-static void printlinklayerinfo()
+static void printlinklayerinfo(void)
 {
 static uint32_t c;
 static time_t tvmin;
@@ -1026,7 +1026,7 @@ for(c = 0; c < iface; c++)
 return;
 }
 /*===========================================================================*/
-static void outputwordlists()
+static void outputwordlists(void)
 {
 static int wecl;
 static maclist_t *zeigermac, *zeigermacold;
@@ -1053,7 +1053,7 @@ for(zeigermac = aplist; zeigermac < aplistptr; zeigermac++)
 return;
 }
 /*===========================================================================*/
-static void outputdeviceinfolist()
+static void outputdeviceinfolist(void)
 {
 static int p;
 static maclist_t *zeigermac;
@@ -1259,7 +1259,7 @@ memcpy(&gpwplold, &gpwpl, gpwpllen);
 return;
 }
 /*===========================================================================*/
-static void outputtacacsplist()
+static void outputtacacsplist(void)
 {
 static uint32_t c;
 static tacacsplist_t *zeiger, *zeigerold;
@@ -1346,7 +1346,7 @@ protochapcount++;
 return;
 }
 /*===========================================================================*/
-static void processprotopapppacket()
+static void processprotopapppacket(void)
 {
 
 protopapcount++;
@@ -1436,7 +1436,7 @@ timestamp = timestamp;
 return;
 }
 /*===========================================================================*/
-static void processicmp4()
+static void processicmp4(void)
 {
 icmp4count++;
 return;
@@ -1460,7 +1460,7 @@ ipv4count++;
 return;
 }
 /*===========================================================================*/
-static void processicmp6()
+static void processicmp6(void)
 {
 icmp6count++;
 return;
@@ -1536,7 +1536,7 @@ memcpy(usernameclean, ptr +1, username +usernamelen -(uint8_t*)ptr -1);
 return (username +usernamelen -(uint8_t*)ptr -1);
 }
 /*===========================================================================*/
-static void outputeapmschapv2hashlist()
+static void outputeapmschapv2hashlist(void)
 {
 static eapmschapv2hashlist_t *zeiger, *zeigerold;
 static uint8_t challenge[MSCHAPV2_CHALLENGE_LEN_MAX];
@@ -1669,7 +1669,7 @@ else if((eapcode == EAP_CODE_RESP) && (eapmschapv2->opcode == EAP_MSCHAPV2_OPCOD
 return;
 }
 /*===========================================================================*/
-static void outputeapleaphashlist()
+static void outputeapleaphashlist(void)
 {
 static eapleaphashlist_t *zeiger, *zeigerold;
 
@@ -1800,7 +1800,7 @@ else if(eapcode == EAP_CODE_RESP)
 return;
 }
 /*===========================================================================*/
-static void outputeapmd5hashlist()
+static void outputeapmd5hashlist(void)
 {
 static eapmd5hashlist_t *zeiger, *zeigerold;
 
@@ -2339,7 +2339,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 return zeigerpmkidakt;
 }
 /*===========================================================================*/
-static void outputwpalists()
+static void outputwpalists(void)
 {
 static maclist_t *zeigermac, *zeigermacold;
 static handshakelist_t *zeigerhsakt;
@@ -2410,7 +2410,7 @@ for(zeigermac = aplist +1; zeigermac < aplistptr; zeigermac++)
 return;
 }
 /*===========================================================================*/
-static void cleanupmac()
+static void cleanupmac(void)
 {
 static maclist_t *zeiger;
 static maclist_t *zeigerold;
@@ -2468,7 +2468,7 @@ for(zeiger = aplist +1; zeiger < aplistptr; zeiger++)
 return;
 }
 /*===========================================================================*/
-static bool cleanbackhandshake()
+static bool cleanbackhandshake(void)
 {
 static int c;
 static handshakelist_t *zeiger;
@@ -2579,7 +2579,7 @@ else
 return;
 }
 /*===========================================================================*/
-static bool cleanbackpmkid()
+static bool cleanbackpmkid(void)
 {
 static int c;
 static pmkidlist_t *zeiger;
@@ -3702,7 +3702,7 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epc
 return;
 }
 /*===========================================================================*/
-static void process80211rc4key()
+static void process80211rc4key(void)
 {
 eapolrc4count++;
 return;
@@ -3783,7 +3783,7 @@ if(fh_nmea != NULL) writegpwpl(macfm);
 return;
 }
 /*===========================================================================*/
-static bool cleanbackmac()
+static bool cleanbackmac(void)
 {
 static int c;
 static maclist_t *zeiger;
@@ -5680,7 +5680,7 @@ fprintf(stdout, "same file names for different file types is not allowed: %s - %
 return true;
 }
 /*===========================================================================*/
-static bool evpdeinitwpa()
+static bool evpdeinitwpa(void)
 {
 if(ctxhmac != NULL)
 	{
@@ -5698,7 +5698,7 @@ ERR_free_strings();
 return true;
 }
 /*===========================================================================*/
-static bool evpinitwpa()
+static bool evpinitwpa(void)
 {
 static unsigned long opensslversion;
 

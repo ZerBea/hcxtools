@@ -1,24 +1,25 @@
 #define _GNU_SOURCE
-#include <ctype.h>
-#include <dirent.h>
-#include <fcntl.h>
-#include <ftw.h>
 #include <getopt.h>
 #include <libgen.h>
-#include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <arpa/inet.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
-#include <utime.h>
-#include <openssl/conf.h>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <arpa/inet.h>
+#endif
+
+#include <openssl/core.h>
+#include <openssl/crypto.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#include <openssl/params.h>
+#include <openssl/types.h>
 
 #include "include/hcxpmktool.h"
 #include "include/ieee80211.h"
@@ -58,7 +59,7 @@ static size_t eapauthlen;
 static wpakey_t *wpak;
 static int keyversion;
 /*===========================================================================*/
-static void showresult()
+static void showresult(void)
 {
 fprintf(stdout, "\n");
 if((status & HAS_PMKID_LINE) == HAS_PMKID_LINE)
@@ -155,7 +156,7 @@ fprintf(stdout, "\n");
 return;
 }
 /*===========================================================================*/
-static bool genmicwpa2kv3()
+static bool genmicwpa2kv3(void)
 {
 static uint8_t eapoltmp[1024];
 
@@ -168,7 +169,7 @@ memcpy(miccalculated, eapoltmp, 16);
 return true;
 }
 /*===========================================================================*/
-static bool genmicwpa1()
+static bool genmicwpa1(void)
 {
 static uint8_t eapoltmp[1024];
 
@@ -181,7 +182,7 @@ memcpy(miccalculated, eapoltmp, 16);
 return true;
 }
 /*===========================================================================*/
-static bool genmicwpa2()
+static bool genmicwpa2(void)
 {
 static uint8_t eapoltmp[1024];
 
@@ -194,7 +195,7 @@ memcpy(miccalculated, eapoltmp, 16);
 return true;
 }
 /*===========================================================================*/
-static bool genptkwpa2kv3()
+static bool genptkwpa2kv3(void)
 {
 static uint8_t *pkeptr;
 
@@ -233,7 +234,7 @@ if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 128)) return false;
 return true;
 }
 /*===========================================================================*/
-static bool genptkwpa12()
+static bool genptkwpa12(void)
 {
 static uint8_t *pkeptr;
 
@@ -265,7 +266,7 @@ if(!EVP_MAC_final(ctxhmac, ptkcalculated, NULL, 128)) return false;
 return true;
 }
 /*===========================================================================*/
-static bool genpmkid()
+static bool genpmkid(void)
 {
 static char *pmkname = "PMK Name";
 
@@ -439,7 +440,7 @@ len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
-static bool evpdeinitwpa()
+static bool evpdeinitwpa(void)
 {
 if(ctxhmac != NULL)
 	{
@@ -457,7 +458,7 @@ ERR_free_strings();
 return true;
 }
 /*===========================================================================*/
-static bool evpinitwpa()
+static bool evpinitwpa(void)
 {
 ERR_load_crypto_strings();
 OpenSSL_add_all_algorithms();
