@@ -1582,7 +1582,7 @@ if(memcmp(essid, izzi, 5) != 0) return;
 if((!isxdigit((unsigned char)essid[5])) || (!isxdigit((unsigned char)essid[6])) || (!isxdigit((unsigned char)essid[7])) || (!isxdigit((unsigned char)essid[8]))) return;
 for(i = 0; i < FIXSEED2_SIZE; i++)
 	{
-	for(c = 0; c < 0x100; c++) fprintf(fhout, "%06X%02X%C%C%C%C\n", fixseed2[i], c, essid[5], essid[6], essid[7], essid[8]);
+	for(c = 0; c < 0x100; c++) fprintf(fhout, "%06X%02X%lc%lc%lc%lc\n", fixseed2[i], c, essid[5], essid[6], essid[7], essid[8]);
 	}
 return;
 }
@@ -1926,7 +1926,7 @@ if((isxdigit((unsigned char)essid[6])) && (isxdigit((unsigned char)essid[7])) &&
 	{
 	for(k = 0; k < 0x100; k++)
 		{
-		snprintf(essidtmp, PSKSTRING_LEN_MAX, "%02X%C%C%C%C%C%C", k, essid[6], essid[7], essid[8], essid[9], essid[10], essid[11]);
+		snprintf(essidtmp, PSKSTRING_LEN_MAX, "%02X%lc%lc%lc%lc%lc%lc", k, essid[6], essid[7], essid[8], essid[9], essid[10], essid[11]);
 		writepsk(fhout, essidtmp);
 		}
 	}
@@ -1944,21 +1944,21 @@ if((isdigit((unsigned char)essid[11])) && (isdigit((unsigned char)essid[12])) &&
 	{
     for(k = 0; k < 1000; k++)
 	    {
-	    fprintf(fhout,   "%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "15%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "16%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "24%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "31%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "33%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "37%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "38%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "40%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "61%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
-	    fprintf(fhout, "71%03d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout,   "%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "15%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "16%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "24%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "31%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "33%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "37%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "38%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "40%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "61%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "71%03d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
 	    }
     for(k = 0; k < 10000; k++)
 	    {
-	    fprintf(fhout, "%04d%C%C%C%C0\n", k, essid[11], essid[12], essid[13], essid[14]);
+	    fprintf(fhout, "%04d%lc%lc%lc%lc0\n", k, essid[11], essid[12], essid[13], essid[14]);
 	    }
 	}
 return;
@@ -2066,7 +2066,7 @@ if((!isxdigit((unsigned char)essid[8])) || (!isxdigit((unsigned char)essid[9])) 
 
 for(i = 0; i < FIX_SIZE; i++)
 	{
-	for(c = 0; c < 0x100; c++) fprintf(fhout, "%04X%02X%C%C%C%C\n", fix[i], c, essid[8], essid[9], essid[10], essid[11]);
+	for(c = 0; c < 0x100; c++) fprintf(fhout, "%04X%02X%lc%lc%lc%lc\n", fix[i], c, essid[8], essid[9], essid[10], essid[11]);
 	}
 return;
 }
