@@ -15,7 +15,7 @@ BINDIR		= $(DESTDIR)$(PREFIX)/bin
 HOSTOS		:= $(shell uname -s)
 
 CC		?= gcc
-CFLAGS		?= -O3 -Wall -Wextra
+CFLAGS		?= -O3 -Wall -Wextra -Wpedantic
 CFLAGS		+= -std=gnu99
 DEFS		= -DVERSION_TAG=\"$(VERSION_TAG)\" -DVERSION_YEAR=\"$(VERSION_YEAR)\"
 DEFS		+= -DWANTZLIB
