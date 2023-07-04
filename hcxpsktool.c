@@ -73,8 +73,8 @@ static void writepsk(FILE *fhout, const char *pskstring)
 static bool lflag = false;
 static bool uflag = false;
 static int p, l;
-static char lowerpskstring[PSKSTRING_LEN_MAX] = {};
-static char upperpskstring[PSKSTRING_LEN_MAX] = {};
+static char lowerpskstring[PSKSTRING_LEN_MAX] = { 0 };
+static char upperpskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 l = strlen(pskstring);
 if((l < 8) || (l > PSKSTRING_LEN_MAX)) return;
@@ -167,7 +167,7 @@ static void keywritenetgear(FILE *fhout)
 {
 static size_t ca, cs;
 static int cn;
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 static const char *firstword[] =
 { 
@@ -286,7 +286,7 @@ static void keywritespectrum(FILE *fhout)
 {
 static size_t ca, cs;
 static int cn;
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 static const char *firstword[] =
 {
@@ -444,7 +444,7 @@ static void keywritephome(FILE *fhout)
 static size_t ca, cs;
 static int cn;
 
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 static const char *five[] =
 {
@@ -503,7 +503,7 @@ static void keywritetenda1(FILE *fhout)
 static size_t ca, cs;
 static int cn;
 
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 static const char *word1[] =
 {
@@ -574,7 +574,7 @@ static void keywritetenda2(FILE *fhout)
 static size_t ca;
 static int cn;
 
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 static const char *word1[] =
 {
@@ -617,7 +617,7 @@ static void keywriteee(FILE *fhout)
 {
 static size_t w3, w4, w5;
 
-static char pskstring[16] = {};
+static char pskstring[16] = { 0 };
 
 const char *pskmask = "%s-%s-%s\n";
 
@@ -960,7 +960,7 @@ static void keywriteweakpass(FILE *fhout)
 static size_t w;
 static unsigned int y;
 
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 static const char *weakword[] =
 {
 "00000000", "0000000000", "01234567", "0123456789", "0123456789012345", "022844444", "0987654321",
@@ -1150,7 +1150,7 @@ return;
 static void keywriteyearyear(FILE *fhout)
 {
 static unsigned int y, y2, y3;
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 for(y = 1900; y <= thisyear; y++)
 	{
@@ -1178,7 +1178,7 @@ return;
 static void keywriteegn(FILE *fhout)
 {
 static unsigned int y, m, d, mc, i, j, c;
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 static unsigned int w[] = {2, 4, 8, 5, 10, 9, 7, 3, 6};
 
 for(y = 1950; y <= thisyear; y++)
@@ -1227,7 +1227,7 @@ static int ek;
 static char *ev;
 static unsigned int oui;
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen >= 6)
 	{
@@ -1284,7 +1284,7 @@ return;
 static void writeessidadd(FILE *fhout, char *essid)
 {
 static unsigned int c, d;
-static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = {};
+static char essidstring[PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX +PSKSTRING_LEN_MAX] = { 0 };
 
 for(c = 22222; c <= 99999; c += 11111)
 	{
@@ -1491,7 +1491,7 @@ static int po;
 static int essidlentmp;
 static bool removeflag;
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 po = 0;
 removeflag = false;
@@ -1518,7 +1518,7 @@ return removeflag;
 static void writeessidsweeped(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int l1, l2;
-static uint8_t sweepstring[PSKSTRING_LEN_MAX] = {};
+static uint8_t sweepstring[PSKSTRING_LEN_MAX] = { 0 };
 
 for(l1 = 2; l1 <= essidlen; l1++)
 	{
@@ -1551,7 +1551,7 @@ static void testalcatellinkzone(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k1;
 static const char *ali = "Alcatel LINKZONE ";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen != 21) return;
 if(memcmp(essid, ali, 17) != 0) return;
@@ -1643,7 +1643,7 @@ static void testaxtelxtremo(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k1;
 static const char *axtelxtremo = "AXTEL XTREMO-";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen != 17) return;
 if(memcmp(essid, axtelxtremo, 13) != 0) return;
@@ -1661,7 +1661,7 @@ static void testattwifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k1, k2, k3, k4;
 static const char *attwifi = "ATT-WIFI-";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen != 13) return;
 if(memcmp(essid, attwifi, 9) != 0) return;
@@ -1682,7 +1682,7 @@ static void testcabovisao(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k1;
 static const char *cabovisao = "Cabovisao-";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen != 14) return;
 if(memcmp(essid, cabovisao, 10) != 0) return;
@@ -1799,7 +1799,7 @@ static int k1, k2;
 static char *ev;
 static const char *hotbox = "HOTBOX";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen < 7) return;
 if(memcmp(essid, hotbox , 6) != 0) return;
@@ -1857,7 +1857,7 @@ static int k1, k2;
 static const char *a1 = "A1_";
 static const char *mtel = "M-Tel_";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen == 7)
 	{
@@ -1901,7 +1901,7 @@ static void testmywifi(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k1;
 static const char *mywifi = "MY WIFI ";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen != 12) return;
 if(memcmp(essid, mywifi, 8) != 0) return;
@@ -1918,7 +1918,7 @@ static void testnet2g(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k;
 static const char *net2g = "NET_2G";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen < 12) return;
 if(memcmp(essid, net2g, 6) != 0) return;
@@ -2076,7 +2076,7 @@ static void testukrtelecom(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k;
 static const char *ukrtelekom = "UKrtelecom";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(ukrtelecomflag == true) return;
 if(essidlen < 10) return;
@@ -2108,7 +2108,7 @@ static void testwifirsu(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 static int k1;
 static const char *wifirsu = "WiFiRSU_";
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if(essidlen < 10) return;
 if(memcmp(essid, wifirsu, 8) != 0) return;
@@ -2204,7 +2204,7 @@ return;
 static void prepareessid(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int pi, po;
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if((essidlen == 0) || (essidlen > 32)) return;
 testairtel(fhout, essidlen, essid);
@@ -2380,7 +2380,7 @@ return;
 /*===========================================================================*/
 static void writebssid(FILE *fhout, unsigned long long int macaddr)
 {
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 snprintf(pskstring, PSKSTRING_LEN_MAX, "0%012llx", macaddr);
 writepsk(fhout, pskstring);
@@ -2426,7 +2426,7 @@ static void test000559(FILE *fhout, unsigned long long int macaddr)
 static int k1;
 static unsigned long long int oui;
 
-static char essidtmp[PSKSTRING_LEN_MAX] = {};
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 oui = macaddr &0xffffff000000L;
 oui = oui >> 24;
@@ -2449,7 +2449,7 @@ static unsigned long long int nic;
 static unsigned int nici;
 static int swap;
 static int me;
-static char pskstring[PSKSTRING_LEN_MAX] = {};
+static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 fprintf(fhout, "%012llX\n", macaddr &0xffffffffff);
 
