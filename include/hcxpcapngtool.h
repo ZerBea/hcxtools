@@ -97,28 +97,28 @@ struct tags_s
 #define KV_WPAIE	2
  uint8_t		groupcipher;
  uint8_t		cipher;
-#define TCS_WEP40	0b00000001
-#define TCS_TKIP	0b00000010
-#define TCS_WRAP	0b00000100
-#define TCS_CCMP	0b00001000
-#define TCS_GCMP	0b00010000
-#define TCS_WEP104	0b00100000
-#define TCS_BIP		0b01000000
-#define TCS_NOT_ALLOWED	0b10000000
+#define TCS_WEP40	0x01
+#define TCS_TKIP	0x02
+#define TCS_WRAP	0x04
+#define TCS_CCMP	0x08
+#define TCS_GCMP	0x10
+#define TCS_WEP104	0x20
+#define TCS_BIP		0x40
+#define TCS_NOT_ALLOWED	0x80
  uint16_t		akm;
-#define	TAK_PMKSA	0b0000000000000001
-#define	TAK_PSK		0b0000000000000010
-#define TAK_FT		0b0000000000000100
-#define TAK_FT_PSK	0b0000000000001000
-#define	TAK_PMKSA256	0b0000000000010000
-#define	TAK_PSKSHA256	0b0000000000100000
-#define	TAK_TDLS	0b0000000001000000
-#define	TAK_SAE_SHA256	0b0000000010000000
-#define TAK_FT_SAE	0b0000000100000000
-#define TAK_AP_PKA	0b0000001000000000
-#define	TAK_SAE_SHA256B	0b0000010000000000
-#define	TAK_SAE_SHA384B	0b0000100000000000
-#define TAK_OWE		0b0001000000000000
+#define	TAK_PMKSA	0x0001
+#define	TAK_PSK		0x0002
+#define TAK_FT		0x0004
+#define TAK_FT_PSK	0x0008
+#define	TAK_PMKSA256	0x0010
+#define	TAK_PSKSHA256	0x0020
+#define	TAK_TDLS	0x0040
+#define	TAK_SAE_SHA256	0x0080
+#define TAK_FT_SAE	0x0100
+#define TAK_AP_PKA	0x0200
+#define	TAK_SAE_SHA256B	0x0400
+#define	TAK_SAE_SHA384B	0x0800
+#define TAK_OWE		0x1000
  uint8_t		pmkid[16];
  uint8_t		wpsinfo;
  char			country[2];
@@ -147,8 +147,8 @@ struct maclist_s
  int			count;
  uint8_t		type;
 #define	REMOVED		0
-#define	CLIENT		0b00000001
-#define	AP		0b00000010
+#define	CLIENT		0x01
+#define	AP		0x02
  uint8_t		status;
 #define ST_PROBE_REQ	1
 #define ST_BEACON	2
@@ -246,10 +246,10 @@ struct messagelist_s
 #define	ST_M32E3	3
 #define	ST_M34E3	4
 #define	ST_M34E4	5
-#define	ST_APLESS	0b00010000
-#define	ST_LE		0b00100000
-#define	ST_BE		0b01000000
-#define	ST_NC		0b10000000
+#define	ST_APLESS	0x10
+#define	ST_LE		0x20
+#define	ST_BE		0x40
+#define	ST_NC		0x80
  uint8_t		ap[6];
  uint8_t		client[6];
  uint8_t		message;
@@ -336,8 +336,8 @@ struct pmkidlist_s
 {
  uint64_t		timestamp;
  uint8_t		status;
-#define PMKID_AP	0b00000001
-#define PMKID_CLIENT	0b00010000
+#define PMKID_AP	0x01
+#define PMKID_CLIENT	0x10
  uint8_t		ap[6];
  uint8_t		client[6];
  uint8_t		anonce[32];
