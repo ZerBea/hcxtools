@@ -25,7 +25,7 @@ static void printstraightlower(FILE *fh_out, int len, char *linein)
 {
 static int p,px;
 
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 px = 0;
 for(p = 0; p < len; p++)
@@ -56,7 +56,7 @@ static void printstraightupper(FILE *fh_out, int len, char *linein)
 {
 static int p, px;
 
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 px = 0;
 for(p = 0; p < len; p++)
@@ -87,7 +87,7 @@ static void printstraightcapital(FILE *fh_out, int len, char *linein)
 {
 static int p,px;
 
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 px = 0;
 for(p = 0; p < len; p++)
@@ -126,7 +126,7 @@ return;
 static void printstraigthsweep(FILE *fh_out, int slen, int len, char *linein)
 {
 static int l;
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 if(len >= slen)
 	{
@@ -187,7 +187,7 @@ static void printxdigitlower(FILE *fh_out, int len, char *linein)
 {
 static int p, pd;
 
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 pd = 0;
 for(p = 0; p < len; p++)
@@ -218,7 +218,7 @@ static void printxdigitupper(FILE *fh_out, int len, char *linein)
 {
 static int p, pd;
 
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 pd = 0;
 for(p = 0; p < len; p++)
@@ -268,7 +268,7 @@ return;
 static void printxdigitsweep(FILE *fh_out, int slen, int len, char *linein)
 {
 static int l;
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 if(len >= slen)
 	{
@@ -296,7 +296,7 @@ return;
 static void handlexdigit(FILE *fh_out, int len, char *linein)
 {
 static int i, o;
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 o = 0;
 for(i = 0; i < len; i++)
@@ -339,7 +339,7 @@ return;
 static void printdigitsweep(FILE *fh_out, int slen, int len, char *linein)
 {
 static int l;
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 if(len >= slen)
 	{
@@ -356,7 +356,7 @@ return;
 static void handledigit(FILE *fh_out, int len, char *linein)
 {
 static int i, o;
-static char lineout[LINEIN_MAX] = {};
+static char lineout[LINEIN_MAX] = { 0 };
 
 o = 0;
 for(i = 0; i < len; i++)
