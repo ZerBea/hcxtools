@@ -1,0 +1,31 @@
+name: C CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os-version: [ ubuntu-latest ]
+        compiler: [ gcc-latest ]
+        deps: ['enabled']
+        platform: ['x64', 'x86'] 
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+ 
+    - name: Install packages
+     run: |
+          sudo apt install -y libcurl4-gnutls-dev
+ 
+    - name: Make
+      run: make
