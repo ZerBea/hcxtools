@@ -5815,7 +5815,10 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                                     4 = not supported\n"
 	"                                     5 = not supported\n"
 	"                                     6 = fix valid (Dead Reckoning Mode)\n"
-	"--log=<file>                       : output logfile\n"
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname, eigenname, eigenname, eigenname, eigenname,
+	EAPOLTIMEOUT / 1000000, NONCEERRORCORRECTION, ESSIDSMAX);
+
+fprintf(stdout, "--log=<file>                       : output logfile\n"
 	"--raw-out=<file>                   : output frames in HEX ASCII\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
 	"--raw-in=<file>                    : input frames in HEX ASCII\n"
@@ -5839,8 +5842,8 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                                     cat hash.hc22000 | awk '{print $1}' > hashremovedtimestamp.hc22000\n"
 	"--help                             : show this help\n"
 	"--version                          : show version\n"
-	"\n"
-	"bitmask of PMKID hash line (WPA*01) message pair field:\n"
+
+"bitmask of PMKID hash line (WPA*01) message pair field:\n"
 	"0: reserved\n"
 	"1: PMKID taken from AP\n"
 	"2: reserved\n"
@@ -5872,10 +5875,9 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"Recommended tool to filter converted hash by several options: hcxhashtool\n"
 	"Recommended tool to get default or standard PSKs: hcxpsktool\n"
 	"Recommended tool to calculate wordlists based on ESSID: hcxeiutool\n"
-	"Recommended tools to retrieve PSK from hash: hashcat, JtR\n"
-	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname, eigenname, eigenname, eigenname, eigenname,
-	EAPOLTIMEOUT / 1000000, NONCEERRORCORRECTION, ESSIDSMAX,
+	"Recommended tools to retrieve PSK from hash: hashcat, JtR\n",
 	eigenname);
+
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
