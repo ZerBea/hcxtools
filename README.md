@@ -135,7 +135,7 @@ Requirements
 * detailed knowledge of Linux
 * operating system: Linux (strict)
 * distribution: recommended Arch Linux, but other distros should work, too (no support for other distributions).
-* gcc >= 12 recommended (deprecated versions are not supported: https://gcc.gnu.org/)
+* gcc >= 13 recommended (deprecated versions are not supported: https://gcc.gnu.org/)
 * libopenssl (>= 3.0) and openssl-dev installed
 * librt and librt-dev installed (should be installed by default)
 * zlib and zlib-dev installed (for gzip compressed cap/pcap/pcapng files)
