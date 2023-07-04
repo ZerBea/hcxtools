@@ -2201,8 +2201,10 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                               format: 001122, 00:11:22, 00-11-22 (hex)\n"
 	"--vendor=<VENDOR>            : filter AP or CLIENT by (part of) VENDOR name\n"
 	"--vendor-ap=<VENDOR>         : filter AP by (part of) VENDOR name\n"
-	"--vendor-client=<VENDOR>     : filter CLIENT by (part of) VENDOR name\n"
-	"--authorized                 : filter EAPOL pairs by status authorized (M2M3, M3M4, M1M4)\n"
+	"--vendor-client=<VENDOR>     : filter CLIENT by (part of) VENDOR name\n",
+	eigenname, VERSION_TAG, VERSION_YEAR, eigenname, ESSID_LEN_MIN, ESSID_LEN_MAX, ESSID_LEN_MIN, ESSID_LEN_MAX);
+
+fprintf(stdout, "--authorized                 : filter EAPOL pairs by status authorized (M2M3, M3M4, M1M4)\n"
 	"--challenge                  : filter EAPOL pairs by status CHALLENGE (M1M2, M1M2ROGUE)\n"
 	"--rc                         : filter EAPOL pairs by replaycount status checked\n"
 	"--rc-not                     : filter EAPOL pairs by replaycount status not checked\n"
@@ -2238,8 +2240,8 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"Important notice:\n"
 	"%s does not do NONCE ERROR CORRECTIONS\n"
-	"in case of a packet loss, you get a wrong PTK\n"
-	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, ESSID_LEN_MIN, ESSID_LEN_MAX, ESSID_LEN_MIN, ESSID_LEN_MAX, eigenname);
+	"in case of a packet loss, you get a wrong PTK\n",
+	eigenname);
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
