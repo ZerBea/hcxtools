@@ -448,29 +448,29 @@ static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 static const char *five[] =
 {
-"about", "again", "ahead", "aisle", "alert", "alley", "amaze", "angle", "apron", "attic", "award",
-"bacon", "badge", "bagel", "beard", "begin", "being", "berry", "block", "bloom", "board", "bread", "brick", "bring",
-"brush", "brook", "build", "built",
+"about", "again", "ahead", "aisle", "alert", "alley", "allow", "amaze", "angle", "apron", "arrow", "attic", "award",
+"bacon", "badge", "bagel", "basic", "beard", "begin", "being", "berry", "block", "bloom", "board", "bonus", "bread",
+"brick", "bring", "brush", "brook", "build", "built",
 "cause", "chair", "canal", "charm", "chart", "charm", "chase", "check", "chime", "chord", "chore", "chose", "cough",
-"class", "clear", "coast", "cocoa", "cough", "cover", "count", "court", "creak", "creek", "crumb", "curve",
+"class", "clear", "coast", "cocoa", "cough", "cover", "count", "court", "creak", "cream", "creek", "crumb", "curve",
 "daily", "daisy", "dance", "diner", "dodge", "dough", "dozed", "drain", "drink",
-"eager", "eagle", "earth", "eight", "elect", "empty", "enter", "equal", "event", "exact",
+"eager", "eagle", "earth", "eight", "elbow", "elect", "empty", "enter", "entry", "equal", "event", "exact",
 "fancy", "favor", "feast", "fence", "fever", "field", "fifty"
 };
 
 static const char *six[] =
 {
-"across", "action", "always", "amount", "anchor", "animal", "answer", "anyone", "appear", "arctic", "arrive",
-"artist", "autumn",
-"basket", "become", "beside", "better", "bottle", "breezy", "bridge", "bright", "buckle", "button",
+"across", "action", "almost", "always", "amount", "anchor", "animal", "answer", "anyone", "appear", "arctic", "around",
+"arrive", "artist", "autumn",
+"banana", "basket", "become", "beside", "better", "borrow", "bottle", "breezy", "bridge", "bright", "buckle", "button",
 "cactus", "called", "career", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery",
 "cellar", "chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "collar", "column", "comedy",
-"common", "copied", "county", "create",
+"common", "copied", "corral", "county", "create",
 "degree", "depend", "design", "detail", "dimmed", "dinner", "direct",
-"effect", "eighty", "eleven", "engine", "escape",
+"easier", "effect", "eighty", "eleven", "energy", "engine", "entire", "escape",
 "factor", "famous", "filter", "finish", "flight", "flower", "folded", "follow", "forest",
 "garden", "gather",
-"harbor", "hardly", "health"
+"happen", "harbor", "hardly", "health"
 };
 
 for(ca = 0; ca < (sizeof(five) / sizeof(char *)); ca++)
@@ -580,7 +580,7 @@ static const char *word1[] =
 {
 "able", "about", "above", "actor", "after", "again", "alone", "also", "apple",
 "baby", "back", "bath", "bean", "best", "bike", "bird", "blue", "body", "book",
-"cake", "calm", "card", "carry", "cash", "chair", "child", "cold", "come", "cool",
+"cake", "calm", "card", "carry", "cash", "chair", "child", "cold", "come", "cool", "cute",
 "daily", "dance", "dark", "dash", "dear", "desk", "done", "door", "down", "duty",
 "each", "early", "earth", "east", "easy", "edit", "envy", "even", "every", "exist", "exit",
 "face", "fact", "fall", "fast", "feed", "feel", "fill", "fish", "five",
@@ -2927,7 +2927,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--digit10           : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"                      list will be > 1GB\n"
 	"--phome             : include weak PEGATRON / Vantiva candidates (HOME, CBCI, XFSETUP)\n"
-	"                      list will be > 1.8GB\n"
+	"                      list will be > 2.2GB\n"
 	"--tenda             : include weak TENDA candidates\n"
 	"--ee                : include weak EE BrightBox candidates\n"
 	"                      list will be > 3.5GB\n"
