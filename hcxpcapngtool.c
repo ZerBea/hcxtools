@@ -42,7 +42,9 @@
 #include "include/fileops.c"
 #include "include/hashops.c"
 #include "include/pcap.c"
+#ifdef WANTZLIB
 #include "include/gzops.c"
+#endif
 
 /*===========================================================================*/
 struct hccap_s
