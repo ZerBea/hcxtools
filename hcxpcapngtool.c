@@ -3144,7 +3144,7 @@ static messagelist_t *zeiger;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
 static eapauth_t *eapauth;
-static uint32_t authlen;
+static uint16_t authlen;
 static uint64_t eaptimegap;
 static uint8_t keyver;
 static uint64_t rc;
@@ -3270,7 +3270,7 @@ static messagelist_t *zeigerakt;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
 static eapauth_t *eapauth;
-static uint32_t authlen;
+static uint16_t authlen;
 static uint64_t eaptimegap;
 static uint8_t keyver;
 static uint64_t rc;
@@ -3401,7 +3401,7 @@ static messagelist_t *zeiger;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
 static eapauth_t *eapauth;
-static uint32_t authlen;
+static uint16_t authlen;
 static uint64_t eaptimegap;
 static uint8_t keyver;
 static uint64_t rc;
@@ -3417,7 +3417,6 @@ eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen +EAPAUTH_SIZE > restlen) return;
-if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3532,7 +3531,10 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			if(rcgap != 0) continue;
 			}
 		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
-		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
+		if(eaptimegap <= eapoltimeoutvalue)
+			{
+			if(authlen +EAPAUTH_SIZE <= EAPOL_AUTHLEN_MAX) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
+			}
 		}
 	if((zeiger->message &HS_M3) != HS_M3) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
@@ -3557,7 +3559,10 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		if(rcgap != 0) continue;
 		}
 	if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
-	if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
+	if(eaptimegap <= eapoltimeoutvalue)
+		{
+		if(authlen +EAPAUTH_SIZE <= EAPOL_AUTHLEN_MAX) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
+		}
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_epcount);
 return;
@@ -3570,7 +3575,7 @@ static messagelist_t *zeiger;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
 static eapauth_t *eapauth;
-static uint32_t authlen;
+static uint16_t authlen;
 static pmkid_t *pmkid;
 static uint8_t keyver;
 static uint64_t rc;
