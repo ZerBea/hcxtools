@@ -33,6 +33,7 @@ static bool asusflag;
 static bool digit10flag;
 static bool easyboxflag;
 static bool eeflag;
+static bool eeupperflag;
 static bool egnflag;
 static bool eudateflag;
 static bool hb5flag;
@@ -171,15 +172,16 @@ static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 static const char *firstword[] =
 { 
-"ancient", "aquatic",
-"basic", "black", "blue", "bold", "brave", "breezy", "bright", "brown",
-"calm", "cheerful", "chummy", "classy", "clever", "cloudy", "cool", "crispy",
-"curly",
+"absurd", "ancient", "aquatic",
+"basic", "big", "black", "blue", "bold", "brave", "breezy", "bright", "brown",
+"calm", "cheerful", "chilly", "chummy", "classy", "clever", "cloudy", "cool",
+"crispy", "curly",
 "daily", "deep", "delightful", "dizzy", "dynamic",
-"eagle", "elated", "elegant", "epic", "excited", "exotic",
-"fancy", "fearless", "festive", "fluffy", "free", "fresh", "friendly", "fuzzy",
+"eagle", "elated", "elegant", "epic", "excited", "exotic", "extra",
+"famous", "fancy", "fearless", "festive", "fluffy", "four", "free", "fresh",
+"friendly", "funny", "fuzzy",
 "gentle", "gifted", "gigantic", "graceful", "grand", "great", "green",
-"happy", "heavy", "helpful", "hungry", "husky",
+"happy", "heavy", "helpful", "hot", "hungry", "husky",
 "icy", "imaginary",
 "jagged", "jolly", "joyous",
 "kind",
@@ -190,12 +192,12 @@ static const char *firstword[] =
 "pastel", "perfect", "phobic", "pink", "polite", "precious", "purple",
 "quaint", "quick", "quiet",
 "rapid", "red", "rocky", "round", "royal", "rustic",
-"savage", "shiny", "silent", "silky", "silly", "slow", "smiley", "smiling",
-"smooth", "strong", "sunny", "sweet",
+"savage", "shiny", "silent", "silky", "silly", "slow", "small", "smiley",
+"smiling", "smooth", "strong", "sunny", "sweet",
 "tablet", "thirsty", "thoughtful", "tiny",
 "uneven", "unusual",
 "vanilla", "vast",
-"watery", "wide", "windy", "witty", "wonderful",
+"watery", "white", "wide", "windy", "witty", "wonderful",
 "yellow", "young",
 "zany"
 };
@@ -204,20 +206,20 @@ static const char *secondword[] =
 {
 "airplane", "apple",
 "balloon", "banana", "bay", "berry", "bird", "boat", "bolt", "boot",
-"box", "brain", "breeze", "bug", "butter",
-"canary", "canoe", "car", "carrot", "cartoon", "cello", "chair", "cheese",
-"coconut", "comet", "cream", "curtain",
-"daisy", "diamond", "domain",
+"box", "brain", "bread", "breeze", "bug", "butter",
+"canary", "canoe", "car", "carrot", "cartoon", "cat", "cello", "chair",
+"cheese", "coconut", "cold", "comet", "cream", "curtain",
+"daisy", "deer", "diamond", "domain",
 "earth", "ecasa", "elephant",
-"finch", "fire", "fish", "flamingo", "flower", "flute",
-"gadfly", "giant", "grasshopper",
+"field", "finch", "fire", "fish", "flamingo", "flower", "flute",
+"gate", "gadfly", "giant", "goat", "grasshopper",
 "hat", "hill", "hippo", "house",
 "ink", "iris",
 "jade", "jet", "jetcar", "jungle",
 "kangaroo", "kayak",
-"lake", "lightning", "link", "lion", "lotus",
+"lake", "lemon", "lightning", "link", "lion", "lotus",
 "mango", "mesa", "mint", "mobile", "moon", "mountain",
-"nest",
+"nest", "net",
 "oboe", "ocean", "octopus", "onion", "orchestra", "owl",
 "panda", "phoenix", "piano", "pineapple", "planet", "plum", "pond", "poodle",
 "potato", "prairie",
@@ -229,7 +231,7 @@ static const char *secondword[] =
 "table", "tail", "teapot", "time", "tomato", "trail", "train", "tree",
 "truck", "trumpet", "tuba", "tulip", "turkey",
 "umbrella", "unicorn", "unit",
-"valley", "vase", "violet", "violin",
+"valley", "vase", "vinyl", "violet", "violin",
 "water", "wind", "window",
 "zoo"
 };
@@ -452,9 +454,9 @@ static const char *five[] =
 "attic", "award",
 "bacon", "badge", "bagel", "basic", "beard", "begin", "being", "below", "berry", "block", "bloom", "board", "bonus",
 "booth", "bored", "brace", "bread", "brick", "bring", "brush", "brook", "build", "built",
-"cause", "chair", "camel", "canal", "charm", "chart", "charm", "chase", "check", "cheer", "chime", "chord", "chore",
-"chose", "cough", "class", "clear", "coast", "cocoa", "cough", "cover", "count", "court", "creak", "cream", "creek",
-"crumb", "curve",
+"cause", "chair", "camel", "canal", "chair", "charm", "chart", "charm", "chase", "check", "cheer", "chime", "chord",
+"chore", "chose", "cough", "class", "clear", "coast", "cocoa", "cough", "cover", "count", "court", "creak", "cream",
+"creek", "crumb", "curve",
 "daily", "dairy", "daisy", "dance", "diner", "dodge", "dough", "dozed", "drain", "dried", "drink",
 "eager", "eagle", "earth", "eight", "elbow", "elect", "empty", "enter", "entry", "equal", "event", "exact",
 "fancy", "favor", "feast", "fence", "fever", "field", "fifty"
@@ -462,12 +464,13 @@ static const char *five[] =
 
 static const char *six[] =
 {
-"across", "action", "almost", "always", "amount", "anchor", "animal", "answer", "anyone", "appear", "arctic", "around",
-"arrive", "artist", "autumn", "awhile",
-"banana", "basket", "become", "beside", "better", "borrow", "bottle", "breezy", "bridge", "bright", "buckle", "button",
+"across", "action", "advice", "almost", "always", "amount", "anchor", "animal", "answer", "anyone", "appear", "arctic",
+"around", "arrive", "artist", "autumn", "awhile",
+"banana", "basket", "become", "beside", "better", "borrow", "bottle", "breezy", "bridge", "bright", "bucket", "buckle",
+"button",
 "cactus", "called", "career", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery",
-"cellar", "center", "chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "collar", "column",
-"comedy", "common", "copied", "corral", "county", "create", "crunch",
+"cellar", "center", "chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "clever", "collar",
+"column", "comedy", "common", "copied", "corral", "county", "course", "create", "crunch",
 "degree", "depend", "design", "detail", "diesel", "dimmed", "dinner", "direct",
 "easier", "effect", "eighty", "eleven", "energy", "engine", "entire", "escape",
 "factor", "famous", "filter", "finish", "flight", "flower", "folded", "follow", "forest",
@@ -483,16 +486,7 @@ for(ca = 0; ca < (sizeof(five) / sizeof(char *)); ca++)
 			{
 			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d%s", five[ca], cn, six[cs]);
 			fprintf(fhout,"%s\n", pskstring);
-			}
-		}
-	}
-for(ca = 0; ca < (sizeof(six) / sizeof(char *)); ca++)
-	{
-	for(cs = 0; cs < (sizeof(five) / sizeof(char *)); cs++)
-		{
-		for (cn = 0; cn < 10000; cn++)
-			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d%s", six[ca], cn, five[cs]);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d%s", six[cs], cn, five[ca]);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
@@ -615,7 +609,7 @@ for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
 return;
 }
 /*===========================================================================*/
-static void keywriteee(FILE *fhout)
+static void keywriteee(FILE *fhout, bool upper)
 {
 static size_t w3, w4, w5;
 
@@ -623,9 +617,9 @@ static char pskstring[16] = { 0 };
 
 const char *pskmask = "%s-%s-%s\n";
 
-char** uword3;
-char** uword4;
-char** uword5;
+char** uword3 = NULL;
+char** uword4 = NULL;
+char** uword5 = NULL;
 
 static const char *word3[] =
 {
@@ -734,9 +728,12 @@ static const char *word5[] =
 "zooms"
 };
 
-uword3 = create_upper_array(word3, sizeof(word3) / sizeof(char *));
-uword4 = create_upper_array(word4, sizeof(word4) / sizeof(char *));
-uword5 = create_upper_array(word5, sizeof(word5) / sizeof(char *));
+if (upper)
+    {
+    uword3 = create_upper_array(word3, sizeof(word3) / sizeof(char *));
+    uword4 = create_upper_array(word4, sizeof(word4) / sizeof(char *));
+    uword5 = create_upper_array(word5, sizeof(word5) / sizeof(char *));
+    }
 
 for(w3 = 0; w3 < (sizeof(word3) / sizeof(char *)); w3++)
 	{
@@ -744,66 +741,80 @@ for(w3 = 0; w3 < (sizeof(word3) / sizeof(char *)); w3++)
 		{
 		for(w5 = 0; w5 < (sizeof(word5) / sizeof(char *)); w5++)
 			{
-			snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword3[w3],  word4[w4],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word3[w3], uword4[w4],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4], uword5[w5]);
-			fputs(pskstring, fhout);
+			if (upper)
+			    {
+			    snprintf(pskstring, 16, pskmask, uword3[w3],  word4[w4],  word5[w5]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word3[w3], uword4[w4],  word5[w5]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4], uword5[w5]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword3[w3],  word5[w5],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word3[w3], uword5[w5],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5], uword4[w4]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword3[w3],  word5[w5],  word4[w4]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word3[w3], uword5[w5],  word4[w4]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5], uword4[w4]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword4[w4],  word3[w3],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word4[w4], uword3[w3],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3], uword5[w5]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword4[w4],  word3[w3],  word5[w5]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word4[w4], uword3[w3],  word5[w5]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3], uword5[w5]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword4[w4],  word5[w5],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word4[w4], uword5[w5],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5], uword3[w3]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword4[w4],  word5[w5],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word4[w4], uword5[w5],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5], uword3[w3]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword5[w5],  word3[w3],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word5[w5], uword3[w3],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3], uword4[w4]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword5[w5],  word3[w3],  word4[w4]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word5[w5], uword3[w3],  word4[w4]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3], uword4[w4]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword5[w5],  word4[w4],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word5[w5], uword4[w4],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4], uword3[w3]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword5[w5],  word4[w4],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word5[w5], uword4[w4],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4], uword3[w3]);
+			    fputs(pskstring, fhout);
+			    }
+			else
+			    {
+			    snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4],  word5[w5]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5],  word4[w4]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3],  word5[w5]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5],  word3[w3]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3],  word4[w4]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    }
 			}
 		}
 	}
 
-free_array(uword3, sizeof(word3) / sizeof(char *));
-free_array(uword4, sizeof(word4) / sizeof(char *));
-free_array(uword5, sizeof(word5) / sizeof(char *));
+if (upper)
+    {
+    free_array(uword3, sizeof(word3) / sizeof(char *));
+    free_array(uword4, sizeof(word4) / sizeof(char *));
+    free_array(uword5, sizeof(word5) / sizeof(char *));
+    }
 
 return;
 }
@@ -2524,7 +2535,8 @@ if((eudateflag == true) || (usdateflag == true)) keywriteyearyear(fhout);
 if(alticeoptimumflag == true) keywritealticeoptimum(fhout);
 if(asusflag == true) keywriteasus(fhout);
 if(digit10flag == true) keywritedigit10(fhout);
-if(eeflag == true) keywriteee(fhout);
+if(eeflag == true) keywriteee(fhout, false);
+if(eeupperflag == true) keywriteee(fhout, true);
 if(egnflag == true) keywriteegn(fhout);
 if(eudateflag == true) keywriteeudate(fhout);
 if(netgearflag == true) keywritenetgear(fhout);
@@ -2932,10 +2944,12 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--digit10           : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"                      list will be > 1GB\n"
 	"--phome             : include weak PEGATRON / Vantiva candidates (CBCI, HOME, [SP/XF]SETUP)\n"
-	"                      list will be > 2.6GB\n"
+	"                      list will be > 2.8GB\n"
 	"--tenda             : include weak TENDA candidates\n"
-	"--ee                : include weak EE BrightBox candidates\n"
-	"                      list will be > 3.5GB\n"
+	"--ee                : include weak 5GHz-EE / BrightBox / EE / EE-BrightBox candidates\n"
+	"                      list will be > 1GB\n"
+	"--eeupper           : include weak EE-Hub candidates\n"
+	"                      list will be > 3.1GB\n"
 	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice)\n"
 	"                      list will be > 3.4GB\n"
 	"--asus              : include weak ASUS RT-AC58U candidates (ASUS_XX)\n"
@@ -3003,6 +3017,7 @@ static const struct option long_options[] =
 	{"asus",				no_argument,		NULL,	HCXD_ASUS},
 	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
 	{"ee",				no_argument,		NULL,	HCXD_EE},
+	{"eeupper",				no_argument,		NULL,	HCXD_EEUPPER},
 	{"egn",				no_argument,		NULL,	HCXD_EGN},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"maconly",			no_argument,		NULL,	HCXD_MACONLY},
@@ -3057,6 +3072,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_EE:
 		eeflag = true;
+		break;
+
+		case HCXD_EEUPPER:
+		eeupperflag = true;
 		break;
 
 		case HCXD_ALTICEOPTIMUM:
