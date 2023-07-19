@@ -452,9 +452,9 @@ static const char *five[] =
 "attic", "award",
 "bacon", "badge", "bagel", "basic", "beard", "begin", "being", "below", "berry", "block", "bloom", "board", "bonus",
 "booth", "bored", "brace", "bread", "brick", "bring", "brush", "brook", "build", "built",
-"cause", "chair", "camel", "canal", "charm", "chart", "charm", "chase", "check", "cheer", "chime", "chord", "chore",
-"chose", "cough", "class", "clear", "coast", "cocoa", "cough", "cover", "count", "court", "creak", "cream", "creek",
-"crumb", "curve",
+"cause", "chair", "camel", "canal", "chair", "charm", "chart", "charm", "chase", "check", "cheer", "chime", "chord",
+"chore", "chose", "cough", "class", "clear", "coast", "cocoa", "cough", "cover", "count", "court", "creak", "cream",
+"creek", "crumb", "curve",
 "daily", "dairy", "daisy", "dance", "diner", "dodge", "dough", "dozed", "drain", "dried", "drink",
 "eager", "eagle", "earth", "eight", "elbow", "elect", "empty", "enter", "entry", "equal", "event", "exact",
 "fancy", "favor", "feast", "fence", "fever", "field", "fifty"
@@ -462,12 +462,13 @@ static const char *five[] =
 
 static const char *six[] =
 {
-"across", "action", "almost", "always", "amount", "anchor", "animal", "answer", "anyone", "appear", "arctic", "around",
-"arrive", "artist", "autumn", "awhile",
-"banana", "basket", "become", "beside", "better", "borrow", "bottle", "breezy", "bridge", "bright", "buckle", "button",
+"across", "action", "advice", "almost", "always", "amount", "anchor", "animal", "answer", "anyone", "appear", "arctic",
+"around", "arrive", "artist", "autumn", "awhile",
+"banana", "basket", "become", "beside", "better", "borrow", "bottle", "breezy", "bridge", "bright", "bucket", "buckle",
+"button",
 "cactus", "called", "career", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery",
-"cellar", "center", "chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "collar", "column",
-"comedy", "common", "copied", "corral", "county", "create", "crunch",
+"cellar", "center", "chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "clever", "collar",
+"column", "comedy", "common", "copied", "corral", "county", "course", "create", "crunch",
 "degree", "depend", "design", "detail", "diesel", "dimmed", "dinner", "direct",
 "easier", "effect", "eighty", "eleven", "energy", "engine", "entire", "escape",
 "factor", "famous", "filter", "finish", "flight", "flower", "folded", "follow", "forest",
