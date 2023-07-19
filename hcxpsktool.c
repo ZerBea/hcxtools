@@ -483,16 +483,7 @@ for(ca = 0; ca < (sizeof(five) / sizeof(char *)); ca++)
 			{
 			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d%s", five[ca], cn, six[cs]);
 			fprintf(fhout,"%s\n", pskstring);
-			}
-		}
-	}
-for(ca = 0; ca < (sizeof(six) / sizeof(char *)); ca++)
-	{
-	for(cs = 0; cs < (sizeof(five) / sizeof(char *)); cs++)
-		{
-		for (cn = 0; cn < 10000; cn++)
-			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d%s", six[ca], cn, five[cs]);
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d%s", six[cs], cn, five[ca]);
 			fprintf(fhout,"%s\n", pskstring);
 			}
 		}
