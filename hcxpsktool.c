@@ -33,6 +33,7 @@ static bool asusflag;
 static bool digit10flag;
 static bool easyboxflag;
 static bool eeflag;
+static bool eeupperflag;
 static bool egnflag;
 static bool eudateflag;
 static bool hb5flag;
@@ -608,7 +609,7 @@ for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
 return;
 }
 /*===========================================================================*/
-static void keywriteee(FILE *fhout)
+static void keywriteee(FILE *fhout, bool upper)
 {
 static size_t w3, w4, w5;
 
@@ -616,9 +617,9 @@ static char pskstring[16] = { 0 };
 
 const char *pskmask = "%s-%s-%s\n";
 
-char** uword3;
-char** uword4;
-char** uword5;
+char** uword3 = NULL;
+char** uword4 = NULL;
+char** uword5 = NULL;
 
 static const char *word3[] =
 {
@@ -727,9 +728,12 @@ static const char *word5[] =
 "zooms"
 };
 
-uword3 = create_upper_array(word3, sizeof(word3) / sizeof(char *));
-uword4 = create_upper_array(word4, sizeof(word4) / sizeof(char *));
-uword5 = create_upper_array(word5, sizeof(word5) / sizeof(char *));
+if (upper)
+    {
+    uword3 = create_upper_array(word3, sizeof(word3) / sizeof(char *));
+    uword4 = create_upper_array(word4, sizeof(word4) / sizeof(char *));
+    uword5 = create_upper_array(word5, sizeof(word5) / sizeof(char *));
+    }
 
 for(w3 = 0; w3 < (sizeof(word3) / sizeof(char *)); w3++)
 	{
@@ -737,66 +741,80 @@ for(w3 = 0; w3 < (sizeof(word3) / sizeof(char *)); w3++)
 		{
 		for(w5 = 0; w5 < (sizeof(word5) / sizeof(char *)); w5++)
 			{
-			snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword3[w3],  word4[w4],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word3[w3], uword4[w4],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4], uword5[w5]);
-			fputs(pskstring, fhout);
+			if (upper)
+			    {
+			    snprintf(pskstring, 16, pskmask, uword3[w3],  word4[w4],  word5[w5]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word3[w3], uword4[w4],  word5[w5]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4], uword5[w5]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword3[w3],  word5[w5],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word3[w3], uword5[w5],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5], uword4[w4]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword3[w3],  word5[w5],  word4[w4]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word3[w3], uword5[w5],  word4[w4]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5], uword4[w4]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword4[w4],  word3[w3],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word4[w4], uword3[w3],  word5[w5]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3], uword5[w5]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword4[w4],  word3[w3],  word5[w5]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word4[w4], uword3[w3],  word5[w5]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3], uword5[w5]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword4[w4],  word5[w5],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word4[w4], uword5[w5],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5], uword3[w3]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword4[w4],  word5[w5],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word4[w4], uword5[w5],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5], uword3[w3]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword5[w5],  word3[w3],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word5[w5], uword3[w3],  word4[w4]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3], uword4[w4]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword5[w5],  word3[w3],  word4[w4]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word5[w5], uword3[w3],  word4[w4]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3], uword4[w4]);
+			    fputs(pskstring, fhout);
 
-			snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask, uword5[w5],  word4[w4],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word5[w5], uword4[w4],  word3[w3]);
-			fputs(pskstring, fhout);
-			snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4], uword3[w3]);
-			fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask, uword5[w5],  word4[w4],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word5[w5], uword4[w4],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4], uword3[w3]);
+			    fputs(pskstring, fhout);
+			    }
+			else
+			    {
+			    snprintf(pskstring, 16, pskmask,  word3[w3],  word4[w4],  word5[w5]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word3[w3],  word5[w5],  word4[w4]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word4[w4],  word3[w3],  word5[w5]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word4[w4],  word5[w5],  word3[w3]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word5[w5],  word3[w3],  word4[w4]);
+			    fputs(pskstring, fhout);
+
+			    snprintf(pskstring, 16, pskmask,  word5[w5],  word4[w4],  word3[w3]);
+			    fputs(pskstring, fhout);
+			    }
 			}
 		}
 	}
 
-free_array(uword3, sizeof(word3) / sizeof(char *));
-free_array(uword4, sizeof(word4) / sizeof(char *));
-free_array(uword5, sizeof(word5) / sizeof(char *));
+if (upper)
+    {
+    free_array(uword3, sizeof(word3) / sizeof(char *));
+    free_array(uword4, sizeof(word4) / sizeof(char *));
+    free_array(uword5, sizeof(word5) / sizeof(char *));
+    }
 
 return;
 }
@@ -2517,7 +2535,8 @@ if((eudateflag == true) || (usdateflag == true)) keywriteyearyear(fhout);
 if(alticeoptimumflag == true) keywritealticeoptimum(fhout);
 if(asusflag == true) keywriteasus(fhout);
 if(digit10flag == true) keywritedigit10(fhout);
-if(eeflag == true) keywriteee(fhout);
+if(eeflag == true) keywriteee(fhout, false);
+if(eeupperflag == true) keywriteee(fhout, true);
 if(egnflag == true) keywriteegn(fhout);
 if(eudateflag == true) keywriteeudate(fhout);
 if(netgearflag == true) keywritenetgear(fhout);
@@ -2925,10 +2944,12 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--digit10           : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"                      list will be > 1GB\n"
 	"--phome             : include weak PEGATRON / Vantiva candidates (CBCI, HOME, [SP/XF]SETUP)\n"
-	"                      list will be > 2.6GB\n"
+	"                      list will be > 2.8GB\n"
 	"--tenda             : include weak TENDA candidates\n"
-	"--ee                : include weak EE BrightBox candidates\n"
-	"                      list will be > 3.5GB\n"
+	"--ee                : include weak 5GHz-EE / BrightBox / EE / EE-BrightBox candidates\n"
+	"                      list will be > 1GB\n"
+	"--eeupper           : include weak EE-Hub candidates\n"
+	"                      list will be > 3.1GB\n"
 	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice)\n"
 	"                      list will be > 3.4GB\n"
 	"--asus              : include weak ASUS RT-AC58U candidates (ASUS_XX)\n"
@@ -2996,6 +3017,7 @@ static const struct option long_options[] =
 	{"asus",				no_argument,		NULL,	HCXD_ASUS},
 	{"digit10",			no_argument,		NULL,	HCXD_DIGIT10},
 	{"ee",				no_argument,		NULL,	HCXD_EE},
+	{"eeupper",				no_argument,		NULL,	HCXD_EEUPPER},
 	{"egn",				no_argument,		NULL,	HCXD_EGN},
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"maconly",			no_argument,		NULL,	HCXD_MACONLY},
@@ -3050,6 +3072,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_EE:
 		eeflag = true;
+		break;
+
+		case HCXD_EEUPPER:
+		eeupperflag = true;
 		break;
 
 		case HCXD_ALTICEOPTIMUM:
