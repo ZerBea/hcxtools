@@ -171,7 +171,7 @@ static int cn;
 static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
 static const char *firstword[] =
-{ 
+{
 "absurd", "ancient", "aquatic",
 "basic", "big", "black", "blue", "bold", "brave", "breezy", "bright", "brown",
 "calm", "cheerful", "chilly", "chummy", "classy", "clever", "cloudy", "cool",
@@ -452,11 +452,11 @@ static const char *five[] =
 {
 "about", "again", "agree", "ahead", "aisle", "alert", "alley", "allow", "amaze", "angle", "apple", "apron", "arrow",
 "attic", "award",
-"bacon", "badge", "bagel", "basic", "beard", "begin", "being", "below", "berry", "block", "bloom", "board", "bonus",
-"booth", "bored", "brace", "bread", "brick", "bring", "brush", "brook", "build", "built",
-"cause", "chair", "camel", "canal", "chair", "charm", "chart", "charm", "chase", "check", "cheer", "chime", "chord",
-"chore", "chose", "cough", "class", "clear", "coast", "cocoa", "cough", "cover", "count", "court", "creak", "cream",
-"creek", "crumb", "curve",
+"bacon", "badge", "bagel", "baked", "basic", "beard", "begin", "being", "below", "berry", "block", "bloom", "board",
+"boast", "bonus", "booth", "bored", "brace", "bread", "brick", "bring", "brush", "brook", "build", "built",
+"cabin", "cause", "chair", "camel", "canal", "chair", "charm", "chart", "charm", "chase", "check", "cheer", "chime",
+"chord", "chore", "chose", "cough", "class", "clear", "coast", "cocoa", "cough", "cover", "count", "court", "creak",
+"cream", "creek", "crumb", "curve",
 "daily", "dairy", "daisy", "dance", "diner", "dodge", "dough", "dozed", "drain", "dried", "drink",
 "eager", "eagle", "earth", "eight", "elbow", "elect", "empty", "enter", "entry", "equal", "event", "exact",
 "fancy", "favor", "feast", "fence", "fever", "field", "fifty"
@@ -464,16 +464,16 @@ static const char *five[] =
 
 static const char *six[] =
 {
-"across", "action", "advice", "almost", "always", "amount", "anchor", "animal", "answer", "anyone", "appear", "arctic",
-"around", "arrive", "artist", "autumn", "awhile",
+"across", "action", "advice", "almost", "always", "amount", "anchor", "animal", "answer", "anyone", "anyway", "appear",
+"arctic", "around", "arrive", "artist", "autumn", "awhile",
 "banana", "basket", "become", "beside", "better", "borrow", "bottle", "breezy", "bridge", "bright", "bucket", "buckle",
 "button",
 "cactus", "called", "career", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery",
 "cellar", "center", "chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "clever", "collar",
-"column", "comedy", "common", "copied", "corral", "county", "course", "create", "crunch",
+"column", "comedy", "common", "copied", "corral", "county", "course", "create", "crumbs", "crunch",
 "degree", "depend", "design", "detail", "diesel", "dimmed", "dinner", "direct",
 "easier", "effect", "eighty", "eleven", "energy", "engine", "entire", "escape",
-"factor", "famous", "filter", "finish", "flight", "flower", "folded", "follow", "forest",
+"factor", "famous", "faucet", "filter", "finish", "flight", "flower", "folded", "follow", "forest",
 "garden", "gather", "guitar",
 "happen", "harbor", "hardly", "health"
 };
@@ -494,85 +494,14 @@ for(ca = 0; ca < (sizeof(five) / sizeof(char *)); ca++)
 return;
 }
 /*===========================================================================*/
-static void keywritetenda1(FILE *fhout)
+static void keywritetenda(FILE *fhout)
 {
 static size_t ca, cs;
 static int cn;
 
 static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
 
-static const char *word1[] =
-{
-"able", "above", "after", "again", "also", "apple",
-"baby", "back", "bean", "best", "bike", "blue", "body", "book",
-"cake", "calm", "card", "cash", "chair", "child", "cold", "cool", "cute",
-"dark", "dash", "dear", "desk", "done", "down", "duty",
-"early", "earth", "easy", "edit", "envy", "even", "exist", "exit",
-"face", "fall", "feed", "five",
-"game", "ghost", "girl", "give", "good", "guest",
-"hand", "hard", "have", "head", "horse", "house",
-"jade", "juice", "july",
-"keep", "kind",
-"lable", "lack", "lake", "light", "like", "lock", "lose",
-"mail", "main", "make", "meet", "more", "most", "mouth", "much",
-"name", "near", "north", "nose", "note",
-"occur", "ocean", "open", "over",
-"pace", "pain", "pass", "path", "pink",
-"quest", "quick", "quit", "quite",
-"rice", "ride", "rope", "rose", "rule", "rush",
-"sale", "salt", "sick", "south", "sunny",
-"table", "take", "tale", "talk", "tall", "team", "tell", "think", "ture",
-"unit", "upper",
-"walk", "water", "what", "wind", "word"
-};
-
-static const char *word2[] =
-{
-"about", "above", "again", "also", "apple",
-"baby", "back", "bean", "best", "bike", "bird", "blue", "body", "book",
-"calm", "carry", "cash", "child", "cool",
-"daily", "dark", "dash", "dear", "desk", "door", "duck", "duty",
-"each", "earth", "easy", "edit", "every", "exit",
-"fact", "fall", "fast", "feel", "fish", "five",
-"game", "ghost", "girl", "give", "green", "guest",
-"hand", "happy", "hard", "have", "haven", "hike", "horse", "house",
-"jazz", "jean", "joke", "july", "june",
-"keep",
-"labor", "land", "light", "lock", "lose",
-"mail", "main", "major", "make", "meet", "milk", "more", "most", "mouth", "much",
-"name", "near", "need", "north", "nose", "note",
-"occur", "over",
-"park", "part", "pass", "past", "path", "photo",
-"queen", "quest", "quick", "quit", "quite",
-"reach", "rice", "ride", "road", "rope", "rule",
-"safe", "salt", "sick", "soul", "sunny",
-"tall", "team", "tell", "think", "ture",
-"unit",
-"walk", "water", "week", "west", "what", "where", "wind", "word"
-};
-
-for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
-	{
-	for(cs = 0; cs < (sizeof(word2) / sizeof(char *)); cs++)
-		{
-		for (cn = 0; cn < 1000; cn++)
-			{
-			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", word1[ca], word2[cs], cn);
-			fprintf(fhout,"%s\n", pskstring);
-			}
-		}
-	}
-return;
-}
-/*===========================================================================*/
-static void keywritetenda2(FILE *fhout)
-{
-static size_t ca;
-static int cn;
-
-static char pskstring[PSKSTRING_LEN_MAX] = { 0 };
-
-static const char *word1[] =
+static const char *word[] =
 {
 "able", "about", "above", "actor", "after", "again", "alone", "also", "apple",
 "baby", "back", "bath", "bean", "best", "bike", "bird", "blue", "body", "book",
@@ -589,7 +518,7 @@ static const char *word1[] =
 "mail", "main", "major", "make", "math", "meet", "milk", "more", "most", "mouth", "much",
 "name", "near", "need", "nine", "north", "nose", "note",
 "occur", "ocean", "open", "over",
-"pace", "pain", "park", "part", "pass", "past", "path", "photo", "pink",
+"pace", "pain", "park", "part", "pass", "past", "path", "photo", "piece", "pink",
 "queen", "quest", "quick", "quit", "quite",
 "rainy", "reach", "read", "rice", "ride", "road", "room", "rope", "rose", "rule", "rush",
 "safe", "said", "sale", "salt", "same", "sick", "soul", "soup", "south", "sunny",
@@ -598,14 +527,25 @@ static const char *word1[] =
 "walk", "water", "weak", "week", "west", "what", "where", "wind", "word"
 };
 
-for(ca = 0; ca < (sizeof(word1) / sizeof(char *)); ca++)
+for(ca = 0; ca < (sizeof(word) / sizeof(char *)); ca++)
+{
+	for(cs = 0; cs < (sizeof(word) / sizeof(char *)); cs++)
 	{
-	for (cn = 0; cn < 10000; cn++)
+		if (ca == cs) continue;
+		for (cn = 0; cn < 1000; cn++)
 		{
-		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d", word1[ca], cn);
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", word[ca], word[cs], cn);
 		fprintf(fhout,"%s\n", pskstring);
 		}
 	}
+	
+	for (cn = 0; cn < 10000; cn++)
+	{
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d", word[ca], cn);
+		fprintf(fhout,"%s\n", pskstring);
+	}
+}
+
 return;
 }
 /*===========================================================================*/
@@ -625,11 +565,11 @@ static const char *word3[] =
 {
 "abs", "ace", "act", "add", "ado", "age", "ago", "aid", "ail", "aim", "all", "amp",
 "any", "ape", "apt", "art", "ask",
-"bad", "bay", "beg", "bet", "bid", "big", "bow", "box", "bud", "bun", "bus", "buy",
+"bad", "bay", "bee", "beg", "bet", "bid", "big", "bow", "box", "bud", "bun", "bus", "buy",
 "cad", "cam", "can", "cob", "cog", "cop", "cud", "cup", "cut",
 "dam", "did", "die", "dig", "dim", "dip", "dog", "dry", "dub", "due", "dug",
 "ear", "ego", "elk", "end", "era", "eye",
-"fab", "fan", "far", "fat", "fax", "fee", "few", "fit", "fix", "fly", "fog", "fox",
+"fab", "fan", "far", "fat", "fax", "fee", "few", "fin", "fit", "fix", "fly", "fog", "fox",
 "fry",
 "gap", "gel", "gem", "get", "god",
 "hem", "hid", "hip", "hit", "hop", "hot", "how", "hub",
@@ -641,8 +581,8 @@ static const char *word3[] =
 "nag", "nap", "net", "new", "nod", "nor", "not", "now",
 "oar", "oat", "odd", "off", "oil", "old", "one", "opt", "our", "out", "owe", "own",
 "pal", "pay", "pea", "peg", "pen", "per", "pet", "pie", "pin", "ply", "pop", "pub", "put",
-"ran", "rat", "raw", "red", "rid", "rig", "rob", "rot", "run",
-"sad", "sea", "set", "sew", "shy", "sim", "sin", "sip", "sir", "sit", "six", "sow", "spy",
+"ran", "rat", "raw", "red", "rid", "rig", "rob", "rot", "rug", "run",
+"sad", "sea", "set", "sew", "shy", "sim", "sin", "sip", "sir", "sit", "six", "sow", "soy", "spy",
 "tad", "tag", "tap", "tax", "ten", "tic", "tip", "ton", "top", "tow", "toy", "try",
 "two",
 "use",
@@ -658,10 +598,10 @@ static const char *word4[] =
 "calm", "camp", "cape", "card", "case", "cash", "cent", "chef", "city", "clad", "clay", "club",
 "clue", "coat", "cook", "cool", "cope", "copy", "cute",
 "dame", "damp", "dare", "dash", "date", "days", "deaf", "deal", "desk", "dial", "dive", "door",
-"dove", "down", "draw", "drop",
+"duty", "dove", "down", "draw", "drop",
 "each", "east", "edge", "edit", "epic", "even", "ever", "exit",
 "face", "fair", "fake", "fall", "fame", "fast", "fine", "firm", "flag", "flee", "foam", "fold",
-"foot", "four", "full", "fuse",
+"foot", "four", "full", "fund", "fuse",
 "gaps", "gate", "gave", "gear", "gift", "glad", "gown", "gray",
 "half", "hang", "hard", "hats", "head", "heat", "hide", "high", "hill", "hint", "hire", "hold",
 "hook", "huge", "hurt", "hymn",
@@ -678,24 +618,24 @@ static const char *word4[] =
 "post", "pure",
 "rare", "real", "rest", "rich", "riot", "ripe", "road", "roam", "room", "root", "rude", "rule",
 "safe", "sail", "sale", "same", "sand", "save", "scan", "seal", "seat", "seem", "send", "sent",
-"shin", "shop", "sick", "side", "sift", "sign", "silk", "sing", "skip", "slim", "slip", "slum",
-"soap", "sold", "solo", "sore", "sour", "spit", "step", "stew", "sure",
-"tall", "teak", "team", "tear", "tent", "then", "tide", "time", "tone", "tour", "trim", "trod",
+"shin", "shop", "shut", "sick", "side", "sift", "sign", "silk", "sing", "skip", "slim", "slip", "slum",
+"soap", "soil", "sold", "solo", "sore", "sour", "spit", "step", "stew", "sure",
+"tall", "teak", "team", "tear", "tent", "then", "tide", "time", "tone", "tour", "town", "trim", "trod",
 "true", "tube", "tune", "turn",
 "used",
 "vain", "vast", "vend", "vote",
-"wait", "walk", "want", "warn", "wave", "west", "wild", "wind", "wing", "wire", "wise", "worm"
+"wait", "walk", "want", "ward", "warn", "wave", "west", "wild", "wind", "wing", "wire", "wise", "worm"
 };
 
 static const char *word5[] =
 {
 "aback", "acres", "adapt", "agent", "agony", "ahead", "alarm", "alert", "align", "alien", "allot", "amble",
-"angle", "ankle", "armed", "arrow", "audio", "award",
+"angle", "ankle", "arena", "armed", "arrow", "audio", "award",
 "beams", "bland", "blank", "bleak", "boast", "boost", "bored", "bread", "bring", "broke",
 "cable", "cakes", "cards", "cargo", "cause", "chair", "cheap", "chips", "choke", "climb", "clove", "coact",
 "coins", "comic", "count", "cover", "crane", "crash", "crude", "cruel", "cubic", "curry",
 "dairy", "delay", "dance", "dense", "desks", "diner", "dines", "dozen", "draft", "dream", "drink", "drown",
-"drunk", "dusty",
+"drunk", "dusts", "dusty",
 "early", "elder", "enter", "equal", "equip", "erode", "evens", "event", "exact", "exams", "excel", "extra",
 "fancy", "fares", "fence", "fibre", "fifty", "filed", "files", "final", "first", "floor", "flour", "flute",
 "focus", "foggy", "front", "fruit",
@@ -710,15 +650,15 @@ static const char *word5[] =
 "mouse", "muddy",
 "nacho", "novel", "nurse",
 "offer", "optic",
-"pages", "panda", "pause", "peace", "pedal", "pesto", "piece", "piety", "pings", "pious", "pivot", "place",
-"plant", "pound", "prime", "prize", "probe", "prose", "prune", "puppy", "pylon",
+"pages", "panda", "pants", "pause", "peace", "pedal", "pesto", "piece", "piety", "pings", "pious", "pivot", "place",
+"plant", "pound", "prime", "prize", "probe", "prose", "proud", "prune", "puppy", "pylon",
 "quiet",
 "rally", "refer", "remit", "renew", "repel", "reset", "roach", "rocky", "roofs", "rooks", "rough", "royal",
 "rusty",
 "salad", "scarf", "scoop", "scoot", "scope", "score", "scorn", "shaft", "share", "sharp", "sheds", "shine",
 "share", "shiny", "shirt", "shore", "shrub", "silly", "sixty", "skate", "socks", "sound", "spade", "spare",
-"spend", "spent", "squad", "stack", "stand", "stars", "start", "stats", "steam", "stick", "stoop", "storm",
-"story", "sunny", "sweat", "swept", "swift", "swing", "sword",
+"spend", "spent", "squad", "stack", "stand", "stare", "stars", "start", "stats", "steam", "stick", "stoop",
+"storm", "story", "sunny", "sweat", "swept", "swift", "swing", "sword",
 "tally", "tempt", "tench", "tents", "these", "thick", "thief", "those", "tidal", "tiger", "title", "today",
 "track", "train", "trick", "trust", "tuned", "twigs", "twist",
 "unbid", "unbox", "uncap", "upend", "upper", "upset",
@@ -2542,11 +2482,7 @@ if(eudateflag == true) keywriteeudate(fhout);
 if(netgearflag == true) keywritenetgear(fhout);
 if(phomeflag == true) keywritephome(fhout);
 if(spectrumflag == true) keywritespectrum(fhout);
-if(tendaflag == true)
-	{
-	keywritetenda1(fhout);
-	keywritetenda2(fhout);
-	}
+if(tendaflag == true) keywritetenda(fhout);
 if(usdateflag == true) keywriteusdate(fhout);
 if(weakpassflag == true) keywriteweakpass(fhout);
 if(wpskeysflag == true) writewpsall(fhout);
@@ -2938,18 +2874,18 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"--maconly           : print only candidates based on ACCESS POINT MAC\n"
 	"--noessidcombination: exclude ESSID combinations\n"
-	"--netgear           : include weak NETGEAR / ORBI / NTGR_VMB / ARLO_VMB candidates\n"
+	"--netgear           : include weak NETGEAR / ORBI / NTGR_VMB / ARLO_VMB / FoxtelHub candidates\n"
 	"--spectrum          : include weak MySpectrumWiFi / SpectrumSetup / MyCharterWiFi candidates\n"
 	"                      list will be > 2.1GB\n"
 	"--digit10           : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"                      list will be > 1GB\n"
 	"--phome             : include weak PEGATRON / Vantiva candidates (CBCI, HOME, [SP/XF]SETUP)\n"
-	"                      list will be > 2.8GB\n"
+	"                      list will be > 2.9GB\n"
 	"--tenda             : include weak TENDA candidates\n"
 	"--ee                : include weak 5GHz-EE / BrightBox / EE / EE-BrightBox candidates\n"
-	"                      list will be > 1GB\n"
+	"                      list will be > 1.1GB\n"
 	"--eeupper           : include weak EE-Hub candidates\n"
-	"                      list will be > 3.1GB\n"
+	"                      list will be > 3.3GB\n"
 	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice)\n"
 	"                      list will be > 3.4GB\n"
 	"--asus              : include weak ASUS RT-AC58U candidates (ASUS_XX)\n"
