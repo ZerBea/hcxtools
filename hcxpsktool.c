@@ -528,24 +528,22 @@ static const char *word[] =
 };
 
 for(ca = 0; ca < (sizeof(word) / sizeof(char *)); ca++)
-{
-	for(cs = 0; cs < (sizeof(word) / sizeof(char *)); cs++)
 	{
+	for(cs = 0; cs < (sizeof(word) / sizeof(char *)); cs++)
+		{
 		if (ca == cs) continue;
 		for (cn = 0; cn < 1000; cn++)
+			{
+			snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", word[ca], word[cs], cn);
+			fprintf(fhout,"%s\n", pskstring);
+			}
+		}
+	for (cn = 0; cn < 10000; cn++)
 		{
-		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s%03d", word[ca], word[cs], cn);
+		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d", word[ca], cn);
 		fprintf(fhout,"%s\n", pskstring);
 		}
 	}
-	
-	for (cn = 0; cn < 10000; cn++)
-	{
-		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%04d", word[ca], cn);
-		fprintf(fhout,"%s\n", pskstring);
-	}
-}
-
 return;
 }
 /*===========================================================================*/
