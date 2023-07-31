@@ -466,8 +466,8 @@ static const char *six[] =
 {
 "across", "action", "advice", "almost", "always", "amount", "anchor", "animal", "answer", "anyone", "anyway", "appear",
 "arctic", "around", "arrive", "artist", "autumn", "awhile",
-"banana", "basket", "become", "beside", "better", "borrow", "bottle", "breezy", "bridge", "bright", "bucket", "buckle",
-"button",
+"baking", "banana", "basket", "become", "beside", "better", "borrow", "bottle", "breezy", "bridge", "bright", "bucket",
+"buckle", "button",
 "cactus", "called", "career", "carpet", "camera", "candid", "canvas", "canyon", "castle", "cattle", "caught", "celery",
 "cellar", "center", "chance", "change", "charge", "cheery", "chores", "chosen", "circle", "cities", "clever", "collar",
 "column", "comedy", "common", "copied", "corral", "county", "course", "create", "crumbs", "crunch",
@@ -765,19 +765,19 @@ static unsigned int w, i, j; // w1
 static const char *word[] =
 {
 "amber", "aqua", "auburn",
-"blue", "brick", "bronze", "burgundy",
+"beige", "blue", "brick", "bronze", "burgundy",
 "chestnut", "cobalt", "copper", "coral", "cordovan", "crimson", "cyan",
 "emerald",
-"garnet", "gold", "green", "grey",
+"garnet", "gold", "granite", "green", "grey",
 "indigo",
 "jade",
-"lavender", "lemon", "lime",
+"lavender", "lemon", "lime", "linen",
 "magenta", "maroon",
 "navy",
 "olive", "orchid",
-"peach", "periwinkle", "pewter", "plum", "purple",
+"peach", "periwinkle", "pewter", "pink", "plum", "purple",
 "rose",
-"sage", "sepia", "silver", "slate",
+"sage", "sepia", "sienna", "silver", "slate",
 "teal", "turquoise"
 };
 
@@ -2885,7 +2885,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--eeupper           : include weak EE-Hub candidates\n"
 	"                      list will be > 3.3GB\n"
 	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice)\n"
-	"                      list will be > 3.4GB\n"
+	"                      list will be > 3.8GB\n"
 	"--asus              : include weak ASUS RT-AC58U candidates (ASUS_XX)\n"
 	"--weakpass          : include weak password candidates\n"
 	"--eudate            : include complete european dates\n"
