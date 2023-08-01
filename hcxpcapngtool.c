@@ -3222,6 +3222,7 @@ memcpy(zeiger->ap, macap, 6);
 zeiger->message = HS_M4;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
+if(zeiger->eapauthlen > EAPOL_AUTHLEN_MAX) return;
 zeiger->eapauthlen = authlen +EAPAUTH_SIZE;
 memcpy(zeiger->eapol, eapauthptr, zeiger->eapauthlen);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
@@ -3491,7 +3492,6 @@ zeiger->message = HS_M2;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
 zeiger->eapauthlen = authlen +EAPAUTH_SIZE;
-memcpy(zeiger->eapol, eapauthptr, zeiger->eapauthlen);
 if(wpainfolen >= RSNIE_LEN_MIN)
 	{
 	if(gettags(wpainfolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
@@ -3507,6 +3507,8 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 		addpmkid(eaptimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 		}
 	}
+if(zeiger->eapauthlen > EAPOL_AUTHLEN_MAX) return;
+memcpy(zeiger->eapol, eapauthptr, zeiger->eapauthlen);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if((zeiger->message &HS_M1) == HS_M1)
@@ -5387,7 +5389,6 @@ fprintf(stdout, "\nsummary capture file\n"
 	myaktsnonce[16], myaktsnonce[17], myaktsnonce[18], myaktsnonce[19], myaktsnonce[20], myaktsnonce[21], myaktsnonce[22], myaktsnonce[23],
 	myaktsnonce[24], myaktsnonce[25], myaktsnonce[26], myaktsnonce[27], myaktsnonce[28], myaktsnonce[29], myaktsnonce[30], myaktsnonce[31]
 	);
-
 printlinklayerinfo();
 cleanupmac();
 outputdeviceinfolist();
