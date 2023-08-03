@@ -881,21 +881,23 @@ static unsigned int w, i;
 
 static const char *word[] =
 {
-"account", "actor", "amazing", "autumn",
-"bakery", "browser",
-"center", "cocoa", "cupid",
-"delta", "donkey",
-"enjoy", "export", "extra", "eyebrow",
-"february",
-"grape",
-"haircut", "hiking", "hometown", "honor",
-"jaguar",
-"keeper", "kiss", "knuckle",
-"literacy",
-"mars", "momentum", "morning", "museum",
-"popcorn", "puma", "puppet",
-"relax",
-"saturday", "science", "science", "soccer", "star"
+"account", "actor", "alpha", "amazing", "answer", "anyway", "athlete", "autumn",
+"bakery", "balcony", "banking", "battery", "bedroom", "bicycle", "browser",
+"camping", "category", "center", "charming", "cinema", "cocoa", "coffee", "cupid",
+"delivery", "delta", "donkey", "drama", "dream",
+"economy", "enjoy", "eternity", "everyday", "export", "extra", "eyebrow",
+"february", "feeling", "flower", "fortune", "founder", "four",
+"gasoline", "giant", "glory", "golden", "grape", "guide",
+"haircut", "handsome", "harmony", "hawk", "header", "hiking", "hometown", "honor",
+"hundred", "hunter",
+"jaguar", "jazz", "jogging", "july", "jumper", "junior", "justdoit",
+"keeper", "kiss", "kitchen", "knuckle",
+"lighting", "literacy", "lucky", "lunar",
+"majesty", "mankind", "mars", "memory", "momentum", "morning", "museum",
+"network", "next", "night", "noodle", "notebook",
+"painter", "pajamas", "parttime", "passion", "popcorn", "puma", "puppet", "pyramid",
+"random", "ranking", "reading", "relax", "remark", "revenue", "ribbon",
+"salon", "saturday", "science", "sexy", "soccer", "sour", "spider", "star", "sunday"
 };
 
 for (w = 0; w < (sizeof(word) / sizeof(char *)); w++ )
@@ -2884,9 +2886,9 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                      list will be > 1.1GB\n"
 	"--eeupper           : include weak EE-Hub candidates\n"
 	"                      list will be > 3.3GB\n"
-	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice)\n"
+	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice, MyOptimum)\n"
 	"                      list will be > 3.8GB\n"
-	"--asus              : include weak ASUS RT-AC58U candidates (ASUS_XX)\n"
+	"--asus              : include weak ASUS RT-AC candidates (ASUS_XX, RT-AC)\n"
 	"--weakpass          : include weak password candidates\n"
 	"--eudate            : include complete european dates\n"
 	"--usdate            : include complete american dates\n"
