@@ -17,7 +17,7 @@
 #define LINEBUFFER_MAX	256
 #define OUIBUFFER_MAX	8192
 
-const char *ouiurl = "https://standards-oui.ieee.org/oui/oui.txt";
+static const char *ouiurl = "https://standards-oui.ieee.org/oui/oui.txt";
 
 /*===========================================================================*/
 static bool downloadoui(char *ouiname)

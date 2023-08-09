@@ -22,7 +22,7 @@ static long int uploadcountok;
 static long int uploadcountfailed;
 static const char *wpasecurl = "https://wpa-sec.stanev.org";
 static bool removeflag = false;
-struct memory *curlmem;
+static struct memory *curlmem;
 /*===========================================================================*/
 static int testwpasec(long int timeout)
 {

@@ -31,7 +31,7 @@
 /*===========================================================================*/
 /* global var */
 
-struct timeval tv;
+static struct timeval tv;
 static uint64_t timestamp;
 
 static int mybeaconsequence;

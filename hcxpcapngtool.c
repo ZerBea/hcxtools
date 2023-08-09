@@ -1289,7 +1289,7 @@ for(zeiger = tacacsplist +1; zeiger < tacacsplistptr; zeiger++)
 return;
 }
 /*===========================================================================*/
-void processtacacsppacket(uint32_t restlen, uint8_t *tacacspptr)
+static void processtacacsppacket(uint32_t restlen, uint8_t *tacacspptr)
 {
 static uint32_t authlen;
 static tacacsp_t *tacacsp;
@@ -4428,7 +4428,7 @@ else if(macfrx->type == IEEE80211_FTYPE_DATA)
 return;
 }
 /*===========================================================================*/
-void processethernetpacket(uint64_t timestamp, uint32_t caplen, uint8_t *packetptr)
+static void processethernetpacket(uint64_t timestamp, uint32_t caplen, uint8_t *packetptr)
 {
 static eth2_t *eth2;
 
@@ -4451,7 +4451,7 @@ if(ntohs(eth2->ether_type) == LLC_TYPE_AUTH)
 return;
 }
 /*===========================================================================*/
-void processlobapacket(uint64_t timestamp, uint32_t caplen, uint8_t *packetptr)
+static void processlobapacket(uint64_t timestamp, uint32_t caplen, uint8_t *packetptr)
 {
 static loba_t *loba;
 if(caplen < LOBA_SIZE) return;
@@ -4915,7 +4915,7 @@ printcontentinfo();
 return;
 }
 /*===========================================================================*/
-int pcapngoptionwalk(uint32_t blocktype, uint8_t *optr, int restlen)
+static int pcapngoptionwalk(uint32_t blocktype, uint8_t *optr, int restlen)
 {
 static int csn, csc, pn;
 static int padding;
