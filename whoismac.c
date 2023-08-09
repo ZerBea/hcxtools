@@ -36,7 +36,7 @@ if((fhouitmp = tmpfile()) == NULL)
 	return false;
 	}
 hnd = curl_easy_init ();
-curl_easy_setopt(hnd, CURLOPT_URL, "https://standards-oui.ieee.org/oui/oui.txt");
+curl_easy_setopt(hnd, CURLOPT_URL, ouiurl);
 curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
 curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
 curl_easy_setopt(hnd, CURLOPT_WRITEDATA, fhouitmp);
@@ -429,7 +429,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"usage: %s <options>\n"
 	"\n"
 	"options:\n"
-	"-d            : download https://standards-oui.ieee.org/oui/oui.txt\n"
+	"-d            : download %s\n"
 	"              : and save to ~/.hcxtools/oui.txt\n"
 	"              : internet connection required\n"
 	"-m <mac>      : mac (six bytes of mac addr) or \n"
@@ -440,7 +440,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"-x <xdigit>   : input ESSID in hex\n"
 	"-v <vendor>   : vendor name\n"
 	"-h            : this help screen\n"
-	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
+	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, ouiurl);
 exit(EXIT_SUCCESS);
 }
 /*===========================================================================*/
@@ -615,16 +615,16 @@ if(ouiname == NULL)
 	{
 	fprintf(stderr, "failed read oui.txt\n"
 			"use download option -d to download it\n"
-			"or download file https://standards-oui.ieee.org/oui/oui.txt\n"
-			"and save it to ~/.hcxtools/oui.txt\n");
+			"or download file %s\n"
+			"and save it to ~/.hcxtools/oui.txt\n", ouiurl);
 	exit(EXIT_FAILURE);
 	}
 if(stat(ouiname, &statinfo) < 0)
 	{
 	fprintf(stderr, "failed read oui.txt\n"
 			"use download option -d to download it\n"
-			"or download file https://standards-oui.ieee.org/oui/oui.txt\n"
-			"and save it to ~/.hcxtools/oui.txt\n");
+			"or download file %s\n"
+			"and save it to ~/.hcxtools/oui.txt\n", ouiurl);
 	exit(EXIT_FAILURE);
 	}
 if(mode == 'm')
