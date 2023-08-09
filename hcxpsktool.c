@@ -50,7 +50,7 @@ static bool weakpassflag;
 static bool wpskeysflag;
 static bool znidflag;
 
-uint8_t essidglen;
+static uint8_t essidglen;
 /*===========================================================================*/
 static void globalinit(void)
 {
