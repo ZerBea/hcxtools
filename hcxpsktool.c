@@ -505,26 +505,26 @@ static const char *word[] =
 {
 "able", "about", "above", "actor", "after", "again", "alone", "also", "apple",
 "baby", "back", "bath", "bean", "best", "bike", "bird", "blue", "body", "book",
-"cake", "calm", "card", "carry", "cash", "chair", "child", "cold", "come", "cool", "cute",
+"cafe", "cake", "calm", "card", "carry", "cash", "chair", "child", "cold", "come", "cool", "cute",
 "daily", "dance", "dark", "dash", "dear", "desk", "done", "door", "down", "duck", "duty",
 "each", "early", "earth", "east", "easy", "edit", "envy", "even", "every", "exist", "exit",
-"face", "fact", "fall", "fast", "feed", "feel", "fill", "fish", "five",
+"face", "fact", "fall", "fast", "feed", "feel", "fill", "fish", "five", "four",
 "game", "ghost", "girl", "giude", "give", "good", "green", "group", "guest",
 "hair", "hand", "happy", "hard", "have", "haven", "head", "high", "hike", "horse", "house",
 "into",
 "jade", "jazz", "jean", "jeep", "join", "joke", "juice", "july", "june",
 "keep", "kind",
 "lable", "labor", "lack", "lake", "land", "light", "like", "live", "lock", "loop", "lose",
-"mail", "main", "major", "make", "math", "meet", "milk", "more", "most", "mouth", "much",
+"mail", "main", "major", "make", "math", "meet", "milk", "moon", "more", "most", "mouth", "much",
 "name", "near", "need", "nine", "north", "nose", "note",
-"occur", "ocean", "open", "over",
+"occur", "ocean", "once", "open", "over",
 "pace", "pain", "park", "part", "pass", "past", "path", "photo", "piece", "pink",
 "queen", "quest", "quick", "quit", "quite",
 "rainy", "reach", "read", "rice", "ride", "road", "room", "rope", "rose", "rule", "rush",
 "safe", "said", "sale", "salt", "same", "sick", "soul", "soup", "south", "sunny",
-"table", "take", "tale", "talk", "tall", "team", "tell", "think", "ture",
+"table", "take", "tale", "talk", "tall", "team", "tell", "test", "think", "ture",
 "under", "unit", "upper",
-"walk", "water", "weak", "week", "west", "what", "where", "wind", "word"
+"walk", "waste", "water", "weak", "week", "west", "what", "where", "wind", "word"
 };
 
 for(ca = 0; ca < (sizeof(word) / sizeof(char *)); ca++)
@@ -772,13 +772,13 @@ static const char *word[] =
 "indigo",
 "jade",
 "lavender", "lemon", "lime", "linen",
-"magenta", "maroon",
+"magenta", "maroon", "mauve",
 "navy",
 "olive", "orchid",
 "peach", "periwinkle", "pewter", "pink", "plum", "purple",
 "rose",
 "sage", "sepia", "sienna", "silver", "slate",
-"teal", "turquoise"
+"taupe", "teal", "turquoise"
 };
 
 for (w = 0; w < (sizeof(word) / sizeof(char *)); w++ )
@@ -1825,6 +1825,8 @@ if(essidlen == 7)
 				for(k2 = 0; k2 < 0x100; k2++)
 					{
 					snprintf(essidtmp, PSKSTRING_LEN_MAX, "48575443%02X%c%c%c%c%02X", k1, essid[3], essid[4], essid[5], essid[6], k2);
+					writepsk(fhout, essidtmp);
+					snprintf(essidtmp, PSKSTRING_LEN_MAX, "48575443%02X%02X%c%c%c%c", k1, k2, essid[3], essid[4], essid[5], essid[6]);
 					writepsk(fhout, essidtmp);
 				}
 			}
@@ -2887,7 +2889,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--eeupper           : include weak EE-Hub candidates\n"
 	"                      list will be > 3.3GB\n"
 	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice, MyOptimum)\n"
-	"                      list will be > 3.8GB\n"
+	"                      list will be > 4.6GB\n"
 	"--asus              : include weak ASUS RT-AC candidates (ASUS_XX, RT-AC)\n"
 	"--weakpass          : include weak password candidates\n"
 	"--eudate            : include complete european dates\n"
