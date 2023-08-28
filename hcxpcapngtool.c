@@ -254,6 +254,7 @@ static long int pmkidcount;
 static long int pmkidbestcount;
 static long int pmkidroguecount;
 static long int pmkiduselesscount;
+static long int pmkidfaultycount;
 static long int pmkidakmcount;
 static long int pmkidwrittenhcount;
 static long int pmkidclientwrittenhcount;
@@ -566,6 +567,7 @@ pmkidcount = 0;
 pmkidbestcount = 0;
 pmkidroguecount = 0;
 pmkiduselesscount = 0;
+pmkidfaultycount = 0;
 pmkidakmcount = 0;
 pmkidwrittenhcount = 0;
 pmkidclientwrittenhcount = 0;
@@ -816,6 +818,7 @@ if(eapolm32e3count > 0)			fprintf(stdout, "EAPOL M32E3 (authorized).............
 if(eapolm34e3count > 0)			fprintf(stdout, "EAPOL M34E3 (authorized).................: %ld\n", eapolm34e3count);
 if(eapolm34e4count > 0)			fprintf(stdout, "EAPOL M34E4 (authorized).................: %ld\n", eapolm34e4count);
 if(pmkiduselesscount > 0)		fprintf(stdout, "RSN PMKID (useless)......................: %ld\n", pmkiduselesscount);
+if(pmkidfaultycount > 0)		fprintf(stdout, "RSN PMKID (faulty).......................: %ld\n", pmkidfaultycount);
 if(pmkidcount > 0)			fprintf(stdout, "RSN PMKID (total)........................: %ld\n", pmkidcount);
 if(zeroedpmkidpskcount > 0)		fprintf(stdout, "RSN PMKID (from zeroed PSK)..............: %ld (not converted by default options - use --all if needed)\n", zeroedpmkidpskcount);
 if(zeroedpmkidpmkcount > 0)		fprintf(stdout, "RSN PMKID (from zeroed PMK)..............: %ld (not converted by default options - use --all if needed)\n", zeroedpmkidpmkcount);
@@ -1959,9 +1962,21 @@ static const uint8_t faulty3[3] =
 {
 0xcc, 0x6a, 0x10
 };
-if(memcmp(&faulty1, macsta, 3) == 0) return true;
-if(memcmp(&faulty2, macsta, 3) == 0) return true;
-if(memcmp(&faulty3, macsta, 3) == 0) return true;
+if(memcmp(&faulty1, macsta, 3) == 0)
+	{
+	pmkidfaultycount++;
+	return true;
+	}
+if(memcmp(&faulty2, macsta, 3) == 0)
+	{
+	pmkidfaultycount++;
+	return true;
+	}
+if(memcmp(&faulty3, macsta, 3) == 0)
+	{
+	pmkidfaultycount++;
+	return true;
+	}
 return false;
 }
 /*===========================================================================*/
