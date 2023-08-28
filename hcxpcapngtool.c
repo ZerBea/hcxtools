@@ -1943,6 +1943,28 @@ else fprintf(fh_pmkideapoljtrdeprecated, "%c", (itoa64[((in[1] & 0x0f) << 2)]));
 return;
 }
 /*===========================================================================*/
+static bool testfaultypmkid(uint8_t *macsta)
+{
+static const uint8_t faulty1[3] =
+{
+0x64, 0x52, 0x99
+};
+
+static const uint8_t faulty2[3] =
+{
+0xca, 0x6a, 0x10
+};
+
+static const uint8_t faulty3[3] =
+{
+0xcc, 0x6a, 0x10
+};
+if(memcmp(&faulty1, macsta, 3) == 0) return true;
+if(memcmp(&faulty2, macsta, 3) == 0) return true;
+if(memcmp(&faulty3, macsta, 3) == 0) return true;
+return false;
+}
+/*===========================================================================*/
 static bool testpmkid(uint8_t *testpmk, uint8_t *macsta, uint8_t *macap, uint8_t *pmkid)
 {
 static const char *pmkname = "PMK Name";
@@ -2604,6 +2626,10 @@ static void addpmkid(uint64_t timestamp, uint8_t *macclient, uint8_t *macap, uin
 static pmkidlist_t *pmkidlistnew;
 
 pmkidcount++;
+if((pmkidstatus & PMKID_CLIENT) == PMKID_CLIENT)
+	{
+	if(testfaultypmkid(macclient) == true) return;
+	}
 if(testpmkid(zeroedpmk, macclient, macap, pmkid) == false)
 	{
 	if(pmkidlistptr >= pmkidlist +pmkidlistmax)
