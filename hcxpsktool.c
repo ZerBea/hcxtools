@@ -379,19 +379,20 @@ static const char *secondword[] =
 "robin", "rock", "rocket", "role", "rose", "rosebud", "runner", "safety",
 "salute", "scout", "sea", "sector", "seed", "series", "shark", "sheep",
 "shelf", "ship", "shoe", "shrub", "side", "singer", "skates", "sky",
-"sled", "snail", "snake", "snall", "soccer", "socks", "sofa", "space",
-"spark", "sparrow", "speech", "spider", "spoon", "squash", "squirrel", "stable",
-"star", "state", "statue", "storm", "stove", "straw", "street", "studio",
-"study", "summit", "sun", "table", "tablet", "tea", "teapot", "teen",
-"tent", "thanks", "theory", "tiger", "timber", "tomato", "tooth", "topic",
-"town", "trail", "train", "tree", "truck", "trumpet", "truth", "tuba",
-"tulip", "turkey", "turtle", "two", "unicorn", "union", "unit", "unite",
-"urban", "useful", "valley", "value", "vase", "verse", "video", "violet",
-"violin", "volume", "voyage", "wagon", "walnut", "watch", "water", "way",
-"wealth", "week", "west", "whale", "wind", "window", "windy", "wolf",
-"world", "writer", "yacht", "yard", "year", "youth", "zeal", "zebra",
-"zone", "zoo" 
+"sled", "snail", "snake", "snall", "soccer", "socks", "sofa", "song",
+"space", "spark", "sparrow", "speech", "spider", "spoon", "squash", "squirrel",
+"stable", "star", "state", "statue", "storm", "stove", "straw", "street",
+"studio", "study", "summit", "sun", "table", "tablet", "tea", "teapot",
+"teen", "tent", "thanks", "theory", "tiger", "timber", "tomato", "tooth",
+"topic", "town", "trail", "train", "tree", "truck", "trumpet", "truth",
+"tuba", "tulip", "turkey", "turtle", "two", "unicorn", "union", "unit",
+"unite", "urban", "useful", "valley", "value", "vase", "verse", "video",
+"violet", "violin", "volume", "voyage", "wagon", "walnut", "watch", "water",
+"way", "wealth", "week", "west", "whale", "wind", "window", "windy",
+"wolf", "world", "writer", "yacht", "yard", "year", "youth", "zeal",
+"zebra", "zone", "zoo"
 };
+
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
