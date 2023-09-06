@@ -157,7 +157,7 @@ if __name__ == "__main__":
     if args.infile is not None and os.path.isfile(args.infile):
         fd = open(args.infile, 'rb')
     else:
-        fd = sys.stdin
+        fd = sys.stdin.buffer
 
     while True:
         buf = fd.read(4)
