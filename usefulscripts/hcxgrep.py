@@ -15,7 +15,6 @@ import sys
 import binascii
 import struct
 import re
-import sre_constants
 
 maketrans = bytearray.maketrans
 
@@ -151,7 +150,7 @@ if __name__ == "__main__":
 
     try:
         regexp = re.compile(args.PATTERNS)
-    except sre_constants.error as ex:
+    except re.error as ex:
         sys.stderr.write('Wrong regexp {0}: {1} \n'.format(args.PATTERNS, ex))
         sys.exit(1)
 
