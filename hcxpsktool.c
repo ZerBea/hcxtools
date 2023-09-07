@@ -393,7 +393,6 @@ static const char *secondword[] =
 "zebra", "zone", "zoo"
 };
 
-
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
 	for(cs = 0; cs < (sizeof(secondword) / sizeof(char *)); cs++)
