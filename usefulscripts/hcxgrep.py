@@ -2,7 +2,7 @@
 '''
 greps inside hccapx/pmkid structs by essid, mac_ap or mac_sta
 
-This software is Copyright (c) 2019-2022, Alex Stanev <alex at stanev.org>
+This software is Copyright (c) 2019-2023, Alex Stanev <alex at stanev.org>
 and it is hereby released to the general public under the following terms:
 
 Redistribution and use in source and binary forms, with or without
@@ -15,7 +15,6 @@ import sys
 import binascii
 import struct
 import re
-import sre_constants
 
 maketrans = bytearray.maketrans
 
@@ -150,15 +149,15 @@ if __name__ == "__main__":
         args.PATTERNS = '|'.join('(?:{0})'.format(x.strip()) for x in args.file)
 
     try:
-        regexp = re.compile(args.PATTERNS)
-    except sre_constants.error as ex:
+        regexp = re.compile(bytes(args.PATTERNS, 'utf-8'))
+    except re.error as ex:
         sys.stderr.write('Wrong regexp {0}: {1} \n'.format(args.PATTERNS, ex))
         sys.exit(1)
 
     if args.infile is not None and os.path.isfile(args.infile):
         fd = open(args.infile, 'rb')
     else:
-        fd = sys.stdin
+        fd = sys.stdin.buffer
 
     while True:
         buf = fd.read(4)
@@ -179,6 +178,6 @@ if __name__ == "__main__":
             sys.stderr.write('Unrecognized input format\n')
             sys.exit(1)
 
-        res = regexp.search(str(target))
+        res = regexp.search(target)
         if (res is not None and not args.v) or (res is None and args.v):
             sys.stdout.buffer.write(buf)
