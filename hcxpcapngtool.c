@@ -905,7 +905,7 @@ if(radiotappresent == false)
 	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
 		"Radiotap is a de facto standard for 802.11 frame injection and\n"
 		"reception. The radiotap header format is a mechanism to supply\n"
-		"additional information about frames, rom the driver to userspace\n"
+		"additional information about frames, from the driver to userspace\n"
 		"applications.\n"
 		"https://www.radiotap.org/\n");
 	}
