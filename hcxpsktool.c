@@ -2213,6 +2213,7 @@ static apessidl_t *zeiger;
 
 qsort(apessidliste, apessidcount, APESSIDLIST_SIZE, sort_apessidlist_by_essid);
 zeiger = apessidliste;
+if( apessidcount == 0) return;
 essidglen = zeiger->essidlen;
 prepareessid(fhout, zeiger->essidlen, zeiger->essid);
 for(c = 1; c < apessidcount; c++)
