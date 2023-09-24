@@ -2210,21 +2210,24 @@ static void processessids(FILE *fhout)
 {
 static int c;
 static apessidl_t *zeiger;
-static apessidl_t *zeiger1;
 
 qsort(apessidliste, apessidcount, APESSIDLIST_SIZE, sort_apessidlist_by_essid);
 zeiger = apessidliste;
-for(c = 0; c < apessidcount; c++)
+
+essidglen = zeiger->essidlen;
+prepareessid(fhout, zeiger->essidlen, zeiger->essid);
+
+for(c = 1; c < apessidcount; c++)
 	{
-	essidglen = zeiger->essidlen;
-	if(c == 0) prepareessid(fhout, zeiger->essidlen, zeiger->essid);
-	else
+	if(zeiger->essidlen != (zeiger -1)->essidlen)
 		{
-		zeiger1 = zeiger -1;
-		if(zeiger->essidlen != zeiger1->essidlen)
-			{
-			if(memcmp(zeiger->essid, zeiger1->essid, zeiger->essidlen) != 0) prepareessid(fhout, zeiger->essidlen, zeiger->essid);
-			}
+		essidglen = zeiger->essidlen;
+		prepareessid(fhout, zeiger->essidlen, zeiger->essid);
+		}
+	else if(memcmp(zeiger->essid, (zeiger -1)->essid, zeiger->essidlen) != 0)
+		{
+		essidglen = zeiger->essidlen;
+		prepareessid(fhout, zeiger->essidlen, zeiger->essid);
 		}
 	zeiger++;
 	}
@@ -3155,7 +3158,6 @@ else
 		processadditionals(stdout);
 		}
 	}
-
 
 if(pskname != NULL)
 	{
