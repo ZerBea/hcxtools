@@ -42,6 +42,7 @@ static bool netgearflag;
 static bool noessidcombinationflag;
 static bool phomeflag;
 static bool podaflag;
+static bool simpleflag;
 static bool spectrumflag;
 static bool tendaflag;
 static bool ukrtelecomflag;
@@ -986,6 +987,56 @@ for(y = 0; y < 1000; y++)
 	{
 	snprintf(pskstring, PSKSTRING_LEN_MAX, "%03d%03d%03d", y, y, y);
 	writepsk(fhout, pskstring);
+	}
+return;
+}
+/*===========================================================================*/
+static void keywritesimple(FILE *fhout)
+{
+static int a,b,c;
+
+for(a =0x20; a < 0x7f; a++)
+ for(b = 0x20; b < 0x7f; b++)
+	{
+	fprintf(fhout, "12341234%c%c\n", a, b);
+	fprintf(fhout, "%c%c12341234\n", a, b);
+	fprintf(fhout, "1234512345%c%c\n", a, b);
+	fprintf(fhout, "%c%c1234512345\n", a, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c\n", a, a, b, b, a, a, b, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c\n", a, a, b, b, a, a, b, b, a, a);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c%c%c\n", a, a, b, b, a, a, b, b, a, a, b, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c\n", a, b, a, b, a, b, a, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c\n", a, b, a, b, a, b, a, b, a);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c\n", a, b, a, b, a, b, a, b, a, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c%c\n", a, b, a, b, a, b, a, b, a, b, a);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c%c%c\n", a, b, a, b, a, b, a, b, a, b, a, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c\n", a, b, b, b, b, b, b, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c\n", a, b, b, b, b, b, b, b, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c\n", a, b, b, b, b, b, b, b, b, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c%c\n", a, b, b, b, b, b, b, b, b, b, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c%c%c\n", a, b, b, b, b, b, b, b, b, b, b, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c\n", b, b, b, b, b, b, b, a);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c\n", b, b, b, b, b, b, b, b, a);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c\n", b, b, b, b, b, b, b, b, b, a);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c%c\n", b, b, b, b, b, b, b, b, b, b, a);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c%c%c\n", b, b, b, b, b, b, b, b, b, b, b, a);
+	}
+for(a =0x20; a < 0x7f; a++)
+ for(b =0x20; b < 0x7f; b++)
+  for(c =0x20; c < 0x7f; c++)
+	{
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c\n", a, b, c, a, b, c, a, b, c);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c\n", a, a, a, b, b, b, c, c, c);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c\n", a, c, c, c, c, c, c, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c\n", a, c, c, c, c, c, c, c, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c\n", a, c, c, c, c, c, c, c, c, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c\n", a, b, c, c, c, c, c, c);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c\n", a, b, c, c, c, c, c, c, c);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c\n", a, b, c, c, c, c, c, c, c, c);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c\n", c, c, c, c, c, c, a, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c\n", c, c, c, c, c, c, c, a, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c\n", c, c, c, c, c, c, c, c, a, b);
+	fprintf(fhout, "%c%c%c%c%c%c%c%c%c%c\n", a, b, b, b, b, c, c, c, c, a);
 	}
 return;
 }
@@ -2486,6 +2537,7 @@ if(egnflag == true) keywriteegn(fhout);
 if(eudateflag == true) keywriteeudate(fhout);
 if(netgearflag == true) keywritenetgear(fhout);
 if(phomeflag == true) keywritephome(fhout);
+if(simpleflag == true) keywritesimple(fhout);
 if(spectrumflag == true) keywritespectrum(fhout);
 if(tendaflag == true) keywritetenda(fhout);
 if(usdateflag == true) keywriteusdate(fhout);
@@ -2899,6 +2951,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--usdate            : include complete american dates\n"
 	"--wpskeys           : include complete WPS keys\n"
 	"--egn               : include Bulgarian EGN\n"
+	"--simple            : include simple pattern\n"
 	"--help              : show this help\n"
 	"--version           : show version\n"
 	"\n"
@@ -2943,6 +2996,7 @@ netgearflag = false;
 noessidcombinationflag = false;
 phomeflag = false;
 podaflag = false;
+simpleflag = false;
 spectrumflag = false;
 tendaflag = false;
 ukrtelecomflag = false;
@@ -2965,6 +3019,7 @@ static const struct option long_options[] =
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
 	{"noessidcombination",		no_argument,		NULL,	HCXD_NOESSIDCOMBINATION},
 	{"phome",			no_argument,		NULL,	HCXD_PHOME},
+	{"simple",			no_argument,		NULL,	HCXD_SIMPLE},
 	{"spectrum",			no_argument,		NULL,	HCXD_SPECTRUM},
 	{"tenda",			no_argument,		NULL,	HCXD_TENDA},
 	{"usdate",			no_argument,		NULL,	HCXD_USDATE},
@@ -3045,6 +3100,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_EGN:
 		egnflag = true;
+		break;
+
+		case HCXD_SIMPLE:
+		simpleflag = true;
 		break;
 
 		case HCXD_HELP:
