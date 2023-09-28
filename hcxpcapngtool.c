@@ -959,7 +959,7 @@ if((authenticationcount +associationrequestcount +reassociationrequestcount) == 
 		"It always happens if the capture file was cleaned or\n"
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it hard to recover the PSK.\n");
-	if(timestampdiff < 60000000000) fprintf(stdout, "Duration of the dump tool was a way too short to capture enough information.\n");
+	if(timestampdiff < 60000000000) fprintf(stdout, "Duration of the dump tool was a way too short to capture enough additional information.\n");
 	}
 if(eapolm1ancount <= 1)
 	{
@@ -968,7 +968,7 @@ if(eapolm1ancount <= 1)
 		"It always happens if the capture file was cleaned or\n"
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to calculate nonce-error-correction values.\n");
-	if(timestampdiff < 60000000000) fprintf(stdout, "Duration of the dump tool was a way too short to capture enough information.\n");
+	if(timestampdiff < 60000000000) fprintf(stdout, "Duration of the dump tool was a way too short to capture enough additional information.\n");
 	}
 if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0))
 	{
