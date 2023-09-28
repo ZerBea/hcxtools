@@ -318,6 +318,7 @@ static long int malformedcount;
 static uint64_t timestampstart;
 static uint64_t timestampmin;
 static uint64_t timestampmax;
+static uint64_t timestampdiff;
 static uint64_t eaptimegapmax;
 static uint64_t captimestampold;
 
@@ -627,6 +628,7 @@ eaptimegapmax = 0;
 malformedcount = 0;
 timestampmin = 0;
 timestampmax = 0;
+timestampdiff = 0;
 timestampstart = 0;
 captimestampold = 0;
 
@@ -957,6 +959,7 @@ if((authenticationcount +associationrequestcount +reassociationrequestcount) == 
 		"It always happens if the capture file was cleaned or\n"
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it hard to recover the PSK.\n");
+	if(timestampdiff < 60000000000) fprintf(stdout, "Runtime of the dump tool was a way too short to capture enough information\n");
 	}
 if(eapolm1ancount <= 1)
 	{
@@ -965,6 +968,7 @@ if(eapolm1ancount <= 1)
 		"It always happens if the capture file was cleaned or\n"
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to calculate nonce-error-correction values.\n");
+	if(timestampdiff < 60000000000) fprintf(stdout, "Runtime of the dump tool was a way too short to capture enough information\n");
 	}
 if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0))
 	{
@@ -1004,6 +1008,7 @@ radiotappresent = false;
 tvmin = timestampmin /1000000000;
 strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmin));
 tvmax = timestampmax /1000000000;
+timestampdiff = timestampmax - timestampmin;
 strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmax));
 fprintf(stdout, "timestamp minimum (GMT)..................: %s\n", timestringmin);
 fprintf(stdout, "timestamp maximum (GMT)..................: %s\n", timestringmax);
