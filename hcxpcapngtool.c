@@ -2582,10 +2582,19 @@ if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, m
 	handshakelistptr->messageclient = msgclient->message;
 	memcpy(handshakelistptr->ap, msgap->ap, 6);
 	memcpy(handshakelistptr->client, msgclient->client, 6);
-	memcpy(handshakelistptr->anonce, msgap->nonce, 32);
 	memcpy(handshakelistptr->pmkid, msgap->pmkid, 32);
-	handshakelistptr->eapauthlen = msgclient->eapauthlen;
-	memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
+	if (mpfield != ST_M32E3)
+		{
+		memcpy(handshakelistptr->anonce, msgap->nonce, 32);
+		handshakelistptr->eapauthlen = msgclient->eapauthlen;
+		memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
+		}
+	else
+		{
+		memcpy(handshakelistptr->anonce, msgclient->nonce, 32);
+		handshakelistptr->eapauthlen = msgap->eapauthlen;
+		memcpy(handshakelistptr->eapol, msgap->eapol, msgap->eapauthlen);
+		}
 	handshakelistptr->timestamp = msgclient->timestamp;
 	if(cleanbackhandshake() == false) handshakelistptr++;
 	}
@@ -3393,6 +3402,9 @@ memcpy(zeigerakt->ap, macap, 6);
 zeigerakt->message = HS_M3;
 zeigerakt->rc = rc;
 memcpy(zeigerakt->nonce, wpak->nonce, 32);
+zeigerakt->eapauthlen = authlen +EAPAUTH_SIZE;
+if(zeigerakt->eapauthlen > EAPOL_AUTHLEN_MAX) return;
+memcpy(zeigerakt->eapol, eapauthptr, zeigerakt->eapauthlen);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if(((zeiger->message &HS_M1) == HS_M1) || ((zeiger->message &HS_M3) == HS_M3))
@@ -3426,6 +3438,18 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			}
 		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
+
+		if(donotcleanflag == true)
+			{
+			mpfield = ST_M32E3;
+			if(myaktreplaycount > 0)
+				{
+				if(zeiger->rc == myaktreplaycount) continue;
+				}
+			if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
+			if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
+			}
+
 		}
 	if((zeiger->message &HS_M4) != HS_M4) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
