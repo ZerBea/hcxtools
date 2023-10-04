@@ -1889,7 +1889,7 @@ while(1)
 		memcpy(zeiger->nonce, &buffer, 32);
 		oflen += 65;
 		eapauthlen = getfield(&linein[oflen], PMKIDEAPOL_LINE_LEN, buffer);
-		if(eapauthlen > EAPOL_AUTHLEN_MAX)
+		if(eapauthlen > EAPOL_AUTHLEN_MAX +4)
 			{
 			readerrorcount++;
 			continue;
