@@ -253,8 +253,8 @@ if(flagfilterouiclient == true)
 	fprintf(stdout, "filter CLIENT by OUI..........: %02x%02x%02x (%s)\n", filterouiclient[0], filterouiclient[1], filterouiclient[2], vendor);
 	}
 if(flagfilterapless == true)		fprintf(stdout, "filter by M2..................: requested from client (AP-LESS)\n");
-if(flagfilterrcchecked == true)		fprintf(stdout, "filter by replaycount.........: checked\n");
-if(flagfilterrcnotchecked == true)	fprintf(stdout, "filter by replaycount.........: not checked\n");
+if(flagfilterrcchecked == true)		fprintf(stdout, "filter by NC..................: nonce-error-corrections not neccessary\n");
+if(flagfilterrcnotchecked == true)	fprintf(stdout, "filter by NC..................: nonce-error-corrections neccessary\n");
 if(flagfilterauthorized == true)	fprintf(stdout, "filter by status..............: authorized (M1M4, M2M3 or M3M4)\n");
 if(flagfilterchallenge == true)	fprintf(stdout, "filter by status..............: challenge (M1M2)\n");
 if(pmkidwrittencount > 0)		fprintf(stdout, "PMKID written.................: %ld\n", pmkidwrittencount);
@@ -1314,11 +1314,11 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 	rc = wpak->replaycount;
 	#endif
 	fprintf(fh_pmkideapol, "REPLAYCOUNT: %" PRIu64 "\n", rc);
-	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "RC INFO....: ROGUE attack / NC not required\n");
-	else if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "RC INFO....: hashcat default NC\n");
-	else if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "RC INFO....: NC > hashcat default NC suggested\n");
-	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "RC INFO....: little endian router / NC LE suggested\n");
-	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "RC INFO....: big endian router / NC BE suggested\n");
+	if((zeiger->mp & 0x10) == 0x10) fprintf(fh_pmkideapol, "NC INFO....: ROGUE attack / NC deactivated\n");
+	else if((zeiger->mp & 0x80) == 0x00) fprintf(fh_pmkideapol, "NC INFO....: hashcat default NC deactivated\n");
+	else if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "NC INFO....: hashcat default NC activated\n");
+	if((zeiger->mp & 0xe0) == 0x20) fprintf(fh_pmkideapol, "ROUTER INFO: little endian router / NC on LE\n");
+	if((zeiger->mp & 0xe0) == 0x40) fprintf(fh_pmkideapol, "ROUTER INFO: big endian router / NC on BE\n");
 	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2.: challenge\n");
 	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4.: authorized\n");
 	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2.: authorized\n");

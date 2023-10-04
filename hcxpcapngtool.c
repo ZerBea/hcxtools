@@ -274,13 +274,16 @@ static long int eapolm1kdv0count;
 static long int eapolm1ancount;
 static long int eapolm1errorcount;
 static long int eapolm2count;
+static long int eapolm2oversizedcount;
 static long int eapolm2kdv0count;
 static long int eapolm2ftpskcount;
 static long int eapolm2errorcount;
 static long int eapolm3count;
+static long int eapolm3oversizedcount;
 static long int eapolm3kdv0count;
 static long int eapolm3errorcount;
 static long int eapolm4count;
+static long int eapolm4oversizedcount;
 static long int eapolm4zeroedcount;
 static long int eapolm4kdv0count;
 static long int eapolm4errorcount;
@@ -589,13 +592,16 @@ eapolm1kdv0count = 0;
 eapolm1ancount = 0;
 eapolm1errorcount = 0;
 eapolm2count = 0;
+eapolm2oversizedcount = 0;
 eapolm2kdv0count = 0;
 eapolm2ftpskcount = 0;
 eapolm2errorcount = 0;
 eapolm3count = 0;
+eapolm3oversizedcount = 0;
 eapolm3kdv0count = 0;
 eapolm3errorcount = 0;
 eapolm4count = 0;
+eapolm4oversizedcount = 0;
 eapolm4zeroedcount = 0;
 eapolm4kdv0count = 0;
 eapolm4errorcount = 0;
@@ -787,17 +793,19 @@ if(eapolnccount == 0)
 if(eapolm1count > 0)			fprintf(stdout, "EAPOL M1 messages (total)................: %ld\n", eapolm1count);
 if(eapolm1kdv0count > 0)		fprintf(stdout, "EAPOL M1 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm1kdv0count);
 if(eapolm2count > 0)			fprintf(stdout, "EAPOL M2 messages (total)................: %ld\n", eapolm2count);
+if(eapolm2oversizedcount > 0)		fprintf(stdout, "EAPOL M2 messages (oversized)............: %ld\n", eapolm2oversizedcount);
 if(eapolm2kdv0count > 0)		fprintf(stdout, "EAPOL M2 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm2kdv0count);
 if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK).........: %ld (PMK not recoverable)\n", eapolm2ftpskcount);
 if(eapolm3count > 0)			fprintf(stdout, "EAPOL M3 messages (total)................: %ld\n", eapolm3count);
+if(eapolm3oversizedcount > 0)		fprintf(stdout, "EAPOL M3 messages (oversized)............: %ld\n", eapolm3oversizedcount);
 if(eapolm3kdv0count > 0)		fprintf(stdout, "EAPOL M3 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm3kdv0count);
 if(eapolm4count > 0)			fprintf(stdout, "EAPOL M4 messages (total)................: %ld\n", eapolm4count);
+if(eapolm4oversizedcount > 0)		fprintf(stdout, "EAPOL M4 messages (oversized)............: %ld\n", eapolm4oversizedcount);
 if(eapolm4zeroedcount > 0)		fprintf(stdout, "EAPOL M4 messages (zeroed NONCE).........: %ld\n", eapolm4zeroedcount);
 if(eapolm4kdv0count > 0)		fprintf(stdout, "EAPOL M4 messages (KDV:0 AKM defined)....: %ld (PMK not recoverable)\n", eapolm4kdv0count);
 if(eapolmpcount > 0)			fprintf(stdout, "EAPOL pairs (total)......................: %ld\n", eapolmpcount);
 if(zeroedeapolpskcount > 0)		fprintf(stdout, "EAPOL (from zeroed PSK)..................: %ld (not converted by default options - use --all if needed)\n", zeroedeapolpskcount);
 if(zeroedeapolpmkcount > 0)		fprintf(stdout, "EAPOL (from zeroed PMK)..................: %ld (not converted by default options - use --all if needed)\n", zeroedeapolpmkcount);
-
 if(donotcleanflag == false)
 	{
 	if(eapolmpbestcount > 0)		fprintf(stdout, "EAPOL pairs (best).......................: %ld\n", eapolmpbestcount);
@@ -3219,7 +3227,7 @@ eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen +EAPAUTH_SIZE > restlen) return;
-if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
+if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX) eapolm4oversizedcount++;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3282,7 +3290,7 @@ memcpy(zeiger->ap, macap, 6);
 zeiger->message = HS_M4;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
-if(zeiger->eapauthlen > EAPOL_AUTHLEN_MAX) return;
+if(authlen +EAPAUTH_SIZE > EAPOL_AUTHLEN_MAX) return;
 zeiger->eapauthlen = authlen +EAPAUTH_SIZE;
 memcpy(zeiger->eapol, eapauthptr, zeiger->eapauthlen);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
@@ -3348,6 +3356,7 @@ zeigerakt = messagelist +MESSAGELIST_MAX;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen > restlen) return;
+if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX) eapolm3oversizedcount++;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3402,17 +3411,14 @@ memcpy(zeigerakt->ap, macap, 6);
 zeigerakt->message = HS_M3;
 zeigerakt->rc = rc;
 memcpy(zeigerakt->nonce, wpak->nonce, 32);
-zeigerakt->eapauthlen = authlen +EAPAUTH_SIZE;
-if(zeigerakt->eapauthlen > EAPOL_AUTHLEN_MAX) return;
-memcpy(zeigerakt->eapol, eapauthptr, zeigerakt->eapauthlen);
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
+	zeiger->status |= ST_NC;
+	zeigerakt->status |= ST_NC;
 	if(((zeiger->message &HS_M1) == HS_M1) || ((zeiger->message &HS_M3) == HS_M3))
 		{
-		if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[29], &wpak->nonce[29], 4) != 0))
+		if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0))
 			{
-			zeiger->status |= ST_NC;
-			zeigerakt->status |= ST_NC;
 			if(zeiger->nonce[31] != wpak->nonce[31]) zeiger->status |= ST_LE;
 			else if(zeiger->nonce[28] != wpak->nonce[28]) zeiger->status |= ST_BE;
 			eapolnccount++;
@@ -3438,18 +3444,21 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			}
 		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
-
 		if(donotcleanflag == true)
 			{
-			mpfield = ST_M32E3;
-			if(myaktreplaycount > 0)
+			if((authlen +EAPAUTH_SIZE) <= EAPOL_AUTHLEN_MAX)
 				{
-				if(zeiger->rc == myaktreplaycount) continue;
+				zeigerakt->eapauthlen = authlen +EAPAUTH_SIZE;
+				memcpy(zeigerakt->eapol, eapauthptr, zeigerakt->eapauthlen);
+				mpfield = ST_M32E3;
+				if(myaktreplaycount > 0)
+					{
+					if(zeiger->rc == myaktreplaycount) continue;
+					}
+				if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
+				if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
 				}
-			if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
-			if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
 			}
-
 		}
 	if((zeiger->message &HS_M4) != HS_M4) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
@@ -3495,6 +3504,7 @@ eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen +EAPAUTH_SIZE > restlen) return;
+if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX) eapolm2oversizedcount++;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -5940,14 +5950,14 @@ fprintf(stdout, "--log=<file>                       : output logfile\n"
 	" 000 = M1+M2, EAPOL from M2 (challenge)\n"
 	" 001 = M1+M4, EAPOL from M4 (authorized) - usable if NONCE_CLIENT is not zeroed \n"
 	" 010 = M2+M3, EAPOL from M2 (authorized)\n"
-	" 011 = M2+M3, EAPOL from M3 (authorized) - unused\n"
+	" 011 = M2+M3, EAPOL from M3 (authorized) - usable by option --all\n"
 	" 100 = M3+M4, EAPOL from M3 (authorized) - unused\n"
 	" 101 = M3+M4, EAPOL from M4 (authorized) - usable if NONCE_CLIENT is not zeroed\n"
 	"3: reserved\n"
-	"4: ap-less attack (set to 1) - nonce-error-corrections not required\n"
+	"4: ap-less attack (set to 1) - nonce-error-corrections deactivated\n"
 	"5: LE router detected (set to 1) - nonce-error-corrections required only on LE\n"
 	"6: BE router detected (set to 1) - nonce-error-corrections required only on BE\n"
-	"7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections mandatory\n"
+	"7: NC (set to 1) - nonce-error-corrections activated\n"
 	"\n"
 	"Do not edit, merge or convert pcapng files! This will remove optional comment fields!\n"
 	"Detection of bit errors does not work on cleaned dump files!\n"
