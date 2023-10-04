@@ -253,8 +253,8 @@ if(flagfilterouiclient == true)
 	fprintf(stdout, "filter CLIENT by OUI..........: %02x%02x%02x (%s)\n", filterouiclient[0], filterouiclient[1], filterouiclient[2], vendor);
 	}
 if(flagfilterapless == true)		fprintf(stdout, "filter by M2..................: requested from client (AP-LESS)\n");
-if(flagfilterrcchecked == true)		fprintf(stdout, "filter by NC..................: nonce-error-corrections not neccessary\n");
-if(flagfilterrcnotchecked == true)	fprintf(stdout, "filter by NC..................: nonce-error-corrections neccessary\n");
+if(flagfilterrcchecked == true)		fprintf(stdout, "filter by NC..................: nonce-error-corrections not necessary\n");
+if(flagfilterrcnotchecked == true)	fprintf(stdout, "filter by NC..................: nonce-error-corrections necessary\n");
 if(flagfilterauthorized == true)	fprintf(stdout, "filter by status..............: authorized (M1M4, M2M3 or M3M4)\n");
 if(flagfilterchallenge == true)	fprintf(stdout, "filter by status..............: challenge (M1M2)\n");
 if(pmkidwrittencount > 0)		fprintf(stdout, "PMKID written.................: %ld\n", pmkidwrittencount);
