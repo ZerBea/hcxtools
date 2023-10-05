@@ -2174,12 +2174,12 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		if((zeigerhs->status &7) == ST_M32E2) eapolm32e2count++;
 		if((zeigerhs->status &7) == ST_M32E3)
 			{
-			zeigerhs->status = (zeigerhs->status & 0x03);
+			zeigerhs->status = (zeigerhs->status & 0x07) + 0x10;
 			eapolm32e3count++;
 			}
 		if((zeigerhs->status &7) == ST_M34E3)
 			{
-			zeigerhs->status = (zeigerhs->status & 0x03);
+			zeigerhs->status = (zeigerhs->status & 0x07) + 0x10;
 			eapolm34e3count++;
 			}
 		if((zeigerhs->status &7) == ST_M34E4) eapolm34e4count++;
@@ -6002,7 +6002,7 @@ fprintf(stdout, "--log=<file>                       : output logfile\n"
 	" 100 = M3+M4, EAPOL from M3 (authorized) - usable by option --all\n"
 	" 101 = M3+M4, EAPOL from M4 (authorized) - usable if NONCE_CLIENT is not zeroed\n"
 	"3: reserved\n"
-	"4: ap-less attack (set to 1) - nonce-error-corrections deactivated\n"
+	"4: NC (set to 1) - nonce-error-corrections deactivated on M1M2ROGUE, M2M3E3 and M3M4E3\n"
 	"5: LE router detected (set to 1) - nonce-error-corrections required only on LE\n"
 	"6: BE router detected (set to 1) - nonce-error-corrections required only on BE\n"
 	"7: NC (set to 1) - nonce-error-corrections activated\n"
