@@ -2351,7 +2351,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
-			if(addtimestampflag == false) fprintf(fh_pmkideapol, "***%02x\n", zeigerpmkid->status & 0x0f);
+			if(addtimestampflag == false) fprintf(fh_pmkideapol, "***%02x\n", zeigerpmkid->status & 0x01);
 			else fprintf(fh_pmkideapol, "***%02x\t%s\n",  zeigerpmkid->status, timestringhs);
 			pmkidwrittenhcount++;
 			}
@@ -2365,7 +2365,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolclient, "%02x", zeigermac->essid[p]);
-			if(addtimestampflag == false) fprintf(fh_pmkideapolclient, "***%02x\n",  zeigerpmkid->status & 0x0f);
+			if(addtimestampflag == false) fprintf(fh_pmkideapolclient, "***%02x\n",  zeigerpmkid->status & 0x01);
 			else fprintf(fh_pmkideapolclient, "***%02x\t%s\n",  zeigerpmkid->status, timestringhs);
 			pmkidclientwrittenhcount++;
 			}
