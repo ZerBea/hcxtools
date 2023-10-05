@@ -2172,8 +2172,16 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		if((zeigerhs->status &7) == ST_M12E2) eapolm12e2count++;
 		if((zeigerhs->status &7) == ST_M14E4) eapolm14e4count++;
 		if((zeigerhs->status &7) == ST_M32E2) eapolm32e2count++;
-		if((zeigerhs->status &7) == ST_M32E3) eapolm32e3count++;
-		if((zeigerhs->status &7) == ST_M34E3) eapolm34e3count++;
+		if((zeigerhs->status &7) == ST_M32E3)
+			{
+			zeigerhs->status = (zeigerhs->status & 0x03);
+			eapolm32e3count++;
+			}
+		if((zeigerhs->status &7) == ST_M34E3)
+			{
+			zeigerhs->status = (zeigerhs->status & 0x03);
+			eapolm34e3count++;
+			}
 		if((zeigerhs->status &7) == ST_M34E4) eapolm34e4count++;
 		wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 		keyvertemp = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
