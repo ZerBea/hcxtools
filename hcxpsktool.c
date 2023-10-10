@@ -454,12 +454,12 @@ static const char *five[] =
 {
 "about", "again", "agree", "ahead", "aisle", "alert", "alley", "allow", "amaze", "angle", "apple", "apron", "arrow",
 "attic", "award",
-"bacon", "badge", "bagel", "baked", "basic", "beard", "begin", "being", "below", "berry", "block", "bloom", "board",
+"bacon", "badge", "bagel", "baked", "basic", "beard", "begin", "being", "below", "berry", "bison", "block", "bloom", "board",
 "boast", "bonus", "booth", "bored", "brace", "bread", "brick", "bring", "brush", "brook", "build", "built",
 "cabin", "cause", "chair", "camel", "canal", "chair", "charm", "chart", "charm", "chase", "check", "cheer", "chime",
 "chord", "chore", "chose", "chunk", "cough", "class", "clear", "coast", "cocoa", "cough", "cover", "count", "court",
 "creak", "cream", "creek", "crumb", "curve",
-"daily", "dairy", "daisy", "dance", "diner", "dodge", "dough", "dozed", "drain", "dried", "drink",
+"daily", "dairy", "daisy", "dance", "delay", "diner", "dodge", "dough", "dozed", "drain", "dried", "drink",
 "eager", "eagle", "earth", "eight", "elbow", "elect", "empty", "enter", "entry", "equal", "event", "exact",
 "fancy", "favor", "feast", "fence", "fever", "field", "fifty"
 };
@@ -475,7 +475,7 @@ static const char *six[] =
 "column", "comedy", "common", "copied", "corral", "county", "course", "create", "crumbs", "crunch",
 "degree", "depend", "design", "detail", "diesel", "dimmed", "dinner", "direct",
 "easier", "effect", "eighty", "eleven", "energy", "engine", "entire", "escape",
-"factor", "famous", "faucet", "filter", "finish", "flight", "flower", "folded", "follow", "forest",
+"factor", "famous", "fasten", "faucet", "filter", "finish", "flight", "flower", "folded", "follow", "forest",
 "garden", "gather", "guitar",
 "happen", "harbor", "hardly", "health"
 };
@@ -885,21 +885,21 @@ static const char *word[] =
 {
 "account", "actor", "alpha", "amazing", "answer", "anyway", "athlete", "autumn", "avenue",
 "bakery", "balcony", "banking", "battery", "bedroom", "bicycle", "birthday", "browser",
-"camping", "category", "center", "charming", "cinema", "cocoa", "coffee", "cupid",
+"calendar", "camping", "category", "center", "charming", "cinema", "cocoa", "coffee", "cupid",
 "december", "delivery", "delta", "dollar", "donkey", "drama", "dream",
-"economy", "enjoy", "eternity", "everyday", "export", "extra", "eyebrow",
+"economy", "enjoy", "eternity", "everyday", "examiner", "export", "extra", "eyebrow",
 "february", "feeling", "flower", "fortune", "founder", "four",
 "gasoline", "giant", "glory", "golden", "grape", "guide",
 "haircut", "handsome", "harmony", "hawk", "header", "hiking", "hometown", "honor",
 "hundred", "hunter",
 "jaguar", "jazz", "jogging", "july", "june", "jumper", "junior", "justdoit",
-"keeper", "keyboard", "kingdom", "kiss", "kitchen", "knuckle",
+"keeper", "keyboard", "kingdom", "kiss", "kitchen", "knife", "knuckle",
 "leopard", "letter", "lighting", "literacy", "lucky", "lunar",
-"majesty", "mankind", "mars", "memory", "momentum", "morning", "museum",
+"majesty", "mankind", "mars", "memory", "mercy", "momentum", "morning", "museum",
 "network", "next", "night", "noodle", "notebook", "nurse",
 "painter", "pajamas", "panda", "parttime", "passion", "popcorn", "puma", "puppet", "pyramid",
 "random", "ranking", "reading", "relax", "remark", "revenue", "ribbon",
-"salon", "saturday", "science", "sexy", "soccer", "sour", "spider", "star", "sunday"
+"salon", "saturday", "science", "sexy", "soccer", "sour", "spider", "star", "sugar", "sunday"
 };
 
 for (w = 0; w < (sizeof(word) / sizeof(char *)); w++ )
