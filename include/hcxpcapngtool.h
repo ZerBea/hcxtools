@@ -119,6 +119,9 @@ struct tags_s
 #define	TAK_SAE_SHA256B	0x0400
 #define	TAK_SAE_SHA384B	0x0800
 #define TAK_OWE		0x1000
+ uint16_t		mdid;
+ uint8_t		r0khid[16];
+ uint8_t		r1khid[6];
  uint8_t		pmkid[16];
  uint8_t		wpsinfo;
  char			country[2];
