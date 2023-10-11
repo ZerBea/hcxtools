@@ -2599,17 +2599,17 @@ if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, m
 	memcpy(handshakelistptr->ap, msgap->ap, 6);
 	memcpy(handshakelistptr->client, msgclient->client, 6);
 	memcpy(handshakelistptr->pmkid, msgap->pmkid, 32);
-	if((mpfield != ST_M32E3) && (mpfield != ST_M34E3))
-		{
-		memcpy(handshakelistptr->anonce, msgap->nonce, 32);
-		handshakelistptr->eapauthlen = msgclient->eapauthlen;
-		memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
-		}
-	else if(msgap->eapauthlen != 0)
+	if((msgap->eapauthlen != 0) && (((mpfield &ST_M32E3) == ST_M32E3) || ((mpfield &ST_M34E3) == ST_M34E3)))
 		{
 		memcpy(handshakelistptr->anonce, msgclient->nonce, 32);
 		handshakelistptr->eapauthlen = msgap->eapauthlen;
 		memcpy(handshakelistptr->eapol, msgap->eapol, msgap->eapauthlen);
+		}
+	else
+		{
+		memcpy(handshakelistptr->anonce, msgap->nonce, 32);
+		handshakelistptr->eapauthlen = msgclient->eapauthlen;
+		memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
 		}
 	handshakelistptr->timestamp = msgclient->timestamp;
 	if(cleanbackhandshake() == false) handshakelistptr++;
