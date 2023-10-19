@@ -392,7 +392,7 @@ static const char *secondword[] =
 "value", "vase", "verse", "video", "violet", "violin", "volume", "voyage",
 "wagon", "walnut", "watch", "water", "way", "wealth", "week", "west",
 "whale", "wind", "window", "windy", "wolf", "world", "writer", "yacht",
-"yard", "year", "youth", "zeal", "zebra", "zone", "zoo" 
+"yard", "year", "youth", "zeal", "zebra", "zone", "zoo"
 };
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
@@ -1627,17 +1627,17 @@ if(essidlen >= 8)
 if(essidlen >= 9)
 	{
 	if((!isxdigit((unsigned char)essid[7])) || (!isxdigit((unsigned char)essid[8]))) return;
-	if(memcmp(essid, dg1670A, 7) == 0) 
+	if(memcmp(essid, dg1670A, 7) == 0)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "DG1670A%04X%c%c\n", k1, essid[7], essid[8]);
 		return;
 		}
-	if(memcmp(essid, sbg6580, 7) == 0) 
+	if(memcmp(essid, sbg6580, 7) == 0)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "SBG6580%04X%c%c\n", k1, essid[7], essid[8]);
 		return;
 		}
-	if(memcmp(essid, tg1672g, 7) == 0) 
+	if(memcmp(essid, tg1672g, 7) == 0)
 		{
 		for(k1 = 0; k1 < 0x10000; k1++) fprintf(fhout, "TG1672G%04X%c%c\n", k1, essid[7], essid[8]);
 		return;
@@ -2801,7 +2801,7 @@ while(1)
 		}
 
 	macp = (essidlen *2) +10;
-	while((macp < essidlen) || (linein[macp] != ':')) 
+	while((macp < essidlen) || (linein[macp] != ':'))
 		{
 		macp++;
 		}
@@ -2839,7 +2839,7 @@ static uint8_t hcxdata[HCCAPX_SIZE];
 
 if(stat(hccapxname, &statinfo) != 0)
 	{
-	fprintf(stderr, "can't stat %s\n", hccapxname); 
+	fprintf(stderr, "can't stat %s\n", hccapxname);
 	return;
 	}
 if((statinfo.st_size %HCCAPX_SIZE) != 0)
