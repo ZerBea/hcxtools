@@ -117,6 +117,11 @@ if(curl)
 			fprintf(stdout, "\n%s\n\n", curlmem->response);
 			free(curlmem->response);
 			}
+		else
+			{
+			fprintf(stdout, "upload not confirmed by host\n");
+			uploadflag = false;
+			}
 		}
 	else
 		{
