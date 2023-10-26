@@ -50,7 +50,7 @@ static size_t cb(void *data, size_t size, size_t nmemb, void *userp)
 {
 char *ptr;
 size_t realsize = size *nmemb;
-curlmem = (struct memory *)userp;
+curlmem = (struct memory*)userp;
  
 ptr = (char*)realloc(curlmem->response, curlmem->size +realsize +1);
 if(ptr == NULL) return 0;
@@ -67,7 +67,6 @@ CURL *curl;
 CURLcode res;
 curl_mime *mime;
 curl_mimepart *part;
-
 bool uploadflag = true;
 int ret;
 
@@ -106,20 +105,18 @@ if(curl)
 	res = curl_easy_perform(curl);
 	if(res == CURLE_OK)
 		{
-		fprintf(stdout, "upload done\n");
-		if(removeflag == true)
-			{
-			ret = remove(sendcapname);
-			if(ret != 0) fprintf(stdout, "couldn't remove %s\n", sendcapname);
-			}
 		if(curlmem->response != NULL)
 			{
 			fprintf(stdout, "\n%s\n\n", curlmem->response);
-			free(curlmem->response);
+			if(removeflag == true)
+				{
+				ret = remove(sendcapname);
+				if(ret != 0) fprintf(stdout, "couldn't remove %s\n", sendcapname);
+				}
 			}
 		else
 			{
-			fprintf(stdout, "upload not confirmed by host\n");
+			fprintf(stdout, "upload not confirmed by server\n");
 			uploadflag = false;
 			}
 		}
@@ -128,6 +125,7 @@ if(curl)
 		fprintf(stderr, "\n\x1B[31mupload to %s failed: %s\x1B[0m\n\n", wpasecurl, curl_easy_strerror(res));
 		uploadflag = false;
 		}
+	if(curlmem->response != NULL) free(curlmem->response);
 	curl_easy_cleanup(curl);
 	curl_mime_free(mime);
 	curl_slist_free_all(headerlist);
