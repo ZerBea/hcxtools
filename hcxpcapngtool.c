@@ -930,16 +930,16 @@ if(((deauthenticationcount +disassociationcount) >= 100) && ((deauthenticationco
 	fprintf(stdout, "\nWarning: too many deauthentication/disassociation frames detected!\n"
 		"That can cause that an ACCESS POINT change channel, reset EAPOL TIMER,\n"
 		"renew ANONCE and set PMKID to zero.\n"
-		"This could prevent to calculate a valid EAPOL MESSAGE PAIR\n"
-		"or to get a valid PMKID.\n");
+		"This could prevent to calculate a valid EAPOL MESSAGE PAIR, to get a valid PMKID\n"
+		"or to decrypt the traffic.\n");
 	}
 if((deauthenticationcount +disassociationcount) > 10000)
 	{
 	fprintf(stdout, "\nWarning: excessive number of deauthentication/disassociation frames detected!\n"
 		"That can cause that an ACCESS POINT change channel, reset EAPOL TIMER,\n"
 		"renew ANONCE and set PMKID to zero.\n"
-		"This could prevent to calculate a valid EAPOL MESSAGE PAIR\n"
-		"or to get a valid PMKID.\n");
+		"This could prevent to calculate a valid EAPOL MESSAGE PAIR, to get a valid PMKID\n"
+		"or to decrypt the traffic.\n");
 	}
 if(((beaconcount + proberesponsecount) == 0) && ((associationrequestcount + reassociationrequestcount) == 0))
 	{
