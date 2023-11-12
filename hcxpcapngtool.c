@@ -782,7 +782,7 @@ if(rcgapmax > 1024) rcgapmax = 1024;
 if((eapolnccount > 0) && (eapolmpcount > 0))
 	{
 	printf ("EAPOL ANONCE error corrections (NC)......: working\n");
-	if(rcgapmax > 0) fprintf(stdout, "REPLAYCOUNT gap (suggested NC)...........: %" PRIu64 "\n", rcgapmax);
+	if(rcgapmax > 0) fprintf(stdout, "REPLAYCOUNT gap (suggested NC)...........: %" PRIu64 "\n", (rcgapmax *2 +1));
 	if(rcgapmax == 0) fprintf(stdout, "REPLAYCOUNT gap (recommended NC).........: 8\n");
 	}
 if(eapolnccount == 0)
