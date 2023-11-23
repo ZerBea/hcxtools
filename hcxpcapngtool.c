@@ -1022,8 +1022,8 @@ fprintf(stdout, "timestamp minimum (GMT)..................: %s\n", timestringmin
 fprintf(stdout, "timestamp maximum (GMT)..................: %s\n", timestringmax);
 if(timestampdiff > 0)
 	{
-	if(timestampdiff > 60000000000) fprintf(stdout, "duartion of the dump tool (minutes)......: %" PRIu64 "\n", timestampdiff / 60000000000);
-	else fprintf(stdout, "duartion of the dump tool (seconds)......: %" PRIu64 "\n", timestampdiff / 1000000000);
+	if(timestampdiff > 60000000000) fprintf(stdout, "duration of the dump tool (minutes)......: %" PRIu64 "\n", timestampdiff / 60000000000);
+	else fprintf(stdout, "duration of the dump tool (seconds)......: %" PRIu64 "\n", timestampdiff / 1000000000);
 	}
 fprintf(stdout, "used capture interfaces..................: %d\n", iface);
 for(c = 0; c < iface; c++)
