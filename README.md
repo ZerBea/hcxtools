@@ -204,3 +204,20 @@ If you are not familiar with Linux generally or if you do not have at least a ba
 However, if you have that knowledge hcxdumptool/hcxtools can do magic.
 
 The entire toolkit (hcxdumptool and hcxtools) is designed to be an analysis toolkit. 
+
+
+Useful Links
+--------------
+
+https://www.kernel.org/doc/html/latest/
+
+https://www.kernel.org/doc/html/latest/bpf/index.html
+
+https://www.freecodecamp.org/news/the-linux-commands-handbook/
+
+https://en.wikipedia.org/wiki/Wpa2
+
+https://en.wikipedia.org/wiki/802.11_Frame_Types
+
+https://en.wikipedia.org/wiki/IEEE_802.11i-2004
+
