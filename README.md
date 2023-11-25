@@ -20,7 +20,7 @@ Support of John the Ripper hash-modes: WPAPSK-PMK, PBKDF2-HMAC-SHA1, chap, netnt
 
 Support of gzip (.gz) single file compression.
 
-Unsupported: Windows OS, macOS, Android, emulators or wrappers!
+Read this wiki: https://hashcat.net/wiki/doku.php?id=cracking_wpawpa2
 
 Read this post: hcxtools - solution for capturing wlan traffic and conversion to hashcat formats (https://hashcat.net/forum/thread-6661.html)
 
@@ -28,7 +28,19 @@ Read this post: New attack on WPA/WPA2 using PMKID (https://hashcat.net/forum/th
 
 Read this post: Hash mode 22000 explained (https://hashcat.net/forum/thread-10253.html)
 
-Read this wiki: https://hashcat.net/wiki/doku.php?id=cracking_wpawpa2
+Unsupported: Windows OS, macOS, Android, emulators or wrappers!
+
+
+What don't hcxdtools do
+--------------
+
+they do not crack WPA PSK related hashes (use hashat or JtR to recover the PSK)
+
+they do not crack WEP (use aircrack-ng to recover the key)
+
+they do not crack WPS (use pixie - dust)
+
+they do not decrypt encrypted traffic (use tshark or Wireshark)
 
 
 Detailed description
