@@ -3469,12 +3469,12 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 					zeiger->status = ST_BE;
 					zeigerakt->status = ST_BE;
 					}
-				else
-					{
-					zeiger->status = ST_NC;
-					zeigerakt->status = ST_NC;
-					}
 				}
+			}
+		else
+			{
+			zeiger->status = ST_NC;
+			zeigerakt->status = ST_NC;
 			}
 		}
 	}
@@ -3858,9 +3858,9 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 			eapolnccount++;
 			if(zeiger->nonce[31] != wpak->nonce[31]) zeiger->status |= ST_LE;
 			else if(zeiger->nonce[28] != wpak->nonce[28]) zeiger->status |= ST_BE;
-			else zeiger->status |= ST_NC;
 			}
 		}
+	else zeiger->status |= ST_NC;
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_timestamp);
 return;
