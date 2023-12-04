@@ -254,6 +254,7 @@ struct messagelist_s
 #define	ST_APLESS	0x10
 #define	ST_LE		0x20
 #define	ST_BE		0x40
+#define	ST_ENDIANESS	0x60
 #define	ST_NC		0x80
  uint8_t		ap[6];
  uint8_t		client[6];

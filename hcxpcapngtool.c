@@ -2114,6 +2114,7 @@ if(PKCS5_PBKDF2_HMAC_SHA1(zeroedpsk, 8, essid, essidlen, 4096, 32, calculatedpmk
 return true;
 }
 /*===========================================================================*/
+/*
 static void getnc(handshakelist_t *zeigerhsakt)
 {
 static handshakelist_t *zeigerhs, *zeigerhsold;
@@ -2130,6 +2131,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 	}
 return;
 }
+*/
 /*===========================================================================*/
 static handshakelist_t *gethandshake(maclist_t *zeigermac, handshakelist_t *zeigerhsakt)
 {
@@ -2157,17 +2159,12 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		if(memcmp(&mac_broadcast, zeigerhs->ap, 6) == 0) continue;
 		if(zeigerhsold != NULL)
 			{
-			if((memcmp(zeigerhs->ap, zeigerhsold->ap, 6) == 0) && (memcmp(zeigerhs->client, zeigerhsold->client, 6) == 0))
-				{
-				if((zeigerhs->status &ST_APLESS) != ST_APLESS) getnc(zeigerhs);
-				continue;
-				}
+			if((memcmp(zeigerhs->ap, zeigerhsold->ap, 6) == 0) && (memcmp(zeigerhs->client, zeigerhsold->client, 6) == 0)) continue;
 			}
 		}
 	if(memcmp(zeigermac->addr, zeigerhs->ap, 6) == 0)
 		{
 		eapolmpbestcount++;
-		if((zeigerhs->status &ST_APLESS) != ST_APLESS) getnc(zeigerhs);
 		if((zeigerhs->status &ST_APLESS) == ST_APLESS) eapolaplesscount++;
 		if((zeigerhs->status &7) == ST_M12E2) eapolm12e2count++;
 		if((zeigerhs->status &7) == ST_M14E4) eapolm14e4count++;
@@ -2593,7 +2590,10 @@ if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, m
 	handshakelistptr->timestampgap = eaptimegap;
 	handshakelistptr->status = mpfield;
 	handshakelistptr->rcgap = rcgap;
-	if(handshakelistptr->rcgap > 0) handshakelistptr->status |= ST_NC;
+	if(handshakelistptr->rcgap > 0)
+		{
+		if((handshakelistptr->status & ST_ENDIANESS) == 0) handshakelistptr->status |= ST_NC;
+		}
 	handshakelistptr->messageap = msgap->message;
 	handshakelistptr->messageclient = msgclient->message;
 	memcpy(handshakelistptr->ap, msgap->ap, 6);
@@ -2635,7 +2635,10 @@ else
 		handshakelistptr->timestampgap = eaptimegap;
 		handshakelistptr->status = mpfield;
 		handshakelistptr->rcgap = rcgap;
-		if(handshakelistptr->rcgap > 0) handshakelistptr->status |= ST_NC;
+		if(handshakelistptr->rcgap > 0)
+			{
+			if((handshakelistptr->status & ST_ENDIANESS) == 0) handshakelistptr->status |= ST_NC;
+			}
 		handshakelistptr->messageap = msgap->message;
 		handshakelistptr->messageclient = msgclient->message;
 		memcpy(handshakelistptr->ap, msgap->ap, 6);
@@ -3464,7 +3467,17 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 					zeiger->status = ST_LE;
 					zeigerakt->status = ST_LE;
 					}
+				if(zeiger->nonce[30] != wpak->nonce[30])
+					{
+					zeiger->status = ST_LE;
+					zeigerakt->status = ST_LE;
+					}
 				else if(zeiger->nonce[28] != wpak->nonce[28])
+					{
+					zeiger->status = ST_BE;
+					zeigerakt->status = ST_BE;
+					}
+				else if(zeiger->nonce[29] != wpak->nonce[29])
 					{
 					zeiger->status = ST_BE;
 					zeigerakt->status = ST_BE;
@@ -3473,8 +3486,8 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			}
 		else
 			{
-			zeiger->status = ST_NC;
-			zeigerakt->status = ST_NC;
+			zeiger->status |= ST_NC;
+			(messagelist +MESSAGELIST_MAX)->status |= ST_NC;
 			}
 		}
 	}
@@ -3497,7 +3510,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
 		if((authlen +EAPAUTH_SIZE) <= EAPOL_AUTHLEN_MAX)
 			{
-			mpfield |= ST_M32E2;
+			mpfield = ST_M32E2;
 			if(myaktreplaycount > 0)
 				{
 				if(zeiger->rc == myaktreplaycount) continue;
@@ -3526,7 +3539,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	if((authlen +EAPAUTH_SIZE) <= EAPOL_AUTHLEN_MAX)
 		{
-		mpfield = (ST_M34E4 | ST_NC);
+		mpfield = ST_M34E4;
 		if(myaktreplaycount > 0)
 			{
 			if(zeiger->rc == myaktreplaycount) continue;
@@ -3690,7 +3703,6 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 					eaptimegap = 0;
 					mpfield |= ST_APLESS;
 					}
-				else mpfield |= ST_NC; 
 				if(rcgap != 0) continue;
 				}
 			if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
@@ -3711,12 +3723,12 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	else eaptimegap = zeiger->timestamp -eaptimestamp;
 	if((authlen +EAPAUTH_SIZE) <= EAPOL_AUTHLEN_MAX)
 		{
-		mpfield = (ST_M32E2 | ST_NC);
+		mpfield = ST_M32E2;
 		if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
 		if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 		if(donotcleanflag == true)
 			{
-			mpfield = (ST_M32E3);
+			mpfield = ST_M32E3;
 			if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
 			}
 		}
@@ -3738,7 +3750,6 @@ static uint8_t keyver;
 static uint64_t rc;
 
 static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
-
 eapolm1count++;
 eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
@@ -3855,11 +3866,33 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 		if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0)
 			{
 			eapolnccount++;
-			if(zeiger->nonce[31] != wpak->nonce[31]) zeiger->status |= ST_LE;
-			else if(zeiger->nonce[28] != wpak->nonce[28]) zeiger->status |= ST_BE;
+			if(zeiger->nonce[31] != wpak->nonce[31])
+				{
+				zeiger->status |= ST_LE;
+				(messagelist +MESSAGELIST_MAX)->status |= ST_LE;
+				}
+			else if(zeiger->nonce[30] != wpak->nonce[30])
+				{
+				zeiger->status |= ST_LE;
+				(messagelist +MESSAGELIST_MAX)->status |= ST_LE;
+				}
+			else if(zeiger->nonce[28] != wpak->nonce[28])
+				{
+				zeiger->status |= ST_BE;
+				(messagelist +MESSAGELIST_MAX)->status |= ST_BE;
+				}
+			else if(zeiger->nonce[29] != wpak->nonce[29])
+				{
+				zeiger->status |= ST_BE;
+				(messagelist +MESSAGELIST_MAX)->status |= ST_BE;
+				}
 			}
 		}
-	else zeiger->status |= ST_NC;
+	else
+		{
+		zeiger->status |= ST_NC;
+		(messagelist +MESSAGELIST_MAX)->status |= ST_NC;
+		}
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_timestamp);
 return;
