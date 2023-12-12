@@ -120,10 +120,10 @@ if((status & HAS_MIC) == HAS_MIC)
 	if(keyversion == 2) fprintf(stdout, "KEY VERSION.: WPA2\n");
 	else if(keyversion == 1) fprintf(stdout, "KEY VERSION.: WPA1\n");
 	else if(keyversion == 3) fprintf(stdout, "KEY VERSION.: WPA2 KEY VERSION 3\n");
-	fprintf(stdout, "NONCE AP....: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+	fprintf(stdout, "NONCE 1.....: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
 	anonce[0], anonce[1], anonce[2], anonce[3], anonce[4], anonce[5], anonce[6], anonce[7], anonce[8], anonce[9], anonce[10], anonce[11], anonce[12], anonce[13], anonce[14], anonce[15],
 	anonce[16], anonce[17], anonce[18], anonce[19], anonce[20], anonce[21], anonce[22], anonce[23], anonce[24], anonce[25], anonce[26], anonce[27], anonce[28], anonce[29], anonce[30], anonce[31]);
-	fprintf(stdout, "NONCE CLIENT: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+	fprintf(stdout, "NONCE 2.....: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
 	wpak->nonce[0], wpak->nonce[1], wpak->nonce[2], wpak->nonce[3], wpak->nonce[4], wpak->nonce[5], wpak->nonce[6], wpak->nonce[7], wpak->nonce[8], wpak->nonce[9], wpak->nonce[10], wpak->nonce[11], wpak->nonce[12], wpak->nonce[13], wpak->nonce[14], wpak->nonce[15],
 	wpak->nonce[16], wpak->nonce[17], wpak->nonce[18], wpak->nonce[19], wpak->nonce[20], wpak->nonce[21], wpak->nonce[22], wpak->nonce[23], wpak->nonce[24], wpak->nonce[25], wpak->nonce[26], wpak->nonce[27], wpak->nonce[28], wpak->nonce[29], wpak->nonce[30], wpak->nonce[31]);
 	if((status & HAS_PTK_CALC) == HAS_PTK_CALC)
