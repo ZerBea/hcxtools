@@ -1933,9 +1933,12 @@ static void readhccapxfile(int fd_hccapxin, long int hccapxrecords)
 {
 static long int c;
 static hccapx_t *hccapxptr;
+static wpakey_t *wpak;
+static uint8_t keyver;
 static hashlist_t *zeiger, *hashlistnew;
 
 static uint8_t hccapxblock[HCCAPX_SIZE];
+
 
 hccapxptr = (hccapx_t*)hccapxblock;
 zeiger = hashlist;
@@ -1962,14 +1965,28 @@ for(c = 0; c < hccapxrecords; c++)
 		readerrorcount++;
 		continue;
 		}
+	wpak = (wpakey_t*)&hccapxptr->eapol[EAPAUTH_SIZE];
+	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+	if((keyver == 0) || (keyver > 3))
+		{
+		readerrorcount++;
+		continue;
+		}
+	if(keyver != hccapxptr->keyver)
+		{
+		readerrorcount++;
+		continue;
+		}
+
+//	printf("debug %02x\n", keyver);
+
 	memcpy(zeiger->essid, hccapxptr->essid, hccapxptr->essid_len);
 	zeiger->essidlen = hccapxptr->essid_len;
 
 
 
+
 	eapolcount++;
-
-
 	pmkideapolcount = pmkidcount +eapolcount;
 	if(pmkideapolcount >= hashlistcount)
 		{
