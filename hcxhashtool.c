@@ -1933,9 +1933,12 @@ static void readhccapxfile(int fd_hccapxin, long int hccapxrecords)
 {
 static long int c;
 static hccapx_t *hccapxptr;
+static hashlist_t *zeiger, *hashlistnew;
+
 static uint8_t hccapxblock[HCCAPX_SIZE];
 
 hccapxptr = (hccapx_t*)hccapxblock;
+zeiger = hashlist;
 for(c = 0; c < hccapxrecords; c++)
 	{
 	readcount++;
@@ -1954,12 +1957,33 @@ for(c = 0; c < hccapxrecords; c++)
 		readerrorcount++;
 		continue;
 		}
+	if((hccapxptr->essid_len == 0) || (hccapxptr->essid_len > ESSID_LEN_MAX))
+		{
+		readerrorcount++;
+		continue;
+		}
+	memcpy(zeiger->essid, hccapxptr->essid, hccapxptr->essid_len);
+	zeiger->essidlen = hccapxptr->essid_len;
+
+
+
 	eapolcount++;
-	pmkideapolcount++;
+
+
+	pmkideapolcount = pmkidcount +eapolcount;
+	if(pmkideapolcount >= hashlistcount)
+		{
+		hashlistcount += HASHLIST_MAX;
+		hashlistnew = (hashlist_t*)realloc(hashlist, hashlistcount *HASHLIST_SIZE);
+		if(hashlistnew == NULL)
+			{
+			fprintf(stderr, "failed to allocate memory for internal list\n");
+			exit(EXIT_FAILURE);
+			}
+		hashlist = hashlistnew;
+		}
+	zeiger = hashlist +pmkideapolcount;
 	}
-
-printf("%ld\n", eapolcount);
-
 return;
 }
 /*===========================================================================*/
