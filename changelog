@@ -4,6 +4,9 @@ hcxhashtool: changed options hccapx and hccap
 --hccapx-out=<file>          : output to deprecated hccapx file
 --hccap-out=<file>           : output to ancient hccap file
 
+hcxhashtool: added new option to import deprecated hccapx file
+--hccapx-in=<file>           : inputput deprecated hccapx file
+
 
 01.11.2023
 ==========

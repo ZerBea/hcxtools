@@ -1933,12 +1933,12 @@ static void readhccapxfile(int fd_hccapxin, long int hccapxrecords)
 {
 static long int c;
 static hccapx_t *hccapxptr;
+static eapauth_t *eapa;
 static wpakey_t *wpak;
 static uint8_t keyver;
+static uint16_t keylen;
 static hashlist_t *zeiger, *hashlistnew;
-
 static uint8_t hccapxblock[HCCAPX_SIZE];
-
 
 hccapxptr = (hccapx_t*)hccapxblock;
 zeiger = hashlist;
@@ -1977,15 +1977,29 @@ for(c = 0; c < hccapxrecords; c++)
 		readerrorcount++;
 		continue;
 		}
-
-//	printf("debug %02x\n", keyver);
-
+	eapa = (eapauth_t*)hccapxptr->eapol;
+	keylen = ntohs(eapa->len) +EAPAUTH_SIZE;
+	if(keylen != hccapxptr->eapol_len)
+		{
+		readerrorcount++;
+		continue;
+		}
+	memcpy(zeiger->ap, hccapxptr->ap, 6);
+	memcpy(zeiger->client, hccapxptr->client, 6);
 	memcpy(zeiger->essid, hccapxptr->essid, hccapxptr->essid_len);
 	zeiger->essidlen = hccapxptr->essid_len;
-
-
-
-
+	memcpy(zeiger->hash, hccapxptr->keymic, 16);
+	zeiger->eapauthlen = keylen;
+	memcpy(zeiger->eapol, hccapxptr->eapol, hccapxptr->eapol_len);
+	if(memcmp(hccapxptr->anonce, wpak->nonce, 32) != 0) memcpy(zeiger->nonce, hccapxptr->anonce, 32);
+	else if(memcmp(hccapxptr->snonce, wpak->nonce, 32) != 0) memcpy(zeiger->nonce, hccapxptr->snonce, 32);
+	else
+		{
+		readerrorcount++;
+		continue;
+		}
+	zeiger->type = HS_EAPOL;
+	zeiger->mp = hccapxptr->message_pair;
 	eapolcount++;
 	pmkideapolcount = pmkidcount +eapolcount;
 	if(pmkideapolcount >= hashlistcount)
@@ -2305,7 +2319,7 @@ fprintf(stdout, "--authorized                 : filter EAPOL pairs by status aut
 	"                               no nonce error corrections\n"
 	"--pmk=<PMK>                  : plain master key to test\n"
 	"                               no nonce error corrections\n"
-//	"--hccapx-in=<file>           : inputput deprecated hccapx file\n"
+	"--hccapx-in=<file>           : inputput deprecated hccapx file\n"
 	"--hccapx-out=<file>          : output to deprecated hccapx file\n"
 //	"--hccap-in=<file>            : input to ancient hccap file\n"
 	"--hccap-out=<file>           : output to ancient hccap file\n"
