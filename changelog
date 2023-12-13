@@ -1,3 +1,10 @@
+13.12.2023
+==========
+hcxhashtool: changed options hccapx and hccap
+--hccapx-out=<file>          : output to deprecated hccapx file
+--hccap-out=<file>           : output to ancient hccap file
+
+
 01.11.2023
 ==========
 release v6.3.2

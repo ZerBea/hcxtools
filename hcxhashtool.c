@@ -38,6 +38,27 @@
 #include "include/byteops.c"
 
 /*===========================================================================*/
+struct hccapx_s
+{
+ uint32_t	signature;
+#define HCCAPX_SIGNATURE 0x58504348
+ uint32_t	version;
+#define HCCAPX_VERSION 4
+ uint8_t	message_pair;
+ uint8_t	essid_len;
+ uint8_t	essid[32];
+ uint8_t	keyver;
+ uint8_t	keymic[16];
+ uint8_t	ap[6];
+ uint8_t	anonce[32];
+ uint8_t	client[6];
+ uint8_t	snonce[32];
+ uint16_t	eapol_len;
+ uint8_t	eapol[256];
+} __attribute__((packed));
+typedef struct hccapx_s hccapx_t;
+#define	HCCAPX_SIZE (sizeof(hccapx_t))
+/*===========================================================================*/
 /* global var */
 static const char *usedoui;
 static int ouicount;
@@ -802,27 +823,6 @@ return;
 /*===========================================================================*/
 static void writehccapxrecord(FILE *fh_hccapx, hashlist_t *zeiger)
 {
-struct hccapx_s
-{
- uint32_t	signature;
-#define HCCAPX_SIGNATURE 0x58504348
- uint32_t	version;
-#define HCCAPX_VERSION 4
- uint8_t	message_pair;
- uint8_t	essid_len;
- uint8_t	essid[32];
- uint8_t	keyver;
- uint8_t	keymic[16];
- uint8_t	ap[6];
- uint8_t	anonce[32];
- uint8_t	client[6];
- uint8_t	snonce[32];
- uint16_t	eapol_len;
- uint8_t	eapol[256];
-} __attribute__((packed));
-typedef struct hccapx_s hccapx_t;
-#define	HCCAPX_SIZE (sizeof(hccapx_t))
-
 static wpakey_t *wpak;
 static hccapx_t hccapx;
 
@@ -1809,7 +1809,7 @@ if(essidlistin != NULL) free(essidlistin);
 return;
 }
 /*===========================================================================*/
-static bool readpmkideapolfile(FILE *fh_pmkideapol)
+static void readpmkideapolfile(FILE *fh_pmkideapol)
 {
 static int len;
 static int oflen;
@@ -1926,7 +1926,27 @@ while(1)
 		}
 	zeiger = hashlist +pmkideapolcount;
 	}
-return true;
+return;
+}
+/*===========================================================================*/
+static void readhccapxfile(int fd_hccapxin)
+{
+static uint8_t hccapxblock[HCCAPX_SIZE];
+
+while(read(fd_hccapxin, hccapxblock, HCCAPX_SIZE) != HCCAPX_SIZE)
+	{
+/*
+	if(hcxptr->signature != HCCAPX_SIGNATURE)
+		{
+		continue;
+		}
+	if((hcxptr->version != 3) && (hcxptr->version != 4))
+		{
+		continue;
+		}
+*/
+	}
+return;
 }
 /*===========================================================================*/
 static bool readbpkdf2file(char *pkdf2inname)
@@ -2230,7 +2250,10 @@ fprintf(stdout, "--authorized                 : filter EAPOL pairs by status aut
 	"                               no nonce error corrections\n"
 	"--pmk=<PMK>                  : plain master key to test\n"
 	"                               no nonce error corrections\n"
-	"--hccapx=<file>              : output to deprecated hccapx file\n"
+//	"--hccapx-in=<file>           : inputput deprecated hccapx file\n"
+	"--hccapx-out=<file>          : output to deprecated hccapx file\n"
+//	"--hccap-in=<file>            : input to ancient hccap file\n"
+	"--hccap-out=<file>           : output to ancient hccap file\n"
 	"--hccap=<file>               : output to ancient hccap file\n"
 	"--hccap-single               : output to ancient hccap single files (MAC + count)\n"
 	"--john=<file>                : output to deprecated john file\n"
@@ -2264,6 +2287,7 @@ static int p1, p2;
 static int hashtypein;
 static int essidlenin;
 static FILE *fh_pmkideapol;
+static int fd_hccapxin;
 static char *pbkdf2inname;
 static char *pmkideapolinname;
 static char *pmkideapoloutname;
@@ -2272,6 +2296,7 @@ static char *essidrawoutname;
 static char *essidinname;
 static char *macinname;
 static char *macskipname;
+static char *hccapxinname;
 static char *hccapxoutname;
 static char *hccapoutname;
 static char *johnoutname;
@@ -2282,6 +2307,7 @@ static char *infovendorclientoutname;
 static char *ouiinstring;
 static char *macinstring;
 static char *pmkinstring;
+static struct stat statinfo;
 
 static const char *short_options = "i:o:E:L:dp:hv";
 static const struct option long_options[] =
@@ -2321,8 +2347,10 @@ static const struct option long_options[] =
 	{"info-vendor",			required_argument,	NULL,	HCX_INFO_VENDOR_OUT},
 	{"info-vendor-ap",		required_argument,	NULL,	HCX_INFO_VENDOR_AP_OUT},
 	{"info-vendor-client",		required_argument,	NULL,	HCX_INFO_VENDOR_CLIENT_OUT},
-	{"hccapx",			required_argument,	NULL,	HCX_HCCAPX_OUT},
-	{"hccap",			required_argument,	NULL,	HCX_HCCAP_OUT},
+	{"hccapx-in",			required_argument,	NULL,	HCX_HCCAPX_IN},
+	{"hccapx-out",			required_argument,	NULL,	HCX_HCCAPX_OUT},
+	{"hccap-in",			required_argument,	NULL,	HCX_HCCAP_IN},
+	{"hccap-out",			required_argument,	NULL,	HCX_HCCAP_OUT},
 	{"hccap-single",		no_argument,		NULL,	HCX_HCCAP_SINGLE_OUT},
 	{"john",			required_argument,	NULL,	HCX_JOHN_OUT},
 	{"vendorlist",			no_argument,		NULL,	HCX_VENDOR_OUT},
@@ -2348,6 +2376,7 @@ infooutname = NULL;
 infovendoroutname = NULL;
 infovendorapoutname = NULL;
 infovendorclientoutname = NULL;
+hccapxinname = NULL;
 hccapxoutname = NULL;
 hccapoutname = NULL;
 johnoutname = NULL;
@@ -2359,6 +2388,7 @@ filteressidpartptr = NULL;
 filtervendorptr = NULL;
 filtervendorapptr = NULL;
 filtervendorclientptr = NULL;
+fd_hccapxin = 0;
 flagfiltermacap = false;
 flagfiltermacclient = false;
 flagfilterouiap = false;
@@ -2392,6 +2422,11 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	switch (auswahl)
 		{
 		case HCX_PMKIDEAPOL_IN:
+		if(hccapxinname != NULL)
+			{
+			fprintf(stderr, "only one input hash format is allowed\n");
+			exit(EXIT_FAILURE);
+			}
 		pmkideapolinname = optarg;
 		break;
 
@@ -2696,7 +2731,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		pmkinstring = optarg;
 		if(getfield(pmkinstring, 32, pmk) != 32)
 			{
-			fprintf(stderr, "wrong PMK length \n");
+			fprintf(stderr, "wrong PMK length\n");
 			exit(EXIT_FAILURE);
 			}
 		flagpmk = true;
@@ -2708,6 +2743,15 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_PBKDF2_IN:
 //		pbkdf2inname = optarg;
+		break;
+
+		case HCX_HCCAPX_IN:
+		if(pmkideapolinname != NULL)
+			{
+			fprintf(stderr, "only one input hash format is allowed\n");
+			exit(EXIT_FAILURE);
+			}
+		hccapxinname = optarg;
 		break;
 
 		case HCX_HCCAPX_OUT:
@@ -2776,8 +2820,29 @@ if(pmkideapolinname != NULL)
 		closelists();
 		exit(EXIT_FAILURE);
 		}
+	readpmkideapolfile(fh_pmkideapol);
 	}
-if(fh_pmkideapol != NULL) readpmkideapolfile(fh_pmkideapol);
+
+if(hccapxinname != NULL)
+	{
+	if(stat(hccapxinname, &statinfo) != 0)
+		{
+		fprintf(stderr, "can't stat %s\n", hccapxinname);
+		exit(EXIT_FAILURE);
+		}
+	if((statinfo.st_size %HCCAPX_SIZE) != 0)
+		{
+		fprintf(stderr, "file corrupt\n");
+		exit(EXIT_FAILURE);
+		}
+	if((fd_hccapxin = open(hccapxinname, O_RDONLY)) == -1)
+		{
+		fprintf(stdout, "error opening file %s: %s\n", hccapxinname, strerror(errno));
+		closelists();
+		exit(EXIT_FAILURE);
+		}
+	readhccapxfile(fd_hccapxin);
+	}
 
 if(pmkideapolcount == 0)
 	{
@@ -2788,7 +2853,6 @@ if(pmkideapolcount == 0)
 	}
 
 if(essidrawoutname != 0) processessidraw(essidrawoutname);
-
 
 if(infooutname != NULL)
 	{
@@ -2843,9 +2907,9 @@ if(flaghccapsingleout == true) writehccapsinglefile();
 if(johnoutname != NULL) writejohnfile(johnoutname);
 if((pmkideapoloutname != NULL) && (essidinname != NULL)) processessidfile(essidinname, pmkideapoloutname);
 if(macinname != NULL) processmacfile(macinname, pmkideapoloutname);
-
 if(statusflag == true) printstatus();
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
+if(fd_hccapxin != 0) close(fd_hccapxin);
 closelists();
 return EXIT_SUCCESS;
 }
