@@ -1929,23 +1929,37 @@ while(1)
 return;
 }
 /*===========================================================================*/
-static void readhccapxfile(int fd_hccapxin)
+static void readhccapxfile(int fd_hccapxin, long int hccapxrecords)
 {
+static long int c;
+static hccapx_t *hccapxptr;
 static uint8_t hccapxblock[HCCAPX_SIZE];
 
-while(read(fd_hccapxin, hccapxblock, HCCAPX_SIZE) != HCCAPX_SIZE)
+hccapxptr = (hccapx_t*)hccapxblock;
+for(c = 0; c < hccapxrecords; c++)
 	{
-/*
-	if(hcxptr->signature != HCCAPX_SIGNATURE)
+	readcount++;
+	if(read(fd_hccapxin, hccapxblock, HCCAPX_SIZE) != HCCAPX_SIZE)
 		{
+		readerrorcount++;
 		continue;
 		}
-	if((hcxptr->version != 3) && (hcxptr->version != 4))
+	if(hccapxptr->signature != HCCAPX_SIGNATURE)
 		{
+		readerrorcount++;
 		continue;
 		}
-*/
+	if((hccapxptr->version != 3) && (hccapxptr->version != 4))
+		{
+		readerrorcount++;
+		continue;
+		}
+	eapolcount++;
+	pmkideapolcount++;
 	}
+
+printf("%ld\n", eapolcount);
+
 return;
 }
 /*===========================================================================*/
@@ -2822,7 +2836,6 @@ if(pmkideapolinname != NULL)
 		}
 	readpmkideapolfile(fh_pmkideapol);
 	}
-
 if(hccapxinname != NULL)
 	{
 	if(stat(hccapxinname, &statinfo) != 0)
@@ -2841,7 +2854,7 @@ if(hccapxinname != NULL)
 		closelists();
 		exit(EXIT_FAILURE);
 		}
-	readhccapxfile(fd_hccapxin);
+	readhccapxfile(fd_hccapxin, statinfo.st_size / HCCAPX_SIZE);
 	}
 
 if(pmkideapolcount == 0)
