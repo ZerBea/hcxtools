@@ -58,6 +58,21 @@ struct hccapx_s
 } __attribute__((packed));
 typedef struct hccapx_s hccapx_t;
 #define	HCCAPX_SIZE (sizeof(hccapx_t))
+/*---------------------------------------------------------------------------*/
+struct hccap_s
+{
+  char essid[36];
+  unsigned char ap[6];
+  unsigned char client[6];
+  unsigned char snonce[32];
+  unsigned char anonce[32];
+  unsigned char eapol[256];
+  int eapol_size;
+  int keyver;
+  unsigned char keymic[16];
+};
+typedef struct hccap_s hccap_t;
+#define	HCCAP_SIZE (sizeof(hccap_t))
 /*===========================================================================*/
 /* global var */
 static const char *usedoui;
@@ -587,21 +602,6 @@ return;
 /*===========================================================================*/
 static void writejohnrecord(FILE *fh_john, hashlist_t *zeiger)
 {
-struct hccap_s
-{
-  char essid[36];
-  unsigned char ap[6];
-  unsigned char client[6];
-  unsigned char snonce[32];
-  unsigned char anonce[32];
-  unsigned char eapol[256];
-  int eapol_size;
-  int keyver;
-  unsigned char keymic[16];
-};
-typedef struct hccap_s hccap_t;
-#define	HCCAP_SIZE (sizeof(hccap_t))
-
 static wpakey_t *wpak;
 static int i;
 static unsigned char *hcpos;
@@ -1929,6 +1929,21 @@ while(1)
 return;
 }
 /*===========================================================================*/
+static int get_keyinfo(uint16_t kyif)
+{
+if(kyif & WPA_KEY_INFO_ACK)
+	{
+	if(kyif & WPA_KEY_INFO_INSTALL) return 3; /* handshake 3 */
+	else return 1; /* handshake 1 */
+	}
+else
+	{
+	if(kyif & WPA_KEY_INFO_SECURE) return 4; /* handshake 4 */
+	else return 2; /* handshake 2 */
+	}
+return 0;
+}
+/*===========================================================================*/
 static void readhccapxfile(int fd_hccapxin, long int hccapxrecords)
 {
 static long int c;
@@ -1966,8 +1981,7 @@ for(c = 0; c < hccapxrecords; c++)
 		continue;
 		}
 	wpak = (wpakey_t*)&hccapxptr->eapol[EAPAUTH_SIZE];
-	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
-	if((keyver == 0) || (keyver > 3))
+	if((keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK) == 0)
 		{
 		readerrorcount++;
 		continue;
@@ -2018,6 +2032,96 @@ for(c = 0; c < hccapxrecords; c++)
 return;
 }
 /*===========================================================================*/
+static void readhccapfile(int fd_hccapin, long int hccaprecords)
+{
+static long int c;
+uint8_t el;
+static hccap_t *hccapptr;
+static eapauth_t *eapa;
+static wpakey_t *wpak;
+static uint8_t keyver;
+static uint16_t keylen;
+static uint16_t keyinfo = 0;
+
+static hashlist_t *zeiger, *hashlistnew;
+static uint8_t hccapblock[HCCAP_SIZE];
+
+hccapptr = (hccap_t*)hccapblock;
+zeiger = hashlist;
+for(c = 0; c < hccaprecords; c++)
+	{
+	readcount++;
+	if(read(fd_hccapin, hccapblock, HCCAP_SIZE) != HCCAP_SIZE)
+		{
+		readerrorcount++;
+		continue;
+		}
+	wpak = (wpakey_t*)&hccapptr->eapol[EAPAUTH_SIZE];
+	if((keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK) == 0)
+		{
+		readerrorcount++;
+		continue;
+		}
+	if(keyver != hccapptr->keyver)
+		{
+		readerrorcount++;
+		continue;
+		}
+	eapa = (eapauth_t*)hccapptr->eapol;
+	keylen = ntohs(eapa->len) +EAPAUTH_SIZE;
+	if(keylen != hccapptr->eapol_size)
+		{
+		readerrorcount++;
+		continue;
+		}
+	memcpy(zeiger->ap, hccapptr->ap, 6);
+	memcpy(zeiger->client, hccapptr->client, 6);
+	el = 0;
+	while(el < ESSID_LEN_MAX)
+		{
+		if(hccapptr->essid[el] == 0) break;
+		el++;
+		}
+	memcpy(zeiger->essid, hccapptr->essid, el);
+	zeiger->essidlen = el;
+	memcpy(zeiger->hash, hccapptr->keymic, 16);
+	zeiger->eapauthlen = keylen;
+	memcpy(zeiger->eapol, hccapptr->eapol, hccapptr->eapol_size);
+	if(memcmp(hccapptr->anonce, wpak->nonce, 32) != 0) memcpy(zeiger->nonce, hccapptr->anonce, 32);
+	else if(memcmp(hccapptr->snonce, wpak->nonce, 32) != 0) memcpy(zeiger->nonce, hccapptr->snonce, 32);
+	else
+		{
+		readerrorcount++;
+		continue;
+		}
+	zeiger->type = HS_EAPOL;
+	keyinfo = (get_keyinfo(ntohs(wpak->keyinfo)));
+	if(keyinfo == 2) zeiger->mp = 0x80;
+	else if(keyinfo == 4) zeiger->mp = 0x81;
+	else if(keyinfo == 3) zeiger->mp = 0x03;
+	else
+		{
+		readerrorcount++;
+		continue;
+		}
+	eapolcount++;
+	pmkideapolcount = pmkidcount +eapolcount;
+	if(pmkideapolcount >= hashlistcount)
+		{
+		hashlistcount += HASHLIST_MAX;
+		hashlistnew = (hashlist_t*)realloc(hashlist, hashlistcount *HASHLIST_SIZE);
+		if(hashlistnew == NULL)
+			{
+			fprintf(stderr, "failed to allocate memory for internal list\n");
+			exit(EXIT_FAILURE);
+			}
+		hashlist = hashlistnew;
+		}
+	zeiger = hashlist +pmkideapolcount;
+	}
+return;
+}
+/*===========================================================================*/
 static bool readbpkdf2file(char *pkdf2inname)
 {
 static int len;
@@ -2030,7 +2134,6 @@ if((fh_pbkdf2 = fopen(pkdf2inname, "r")) == NULL)
 	fprintf(stdout, "error opening file %s: %s\n", pkdf2inname, strerror(errno));
 	return false;
 	}
-
 pbkdf2count = 0;
 pbkdf2readerrorcount = 0;
 while(1)
@@ -2057,8 +2160,6 @@ while(1)
 	pbkdf2count++;
 	}
 fclose(fh_pbkdf2);
-
-
 return true;
 }
 /*===========================================================================*/
@@ -2321,7 +2422,7 @@ fprintf(stdout, "--authorized                 : filter EAPOL pairs by status aut
 	"                               no nonce error corrections\n"
 	"--hccapx-in=<file>           : inputput deprecated hccapx file\n"
 	"--hccapx-out=<file>          : output to deprecated hccapx file\n"
-//	"--hccap-in=<file>            : input to ancient hccap file\n"
+	"--hccap-in=<file>            : input to ancient hccap file\n"
 	"--hccap-out=<file>           : output to ancient hccap file\n"
 	"--hccap=<file>               : output to ancient hccap file\n"
 	"--hccap-single               : output to ancient hccap single files (MAC + count)\n"
@@ -2357,6 +2458,7 @@ static int hashtypein;
 static int essidlenin;
 static FILE *fh_pmkideapol;
 static int fd_hccapxin;
+static int fd_hccapin;
 static char *pbkdf2inname;
 static char *pmkideapolinname;
 static char *pmkideapoloutname;
@@ -2367,6 +2469,7 @@ static char *macinname;
 static char *macskipname;
 static char *hccapxinname;
 static char *hccapxoutname;
+static char *hccapinname;
 static char *hccapoutname;
 static char *johnoutname;
 static char *infooutname;
@@ -2447,6 +2550,7 @@ infovendorapoutname = NULL;
 infovendorclientoutname = NULL;
 hccapxinname = NULL;
 hccapxoutname = NULL;
+hccapinname = NULL;
 hccapoutname = NULL;
 johnoutname = NULL;
 ouiinstring = NULL;
@@ -2458,6 +2562,7 @@ filtervendorptr = NULL;
 filtervendorapptr = NULL;
 filtervendorclientptr = NULL;
 fd_hccapxin = 0;
+fd_hccapin = 0;
 flagfiltermacap = false;
 flagfiltermacclient = false;
 flagfilterouiap = false;
@@ -2491,7 +2596,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	switch (auswahl)
 		{
 		case HCX_PMKIDEAPOL_IN:
-		if(hccapxinname != NULL)
+		if((hccapxinname != NULL) || (hccapinname != NULL)) 
 			{
 			fprintf(stderr, "only one input hash format is allowed\n");
 			exit(EXIT_FAILURE);
@@ -2815,13 +2920,23 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		break;
 
 		case HCX_HCCAPX_IN:
-		if(pmkideapolinname != NULL)
+		if((pmkideapolinname != NULL) || (hccapinname != NULL))
 			{
 			fprintf(stderr, "only one input hash format is allowed\n");
 			exit(EXIT_FAILURE);
 			}
 		hccapxinname = optarg;
 		break;
+
+		case HCX_HCCAP_IN:
+		if((pmkideapolinname != NULL) || (hccapxinname != NULL))
+			{
+			fprintf(stderr, "only one input hash format is allowed\n");
+			exit(EXIT_FAILURE);
+			}
+		hccapinname = optarg;
+		break;
+
 
 		case HCX_HCCAPX_OUT:
 		hccapxoutname = optarg;
@@ -2896,11 +3011,13 @@ if(hccapxinname != NULL)
 	if(stat(hccapxinname, &statinfo) != 0)
 		{
 		fprintf(stderr, "can't stat %s\n", hccapxinname);
+		closelists();
 		exit(EXIT_FAILURE);
 		}
 	if((statinfo.st_size %HCCAPX_SIZE) != 0)
 		{
-		fprintf(stderr, "file corrupt\n");
+		fprintf(stderr, "file is corrupt\n");
+		closelists();
 		exit(EXIT_FAILURE);
 		}
 	if((fd_hccapxin = open(hccapxinname, O_RDONLY)) == -1)
@@ -2910,6 +3027,29 @@ if(hccapxinname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	readhccapxfile(fd_hccapxin, statinfo.st_size / HCCAPX_SIZE);
+	}
+
+if(hccapinname != NULL)
+	{
+	if(stat(hccapinname, &statinfo) != 0)
+		{
+		fprintf(stderr, "can't stat %s\n", hccapinname);
+		closelists();
+		exit(EXIT_FAILURE);
+		}
+	if((statinfo.st_size %HCCAP_SIZE) != 0)
+		{
+		fprintf(stderr, "file is corrupt\n");
+		closelists();
+		exit(EXIT_FAILURE);
+		}
+	if((fd_hccapin = open(hccapinname, O_RDONLY)) == -1)
+		{
+		fprintf(stdout, "error opening file %s: %s\n", hccapinname, strerror(errno));
+		closelists();
+		exit(EXIT_FAILURE);
+		}
+	readhccapfile(fd_hccapin, statinfo.st_size / HCCAP_SIZE);
 	}
 
 if(pmkideapolcount == 0)

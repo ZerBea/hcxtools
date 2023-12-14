@@ -1,3 +1,9 @@
+14.12.2023
+==========
+hcxhashtool: added new option to import ancient hccap file
+--hccap-in=<file>            : inputput ancient hccap file
+
+
 13.12.2023
 ==========
 hcxhashtool: changed options hccapx and hccap
