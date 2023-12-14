@@ -2180,6 +2180,10 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			eapolm34e3count++;
 			}
 		if((zeigerhs->status &7) == ST_M34E4) eapolm34e4count++;
+		if((zeigerhs->status & ST_ENDIANESS) != 0)
+			{
+			zeigerhs->status &= ~(1 << 7);
+			}
 		wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 		keyvertemp = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 		memcpy(&eapoltemp, zeigerhs->eapol, zeigerhs->eapauthlen);
@@ -2532,9 +2536,10 @@ static bool cleanbackhandshake(void)
 {
 static int c;
 static handshakelist_t *zeiger;
+return false;
 
 if(donotcleanflag == true) return false;
-zeiger = handshakelistptr;
+
 for(c = 0; c < 20; c ++)
 	{
 	zeiger--;
@@ -3457,6 +3462,8 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	if(zeiger->timestamp == 0) break;
 	if(((zeiger->message &HS_M1) == HS_M1) || ((zeiger->message &HS_M3) == HS_M3))
 		{
+		if(memcmp(zeiger->ap, macap, 6) != 0) continue;
+		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 		if(memcmp(zeiger->nonce, wpak->nonce, 28) == 0)
 			{
 			if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0)
@@ -3483,11 +3490,6 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 					zeigerakt->status = ST_BE;
 					}
 				}
-			}
-		else
-			{
-			zeiger->status |= ST_NC;
-			(messagelist +MESSAGELIST_MAX)->status |= ST_NC;
 			}
 		}
 	}
@@ -3812,11 +3814,12 @@ zeiger->eapolmsgcount = eapolmsgcount;
 memcpy(zeiger->client, macclient, 6);
 memcpy(zeiger->ap, macap, 6);
 zeiger->message = HS_M1;
+zeiger->status = ST_NC;
 zeiger->rc = rc;
 memcpy(zeiger->nonce, wpak->nonce, 32);
 if((zeiger->rc == myaktreplaycount) && (memcmp(&myaktanonce, zeiger->nonce, 32) == 0))
 	{
-	zeiger->status |= ST_APLESS;
+	zeiger->status = ST_APLESS;
 	eapolm1ancount++;
 	qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_timestamp);
 	return;
@@ -3860,6 +3863,7 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	if(zeiger->timestamp == 0) break;
 	if(((zeiger->message &HS_M1) != HS_M1) && ((zeiger->message &HS_M3) != HS_M3)) continue;
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
+	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	eapolm1ancount++;
 	if(memcmp(zeiger->nonce, wpak->nonce, 28) == 0)
 		{
@@ -3868,30 +3872,25 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 			eapolnccount++;
 			if(zeiger->nonce[31] != wpak->nonce[31])
 				{
-				zeiger->status |= ST_LE;
-				(messagelist +MESSAGELIST_MAX)->status |= ST_LE;
+				zeiger->status = ST_LE;
+				(messagelist +MESSAGELIST_MAX)->status = ST_LE;
 				}
 			else if(zeiger->nonce[30] != wpak->nonce[30])
 				{
-				zeiger->status |= ST_LE;
-				(messagelist +MESSAGELIST_MAX)->status |= ST_LE;
+				zeiger->status = ST_LE;
+				(messagelist +MESSAGELIST_MAX)->status = ST_LE;
 				}
 			else if(zeiger->nonce[28] != wpak->nonce[28])
 				{
-				zeiger->status |= ST_BE;
-				(messagelist +MESSAGELIST_MAX)->status |= ST_BE;
+				zeiger->status = ST_BE;
+				(messagelist +MESSAGELIST_MAX)->status = ST_BE;
 				}
 			else if(zeiger->nonce[29] != wpak->nonce[29])
 				{
-				zeiger->status |= ST_BE;
-				(messagelist +MESSAGELIST_MAX)->status |= ST_BE;
+				zeiger->status = ST_BE;
+				(messagelist +MESSAGELIST_MAX)->status = ST_BE;
 				}
 			}
-		}
-	else
-		{
-		zeiger->status |= ST_NC;
-		(messagelist +MESSAGELIST_MAX)->status |= ST_NC;
 		}
 	}
 qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_timestamp);
