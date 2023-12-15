@@ -291,20 +291,7 @@ typedef struct qos_frame qos_t;
  */
 struct mac_frame
 {
-#ifdef BIG_ENDIAN_HOST
- unsigned	subtype : 4;
- unsigned	type : 	2;
- unsigned	version : 2;
-
- unsigned	ordered : 1;
- unsigned	prot : 1;
- unsigned	more_data : 1;
- unsigned	power : 1;
- unsigned	retry : 1;
- unsigned	more_frag : 1;
- unsigned	from_ds : 1;
- unsigned	to_ds : 1;
-#else
+#if __BYTE_ORDER == __LITTLE_ENDIAN
  unsigned	version : 2;
  unsigned	type : 	2;
  unsigned	subtype : 4;
@@ -317,6 +304,19 @@ struct mac_frame
  unsigned	more_data : 1;
  unsigned	prot : 1;
  unsigned	ordered : 1;
+#elif __BYTE_ORDER == __BIG_ENDIAN
+ unsigned	subtype : 4;
+ unsigned	type : 	2;
+ unsigned	version : 2;
+
+ unsigned	ordered : 1;
+ unsigned	prot : 1;
+ unsigned	more_data : 1;
+ unsigned	power : 1;
+ unsigned	retry : 1;
+ unsigned	more_frag : 1;
+ unsigned	from_ds : 1;
+ unsigned	to_ds : 1;
 #endif
  uint16_t	duration;
  uint8_t	addr1[6];
