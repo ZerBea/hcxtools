@@ -2427,7 +2427,6 @@ fprintf(stdout, "--authorized                 : filter EAPOL pairs by status aut
 	"--hccap-out=<file>           : output to ancient hccap file\n"
 	"                                MESSSAGEPAIR is calculated from the EAPOL MESSAGE\n"
 	"                                due to missing information, the worst case value is calculated\n"
-	"--hccap=<file>               : output to ancient hccap file\n"
 	"--hccap-single               : output to ancient hccap single files (MAC + count)\n"
 	"--john=<file>                : output to deprecated john file\n"
 	"--vendorlist                 : stdout output complete OUI list sorted by OUI\n"
