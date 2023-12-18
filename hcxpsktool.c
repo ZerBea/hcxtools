@@ -780,7 +780,8 @@ return;
 /* source: soxrok2212, https://github.com/soxrok2212/PSKracker/tree/master/dicts/altice-optimum */
 static void keywritealticeoptimum(FILE *fhout)
 {
-static unsigned int w, i, j; // w1
+static unsigned int w, i;
+char si[7] = {0};
 
 static const char *word[] =
 {
@@ -794,103 +795,32 @@ static const char *word[] =
 "lavender", "lemon", "lime", "linen",
 "magenta", "maroon", "mauve",
 "navy",
-"olive", "orchid",
+"olive", "orange", "orchid",
 "peach", "periwinkle", "pewter", "pink", "plum", "purple",
 "rose",
 "sage", "sepia", "sienna", "silver", "slate",
 "taupe", "teal", "turquoise"
 };
 
-for (w = 0; w < (sizeof(word) / sizeof(char *)); w++ )
-	{
-	for (i = 0; i < 10000; i++)
-		{
-		for (j = 0; j < 10000; j++)
-			{
-			// 2-2 test
-			/*
-			if (i < 100 && j < 100)
-				{
-				fprintf(fhout, "%s-%02d-%02d\n", word[w], i, j);
-				fprintf(fhout, "%02d-%s-%02d\n", i, word[w], j);
-				fprintf(fhout, "%02d-%02d-%s\n", i, j, word[w]);
-				}
-			*/
-			// 2-3 test
-			/*
-			if (i < 100 && j < 1000)
-				{
-				fprintf(fhout, "%s-%02d-%03d\n", word[w], i, j);
-				fprintf(fhout, "%02d-%s-%03d\n", i, word[w], j);
-				fprintf(fhout, "%02d-%03d-%s\n", i, j, word[w]);
-				}
-			*/
-			// 2-4
-			if (i < 100  && j < 10000)
-				{
-				//fprintf(fhout, "%s-%02d-%04d\n", word[w], i, j); // test
-				fprintf(fhout, "%02d-%s-%04d\n", i, word[w], j);
-				//fprintf(fhout, "%02d-%04d-%s\n", i, j, word[w]); // test
-				}
-			// 3-2 test
-			/*
-			if (i < 1000 && j < 100)
-				{
-				fprintf(fhout, "%s-%03d-%02d\n", word[w], i, j);
-				fprintf(fhout, "%03d-%s-%02d\n", i, word[w], j);
-				fprintf(fhout, "%03d-%02d-%s\n", i, j, word[w]);
-				}
-			*/
-			// 3-3
-			if (i < 1000 && j < 1000)
-				{
-				fprintf(fhout, "%s-%03d-%03d\n", word[w], i, j);
-				fprintf(fhout, "%03d-%s-%03d\n", i, word[w], j);
-				fprintf(fhout, "%03d-%03d-%s\n", i, j, word[w]);
-				}
-			// 4-2
-			if (i < 10000 && j < 100)
-				{
-				fprintf(fhout, "%s-%04d-%02d\n", word[w], i, j);
-				fprintf(fhout, "%04d-%s-%02d\n", i, word[w], j);
-				//fprintf(fhout, "%04d-%02d-%s\n", i, j, word[w]); // test
-				}
-			}
-
-		// test two words
-		/*
-			for (w1 = 0; w1 < (sizeof(word) / sizeof(char *)); w1++ )
-				{
-				//if (w == w1) continue;
-
-				if (i < 10)
-					{
-					fprintf(fhout, "%s-%01d-%s\n", word[w], i, word[w1]);
-					fprintf(fhout, "%01d-%s-%s\n", i, word[w], word[w1]);
-					fprintf(fhout, "%s-%s-%01d\n", word[w], word[w1], i);
-					}
-				if (i < 100)
-					{
-					fprintf(fhout, "%s-%02d-%s\n", word[w], i, word[w1]);
-					fprintf(fhout, "%02d-%s-%s\n", i, word[w], word[w1]);
-					fprintf(fhout, "%s-%s-%02d\n", word[w], word[w1], i);
-					}
-				if (i < 1000)
-					{
-					fprintf(fhout, "%s-%03d-%s\n", word[w], i, word[w1]);
-					fprintf(fhout, "%03d-%s-%s\n", i, word[w], word[w1]);
-					fprintf(fhout, "%s-%s-%03d\n", word[w], word[w1], i);
-					}
-				if (i < 10000)
-					{
-					fprintf(fhout, "%s-%04d-%s\n", word[w], i, word[w1]);
-					fprintf(fhout, "%04d-%s-%s\n", i, word[w], word[w1]);
-					fprintf(fhout, "%s-%s-%04d\n", word[w], word[w1], i);
-					}
-				}
-		*/
-		}
-	}
+for (i = 0; i < 1000000; i++)
+{
+    sprintf(si, "%06d", i);
+    for (w = 0; w < (sizeof(word) / sizeof(char *)); w++ )
+	    {
+	        // 2-4
+	        //fprintf(fhout, "%s-%.2s-%.4s\n", word[w], si, si+2);
+	        fprintf(fhout, "%.2s-%s-%.4s\n", si, word[w], si+2);
+	        fprintf(fhout, "%.2s-%.4s-%s\n", si, si+2, word[w]);
+	        // 3-3
+	        fprintf(fhout, "%s-%.3s-%.3s\n", word[w], si, si+3);
+	        fprintf(fhout, "%.3s-%s-%.3s\n", si, word[w], si+3);
+	        fprintf(fhout, "%.3s-%.3s-%s\n", si, si+3, word[w]);
+	        // 4-2
+	        fprintf(fhout, "%s-%.4s-%.2s\n", word[w], si, si+4);
+	        fprintf(fhout, "%.4s-%s-%.2s\n", si, word[w], si+4);
+	        //fprintf(fhout, "%.4s-%.2s-%s\n", si, si+4, word[w]);
+	    }
+}
 
 return;
 }
