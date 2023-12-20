@@ -85,6 +85,7 @@ static long int pbkdf2readerrorcount;
 static long int hashlistcount;
 static long int readcount;
 static long int readerrorcount;
+static long int correctedcount;
 static long int pmkideapolcount;
 static long int pmkidcount;
 static long int eapolcount;
@@ -178,8 +179,10 @@ ouicount = 0;
 ouilistcount = OUILIST_MAX;
 hashlistcount = HASHLIST_MAX;
 readcount = 0;
+correctedcount = 0;
 readerrorcount = 0;
 pmkideapolcount = 0;
+readerrorcount = 0;
 pmkidcount = 0;
 eapolcount = 0;
 pmkidwrittencount = 0;
@@ -256,7 +259,8 @@ if(flagvendorout == true)
 	}
 if(pbkdf2count > 0)			fprintf(stdout, "PBKDF2 lines..................: %ld\n", pbkdf2count);
 if(pbkdf2readerrorcount > 0)		fprintf(stdout, "PBKDF2 errors.................: %ld\n", pbkdf2readerrorcount);
-if(readerrorcount > 0)			fprintf(stdout, "read / format errors..........: %ld\n", readerrorcount);
+if(readerrorcount > 0)			fprintf(stdout, "read/format errors.........  .: %ld\n", readerrorcount);
+if(correctedcount > 0)			fprintf(stdout, "corrected read/format errors  : %ld\n", correctedcount);
 if(pmkideapolcount > 0)			fprintf(stdout, "valid hash lines..............: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)			fprintf(stdout, "PMKID hash lines..............: %ld\n", pmkidcount);
 if(eapolcount > 0)			fprintf(stdout, "EAPOL hash lines..............: %ld\n", eapolcount);
@@ -1988,15 +1992,15 @@ for(c = 0; c < hccapxrecords; c++)
 		}
 	if(keyver != hccapxptr->keyver)
 		{
+		correctedcount++;
 		readerrorcount++;
-		continue;
 		}
 	eapa = (eapauth_t*)hccapxptr->eapol;
 	keylen = ntohs(eapa->len) +EAPAUTH_SIZE;
 	if(keylen != hccapxptr->eapol_len)
 		{
+		correctedcount++;
 		readerrorcount++;
-		continue;
 		}
 	memcpy(zeiger->ap, hccapxptr->ap, 6);
 	memcpy(zeiger->client, hccapxptr->client, 6);
@@ -2064,13 +2068,14 @@ for(c = 0; c < hccaprecords; c++)
 		}
 	if(keyver != hccapptr->keyver)
 		{
+		correctedcount++;
 		readerrorcount++;
-		continue;
 		}
 	eapa = (eapauth_t*)hccapptr->eapol;
 	keylen = ntohs(eapa->len) +EAPAUTH_SIZE;
 	if(keylen != hccapptr->eapol_size)
 		{
+		correctedcount++;
 		readerrorcount++;
 		continue;
 		}
