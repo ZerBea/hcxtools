@@ -1992,15 +1992,18 @@ for(c = 0; c < hccapxrecords; c++)
 		}
 	if(keyver != hccapxptr->keyver)
 		{
-		correctedcount++;
 		readerrorcount++;
+		if(keyver > 3) continue;
+		if(keyver == 0) continue;
+		correctedcount++;
 		}
 	eapa = (eapauth_t*)hccapxptr->eapol;
 	keylen = ntohs(eapa->len) +EAPAUTH_SIZE;
 	if(keylen != hccapxptr->eapol_len)
 		{
-		correctedcount++;
 		readerrorcount++;
+		if(keylen > 255) continue;
+		correctedcount++;
 		}
 	memcpy(zeiger->ap, hccapxptr->ap, 6);
 	memcpy(zeiger->client, hccapxptr->client, 6);
@@ -2068,15 +2071,18 @@ for(c = 0; c < hccaprecords; c++)
 		}
 	if(keyver != hccapptr->keyver)
 		{
-		correctedcount++;
 		readerrorcount++;
+		if(keyver > 3) continue;
+		if(keyver == 0) continue;
+		correctedcount++;
 		}
 	eapa = (eapauth_t*)hccapptr->eapol;
 	keylen = ntohs(eapa->len) +EAPAUTH_SIZE;
 	if(keylen != hccapptr->eapol_size)
 		{
-		correctedcount++;
 		readerrorcount++;
+		if(keylen > 255) continue;
+		correctedcount++;
 		continue;
 		}
 	memcpy(zeiger->ap, hccapptr->ap, 6);
