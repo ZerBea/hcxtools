@@ -899,8 +899,8 @@ if(ancientdumpfileformat == true)
 	{
 	fprintf(stdout, "\nInformation: limited dump file format detected!\n"
 		"This file format is a very basic format to save captured network data.\n"
-		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead.\n"
-		"The PCAP Next Generation dump file format is an attempt to overcome the limitations\n"
+		"It is recommended to use PCAP Next Generation dump file format (or pcapng for short) instead. "
+		"The PCAP Next Generation dump file format is an attempt to overcome the limitations "
 		"of the currently widely used (but very limited) libpcap (cap, pcap) format.\n"
 		"https://www.wireshark.org/docs/wsug_html_chunked/AppFiles.html#ChAppFilesCaptureFilesSection\n"
 		"https://github.com/pcapng/pcapng\n");
@@ -913,10 +913,9 @@ if(ieee80211flag == false)
 if(radiotappresent == false)
 	{
 	fprintf(stdout, "\nInformation: radiotap header is missing!\n"
-		"Radiotap is a de facto standard for 802.11 frame injection and\n"
-		"reception. The radiotap header format is a mechanism to supply\n"
-		"additional information about frames, from the driver to userspace\n"
-		"applications.\n"
+		"Radiotap is a de facto standard for 802.11 frame injection and "
+		"reception. The radiotap header format is a mechanism to supply "
+		"additional information about frames, from the driver to userspace applications.\n"
 		"https://www.radiotap.org/\n");
 	}
 if(magicblockcount > 1)
@@ -928,44 +927,43 @@ if(magicblockcount > 1)
 if(((deauthenticationcount +disassociationcount) >= 100) && ((deauthenticationcount +disassociationcount) <= 10000))
 	{
 	fprintf(stdout, "\nWarning: too many deauthentication/disassociation frames detected!\n"
-		"That can cause that an ACCESS POINT change channel, reset EAPOL TIMER,\n"
-		"renew ANONCE and set PMKID to zero.\n"
-		"This could prevent to calculate a valid EAPOL MESSAGE PAIR, to get a valid PMKID\n"
+		"That can cause that an ACCESS POINT change channel, reset EAPOL TIMER, "
+		"renew ANONCE and set PMKID to zero. "
+		"This could prevent to calculate a valid EAPOL MESSAGE PAIR, to get a valid PMKID "
 		"or to decrypt the traffic.\n");
 	}
 if((deauthenticationcount +disassociationcount) > 10000)
 	{
 	fprintf(stdout, "\nWarning: excessive number of deauthentication/disassociation frames detected!\n"
-		"That can cause that an ACCESS POINT change channel, reset EAPOL TIMER,\n"
-		"renew ANONCE and set PMKID to zero.\n"
-		"This could prevent to calculate a valid EAPOL MESSAGE PAIR, to get a valid PMKID\n"
+		"That can cause that an ACCESS POINT change channel, reset EAPOL TIMER, "
+		"renew ANONCE and set PMKID to zero. "
+		"This could prevent to calculate a valid EAPOL MESSAGE PAIR, to get a valid PMKID "
 		"or to decrypt the traffic.\n");
 	}
 if(((beaconcount + proberesponsecount) == 0) && ((associationrequestcount + reassociationrequestcount) == 0))
 	{
 	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain BEACON or PROBERESPONSE frames.\n"
-		"This frames contain the ESSID which is mandatory to calculate a PMK.\n"
-		"It always happens if the capture file was cleaned or\n"
-		"it could happen if filter options are used during capturing.\n"
+		"This frames contain the ESSID which is mandatory to calculate a PMK. "
+		"It always happens if the capture file was cleaned or "
+		"it could happen if filter options are used during capturing. "
 		"That makes it impossible to recover the PSK.\n");
 	}
 if(proberequestundirectedcount == 0)
 	{
 	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain undirected proberequest frames.\n"
-		"An undirected proberequest may contain information about the PSK.\n"
-		"It always happens if the capture file was cleaned or\n"
+		"An undirected proberequest may contain information about the PSK. "
+		"It always happens if the capture file was cleaned or "
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it hard to recover the PSK.\n");
 	}
 if((authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
 	{
 	fprintf(stdout, "\nInformation: missing frames!\n"
-		"This dump file does not contain important frames like\n"
-		"authentication, association or reassociation.\n"
-		"It always happens if the capture file was cleaned or\n"
-		"it could happen if filter options are used during capturing.\n"
+		"This dump file does not contain important frames like authentication, association or reassociation.\n"
+		"It always happens if the capture file was cleaned or "
+		"it could happen if filter options are used during capturing. "
 		"That makes it hard to recover the PSK.\n");
 	if(timestampdiff < 60000000000) fprintf(stdout, "Duration of the dump tool was a way too short to capture enough additional information.\n");
 	}
@@ -973,7 +971,7 @@ if(eapolm1ancount <= 1)
 	{
 	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain enough EAPOL M1 frames.\n"
-		"It always happens if the capture file was cleaned or\n"
+		"It always happens if the capture file was cleaned or "
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to calculate nonce-error-correction values.\n");
 	if(timestampdiff < 60000000000) fprintf(stdout, "Duration of the dump tool was a way too short to capture enough additional information.\n");
@@ -982,15 +980,15 @@ if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0))
 	{
 	fprintf(stdout, "\nInformation: missing EAPOL M3 frames!\n"
 		"This dump file does not contain EAPOL M3 frames (possible packet loss).\n"
-		"It strongly recommended to recapture the traffic or\n"
+		"It strongly recommended to recapture the traffic or "
 		"to use --all option to convert all possible EAPOL MESSAGE PAIRs.\n");
 	}
 if(malformedcount > 5)
 	{
 	fprintf(stdout, "\nInformation: malformed packets detected!\n"
-		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC)\n"
-		"values are correct for packets captured. The device is able to detect the Physical Layer\n"
-		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is\n"
+		"In monitor mode the adapter does not check to see if the cyclic redundancy check (CRC) "
+		"values are correct for packets captured. The device is able to detect the Physical Layer "
+		"Convergence Procedure (PLCP) preamble and is able to synchronize to it, but if there is "
 		"a bit error in the payload it can lead to unexpected results.\n"
 		"Please analyze the dump file with tshark or Wireshark or make a better capture!\n");
 	}
