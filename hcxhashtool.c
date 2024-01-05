@@ -34,7 +34,7 @@
 #include "include/hcxhashtool.h"
 #include "include/strings.c"
 #include "include/fileops.c"
-#include "include/ieee80211.h"
+#include "include/ieee80211.c"
 #include "include/byteops.c"
 
 /*===========================================================================*/
@@ -1263,6 +1263,7 @@ static void writepmkideapolhashlineinfo(FILE *fh_pmkideapol, hashlist_t *zeiger)
 static eapauth_t *eapa;
 static wpakey_t *wpak;
 static uint8_t keyver;
+static uint8_t keyinfo;
 static uint64_t rc;
 static char *vendor;
 
@@ -1323,6 +1324,8 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 	else if((zeiger->mp & 0xf0) == 0x40) fprintf(fh_pmkideapol, "NC INFO....: big endian router detected / NC on BE\n");
 	else if((zeiger->mp & 0xf0) == 0x80) fprintf(fh_pmkideapol, "NC INFO....: hashcat default NC activated\n");
 	else fprintf(fh_pmkideapol, "NC INFO....: NC not detected\n");
+	keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
+	fprintf(fh_pmkideapol, "EAPOL MSG..: %d\n", keyinfo);
 	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2.: challenge\n");
 	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4.: authorized\n");
 	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2.: authorized\n");
