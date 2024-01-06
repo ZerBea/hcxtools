@@ -1565,7 +1565,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"\n"
 	"Important notice:\n"
 	"Conversion from a dump file to a hash file is not loss less.\n"
-	"Hash files that contain EAPOL M3 MESSAGES can't be converted back to a cap file.\n"
+	"Hash files that contain EAPOL M3 MESSAGEs can't be converted back to a cap file.\n"
 	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
