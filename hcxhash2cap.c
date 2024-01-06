@@ -1562,6 +1562,10 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--john=<file>        : input John the Ripper WPAPSK hash file\n"
 	"--help               : show this help\n"
 	"--version            : show version\n"
+	"\n"
+	"Important notice:\n"
+	"Conversion from a dump file to a hash file is not loss less.\n"
+	"Hash files that contain EAPOL M3 MESSAGES can't be converted back to a cap file.\n"
 	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
