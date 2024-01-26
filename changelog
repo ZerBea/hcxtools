@@ -1,3 +1,10 @@
+26.01.2024
+==========
+hcxpcapngtool: added option to store a BSSID file to syn with external GPS data
+--lts=<file>                 : output BSSID list to sync with external GPS data
+                               format: LINUX timestamp <tab> MAC_AP <tab> ESSID
+
+
 14.12.2023
 ==========
 hcxhashtool: added new option to import ancient hccap file
