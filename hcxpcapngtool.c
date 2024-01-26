@@ -123,6 +123,7 @@ static FILE *fh_username;
 static FILE *fh_nmea;
 static FILE *fh_csv;
 static FILE *fh_raw_out;
+static FILE *fh_lts;
 static FILE *fh_log;
 static FILE *fh_pmkideapoljtrdeprecated;
 static FILE *fh_pmkiddeprecated;
@@ -4300,10 +4301,12 @@ return;
 /*===========================================================================*/
 static void process80211probe_resp(uint64_t proberesponsetimestamp, uint8_t *macap, uint32_t proberesponselen, uint8_t *proberesponseptr)
 {
+static size_t i;
 static int apinfolen;
 static maclist_t *aplistnew;
 static uint8_t *apinfoptr;
 static tags_t tags;
+static bool naf;
 
 proberesponsecount++;
 apinfoptr = proberesponseptr +CAPABILITIESAP_SIZE;
@@ -4315,12 +4318,34 @@ if(tags.essidlen == 0)
 	proberesponsessidunsetcount++;
 	return;
 	}
+if(tags.essidlen > 32)
+	{
+	beaconssidoversizedcount++;
+	return;
+	}
 if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
 	{
 	proberesponsessidzeroedcount++;
 	return;
 	}
 if(tags.essid[0] == 0) return;
+
+if(fh_lts != NULL)
+	{
+	if(tags.essidlen > 0) 
+		{
+		naf = false;
+		for(i = 0; i < tags.essidlen; i++)
+			{
+			if(tags.essid[i] < 0x20)
+				{
+				naf = true;
+				break;
+				}
+			}
+		if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%02x%02x%02x%02x%02x%02x\t %.*s\n", proberesponsetimestamp, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
+		}
+	}
 if(aplistptr >= aplist +maclistmax)
 	{
 	aplistnew = (maclist_t*)realloc(aplist, (maclistmax +MACLIST_MAX) *MACLIST_SIZE);
@@ -4388,10 +4413,12 @@ return false;
 /*===========================================================================*/
 static void process80211beacon(uint64_t beacontimestamp, uint8_t *macbc, uint8_t *macap, uint32_t beaconlen, uint8_t *beaconptr)
 {
+static size_t i;
 static int apinfolen;
 static uint8_t *apinfoptr;
 static maclist_t *aplistnew;
 static tags_t tags;
+static bool naf;
 
 beaconcount++;
 if(memcmp(&mac_broadcast, macbc, 6) != 0)
@@ -4425,6 +4452,22 @@ if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
 	{
 	beaconssidzeroedcount++;
 	return;
+	}
+if(fh_lts != NULL)
+	{
+	if((tags.essidlen > 0) && (tags.essidlen <= 32) && (tags.essid[0] != 0)) 
+		{
+		naf = false;
+		for(i = 0; i < tags.essidlen; i++)
+			{
+			if(tags.essid[i] < 0x20)
+				{
+				naf = true;
+				break;
+				}
+			}
+		if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%02x%02x%02x%02x%02x%02x\t %.*s\n", beacontimestamp, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
+		}
 	}
 if((tags.channel > 0) && (tags.channel <= 14))
 	{
@@ -6017,12 +6060,15 @@ fprintf(stdout, "--log=<file>                       : output logfile\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
 	"--raw-in=<file>                    : input frames in HEX ASCII\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
+	"--lts=<file>                       : output BSSID list to sync with external GPS data\n"
+	"                                     format: LINUX timestamp <tab> MAC_AP <tab> ESSID\n"
 	"--pmkid-client=<file>              : output WPA-(MESH/REPEATER)-PMKID hash file (hashcat -m 22000)\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimiter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
 	"--hccap=<file>                     : output deprecated hccap file\n"
-	"--john=<file>                      : output deprecated PMKID/EAPOL (JtR wpapsk-opencl/wpapsk-pmk-opencl)\n"
-	"--prefix=<file>                    : convert everything to lists using this prefix (overrides single options):\n"
+	"--john=<file>                      : output deprecated PMKID/EAPOL (JtR wpapsk-opencl/wpapsk-pmk-opencl)\n");
+
+fprintf(stdout, "--prefix=<file>                    : convert everything to lists using this prefix (overrides single options):\n"
 	"                                      -o <file.22000>           : output PMKID/EAPOL hash file\n"
 	"                                      -E <file.essid>           : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
 	"                                      -I <file.identity>        : output unsorted identity list to use as input wordlist for cracker\n"
@@ -6071,7 +6117,6 @@ fprintf(stdout, "--log=<file>                       : output logfile\n"
 	"Recommended tool to calculate wordlists based on ESSID: hcxeiutool\n"
 	"Recommended tools to retrieve PSK from hash: hashcat, JtR\n",
 	eigenname);
-
 exit(EXIT_SUCCESS);
 }
 /*---------------------------------------------------------------------------*/
@@ -6103,6 +6148,7 @@ static char *nmeaoutname;
 static char *csvoutname;
 static char *logoutname;
 static char *rawoutname;
+static char *ltsoutname;
 static char *rawinname;
 static char *pmkideapoljtroutnamedeprecated;
 static char *pmkidoutnamedeprecated;
@@ -6149,6 +6195,7 @@ static const struct option long_options[] =
 	{"csv",				required_argument,	NULL,	HCX_CSV_OUT},
 	{"raw-out",			required_argument,	NULL,	HCX_RAW_OUT},
 	{"raw-in",			required_argument,	NULL,	HCX_RAW_IN},
+	{"lts",				required_argument,	NULL,	HCX_LTS},
 	{"log",				required_argument,	NULL,	HCX_LOG_OUT},
 	{"pmkid-client",		required_argument,	NULL,	HCX_PMKID_CLIENT_OUT},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
@@ -6192,6 +6239,7 @@ nmeaoutname = NULL;
 csvoutname = NULL;
 logoutname = NULL;
 rawoutname = NULL;
+ltsoutname = NULL;
 rawinname = NULL;
 prefixoutname = NULL;
 pmkideapoljtroutnamedeprecated = NULL;
@@ -6214,6 +6262,7 @@ fh_nmea = NULL;
 fh_csv = NULL;
 fh_log = NULL;
 fh_raw_out = NULL;
+fh_lts = NULL;
 fh_pmkideapoljtrdeprecated = NULL;
 fh_pmkiddeprecated = NULL;
 fh_hccapxdeprecated = NULL;
@@ -6278,6 +6327,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_ESSID_OUT:
 		essidoutname = optarg;
+		break;
+
+		case HCX_LTS:
+		ltsoutname = optarg;
 		break;
 
 		case HCX_ESSIDPROBEREQUEST_OUT:
@@ -6552,6 +6605,14 @@ if(essidoutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
+if(ltsoutname != NULL)
+	{
+	if((fh_lts = fopen(ltsoutname, "a")) == NULL)
+		{
+		fprintf(stdout, "error opening file %s: %s\n", ltsoutname, strerror(errno));
+		exit(EXIT_FAILURE);
+		}
+	}
 if(essidproberequestoutname != NULL)
 	{
 	if((fh_essidproberequest = fopen(essidproberequestoutname, "a")) == NULL)
@@ -6681,6 +6742,7 @@ if(fh_deviceinfo != NULL) fclose(fh_deviceinfo);
 if(fh_nmea != NULL) fclose(fh_nmea);
 if(fh_csv != NULL) fclose(fh_csv);
 if(fh_raw_out != NULL) fclose(fh_raw_out);
+if(fh_lts != NULL) fclose(fh_lts);
 if(fh_log != NULL) fclose(fh_log);
 if(fh_pmkideapoljtrdeprecated != NULL) fclose(fh_pmkideapoljtrdeprecated);
 if(fh_pmkiddeprecated != NULL) fclose(fh_pmkiddeprecated);
