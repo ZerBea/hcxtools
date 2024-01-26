@@ -1,11 +1,11 @@
 project(
   'hcxtools',
   'c',
-  version: '6.3.1',
+  version: '6.3.2',
   default_options: ['warning_level=3'],
 )
 
-vyear = 2023
+vyear = 2024
 
 if true
   vtag = meson.project_version()
