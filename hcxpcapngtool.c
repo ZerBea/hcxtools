@@ -4620,8 +4620,14 @@ if(macfrx->type == IEEE80211_FTYPE_MGMT)
 		else process80211probe_req_direct(packetimestamp, macfrx->addr2, macfrx->addr1, payloadlen, payloadptr);
 		}
 	else if(macfrx->subtype == IEEE80211_STYPE_ACTION) process80211action(packetimestamp, macfrx->addr2, payloadlen, payloadptr);
-	else if(macfrx->subtype == IEEE80211_STYPE_DEAUTH) deauthenticationcount++;
-	else if(macfrx->subtype == IEEE80211_STYPE_DISASSOC) disassociationcount++;
+	else if(macfrx->subtype == IEEE80211_STYPE_DEAUTH)
+		{
+		if(macfrx->retry == 0) deauthenticationcount++;
+		}
+	else if(macfrx->subtype == IEEE80211_STYPE_DISASSOC)
+		{
+		if(macfrx->retry == 0) disassociationcount++;
+		}
 	else if(macfrx->subtype == IEEE80211_STYPE_MGTRESERVED) mgtreservedcount++;
 	}
 else if(macfrx->type == IEEE80211_FTYPE_DATA)
