@@ -1583,10 +1583,6 @@ for(i = 0; i < pmkideapolcount; i++)
 		if(memcmp((zeigerhash +i)->ap, (zeiger +f)->mac, 6) == 0)
 			{
 			(zeigerhash +i)->type = HS_REMOVED;
-			for(int p = 0; p < 6; p++) printf("%02x",(zeigerhash +i)->ap[p]);
-			printf(" ");
-			for(int p = 0; p < 6; p++) printf("%02x", (zeiger +f)->mac[p]);
-			printf("\n");
 			r++;
 			}
 		if(memcmp((zeiger +f)->mac, (zeigerhash +i)->ap, 6) >= 0) break;
