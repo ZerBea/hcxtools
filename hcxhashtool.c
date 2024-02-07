@@ -1569,6 +1569,7 @@ while(1)
 	}
 if(fh_maclistin != NULL) fclose(fh_maclistin);
 qsort(maclistskip, maclistskipcount, MACLIST_SIZE, sort_maclistin);
+
 qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_macap);
 zeigerhash = hashlist;
 zeiger = maclistskip;
@@ -1576,16 +1577,20 @@ f = 0;
 r = 0;
 for(i = 0; i < pmkideapolcount; i++)
 	{
-	if(memcmp((zeigerhash +i)->ap, (zeiger +f)->mac, 6) > 0)
+	f = 0;
 	while(f < maclistskipcount)
 		{
+		if(memcmp((zeigerhash +i)->ap, (zeiger +f)->mac, 6) == 0)
+			{
+			(zeigerhash +i)->type = HS_REMOVED;
+			for(int p = 0; p < 6; p++) printf("%02x",(zeigerhash +i)->ap[p]);
+			printf(" ");
+			for(int p = 0; p < 6; p++) printf("%02x", (zeiger +f)->mac[p]);
+			printf("\n");
+			r++;
+			}
 		if(memcmp((zeiger +f)->mac, (zeigerhash +i)->ap, 6) >= 0) break;
 		f++;
-		}
-	if(memcmp((zeigerhash +i)->ap, (zeiger +f)->mac, 6) == 0)
-		{
-		(zeigerhash +i)->type = HS_REMOVED;
-		r++;
 		}
 	}
 qsort(hashlist, pmkideapolcount, HASHLIST_SIZE, sort_hashlist_by_type);
