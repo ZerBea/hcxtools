@@ -4382,6 +4382,7 @@ memcpy(aplistptr->enrollee, tags.enrollee, tags.enrolleelen);
 if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
+if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%02x%02x%02x%02x%02x%02x\t %.*s\n", proberesponsetimestamp, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
 return;
 }
 /*===========================================================================*/
@@ -4466,7 +4467,7 @@ if(fh_lts != NULL)
 				break;
 				}
 			}
-		if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%02x%02x%02x%02x%02x%02x\t %.*s\n", beacontimestamp, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
+		if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", beacontimestamp, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
 		}
 	}
 if((tags.channel > 0) && (tags.channel <= 14))
@@ -4516,6 +4517,7 @@ memcpy(aplistptr->enrollee, tags.enrollee, tags.enrolleelen);
 if(fh_csv != NULL) writecsv(beacontimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
+if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", beacontimestamp, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
 return;
 }
 /*===========================================================================*/
@@ -6067,7 +6069,7 @@ fprintf(stdout, "--log=<file>                       : output logfile\n"
 	"--raw-in=<file>                    : input frames in HEX ASCII\n"
 	"                                   : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM\n"
 	"--lts=<file>                       : output BSSID list to sync with external GPS data\n"
-	"                                     format: LINUX timestamp <tab> MAC_AP <tab> ESSID\n"
+	"                                     format: LINUX timestamp <tab> RSSI <tab> MAC_AP <tab> ESSID\n"
 	"--pmkid-client=<file>              : output WPA-(MESH/REPEATER)-PMKID hash file (hashcat -m 22000)\n"
 	"--pmkid=<file>                     : output deprecated PMKID file (delimiter *)\n"
 	"--hccapx=<file>                    : output deprecated hccapx v4 file\n"
