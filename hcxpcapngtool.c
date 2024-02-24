@@ -4329,7 +4329,6 @@ if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
 	return;
 	}
 if(tags.essid[0] == 0) return;
-
 if(fh_lts != NULL)
 	{
 	if(tags.essidlen > 0) 
@@ -4382,7 +4381,6 @@ memcpy(aplistptr->enrollee, tags.enrollee, tags.enrolleelen);
 if(fh_csv != NULL) writecsv(proberesponsetimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
-if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%02x%02x%02x%02x%02x%02x\t %.*s\n", proberesponsetimestamp, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
 return;
 }
 /*===========================================================================*/
@@ -4517,7 +4515,6 @@ memcpy(aplistptr->enrollee, tags.enrollee, tags.enrolleelen);
 if(fh_csv != NULL) writecsv(beacontimestamp, macap, &tags);
 if(cleanbackmac() == false) aplistptr++;
 if(fh_nmea != NULL) writegpwpl(macap);
-if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", beacontimestamp, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
 return;
 }
 /*===========================================================================*/
