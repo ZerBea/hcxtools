@@ -63,13 +63,7 @@ Install Guide
 ### Solve Dependencies 
 -----------------------
 
-Using the package manager of your distribution's choice, issue the commands to update it's cache and install the required packages: `make gcc libopenssl openssl-dev librt librt-dev zlib zlib-dev libcurl curl-dev pkg-config`
-
-**Debian Based Distributions**
-
-```
-sudo apt update && sudo apt install make gcc libopenssl openssl-dev librt librt-dev zlib zlib-dev libcurl curl-dev pkg-config
-```
+Using the package manager of your distribution's choice, issue the commands to update it's cache and install the required packages
 
 ### Clone Repository
 ---------------------
@@ -94,29 +88,6 @@ make install (as super user)
 Or install to `/usr/local/bin`:
 ```
 make install PREFIX=/usr/local (as super user)
-```
-
-### Install Via Package Manager
---------------------------------
-
-Using the package manager of your distribution's choice, issue the commands to update it's cache and install the `hcxtools` package.
-
-**Arch Linux Based Distributions**
-
-```
-sudo pacman -Syu && sudo pacman -S hcxtools
-```
-
-**OpenWRT**
-
-```
-opkg install hcxtools
-```
-
-**Debian Based Distributions**
-
-```
-sudo apt update && sudo apt install hcxtools
 ```
 
 Requirements
