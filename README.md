@@ -60,10 +60,9 @@ hcxdumptool -> hcxpcapngtool -> hcxhashtool (additional hcxpsktool/hcxeiutool) -
 Install Guide
 --------------
 
-### Solve Dependencies 
------------------------
+On most distributions hcxdumptool is available through the package manager.
 
-Using the package manager of your distribution's choice, issue the commands to update it's cache and install the required packages
+If you decide to compile latest git head, make sure that your distribution is updated to it's latest version and make sure that all header files and dependencies have been installed!
 
 ### Clone Repository
 ---------------------
