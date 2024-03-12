@@ -326,27 +326,26 @@ static const char *firstword[] =
 "noisy", "normal", "north", "novel", "oasis", "object", "ocean", "odd",
 "olive", "one", "only", "open", "orange", "other", "outlet", "oxygen",
 "palm", "palmw", "parade", "party", "past", "pastel", "patron", "perfect",
-"phobic", "phone", "pink", "plain", "plane", "pledge", "pledgey", "plenty",
-"plus", "pocket", "polite", "pony", "pool", "praise", "precious", "prior",
-"prize", "proof", "proper", "prose", "proud", "purple", "quaint", "quick",
-"quiet", "quote", "rain", "rainy", "rapid", "rare", "ready", "real",
-"reason", "recent", "red", "remedy", "remote", "review", "reward", "rich",
-"rocket", "rocky", "root", "rough", "round", "royal", "runner", "rustic",
-"safe", "safety", "salt", "salute", "scary", "scout", "select", "senior",
-"shadow", "shelf", "shiny", "short", "silent", "silky", "sill", "silly",
-"silver", "simple", "sleepy", "slight", "slow", "small", "smart", "smiley",
-"smiling", "smooth", "soccer", "solid", "some", "south", "space", "spare",
-"square", "stable", "statue", "stealth", "still", "stock", "street", "strict",
-"strong", "studio", "such", "sudden", "summit", "sunny", "super", "sure",
-"sweet", "swift", "tablet", "tall", "teal", "teals", "terrific", "that",
-"theory", "thick", "think", "thirsty", "this", "tight", "timber", "tiny",
-"top", "total", "tough", "town", "train", "turtle", "uneven", "union",
-"unique", "unite", "unusual", "upset", "urban", "useful", "usual", "valley",
-"vanilla", "vast", "verse", "violet", "violin", "voyage", "wagon", "walnut",
-"warm", "watch", "watery", "weekly", "west", "what", "wide", "wild",
-"windy", "wine", "winter", "wise", "witty", "wonderful", "wooden", "worth",
-"writer", "yacht", "yard", "year", "yellow", "young", "zany", "zeal",
-"zebra", "zone"
+"phobic", "phone", "pink", "plain", "plane", "pledge", "plenty", "plus",
+"pocket", "polite", "pony", "pool", "praise", "precious", "prior", "prize",
+"proof", "proper", "prose", "proud", "purple", "quaint", "quick", "quiet",
+"quote", "rain", "rainy", "rapid", "rare", "ready", "real", "reason",
+"recent", "red", "remedy", "remote", "review", "reward", "rich", "rocket",
+"rocky", "root", "rough", "round", "royal", "runner", "rustic", "safe",
+"safety", "salt", "salute", "scary", "scout", "select", "senior", "shadow",
+"shelf", "shiny", "short", "silent", "silky", "silly", "silver", "simple",
+"sleepy", "slight", "slow", "small", "smart", "smiley", "smiling", "smooth",
+"soccer", "solid", "some", "south", "space", "spare", "square", "stable",
+"statue", "stealth", "still", "stock", "street", "strict", "strong", "studio",
+"such", "sudden", "summit", "sunny", "super", "sure", "sweet", "swift",
+"tablet", "tall", "teal", "terrific", "that", "theory", "thick", "think",
+"thirsty", "this", "tight", "timber", "tiny", "top", "total", "tough",
+"town", "train", "turtle", "uneven", "union", "unique", "unite", "unusual",
+"upset", "urban", "useful", "usual", "valley", "vanilla", "vast", "verse",
+"violet", "violin", "voyage", "wagon", "walnut", "warm", "watch", "watery",
+"weekly", "west", "what", "wide", "wild", "windy", "wine", "winter",
+"wise", "witty", "wonderful", "wooden", "worth", "writer", "yacht", "yard",
+"year", "yellow", "young", "zany", "zeal", "zebra", "zone"
 };
 
 static const char *secondword[] =
@@ -402,10 +401,9 @@ static const char *secondword[] =
 "vase", "verse", "video", "violet", "violin", "volume", "voyage", "wagon",
 "walnut", "watch", "wate", "water", "way", "wealth", "week", "west",
 "whale", "while", "wind", "window", "windy", "winner", "wolf", "work",
-"world", "writer", "yacht", "yard", "year", "youth", "yowl", "zeal",
-"zebra", "zone", "zoo"
+"world", "writer", "yacht", "yard", "year", "youth", "zeal", "zebra",
+"zone", "zoo"
 };
-
 
 for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 	{
