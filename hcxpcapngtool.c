@@ -3251,8 +3251,13 @@ eapolm4count++;
 eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
+if(authlen == 0) return;
 if(authlen +EAPAUTH_SIZE > restlen) return;
-if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX) eapolm4oversizedcount++;
+if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX)
+	{
+	eapolm4oversizedcount++;
+	return;
+	}
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3395,8 +3400,13 @@ eapolmsgcount++;
 zeigerakt = messagelist +MESSAGELIST_MAX;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
+if(authlen == 0) return;
 if(authlen > restlen) return;
-if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX) eapolm3oversizedcount++;
+if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX)
+	{
+	eapolm3oversizedcount++;
+	return;
+	}
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3584,8 +3594,13 @@ eapolm2count++;
 eapolmsgcount++;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
+if(authlen == 0) return;
 if(authlen +EAPAUTH_SIZE > restlen) return;
-if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX) eapolm2oversizedcount++;
+if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX)
+	{
+	eapolm2oversizedcount++;
+	return;
+	}
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
