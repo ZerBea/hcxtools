@@ -5024,6 +5024,7 @@ static uint64_t timestampcap;
 static uint8_t packet[MAXPACPSNAPLEN];
 
 ancientdumpfileformat = true;
+magicblockcount = 0;
 fprintf(stdout, "%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(pcapinname));
 iface = 1;
 res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
