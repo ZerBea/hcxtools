@@ -1,5 +1,7 @@
 #define _GNU_SOURCE
 #include <ctype.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 /*===========================================================================*/
 bool ispotfilestring(int len, char *buffer)

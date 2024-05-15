@@ -20,6 +20,7 @@
 #include "include/hcxpsktool.h"
 #include "include/hashcatops.h"
 #include "include/strings.c"
+#include "include/fileops.c"
 /*===========================================================================*/
 /* global var */
 
@@ -2533,40 +2534,6 @@ zeiger->essidlen = essidlen;
 memcpy(zeiger->essid, essid, essidlen);
 apessidcount++;
 return;
-}
-/*===========================================================================*/
-/*===========================================================================*/
-static size_t chop(char *buffer, size_t len)
-{
-static char *ptr;
-
-ptr = buffer +len -1;
-while(len)
-	{
-	if (*ptr != '\n') break;
-	*ptr-- = 0;
-	len--;
-	}
-while(len)
-	{
-	if (*ptr != '\r') break;
-	*ptr-- = 0;
-	len--;
-	}
-return len;
-}
-/*---------------------------------------------------------------------------*/
-static int fgetline(FILE *inputstream, size_t size, char *buffer)
-{
-static size_t len;
-static char *buffptr;
-
-if(feof(inputstream)) return -1;
-buffptr = fgets (buffer, size, inputstream);
-if(buffptr == NULL) return -1;
-len = strlen(buffptr);
-len = chop(buffptr, len);
-return len;
 }
 /*===========================================================================*/
 static void readpmkidfile(char *pmkidname)

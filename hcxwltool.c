@@ -9,6 +9,8 @@
 #include <unistd.h>
 
 #include "include/hcxwltool.h"
+#include "include/strings.c"
+#include "include/fileops.c"
 
 /*===========================================================================*/
 /* global variable */
@@ -520,43 +522,6 @@ if(len >= 6)
 		return 0;
 		}
 	}
-return len;
-}
-/*===========================================================================*/
-static size_t chop(char *buffer, size_t len)
-{
-static char *ptr;
-
-ptr = buffer +len -1;
-while(len)
-	{
-	if (*ptr != '\n')
-		break;
-	*ptr-- = 0;
-	len--;
-	}
-while(len)
-	{
-	if (*ptr != '\r')
-		break;
-	*ptr-- = 0;
-	len--;
-	}
-return len;
-}
-/*---------------------------------------------------------------------------*/
-static int fgetline(FILE *fh_in, size_t size, char *buffer)
-{
-static size_t len;
-static char *buffptr;
-
-if(feof(fh_in))
-	return -1;
-buffptr = fgets (buffer, size, fh_in);
-if(buffptr == NULL)
-	return -1;
-len = strlen(buffptr);
-len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
