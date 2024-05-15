@@ -1,3 +1,5 @@
+#define ESSID_LEN_MAX 32
+
 #define HCX_INPUT_WORDLIST		'i'
 #define HCX_OUTPUT_DIGITLIST		'd'
 #define HCX_OUTPUT_XDIGITLIST		'x'
