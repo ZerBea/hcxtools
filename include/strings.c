@@ -4,12 +4,13 @@
 #include <stdbool.h>
 
 /*===========================================================================*/
-bool ispotfilestring(int len, char *buffer)
+bool ispotfilestring(size_t len, char *buffer)
 {
-uint8_t p;
-for(p = 0; p < len; p++)
+size_t i;
+
+for(i = 0; i < len; i++)
 	{
-	if((buffer[p] < 0x20) || (buffer[p] > 0x7e) || (buffer[p] == ':')) return false;
+	if((buffer[i] < 0x20) || (buffer[i] > 0x7e) || (buffer[i] == ':')) return false;
 	}
 return true;
 }
