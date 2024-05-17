@@ -14,13 +14,14 @@ for(p = 0; p < len; p++)
 return true;
 }
 /*===========================================================================*/
-bool isasciistring(int len, uint8_t *buffer)
+bool isasciistring(size_t len, uint8_t *buffer)
 {
-uint8_t p;
-for(p = 0; p < len; p++)
+size_t i;
+
+for(i = 0; i < len; i++)
 	{
-	if(buffer[p] == 0) return true;
-	if((buffer[p] < 0x20) || (buffer[p] == 0x7f)) return false;
+	if(buffer[i] == 0) return true;
+	if((buffer[i] < 0x20) || (buffer[i] == 0x7f)) return false;
 	}
 return true;
 }
