@@ -29,14 +29,11 @@ return true;
 /*===========================================================================*/
 bool ishexvalue(const char *str, size_t len)
 {
-size_t c;
+size_t i;
 
-for(c = 0; c < len; c++)
+for(i = 0; i < len; i++)
 	{
-	if(str[c] < '0') return false;
-	if(str[c] > 'f') return false;
-	if((str[c] > '9') && (str[c] < 'A')) return false;
-	if((str[c] > 'F') && (str[c] < 'a')) return false;
+	if(!isxdigit(str[i])) return false;
 	}
 return true;
 }
