@@ -38,13 +38,13 @@ for(i = 0; i < len; i++)
 return true;
 }
 /*===========================================================================*/
-bool hex2bin(const char *str, uint8_t *bytes, size_t blen)
+ssize_t hex2bin(const char *str, uint8_t *bytes, size_t blen)
 {
 uint8_t pos;
 uint8_t idx0;
 uint8_t idx1;
 
-uint8_t hashmap[] =
+const uint8_t hashmap[] =
 {
 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 89:;<=>?
@@ -56,7 +56,7 @@ uint8_t hashmap[] =
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
 };
 
-if(ishexvalue(str, blen) == false) return false;
+if(ishexvalue(str, blen) == false) return -1;
 memset(bytes, 0, blen);
 for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	{
@@ -64,10 +64,10 @@ for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	idx1 = ((uint8_t)str[pos+1] & 0x1F) ^ 0x10;
 	bytes[pos/2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
 	};
-return true;
+return pos/2;
 }
 /*===========================================================================*/
-size_t ishexify(const char *string)
+ssize_t ishexify(const char *string)
 {
 size_t len;
 

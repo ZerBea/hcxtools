@@ -2540,7 +2540,7 @@ static void readpmkidfile(char *pmkidname)
 {
 static int len;
 static int aktread = 1;
-static int essidlen;
+static ssize_t essidlen;
 static char *macaddrstop = NULL;
 static unsigned long long int macaddr;
 static FILE *fh_file;
@@ -2583,7 +2583,7 @@ while(1)
 		aktread++;
 		continue;
 		}
-	if(hex2bin(&linein[59], essid, essidlen/2) == true) addapessid(macaddr, essidlen/2, essid);
+	if(hex2bin(&linein[59], essid, essidlen/2) != -1) addapessid(macaddr, essidlen/2, essid);
 	aktread++;
 	}
 fclose(fh_file);
@@ -2594,7 +2594,7 @@ static void readpmkideapolfile(char *pmkideapolname)
 {
 static int len;
 static int aktread = 1;
-static int essidlen;
+static ssize_t essidlen;
 static char *macaddrstop = NULL;
 static char *essidstop = NULL;
 static unsigned long long int macaddr;
@@ -2653,7 +2653,7 @@ while(1)
 		aktread++;
 		continue;
 		}
-	if(hex2bin(&linein[66], essid, essidlen/2) == true) addapessid(macaddr, essidlen/2, essid);
+	if(hex2bin(&linein[66], essid, essidlen/2) != -1) addapessid(macaddr, essidlen/2, essid);
 	aktread++;
 	}
 fclose(fh_file);
@@ -2791,7 +2791,7 @@ return;
 static void readcommandline(char *macapname, char *essidname)
 {
 static int essidlen = 0;
-static int essidlenuh = 0;
+static ssize_t essidlenuh = 0;
 static char *macaddrstop = NULL;
 static unsigned long long int macaddr = 0xffffffffffffL;
 static uint8_t essid[ESSID_LEN_MAX];
@@ -2808,7 +2808,7 @@ if(essidname != NULL)
 	essidlenuh = ishexify(essidname);
 	if((essidlenuh > 0) && (essidlenuh <= ESSID_LEN_MAX))
 		{
-		if(hex2bin(&essidname[5], essid, essidlenuh) == true) addapessid(macaddr, essidlenuh, essid);
+		if(hex2bin(&essidname[5], essid, essidlenuh) != -1) addapessid(macaddr, essidlenuh, essid);
 		return;
 		}
 	memset(&essid, 0, ESSID_LEN_MAX);

@@ -47,7 +47,7 @@ static uint8_t miccalculated[128];
 
 static int psklen;
 static char *pskstring;
-static size_t essidlen;
+static ssize_t essidlen;
 static uint8_t essid[34];
 static uint8_t macap[8];
 static uint8_t macclient[8];
@@ -290,45 +290,11 @@ status |= HAS_PMK_CALC;
 return true;
 }
 /*===========================================================================*/
-static size_t hex2bin2(const char *str, uint8_t *bytes, size_t blen)
-{
-size_t pos;
-uint8_t idx0;
-uint8_t idx1;
-
-uint8_t hashmap[] =
-{
-0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
-0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 89:;<=>?
-0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // @ABCDEFG
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // HIJKLMNO
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // PQRSTUVW
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // XYZ[\]^_
-0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // `abcdefg
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
-};
-
-if(ishexvalue(str, blen) == false) return 0;
-memset(bytes, 0, blen);
-pos = 0;
-while(str[pos+0] != 0)
-	{
-	idx0 = ((uint8_t)str[pos+0] & 0x1F) ^ 0x10;
-	idx1 = ((uint8_t)str[pos+1] & 0x1F) ^ 0x10;
-	bytes[pos/2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
-	pos += 2;
-	if(str[pos+0] == '*') return pos/2;
-	if(pos/2 > blen) return 0;
-	};
-if((pos %2) != 0) return 0;
-return pos/2;
-}
-/*===========================================================================*/
 static bool parsehashlinestring(char *hashlinestring)
 {
 static size_t hlen;
 static size_t plen;
-static size_t flen;
+static ssize_t flen;
 
 static const char *wpa1 = "WPA*01*";
 static const char *wpa2 = "WPA*02*";
@@ -338,21 +304,20 @@ if(hlen < 71) return false;
 plen = 7;
 if(memcmp(wpa1, hashlinestring, 7) == 0)
 	{
-	flen = hex2bin2(&hashlinestring[plen], pmkid, 16);
+	flen = hex2bin(&hashlinestring[plen], pmkid, 16);
 	if(flen != 16) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	flen = hex2bin2(&hashlinestring[plen], macap, 6);
+	flen = hex2bin(&hashlinestring[plen], macap, 6);
 	if(flen != 6) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	flen = hex2bin2(&hashlinestring[plen], macclient, 6);
+	flen = hex2bin(&hashlinestring[plen], macclient, 6);
 	if(flen != 6) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	essidlen = 0;
-	essidlen = hex2bin2(&hashlinestring[plen], essid, 34);
-	if((essidlen == 0) || (essidlen > 32)) return false;
+	essidlen = hex2bin(&hashlinestring[plen], essid, 34);
+	if((essidlen <= 0) || (essidlen > 32)) return false;
 	plen += essidlen *2;
 	if(hashlinestring[plen++] != '*') return false;
 	status |= HAS_PMKID_LINE;
@@ -364,28 +329,27 @@ if(memcmp(wpa1, hashlinestring, 7) == 0)
 	}
 if(memcmp(wpa2, hashlinestring, 7) == 0)
 	{
-	flen = hex2bin2(&hashlinestring[plen], mic, 16);
+	flen = hex2bin(&hashlinestring[plen], mic, 16);
 	if(flen != 16) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	flen = hex2bin2(&hashlinestring[plen], macap, 6);
+	flen = hex2bin(&hashlinestring[plen], macap, 6);
 	if(flen != 6) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	flen = hex2bin2(&hashlinestring[plen], macclient, 6);
+	flen = hex2bin(&hashlinestring[plen], macclient, 6);
 	if(flen != 6) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	essidlen = 0;
-	essidlen = hex2bin2(&hashlinestring[plen], essid, 34);
-	if((essidlen == 0) || (essidlen > 32)) return false;
+	essidlen = hex2bin(&hashlinestring[plen], essid, 34);
+	if((essidlen <= 0) || (essidlen > 32)) return false;
 	plen += essidlen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	flen = hex2bin2(&hashlinestring[plen], anonce, 32);
+	flen = hex2bin(&hashlinestring[plen], anonce, 32);
+	if(flen == -1) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	eapollen = 0;
-	eapollen = hex2bin2(&hashlinestring[plen], eapol, 1024);
+	eapollen = hex2bin(&hashlinestring[plen], eapol, 1024);
 	eapptr = (eapauth_t*)eapol;
 	eapauthlen = ntohs(eapptr->len);
 	if(eapollen < eapauthlen +4) return false;
@@ -588,7 +552,7 @@ if(pskstring != NULL)
 		}
 	else if(psklen == 64) 
 		{
-		if(hex2bin2(pskstring, pmkcalculated, 32) != 32)
+		if(hex2bin(pskstring, pmkcalculated, 32) != 32)
 			{
 			fprintf(stderr, "\nPMK error\n");
 			return EXIT_FAILURE;

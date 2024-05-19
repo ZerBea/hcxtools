@@ -806,25 +806,25 @@ while(1)
 		pmkcapskipped++;
 		continue;
 		}
-	if(hex2bin(&linein[0], pmkid, 16) != true)
+	if(hex2bin(&linein[0], pmkid, 16) == -1)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		pmkcapskipped++;
 		continue;
 		}
-	if(hex2bin(&linein[33], macap, 6) != true)
+	if(hex2bin(&linein[33], macap, 6) == -1)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		pmkcapskipped++;
 		continue;
 		}
-	if(hex2bin(&linein[46], macsta, 6) != true)
+	if(hex2bin(&linein[46], macsta, 6) == -1)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		pmkcapskipped++;
 		continue;
 		}
-	if(hex2bin(&linein[59], essid, essidlen/2) != true)
+	if(hex2bin(&linein[59], essid, essidlen/2) == -1)
 		{
 		fprintf(stderr, "reading hash line %d failed: %s\n", aktread, linein);
 		pmkcapskipped++;
