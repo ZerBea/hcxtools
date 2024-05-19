@@ -191,12 +191,16 @@ static int sort_maclist_by_mac(const void *a, const void *b)
 {
 const maclist_t *ia = (const maclist_t *)a;
 const maclist_t *ib = (const maclist_t *)b;
-if(memcmp(ia->addr, ib->addr, 6) > 0) return 1;
-else if(memcmp(ia->addr, ib->addr, 6) < 0) return -1;
+int cmp;
+
+cmp = memcmp(ia->addr, ib->addr, 6);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 if(ia->essidlen < ib->essidlen) return 1;
 else if(ia->essidlen > ib->essidlen) return -1;
-if(memcmp(ia->essid, ib->essid, ib->essidlen) < 0) return 1;
-else if(memcmp(ia->essid, ib->essid, ib->essidlen) > 0) return -1;
+cmp = memcmp(ia->essid, ib->essid, ib->essidlen);
+if(cmp < 0) return 1;
+else if(cmp > 0) return -1;
 return 0;
 }
 
@@ -204,14 +208,18 @@ static int sort_maclist_by_mac_count(const void *a, const void *b)
 {
 const maclist_t *ia = (const maclist_t *)a;
 const maclist_t *ib = (const maclist_t *)b;
-if(memcmp(ia->addr, ib->addr, 6) > 0) return 1;
-else if(memcmp(ia->addr, ib->addr, 6) < 0) return -1;
+int cmp;
+
+cmp = memcmp(ia->addr, ib->addr, 6);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 if(ia->count < ib->count) return 1;
 else if(ia->count > ib->count) return -1;
 if(ia->essidlen < ib->essidlen) return 1;
 else if(ia->essidlen > ib->essidlen) return -1;
-if(memcmp(ia->essid, ib->essid, ib->essidlen) < 0) return 1;
-else if(memcmp(ia->essid, ib->essid, ib->essidlen) > 0) return -1;
+cmp = memcmp(ia->essid, ib->essid, ib->essidlen);
+if(cmp < 0) return 1;
+else if(cmp > 0) return -1;
 return 0;
 }
 
@@ -219,9 +227,11 @@ static int sort_maclist_by_essidlen(const void *a, const void *b)
 {
 const maclist_t *ia = (const maclist_t *)a;
 const maclist_t *ib = (const maclist_t *)b;
+int cmp;
 
-if(memcmp(ia->essid, ib->essid, ib->essidlen) > 0) return 1;
-else if(memcmp(ia->essid, ib->essid, ib->essidlen) < 0) return -1;
+cmp = memcmp(ia->essid, ib->essid, ib->essidlen);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 if(ia->essidlen > ib->essidlen) return 1;
 else if(ia->essidlen < ib->essidlen) return -1;
 return 0;
@@ -231,13 +241,16 @@ static int sort_maclist_by_manufacturer(const void *a, const void *b)
 {
 const maclist_t *ia = (const maclist_t *)a;
 const maclist_t *ib = (const maclist_t *)b;
+int cmp;
 
-if(memcmp(ia->manufacturer, ib->manufacturer, ib->manufacturerlen) > 0) return 1;
-else if(memcmp(ia->manufacturer, ib->manufacturer, ib->manufacturerlen) < 0) return -1;
+cmp = memcmp(ia->manufacturer, ib->manufacturer, ib->manufacturerlen);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 if(ia->manufacturerlen > ib->manufacturerlen) return 1;
 else if(ia->manufacturerlen < ib->manufacturerlen) return -1;
-if(memcmp(ia->addr, ib->addr, 6) > 0) return 1;
-else if(memcmp(ia->addr, ib->addr, 6) < 0) return -1;
+cmp = memcmp(ia->addr, ib->addr, 6);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 return 0;
 }
 /*===========================================================================*/
@@ -307,11 +320,14 @@ static int sort_handshakelist_by_timegap(const void *a, const void *b)
 {
 const handshakelist_t *ia = (const handshakelist_t *)a;
 const handshakelist_t *ib = (const handshakelist_t *)b;
+int cmp;
 
-if(memcmp(ia->ap, ib->ap, 6) > 0) return 1;
-else if(memcmp(ia->ap, ib->ap, 6) < 0) return -1;
-if(memcmp(ia->client, ib->client, 6) > 0) return 1;
-else if(memcmp(ia->client, ib->client, 6) < 0) return -1;
+cmp = memcmp(ia->ap, ib->ap, 6);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
+cmp = memcmp(ia->client, ib->client, 6);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 if(ia->timestampgap > ib->timestampgap) return 1;
 else if(ia->timestampgap < ib->timestampgap) return -1;
 if(ia->rcgap > ib->rcgap) return 1;
@@ -325,11 +341,14 @@ static int sort_handshakelist_by_rcgap(const void *a, const void *b)
 {
 const handshakelist_t *ia = (const handshakelist_t *)a;
 const handshakelist_t *ib = (const handshakelist_t *)b;
+int cmp;
 
-if(memcmp(ia->ap, ib->ap, 6) > 0) return 1;
-else if(memcmp(ia->ap, ib->ap, 6) < 0) return -1;
-if(memcmp(ia->client, ib->client, 6) > 0) return 1;
-else if(memcmp(ia->client, ib->client, 6) < 0) return -1;
+cmp = memcmp(ia->ap, ib->ap, 6);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
+cmp = memcmp(ia->client, ib->client, 6);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 if(ia->rcgap > ib->rcgap) return 1;
 else if(ia->rcgap < ib->rcgap) return -1;
 if(ia->timestampgap > ib->timestampgap) return 1;
@@ -357,13 +376,17 @@ static int sort_pmkidlist_by_mac(const void *a, const void *b)
 {
 const pmkidlist_t *ia = (const pmkidlist_t *)a;
 const pmkidlist_t *ib = (const pmkidlist_t *)b;
+int cmp;
 
-if(memcmp(ia->ap, ib->ap, 6) > 0) return 1;
-else if(memcmp(ia->ap, ib->ap, 6) < 0) return -1;
-if(memcmp(ia->client, ib->client, 6) > 0) return 1;
-else if(memcmp(ia->client, ib->client, 6) < 0) return -1;
-if(memcmp(ia->pmkid, ib->pmkid, 6) < 0) return 1;
-else if(memcmp(ia->pmkid, ib->pmkid, 6) > 0) return -1;
+cmp = memcmp(ia->ap, ib->ap, 6);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
+cmp = memcmp(ia->client, ib->client, 6);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
+cmp = memcmp(ia->pmkid, ib->pmkid, 6);
+if(cmp < 0) return 1;
+else if(cmp > 0) return -1;
 return 0;
 }
 /*===========================================================================*/
@@ -402,13 +425,16 @@ static int sort_eapmd5hashlist_by_id(const void *a, const void *b)
 {
 const eapmd5hashlist_t *ia = (const eapmd5hashlist_t *)a;
 const eapmd5hashlist_t *ib = (const eapmd5hashlist_t *)b;
+int cmp;
 
 if(ia->id < ib->id) return 1;
 else if(ia->id > ib->id) return -1;
-if(memcmp(ia->md5request, ib->md5request, EAPMD5_LEN_MAX) > 0) return 1;
-else if(memcmp(ia->md5request, ib->md5request, EAPMD5_LEN_MAX) < 0) return -1;
-if(memcmp(ia->md5response, ib->md5request, EAPMD5_LEN_MAX) > 0) return 1;
-else if(memcmp(ia->md5response, ib->md5response, EAPMD5_LEN_MAX) < 0) return -1;
+cmp = memcmp(ia->md5request, ib->md5request, EAPMD5_LEN_MAX);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
+cmp = memcmp(ia->md5response, ib->md5response, EAPMD5_LEN_MAX);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 return 0;
 }
 /*===========================================================================*/
@@ -452,18 +478,21 @@ static int sort_eapleaphashlist_by_id(const void *a, const void *b)
 {
 const eapleaphashlist_t *ia = (const eapleaphashlist_t *)a;
 const eapleaphashlist_t *ib = (const eapleaphashlist_t *)b;
+int cmp;
 
 if(ia->id < ib->id) return 1;
 else if(ia->id > ib->id) return -1;
 if(ia->leapusernamelen > ib->leapusernamelen) return 1;
 if(ia->leapusernamelen < ib->leapusernamelen) return -1;
-if(memcmp(ia->leaprequest, ib->leaprequest, LEAPREQ_LEN_MAX) > 0) return 1;
-else if(memcmp(ia->leaprequest, ib->leaprequest, LEAPREQ_LEN_MAX) < 0) return -1;
-if(memcmp(ia->leapresponse, ib->leapresponse, LEAPRESP_LEN_MAX) > 0) return 1;
-else if(memcmp(ia->leapresponse, ib->leapresponse, LEAPRESP_LEN_MAX) < 0) return -1;
-else if(memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen) < 0) return -1;
-if(memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen) > 0) return 1;
-else if(memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen) < 0) return -1;
+cmp = memcmp(ia->leaprequest, ib->leaprequest, LEAPREQ_LEN_MAX);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
+cmp = memcmp(ia->leapresponse, ib->leapresponse, LEAPRESP_LEN_MAX);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
+cmp = memcmp(ia->leapusername, ib->leapusername, ia->leapusernamelen);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 return 0;
 }
 /*===========================================================================*/
@@ -507,18 +536,21 @@ static int sort_eapmschapv2hashlist_by_id(const void *a, const void *b)
 {
 const eapmschapv2hashlist_t *ia = (const eapmschapv2hashlist_t *)a;
 const eapmschapv2hashlist_t *ib = (const eapmschapv2hashlist_t *)b;
+int cmp;
 
 if(ia->id < ib->id) return 1;
 else if(ia->id > ib->id) return -1;
 if(ia->mschapv2usernamelen > ib->mschapv2usernamelen) return 1;
 if(ia->mschapv2usernamelen < ib->mschapv2usernamelen) return -1;
-if(memcmp(ia->mschapv2request, ib->mschapv2request, MSCHAPV2REQ_LEN_MAX) > 0) return 1;
-else if(memcmp(ia->mschapv2request, ib->mschapv2request, MSCHAPV2REQ_LEN_MAX) < 0) return -1;
-if(memcmp(ia->mschapv2response, ib->mschapv2response, MSCHAPV2RESP_LEN_MAX) > 0) return 1;
-else if(memcmp(ia->mschapv2response, ib->mschapv2response, MSCHAPV2RESP_LEN_MAX) < 0) return -1;
-else if(memcmp(ia->mschapv2username, ib->mschapv2username, ia->mschapv2usernamelen) < 0) return -1;
-if(memcmp(ia->mschapv2username, ib->mschapv2username, ia->mschapv2usernamelen) > 0) return 1;
-else if(memcmp(ia->mschapv2username, ib->mschapv2username, ia->mschapv2usernamelen) < 0) return -1;
+cmp = memcmp(ia->mschapv2request, ib->mschapv2request, MSCHAPV2REQ_LEN_MAX);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
+cmp = memcmp(ia->mschapv2response, ib->mschapv2response, MSCHAPV2RESP_LEN_MAX);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
+cmp = memcmp(ia->mschapv2username, ib->mschapv2username, ia->mschapv2usernamelen);
+if(cmp > 0) return 1;
+else if(cmp < 0) return -1;
 return 0;
 }
 /*===========================================================================*/

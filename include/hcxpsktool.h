@@ -52,13 +52,16 @@ static int sort_apessidlist_by_ap(const void *a, const void *b)
 {
 const apessidl_t *ia = (const apessidl_t *)a;
 const apessidl_t *ib = (const apessidl_t *)b;
+int cmp;
+
 if(ia->macaddr > ib->macaddr)
 	return 1;
 if(ia->macaddr < ib->macaddr)
 	return -1;
-if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) > 0)
+cmp = memcmp(ia->essid, ib->essid, ESSID_LEN_MAX);
+if(cmp > 0)
 	return 1;
-else if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) < 0)
+else if(cmp < 0)
 	return -1;
 
 return 0;
@@ -68,9 +71,12 @@ static int sort_apessidlist_by_essid(const void *a, const void *b)
 {
 const apessidl_t *ia = (const apessidl_t *)a;
 const apessidl_t *ib = (const apessidl_t *)b;
-if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) > 0)
+int cmp;
+
+cmp = memcmp(ia->essid, ib->essid, ESSID_LEN_MAX);
+if(cmp > 0)
 	return 1;
-else if(memcmp(ia->essid, ib->essid, ESSID_LEN_MAX) < 0)
+else if(cmp < 0)
 	return -1;
 if(ia->macaddr > ib->macaddr)
 	return 1;
