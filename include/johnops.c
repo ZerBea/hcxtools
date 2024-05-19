@@ -138,11 +138,11 @@ if(((zeiger->endianess & 0x10) == 0x10) || ((message_pair &0x10) == 0x10) || ((m
 		}
 	if((message_pair &0x07) > 1)
 		{
-		fprintf(fhjohn, ":verfified:%s\n", basename);
+		fprintf(fhjohn, ":verified:%s\n", basename);
 		}
 	else
 		{
-		fprintf(fhjohn, ":not verfified:%s\n", basename);
+		fprintf(fhjohn, ":not verified:%s\n", basename);
 		}
 	}
 else if((zeiger->endianess & 0x20) == 0x20)
@@ -168,11 +168,11 @@ else if((zeiger->endianess & 0x20) == 0x20)
 			}
 		if((message_pair &0x07) > 1)
 			{
-			fprintf(fhjohn, ":verfified:%s\n", basename);
+			fprintf(fhjohn, ":verified:%s\n", basename);
 			}
 		else
 			{
-			fprintf(fhjohn, ":not verfified:%s\n", basename);
+			fprintf(fhjohn, ":not verified:%s\n", basename);
 			}
 		anonce++;
 		}
@@ -200,11 +200,11 @@ else if((zeiger->endianess & 0x40) == 0x40)
 			}
 		if((message_pair &0x07) > 1)
 			{
-			fprintf(fhjohn, ":verfified:%s\n", basename);
+			fprintf(fhjohn, ":verified:%s\n", basename);
 			}
 		else
 			{
-			fprintf(fhjohn, ":not verfified:%s\n", basename);
+			fprintf(fhjohn, ":not verified:%s\n", basename);
 			}
 		anonce++;
 		}
@@ -232,11 +232,11 @@ else
 			}
 		if((message_pair &0x07) > 1)
 			{
-			fprintf(fhjohn, ":verfified:%s\n", basename);
+			fprintf(fhjohn, ":verified:%s\n", basename);
 			}
 		else
 			{
-			fprintf(fhjohn, ":not verfified:%s\n", basename);
+			fprintf(fhjohn, ":not verified:%s\n", basename);
 			}
 		anonce++;
 		}
@@ -261,11 +261,11 @@ else
 			}
 		if((message_pair &0x07) > 1)
 			{
-			fprintf(fhjohn, ":verfified:%s\n", basename);
+			fprintf(fhjohn, ":verified:%s\n", basename);
 			}
 		else
 			{
-			fprintf(fhjohn, ":not verfified:%s\n", basename);
+			fprintf(fhjohn, ":not verified:%s\n", basename);
 			}
 		anonce++;
 		}
