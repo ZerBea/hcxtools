@@ -72,14 +72,10 @@ size_t ishexify(const char *string)
 size_t len;
 
 len = strlen(string);
-if (len < 6) return 0;
-if ((len &1)  == 1) return 0;
-if (string[0]      != '$') return 0;
-if (string[1]      != 'H') return 0;
-if (string[2]      != 'E') return 0;
-if (string[3]      != 'X') return 0;
-if (string[4]      != '[') return 0;
-if (string[len -1] != ']') return 0;
+if (len < 6) return -1;
+if (strncmp("$HEX[", string, 5)) return -1;
+if (string[len -1] != ']') return -1;
+if ((len &1)  == 1) return -1;
 return (len -6)/2;
 }
 /*===========================================================================*/
