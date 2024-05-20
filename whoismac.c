@@ -91,7 +91,7 @@ for(p = 0; p < l; p++)
 	}
 
 memset(&essidbuffer, 0, 66);
-if(hex2bin(essidname, essidbuffer, l /2) == false)
+if(hex2bin(essidname, essidbuffer, l /2) == -1)
 	{
 	fprintf(stderr, "not a valid ESSID hex string\n");
 	return;
@@ -155,7 +155,7 @@ if((l%2 != 0) || (l > 64))
 	return;
 	}
 memset(&essidbuffer, 0, 66);
-if(hex2bin(essidptr, essidbuffer, l /2) == false)
+if(hex2bin(essidptr, essidbuffer, l /2) == -1)
 	{
 	fprintf(stderr, "wrong ESSID %s\n", essidptr);
 	return;

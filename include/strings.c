@@ -4,48 +4,47 @@
 #include <stdbool.h>
 
 /*===========================================================================*/
-bool ispotfilestring(int len, char *buffer)
+bool ispotfilestring(size_t len, char *buffer)
 {
-uint8_t p;
-for(p = 0; p < len; p++)
+size_t i;
+
+for(i = 0; i < len; i++)
 	{
-	if((buffer[p] < 0x20) || (buffer[p] > 0x7e) || (buffer[p] == ':')) return false;
+	if((buffer[i] < 0x20) || (buffer[i] > 0x7e) || (buffer[i] == ':')) return false;
 	}
 return true;
 }
 /*===========================================================================*/
-bool isasciistring(int len, uint8_t *buffer)
+bool isasciistring(size_t len, uint8_t *buffer)
 {
-uint8_t p;
-for(p = 0; p < len; p++)
+size_t i;
+
+for(i = 0; i < len; i++)
 	{
-	if(buffer[p] == 0) return true;
-	if((buffer[p] < 0x20) || (buffer[p] == 0x7f)) return false;
+	if(buffer[i] == 0) return true;
+	if((buffer[i] < 0x20) || (buffer[i] == 0x7f)) return false;
 	}
 return true;
 }
 /*===========================================================================*/
 bool ishexvalue(const char *str, size_t len)
 {
-size_t c;
+size_t i;
 
-for(c = 0; c < len; c++)
+for(i = 0; i < len; i++)
 	{
-	if(str[c] < '0') return false;
-	if(str[c] > 'f') return false;
-	if((str[c] > '9') && (str[c] < 'A')) return false;
-	if((str[c] > 'F') && (str[c] < 'a')) return false;
+	if(!isxdigit(str[i])) return false;
 	}
 return true;
 }
 /*===========================================================================*/
-bool hex2bin(const char *str, uint8_t *bytes, size_t blen)
+ssize_t hex2bin(const char *str, uint8_t *bytes, size_t blen)
 {
 uint8_t pos;
 uint8_t idx0;
 uint8_t idx1;
 
-uint8_t hashmap[] =
+const uint8_t hashmap[] =
 {
 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 89:;<=>?
@@ -57,7 +56,7 @@ uint8_t hashmap[] =
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
 };
 
-if(ishexvalue(str, blen) == false) return false;
+if(ishexvalue(str, blen) == false) return -1;
 memset(bytes, 0, blen);
 for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	{
@@ -65,22 +64,18 @@ for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
 	idx1 = ((uint8_t)str[pos+1] & 0x1F) ^ 0x10;
 	bytes[pos/2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
 	};
-return true;
+return pos/2;
 }
 /*===========================================================================*/
-size_t ishexify(const char *string)
+ssize_t ishexify(const char *string)
 {
 size_t len;
 
 len = strlen(string);
-if (len < 6) return 0;
-if ((len &1)  == 1) return 0;
-if (string[0]      != '$') return 0;
-if (string[1]      != 'H') return 0;
-if (string[2]      != 'E') return 0;
-if (string[3]      != 'X') return 0;
-if (string[4]      != '[') return 0;
-if (string[len -1] != ']') return 0;
+if (len < 6) return -1;
+if (strncmp("$HEX[", string, 5)) return -1;
+if (string[len -1] != ']') return -1;
+if ((len &1)  == 1) return -1;
 return (len -6)/2;
 }
 /*===========================================================================*/
