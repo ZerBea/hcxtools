@@ -113,6 +113,7 @@ if(curl)
 				ret = remove(sendcapname);
 				if(ret != 0) fprintf(stdout, "couldn't remove %s\n", sendcapname);
 				}
+			free(curlmem->response);
 			}
 		else
 			{
@@ -125,7 +126,6 @@ if(curl)
 		fprintf(stderr, "\n\x1B[31mupload to %s failed: %s\x1B[0m\n\n", wpasecurl, curl_easy_strerror(res));
 		uploadflag = false;
 		}
-	if(curlmem->response != NULL) free(curlmem->response);
 	curl_easy_cleanup(curl);
 	curl_mime_free(mime);
 	curl_slist_free_all(headerlist);
