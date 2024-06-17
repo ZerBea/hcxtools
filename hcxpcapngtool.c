@@ -1013,12 +1013,12 @@ static char timestringmax[32];
 
 radiotappresent = false;
 tvmin = timestampmin /1000000000;
-strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmin));
+strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", gmtime(&tvmin));
 tvmax = timestampmax /1000000000;
 timestampdiff = timestampmax - timestampmin;
-strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvmax));
-fprintf(stdout, "timestamp minimum (GMT)..................: %s\n", timestringmin);
-fprintf(stdout, "timestamp maximum (GMT)..................: %s\n", timestringmax);
+strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", gmtime(&tvmax));
+fprintf(stdout, "timestamp minimum (GMT)..................: %s (%ld)\n", timestringmin, tvmin);
+fprintf(stdout, "timestamp maximum (GMT)..................: %s (%ld)\n", timestringmax, tvmax);
 if(timestampdiff > 0)
 	{
 	if(timestampdiff > 60000000000) fprintf(stdout, "duration of the dump tool (minutes)......: %" PRIu64 "\n", timestampdiff / 60000000000);
@@ -4320,6 +4320,7 @@ static size_t i;
 static int apinfolen;
 static maclist_t *aplistnew;
 static uint8_t *apinfoptr;
+static time_t tvproberesponse;
 static tags_t tags;
 static bool naf;
 
@@ -4357,7 +4358,11 @@ if(fh_lts != NULL)
 				break;
 				}
 			}
-		if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%02x%02x%02x%02x%02x%02x\t %.*s\n", proberesponsetimestamp, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
+		if(naf == false)
+			{
+			tvproberesponse = proberesponsetimestamp /1000000000;
+			fprintf(fh_lts, "%ld\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", tvproberesponse, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
+			}
 		}
 	}
 if(aplistptr >= aplist +maclistmax)
@@ -4430,6 +4435,7 @@ static void process80211beacon(uint64_t beacontimestamp, uint8_t *macbc, uint8_t
 static size_t i;
 static int apinfolen;
 static uint8_t *apinfoptr;
+static time_t tvbeacon;
 static maclist_t *aplistnew;
 static tags_t tags;
 static bool naf;
@@ -4480,7 +4486,11 @@ if(fh_lts != NULL)
 				break;
 				}
 			}
-		if(naf == false) fprintf(fh_lts, "%020" PRIu64 "\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", beacontimestamp, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
+		if(naf == false)
+			{
+			tvbeacon = beacontimestamp /1000000000;
+			fprintf(fh_lts, "%ld\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", tvbeacon, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
+			}
 		}
 	}
 if((tags.channel > 0) && (tags.channel <= 14))
