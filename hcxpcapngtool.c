@@ -2218,7 +2218,17 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
 			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", eapoltemp[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapol, "*%02x\n", zeigerhs->status);
-			else fprintf(fh_pmkideapol, "*%02x\t%s %" PRIu64 "\n", zeigerhs->status, timestringhs, zeigerhs->timestampgap);
+			else 
+				{
+				fprintf(fh_pmkideapol, "*%02x\t%s %" PRIu64 "\t", zeigerhs->status, timestringhs, zeigerhs->timestampgap);
+				if((zeigerhs->status & 0x07) == ST_M12E2) fprintf(fh_pmkideapol, "M12E2");
+				else if((zeigerhs->status & 0x07) == ST_M14E4) fprintf(fh_pmkideapol, "M14E4");
+				else if((zeigerhs->status & 0x07) == ST_M32E2) fprintf(fh_pmkideapol, "M32E2");
+				else if((zeigerhs->status & 0x07) == ST_M32E3) fprintf(fh_pmkideapol, "M32E3");
+				else if((zeigerhs->status & 0x07) == ST_M34E3) fprintf(fh_pmkideapol, "M34E3");
+				else if((zeigerhs->status & 0x07) == ST_M34E4) fprintf(fh_pmkideapol, "M34E4");
+				fprintf(fh_pmkideapol, "\n");
+				}
 			if(zeigerhs->rcgap == 0) eapolwrittencount++;
 			else eapolncwrittencount++;
 			}

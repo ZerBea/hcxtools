@@ -259,12 +259,12 @@ struct messagelist_s
  uint64_t		timestamp;
  long int		eapolmsgcount;
  uint8_t		status;
-#define	ST_M12E2	0
-#define	ST_M14E4	1
-#define	ST_M32E2	2
-#define	ST_M32E3	3
-#define	ST_M34E3	4
-#define	ST_M34E4	5
+#define	ST_M12E2	0x00
+#define	ST_M14E4	0x01
+#define	ST_M32E2	0x02
+#define	ST_M32E3	0x03
+#define	ST_M34E3	0x04
+#define	ST_M34E4	0x05
 #define	ST_APLESS	0x10
 #define	ST_LE		0x20
 #define	ST_BE		0x40
