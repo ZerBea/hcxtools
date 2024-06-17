@@ -2220,7 +2220,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			if(addtimestampflag == false) fprintf(fh_pmkideapol, "*%02x\n", zeigerhs->status);
 			else 
 				{
-				fprintf(fh_pmkideapol, "*%02x\t%s %" PRIu64 "\t", zeigerhs->status, timestringhs, zeigerhs->timestampgap);
+				fprintf(fh_pmkideapol, "*%02x\t%s\t%" PRIu64 "\t", zeigerhs->status, timestringhs, zeigerhs->timestampgap);
 				if((zeigerhs->status & 0x07) == ST_M12E2) fprintf(fh_pmkideapol, "M12E2");
 				else if((zeigerhs->status & 0x07) == ST_M14E4) fprintf(fh_pmkideapol, "M14E4");
 				else if((zeigerhs->status & 0x07) == ST_M32E2) fprintf(fh_pmkideapol, "M32E2");
