@@ -1017,8 +1017,8 @@ strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", gmtime(&tvmin));
 tvmax = timestampmax /1000000000;
 timestampdiff = timestampmax - timestampmin;
 strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", gmtime(&tvmax));
-fprintf(stdout, "timestamp minimum (GMT)..................: %s (%ld)\n", timestringmin, tvmin);
-fprintf(stdout, "timestamp maximum (GMT)..................: %s (%ld)\n", timestringmax, tvmax);
+fprintf(stdout, "timestamp minimum (timestamp)............: %s (%ld)\n", timestringmin, tvmin);
+fprintf(stdout, "timestamp maximum (timestamp)............: %s (%ld)\n", timestringmax, tvmax);
 if(timestampdiff > 0)
 	{
 	if(timestampdiff > 60000000000) fprintf(stdout, "duration of the dump tool (minutes)......: %" PRIu64 "\n", timestampdiff / 60000000000);
