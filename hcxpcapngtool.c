@@ -881,7 +881,7 @@ if(zeroedtimestampcount > 0)
 	fprintf(stdout, "\nWarning: missing timestamps!\n"
 		"This dump file contains frames with zeroed timestamps.\n"
 		"It prevent calculation of EAPOL TIMEOUT values.\n"
-		"That is a bug of the capturing/cleaning.\n");
+		"That is a bug of the capturing/cleaning tool.\n");
 	}
 if(eapolmsgtimestamperrorcount > 0)
 	{
