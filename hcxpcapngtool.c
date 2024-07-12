@@ -6041,7 +6041,6 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                                     delimiter: tabulator (0x08)\n"
 	"                                     columns:\n"
 	"                                     YYYY-MM-DD HH:MM:SS MAC_AP ESSID ENC_TYPE CIPHER AKM COUNTRY_INFO CHANNEL RSSI GPS(DM.m) GPS(D.d) GPSFIX SATCOUNT HDOP ALTITUDE UNIT\n"
-	"                                     to convert it to other formats, use bash tools or scripting languages\n"
 	"                                     GPS FIX:\n"
 	"                                     0 = fix not available or invalid\n"
 	"                                     1 = fix valid (GPS SPS mode)\n"
@@ -6050,6 +6049,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                                     4 = not supported\n"
 	"                                     5 = not supported\n"
 	"                                     6 = fix valid (Dead Reckoning Mode)\n"
+	"                                     to convert it to other formats, use bash tools or scripting languages\n"
 	"\n", eigenname, VERSION_TAG, VERSION_YEAR, eigenname, eigenname, eigenname, eigenname, eigenname, eigenname,
 	EAPOLTIMEOUT / 1000000, NONCEERRORCORRECTION, ESSIDSMAX);
 
