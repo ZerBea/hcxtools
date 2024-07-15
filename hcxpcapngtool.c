@@ -5690,7 +5690,7 @@ if(testgzipfile(pcapinname) == true)
 	}
 #endif
 jtrbasenamedeprecated = pcapinname;
-fd_pcap = open(pcapnameptr, O_RDONLY | O_BINARY);
+fd_pcap = open(pcapnameptr, O_RDONLY);
 if(fd_pcap == -1)
 	{
 	perror("failed to open file");
