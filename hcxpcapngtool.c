@@ -1963,43 +1963,13 @@ else fprintf(fh_pmkideapoljtrdeprecated, "%c", (itoa64[((in[1] & 0x0f) << 2)]));
 return;
 }
 /*===========================================================================*/
-static bool testfaultypmkid(uint8_t *faultypmkid, uint8_t *faultymacsta)
+static bool testfaultypmkid(uint8_t *faultypmkid)
 {
-static const uint8_t faultymac1[3] =
-{
-0x64, 0x52, 0x99
-};
-
-static const uint8_t faultymac2[3] =
-{
-0xca, 0x6a, 0x10
-};
-
-static const uint8_t faultymac3[3] =
-{
-0xcc, 0x6a, 0x10
-};
-
 static const uint8_t faultypmkid1[4] =
 {
 0x00, 0x00, 0x6e, 0x00
 };
 
-if(memcmp(&faultymac1, faultymacsta, 3) == 0)
-	{
-	pmkidfaultycount++;
-	return true;
-	}
-if(memcmp(&faultymac2, faultymacsta, 3) == 0)
-	{
-	pmkidfaultycount++;
-	return true;
-	}
-if(memcmp(&faultymac3, faultymacsta, 3) == 0)
-	{
-	pmkidfaultycount++;
-	return true;
-	}
 if(memcmp(&faultypmkid1, faultypmkid, 4) == 0)
 	{
 	pmkidfaultycount++;
@@ -2721,7 +2691,7 @@ static pmkidlist_t *pmkidlistnew;
 pmkidcount++;
 if((pmkidstatus & PMKID_CLIENT) == PMKID_CLIENT)
 	{
-	if(testfaultypmkid(pmkid, macclient) == true) return;
+	if(testfaultypmkid(pmkid) == true) return;
 	}
 if(testpmkid(zeroedpmk, macclient, macap, pmkid) == false)
 	{
