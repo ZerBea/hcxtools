@@ -5662,11 +5662,16 @@ return;
 static bool processgpxfile(char *gpxinname)
 {
 static FILE *fh_gpxin;
+static int gpxlen;
+static char gpxline[GPX_MAX];
 
 if((fh_gpxin = fopen(gpxinname, "r")) == NULL) return false;
 
-
-
+while(1)
+	{
+	if((gpxlen = fgetline(fh_gpxin, GPX_MAX, gpxline)) == -1) break;
+//	printf("%s\n", gpxline);
+	}
 fclose(fh_gpxin);
 return true;
 }
