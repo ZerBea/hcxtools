@@ -5657,6 +5657,19 @@ outputtacacsplist();
 printcontentinfo();
 return;
 }
+
+/*===========================================================================*/
+static bool processgpxfile(char *gpxinname)
+{
+static FILE *fh_gpxin;
+
+if((fh_gpxin = fopen(gpxinname, "r")) == NULL) return false;
+
+
+
+fclose(fh_gpxin);
+return true;
+}
 /*===========================================================================*/
 static bool processcapfile(char *eigenname, char *pcapinname)
 {
@@ -6028,6 +6041,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--eapmd5-john=<file>               : output EAP MD5 CHALLENGE (john chap)\n"
 	"--eapleap=<file>                   : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"--tacacs-plus=<file>               : output TACACS PLUS v1 (hashcat -m 16100, john tacacs-plus)\n"
+	"--gpxin=<file>                     : input GPX file\n"
 	"--nmea=<file>                      : output GPS data in NMEA 0183 format\n"
 	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
@@ -6138,6 +6152,7 @@ static char *essidproberequestoutname;
 static char *deviceinfooutname;
 static char *identityoutname;
 static char *usernameoutname;
+static char *gpxinname;
 static char *nmeaoutname;
 static char *csvoutname;
 static char *logoutname;
@@ -6185,6 +6200,7 @@ static const struct option long_options[] =
 	{"nonce-error-corrections",	required_argument,	NULL,	HCX_NC},
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
+	{"gpxin",			required_argument,	NULL,	HCX_GPX_IN},
 	{"nmea",			required_argument,	NULL,	HCX_NMEA_OUT},
 	{"csv",				required_argument,	NULL,	HCX_CSV_OUT},
 	{"raw-out",			required_argument,	NULL,	HCX_RAW_OUT},
@@ -6229,6 +6245,7 @@ essidproberequestoutname = NULL;
 identityoutname = NULL;
 usernameoutname = NULL;
 deviceinfooutname = NULL;
+gpxinname = NULL;
 nmeaoutname = NULL;
 csvoutname = NULL;
 logoutname = NULL;
@@ -6341,6 +6358,10 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_DEVICEINFO_OUT:
 		deviceinfooutname = optarg;
+		break;
+
+		case HCX_GPX_IN:
+		gpxinname = optarg;
 		break;
 
 		case HCX_NMEA_OUT:
@@ -6713,6 +6734,11 @@ if(hccapoutnamedeprecated != NULL)
 		fprintf(stdout, "error opening file %s: %s\n", hccapoutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
+	}
+
+if(gpxinname != NULL)
+	{
+	if(processgpxfile(gpxinname) == false) exitcode = EXIT_FAILURE;
 	}
 
 for(index = optind; index < argc; index++)
