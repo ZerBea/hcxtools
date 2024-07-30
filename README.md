@@ -105,6 +105,7 @@ Requirements
 * zlib and zlib-dev installed. (For gzip compressed cap/pcap/pcapng files.)
 * libcurl (>= 7.56) and curl-dev installed. (Used by whoismac and wlancap2wpasec.)
 * pkg-config installed.
+* Make sure that the version of hcxpcapngtool always fits to the version of hcxdumptool 
 
 **If you decide to compile latest git head, make sure that your distribution is updated to it's latest version!**
 
