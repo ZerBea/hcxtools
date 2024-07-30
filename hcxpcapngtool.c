@@ -5647,9 +5647,20 @@ return;
 static bool processgpxfile(char *gpxinname)
 {
 static FILE *fh_gpxin;
+static struct stat statinfo;
+static int *gpxstart;
 
-if((fh_gpxin = fopen(gpxinname, "r")) == NULL) return false;
+if(stat(gpxinname, &statinfo) != 0) return false;
+if(statinfo.st_size == 0) return false;
+if((gpxstart = calloc(1, statinfo.st_size)) == NULL) return false;
+if((fh_gpxin = fopen(gpxinname, "r")) == NULL)
+	{
+	free(gpxstart);
+	return false;
+	}
 
+
+free(gpxstart);
 fclose(fh_gpxin);
 return true;
 }
