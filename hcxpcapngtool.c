@@ -945,7 +945,7 @@ if(((beaconcount + proberesponsecount) == 0) && ((associationrequestcount + reas
 	{
 	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain BEACON or PROBERESPONSE frames.\n"
-		"This frames contain the ESSID which is mandatory to calculate a PMK. "
+		"This frames contain the ESSID which is mandatory to calculate a PMK.\n"
 		"It always happens if the capture file was cleaned or "
 		"it could happen if filter options are used during capturing. "
 		"That makes it impossible to recover the PSK.\n");
