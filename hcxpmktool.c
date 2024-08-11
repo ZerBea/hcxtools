@@ -341,7 +341,11 @@ if(memcmp(wpa2, hashlinestring, 7) == 0)
 	if(flen != 6) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	essidlen = hex2bin(&hashlinestring[plen], essid, 34);
+	flen = getfieldlen(&hashlinestring[plen], 34);
+	if((flen %2) != 0) return false;
+	flen /= 2;
+	if((flen <= 0) || (flen > 32)) return false;
+	essidlen = hex2bin(&hashlinestring[plen], essid, flen);
 	if((essidlen <= 0) || (essidlen > 32)) return false;
 	plen += essidlen *2;
 	if(hashlinestring[plen++] != '*') return false;
@@ -349,7 +353,11 @@ if(memcmp(wpa2, hashlinestring, 7) == 0)
 	if(flen == -1) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	eapollen = hex2bin(&hashlinestring[plen], eapol, 1024);
+	flen = getfieldlen(&hashlinestring[plen], 1024);
+	if((flen %2) != 0) return false;
+	flen /= 2;
+	if((flen <= 0) || (flen > 1024)) return false;
+	eapollen = hex2bin(&hashlinestring[plen], eapol, flen);
 	eapptr = (eapauth_t*)eapol;
 	eapauthlen = ntohs(eapptr->len);
 	if(eapollen < eapauthlen +4) return false;
@@ -412,7 +420,7 @@ char sha256[] = "sha256";
 paramssha256[0] = OSSL_PARAM_construct_utf8_string("digest", sha256, 0);
 paramssha256[1] = OSSL_PARAM_construct_end();
 
-char aes[] = "aes-1280-cbc";
+char aes[] = "aes-128-cbc";
 paramsaes128[0] = OSSL_PARAM_construct_utf8_string("cipher", aes, 0);
 paramsaes128[1] = OSSL_PARAM_construct_end();
 

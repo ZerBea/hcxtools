@@ -27,6 +27,17 @@ for(i = 0; i < len; i++)
 return true;
 }
 /*===========================================================================*/
+size_t getfieldlen(const char *str, size_t len)
+{
+size_t i;
+
+for(i = 0; i < len; i++)
+	{
+	if(str[i] == '*') return i;
+	}
+return -1;
+}
+/*===========================================================================*/
 bool ishexvalue(const char *str, size_t len)
 {
 size_t i;
