@@ -44,7 +44,7 @@ size_t i;
 
 for(i = 0; i < len; i++)
 	{
-	if(!isxdigit(str[i])) return false;
+	if(!isxdigit((unsigned char)str[i])) return false;
 	}
 return true;
 }
