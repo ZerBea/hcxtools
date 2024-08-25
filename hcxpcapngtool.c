@@ -6089,6 +6089,7 @@ fprintf(stdout, "--prefix=<file>                    : convert everything to list
 	"0: reserved\n"
 	"1: PMKID taken from AP\n"
 	"2: reserved\n"
+	"3: reserved\n"
 	"4: PMKID taken from CLIENT (wlan.da: possible MESH or REPEATER)\n"
 	"5: reserved\n"
 	"6: reserved\n"
