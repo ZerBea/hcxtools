@@ -3455,21 +3455,18 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		{
 		if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 		if(memcmp(zeiger->client, macclient, 6) != 0) continue;
-		if(memcmp(zeiger->nonce, wpak->nonce, 28) == 0)
+		if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0))
 			{
-			if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0)
+			eapolnccount++;
+			if(memcmp(&zeiger->nonce[30], &wpak->nonce[30], 2) != 0)
 				{
-				eapolnccount++;
-				if(memcmp(&zeiger->nonce[30], &wpak->nonce[31], 2) != 0)
-					{
-					zeiger->status = ST_LE;
-					(messagelist +MESSAGELIST_MAX)->status = ST_LE;
-					}
-				else if(memcmp(&zeiger->nonce[28], &wpak->nonce[29], 2) != 0)
-					{
-					zeiger->status = ST_BE;
-					(messagelist +MESSAGELIST_MAX)->status = ST_BE;
-					}
+				zeiger->status = ST_LE;
+				(messagelist +MESSAGELIST_MAX)->status = ST_LE;
+				}
+			else if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 2) != 0)
+				{
+				zeiger->status = ST_BE;
+				(messagelist +MESSAGELIST_MAX)->status = ST_BE;
 				}
 			}
 		}
@@ -3851,21 +3848,18 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 	if(memcmp(zeiger->ap, macap, 6) != 0) continue;
 	if(memcmp(zeiger->client, macclient, 6) != 0) continue;
 	eapolm1ancount++;
-	if(memcmp(zeiger->nonce, wpak->nonce, 28) == 0)
+	if((memcmp(zeiger->nonce, wpak->nonce, 28) == 0) && (memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0))
 		{
-		if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0)
+		eapolnccount++;
+		if(memcmp(&zeiger->nonce[30], &wpak->nonce[30], 2) != 0)
 			{
-			eapolnccount++;
-			if(memcmp(&zeiger->nonce[30], &wpak->nonce[31], 2) != 0)
-				{
-				zeiger->status = ST_LE;
-				(messagelist +MESSAGELIST_MAX)->status = ST_LE;
-				}
-			else if(memcmp(&zeiger->nonce[28], &wpak->nonce[29], 2) != 0)
-				{
-				zeiger->status = ST_BE;
-				(messagelist +MESSAGELIST_MAX)->status = ST_BE;
-				}
+			zeiger->status = ST_LE;
+			(messagelist +MESSAGELIST_MAX)->status = ST_LE;
+			}
+		else if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 2) != 0)
+			{
+			zeiger->status = ST_BE;
+			(messagelist +MESSAGELIST_MAX)->status = ST_BE;
 			}
 		}
 	}
