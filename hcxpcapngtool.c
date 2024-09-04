@@ -3460,25 +3460,15 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0)
 				{
 				eapolnccount++;
-				if(zeiger->nonce[31] != wpak->nonce[31])
+				if(memcmp(&zeiger->nonce[30], &wpak->nonce[31], 2) != 0)
 					{
 					zeiger->status = ST_LE;
-					zeigerakt->status = ST_LE;
+					(messagelist +MESSAGELIST_MAX)->status = ST_LE;
 					}
-				if(zeiger->nonce[30] != wpak->nonce[30])
-					{
-					zeiger->status = ST_LE;
-					zeigerakt->status = ST_LE;
-					}
-				else if(zeiger->nonce[28] != wpak->nonce[28])
+				else if(memcmp(&zeiger->nonce[28], &wpak->nonce[29], 2) != 0)
 					{
 					zeiger->status = ST_BE;
-					zeigerakt->status = ST_BE;
-					}
-				else if(zeiger->nonce[29] != wpak->nonce[29])
-					{
-					zeiger->status = ST_BE;
-					zeigerakt->status = ST_BE;
+					(messagelist +MESSAGELIST_MAX)->status = ST_BE;
 					}
 				}
 			}
@@ -3866,22 +3856,12 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 		if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 4) != 0)
 			{
 			eapolnccount++;
-			if(zeiger->nonce[31] != wpak->nonce[31])
+			if(memcmp(&zeiger->nonce[30], &wpak->nonce[31], 2) != 0)
 				{
 				zeiger->status = ST_LE;
 				(messagelist +MESSAGELIST_MAX)->status = ST_LE;
 				}
-			else if(zeiger->nonce[30] != wpak->nonce[30])
-				{
-				zeiger->status = ST_LE;
-				(messagelist +MESSAGELIST_MAX)->status = ST_LE;
-				}
-			else if(zeiger->nonce[28] != wpak->nonce[28])
-				{
-				zeiger->status = ST_BE;
-				(messagelist +MESSAGELIST_MAX)->status = ST_BE;
-				}
-			else if(zeiger->nonce[29] != wpak->nonce[29])
+			else if(memcmp(&zeiger->nonce[28], &wpak->nonce[29], 2) != 0)
 				{
 				zeiger->status = ST_BE;
 				(messagelist +MESSAGELIST_MAX)->status = ST_BE;
