@@ -1319,10 +1319,10 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 	rc = wpak->replaycount;
 	#endif
 	fprintf(fh_pmkideapol, "REPLAYCOUNT: %" PRIu64 "\n", rc);
-	if((zeiger->mp & 0xf0) == 0x10) fprintf(fh_pmkideapol, "NC INFO....: ROGUE attack / NC deactivated\n");
-	else if((zeiger->mp & 0xf0) == 0x20) fprintf(fh_pmkideapol, "NC INFO....: little endian router detected / NC on LE\n");
-	else if((zeiger->mp & 0xf0) == 0x40) fprintf(fh_pmkideapol, "NC INFO....: big endian router detected / NC on BE\n");
-	else if((zeiger->mp & 0xf0) == 0x80) fprintf(fh_pmkideapol, "NC INFO....: hashcat default NC activated\n");
+	if((zeiger->mp & 0x20) == 0x20) fprintf(fh_pmkideapol, "ROUTER TYPE: little endian (LE)\n");
+	else if((zeiger->mp & 0x40) == 0x40) fprintf(fh_pmkideapol, "ROUTER TYPE: big endian (BE)\n");
+	if((zeiger->mp & 0xf0) == 0x10) fprintf(fh_pmkideapol, "NC INFO....: NC deactivated\n");
+	else if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "NC INFO....: hashcat default NC activated\n");
 	else fprintf(fh_pmkideapol, "NC INFO....: NC not detected\n");
 	keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
 	fprintf(fh_pmkideapol, "EAPOL MSG..: %d\n", keyinfo);

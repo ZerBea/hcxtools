@@ -2162,7 +2162,8 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 		if((zeigerhs->status &7) == ST_M34E4) eapolm34e4count++;
 		if((zeigerhs->status & ST_ENDIANESS) != 0)
 			{
-			zeigerhs->status &= ~(1 << 7);
+			zeigerhs->status |= 0x80;
+//			zeigerhs->status &= ~(1 << 7);
 			}
 		wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 		keyvertemp = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3460,13 +3461,13 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 			eapolnccount++;
 			if(memcmp(&zeiger->nonce[30], &wpak->nonce[30], 2) != 0)
 				{
-				zeiger->status = ST_LE;
-				(messagelist +MESSAGELIST_MAX)->status = ST_LE;
+				zeiger->status = ST_LE +ST_NC;
+				(messagelist +MESSAGELIST_MAX)->status = ST_LE +ST_NC;
 				}
 			else if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 2) != 0)
 				{
-				zeiger->status = ST_BE;
-				(messagelist +MESSAGELIST_MAX)->status = ST_BE;
+				zeiger->status = ST_BE +ST_NC;
+				(messagelist +MESSAGELIST_MAX)->status = ST_BE +ST_NC;
 				}
 			}
 		}
@@ -3853,13 +3854,13 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX +1; zeiger++)
 		eapolnccount++;
 		if(memcmp(&zeiger->nonce[30], &wpak->nonce[30], 2) != 0)
 			{
-			zeiger->status = ST_LE;
-			(messagelist +MESSAGELIST_MAX)->status = ST_LE;
+			zeiger->status = ST_LE +ST_NC;
+			(messagelist +MESSAGELIST_MAX)->status = ST_LE +ST_NC;
 			}
 		else if(memcmp(&zeiger->nonce[28], &wpak->nonce[28], 2) != 0)
 			{
-			zeiger->status = ST_BE;
-			(messagelist +MESSAGELIST_MAX)->status = ST_BE;
+			zeiger->status = ST_BE +ST_NC;
+			(messagelist +MESSAGELIST_MAX)->status = ST_BE +ST_NC;
 			}
 		}
 	}
