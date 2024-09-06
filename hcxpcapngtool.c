@@ -163,6 +163,7 @@ static long int pcapreaderrors;
 static long int skippedpacketcount;
 static long int zeroedtimestampcount;
 static long int fcsframecount;
+static long int fcsbadframecount;
 static long int band24count;
 static long int band5count;
 static long int band6count;
@@ -481,6 +482,7 @@ pcapreaderrors = 0;
 skippedpacketcount = 0;
 zeroedtimestampcount = 0;
 fcsframecount = 0;
+fcsbadframecount = 0;
 band24count = 0;
 band5count = 0;
 band6count = 0;
@@ -660,6 +662,7 @@ else					fprintf(stdout, "endianness (capture system)..............: big endian\
 if(rawpacketcount > 0)			fprintf(stdout, "packets inside...........................: %ld\n", rawpacketcount);
 if(skippedpacketcount > 0)		fprintf(stdout, "skipped packets..........................: %ld\n", skippedpacketcount);
 if(fcsframecount > 0)			fprintf(stdout, "frames with correct FCS..................: %ld\n", fcsframecount);
+if(fcsbadframecount > 0)		fprintf(stdout, "frames with bad FCS......................: %ld\n", fcsbadframecount);
 if(band24count > 0)			fprintf(stdout, "packets received on 2.4 GHz..............: %ld\n", band24count);
 if(band5count > 0)			fprintf(stdout, "packets received on 5 GHz................: %ld\n", band5count);
 if(band6count > 0)			fprintf(stdout, "packets received on 6 GHz................: %ld\n", band6count);
@@ -3218,7 +3221,7 @@ if((infolen != 0) && (infolen != 4) && (ef == false)) return false;
 return true;
 }
 /*===========================================================================*/
-static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr)
 {
 static int c;
 static messagelist_t *zeiger;
@@ -3233,8 +3236,14 @@ static uint64_t rcgap;
 static uint8_t mpfield;
 
 static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
+
 eapolm4count++;
 eapolmsgcount++;
+if(memcmp(macap, macsrc, 6) != 0)
+	{
+	eapolm1errorcount++;
+	return;
+	}
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen == 0) return;
@@ -3364,7 +3373,7 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_tim
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m3(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m3(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr)
 {
 static int c;
 static messagelist_t *zeiger;
@@ -3383,6 +3392,11 @@ static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm3count++;
 eapolmsgcount++;
+if(memcmp(macap, macsrc, 6) != 0)
+	{
+	eapolm1errorcount++;
+	return;
+	}
 zeigerakt = messagelist +MESSAGELIST_MAX;
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
@@ -3545,7 +3559,7 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_tim
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m2(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m2(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr)
 {
 static int c;
 static messagelist_t *zeiger;
@@ -3565,6 +3579,11 @@ static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm2count++;
 eapolmsgcount++;
+if(memcmp(macap, macsrc, 6) != 0)
+	{
+	eapolm1errorcount++;
+	return;
+	}
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen == 0) return;
@@ -3739,11 +3758,21 @@ static uint8_t keyver;
 static uint64_t rc;
 
 static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
+
 eapolm1count++;
 eapolmsgcount++;
+if(memcmp(macap, macsrc, 6) != 0)
+	{
+	eapolm1errorcount++;
+	return;
+	}
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
-if(authlen > restlen) return;
+if(authlen > restlen)
+	{
+	eapolm1errorcount++;
+	return;
+	}
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3918,11 +3947,11 @@ if((keylen != 0) && (keylen != 16) && (keylen != 32))
 if(keyinfo == 1) process80211eapol_m1(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
 else if(keyinfo == 2)
 	{
-	if(authlen != 0x5f) process80211eapol_m2(eaptimestamp, macto, macfm, eapauthlen, eapauthptr);
-	else process80211eapol_m4(eaptimestamp, macto, macfm, eapauthlen, eapauthptr);
+	if(authlen != 0x5f) process80211eapol_m2(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
+	else process80211eapol_m4(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
 	}
-else if(keyinfo == 3) process80211eapol_m3(eaptimestamp, macto, macfm, eapauthlen, eapauthptr);
-else if(keyinfo == 4) process80211eapol_m4(eaptimestamp, macto, macfm, eapauthlen, eapauthptr);
+else if(keyinfo == 3) process80211eapol_m3(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
+else if(keyinfo == 4) process80211eapol_m4(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
 return;
 }
 /*===========================================================================*/
@@ -4685,7 +4714,7 @@ else if(loba->family == LOBA_IPV630) processipv6(timestamp, caplen -LOBA_SIZE, p
 return;
 }
 /*===========================================================================*/
-static void getradiotapfield(uint16_t rthlen, uint32_t caplen, uint8_t *capptr)
+static bool getradiotapfield(uint16_t rthlen, uint32_t caplen, uint8_t *capptr)
 {
 static int i;
 static uint16_t pf;
@@ -4695,7 +4724,6 @@ static uint32_t *pp;
 frequency = 0;
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
-if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) != IEEE80211_RADIOTAP_CHANNEL) return;
 if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
 	{
 	pp = (uint32_t*)capptr;
@@ -4713,11 +4741,19 @@ if((rth->it_present & IEEE80211_RADIOTAP_TSFT) == IEEE80211_RADIOTAP_TSFT)
 	if((pf %8) != 0) pf += 4;
 	pf += 8;
 	}
-if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS) pf += 1;
+if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS)
+	{
+	if((capptr[pf] & 0x50) == 0x50)
+		{
+		fcsbadframecount++;
+		return false;
+		}
+	pf += 1;
+	}
 if((rth->it_present & IEEE80211_RADIOTAP_RATE) == IEEE80211_RADIOTAP_RATE) pf += 1;
 if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	{
-	if(pf > caplen) return;
+	if(pf > caplen) false;
 	if((pf %2) != 0) pf += 1;
 	frequency = (capptr[pf +1] << 8) + capptr[pf];
 	usedfrequency[frequency] += 1;
@@ -4761,10 +4797,10 @@ if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS)
 		}
 if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) == IEEE80211_RADIOTAP_DBM_ANTSIGNAL)
 	{
-	if(pf > caplen) return;
+	if(pf > caplen) return false;
 	rssi = capptr[pf];
 	}
-return;
+return true;
 }
 /*===========================================================================*/
 static void processlinktype(uint64_t captimestamp, uint32_t linktype, uint32_t caplen, uint8_t *capptr)
@@ -4848,7 +4884,12 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		if(fh_log != NULL) fprintf(fh_log, "unsupported radiotap header version: %ld\n", rawpacketcount);
 		return;
 		}
-	getradiotapfield(rth->it_len, caplen, capptr);
+	if(getradiotapfield(rth->it_len, caplen, capptr) == false)
+		{
+		pcapreaderrors++;
+		radiotaperrorcount++;
+		return;
+		}
 	packetlen = caplen -rth->it_len;
 	packetptr = capptr +rth->it_len;
 	}
@@ -4975,6 +5016,7 @@ crc = fcscrc32check(packetptr, packetlen -4);
 #ifdef BIG_ENDIAN_HOST
 crc = byte_swap_32(crc);
 #endif
+
 if(crc == fcs->fcs)
 	{
 	fcsframecount++;
