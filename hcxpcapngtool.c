@@ -4753,7 +4753,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS)
 if((rth->it_present & IEEE80211_RADIOTAP_RATE) == IEEE80211_RADIOTAP_RATE) pf += 1;
 if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	{
-	if(pf > caplen) false;
+	if(pf > caplen) return false;
 	if((pf %2) != 0) pf += 1;
 	frequency = (capptr[pf +1] << 8) + capptr[pf];
 	usedfrequency[frequency] += 1;
