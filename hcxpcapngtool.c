@@ -4714,7 +4714,7 @@ else if(loba->family == LOBA_IPV630) processipv6(timestamp, caplen -LOBA_SIZE, p
 return;
 }
 /*===========================================================================*/
-static bool getradiotapfield(uint16_t rthlen, uint32_t caplen, uint8_t *capptr)
+static bool getradiotapfield(uint16_t rthlen, uint8_t *capptr)
 {
 static int i;
 static uint16_t pf;
@@ -4738,11 +4738,13 @@ if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
 	}
 if((rth->it_present & IEEE80211_RADIOTAP_TSFT) == IEEE80211_RADIOTAP_TSFT)
 	{
+	if(pf > rthlen) return false;
 	if((pf %8) != 0) pf += 4;
 	pf += 8;
 	}
 if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS)
 	{
+	if(pf > rthlen) return false;
 	if((capptr[pf] & 0x50) == 0x50)
 		{
 		fcsbadframecount++;
@@ -4753,7 +4755,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS)
 if((rth->it_present & IEEE80211_RADIOTAP_RATE) == IEEE80211_RADIOTAP_RATE) pf += 1;
 if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	{
-	if(pf > caplen) return false;
+	if(pf > rthlen) return false;
 	if((pf %2) != 0) pf += 1;
 	frequency = (capptr[pf +1] << 8) + capptr[pf];
 	usedfrequency[frequency] += 1;
@@ -4767,7 +4769,6 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 		interfacechannel = (frequency -2407)/5;
 		band24count++;
 		}
-
 	else if(frequency >= 4910 && frequency <= 4980) 
 		{
 		interfacechannel = (frequency - 4000)/5;
@@ -4797,7 +4798,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS)
 		}
 if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) == IEEE80211_RADIOTAP_DBM_ANTSIGNAL)
 	{
-	if(pf > caplen)
+	if(pf > rthlen)
 		{
 		if(donotcleanflag == false) return false;
 		return true;
@@ -4888,7 +4889,7 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		if(fh_log != NULL) fprintf(fh_log, "unsupported radiotap header version: %ld\n", rawpacketcount);
 		return;
 		}
-	if(getradiotapfield(rth->it_len, caplen, capptr) == false)
+	if(getradiotapfield(rth->it_len, capptr) == false)
 		{
 		pcapreaderrors++;
 		radiotaperrorcount++;
