@@ -4746,7 +4746,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS)
 	if((capptr[pf] & 0x50) == 0x50)
 		{
 		fcsbadframecount++;
-		return false;
+		if(donotcleanflag == false) return false;
 		}
 	pf += 1;
 	}
@@ -4797,7 +4797,11 @@ if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS)
 		}
 if((rth->it_present & IEEE80211_RADIOTAP_DBM_ANTSIGNAL) == IEEE80211_RADIOTAP_DBM_ANTSIGNAL)
 	{
-	if(pf > caplen) return false;
+	if(pf > caplen)
+		{
+		if(donotcleanflag == false) return false;
+		return true;
+		}
 	rssi = capptr[pf];
 	}
 return true;
