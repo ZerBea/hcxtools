@@ -4875,7 +4875,7 @@ if(linktype == DLT_IEEE802_11_RADIO)
 	rth->it_len = byte_swap_16(rth->it_len);
 	rth->it_present = byte_swap_32(rth->it_present);
 	#endif
-	if(rth->it_len > caplen)
+	if(rth->it_len >= caplen)
 		{
 		pcapreaderrors++;
 		radiotaperrorcount++;
