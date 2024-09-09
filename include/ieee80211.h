@@ -367,6 +367,9 @@ struct ie_tag
 #define	TAG_PAG		0xde
 #define	TAG_VENDOR	0xdd
 #define	TAG_EXT		0xff
+#define	TAG_SSID_OK	0x01
+#define	TAG_SSID_RSN	0x02
+#define	TAG_SSID_VENDOR	0x04
  uint8_t		len;
  uint8_t		data[1];
 } __attribute__((__packed__));
@@ -417,7 +420,7 @@ struct rsnie_tag
 } __attribute__((__packed__));
 typedef struct rsnie_tag rsnie_t;
 #define	RSNIE_SIZE offsetof(rsnie_t, data)
-#define RSNIE_LEN_MIN	20
+#define RSNIE_LEN_MIN	18
 /*===========================================================================*/
 struct wpaie_tag
 {

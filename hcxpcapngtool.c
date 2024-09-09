@@ -3159,10 +3159,12 @@ return true;
 static bool gettags(int infolen, uint8_t *infoptr, tags_t *zeiger)
 {
 static ietag_t *tagptr;
+static uint8_t tagok;
 static bool ef;
 
 memset(zeiger, 0, TAGS_SIZE);
 ef = false;
+tagok = 0;
 while(0 < infolen)
 	{
 	if(infolen == 4) return true;
@@ -3187,6 +3189,7 @@ while(0 < infolen)
 			memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
 			zeiger->essidlen = tagptr->len;
 			}
+		tagok |= TAG_SSID_OK;
 		}
 	else if(tagptr->id == TAG_CHAN)
 		{
@@ -3217,7 +3220,13 @@ while(0 < infolen)
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
 	}
-if((infolen != 0) && (infolen != 4) && (ef == false)) return false;
+if((infolen != 0) && (infolen != 4) && (ef == false))
+	{
+	if((tagok & TAG_SSID_OK) == TAG_SSID_OK) return true;
+	if((tagok & TAG_SSID_RSN) == TAG_SSID_RSN) return true;
+	if((tagok & TAG_SSID_VENDOR) == TAG_SSID_VENDOR) return true;
+	return false;
+	}
 return true;
 }
 /*===========================================================================*/
