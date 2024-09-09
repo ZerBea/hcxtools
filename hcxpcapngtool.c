@@ -3208,6 +3208,7 @@ while(0 < infolen)
 		if(tagptr->len >= RSNIE_LEN_MIN)
 			{
 			if(gettagrsn(tagptr->len, tagptr->data, zeiger) == false) return false;
+			tagok |= TAG_RSN_OK;
 			}
 		}
 	else if(tagptr->id == TAG_VENDOR)
@@ -3215,6 +3216,7 @@ while(0 < infolen)
 		if(tagptr->len >= VENDORIE_SIZE)
 			{
 			if(gettagvendor(tagptr->len, tagptr->data, zeiger) == false) return false;
+			tagok |= TAG_VENDOR_OK;
 			}
 		}
 	infoptr += tagptr->len +IETAG_SIZE;
@@ -3223,8 +3225,8 @@ while(0 < infolen)
 if((infolen != 0) && (infolen != 4) && (ef == false))
 	{
 	if((tagok & TAG_SSID_OK) == TAG_SSID_OK) return true;
-	if((tagok & TAG_SSID_RSN) == TAG_SSID_RSN) return true;
-	if((tagok & TAG_SSID_VENDOR) == TAG_SSID_VENDOR) return true;
+	if((tagok & TAG_RSN_OK) == TAG_RSN_OK) return true;
+	if((tagok & TAG_VENDOR_OK) == TAG_VENDOR_OK) return true;
 	return false;
 	}
 return true;

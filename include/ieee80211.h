@@ -368,8 +368,8 @@ struct ie_tag
 #define	TAG_VENDOR	0xdd
 #define	TAG_EXT		0xff
 #define	TAG_SSID_OK	0x01
-#define	TAG_SSID_RSN	0x02
-#define	TAG_SSID_VENDOR	0x04
+#define	TAG_RSN_OK	0x02
+#define	TAG_VENDOR_OK	0x04
  uint8_t		len;
  uint8_t		data[1];
 } __attribute__((__packed__));
