@@ -2402,6 +2402,7 @@ qsort(aplist, aplistptr -aplist, MACLIST_SIZE, sort_maclist_by_mac_count);
 qsort(pmkidlist, pmkidlistptr -pmkidlist, PMKIDLIST_SIZE, sort_pmkidlist_by_mac);
 if(ncvalue == 0) qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_timegap);
 else qsort(handshakelist, handshakelistptr -handshakelist, HANDSHAKELIST_SIZE, sort_handshakelist_by_rcgap);
+
 zeigerhsakt = handshakelist;
 zeigerpmkidakt = pmkidlist;
 zeigermacold = aplist;
@@ -3178,29 +3179,43 @@ while(0 < infolen)
 	if(tagptr->len > infolen) return false;
 	if(tagptr->id == TAG_SSID)
 		{
-		if(tagptr->len > ESSID_LEN_MAX)
+		if((tagok & TAG_SSID_OK) == 0)
 			{
-			taglenerrorcount++;
-			return false;
+			if(tagptr->len > ESSID_LEN_MAX)
+				{
+				taglenerrorcount++;
+				return false;
+				}
+			if(isessidvalid(tagptr->len, &tagptr->data[0]) == false) return false;
+				{
+				ef = true;
+				memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
+				zeiger->essidlen = tagptr->len;
+				}
+			tagok |= TAG_SSID_OK;
 			}
-		if(isessidvalid(tagptr->len, &tagptr->data[0]) == false) return false;
-			{
-			ef = true;
-			memcpy(zeiger->essid, &tagptr->data[0], tagptr->len);
-			zeiger->essidlen = tagptr->len;
-			}
-		tagok |= TAG_SSID_OK;
 		}
 	else if(tagptr->id == TAG_CHAN)
 		{
-		if(tagptr->len == 1) zeiger->channel = tagptr->data[0];
+		if((tagok & TAG_CHAN_OK) == 0)
+			{
+			if(tagptr->len == 1)
+				{
+				zeiger->channel = tagptr->data[0];
+				tagok |= TAG_CHAN_OK;
+				}
+			}
 		}
 	else if(tagptr->id == TAG_COUNTRY)
 		{
 		if(tagptr->len > 2)
 			{
-			zeiger->country[0] = tagptr->data[0];
-			zeiger->country[1] = tagptr->data[1];
+			if((tagok & TAG_COUNTRY_OK) == 0)
+				{
+				zeiger->country[0] = tagptr->data[0];
+				zeiger->country[1] = tagptr->data[1];
+				tagok |= TAG_COUNTRY_OK;
+				}
 			}
 		}
 	else if(tagptr->id == TAG_RSN)
@@ -3208,7 +3223,6 @@ while(0 < infolen)
 		if(tagptr->len >= RSNIE_LEN_MIN)
 			{
 			if(gettagrsn(tagptr->len, tagptr->data, zeiger) == false) return false;
-			tagok |= TAG_RSN_OK;
 			}
 		}
 	else if(tagptr->id == TAG_VENDOR)
@@ -3216,19 +3230,12 @@ while(0 < infolen)
 		if(tagptr->len >= VENDORIE_SIZE)
 			{
 			if(gettagvendor(tagptr->len, tagptr->data, zeiger) == false) return false;
-			tagok |= TAG_VENDOR_OK;
 			}
 		}
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
 	}
-if((infolen != 0) && (infolen != 4) && (ef == false))
-	{
-	if((tagok & TAG_SSID_OK) == TAG_SSID_OK) return true;
-	if((tagok & TAG_RSN_OK) == TAG_RSN_OK) return true;
-	if((tagok & TAG_VENDOR_OK) == TAG_VENDOR_OK) return true;
-	return false;
-	}
+if((infolen != 0) && (infolen != 4) && (ef == false)) return false;
 return true;
 }
 /*===========================================================================*/
