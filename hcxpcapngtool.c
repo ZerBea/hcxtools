@@ -3176,7 +3176,11 @@ while(0 < infolen)
 		infolen -= tagptr->len +IETAG_SIZE;
 		continue;
 		}
-	if(tagptr->len > infolen) return false;
+	if(tagptr->len > infolen)
+		{
+		taglenerrorcount++;
+		return false;
+		}
 	if(tagptr->id == TAG_SSID)
 		{
 		if((tagok & TAG_SSID_OK) == 0)
@@ -3222,20 +3226,32 @@ while(0 < infolen)
 		{
 		if(tagptr->len >= RSNIE_LEN_MIN)
 			{
-			if(gettagrsn(tagptr->len, tagptr->data, zeiger) == false) return false;
+			if(gettagrsn(tagptr->len, tagptr->data, zeiger) == false)
+				{
+				taglenerrorcount++;
+				return false;
+				}
 			}
 		}
 	else if(tagptr->id == TAG_VENDOR)
 		{
 		if(tagptr->len >= VENDORIE_SIZE)
 			{
-			if(gettagvendor(tagptr->len, tagptr->data, zeiger) == false) return false;
+			if(gettagvendor(tagptr->len, tagptr->data, zeiger) == false)
+				{
+				taglenerrorcount++;
+				return false;
+				}
 			}
 		}
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
 	}
-if((infolen != 0) && (infolen != 4) && (ef == false)) return false;
+if((infolen != 0) && (infolen != 4) && (ef == false))
+	{
+	taglenerrorcount++;
+	return false;
+	}
 return true;
 }
 /*===========================================================================*/
