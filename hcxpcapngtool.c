@@ -980,7 +980,8 @@ if(eapolm1ancount <= 1)
 		"This dump file does not contain enough EAPOL M1 frames.\n"
 		"It always happens if the capture file was cleaned or "
 		"it could happen if filter options are used during capturing.\n"
-		"That makes it impossible to calculate nonce-error-correction values.\n");
+		"That makes it impossible to calculate nonce-error-correction values.\n"
+		"https://hashcat.net/forum/thread-6361.html\n");
 	if(timestampdiff < 60000000000) fprintf(stdout, "Duration of the dump tool was a way too short to capture enough additional information.\n");
 	}
 if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0))
