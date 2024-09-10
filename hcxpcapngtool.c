@@ -163,6 +163,7 @@ static long int pcapreaderrors;
 static long int skippedpacketcount;
 static long int zeroedtimestampcount;
 static long int fcsframecount;
+static long int fcsgoodframecount;
 static long int fcsbadframecount;
 static long int band24count;
 static long int band5count;
@@ -482,6 +483,7 @@ pcapreaderrors = 0;
 skippedpacketcount = 0;
 zeroedtimestampcount = 0;
 fcsframecount = 0;
+fcsgoodframecount = 0;
 fcsbadframecount = 0;
 band24count = 0;
 band5count = 0;
@@ -661,8 +663,9 @@ if(endianness == 0)			fprintf(stdout, "endianness (capture system)..............
 else					fprintf(stdout, "endianness (capture system)..............: big endian\n");
 if(rawpacketcount > 0)			fprintf(stdout, "packets inside...........................: %ld\n", rawpacketcount);
 if(skippedpacketcount > 0)		fprintf(stdout, "skipped packets..........................: %ld\n", skippedpacketcount);
-if(fcsframecount > 0)			fprintf(stdout, "frames with correct FCS..................: %ld\n", fcsframecount);
-if(fcsbadframecount > 0)		fprintf(stdout, "frames with bad FCS......................: %ld\n", fcsbadframecount);
+if(fcsframecount > 0)			fprintf(stdout, "frames with FCS (radiotap)...............: %ld\n", fcsframecount);
+if(fcsgoodframecount > 0)		fprintf(stdout, "frames with correct FCS (crc)............: %ld\n", fcsgoodframecount);
+if(fcsbadframecount > 0)		fprintf(stdout, "frames with bad FCS (radiotap)...........: %ld\n", fcsbadframecount);
 if(band24count > 0)			fprintf(stdout, "packets received on 2.4 GHz..............: %ld\n", band24count);
 if(band5count > 0)			fprintf(stdout, "packets received on 5 GHz................: %ld\n", band5count);
 if(band6count > 0)			fprintf(stdout, "packets received on 6 GHz................: %ld\n", band6count);
@@ -4784,6 +4787,10 @@ if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS)
 		fcsbadframecount++;
 		if(donotcleanflag == false) return false;
 		}
+	else if((capptr[pf] & 0x50) == 0x10)
+		{
+		fcsframecount++;
+		}
 	pf += 1;
 	}
 if((rth->it_present & IEEE80211_RADIOTAP_RATE) == IEEE80211_RADIOTAP_RATE) pf += 1;
@@ -5055,10 +5062,9 @@ crc = fcscrc32check(packetptr, packetlen -4);
 #ifdef BIG_ENDIAN_HOST
 crc = byte_swap_32(crc);
 #endif
-
 if(crc == fcs->fcs)
 	{
-	fcsframecount++;
+	fcsgoodframecount++;
 	packetlen -= 4;
 	}
 process80211packet(captimestamp, packetlen, packetptr);
