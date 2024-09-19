@@ -2333,7 +2333,6 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			}
 		if(memcmp(&myaktclient, zeigerpmkid->client, 6) == 0) pmkidroguecount++;
 		pmkidbestcount++;
-
 		if(fh_pmkideapol != 0)
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
@@ -3882,7 +3881,7 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	{
 	pmkid = (pmkid_t*)(wpakptr +WPAKEY_SIZE);
 	if(pmkid->id != TAG_VENDOR) return;
-	if((pmkid->len == 0x14) && (pmkid->type == 0x04))
+	if((pmkid->len == 0x14) && (pmkid->type == 0x04) && keyver != 3)
 		{
 		zeiger->message |= HS_PMKID;
 		if(memcmp(&zeroed32, pmkid->pmkid, 16) == 0)
