@@ -2309,6 +2309,10 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 	{
 	tvhs = zeigerpmkid->timestamp /1000000000;
 	strftime(timestringhs, 32, "%d.%m.%Y %H:%M:%S", localtime(&tvhs));
+	if(((zeigerpmkid->status &PMKID_APPSK256) == PMKID_APPSK256) && ((zeigermac->akm &TAK_PSKSHA256) != TAK_PSKSHA256))
+		{
+		if(ignoreieflag == false) continue;
+		}
 	if(donotcleanflag == false)
 		{
 		if(memcmp(&mac_broadcast, zeigerpmkid->client, 6) == 0) continue;
@@ -3881,7 +3885,7 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 	{
 	pmkid = (pmkid_t*)(wpakptr +WPAKEY_SIZE);
 	if(pmkid->id != TAG_VENDOR) return;
-	if((pmkid->len == 0x14) && (pmkid->type == 0x04) && keyver != 3)
+	if((pmkid->len == 0x14) && (pmkid->type == 0x04))
 		{
 		zeiger->message |= HS_PMKID;
 		if(memcmp(&zeroed32, pmkid->pmkid, 16) == 0)
@@ -3906,7 +3910,8 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 					}
 				}
 			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-			addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid, PMKID_AP);
+			if(keyver != 3) addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid, PMKID_AP);
+			else addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid, PMKID_AP | PMKID_APPSK256);
 			}
 		}
 	else pmkiduselesscount++;

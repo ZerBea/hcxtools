@@ -365,6 +365,7 @@ struct pmkidlist_s
  uint64_t		timestamp;
  uint8_t		status;
 #define PMKID_AP	0x01
+#define PMKID_APPSK256	0x02
 #define PMKID_CLIENT	0x10
  uint8_t		ap[6];
  uint8_t		client[6];
