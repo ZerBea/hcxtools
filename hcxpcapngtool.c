@@ -6153,7 +6153,7 @@ fprintf(stdout, "--prefix=<file>                    : convert everything to list
 "bitmask of PMKID hash line (WPA*01) message pair field:\n"
 	"0: reserved\n"
 	"1: PMKID taken from AP\n"
-	"2: reserved\n"
+	"2: PMKID taken from AP possible PSKSHA256 FT using PSK\n"
 	"3: reserved\n"
 	"4: PMKID taken from CLIENT (wlan.da: possible MESH or REPEATER)\n"
 	"5: reserved\n"
