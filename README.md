@@ -98,7 +98,7 @@ Requirements
 * Detailed knowledge of key derivation functions.
 * Detailed knowledge of Linux
 * Operating system: Linux (recommended: kernel >= 6.4, mandatory: kernel >= 5.10)
-* Recommended: Arch Linux (notebooks and desktop systems), OpenWRT (small systems like Raspberry Pi, WiFi router)
+* Recommendation: Arch Linux (notebooks and desktop systems), OpenWRT (small systems like Raspberry Pi, WiFi router)
 * gcc >= 13 recommended (deprecated versions are not supported: https://gcc.gnu.org/)
 * libopenssl (>= 3.0) and openssl-dev installed
 * librt and librt-dev installed. (Should be installed by default.)
