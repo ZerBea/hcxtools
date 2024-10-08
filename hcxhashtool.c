@@ -160,6 +160,7 @@ static void closelists(void)
 {
 if(hashlist != NULL) free(hashlist);
 if(ouilist != NULL) free(ouilist);
+if(filteressidregexptr != NULL) regfree(&essidregex);
 if(ctxhmac != NULL)
 	{
 	EVP_MAC_CTX_free(ctxhmac);
