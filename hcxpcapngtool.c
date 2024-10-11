@@ -267,6 +267,7 @@ static long int eapolrc4count;
 static long int eapolrsncount;
 static long int eapolwpacount;
 static long int eapolmsgcount;
+static long int eapolrelayedcount;
 static long int eapolnccount;
 static long int eapolmsgerrorcount;
 static long int eapolmsgtimestamperrorcount;
@@ -587,6 +588,7 @@ eapolrc4count = 0;
 eapolrsncount = 0;
 eapolwpacount = 0;
 eapolmsgcount = 0;
+eapolrelayedcount = 0;
 eapolnccount = 0;
 eapolmsgerrorcount = 0;
 eapolmsgtimestamperrorcount = 0;
@@ -781,6 +783,7 @@ if(eapmschapv2count > 0)		fprintf(stdout, "EAP-MSCHAPV2 messages................
 if(eapmschapv2writtencount > 0)		fprintf(stdout, "EAP-MSCHAPV2 pairs written...............: %ld\n", eapmschapv2writtencount);
 if(eaptlscount > 0)			fprintf(stdout, "EAP-TLS messages.........................: %ld\n", eaptlscount);
 if(eapolmsgcount > 0)			fprintf(stdout, "EAPOL messages (total)...................: %ld\n", eapolmsgcount);
+if(eapolrelayedcount > 0)		fprintf(stdout, "EAPOL messages relayed (ignored).........: %ld\n", eapolrelayedcount);
 if(eapolrc4count > 0)			fprintf(stdout, "EAPOL RC4 messages.......................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			fprintf(stdout, "EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			fprintf(stdout, "EAPOL WPA messages.......................: %ld\n", eapolwpacount);
@@ -3282,7 +3285,7 @@ eapolm4count++;
 eapolmsgcount++;
 if(memcmp(macap, macsrc, 6) != 0)
 	{
-	eapolm1errorcount++;
+	eapolrelayedcount++;
 	return;
 	}
 eapauth = (eapauth_t*)eapauthptr;
@@ -3435,7 +3438,7 @@ eapolm3count++;
 eapolmsgcount++;
 if(memcmp(macap, macsrc, 6) != 0)
 	{
-	eapolm1errorcount++;
+	eapolrelayedcount++;
 	return;
 	}
 zeigerakt = messagelist +MESSAGELIST_MAX;
@@ -3622,7 +3625,7 @@ eapolm2count++;
 eapolmsgcount++;
 if(memcmp(macap, macsrc, 6) != 0)
 	{
-	eapolm1errorcount++;
+	eapolrelayedcount++;
 	return;
 	}
 eapauth = (eapauth_t*)eapauthptr;
@@ -3804,7 +3807,7 @@ eapolm1count++;
 eapolmsgcount++;
 if(memcmp(macap, macsrc, 6) != 0)
 	{
-	eapolm1errorcount++;
+	eapolrelayedcount++;
 	return;
 	}
 eapauth = (eapauth_t*)eapauthptr;
@@ -3994,6 +3997,7 @@ else if(keyinfo == 2)
 	}
 else if(keyinfo == 3) process80211eapol_m3(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
 else if(keyinfo == 4) process80211eapol_m4(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
+
 return;
 }
 /*===========================================================================*/
