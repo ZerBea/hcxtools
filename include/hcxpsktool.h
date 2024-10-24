@@ -13,14 +13,15 @@
 #define HCXD_EUDATE			7
 #define HCXD_MACONLY			8
 #define HCXD_NETGEAR			9
-#define HCXD_NOESSIDCOMBINATION		10
-#define HCXD_PHOME			11
-#define HCXD_SIMPLE			12
-#define HCXD_SPECTRUM			13
-#define HCXD_TENDA			14
-#define HCXD_USDATE			15
-#define HCXD_WEAKPASS			16
-#define HCXD_WPSKEYS			17
+#define HCXD_NOVA			10
+#define HCXD_NOESSIDCOMBINATION		11
+#define HCXD_PHOME			12
+#define HCXD_SIMPLE			13
+#define HCXD_SPECTRUM			14
+#define HCXD_TENDA			15
+#define HCXD_USDATE			16
+#define HCXD_WEAKPASS			17
+#define HCXD_WPSKEYS			18
 #define HCXD_HELP			'h'
 #define HCXD_VERSION			'v'
 
