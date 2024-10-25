@@ -40,7 +40,6 @@ static bool eudateflag;
 static bool hb5flag;
 static bool maconlyflag;
 static bool netgearflag;
-static bool novaflag;
 static bool noessidcombinationflag;
 static bool phomeflag;
 static bool podaflag;
@@ -283,39 +282,6 @@ for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
 		snprintf(pskstring, PSKSTRING_LEN_MAX, "%s%s", firstword[ca], secondword[cs]);
 		fprintf(fhout,"%s\n", pskstring);
 		}
-	}
-return;
-}
-/*===========================================================================*/
-static void keywritenova(FILE *fhout)
-{
-static size_t ca;
-static int cn;
-
-static const char *firstword[] =
-{
-"above",
-"cafe", "calm", "cash", "child", "come",
-"dark", "down", "duck",
-"face", "feed", "feel",
-"green", "group",
-"hair", "have", "hike", "horse", "house",
-"jade", "jazz", "juice", 
-"labor", "lack", "lake", "like", "live", "lock", 
-"math", "milk", 
-"nine", 
-"occur", "ocean", "over", 
-"pace", "pain", "path", "photo", "piece", 
-"quest", 
-"road",
-"soup", 
-"tall", "test", 
-"water", "what" 
-};
-
-for(ca = 0; ca < (sizeof(firstword) / sizeof(char *)); ca++)
-	{
-	for (cn = 0; cn < 10000; cn++) fprintf(fhout,"%s%04d\n", firstword[ca], cn);
 	}
 return;
 }
@@ -2527,7 +2493,6 @@ if(eeupperflag == true) keywriteee(fhout, true);
 if(egnflag == true) keywriteegn(fhout);
 if(eudateflag == true) keywriteeudate(fhout);
 if(netgearflag == true) keywritenetgear(fhout);
-if(novaflag == true) keywritenova(fhout);
 if(phomeflag == true) keywritephome(fhout);
 if(simpleflag == true) keywritesimple(fhout);
 if(spectrumflag == true) keywritespectrum(fhout);
@@ -2890,14 +2855,13 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--maconly           : print only candidates based on ACCESS POINT MAC\n"
 	"--noessidcombination: exclude ESSID combinations\n"
 	"--netgear           : include weak NETGEAR / ORBI / NTGR_VMB / ARLO_VMB / FoxtelHub candidates\n"
-	"--nova              : include weak NOVA candidates\n"
 	"--spectrum          : include weak MySpectrumWiFi / SpectrumSetup / MyCharterWiFi candidates\n"
 	"                      list will be > 2.2GB\n"
 	"--digit10           : include weak 10 digit candidates (INFINITUM, ALHN, INEA, VodafoneNet, VIVACOM)\n"
 	"                      list will be > 1GB\n"
 	"--phome             : include weak PEGATRON / Vantiva candidates (CBCI, HOME, [SP/XF]SETUP)\n"
 	"                      list will be > 2.9GB\n"
-	"--tenda             : include weak TENDA candidates\n"
+	"--tenda             : include weak Tenda / NOVA / NOVE / BrosTrend candidates\n"
 	"--ee                : include weak 5GHz-EE / BrightBox / EE / EE-BrightBox candidates\n"
 	"                      list will be > 1.3GB\n"
 	"--eeupper           : include weak EE-Hub candidates\n"
@@ -2952,7 +2916,6 @@ eudateflag = false;
 hb5flag = false;
 maconlyflag = false;
 netgearflag = false;
-novaflag = false;
 noessidcombinationflag = false;
 phomeflag = false;
 podaflag = false;
@@ -2977,7 +2940,6 @@ static const struct option long_options[] =
 	{"eudate",			no_argument,		NULL,	HCXD_EUDATE},
 	{"maconly",			no_argument,		NULL,	HCXD_MACONLY},
 	{"netgear",			no_argument,		NULL,	HCXD_NETGEAR},
-	{"nova",			no_argument,		NULL,	HCXD_NOVA},
 	{"noessidcombination",		no_argument,		NULL,	HCXD_NOESSIDCOMBINATION},
 	{"phome",			no_argument,		NULL,	HCXD_PHOME},
 	{"simple",			no_argument,		NULL,	HCXD_SIMPLE},
@@ -3005,10 +2967,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCXD_NETGEAR:
 		netgearflag = true;
-		break;
-
-		case HCXD_NOVA:
-		novaflag = true;
 		break;
 
 		case HCXD_SPECTRUM:
