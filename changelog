@@ -1,3 +1,12 @@
+11.11.2024
+==========
+release v6.3.5
+hcxhashtool: added new option to filter ESSID 
+--essid-regex=<regex>        : filter ESSID by regular expression
+
+several fixes and improvements
+
+
 04.03.2024
 ==========
 README.md: removed entire instructions how to compile hcxtools on different distributions
