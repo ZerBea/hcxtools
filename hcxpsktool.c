@@ -227,7 +227,7 @@ static const char *secondword[] =
 "nest", "net",
 "oboe", "ocean", "octopus", "onion", "orchestra", "owl",
 "panda", "phoenix", "piano", "pineapple", "planet", "player", "plum", "police",
-"pond", "poodle", "potato", "prairie",
+"pond", "poodle", "potato", "prairie", "puppy",
 "quail",
 "rabbit", "raccoon", "raven", "rise", "river", "road", "rosebud",
 "sea", "sheep", "ship", "shoe", "shrub", "skates", "sky", "snail",
