@@ -1,26 +1,7 @@
-dist: focal
-sudo: false
-cache:
-  ccache: true
-
-language: none
- 
-matrix:
- include:
-   - os: linux
-     addons:
-       apt:
-         sources:
-           - ubuntu-toolchain-r-test
-         packages:
-           - gcc-latest
-           - ccache
-           - make
-           - libcurl4-gnutls-dev
-     env:
-       - MATRIX_EVAL="CC=gcc-latest DO_INSTALL=1"
-before_install:
-  - eval "${MATRIX_EVAL}"
-  - export "CC=ccache $CC"
+os:
+  - linux
+language: c
+compiler:
+  - gcc
 script:
-  - "make"
+  - make
