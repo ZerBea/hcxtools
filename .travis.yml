@@ -1,4 +1,4 @@
-dist: trusty
+dist: focal
 sudo: false
 cache:
   ccache: true
@@ -13,12 +13,12 @@ matrix:
          sources:
            - ubuntu-toolchain-r-test
          packages:
-           - gcc
+           - gcc-latest
            - ccache
            - make
            - libcurl4-gnutls-dev
      env:
-       - MATRIX_EVAL="CC=gcc DO_INSTALL=1"
+       - MATRIX_EVAL="CC=gcc-latest DO_INSTALL=1"
 before_install:
   - eval "${MATRIX_EVAL}"
   - export "CC=ccache $CC"
