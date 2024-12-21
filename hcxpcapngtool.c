@@ -759,7 +759,7 @@ if(protochapreqcount > 0)		fprintf(stdout, "PPP-CHAP request....................
 if(protochaprespcount > 0)		fprintf(stdout, "PPP-CHAP response........................: %ld\n", protochaprespcount);
 if(protochapsuccesscount > 0)		fprintf(stdout, "PPP-CHAP success.........................: %ld\n", protochapsuccesscount);
 if(protopapcount > 0)			fprintf(stdout, "PPP-PAP..................................: %ld\n", protopapcount);
-if(tacacspcount > 0)			fprintf(stdout, "TACACS+ v1...............................: %ld\n", tacacspcount);
+if(tacacspcount > 0)			fprintf(stdout, "TACACS+..................................: %ld\n", tacacspcount);
 if(tacacspauthencount > 0)		fprintf(stdout, "TACACS+ AUTHEN...........................: %ld\n", tacacspauthencount);
 if(tacacspauthorcount > 0)		fprintf(stdout, "TACACS+ AUTHOR...........................: %ld (unsupported)\n", tacacspauthorcount);
 if(tacacspacctcount > 0)		fprintf(stdout, "TACACS+ ACCT.............................: %ld (unsupported)\n", tacacspacctcount);
@@ -1333,6 +1333,7 @@ static tacacsplist_t *tacacsplistnew;
 
 if(restlen < (uint32_t)TACACSP_SIZE) return;
 tacacsp = (tacacsp_t*)tacacspptr;
+tacacspcount++;
 if(tacacsp->version != TACACSP_VERSION)
 	{
 	tacacsunknowncount++;
@@ -1353,7 +1354,6 @@ if(tacacsp->type != TACACSP_AUTHEN)
 	tacacsunknowncount++;
 	return;
 	}
-tacacspauthencount++;
 authlen = ntohl(tacacsp->len);
 if((authlen > restlen -TACACSP_SIZE) || (authlen > TACACSPMAX_LEN)) return;
 if(tacacsplistptr >= tacacsplist +tacacsplistmax)
@@ -1375,7 +1375,7 @@ tacacsplistptr->sessionid = ntohl(tacacsp->sessionid);
 tacacsplistptr->len = authlen;
 memcpy(tacacsplistptr->data, tacacsp->data, authlen);
 tacacsplistptr++;
-tacacspcount++;
+tacacspauthencount++;
 return;
 }
 /*===========================================================================*/
