@@ -936,11 +936,11 @@ typedef struct chap_frame chap_t;
 struct tacacsp_frame
 {
  uint8_t	version;
-#define TACACSP_VERSION 0xc0
+#define TACACSP_VERSION	0xc0
  uint8_t	type;
-#define TACACS_AUTHENTICATION 1
-#define TACACS2_AUTHENTICATION 2
-#define TACACS3_AUTHENTICATION 3
+#define TACACSP_AUTHEN	1
+#define TACACSP_AUTHOR	2
+#define TACACSP_ACCT	3
  uint8_t	sequencenr;
  uint8_t	flags;
  uint32_t	sessionid;

@@ -225,8 +225,10 @@ static long int protochaprespcount;
 static long int protochapsuccesscount;
 static long int protopapcount;
 static long int tacacspcount;
-static long int tacacsp2count;
-static long int tacacsp3count;
+static long int tacacspauthencount;
+static long int tacacspauthorcount;
+static long int tacacspacctcount;
+static long int tacacsunknowncount;
 static long int tacacspwrittencount;
 static long int wepenccount;
 static long int wpaenccount;
@@ -545,8 +547,10 @@ protochaprespcount = 0;
 protochapsuccesscount = 0;
 protopapcount = 0;
 tacacspcount = 0;
-tacacsp2count = 0;
-tacacsp3count = 0;
+tacacspauthencount = 0;
+tacacspauthorcount = 0;
+tacacspacctcount = 0;
+tacacsunknowncount = 0;
 tacacspwrittencount = 0;
 wepenccount = 0;
 wpaenccount = 0;
@@ -756,8 +760,10 @@ if(protochaprespcount > 0)		fprintf(stdout, "PPP-CHAP response..................
 if(protochapsuccesscount > 0)		fprintf(stdout, "PPP-CHAP success.........................: %ld\n", protochapsuccesscount);
 if(protopapcount > 0)			fprintf(stdout, "PPP-PAP..................................: %ld\n", protopapcount);
 if(tacacspcount > 0)			fprintf(stdout, "TACACS+ v1...............................: %ld\n", tacacspcount);
-if(tacacsp2count > 0)			fprintf(stdout, "TACACS+ v2...............................: %ld (unsupported)\n", tacacsp2count);
-if(tacacsp3count > 0)			fprintf(stdout, "TACACS+ v3...............................: %ld (unsupported)\n", tacacsp3count);
+if(tacacspauthencount > 0)		fprintf(stdout, "TACACS+ AUTHEN...........................: %ld\n", tacacspauthencount);
+if(tacacspauthorcount > 0)		fprintf(stdout, "TACACS+ AUTHOR...........................: %ld (unsupported)\n", tacacspauthorcount);
+if(tacacspacctcount > 0)		fprintf(stdout, "TACACS+ ACCT.............................: %ld (unsupported)\n", tacacspacctcount);
+if(tacacsunknowncount > 0)		fprintf(stdout, "TACACS+ unknown version..................: %ld (unsupported)\n", tacacsunknowncount);
 if(tacacspwrittencount > 0)		fprintf(stdout, "TACACS+ written..........................: %ld\n", tacacspwrittencount);
 if(identitycount > 0)			fprintf(stdout, "IDENTITIES...............................: %ld\n", identitycount);
 if(usernamecount > 0)			fprintf(stdout, "USERNAMES................................: %ld\n", usernamecount);
@@ -1327,17 +1333,27 @@ static tacacsplist_t *tacacsplistnew;
 
 if(restlen < (uint32_t)TACACSP_SIZE) return;
 tacacsp = (tacacsp_t*)tacacspptr;
-if(tacacsp->type == TACACS2_AUTHENTICATION)
+if(tacacsp->version != TACACSP_VERSION)
 	{
-	tacacsp2count++;
+	tacacsunknowncount++;
 	return;
 	}
-if(tacacsp->type == TACACS3_AUTHENTICATION)
+if(tacacsp->type == TACACSP_AUTHOR)
 	{
-	tacacsp3count++;
+	tacacspauthorcount++;
 	return;
 	}
-if(tacacsp->type != TACACS_AUTHENTICATION) return;
+if(tacacsp->type == TACACSP_ACCT)
+	{
+	tacacspacctcount++;
+	return;
+	}
+if(tacacsp->type != TACACSP_AUTHEN)
+	{
+	tacacsunknowncount++;
+	return;
+	}
+tacacspauthencount++;
 authlen = ntohl(tacacsp->len);
 if((authlen > restlen -TACACSP_SIZE) || (authlen > TACACSPMAX_LEN)) return;
 if(tacacsplistptr >= tacacsplist +tacacsplistmax)
