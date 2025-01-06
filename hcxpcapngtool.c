@@ -5779,7 +5779,7 @@ jtrbasenamedeprecated = pcapinname;
 fd_pcap = open(pcapnameptr, O_RDONLY);
 if(fd_pcap == -1)
 	{
-	perror("failed to open file");
+	fprintf(stdout, "failed to open %s: %s\n", pcapnameptr, strerror(errno));
 	return false;
 	}
 magicnumber = getmagicnumber(fd_pcap);
@@ -5856,7 +5856,7 @@ static uint8_t packet[MAXPACPSNAPLEN];
 if(initlists() == false) return false;
 if((fh_raw_in = fopen(rawinname, "r")) == NULL)
 	{
-	fprintf(stderr, "failed to open raw file %s\n", rawinname);
+	fprintf(stdout, "failed to open raw file %s\n", rawinname);
 	return false;
 	}
 linecount = 0;
@@ -6656,7 +6656,7 @@ if(pmkideapoloutname != NULL)
 	{
 	if((fh_pmkideapol = fopen(pmkideapoloutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", pmkideapoloutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", pmkideapoloutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6664,7 +6664,7 @@ if(eapmd5outname != NULL)
 	{
 	if((fh_eapmd5 = fopen(eapmd5outname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", eapmd5outname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", eapmd5outname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6672,7 +6672,7 @@ if(eapmd5johnoutname != NULL)
 	{
 	if((fh_eapmd5john = fopen(eapmd5johnoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", eapmd5johnoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", eapmd5johnoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6680,7 +6680,7 @@ if(eapleapoutname != NULL)
 	{
 	if((fh_eapleap = fopen(eapleapoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", eapleapoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", eapleapoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6688,7 +6688,7 @@ if(tacacspoutname != NULL)
 	{
 	if((fh_tacacsp = fopen(tacacspoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", tacacspoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", tacacspoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6696,7 +6696,7 @@ if(essidoutname != NULL)
 	{
 	if((fh_essid = fopen(essidoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", essidoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", essidoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6704,7 +6704,7 @@ if(ltsoutname != NULL)
 	{
 	if((fh_lts = fopen(ltsoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", ltsoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", ltsoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6712,7 +6712,7 @@ if(essidproberequestoutname != NULL)
 	{
 	if((fh_essidproberequest = fopen(essidproberequestoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", essidproberequestoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", essidproberequestoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6720,7 +6720,7 @@ if(identityoutname != NULL)
 	{
 	if((fh_identity = fopen(identityoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", identityoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", identityoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6728,7 +6728,7 @@ if(usernameoutname != NULL)
 	{
 	if((fh_username = fopen(usernameoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", usernameoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", usernameoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6736,7 +6736,7 @@ if(deviceinfooutname != NULL)
 	{
 	if((fh_deviceinfo = fopen(deviceinfooutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", deviceinfooutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", deviceinfooutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6744,7 +6744,7 @@ if(nmeaoutname != NULL)
 	{
 	if((fh_nmea = fopen(nmeaoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", nmeaoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", nmeaoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6752,7 +6752,7 @@ if(csvoutname != NULL)
 	{
 	if((fh_csv = fopen(csvoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", csvoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", csvoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6760,7 +6760,7 @@ if(rawoutname != NULL)
 	{
 	if((fh_raw_out = fopen(rawoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n",rawoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n",rawoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6768,7 +6768,7 @@ if(logoutname != NULL)
 	{
 	if((fh_log = fopen(logoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n",logoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n",logoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6777,7 +6777,7 @@ if(pmkidclientoutname != NULL)
 	{
 	if((fh_pmkideapolclient = fopen(pmkidclientoutname, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", pmkidclientoutname, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", pmkidclientoutname, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6786,7 +6786,7 @@ if(pmkideapoljtroutnamedeprecated != NULL)
 	{
 	if((fh_pmkideapoljtrdeprecated = fopen(pmkideapoljtroutnamedeprecated, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", pmkideapoljtroutnamedeprecated, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", pmkideapoljtroutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6795,7 +6795,7 @@ if(pmkidoutnamedeprecated != NULL)
 	{
 	if((fh_pmkiddeprecated = fopen(pmkidoutnamedeprecated, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", pmkidoutnamedeprecated, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", pmkidoutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6803,7 +6803,7 @@ if(hccapxoutnamedeprecated != NULL)
 	{
 	if((fh_hccapxdeprecated = fopen(hccapxoutnamedeprecated, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", hccapxoutnamedeprecated, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", hccapxoutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
@@ -6811,7 +6811,7 @@ if(hccapoutnamedeprecated != NULL)
 	{
 	if((fh_hccapdeprecated = fopen(hccapoutnamedeprecated, "a")) == NULL)
 		{
-		fprintf(stdout, "error opening file %s: %s\n", hccapoutnamedeprecated, strerror(errno));
+		fprintf(stdout, "failed to open file %s: %s\n", hccapoutnamedeprecated, strerror(errno));
 		exit(EXIT_FAILURE);
 		}
 	}
