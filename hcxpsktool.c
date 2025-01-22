@@ -803,11 +803,12 @@ static const char *word[] =
 "lavender", "lemon", "lime", "linen",
 "magenta", "maroon", "mauve",
 "navy",
-"olive", "orange", "orchid",
+"ochre", "olive", "orange", "orchid",
 "peach", "periwinkle", "pewter", "pink", "plum", "purple",
 "rose",
 "sage", "sepia", "sienna", "silver", "slate",
-"taupe", "teal", "turquoise"
+"taupe", "teal", "turquoise",
+"umber"
 };
 
 for (i = 0; i < 1000000; i++)
@@ -816,7 +817,7 @@ for (i = 0; i < 1000000; i++)
     for (w = 0; w < (sizeof(word) / sizeof(char *)); w++ )
 	    {
 	        // 2-4
-	        //fprintf(fhout, "%s-%.2s-%.4s\n", word[w], si, si+2);
+	        fprintf(fhout, "%s-%.2s-%.4s\n", word[w], si, si+2);
 	        fprintf(fhout, "%.2s-%s-%.4s\n", si, word[w], si+2);
 	        fprintf(fhout, "%.2s-%.4s-%s\n", si, si+2, word[w]);
 	        // 3-3
@@ -826,7 +827,7 @@ for (i = 0; i < 1000000; i++)
 	        // 4-2
 	        fprintf(fhout, "%s-%.4s-%.2s\n", word[w], si, si+4);
 	        fprintf(fhout, "%.4s-%s-%.2s\n", si, word[w], si+4);
-	        //fprintf(fhout, "%.4s-%.2s-%s\n", si, si+4, word[w]);
+	        fprintf(fhout, "%.4s-%.2s-%s\n", si, si+4, word[w]);
 	    }
 }
 
@@ -2870,7 +2871,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--eeupper           : include weak EE-Hub candidates\n"
 	"                      list will be > 3.8GB\n"
 	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice, MyOptimum)\n"
-	"                      list will be > 4.6GB\n"
+	"                      list will be > 6.3GB\n"
 	"--asus              : include weak ASUS RT-AC candidates (ASUS_XX, RT-AC)\n"
 	"--weakpass          : include weak password candidates\n"
 	"--eudate            : include complete european dates\n"
