@@ -92,6 +92,10 @@ make install PREFIX=/usr/local (as super user)
 Requirements
 --------------
 
+You might expect me to recommend that everyone should be using hcxdumptool/hcxtools. But the fact of the matter is, however, that hcxdumptool/hcxtools is NOT recommended to be used by unexperienced users or newbies.
+If you are not familiar with Linux generally or if you do not have at least a basic level of knowledge as mentioned in section "Requirements", hcxdumptool/hcxtools is probably not what you are looking for.
+However, if you have that knowledge this tools can do magic.
+
 * Knowledge of radio technology.
 * Knowledge of electromagnetic-wave engineering.
 * Detailed knowledge of 802.11 protocol.
