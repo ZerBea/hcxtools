@@ -5737,10 +5737,25 @@ return;
 static bool processnmeainfile(char *nmeainname)
 {
 static int nlen;
+static int ccs;
+static int ncs;
+static int c;
+uint8_t idx0;
+uint8_t idx1;
 static FILE *fh_nmeain;
 static char *ntok;
 static char *nres;
-
+const uint8_t hashmap[] =
+{
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
+0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 89:;<=>?
+0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // @ABCDEFG
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // HIJKLMNO
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // PQRSTUVW
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // XYZ[\]^_
+0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // `abcdefg
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
+};
 static char linein[NMEA_MAX];
 
 if((fh_nmeain = fopen(nmeainname, "r")) != NULL)
@@ -5748,12 +5763,22 @@ if((fh_nmeain = fopen(nmeainname, "r")) != NULL)
 	while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 		{
 		if(nlen < 6) continue;
+		if(linein[0] != '$') continue;
+		if(linein[nlen -3] != '*') continue;
+		idx0 = ((uint8_t)linein[nlen -2] & 0x1F) ^ 0x10;
+		idx1 = ((uint8_t)linein[nlen -1] & 0x1F) ^ 0x10;
+		ncs = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
+		ccs = 0;
+		for(c = 1; c < nlen -3; c++) ccs ^= linein[c];
+		if(ncs != ccs) continue;
 		nres = linein;
 		printf("Original string: %s\n", linein);
+
 		while ((ntok = strsep(&nres, ",*")) != NULL)
 			{
 			printf("Token: %s\n", ntok);
 			}
+		printf("cs: %0x %0x\n", ccs, ncs);
 		}
 	}
 fclose(fh_nmeain);
