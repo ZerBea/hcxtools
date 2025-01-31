@@ -5742,10 +5742,10 @@ static bool processnmeainfile(char *eigenname, char *nmeainname)
 {
 static int nlen;
 static int c;
+static int nfc;
 static FILE *fh_nmeain;
 static uint8_t ccs;
 static uint8_t ncs;
-static char *ntok;
 static char *nres;
 const uint8_t hashmap[] =
 {
@@ -5764,7 +5764,9 @@ const uint8_t hashmap[] =
 0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // `abcdefg
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
 };
+static char *nfield[NMEA_FIELD_MAX];
 static char linein[NMEA_MAX];
+
 
 nmeagoodcscount = 0;
 nmeabadcscount = 0;
@@ -5787,10 +5789,12 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 	nmeagoodcscount++;
 	nres = linein;
 	printf("Original string: %s\n", linein);
-
-	while ((ntok = strsep(&nres, ",*")) != NULL)
+	nfc = 0;
+	while ((nfield[nfc] = strsep(&nres, ",*")) != NULL)
 		{
-		printf("Token: %s\n", ntok);
+		printf("Token: %s\n", nfield[nfc]);
+		nfc++;
+		if(nfc >= NMEA_FIELD_MAX) break;
 		}
 	printf("cs: %0x %0x\n", ccs, ncs);
 	}

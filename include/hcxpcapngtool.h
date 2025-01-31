@@ -41,7 +41,7 @@
 #define	OPTIONLEN_MAX			1024
 #define GPX_MAX				256
 #define NMEA_MAX			256
-
+#define NMEA_FIELD_MAX			60
 #define MAX_INTERFACE_ID		255
 
 #define RAW_LEN_MAX			131072
