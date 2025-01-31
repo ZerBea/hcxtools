@@ -330,6 +330,7 @@ static uint64_t timestampmax;
 static uint64_t timestampdiff;
 static uint64_t eaptimegapmax;
 static uint64_t captimestampold;
+static time_t nmeaoffset;
 
 static uint64_t eapoltimeoutvalue;
 static uint64_t ncvalue;
@@ -663,6 +664,7 @@ static int c;
 static uint8_t i;
 static uint16_t p;
 
+if(nmeaoffset > 0)			fprintf(stdout, "NMEA time offset (seconds)...............: %ld\n", nmeaoffset);
 if(nmeacount > 0)			fprintf(stdout, "NMEA PROTOCOL............................: %ld\n", nmeacount);
 if(nmeaerrorcount > 0)			fprintf(stdout, "NMEA PROTOCOL checksum errors............: %ld\n", nmeaerrorcount);
 if(endianness == 0)			fprintf(stdout, "endianness (capture system)..............: little endian\n");
@@ -5734,7 +5736,7 @@ printcontentinfo();
 return;
 }
 /*===========================================================================*/
-static bool processnmeainfile(char *nmeainname, long nmeaoffset)
+static bool processnmeainfile(char *nmeainname)
 {
 static int nlen;
 static FILE *fh_nmeain;
@@ -5747,9 +5749,6 @@ if((fh_nmeain = fopen(nmeainname, "r")) == NULL)
 
 		}
 	}
-
-nmeaoffset = 0; // prevent gcc warninguntil code finished
-nlen += nmeaoffset; // prevent gcc warninguntil code finished
 fclose(fh_nmeain);
 return true;
 }
@@ -6226,7 +6225,6 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static int exitcode;
-static time_t nmeaoffset;
 static char *pmkideapoloutname;
 static char *pmkidclientoutname;
 static char *eapmd5outname;
@@ -6365,7 +6363,7 @@ fh_pmkideapoljtrdeprecated = NULL;
 fh_pmkiddeprecated = NULL;
 fh_hccapxdeprecated = NULL;
 fh_hccapdeprecated = NULL;
-
+nmeaoffset = 0;
 gzipstat = 0;
 capstat = 0;
 pcapngstat = 0;
@@ -6829,7 +6827,7 @@ if(hccapoutnamedeprecated != NULL)
 
 if(nmeainname != NULL)
 	{
-	if(processnmeainfile(nmeainname, nmeaoffset) == false) exitcode = EXIT_FAILURE;
+	if(processnmeainfile(nmeainname) == false) exitcode = EXIT_FAILURE;
 	}
 
 for(index = optind; index < argc; index++)
