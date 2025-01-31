@@ -5740,13 +5740,21 @@ static bool processnmeainfile(char *nmeainname)
 {
 static int nlen;
 static FILE *fh_nmeain;
+static char *ntok;
+static char *nres;
+
 static char linein[NMEA_MAX];
 
-if((fh_nmeain = fopen(nmeainname, "r")) == NULL)
+if((fh_nmeain = fopen(nmeainname, "r")) != NULL)
 	{
 	while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 		{
-
+		nres = linein;
+		printf("Original string: %s\n", linein);
+		while ((ntok = strsep(&nres, ",*")) != NULL)
+			{
+			printf("Token: %s\n", ntok);
+			}
 		}
 	}
 fclose(fh_nmeain);
