@@ -158,6 +158,8 @@ static long int radiotaperrorcount;
 
 static long int nmeacount;
 static long int nmeaerrorcount;
+static long int nmeagoodcscount;
+static long int nmeabadcscount;
 static long int rawpacketcount;
 static long int pcapreaderrors;
 static long int skippedpacketcount;
@@ -667,7 +669,9 @@ static int c;
 static uint8_t i;
 static uint16_t p;
 
-if(nmeaoffset > 0)			fprintf(stdout, "NMEA time offset (seconds)...............: %ld\n", nmeaoffset);
+if(nmeagoodcscount > 0)			fprintf(stdout, "NMEA time offset (seconds)...............: %ld\n", nmeaoffset);
+if(nmeagoodcscount > 0)			fprintf(stdout, "NMEA with good CS........................: %ld\n", nmeagoodcscount);
+if(nmeabadcscount > 0)			fprintf(stdout, "NMEA with bad CS.........................: %ld\n", nmeabadcscount);
 if(nmeacount > 0)			fprintf(stdout, "NMEA PROTOCOL............................: %ld\n", nmeacount);
 if(nmeaerrorcount > 0)			fprintf(stdout, "NMEA PROTOCOL checksum errors............: %ld\n", nmeaerrorcount);
 if(endianness == 0)			fprintf(stdout, "endianness (capture system)..............: little endian\n");
@@ -5734,13 +5738,13 @@ printcontentinfo();
 return;
 }
 /*===========================================================================*/
-static bool processnmeainfile(char *nmeainname)
+static bool processnmeainfile(char *eigenname, char *nmeainname)
 {
 static int nlen;
-static uint8_t ccs;
-static uint8_t ncs;
 static int c;
 static FILE *fh_nmeain;
+static uint8_t ccs;
+static uint8_t ncs;
 static char *ntok;
 static char *nres;
 const uint8_t hashmap[] =
@@ -5762,26 +5766,33 @@ const uint8_t hashmap[] =
 };
 static char linein[NMEA_MAX];
 
-if((fh_nmeain = fopen(nmeainname, "r")) != NULL)
-	{
-	while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
-		{
-		if(nlen < 6) continue;
-		if(linein[0] != '$') continue;
-		if(linein[nlen -3] != '*') continue;
-		ncs = (hashmap[(uint8_t)linein[nlen -2]] << 4) | hashmap[(uint8_t)linein[nlen -1]];
-		ccs = 0;
-		for(c = 1; c < nlen -3; c++) ccs ^= linein[c];
-		if(ncs != ccs) continue;
-		nres = linein;
-		printf("Original string: %s\n", linein);
+nmeagoodcscount = 0;
+nmeabadcscount = 0;
 
-		while ((ntok = strsep(&nres, ",*")) != NULL)
-			{
-			printf("Token: %s\n", ntok);
-			}
-		printf("cs: %0x %0x\n", ccs, ncs);
+fprintf(stdout, "%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(nmeainname));
+if((fh_nmeain = fopen(nmeainname, "r")) == NULL) return false;
+while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
+	{
+	if(nlen < 6) continue;
+	if(linein[0] != '$') continue;
+	if(linein[nlen -3] != '*') continue;
+	ncs = (hashmap[(uint8_t)linein[nlen -2]] << 4) | hashmap[(uint8_t)linein[nlen -1]];
+	ccs = 0;
+	for(c = 1; c < nlen -3; c++) ccs ^= linein[c];
+	if(ncs != ccs)
+		{
+		nmeabadcscount++;
+		continue;
 		}
+	nmeagoodcscount++;
+	nres = linein;
+	printf("Original string: %s\n", linein);
+
+	while ((ntok = strsep(&nres, ",*")) != NULL)
+		{
+		printf("Token: %s\n", ntok);
+		}
+	printf("cs: %0x %0x\n", ccs, ncs);
 	}
 fclose(fh_nmeain);
 return true;
@@ -6861,7 +6872,7 @@ if(hccapoutnamedeprecated != NULL)
 
 if(nmeainname != NULL)
 	{
-	if(processnmeainfile(nmeainname) == false) exitcode = EXIT_FAILURE;
+	if(processnmeainfile(argv[0], nmeainname) == false) exitcode = EXIT_FAILURE;
 	}
 
 for(index = optind; index < argc; index++)
