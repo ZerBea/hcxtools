@@ -347,6 +347,10 @@ static bool ancientdumpfileformat;
 static bool radiotappresent;
 static bool ieee80211flag;
 
+static char rssi;
+static int interfacechannel;
+static uint64_t myaktreplaycount;
+static uint8_t pcapngtimeresolution;
 
 static const uint8_t fakenonce1[] =
 {
@@ -360,13 +364,13 @@ static const uint8_t fakenonce2[] =
 0x75, 0x1f, 0x53, 0xcc, 0xb5, 0x81, 0xd1, 0x52, 0x3b, 0xb4, 0xba, 0xad, 0x23, 0xab, 0x01, 0x07
 };
 
-static char rssi;
-static int interfacechannel;
+static const char gpgga[] = "$GPGGA";
+static const char gprmc[] = "$GPRMC";
+
 static uint8_t myaktap[6];
 static uint8_t myaktclient[6];
 static uint8_t myaktanonce[32];
 static uint8_t myaktsnonce[32];
-static uint64_t myaktreplaycount;
 
 static char pcapnghwinfo[OPTIONLEN_MAX];
 static char pcapngosinfo[OPTIONLEN_MAX];
@@ -374,7 +378,6 @@ static char pcapngapplinfo[OPTIONLEN_MAX];
 static char pcapngoptioninfo[OPTIONLEN_MAX];
 static char pcapngweakcandidate[OPTIONLEN_MAX];
 static uint8_t pcapngdeviceinfo[6];
-static uint8_t pcapngtimeresolution;
 static char nmeasentence[OPTIONLEN_MAX];
 static char gpwplold[OPTIONLEN_MAX];
 
@@ -1134,9 +1137,6 @@ static float hdop;
 static float altitude;
 static char altunit;
 static char ns;
-static const char gpgga[] = "$GPGGA";
-static const char gprmc[] = "$GPRMC";
-
 static char timestring[24];
 
 if(tags->essidlen == 0) return;
@@ -1234,8 +1234,6 @@ static int cs;
 static int cc, ca, ce;
 static int gpwpllen;
 static char *gpwplptr;
-static const char gpgga[] = "$GPGGA";
-static const char gprmc[] = "$GPRMC";
 static char gpwpl[NMEA_MAX];
 
 if(nmealen < 48) return;
@@ -5749,6 +5747,7 @@ if((fh_nmeain = fopen(nmeainname, "r")) != NULL)
 	{
 	while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 		{
+		if(nlen < 6) continue;
 		nres = linein;
 		printf("Original string: %s\n", linein);
 		while ((ntok = strsep(&nres, ",*")) != NULL)
