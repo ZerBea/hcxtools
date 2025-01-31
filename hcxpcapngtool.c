@@ -5734,17 +5734,23 @@ printcontentinfo();
 return;
 }
 /*===========================================================================*/
-static bool processtrackfile(char *trackinname)
+static bool processnmeainfile(char *nmeainname, long nmeaoffset)
 {
-static FILE *fh_trackin;
+static int nlen;
+static FILE *fh_nmeain;
+static char linein[NMEA_MAX];
 
-if((fh_trackin = fopen(trackinname, "r")) == NULL)
+if((fh_nmeain = fopen(nmeainname, "r")) == NULL)
 	{
+	while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
+		{
 
+		}
 	}
 
-
-fclose(fh_trackin);
+nmeaoffset = 0; // prevent gcc warninguntil code finished
+nlen += nmeaoffset; // prevent gcc warninguntil code finished
+fclose(fh_nmeain);
 return true;
 }
 /*===========================================================================*/
@@ -6118,10 +6124,9 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--eapmd5-john=<file>               : output EAP MD5 CHALLENGE (john chap)\n"
 	"--eapleap=<file>                   : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)\n"
 	"--tacacs-plus=<file>               : output TACACS PLUS v1 (hashcat -m 16100, john tacacs-plus)\n"
-//	"--track=<file>                     : input TRACK file (No,Latitude,Longitude,Altitude,Date,Time)\n"
-//	"                                      gpsbabel -t -i GPS_IN_FORMAT -f GPS_IN_FILE -o unicsv -F TRACK_FILE\n"
-//	"                                      gpsbabel -t -i GPS_IN_FORMAT -f GPS_IN_FILE -x track,move=TIME_ADJUST_TO_SYSTEM_CLOCKTIME -o unicsv -F TRACK_FILE\n"
-	"--nmea=<file>                      : output GPS data in NMEA 0183 format\n"
+//	"--nmea-in=<file>                   : input NME 0183 file\n"
+//	"--nmea-offset=<file>               : time offset between NMEA 0183 file and dump file in seconds\n"
+	"--nmea-out=<file>                  : output GPS data in NMEA 0183 format\n"
 	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
 	"                                     gpsbabel -i nmea -f hcxdumptool.nmea -o gpx,gpxver=1.1 -F hcxdumptool.gpx\n"
@@ -6221,6 +6226,7 @@ int main(int argc, char *argv[])
 static int auswahl;
 static int index;
 static int exitcode;
+static time_t nmeaoffset;
 static char *pmkideapoloutname;
 static char *pmkidclientoutname;
 static char *eapmd5outname;
@@ -6232,7 +6238,7 @@ static char *essidproberequestoutname;
 static char *deviceinfooutname;
 static char *identityoutname;
 static char *usernameoutname;
-static char *trackinname;
+static char *nmeainname;
 static char *nmeaoutname;
 static char *csvoutname;
 static char *logoutname;
@@ -6280,8 +6286,9 @@ static const struct option long_options[] =
 	{"nonce-error-corrections",	required_argument,	NULL,	HCX_NC},
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
-	{"track-in",			required_argument,	NULL,	HCX_TRACK_IN},
-	{"nmea",			required_argument,	NULL,	HCX_NMEA_OUT},
+	{"nmea-in",			required_argument,	NULL,	HCX_NMEA_IN},
+	{"nmea-offset",			required_argument,	NULL,	HCX_NMEA_OFFSET},
+	{"nmea-out",			required_argument,	NULL,	HCX_NMEA_OUT},
 	{"csv",				required_argument,	NULL,	HCX_CSV_OUT},
 	{"raw-out",			required_argument,	NULL,	HCX_RAW_OUT},
 	{"raw-in",			required_argument,	NULL,	HCX_RAW_IN},
@@ -6325,7 +6332,7 @@ essidproberequestoutname = NULL;
 identityoutname = NULL;
 usernameoutname = NULL;
 deviceinfooutname = NULL;
-trackinname = NULL;
+nmeainname = NULL;
 nmeaoutname = NULL;
 csvoutname = NULL;
 logoutname = NULL;
@@ -6440,8 +6447,12 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		deviceinfooutname = optarg;
 		break;
 
-		case HCX_TRACK_IN:
-		trackinname = optarg;
+		case HCX_NMEA_IN:
+		nmeainname = optarg;
+		break;
+
+		case HCX_NMEA_OFFSET:
+		nmeaoffset = strtol(optarg, NULL, 10);
 		break;
 
 		case HCX_NMEA_OUT:
@@ -6816,9 +6827,9 @@ if(hccapoutnamedeprecated != NULL)
 		}
 	}
 
-if(trackinname != NULL)
+if(nmeainname != NULL)
 	{
-	if(processtrackfile(trackinname) == false) exitcode = EXIT_FAILURE;
+	if(processnmeainfile(nmeainname, nmeaoffset) == false) exitcode = EXIT_FAILURE;
 	}
 
 for(index = optind; index < argc; index++)
