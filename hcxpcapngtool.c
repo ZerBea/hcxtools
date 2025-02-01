@@ -160,6 +160,14 @@ static long int nmeacount;
 static long int nmeaerrorcount;
 static long int nmeagoodcscount;
 static long int nmeabadcscount;
+static long int nmeaggacount;
+static long int nmeagllcount;
+static long int nmeagsacount;
+static long int nmeagsvcount;
+static long int nmearmccount;
+static long int nmeatxtcount;
+static long int nmeavtgcount;
+
 static long int rawpacketcount;
 static long int pcapreaderrors;
 static long int skippedpacketcount;
@@ -672,6 +680,13 @@ static uint16_t p;
 if(nmeagoodcscount > 0)			fprintf(stdout, "NMEA time offset (seconds)...............: %ld\n", nmeaoffset);
 if(nmeagoodcscount > 0)			fprintf(stdout, "NMEA with good CS........................: %ld\n", nmeagoodcscount);
 if(nmeabadcscount > 0)			fprintf(stdout, "NMEA with bad CS.........................: %ld\n", nmeabadcscount);
+if(nmeaggacount > 0)			fprintf(stdout, "NMEA GGA.................................: %ld\n", nmeaggacount);
+if(nmeagllcount > 0)			fprintf(stdout, "NMEA GLL.................................: %ld\n", nmeagllcount);
+if(nmeagsacount > 0)			fprintf(stdout, "NMEA GSA.................................: %ld\n", nmeagsacount);
+if(nmeagsvcount > 0)			fprintf(stdout, "NMEA GSV.................................: %ld\n", nmeagsvcount);
+if(nmearmccount > 0)			fprintf(stdout, "NMEA RMC.................................: %ld\n", nmearmccount);
+if(nmeatxtcount > 0)			fprintf(stdout, "NMEA TXT.................................: %ld\n", nmeatxtcount);
+if(nmeavtgcount > 0)			fprintf(stdout, "NMEA VTG.................................: %ld\n", nmeavtgcount);
 if(nmeacount > 0)			fprintf(stdout, "NMEA PROTOCOL............................: %ld\n", nmeacount);
 if(nmeaerrorcount > 0)			fprintf(stdout, "NMEA PROTOCOL checksum errors............: %ld\n", nmeaerrorcount);
 if(endianness == 0)			fprintf(stdout, "endianness (capture system)..............: little endian\n");
@@ -5747,6 +5762,15 @@ static FILE *fh_nmeain;
 static uint8_t ccs;
 static uint8_t ncs;
 static char *nres;
+
+static char ngga[] = "GGA";
+static char ngll[] = "GLL";
+static char ngsa[] = "GSA";
+static char ngsv[] = "GSV";
+static char nrmc[] = "RMC";
+static char ntxt[] = "TXT";
+static char nvtg[] = "VTG";
+
 const uint8_t hashmap[] =
 {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -5770,6 +5794,13 @@ static char linein[NMEA_MAX];
 
 nmeagoodcscount = 0;
 nmeabadcscount = 0;
+nmeaggacount = 0;
+nmeagllcount = 0;
+nmeagsacount = 0;
+nmeagsvcount = 0;
+nmearmccount = 0;
+nmeatxtcount = 0;
+nmeavtgcount = 0;
 
 fprintf(stdout, "%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(nmeainname));
 if((fh_nmeain = fopen(nmeainname, "r")) == NULL) return false;
@@ -5792,10 +5823,41 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 	nfc = 0;
 	while ((nfield[nfc] = strsep(&nres, ",*")) != NULL)
 		{
-		printf("Token: %s\n", nfield[nfc]);
 		nfc++;
 		if(nfc >= NMEA_FIELD_MAX) break;
 		}
+	if(nfc < 6) continue;
+	if(strlen(nfield[0]) < 6) continue;
+	if(memcmp(ngga, nfield[0] +3, 3) == 0)
+		{
+		nmeaggacount++;
+		}
+	else if(memcmp(ngll, nfield[0] +3, 3) == 0)
+		{
+		nmeagllcount++;
+		}
+	else if(memcmp(ngsa, nfield[0] +3, 3) == 0)
+		{
+		nmeagsacount++;
+		}
+	else if(memcmp(ngsv, nfield[0] +3, 3) == 0)
+		{
+		nmeagsvcount++;
+		}
+	else if(memcmp(nrmc, nfield[0] +3, 3) == 0)
+		{
+		nmearmccount++;
+		}
+	else if(memcmp(ntxt, nfield[0] +3, 3) == 0)
+		{
+		nmeatxtcount++;
+		}
+	else if(memcmp(nvtg, nfield[0] +3, 3) == 0)
+		{
+		nmeavtgcount++;
+		}
+
+//	for(int x = 0; x < nfc; x++) printf("Token: %s\n", nfield[x]);
 	printf("cs: %0x %0x\n", ccs, ncs);
 	}
 fclose(fh_nmeain);
