@@ -5819,7 +5819,6 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 		}
 	nmeagoodcscount++;
 	nres = linein;
-	printf("Original string: %s\n", linein);
 	nfc = 0;
 	while ((nfield[nfc] = strsep(&nres, ",*")) != NULL)
 		{
@@ -5847,6 +5846,12 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 	else if(memcmp(nrmc, nfield[0] +3, 3) == 0)
 		{
 		nmearmccount++;
+		if(strlen(nfield[1]) == 0) continue;
+		if(strlen(nfield[3]) == 0) continue;
+		if(strlen(nfield[4]) == 0) continue;
+		if(strlen(nfield[5]) == 0) continue;
+		if(strlen(nfield[6]) == 0) continue;
+		if(strlen(nfield[9]) == 0) continue;
 		}
 	else if(memcmp(ntxt, nfield[0] +3, 3) == 0)
 		{
@@ -5856,9 +5861,6 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 		{
 		nmeavtgcount++;
 		}
-
-//	for(int x = 0; x < nfc; x++) printf("Token: %s\n", nfield[x]);
-	printf("cs: %0x %0x\n", ccs, ncs);
 	}
 fclose(fh_nmeain);
 return true;
