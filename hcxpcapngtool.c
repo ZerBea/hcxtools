@@ -160,6 +160,7 @@ static long int nmeacount;
 static long int nmeaerrorcount;
 static long int nmeagoodcscount;
 static long int nmeabadcscount;
+static long int nmeagbscount;
 static long int nmeaggacount;
 static long int nmeagllcount;
 static long int nmeagsacount;
@@ -168,6 +169,7 @@ static long int nmearmccount;
 static long int nmeatxtcount;
 static long int nmeavtgcount;
 static long int nmeawplcount;
+static long int nmeazdacount;
 
 static long int rawpacketcount;
 static long int pcapreaderrors;
@@ -681,6 +683,7 @@ static uint16_t p;
 if(nmeagoodcscount > 0)			fprintf(stdout, "NMEA time offset (seconds)...............: %ld\n", nmeaoffset);
 if(nmeagoodcscount > 0)			fprintf(stdout, "NMEA with good CS........................: %ld\n", nmeagoodcscount);
 if(nmeabadcscount > 0)			fprintf(stdout, "NMEA with bad CS.........................: %ld\n", nmeabadcscount);
+if(nmeagbscount > 0)			fprintf(stdout, "NMEA GBS.................................: %ld\n", nmeagbscount);
 if(nmeaggacount > 0)			fprintf(stdout, "NMEA GGA.................................: %ld\n", nmeaggacount);
 if(nmeagllcount > 0)			fprintf(stdout, "NMEA GLL.................................: %ld\n", nmeagllcount);
 if(nmeagsacount > 0)			fprintf(stdout, "NMEA GSA.................................: %ld\n", nmeagsacount);
@@ -689,6 +692,7 @@ if(nmearmccount > 0)			fprintf(stdout, "NMEA RMC................................
 if(nmeatxtcount > 0)			fprintf(stdout, "NMEA TXT.................................: %ld\n", nmeatxtcount);
 if(nmeavtgcount > 0)			fprintf(stdout, "NMEA VTG.................................: %ld\n", nmeavtgcount);
 if(nmeawplcount > 0)			fprintf(stdout, "NMEA WPL.................................: %ld\n", nmeawplcount);
+if(nmeazdacount > 0)			fprintf(stdout, "NMEA ZDA.................................: %ld\n", nmeazdacount);
 if(nmeacount > 0)			fprintf(stdout, "NMEA PROTOCOL............................: %ld\n", nmeacount);
 if(nmeaerrorcount > 0)			fprintf(stdout, "NMEA PROTOCOL checksum errors............: %ld\n", nmeaerrorcount);
 if(endianness == 0)			fprintf(stdout, "endianness (capture system)..............: little endian\n");
@@ -5765,6 +5769,7 @@ static uint8_t ccs;
 static uint8_t ncs;
 static char *nres;
 
+static char ngbs[] = "GBS";
 static char ngga[] = "GGA";
 static char ngll[] = "GLL";
 static char ngsa[] = "GSA";
@@ -5773,6 +5778,7 @@ static char nrmc[] = "RMC";
 static char ntxt[] = "TXT";
 static char nvtg[] = "VTG";
 static char nwpl[] = "WPL";
+static char nzda[] = "ZDA";
 
 const uint8_t hashmap[] =
 {
@@ -5831,7 +5837,12 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 		}
 	if(nfc < 6) continue;
 	if(strlen(nfield[0]) < 6) continue;
-	if(memcmp(ngga, nfield[0] +3, 3) == 0)
+	if(memcmp(ngbs, nfield[0] +3, 3) == 0)
+		{
+		nmeagbscount++;
+		if(strlen(nfield[1]) == 0) continue;
+		}
+	else if(memcmp(ngga, nfield[0] +3, 3) == 0)
 		{
 		nmeaggacount++;
 		if(strlen(nfield[1]) == 0) continue;
@@ -5883,6 +5894,14 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 		if(strlen(nfield[3]) == 0) continue;
 		if(strlen(nfield[4]) == 0) continue;
 		if(strlen(nfield[5]) == 0) continue;
+		}
+	else if(memcmp(nzda, nfield[0] +3, 3) == 0)
+		{
+		nmeazdacount++;
+		if(strlen(nfield[1]) == 0) continue;
+		if(strlen(nfield[2]) == 0) continue;
+		if(strlen(nfield[3]) == 0) continue;
+		if(strlen(nfield[4]) == 0) continue;
 		}
 	}
 fclose(fh_nmeain);
