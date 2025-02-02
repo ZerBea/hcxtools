@@ -167,6 +167,7 @@ static long int nmeagsvcount;
 static long int nmearmccount;
 static long int nmeatxtcount;
 static long int nmeavtgcount;
+static long int nmeawplcount;
 
 static long int rawpacketcount;
 static long int pcapreaderrors;
@@ -687,6 +688,7 @@ if(nmeagsvcount > 0)			fprintf(stdout, "NMEA GSV................................
 if(nmearmccount > 0)			fprintf(stdout, "NMEA RMC.................................: %ld\n", nmearmccount);
 if(nmeatxtcount > 0)			fprintf(stdout, "NMEA TXT.................................: %ld\n", nmeatxtcount);
 if(nmeavtgcount > 0)			fprintf(stdout, "NMEA VTG.................................: %ld\n", nmeavtgcount);
+if(nmeawplcount > 0)			fprintf(stdout, "NMEA WPL.................................: %ld\n", nmeawplcount);
 if(nmeacount > 0)			fprintf(stdout, "NMEA PROTOCOL............................: %ld\n", nmeacount);
 if(nmeaerrorcount > 0)			fprintf(stdout, "NMEA PROTOCOL checksum errors............: %ld\n", nmeaerrorcount);
 if(endianness == 0)			fprintf(stdout, "endianness (capture system)..............: little endian\n");
@@ -5770,6 +5772,7 @@ static char ngsv[] = "GSV";
 static char nrmc[] = "RMC";
 static char ntxt[] = "TXT";
 static char nvtg[] = "VTG";
+static char nwpl[] = "WPL";
 
 const uint8_t hashmap[] =
 {
@@ -5801,6 +5804,7 @@ nmeagsvcount = 0;
 nmearmccount = 0;
 nmeatxtcount = 0;
 nmeavtgcount = 0;
+nmeawplcount = 0;
 
 fprintf(stdout, "%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(nmeainname));
 if((fh_nmeain = fopen(nmeainname, "r")) == NULL) return false;
@@ -5870,6 +5874,15 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 	else if(memcmp(nvtg, nfield[0] +3, 3) == 0)
 		{
 		nmeavtgcount++;
+		}
+	else if(memcmp(nwpl, nfield[0] +3, 3) == 0)
+		{
+		nmeawplcount++;
+		if(strlen(nfield[1]) == 0) continue;
+		if(strlen(nfield[2]) == 0) continue;
+		if(strlen(nfield[3]) == 0) continue;
+		if(strlen(nfield[4]) == 0) continue;
+		if(strlen(nfield[5]) == 0) continue;
 		}
 	}
 fclose(fh_nmeain);
