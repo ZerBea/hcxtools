@@ -5830,10 +5830,20 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 	if(memcmp(ngga, nfield[0] +3, 3) == 0)
 		{
 		nmeaggacount++;
+		if(strlen(nfield[1]) == 0) continue;
+		if(strlen(nfield[2]) == 0) continue;
+		if(strlen(nfield[3]) == 0) continue;
+		if(strlen(nfield[4]) == 0) continue;
+		if(strlen(nfield[5]) == 0) continue;
 		}
 	else if(memcmp(ngll, nfield[0] +3, 3) == 0)
 		{
 		nmeagllcount++;
+		if(strlen(nfield[1]) == 0) continue;
+		if(strlen(nfield[2]) == 0) continue;
+		if(strlen(nfield[3]) == 0) continue;
+		if(strlen(nfield[4]) == 0) continue;
+		if(strlen(nfield[5]) == 0) continue;
 		}
 	else if(memcmp(ngsa, nfield[0] +3, 3) == 0)
 		{
