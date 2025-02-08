@@ -343,7 +343,6 @@ static uint64_t timestampmax;
 static uint64_t timestampdiff;
 static uint64_t eaptimegapmax;
 static uint64_t captimestampold;
-static time_t nmeaoffset;
 
 static uint64_t eapoltimeoutvalue;
 static uint64_t ncvalue;
@@ -680,7 +679,6 @@ static int c;
 static uint8_t i;
 static uint16_t p;
 
-if(nmeagoodcscount > 0)			fprintf(stdout, "NMEA time offset (seconds)...............: %ld\n", nmeaoffset);
 if(nmeagoodcscount > 0)			fprintf(stdout, "NMEA with good CS........................: %ld\n", nmeagoodcscount);
 if(nmeabadcscount > 0)			fprintf(stdout, "NMEA with bad CS.........................: %ld\n", nmeabadcscount);
 if(nmeagbscount > 0)			fprintf(stdout, "NMEA GBS.................................: %ld\n", nmeagbscount);
@@ -6281,7 +6279,6 @@ fprintf(stdout, "long options:\n"
 	"--nmea-in=<file>                   : input NME 0183 file\n"
 	"                                     to convert gpx to NMEA 0183, use GPSBabel:\n"
 	"                                     gpsbabel -w -t -i gpx -f in_file.gpx -o nmea -F out_file.nmea\n"
-	"--nmea-offset=<file>               : time offset between NMEA 0183 file and dump file in seconds\n"
 	"--nmea-out=<file>                  : output GPS data in NMEA 0183 format\n"
 	"                                     format: NMEA 0183 $GPGGA, $GPRMC, $GPWPL\n"
 	"                                     to convert it to gpx, use GPSBabel:\n"
@@ -6441,7 +6438,6 @@ static const struct option long_options[] =
 	{"ignore-ie",			no_argument,		NULL,	HCX_IE},
 	{"max-essids",			required_argument,	NULL,	HCX_ESSIDS},
 	{"nmea-in",			required_argument,	NULL,	HCX_NMEA_IN},
-	{"nmea-offset",			required_argument,	NULL,	HCX_NMEA_OFFSET},
 	{"nmea-out",			required_argument,	NULL,	HCX_NMEA_OUT},
 	{"csv",				required_argument,	NULL,	HCX_CSV_OUT},
 	{"raw-out",			required_argument,	NULL,	HCX_RAW_OUT},
@@ -6519,7 +6515,6 @@ fh_pmkideapoljtrdeprecated = NULL;
 fh_pmkiddeprecated = NULL;
 fh_hccapxdeprecated = NULL;
 fh_hccapdeprecated = NULL;
-nmeaoffset = 0;
 gzipstat = 0;
 capstat = 0;
 pcapngstat = 0;
@@ -6603,10 +6598,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_NMEA_IN:
 		nmeainname = optarg;
-		break;
-
-		case HCX_NMEA_OFFSET:
-		nmeaoffset = strtol(optarg, NULL, 10);
 		break;
 
 		case HCX_NMEA_OUT:
