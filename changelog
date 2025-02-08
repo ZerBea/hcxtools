@@ -1,5 +1,19 @@
 31.01.2025
 ==========
+hcxpcapngtool: added new options to read NMEA 0183 files from external sources
+--nmea-in=<file>                   : input NME 0183 file
+                                     to convert gpx to NMEA 0183, use GPSBabel:
+                                     gpsbabel -w -t -i gpx -f in_file.gpx -o nmea -F out_file.nmea
+--nmea-offset=<file>               : time offset between NMEA 0183 file and dump file in seconds
+
+The aim is to retrieve GPS information in NMEA 0183 standard format either from
+USB GPS devices or external a GPS tracker (e.g. Garmin eTrex 30) and to feed this
+data to hcxpcapngtool.
+In a next step, I'll add the evaluation of AP data and GPS location.
+
+
+31.01.2025
+==========
 hcxpcapngtool: option nmea changed to nmea-out
 
 
