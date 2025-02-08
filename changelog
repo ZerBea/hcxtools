@@ -1,4 +1,4 @@
-31.01.2025
+08.02.2025
 ==========
 hcxpcapngtool: added new options to read NMEA 0183 files from external sources
 --nmea-in=<file>                   : input NME 0183 file
