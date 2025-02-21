@@ -1643,6 +1643,24 @@ for(k1 = 0; k1 < 10; k1++)
 return;
 }
 /*===========================================================================*/
+static void testbroadband(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1;
+static const char *broadband = "Broadband";
+
+static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
+
+if(essidlen < 20) return;
+if(memcmp(&essid[9], broadband, 9) != 0) return;
+if((!isdigit((unsigned char)essid[18])) || (!isdigit((unsigned char)essid[19]))) return;
+for(k1 = 0; k1 < 1000000; k1++)
+	{
+	snprintf(essidtmp, PSKSTRING_LEN_MAX, "%06d%c%c", k1, essid[18], essid[19]);
+	writepsk(fhout, essidtmp);
+	}
+return;
+}
+/*===========================================================================*/
 static void testcabovisao(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1;
@@ -2181,6 +2199,7 @@ testarrisizzi(fhout, essidlen, essid);
 testarristg(fhout, essidlen, essid);
 testattwifi(fhout, essidlen, essid);
 testaxtelxtremo(fhout, essidlen, essid);
+testbroadband(fhout, essidlen, essid);
 testcabovisao(fhout, essidlen, essid);
 testcg3000dv2(fhout, essidlen, essid);
 testcpsrf(fhout, essidlen, essid);
