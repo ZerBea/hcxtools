@@ -1963,6 +1963,21 @@ podaflag = true;
 return;
 }
 /*===========================================================================*/
+static void testpwf(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k;
+static const char *pwf = "PWF";
+
+if(podaflag == true) return;
+if(essidlen < 5) return;
+if(memcmp(essid, pwf, 3) != 0) return;
+if((isdigit((unsigned char)essid[3])) && (isdigit((unsigned char)essid[4])) && (isdigit((unsigned char)essid[5])) && (isdigit((unsigned char)essid[6]))&& (isdigit((unsigned char)essid[7])) && (isdigit((unsigned char)essid[8])) && (isdigit((unsigned char)essid[9])))
+	{
+	for(k = 0; k < 1000; k++) fprintf(fhout, "%c%c%c%c%c%03d\n", essid[4], essid[5], essid[6], essid[7], essid[8], k);
+	}
+return;
+}
+/*===========================================================================*/
 static void testroamingman(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2, k3;
@@ -2211,6 +2226,7 @@ testmywifi(fhout, essidlen, essid);
 testnet2g(fhout, essidlen, essid);
 testnetv(fhout, essidlen, essid);
 testpoda(fhout, essidlen, essid);
+testpwf(fhout, essidlen, essid);
 testroamingman(fhout, essidlen, essid);
 testrtk(fhout, essidlen, essid);
 testtechnicolor(fhout, essidlen, essid);
