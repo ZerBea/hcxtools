@@ -1756,7 +1756,7 @@ while(1)
 	{
 	if((len = fgetline(fh_essidlistin, PMKIDEAPOL_BUFFER_LEN, linein)) == -1) break;
 	if((len < 1) || (len > 70)) continue;
-	memset(zeiger->essid, 0, 33);
+	memset(zeiger->essid, 0, ESSID_LEN_MAX);
 	if((len >= 8) && ((len %2) == 0) && (linein[len -1] == ']') && (memcmp(linein, hexpfx, 5) == 0))
 		{
 		linein[len -1] = 0;
