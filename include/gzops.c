@@ -44,9 +44,10 @@ if(fhin == NULL)
 	}
 
 fhout = fopen (tmpoutname, "w");
-if(fhin == NULL)
+if(fhout == NULL)
 	{
 	printf("failed to decompress%s\n", tmpoutname);
+	fclose(fhin);
 	return false;
 	}
 
