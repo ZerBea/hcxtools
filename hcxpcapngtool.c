@@ -1068,7 +1068,7 @@ if(timestampdiff > 0)
 	if(timestampdiff > 60000000000) fprintf(stdout, "duration of the dump tool (minutes)......: %" PRIu64 "\n", timestampdiff / 60000000000);
 	else fprintf(stdout, "duration of the dump tool (seconds)......: %" PRIu64 "\n", timestampdiff / 1000000000);
 	}
-fprintf(stdout, "used capture interfaces..................: %d\n", iface);
+fprintf(stdout, "used capture interfaces..................: %u\n", iface);
 for(c = 0; c < iface; c++)
 	{
 	if(c > 0)
@@ -5093,8 +5093,8 @@ else if(linktype == DLT_NULL)
 	}
 else
 	{
-	fprintf(stdout, "unsupported network type %d\n", linktype);
-	if(fh_log != NULL) fprintf(fh_log, "unsupported network type %d: %ld\n", linktype, rawpacketcount);
+	fprintf(stdout, "unsupported network type %u\n", linktype);
+	if(fh_log != NULL) fprintf(fh_log, "unsupported network type %u: %ld\n", linktype, rawpacketcount);
 	return;
 	}
 
@@ -5184,8 +5184,8 @@ if(pcapfhdr.version_minor != PCAP_MINOR_VER)
 if(pcapfhdr.snaplen > MAXPACPSNAPLEN)
 	{
 	pcapreaderrors++;
-	fprintf(stdout, "detected oversized snaplen (%d)\n", pcapfhdr.snaplen);
-	if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen (%d): %d\n", pcapfhdr.snaplen, pcapfhdr.version_minor);
+	fprintf(stdout, "detected oversized snaplen (%u)\n", pcapfhdr.snaplen);
+	if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen (%u): %d\n", pcapfhdr.snaplen, pcapfhdr.version_minor);
 	}
 
 while(1)
@@ -5584,14 +5584,14 @@ while(1)
 		if(snaplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "detected oversized snaplen (%d)\n", snaplen);
+			fprintf(stdout, "detected oversized snaplen (%u)\n", snaplen);
 			if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen: %ld\n", rawpacketcount);
 			}
 		if(iface >= MAX_INTERFACE_ID)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "maximum of supported interfaces reached: %d\n", iface);
-			if(fh_log != NULL) fprintf(fh_log, "maximum of supported interfaces reached: %d\n", iface);
+			fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
+			if(fh_log != NULL) fprintf(fh_log, "maximum of supported interfaces reached: %u\n", iface);
 			continue;
 			}
 		dltlinktype[iface] = pcapngidb->linktype;
@@ -5609,14 +5609,14 @@ while(1)
 		if(pcapngpb->caplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen > MAXSNAPLEN (%d > %d)\n", pcapngpb->caplen, MAXPACPSNAPLEN);
+			fprintf(stdout, "caplen > MAXSNAPLEN (%u > %d)\n", pcapngpb->caplen, MAXPACPSNAPLEN);
 			if(fh_log != NULL) fprintf(fh_log, "caplen > MAXSNAPLEN: %ld\n", rawpacketcount);
 			continue;
 			}
 		if(pcapngpb->caplen > blocklen)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen > blocklen (%d > %d)\n", pcapngpb->caplen, blocklen);
+			fprintf(stdout, "caplen > blocklen (%u > %u)\n", pcapngpb->caplen, blocklen);
 			if(fh_log != NULL) fprintf(fh_log, "caplen > blocklen: %ld\n", rawpacketcount);
 			continue;
 			}
@@ -5647,8 +5647,8 @@ while(1)
 		if(pcapngepb->interface_id >= iface)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "maximum of supported interfaces reached: %d\n", iface);
-			if(fh_log != NULL) fprintf(stdout, "maximum of supported interfaces reached: %d\n", iface);
+			fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
+			if(fh_log != NULL) fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
 			continue;
 			}
 		timestamppcapng = pcapngepb->timestamp_high;
@@ -5663,21 +5663,21 @@ while(1)
 		if(pcapngepb->caplen != pcapngepb->len)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen != len (%d != %d)\n", pcapngepb->caplen, pcapngepb->len);
+			fprintf(stdout, "caplen != len (%u != %u)\n", pcapngepb->caplen, pcapngepb->len);
 			if(fh_log != NULL) fprintf(fh_log, "caplen != len: %ld\n", rawpacketcount);
 			continue;
 			}
 		if(pcapngepb->caplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen > MAXSNAPLEN (%d > %d)\n", pcapngepb->caplen, MAXPACPSNAPLEN);
+			fprintf(stdout, "caplen > MAXSNAPLEN (%u > %d)\n", pcapngepb->caplen, MAXPACPSNAPLEN);
 			if(fh_log != NULL) fprintf(fh_log, "caplen > MAXSNAPLEN: %ld\n", rawpacketcount);
 			continue;
 			}
 		if(pcapngepb->caplen > blocklen)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen > blocklen (%d > %d)\n", pcapngepb->caplen, blocklen);
+			fprintf(stdout, "caplen > blocklen (%u > %u)\n", pcapngepb->caplen, blocklen);
 			if(fh_log != NULL) fprintf(fh_log, "caplen > blocklen: %ld\n", rawpacketcount);
 			continue;
 			}
