@@ -428,7 +428,7 @@ if(memcmp(eapoltmp, zeiger->hash, 16) == 0)
 			}
 		}
 	else fprintf(stdout, ":");
-	fprintf(stdout, ":%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
+	fprintf(stdout, ":%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 		pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
 		pmk[8], pmk[9], pmk[10], pmk[11], pmk[12], pmk[13], pmk[14], pmk[15],
 		pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
@@ -476,7 +476,7 @@ if(memcmp(message, zeiger->hash, 16) == 0)
 			}
 		}
 	else fprintf(stdout, ":");
-	fprintf(stdout, ":%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
+	fprintf(stdout, ":%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 		pmk[0], pmk[1], pmk[2], pmk[3], pmk[4], pmk[5], pmk[6], pmk[7],
 		pmk[8], pmk[9], pmk[10], pmk[11], pmk[12], pmk[13], pmk[14], pmk[15],
 		pmk[16], pmk[17], pmk[18], pmk[19], pmk[20], pmk[21], pmk[22], pmk[23],
@@ -806,7 +806,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 		snprintf(groupoutname, PATH_MAX -1, "%02x%02x%02x%02x%02x%02x-%04d.hccap", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], c);
 		c++;
 		}
-	while (stat(groupoutname, &statinfo) == 0); 
+	while (stat(groupoutname, &statinfo) == 0);
 	if((fh_hccap = fopen(groupoutname, "a")) == NULL) continue;
 	writehccaprecord(fh_hccap, zeiger);
 	if(fh_hccap != NULL) fclose(fh_hccap);
@@ -1756,7 +1756,7 @@ while(1)
 	{
 	if((len = fgetline(fh_essidlistin, PMKIDEAPOL_BUFFER_LEN, linein)) == -1) break;
 	if((len < 1) || (len > 70)) continue;
-	memset(zeiger->essid, 0, 33);
+	memset(zeiger->essid, 0, ESSID_LEN_MAX);
 	if((len >= 8) && ((len %2) == 0) && (linein[len -1] == ']') && (memcmp(linein, hexpfx, 5) == 0))
 		{
 		linein[len -1] = 0;
@@ -2192,7 +2192,7 @@ static void showvendorlist(void)
 static ouilist_t *zeiger;
 
 fprintf(stdout, "\n");
-for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++) fprintf(stdout, "%02x%02x%02x %s\n", zeiger->oui[0], zeiger->oui[1], zeiger->oui[2], zeiger->vendor); 
+for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++) fprintf(stdout, "%02x%02x%02x %s\n", zeiger->oui[0], zeiger->oui[1], zeiger->oui[2], zeiger->vendor);
 return;
 }
 /*===========================================================================*/
@@ -2370,7 +2370,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"-d          : download https://standards-oui.ieee.org/oui.txt\n"
 	"              and save to ~/.hcxtools/oui.txt\n"
 	"              internet connection required\n"
-//	"-p          : input PBKDF2 file (hashcat potfile 22000 format)\n" 
+//	"-p          : input PBKDF2 file (hashcat potfile 22000 format)\n"
 	"-h          : show this help\n"
 	"-v          : show version\n"
 	"\n"
@@ -2625,7 +2625,7 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 	switch (auswahl)
 		{
 		case HCX_PMKIDEAPOL_IN:
-		if((hccapxinname != NULL) || (hccapinname != NULL)) 
+		if((hccapxinname != NULL) || (hccapinname != NULL))
 			{
 			fprintf(stderr, "only one input hash format is allowed\n");
 			exit(EXIT_FAILURE);
