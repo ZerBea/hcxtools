@@ -4421,7 +4421,7 @@ if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
 if(tags.essid[0] == 0) return;
 if(fh_lts != NULL)
 	{
-	if(tags.essidlen > 0) 
+	if(tags.essidlen > 0)
 		{
 		naf = false;
 		for(i = 0; i < tags.essidlen; i++)
@@ -4549,7 +4549,7 @@ if(memcmp(&tags.essid, &zeroed32, tags.essidlen) == 0)
 	}
 if(fh_lts != NULL)
 	{
-	if((tags.essidlen > 0) && (tags.essidlen <= 32) && (tags.essid[0] != 0)) 
+	if((tags.essidlen > 0) && (tags.essidlen <= 32) && (tags.essid[0] != 0))
 		{
 		naf = false;
 		for(i = 0; i < tags.essidlen; i++)
@@ -4858,7 +4858,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 		interfacechannel = (frequency -2407)/5;
 		band24count++;
 		}
-	else if(frequency >= 4910 && frequency <= 4980) 
+	else if(frequency >= 4910 && frequency <= 4980)
 		{
 		interfacechannel = (frequency - 4000)/5;
 		band5count++;
