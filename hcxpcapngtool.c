@@ -2641,7 +2641,7 @@ if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, m
 	handshakelistptr->messageclient = msgclient->message;
 	memcpy(handshakelistptr->ap, msgap->ap, 6);
 	memcpy(handshakelistptr->client, msgclient->client, 6);
-	memcpy(handshakelistptr->pmkid, msgap->pmkid, 32);
+	memcpy(handshakelistptr->pmkid, msgap->pmkid, 16);
 	if((msgap->eapauthlen != 0) && (((mpfield &ST_M32E3) == ST_M32E3) || ((mpfield &ST_M34E3) == ST_M34E3)))
 		{
 		memcpy(handshakelistptr->anonce, msgclient->nonce, 32);
@@ -2687,7 +2687,7 @@ else
 		memcpy(handshakelistptr->ap, msgap->ap, 6);
 		memcpy(handshakelistptr->client, msgclient->client, 6);
 		memcpy(handshakelistptr->anonce, msgap->nonce, 32);
-		memcpy(handshakelistptr->pmkid, msgap->pmkid, 32);
+		memcpy(handshakelistptr->pmkid, msgap->pmkid, 16);
 		if(mpfield != ST_M32E3)
 			{
 			memcpy(handshakelistptr->anonce, msgap->nonce, 32);
