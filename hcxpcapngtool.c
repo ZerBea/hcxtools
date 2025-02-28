@@ -3265,9 +3265,12 @@ while(0 < infolen)
 			{
 			if((tagok & TAG_COUNTRY_OK) == 0)
 				{
-				zeiger->country[0] = tagptr->data[0];
-				zeiger->country[1] = tagptr->data[1];
-				tagok |= TAG_COUNTRY_OK;
+				if((tagptr->data[0] >= 'A') && (tagptr->data[0] <= 'Z') && (tagptr->data[1] >= 'A') && (tagptr->data[1] <= 'Z'))
+					{
+					zeiger->country[0] = tagptr->data[0];
+					zeiger->country[1] = tagptr->data[1];
+					tagok |= TAG_COUNTRY_OK;
+					}
 				}
 			}
 		}
