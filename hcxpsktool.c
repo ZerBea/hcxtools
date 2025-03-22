@@ -689,27 +689,29 @@ static const char *word5[] =
 "angle", "ankle", "arena", "armed", "arrow", "audio", "award",
 "beams", "bland", "blank", "bleak", "bless", "boast", "boost", "bored", "bread", "bring", "broke", "buyer",
 "cable", "cakes", "canoe", "cards", "cargo", "cause", "chair", "cheap", "chips", "choke", "climb", "clove",
-"coact", "coins", "comic", "cough", "count", "cover", "crane", "crash", "crude", "cruel", "cubic", "curry",
+"coact", "coins", "colds", "comic", "cough", "count", "cover", "crane", "crash", "crate", "crude", "cruel",
+"cubic", "curry",
 "dairy", "delay", "dance", "dense", "desks", "diner", "dines", "dozen", "draft", "dream", "drink", "drown",
 "drunk", "dusts", "dusty",
 "early", "eight", "elder", "enter", "equal", "equip", "erode", "evens", "event", "exact", "exams", "excel",
 "extra",
-"fancy", "fares", "fence", "fibre", "fifty", "filed", "files", "final", "first", "floor", "flour", "flute",
-"focus", "foggy", "front", "fruit",
-"genie", "giant", "glare", "glaze", "gleam", "glory", "glows", "grave", "great", "grids", "group", "grove",
-"guess", "guest",
-"harps", "hawks", "heavy", "house", "humor",
+"fancy", "fares", "fence", "fibre", "fifty", "filed", "files", "final", "first", "flock", "floor", "flour",
+"flute", "focus", "foggy", "front", "fruit",
+"genie", "giant", "glare", "glaze", "gleam", "glory", "glows", "goose", "grave", "great", "grids", "group",
+"grove", "guess", "guest",
+"harps", "hawks", "heavy", "hired", "house", "humor",
 "ideal", "index", "infer", "inked", "ivory",
 "judge",
 "knock",
-"laces", "large", "lawny", "learn", "light", "lilac", "linen", "lofts", "loose", "lucky", "lunar", "lyric",
+"laces", "large", "lawny", "learn", "level", "light", "lilac", "linen", "lofts", "loose", "lucky", "lunar",
+"lyric",
 "madam", "magic", "major", "malts", "manor", "maple", "march", "marry", "merit", "moist", "molar", "motto",
 "mourn", "mouse", "muddy",
 "nacho", "novel", "nurse",
 "odeon", "offer", "optic",
-"pages", "panda", "pants", "pause", "peace", "pedal", "pesto", "piano", "piece", "piety", "pings", "pious",
-"pivot", "place", "plant", "plate", "pound", "prime", "prize", "probe", "prose", "proud", "prune", "puppy",
-"pylon",
+"pages", "panda", "panel", "panes", "pants", "pause", "peace", "pedal", "pesto", "piano", "piece", "piety",
+"pings", "pious", "pivot", "place", "plant", "plate", "pound", "prime", "prize", "probe", "prose", "proud",
+"prune", "puppy", "pylon",
 "quiet",
 "rally", "refer", "remit", "renew", "repel", "reset", "roach", "rocky", "roofs", "rooks", "rough", "royal",
 "rusty",
@@ -720,7 +722,7 @@ static const char *word5[] =
 "tally", "talon", "tempt", "tench", "tents", "these", "thick", "thief", "those", "tidal", "tiger", "title",
 "today", "track", "train", "tread", "trend", "trick", "trust", "tuned", "twigs", "twist",
 "unbid", "unbox", "uncap", "upend", "upper", "upset",
-"valid", "vends", "verge", "verse", "vines", "visit",
+"valid", "vends", "venue", "verge", "verse", "vines", "visit",
 "weary", "wheat", "wheel", "whole", "worth", "wound", "wrist",
 "yeast",
 "zooms"
@@ -2995,7 +2997,7 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"--ee                : include weak 5GHz-EE / BrightBox / EE / EE-BrightBox candidates\n"
 	"                      list will be > 1.3GB\n"
 	"--eeupper           : include weak EE-Hub candidates\n"
-	"                      list will be > 3.8GB\n"
+	"                      list will be > 3.9GB\n"
 	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice, MyOptimum)\n"
 	"                      list will be > 6.3GB\n"
 	"--asus              : include weak ASUS RT-AC candidates (ASUS_XX, RT-AC)\n"
