@@ -865,8 +865,8 @@ if(eapolwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to 
 if(eapolncwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccapx.: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
 if(eapolwrittenhcpcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccap..: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
 if(eapolwrittenjcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format JtR....: %ld (RC checked)\n", eapolwrittenjcountdeprecated);
-if(eapolm12e2count > 0)			fprintf(stdout, "EAPOL M12E2 (challenge)..................: %ld\n", eapolm12e2count);
-if(eapolm32e2count > 0)			fprintf(stdout, "EAPOL M32E2 (challenge / authorized).....: %ld (depends on RC value & sequence number)\n", eapolm32e2count);
+if(eapolm12e2count > 0)			fprintf(stdout, "EAPOL M12E2 (challenge - ANONCE from M1).: %ld\n", eapolm12e2count);
+if(eapolm32e2count > 0)			fprintf(stdout, "EAPOL M32E2 (authorized - ANONCE from M3): %ld\n", eapolm32e2count);
 if(eapolm14e4count > 0)			fprintf(stdout, "EAPOL M14E4 (authorized).................: %ld\n", eapolm14e4count);
 if(eapolm32e3count > 0)			fprintf(stdout, "EAPOL M32E3 (authorized).................: %ld\n", eapolm32e3count);
 if(eapolm34e3count > 0)			fprintf(stdout, "EAPOL M34E3 (authorized).................: %ld\n", eapolm34e3count);
@@ -6342,9 +6342,9 @@ fprintf(stdout, "--prefix=<file>                    : convert everything to list
 	"\n"
 	"bitmask of EAPOL hash line (WPA*02) message pair field:\n"
 	"2,1,0:\n"
-	" 000 = M1+M2, EAPOL from M2 (challenge)\n"
+	" 000 = M1+M2, EAPOL from M2 (challenge - ANONCE from M1)\n"
 	" 001 = M1+M4, EAPOL from M4 (authorized) - usable if NONCE_CLIENT is not zeroed \n"
-	" 010 = M2+M3, EAPOL from M2 (challenge / authorized depending on RC value & sequence number)\n"
+	" 010 = M2+M3, EAPOL from M2 (authorized - ANONCE from M3)\n"
 	" 011 = M2+M3, EAPOL from M3 (authorized) - usable by option --all\n"
 	" 100 = M3+M4, EAPOL from M3 (authorized) - usable by option --all\n"
 	" 101 = M3+M4, EAPOL from M4 (authorized) - usable if NONCE_CLIENT is not zeroed\n"
