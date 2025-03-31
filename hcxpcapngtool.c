@@ -866,7 +866,7 @@ if(eapolncwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written t
 if(eapolwrittenhcpcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccap..: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
 if(eapolwrittenjcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format JtR....: %ld (RC checked)\n", eapolwrittenjcountdeprecated);
 if(eapolm12e2count > 0)			fprintf(stdout, "EAPOL M12E2 (challenge)..................: %ld\n", eapolm12e2count);
-if(eapolm32e2count > 0)			fprintf(stdout, "EAPOL M32E2 (challenge / authorized).....: %ld (depends on RC values & sequnece numbers)\n", eapolm32e2count);
+if(eapolm32e2count > 0)			fprintf(stdout, "EAPOL M32E2 (challenge / authorized).....: %ld (depends on RC value & sequence number)\n", eapolm32e2count);
 if(eapolm14e4count > 0)			fprintf(stdout, "EAPOL M14E4 (authorized).................: %ld\n", eapolm14e4count);
 if(eapolm32e3count > 0)			fprintf(stdout, "EAPOL M32E3 (authorized).................: %ld\n", eapolm32e3count);
 if(eapolm34e3count > 0)			fprintf(stdout, "EAPOL M34E3 (authorized).................: %ld\n", eapolm34e3count);
