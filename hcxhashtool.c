@@ -1369,8 +1369,8 @@ if(zeiger->type == HCX_TYPE_EAPOL)
 	keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
 	fprintf(fh_pmkideapol, "EAPOL MSG..: %d\n", keyinfo);
 	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2.: challenge\n");
+	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2.: challenge / authorized (depends on RC values & sequnece numbers)\n");
 	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4.: authorized\n");
-	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2.: authorized\n");
 	if((zeiger->mp & 0x07) == 0x03) fprintf(fh_pmkideapol, "MP M2M3 E3.: authorized\n");
 	if((zeiger->mp & 0x07) == 0x04) fprintf(fh_pmkideapol, "MP M3M4 E3.: authorized\n");
 	if((zeiger->mp & 0x07) == 0x05) fprintf(fh_pmkideapol, "MP M3M4 E4.: authorized\n");
