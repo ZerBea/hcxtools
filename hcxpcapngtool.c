@@ -6344,7 +6344,7 @@ fprintf(stdout, "--prefix=<file>                    : convert everything to list
 	"2,1,0:\n"
 	" 000 = M1+M2, EAPOL from M2 (challenge)\n"
 	" 001 = M1+M4, EAPOL from M4 (authorized) - usable if NONCE_CLIENT is not zeroed \n"
-	" 010 = M2+M3, EAPOL from M2 (authorized)\n"
+	" 010 = M2+M3, EAPOL from M2 (challenge / authorized depending on RC value & sequence number)\n"
 	" 011 = M2+M3, EAPOL from M3 (authorized) - usable by option --all\n"
 	" 100 = M3+M4, EAPOL from M3 (authorized) - usable by option --all\n"
 	" 101 = M3+M4, EAPOL from M4 (authorized) - usable if NONCE_CLIENT is not zeroed\n"
