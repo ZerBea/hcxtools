@@ -341,7 +341,7 @@ if(memcmp(wpa2, hashlinestring, 7) == 0)
 	if(flen != 6) return false;
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
-	flen = getfieldlen(&hashlinestring[plen], 64);
+	flen = getfieldlen(&hashlinestring[plen], 65);
 	if((flen %2) != 0) return false;
 	flen /= 2;
 	if((flen <= 0) || (flen > 32)) return false;
