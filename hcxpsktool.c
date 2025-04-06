@@ -362,7 +362,7 @@ static const char *firstword[] =
 
 static const char *secondword[] =
 {
-"", "acre", "actor", "ad", "advice", "affect", "agency", "air",
+"acre", "actor", "ad", "advice", "affect", "agency", "air",
 "airplane", "album", "amount", "anchor", "apple", "area", "art", "article",
 "aspect", "ature", "author", "ave", "award", "back", "bakery", "ball",
 "balloon", "banana", "barrel", "basis", "basket", "beach", "bead", "bear",
