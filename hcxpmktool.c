@@ -317,7 +317,7 @@ if(memcmp(wpa1, hashlinestring, 7) == 0)
 	plen += flen *2;
 	if(hashlinestring[plen++] != '*') return false;
 	flen = getfieldlen(&hashlinestring[plen], 65);
-	essidlen = hex2bin(&hashlinestring[plen], essid, flen/2);
+	essidlen = hex2bin(&hashlinestring[plen], essid, flen /2);
 	if((essidlen <= 0) || (essidlen > 32)) return false;
 	plen += essidlen *2;
 	if(hashlinestring[plen++] != '*') return false;
