@@ -3328,7 +3328,7 @@ eapolmsgcount++;
 if(memcmp(macap, macsrc, 6) != 0)
 	{
 	eapolrelayedcount++;
-	return;
+	if(donotcleanflag == false) return;
 	}
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
@@ -3481,7 +3481,7 @@ eapolmsgcount++;
 if(memcmp(macap, macsrc, 6) != 0)
 	{
 	eapolrelayedcount++;
-	return;
+	if(donotcleanflag == false) return;
 	}
 zeigerakt = messagelist +MESSAGELIST_MAX;
 eapauth = (eapauth_t*)eapauthptr;
@@ -3668,7 +3668,7 @@ eapolmsgcount++;
 if(memcmp(macap, macsrc, 6) != 0)
 	{
 	eapolrelayedcount++;
-	return;
+	if(donotcleanflag == false) return;
 	}
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
@@ -3850,7 +3850,7 @@ eapolmsgcount++;
 if(memcmp(macap, macsrc, 6) != 0)
 	{
 	eapolrelayedcount++;
-	return;
+	if(donotcleanflag == false) return;
 	}
 eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
