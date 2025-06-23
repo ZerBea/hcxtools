@@ -817,7 +817,7 @@ if(eapmschapv2count > 0)		fprintf(stdout, "EAP-MSCHAPV2 messages................
 if(eapmschapv2writtencount > 0)		fprintf(stdout, "EAP-MSCHAPV2 pairs written...............: %ld\n", eapmschapv2writtencount);
 if(eaptlscount > 0)			fprintf(stdout, "EAP-TLS messages.........................: %ld\n", eaptlscount);
 if(eapolmsgcount > 0)			fprintf(stdout, "EAPOL messages (total)...................: %ld\n", eapolmsgcount);
-if(eapolrelayedcount > 0)		fprintf(stdout, "EAPOL messages relayed (ignored).........: %ld\n", eapolrelayedcount);
+if(eapolrelayedcount > 0)		fprintf(stdout, "EAPOL messages relayed ..................: %ld (not converted by default options - use --all)\n", eapolrelayedcount);
 if(eapolrc4count > 0)			fprintf(stdout, "EAPOL RC4 messages.......................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			fprintf(stdout, "EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			fprintf(stdout, "EAPOL WPA messages.......................: %ld\n", eapolwpacount);
