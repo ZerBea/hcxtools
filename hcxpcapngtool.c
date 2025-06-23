@@ -819,8 +819,8 @@ if(eaptlscount > 0)			fprintf(stdout, "EAP-TLS messages.........................
 if(eapolmsgcount > 0)			fprintf(stdout, "EAPOL messages (total)...................: %ld\n", eapolmsgcount);
 if(eapolrelayedcount > 0)
 	{
-	if(donotcleanflag == false) fprintf(stdout, "EAPOL messages relayed ..................: %ld (not converted by default options - use --all)\n", eapolrelayedcount);
-	else fprintf(stdout, "EAPOL messages relayed ..................: %ld\n", eapolrelayedcount);
+	if(donotcleanflag == false) fprintf(stdout, "EAPOL messages relayed...................: %ld (not converted by default options - use --all)\n", eapolrelayedcount);
+	else fprintf(stdout, "EAPOL messages relayed...................: %ld\n", eapolrelayedcount);
 	}
 if(eapolrc4count > 0)			fprintf(stdout, "EAPOL RC4 messages.......................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			fprintf(stdout, "EAPOL RSN messages.......................: %ld\n", eapolrsncount);
