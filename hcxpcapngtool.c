@@ -3327,9 +3327,10 @@ if((infolen != 0) && (infolen != 4) && (ef == false))
 return true;
 }
 /*===========================================================================*/
-static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m4(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr, uint8_t *packetptr)
 {
 static int c;
+static mac_t *macfrx;
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
@@ -3345,7 +3346,8 @@ static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm4count++;
 eapolmsgcount++;
-if(memcmp(macap, macsrc, 6) != 0)
+macfrx = (mac_t*)packetptr;
+if((memcmp(macap, macsrc, 6) != 0) || ((macfrx->to_ds == 1) && (macfrx->from_ds == 1)))
 	{
 	eapolrelayedcount++;
 	if(donotcleanflag == false) return;
@@ -3479,9 +3481,10 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_tim
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m3(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m3(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr, uint8_t *packetptr)
 {
 static int c;
+static mac_t *macfrx;
 static messagelist_t *zeiger;
 static messagelist_t *zeigerakt;
 static uint8_t *wpakptr;
@@ -3498,7 +3501,8 @@ static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm3count++;
 eapolmsgcount++;
-if(memcmp(macap, macsrc, 6) != 0)
+macfrx = (mac_t*)packetptr;
+if((memcmp(macap, macsrc, 6) != 0) || ((macfrx->to_ds == 1) && (macfrx->from_ds == 1)))
 	{
 	eapolrelayedcount++;
 	if(donotcleanflag == false) return;
@@ -3665,9 +3669,10 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_tim
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m2(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m2(uint64_t eaptimestamp, uint8_t *macap, uint8_t *macclient, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr, uint8_t *packetptr)
 {
 static int c;
+static mac_t *macfrx;
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
@@ -3685,7 +3690,8 @@ static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm2count++;
 eapolmsgcount++;
-if(memcmp(macap, macsrc, 6) != 0)
+macfrx = (mac_t*)packetptr;
+if((memcmp(macap, macsrc, 6) != 0) || ((macfrx->to_ds == 1) && (macfrx->from_ds == 1)))
 	{
 	eapolrelayedcount++;
 	if(donotcleanflag == false) return;
@@ -3851,9 +3857,10 @@ qsort(messagelist, MESSAGELIST_MAX +1, MESSAGELIST_SIZE, sort_messagelist_by_tim
 return;
 }
 /*===========================================================================*/
-static void process80211eapol_m1(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr)
+static void process80211eapol_m1(uint64_t eaptimestamp, uint8_t *macclient, uint8_t *macap, uint8_t *macsrc, uint32_t restlen, uint8_t *eapauthptr, uint8_t *packetptr)
 {
 static int c;
+static mac_t *macfrx;
 static messagelist_t *zeiger;
 static uint8_t *wpakptr;
 static wpakey_t *wpak;
@@ -3867,7 +3874,8 @@ static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm1count++;
 eapolmsgcount++;
-if(memcmp(macap, macsrc, 6) != 0)
+macfrx = (mac_t*)packetptr;
+if((memcmp(macap, macsrc, 6) != 0) || ((macfrx->to_ds == 1) && (macfrx->from_ds == 1)))
 	{
 	eapolrelayedcount++;
 	if(donotcleanflag == false) return;
@@ -4013,7 +4021,7 @@ eapolrc4count++;
 return;
 }
 /*===========================================================================*/
-static void process80211eapol(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint8_t *macsrc, uint32_t eapauthlen, uint8_t *eapauthptr)
+static void process80211eapol(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint8_t *macsrc, uint32_t eapauthlen, uint8_t *eapauthptr, uint8_t *packetptr)
 {
 static eapauth_t *eapauth;
 static uint32_t authlen;
@@ -4051,19 +4059,19 @@ if((keylen != 0) && (keylen != 16) && (keylen != 32))
 	eapolmsgerrorcount++;
 	return;
 	}
-if(keyinfo == 1) process80211eapol_m1(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
+if(keyinfo == 1) process80211eapol_m1(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr, packetptr);
 else if(keyinfo == 2)
 	{
-	if(authlen != 0x5f) process80211eapol_m2(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
-	else process80211eapol_m4(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
+	if(authlen != 0x5f) process80211eapol_m2(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr, packetptr);
+	else process80211eapol_m4(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr, packetptr);
 	}
-else if(keyinfo == 3) process80211eapol_m3(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
-else if(keyinfo == 4) process80211eapol_m4(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr);
+else if(keyinfo == 3) process80211eapol_m3(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr, packetptr);
+else if(keyinfo == 4) process80211eapol_m4(eaptimestamp, macto, macfm, macsrc, eapauthlen, eapauthptr, packetptr);
 
 return;
 }
 /*===========================================================================*/
-static void process80211eap(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint8_t *macsrc, uint32_t restlen, uint8_t *eapptr)
+static void process80211eap(uint64_t eaptimestamp, uint8_t *macto, uint8_t *macfm, uint8_t *macsrc, uint32_t restlen, uint8_t *eapptr, uint8_t *packetptr)
 {
 static eapauth_t *eapauth;
 
@@ -4071,7 +4079,7 @@ eapauth = (eapauth_t*)eapptr;
 if(restlen < (int)EAPAUTH_SIZE) return;
 if(eapauth->type == EAPOL_KEY)
 	{
-	process80211eapol(eaptimestamp, macto, macfm, macsrc, restlen, eapptr);
+	process80211eapol(eaptimestamp, macto, macfm, macsrc, restlen, eapptr, packetptr);
 	}
 else if(eapauth->type == EAP_PACKET) process80211exteap(eaptimestamp, macto, macfm, restlen, eapptr);
 //else if(eapauth->type == EAPOL_ASF) process80211exteap_asf();
@@ -4763,7 +4771,7 @@ else if(macfrx->type == IEEE80211_FTYPE_DATA)
 	llc = (llc_t*)llcptr;
 	if(((ntohs(llc->type)) == LLC_TYPE_AUTH) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
-		process80211eap(packetimestamp, macfrx->addr1, macfrx->addr2, macfrx->addr3, payloadlen -LLC_SIZE, payloadptr +LLC_SIZE);
+		process80211eap(packetimestamp, macfrx->addr1, macfrx->addr2, macfrx->addr3, payloadlen -LLC_SIZE, payloadptr +LLC_SIZE, packetptr);
 		}
 	else if(((ntohs(llc->type)) == LLC_TYPE_IPV4) && (llc->dsap == LLC_SNAP) && (llc->ssap == LLC_SNAP))
 		{
