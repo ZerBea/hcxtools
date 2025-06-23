@@ -817,7 +817,11 @@ if(eapmschapv2count > 0)		fprintf(stdout, "EAP-MSCHAPV2 messages................
 if(eapmschapv2writtencount > 0)		fprintf(stdout, "EAP-MSCHAPV2 pairs written...............: %ld\n", eapmschapv2writtencount);
 if(eaptlscount > 0)			fprintf(stdout, "EAP-TLS messages.........................: %ld\n", eaptlscount);
 if(eapolmsgcount > 0)			fprintf(stdout, "EAPOL messages (total)...................: %ld\n", eapolmsgcount);
-if(eapolrelayedcount > 0)		fprintf(stdout, "EAPOL messages relayed ..................: %ld (not converted by default options - use --all)\n", eapolrelayedcount);
+if(eapolrelayedcount > 0)
+	{
+	if(donotcleanflag == false) fprintf(stdout, "EAPOL messages relayed ..................: %ld (not converted by default options - use --all)\n", eapolrelayedcount);
+	else fprintf(stdout, "EAPOL messages relayed ..................: %ld\n", eapolrelayedcount);
+	}
 if(eapolrc4count > 0)			fprintf(stdout, "EAPOL RC4 messages.......................: %ld\n", eapolrc4count);
 if(eapolrsncount > 0)			fprintf(stdout, "EAPOL RSN messages.......................: %ld\n", eapolrsncount);
 if(eapolwpacount > 0)			fprintf(stdout, "EAPOL WPA messages.......................: %ld\n", eapolwpacount);
@@ -848,8 +852,16 @@ if(eapolm4oversizedcount > 0)		fprintf(stdout, "EAPOL M4 messages (oversized)...
 if(eapolm4zeroedcount > 0)		fprintf(stdout, "EAPOL M4 messages (zeroed NONCE).........: %ld\n", eapolm4zeroedcount);
 if(eapolm4kdv0count > 0)		fprintf(stdout, "EAPOL M4 messages (KDV:0 AKM defined)....: %ld (not supported by hashcat/JtR)\n", eapolm4kdv0count);
 if(eapolmpcount > 0)			fprintf(stdout, "EAPOL pairs (total)......................: %ld\n", eapolmpcount);
-if(zeroedeapolpskcount > 0)		fprintf(stdout, "EAPOL (from zeroed PSK)..................: %ld (not converted by default options - use --all)\n", zeroedeapolpskcount);
-if(zeroedeapolpmkcount > 0)		fprintf(stdout, "EAPOL (from zeroed PMK)..................: %ld (not converted by default options - use --all)\n", zeroedeapolpmkcount);
+if(zeroedeapolpskcount > 0)
+	{
+	if(donotcleanflag == false) fprintf(stdout, "EAPOL (from zeroed PSK)..................: %ld (not converted by default options - use --all)\n", zeroedeapolpskcount);
+	else fprintf(stdout, "EAPOL (from zeroed PSK)..................: %ld\n", zeroedeapolpskcount);
+	}
+if(zeroedeapolpmkcount > 0)
+	{
+	if(donotcleanflag == false) fprintf(stdout, "EAPOL (from zeroed PMK)..................: %ld (not converted by default options - use --all)\n", zeroedeapolpmkcount);
+	else fprintf(stdout, "EAPOL (from zeroed PMK)..................: %ld\n", zeroedeapolpmkcount);
+	}
 if(donotcleanflag == false)
 	{
 	if(eapolmpbestcount > 0)		fprintf(stdout, "EAPOL pairs (best).......................: %ld\n", eapolmpbestcount);
@@ -874,8 +886,16 @@ if(eapolm34e4count > 0)			fprintf(stdout, "EAPOL M34E4 (authorized).............
 if(pmkiduselesscount > 0)		fprintf(stdout, "RSN PMKID (useless)......................: %ld\n", pmkiduselesscount);
 if(pmkidfaultycount > 0)		fprintf(stdout, "RSN PMKID (faulty).......................: %ld\n", pmkidfaultycount);
 if(pmkidcount > 0)			fprintf(stdout, "RSN PMKID (total)........................: %ld\n", pmkidcount);
-if(zeroedpmkidpskcount > 0)		fprintf(stdout, "RSN PMKID (from zeroed PSK)..............: %ld (not converted by default options - use --all)\n", zeroedpmkidpskcount);
-if(zeroedpmkidpmkcount > 0)		fprintf(stdout, "RSN PMKID (from zeroed PMK)..............: %ld (not converted by default options - use --all)\n", zeroedpmkidpmkcount);
+if(zeroedpmkidpskcount > 0)
+	{
+	if(donotcleanflag == false) fprintf(stdout, "RSN PMKID (from zeroed PSK)..............: %ld (not converted by default options - use --all)\n", zeroedpmkidpskcount);
+	else fprintf(stdout, "RSN PMKID (from zeroed PSK)..............: %ld\n", zeroedpmkidpskcount);
+	}
+if(zeroedpmkidpmkcount > 0)
+	{
+	if(donotcleanflag == false) fprintf(stdout, "RSN PMKID (from zeroed PMK)..............: %ld (not converted by default options - use --all)\n", zeroedpmkidpmkcount);
+	else fprintf(stdout, "RSN PMKID (from zeroed PMK)..............: %ld\n", zeroedpmkidpmkcount);
+	}
 if(donotcleanflag == false)
 	{
 	if(pmkidbestcount > 0)			fprintf(stdout, "RSN PMKID (best).........................: %ld\n", pmkidbestcount);
