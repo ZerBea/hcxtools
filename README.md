@@ -141,19 +141,19 @@ Notice
 Bitmask Message Pair Field (hcxpcapngtool)
 -------------------------------------------
 
-bit 0-2
+bits 0-2
 
-000 = M1+M2, EAPOL from M2 (challenge)
+000 = M1+M2, EAPOL from M2 (challenge - ANONCE from M1)
 
-001 = M1+M4, EAPOL from M4 if not zeroed (authorized)
+001 = M1+M4, EAPOL from M4 (authorized) - usable if M4 NONCE is not zeroed and using option --all
 
-010 = M2+M3, EAPOL from M2 (authorized)
+010 = M2+M3, EAPOL from M2 (authorized - ANONCE from M3)
 
-011 = M2+M3, EAPOL from M3 (authorized) - unused
+011 = M2+M3, EAPOL from M3 (authorized) - only with option --all
 
-100 = M3+M4, EAPOL from M3 (authorized) - unused
+100 = M3+M4, EAPOL from M3 (authorized) - only with option --all
 
-101 = M3+M4, EAPOL from M4 if not zeroed (authorized)
+101 = M3+M4, EAPOL from M4 (authorized) - usable if M4 NONCE is not zeroed and using option --all
 
 3: reserved
 
