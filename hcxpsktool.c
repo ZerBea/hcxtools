@@ -1862,6 +1862,22 @@ for(k1 = 500000000; k1 < 560000000; k1++) fprintf(fhout, "%010d\n", k1);
 return;
 }
 /*===========================================================================*/
+static void testhotspot(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+static int k1;
+static const char *hs = "Hotspot_";
+
+if(essidlen >21)
+	{
+	if(memcmp(&essid[9], hs , 8) != 0) return;
+	if((isxdigit((unsigned char)essid[17])) && (isxdigit((unsigned char)essid[18])) && (isxdigit((unsigned char)essid[19])) && (isxdigit((unsigned char)essid[20])))
+		{
+		for(k1 = 0; k1 < 10000; k1++) fprintf(fhout, "%04d%c%c%c%c\n", k1, essid[17], essid[18], essid[19], essid[20]);
+		}
+	}
+return;
+}
+/*===========================================================================*/
 static void testmtel(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k1, k2;
@@ -2248,6 +2264,7 @@ testcpsrf(fhout, essidlen, essid);
 testeasybox(fhout, essidlen, essid);
 testglocal(fhout, essidlen, essid);
 testhotbox(fhout, essidlen, essid);
+testhotspot(fhout, essidlen, essid);
 testmtel(fhout, essidlen, essid);
 testmywifi(fhout, essidlen, essid);
 testnet2g(fhout, essidlen, essid);
