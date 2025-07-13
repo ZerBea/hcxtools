@@ -1872,7 +1872,7 @@ if(essidlen >21)
 	if(memcmp(&essid[9], hs , 8) != 0) return;
 	if((isxdigit((unsigned char)essid[17])) && (isxdigit((unsigned char)essid[18])) && (isxdigit((unsigned char)essid[19])) && (isxdigit((unsigned char)essid[20])))
 		{
-		for(k1 = 0; k1 < 10000; k1++) fprintf(fhout, "%04d%c%c%c%c\n", k1, essid[17], essid[18], essid[19], essid[20]);
+		for(k1 = 5000; k1 < 8000; k1++) fprintf(fhout, "%04d%c%c%c%c\n", k1, essid[17], essid[18], essid[19], essid[20]);
 		}
 	}
 return;
