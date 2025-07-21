@@ -5139,8 +5139,8 @@ if(packetlen < 4)
 	if(fh_log != NULL) fprintf(fh_log, "failed to read packet (len < 4): %ld\n", rawpacketcount);
 	return;
 	}
-i
-f((linktype == DLT_IEEE802_11_RADIO) && (framehasfcs == true))
+
+if((linktype == DLT_IEEE802_11_RADIO) && (framehasfcs == true))
 	{
 	fcx = packetptr[packetlen -1];
 	fcx = fcx << 8 | packetptr[packetlen -2];
