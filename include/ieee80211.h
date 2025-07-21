@@ -259,13 +259,6 @@ struct msnetmon_header
 typedef struct msnetmon_header msntm_t;
 #define MSNETMON_SIZE (sizeof(msntm_t))
 /*===========================================================================*/
-struct fcs_frame
-{
- uint32_t	fcs;
-};
-typedef struct fcs_frame fcs_t;
-#define	FCS_SIZE (sizeof(fcs_t))
-/*===========================================================================*/
 struct qos_frame
 {
  uint8_t	control;

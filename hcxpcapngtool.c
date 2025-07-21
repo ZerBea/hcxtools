@@ -358,6 +358,7 @@ static bool donotcleanflag;
 static bool ancientdumpfileformat;
 static bool radiotappresent;
 static bool ieee80211flag;
+static bool framehasfcs;
 
 static char rssi;
 static int interfacechannel;
@@ -4838,6 +4839,7 @@ static rth_t *rth;
 static uint32_t *pp;
 
 frequency = 0;
+framehasfcs = false;
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
 if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
@@ -4869,6 +4871,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS)
 	else if((capptr[pf] & 0x50) == 0x10)
 		{
 		fcsframecount++;
+		framehasfcs = true;
 		}
 	pf += 1;
 	}
@@ -4938,7 +4941,7 @@ static uint8_t *packetptr;
 static ppi_t *ppi;
 static prism_t *prism;
 static avs_t *avs;
-static fcs_t *fcs;
+static uint32_t fcx;
 static uint32_t crc;
 
 rssi = 0;
@@ -5136,15 +5139,23 @@ if(packetlen < 4)
 	if(fh_log != NULL) fprintf(fh_log, "failed to read packet (len < 4): %ld\n", rawpacketcount);
 	return;
 	}
-fcs = (fcs_t*)(packetptr +packetlen -4);
-crc = fcscrc32check(packetptr, packetlen -4);
-#ifdef BIG_ENDIAN_HOST
-crc = byte_swap_32(crc);
-#endif
-if(crc == fcs->fcs)
+i
+f((linktype == DLT_IEEE802_11_RADIO) && (framehasfcs == true))
 	{
-	fcsgoodframecount++;
-	packetlen -= 4;
+	fcx = packetptr[packetlen -1];
+	fcx = fcx << 8 | packetptr[packetlen -2];
+	fcx = fcx << 8 | packetptr[packetlen -3];
+	fcx = fcx << 8 | packetptr[packetlen -4];
+	crc = fcscrc32check(packetptr, packetlen -4);
+	#ifdef BIG_ENDIAN_HOST
+	crc = byte_swap_32(crc);
+	fcx = byte_swap_32(fcx);
+	#endif
+	if(crc == fcx)
+		{
+		fcsgoodframecount++;
+		packetlen -= 4;
+		}
 	}
 process80211packet(captimestamp, packetlen, packetptr);
 return;
