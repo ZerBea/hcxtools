@@ -4838,8 +4838,6 @@ static uint16_t pf;
 static rth_t *rth;
 static uint32_t *pp;
 
-frequency = 0;
-framehasfcs = false;
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
 if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
@@ -4944,8 +4942,10 @@ static avs_t *avs;
 static uint32_t fcx;
 static uint32_t crc;
 
+frequency = 0;
 rssi = 0;
 interfacechannel = 0;
+framehasfcs = false;
 if(fh_raw_out != NULL)
 	{
 	cs = captimestamp &0xff;
