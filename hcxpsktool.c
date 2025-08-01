@@ -1525,6 +1525,14 @@ for(l1 = 2; l1 <= essidlen; l1++)
 return;
 }
 /*===========================================================================*/
+static void testgeneral(FILE *fhout, uint8_t essidlen, uint8_t *essid)
+{
+if(essidlen < 6) return;
+if((!isdigit((unsigned char)essid[essidlen -6])) || (!isdigit((unsigned char)essid[essidlen -4])) || (!isdigit((unsigned char)essid[essidlen -4])) || (!isdigit((unsigned char)essid[essidlen -3])) || (!isdigit((unsigned char)essid[essidlen -2])) || (!isdigit((unsigned char)essid[essidlen -1]))) return;
+fprintf(fhout, "70%.*s\n", 6, &essid[essidlen -6]);
+return;
+}
+/*===========================================================================*/
 static void testairtel(FILE *fhout, uint8_t essidlen, uint8_t *essid)
 {
 static int k;
@@ -2251,6 +2259,7 @@ static int pi, po;
 static char essidtmp[PSKSTRING_LEN_MAX] = { 0 };
 
 if((essidlen == 0) || (essidlen > 32)) return;
+testgeneral(fhout, essidlen, essid);
 testairtel(fhout, essidlen, essid);
 testalcatellinkzone(fhout, essidlen, essid);
 testarrisizzi(fhout, essidlen, essid);
