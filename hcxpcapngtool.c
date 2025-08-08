@@ -2663,7 +2663,7 @@ if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, m
 	memcpy(handshakelistptr->ap, msgap->ap, 6);
 	memcpy(handshakelistptr->client, msgclient->client, 6);
 	memcpy(handshakelistptr->pmkid, msgap->pmkid, 16);
-	if((msgap->eapauthlen != 0) && (((mpfield &ST_M32E3) == ST_M32E3) || ((mpfield &ST_M34E3) == ST_M34E3)))
+	if((msgap->eapauthlen != 0) && (((mpfield & 0xf) == ST_M32E3) || ((mpfield & 0xf) == ST_M34E3)))
 		{
 		memcpy(handshakelistptr->anonce, msgclient->nonce, 32);
 		handshakelistptr->eapauthlen = msgap->eapauthlen;
@@ -3445,13 +3445,16 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
 		if((authlen +EAPAUTH_SIZE) <= EAPOL_AUTHLEN_MAX)
 			{
-			mpfield = ST_M34E4;
 			if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
-			if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
-			if(donotcleanflag == true)
+			if(eaptimegap <= eapoltimeoutvalue)
 				{
-				mpfield = ST_M34E3;
-				if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
+				mpfield = ST_M34E4;
+				addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
+				if(donotcleanflag == true)
+					{
+					mpfield = ST_M34E3;
+					addhandshake(eaptimegap, rcgap, messagelist +MESSAGELIST_MAX, zeiger, keyver, mpfield);
+					}
 				}
 			}
 		}
@@ -3619,21 +3622,20 @@ for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 		else eaptimegap = zeiger->timestamp -eaptimestamp;
 		if((authlen +EAPAUTH_SIZE) <= EAPOL_AUTHLEN_MAX)
 			{
-			mpfield = ST_M32E2;
 			if(myaktreplaycount > 0)
 				{
 				if(zeiger->rc == myaktreplaycount) continue;
 				}
 			if(eaptimegap > eaptimegapmax) eaptimegapmax = eaptimegap;
-			if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
-			if(donotcleanflag == true)
+			if(eaptimegap <= eapoltimeoutvalue)
 				{
-				mpfield = ST_M32E3;
-				if(myaktreplaycount > 0)
+				mpfield = ST_M32E2;
+				addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
+				if(donotcleanflag == true)
 					{
-					if(zeiger->rc == myaktreplaycount) continue;
+					mpfield = ST_M32E3;
+					addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
 					}
-				if(eaptimegap <= eapoltimeoutvalue) addhandshake(eaptimegap, rcgap, zeiger, messagelist +MESSAGELIST_MAX, keyver, mpfield);
 				}
 			}
 		}
