@@ -44,7 +44,7 @@ return 0;
 typedef struct
 {
  long int	hchptr;
- char		mic[34];
+ char		mic[MICMAX + 2];
 } hashlist_t;
 #define HASHLIST_SIZE (sizeof(hashlist_t))
 
