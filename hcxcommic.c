@@ -139,7 +139,7 @@ __attribute__ ((noreturn))
 static void version(char *eigenname)
 {
 fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
-		"usage:  %s hashcat-hashmode-22000-outfile hashcat-hashmode-22000-hashfile\n"
+		"usage:  %s hashcat.22000(outfile) hashcat.22000(hashfile) > hashmob.22000(HEX:PLAIN file)\n"
 		"output: HEX:PLAIN (22000) piped to stdout and accepted by https://hashmob.net/submit\n"
 		, eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
