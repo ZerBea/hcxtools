@@ -19,12 +19,13 @@
 
 /*===========================================================================*/
 #define INPUTLINEMAX	1024
-#define PSKMAX		144
+#define PSKMAX		134
+#define MICMAX		32
 /*===========================================================================*/
 typedef struct
 {
- char		mic[34];
- char		psk[144];
+ char		mic[MICMAX + 2];
+ char		psk[PSKMAX + 2];
 } miclist_t;
 #define MICLIST_SIZE (sizeof(miclist_t))
 
@@ -34,7 +35,7 @@ int cmp;
 const miclist_t *ia = (const miclist_t *)a;
 const miclist_t *ib = (const miclist_t *)b;
 
-cmp = memcmp(ia->mic, ib->mic, 32);
+cmp = memcmp(ia->mic, ib->mic, MICMAX);
 if(cmp > 0) return 1;
 else if(cmp < 0) return -1;
 return 0;
@@ -53,7 +54,7 @@ int cmp;
 const hashlist_t *ia = (const hashlist_t *)a;
 const hashlist_t *ib = (const hashlist_t *)b;
 
-cmp = memcmp(ia->mic, ib->mic, 32);
+cmp = memcmp(ia->mic, ib->mic, MICMAX);
 if(cmp > 0) return 1;
 else if(cmp < 0) return -1;
 return 0;
@@ -70,7 +71,7 @@ static size_t chop(char *buffer, size_t len)
 {
 static char *ptr;
 
-ptr = buffer +len -1;
+ptr = buffer + len - 1;
 while(len)
 	{
 	if (*ptr != '\n') break;
@@ -113,11 +114,11 @@ for(i1 = 0; i1 < hcocount; i1++)
 	{
 	for(i2 = hchcount2; i2 < hchcount; i2++)
 		{
-		if(memcmp((miclist + i1)->mic, (hashlist + i2)->mic, 32) > 0)
+		if(memcmp((miclist + i1)->mic, (hashlist + i2)->mic, MICMAX) > 0)
 			{
 			continue;
 			}
-		else if(memcmp((miclist + i1)->mic, (hashlist + i2)->mic, 32) < 0)
+		else if(memcmp((miclist + i1)->mic, (hashlist + i2)->mic, MICMAX) < 0)
 			{
 			hchcount2 = i2;
 			break;
@@ -126,7 +127,7 @@ for(i1 = 0; i1 < hcocount; i1++)
 			{
 			fseek(hch, (hashlist + i2)->hchptr, SEEK_SET);
 			if((len = fgetline(hch, INPUTLINEMAX, linein)) == -1) break;
-			hchcount2 = i2 +1;
+			hchcount2 = i2 + 1;
 			fprintf(stdout, "%s:%s\n", linein, (miclist + i1)->psk);
 			break;
 			}
@@ -151,7 +152,7 @@ static int len;
 static int i;
 static int it;
 static int ic;
-static char *pskptr;
+static char *pskptr = NULL;
 static FILE *hco = NULL;
 static FILE *hch = NULL;
 static const char wpa01[] = { "WPA*01*" };
@@ -188,11 +189,11 @@ while(1)
 	if(linein[32] != ':') continue;
 	if(linein[45] != ':') continue;
 	if(linein[58] != ':') continue;
-	memcpy((miclist + i)->mic, linein, 32);
+	memcpy((miclist + i)->mic, linein, MICMAX);
 	pskptr = strrchr(linein, ':');
 	if(pskptr == NULL) continue;
 	if(pskptr[1] == 0) continue;
-	strncpy((miclist + i)->psk, &pskptr[1], 32);
+	strncpy((miclist + i)->psk, &pskptr[1], PSKMAX);
 	i++;
 	}
 hcocount = i;
@@ -230,7 +231,7 @@ while(1)
 		if(linein[ic]	== '*') ic ++;
 		}
 	if(ic > 8) continue;
-	memcpy((hashlist + i)->mic, &linein[7], 32);
+	memcpy((hashlist + i)->mic, &linein[7], MICMAX);
 	i++;
 	}
 hchcount = i;
