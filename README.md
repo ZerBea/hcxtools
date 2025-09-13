@@ -48,6 +48,7 @@ Detailed Description
 | hcxpmktool     | Tool to calculate and verify a PSK and/or a PMK.                                                                       |
 | hcxeiutool     | Tool to prepare -E -I -U output of hcxpcapngtool for use by Hashcat + rule or JtR + rule.                              |
 | hcxwltool      | Tool to calculate candidates for Hashcat and JtR based on mixed wordlists.                                             |
+| hcxwltool      | Tool to convert hashcat out file & hashcat hash file (22000) to HEX:PLAIN accepted by https://hashmob.net/submit       |
 | hcxhash2cap    | Tool to convert hash files (PMKID&EAPOL, PMKID, EAPOL-hccapx, EAPOL-hccap, WPAPSK-john) to cap.                        |
 | wlancap2wpasec | Tool to upload multiple (gzip compressed) pcapng, pcap and cap files to https://wpa-sec.stanev.org                     |
 | whoismac       | Tool to show vendor information and/or download oui reference list.                                                    |
