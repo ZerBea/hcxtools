@@ -155,6 +155,7 @@ static int ic;
 static char *pskptr = NULL;
 static FILE *hco = NULL;
 static FILE *hch = NULL;
+static const char wpa[] = { "WPA*" };
 static const char wpa01[] = { "WPA*01*" };
 static const char wpa02[] = { "WPA*02*" };
 
@@ -224,6 +225,7 @@ while(1)
 	if(linein[52] != '*') continue;
 	if(linein[65] != '*') continue;
 	if(linein[len -3] != '*') continue;
+	if(strstr(&linein[3], wpa) != NULL) continue;
 	if((memcmp(linein, wpa01, 7) != 0) && (memcmp(linein, wpa02, 7) != 0)) continue;
 	ic = 0;
 	for(it = 0; it < len; it++)
