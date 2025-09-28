@@ -1022,7 +1022,7 @@ if(proberequestundirectedcount == 0)
 		"It always happens if the capture file was cleaned or "
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it hard to recover the PSK.\n"
-		"https://github.com/ZerBea/hcxdumptool/discussions/526");
+		"https://github.com/ZerBea/hcxdumptool/discussions/526\n");
 	}
 if((authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
 	{
