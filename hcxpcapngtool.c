@@ -1021,7 +1021,8 @@ if(proberequestundirectedcount == 0)
 		"An undirected proberequest may contain information about the PSK. "
 		"It always happens if the capture file was cleaned or "
 		"it could happen if filter options are used during capturing.\n"
-		"That makes it hard to recover the PSK.\n");
+		"That makes it hard to recover the PSK.\n"
+		"https://github.com/ZerBea/hcxdumptool/discussions/526");
 	}
 if((authenticationcount +associationrequestcount +reassociationrequestcount) == 0)
 	{
