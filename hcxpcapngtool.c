@@ -5479,11 +5479,12 @@ static interface_description_block_t *pcapngidb;
 static packet_block_t *pcapngpb;
 static enhanced_packet_block_t *pcapngepb;
 static custom_block_t *pcapngcb;
-
+static bool ifaceerror;
 static int interfaceid[MAX_INTERFACE_ID];
 static uint8_t pcpngblock[2 *MAXPACPSNAPLEN];
 static uint8_t packet[MAXPACPSNAPLEN];
 
+ifaceerror = false;
 magicblockcount = 0;
 ancientdumpfileformat = false;
 fprintf(stdout, "%s %s reading from %s...\n", basename(eigenname), VERSION_TAG, basename(pcapinname));
@@ -5635,8 +5636,12 @@ while(1)
 		if(iface >= MAX_INTERFACE_ID)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
-			if(fh_log != NULL) fprintf(fh_log, "maximum of supported interfaces reached: %u\n", iface);
+			if(ifaceerror == false)
+				{
+				fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
+				if(fh_log != NULL) fprintf(fh_log, "maximum of supported interfaces reached: %u\n", iface);
+				ifaceerror = true;
+				}
 			continue;
 			}
 		dltlinktype[iface] = pcapngidb->linktype;
