@@ -758,7 +758,7 @@ if(authsharedkeycount > 0)		fprintf(stdout, "AUTHENTICATION (SHARED KEY)........
 if(authfbtcount > 0)			fprintf(stdout, "AUTHENTICATION (FBT).....................: %ld\n", authfbtcount);
 if(authfilscount > 0)			fprintf(stdout, "AUTHENTICATION (FILS)....................: %ld\n", authfilscount);
 if(authfilspfs > 0)			fprintf(stdout, "AUTHENTICATION (FILS PFS)................: %ld\n", authfilspfs);
-if(authfilspkcount > 0)			fprintf(stdout, "AUTHENTICATION (FILS PK..................: %ld\n", authfilspkcount);
+if(authfilspkcount > 0)			fprintf(stdout, "AUTHENTICATION (FILS PK).................: %ld\n", authfilspkcount);
 if(authnetworkeapcount > 0)		fprintf(stdout, "AUTHENTICATION (NETWORK EAP).............: %ld\n", authnetworkeapcount);
 if(authunknowncount > 0)		fprintf(stdout, "AUTHENTICATION (unknown).................: %ld\n", authunknowncount);
 if(associationrequestcount > 0)		fprintf(stdout, "ASSOCIATIONREQUEST (total)...............: %ld\n", associationrequestcount);
@@ -1524,7 +1524,7 @@ if(restlen >= (uint32_t)TCP_SIZE_MIN +(uint32_t)TACACSP_SIZE)
 	if(tacacsp->version == TACACSP_VERSION) processtacacsppacket(restlen -tcplen, tcpptr +tcplen);
 	}
 tcpcount++;
-//dummy code to satisfy gcc untill full code is implemented
+//dummy code to satisfy gcc until full code is implemented
 timestamp = timestamp;
 return;
 }
