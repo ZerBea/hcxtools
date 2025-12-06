@@ -41,7 +41,7 @@ several fixes and improvements
 04.03.2024
 ==========
 README.md: removed entire instructions how to compile hcxtools on different distributions
-           check the distribution's page how to update the ditribution, how to install missing dependencies and missing header files
+           check the distribution's page how to update the distribution, how to install missing dependencies and missing header files
 
 
 25.02.2024
@@ -104,7 +104,7 @@ hcxhashtool: allow to print ESSID list to stdout
 ==========
 hcxpcapngtool: added new option store PMKIDs coming from a CLIENT to a separate hash file.
 --pmkid-client=<file>              : output WPA-(MESH/REPEATER)-PMKID hash file (hashcat -m 22000)
-to sucessfully recover the PSK from this PMKIDs, it is mandatory to store all PMKIDs coming from a CLIENT to this file
+to successfully recover the PSK from this PMKIDs, it is mandatory to store all PMKIDs coming from a CLIENT to this file
 
 added information about source to the end of WPA*01 hash line:
 PMKID from ACCESS POINT: WPA*01*PMKID*MAC_AP*MAC_CLIENT*ESSID***01
@@ -146,7 +146,7 @@ from now on curl >= 7.56 is mandatory
 
 14.12.2022
 ==========
-hcxhashtool: added new option -L to write unfiltered and unsorted ESSID list (usefull for hashcat -a9 option)
+hcxhashtool: added new option -L to write unfiltered and unsorted ESSID list (useful for hashcat -a9 option)
 
 
 25.11.2022
@@ -566,7 +566,7 @@ hcxpcapngtool: merged options --eapleap and --eapmschapv2 to --eapleap due to sa
 --prefix=<file>                    : convert everything to lists using this prefix (overrides single options):
                                       -o <file.22000>      : output PMKID/EAPOL hash file
                                       -E <file.essid>      : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker
-                                      -I <file.identitiy>  : output unsorted identity list to use as input wordlist for cracker
+                                      -I <file.identity>  : output unsorted identity list to use as input wordlist for cracker
                                       -U <file.username>   : output unsorted username list to use as input wordlist for cracker
                                      --eapmd5=<file.4800>  : output EAP MD5 CHALLENGE (hashcat -m 4800)
                                      --eapleap=<file.5500> : output EAP LEAP and MSCHAPV2 CHALLENGE (hashcat -m 5500, john netntlm)
@@ -614,7 +614,7 @@ release v 6.1.2
 
 10.09.2020
 ==========
-removed deprecated wlanhcx2ssid, wlanhcxinfo aand wlanhcxcat
+removed deprecated wlanhcx2ssid, wlanhcxinfo and wlanhcxcat
 
 
 07.09.2020
@@ -655,7 +655,7 @@ hcxhashtool: added new options to get full benefit aof reuse of PBKDF2
 
 19.06.2020
 ==========
-hcxpsktool: splitted NETGEAR and ASKEY/ARRIS weak candidate list
+hcxpsktool: split NETGEAR and ASKEY/ARRIS weak candidate list
 --netgear     : include weak NETGEAR / ORBI candidates
 --askeyarris  : include weak MySpectrumWiFI / SpectrumSetup / MyCharterWiFI candidates
 
@@ -790,14 +790,14 @@ long options:
                                    : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM
 --raw-in=<file>                    : input frames in HEX ASCII
                                    : format: TIMESTAMP*LINKTYPE*FRAME*CHECKSUM
---pmkid=<file>                     : output deprecated PMKID file (delimter *)
+--pmkid=<file>                     : output deprecated PMKID file (delimiter *)
 --hccapx=<file>                    : output deprecated hccapx v4 file
 --hccap=<file>                     : output deprecated hccap file
 --john=<file>                      : output deprecated PMKID/EAPOL (JtR wpapsk-opencl/wpapsk-pmk-opencl)
 --prefix=<file>                    : convert everything to lists using this prefix (overrides single options):
                                       -o <file.22000>      : output PMKID/EAPOL hash file
                                       -E <file.essid>      : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker
-                                      -I <file.identitiy>  : output unsorted identity list to use as input wordlist for cracker
+                                      -I <file.identity>  : output unsorted identity list to use as input wordlist for cracker
                                       -U <file.username>   : output unsorted username list to use as input wordlist for cracker
                                      --eapmd5=<file.4800>  : output EAP MD5 CHALLENGE (hashcat -m 4800)
                                      --eapleap=<file.5500> : output EAP LEAP CHALLENGE (hashcat -m 5500, john netntlm)
@@ -890,7 +890,7 @@ options:
 | whoismac       | Show vendor information and/or download oui reference list                                                           |
 | hcxmactool     | Various MAC based filter operations on HCCAPX and PMKID files - convert hccapx and/or PMKID to new hashline format   |
 | hcxpcaptool    | Shows info of pcap/pcapng file and convert it to other hashformats accepted by hashcat and John the Ripper           |
-| hcxpmkidtool   | CPU based tools to verfiy a PMKID                                                                                    |
+| hcxpmkidtool   | CPU based tools to verify a PMKID                                                                                    |
 | hcxessidtool   | Various ESSID based filter operations on HCCAPX and PMKID files                                                      |
 | hcxhashcattool | Convert old hashcat (<= 5.1.0) separate potfile (2500 and/or 16800) to new potfile format                            |
 | wlanhc2hcx     | Converts hccap to hccapx                                                                                             |
@@ -943,7 +943,7 @@ hcxpsktool: added support for hashcat 22000 (crossover PMKID - EAPOL hashline)
 16.12.2019
 ==========
 prepare new tool hcxpcapngtool for hashcat hashmode 22000 (crossover PMKID - EAPOL hashline)
-highly experemental
+highly experimental
 not all features build in
 format of hashmode 22000 may change on hashcat and hcxpcapngtool until final release
 hcxpcaptool will replaced by hcxpcapngtool if everything is working like expected
@@ -1084,7 +1084,7 @@ hcxpcaptool: show capture device vendor
 moved to v5.2.1
 hcxpsktool : added new weak candidates
 hcxdumptool: added additional warnings about handling of pcapng files ( im
-             imrpoved status out: count zeroed PMKIDs
+             improved status out: count zeroed PMKIDs
 
 
 19.08.2019
@@ -1105,7 +1105,7 @@ hcxpcaptool: removed option --replaycountcheck
              if we have no replaycount matching handshake - in that case nc must be used!
 
 Remarks:
-total best handshakes and total best PMKIDs can be different to realy written ones:
+total best handshakes and total best PMKIDs can be different to really written ones:
 
 best handshakes (total)..........: 190 (ap-less: 122)
 best PMKIDs (total)..............: 30
@@ -1355,13 +1355,13 @@ hcxtools moved to version 5.1.3 due to several bug fixes
 
 18.02.2019
 ==========
-hcxtools moved to version 5.1.2 due to implementation of serveral new options
+hcxtools moved to version 5.1.2 due to implementation of several new options
 
 
 14.02.2019
 ==========
 wlancap2wpasec: added new option -e
--e <email address> : set email address, if requiered
+-e <email address> : set email address, if required
 
 
 13.02.2019
@@ -1400,7 +1400,7 @@ options:
 --lower          : output format only lower
 --upper          : output format only upper
 --capital        : output format only capital
---length=<digit> : password lenght (8...32)
+--length=<digit> : password length (8...32)
 --help           : show this help
 --version        : show version
 
@@ -1465,7 +1465,7 @@ hcxhash2cap: added new options to convert hccapx to cap and hccap to cap
 
 29.01.2019
 ==========
-aded new tool: hcxhash2cap
+added new tool: hcxhash2cap
 
 
 22.01.2019
@@ -1628,7 +1628,7 @@ removed wlancap2hcx (old scool, deprecated)
 17.07.2018
 ==========
 hcxpcaptool:
-show detailed file stats on pcapng files - go in sync with (upcomming) hcxdumptool 4.2.0
+show detailed file stats on pcapng files - go in sync with (upcoming) hcxdumptool 4.2.0
 
 
 17.07.2018
@@ -1744,10 +1744,10 @@ added nonce fuzzing logic for john and old hashcat (hccap) according to bitmask:
 1: MP info
 2: MP inf
 3: x (unused)
-4: ap-less attack (set to 1) - no nonce-error-corrections neccessary
-5: LE router detected (set to 1) - nonce-error-corrections only for LE neccessary
-6: BE router detected (set to 1) - nonce-error-corrections only for BE neccessary
-7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely neccessary
+4: ap-less attack (set to 1) - no nonce-error-corrections necessary
+5: LE router detected (set to 1) - nonce-error-corrections only for LE necessary
+6: BE router detected (set to 1) - nonce-error-corrections only for BE necessary
+7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely necessary
 
 
 15.02.2018
@@ -1759,10 +1759,10 @@ bitmask for message_pair file:
 1: MP info
 2: MP inf
 3: x (unused)
-4: ap-less attack (set to 1) - no nonce-error-corrections neccessary
-5: LE router detected (set to 1) - nonce-error-corrections only for LE neccessary
-6: BE router detected (set to 1) - nonce-error-corrections only for BE neccessary
-7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely neccessary
+4: ap-less attack (set to 1) - no nonce-error-corrections necessary
+5: LE router detected (set to 1) - nonce-error-corrections only for LE necessary
+6: BE router detected (set to 1) - nonce-error-corrections only for BE necessary
+7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely necessary
 
 using bit 4 to 7, hcxtools are able to interact with hascat - that will increase speed for hashcat.
 
@@ -1820,7 +1820,7 @@ options:
 ==========
 hcxpcaptool
 added detection of TCP and UDP network protocol
-neccessary for IP based authentications
+necessary for IP based authentications
 
 
 31.01.2018
@@ -1868,14 +1868,14 @@ hcxpcaptool
 added new option -V
 -V        : verbose (but slow) status output
 Running hcxpcaptool without options on cap/pcap/pcapng files
-shows only limited stauts output
-If you need detailed informations, use -V
+shows only limited status output
+If you need detailed information, use -V
 
 
 14.01.2018
 ==========
 hcxpcaptool
-added suport for gzip compressed cap/pcap/pcapng files
+added support for gzip compressed cap/pcap/pcapng files
 new dependency: zlib
 
 
