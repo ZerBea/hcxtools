@@ -5647,9 +5647,9 @@ while(1)
 			if(ifaceerror == false)
 				{
 				fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
-				if(fh_log != NULL) fprintf(fh_log, "maximum of supported interfaces reached: %u\n", iface);
 				ifaceerror = true;
 				}
+			if(fh_log != NULL) fprintf(fh_log, "maximum of supported interfaces reached: %u\n", iface);
 			continue;
 			}
 		dltlinktype[iface] = pcapngidb->linktype;
@@ -5705,7 +5705,11 @@ while(1)
 		if(pcapngepb->interface_id >= iface)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
+			if(ifaceerror == false)
+				{
+				fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
+				ifaceerror = true;
+				}
 			if(fh_log != NULL) fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
 			continue;
 			}
