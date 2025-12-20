@@ -167,10 +167,9 @@ if (argc != 3)
 	version(basename(argv[0]));
 	}
 
-if((hco = fopen (argv[1], "rb")) == NULL)
+if((hco = fopen(argv[1], "rb")) == NULL)
 	{
 	fprintf(stderr, "failed to open hashcat out file %s\n", argv[1]);
-	
 	goto exit1;
 	}
 i = 0;
