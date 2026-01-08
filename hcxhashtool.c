@@ -1034,10 +1034,10 @@ if(filteressidpartptr != NULL)
 	}
 if(filteressidregexptr != NULL)
 	{
-	strncpy(essid, (char *) zeiger->essid, zeiger->essidlen);
-    essid[zeiger->essidlen] = '\0';
-    //p = regexec(&essidregex, essid, 0, NULL, 0);
-    //printf("%d\n", p);
+	strncpy(essid, (char*)zeiger->essid, zeiger->essidlen);
+	essid[zeiger->essidlen] = '\0';
+	//p = regexec(&essidregex, essid, 0, NULL, 0);
+	//printf("%d\n", p);
 	if(regexec(&essidregex, essid, 0, NULL, 0) == REG_NOMATCH) return;
 	}
 if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
