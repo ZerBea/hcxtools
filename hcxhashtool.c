@@ -758,7 +758,7 @@ if(filteressidpartptr != NULL)
 if(filteressidregexptr != NULL)
 	{
 	strncpy(essid, (char *) zeiger->essid, zeiger->essidlen);
-    essid[zeiger->essidlen] = '\0';
+	essid[zeiger->essidlen] = '\0';
 	if(regexec(&essidregex, essid, 0, NULL, 0) == REG_NOMATCH) return;
 	}
 if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
@@ -869,7 +869,7 @@ if(filteressidpartptr != NULL)
 if(filteressidregexptr != NULL)
 	{
 	strncpy(essid, (char *) zeiger->essid, zeiger->essidlen);
-    essid[zeiger->essidlen] = '\0';
+	essid[zeiger->essidlen] = '\0';
 	if(regexec(&essidregex, essid, 0, NULL, 0) == REG_NOMATCH) return;
 	}
 if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
@@ -1321,7 +1321,7 @@ if(filteressidpartptr != NULL)
 if(filteressidregexptr != NULL)
 	{
 	strncpy(essid, (char *) zeiger->essid, zeiger->essidlen);
-    essid[zeiger->essidlen] = '\0';
+	essid[zeiger->essidlen] = '\0';
 	if(regexec(&essidregex, essid, 0, NULL, 0) == REG_NOMATCH) return;
 	}
 if((filtervendorptr != NULL) || (filtervendorapptr != NULL) || (filtervendorclientptr != NULL))
