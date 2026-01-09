@@ -1,3 +1,8 @@
+07.01.2026
+==========
+hcxpcapngtool: added ddetection of EPPKE authentication protocol
+               https://lwn.net/Articles/1052831/
+
 17.08.2025
 ==========
 release v7.0.1
