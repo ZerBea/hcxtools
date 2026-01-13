@@ -1,5 +1,10 @@
 13.01.2026
 ==========
+hcxcommic: removed, because featur has been implemented to hashcat
+$ hashcat --help | grep copy
+     --hash-copy                |      | Output hashes identically to the input hash          |
+
+
 hcxpottool: added new tool
 I noticed several problems regarding character encodings.
 1. My editor can handle utf8, 16, 32 and ASCII encodings.

@@ -54,7 +54,6 @@ hcxpottool_cflags=$(OPENSSL_CFLAGS)
 TOOLS+=hcxeiutool
 TOOLS+=hcxwltool
 TOOLS+=hcxhash2cap
-TOOLS+=hcxcommic
 TOOLS+=wlancap2wpasec
 wlancap2wpasec_libs=$(OPENSSL_LIBS) $(CURL_LIBS)
 wlancap2wpasec_cflags=$(OPENSSL_CFLAGS) $(CURL_CFLAGS)
