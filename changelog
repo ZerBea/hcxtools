@@ -1,3 +1,60 @@
+13.01.2026
+==========
+hcxpottool: added new tool
+I noticed several problems regarding character encodings.
+1. My editor can handle utf8, 16, 32 and ASCII encodings.
+2. The terminal can handle utf8, 16, 32 and ASCII encodings.
+3. hashcat can handle utf8, 16, 32 and ASCII encodings.
+Unfortunately none of them can handle files with mixed encodings inside.
+
+hcxppttool will fix this and convert everything to common ASCII format!
+
+"ASCII printable characters (character code 32-127)
+Codes 32-127 are common for all the different variations of the ASCII table, they are called printable characters,
+represent letters, digits, punctuation marks, and a few miscellaneous symbols. You will find almost every character
+on your keyboard. Character 127 represents the command DEL."
+https://www.ascii-code.com/
+
+"Unlike basic service set identifiers, SSIDs are usually customizable. These SSIDs can be zero to 32 octets long,
+and are, for convenience, usually in a natural language The 802.11 standards prior to the 2012 edition did not
+define any particular encoding or representation for SSIDs, which were expected to be treated and handled as an
+arbitrary sequence of 0–32 octets that are not limited to printable characters. IEEE Std 802.11-2012 defines a flag
+to express that the SSID is UTF-8-encoded and could contain any Unicode text.
+Wireless network stacks must still be prepared to handle all possible values in the SSID field!!!!!"
+https://en.wikipedia.org/wiki/Service_set_(802.11_network)
+
+As input hcxpottool takes a hashcat out file and/or hashcat pot file.
+Output is a hexified new pot file. All characters < 0x21 and > 0x7e are hexified! Psk length is alway <= 8 characters (0x00 padded if less).
+Delimiter ":" is hexified too.
+PMKs are checked and corrected. 
+
+
+$ hcxpottool -h
+hcxpottool 7.0.1-31-g6f979fb  (C) 2026 ZeroBeat
+usage  : hcxpottool <options>
+
+short options:
+-h                : show this help
+-v                : show version
+
+long options:
+--potin=<file>    : input potfile in hashcat pot file format
+--outin=<file>    : input outfile in hashcat out file format
+                     verify/calculate plain master keys enabled by default
+--potout=<file>   : output potfile in hashcat format
+                     hexified characters < 0x20
+                     hexified characters > 0x7e
+                     hexified delimiter :
+--tabout=<file>   : output tabulator separated file
+                     hexified characters < 0x20
+                     hexified characters > 0x7e
+--faultyout=<file>: output faulty lines file
+--pmkoff          : disable verification/calculation of plain master keyss
+--help            : show this help
+--version         : show version
+
+
+
 07.01.2026
 ==========
 hcxpcapngtool: added ddetection of EPPKE authentication protocol
