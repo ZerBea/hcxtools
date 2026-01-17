@@ -5976,12 +5976,22 @@ static bool processcapfile(char *eigenname, char *pcapinname)
 {
 static int resseek;
 static uint32_t magicnumber;
+static struct stat stdirtest;
 static char *pcapnameptr;
 #ifdef WANTZLIB
 static char *pcaptempnameptr;
 static char tmpoutname[PATH_MAX +1];
 #endif
 
+if( stat(pcapinname, &stdirtest) == 0)
+	{
+	if(stdirtest.st_mode & S_IFDIR) return false;
+	}
+else
+	{
+	fprintf(stdout, "failed to open %s: %s\n", pcapinname, strerror(errno));
+	return false;
+	}
 #ifdef WANTZLIB
 pcaptempnameptr = NULL;
 #endif
