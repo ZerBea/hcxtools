@@ -1,7 +1,7 @@
 18.01.2026
 ==========
 hcxpottool: added 2 new options to generate PBKDF2 HMAC SHA 1 hash files accepted by hashcat and JtR
-            important: as of today, hascat is not able to handle same salts when running in hash mode 12000!
+            important: as of today, hashcat is not able to handle same salts when running in hash mode 12000!
             
 $ hcxpottool -h
 --hcpbkdf2out=<file> : output hashcat hash file format 12000
