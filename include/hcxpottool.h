@@ -2,8 +2,10 @@
 #define HCX_OUTIN		'2'
 #define HCX_POTOUT		'3'
 #define HCX_TABOUT		'4'
-#define HCX_FAULTYOUT		'5'
-#define HCX_PMKOFF		'6'
+#define HC_PBKDF2OUT		'5'
+#define JTR_PBKDF2OUT		'6'
+#define HCX_FAULTYOUT		'7'
+#define HCX_PMKOFF		'8'
 
 #define HCX_HELP		'h'
 #define HCX_VERSION		'v'

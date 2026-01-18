@@ -46,7 +46,9 @@ static unsigned char *mdvalfile;
 const char *option_properties;
 
 static const char hexfmt[] = "$HEX[";
-
+static const char hcpbkdf2fmt[] = "sha1:4096:";
+static const char jtrpbkdf2fmt[] = "$pbkdf2-hmac-sha1$4096.";
+static const u8 base64map[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const u8 hashmap1[] =
 {
 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
@@ -58,13 +60,18 @@ static const u8 hashmap1[] =
 0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // `abcdefg
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
 };
-
 static const u8 hashmap2[] =
 {
 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, // 01234567
 0x38, 0x39, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66  // 89abcdef 
 };
-
+static const u8 zeromap32[] =
+{
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
 static char linein[INPUTLINEMAX];
 static char lineout[OUTPUTLINEMAX];
 /*===========================================================================*/
@@ -119,19 +126,13 @@ if(mdctx == NULL)
 	fprintf(stderr, "EVP_MD_CTX_new failed.\n");
 	return false;
 	}
-
-
-
 if((pmklist = (pmklist_t*)calloc(PMKLISTLEN, PMKRECLEN)) == NULL) return false;
-
-
 signal(SIGINT, programmende);
 return true;
 }
 /*===========================================================================*/
 static void globaldeinit(void)
 {
-
 if(mdctx != NULL) EVP_MD_CTX_free(mdctx);
 if(mdvalfile != NULL) OPENSSL_free(mdvalfile);
 if(mdval != NULL) OPENSSL_free(mdval);
@@ -232,6 +233,88 @@ else if(memcmp(ia->pmk, ib->pmk, PMKLEN) < 0) return 1;
 return 0;
 }
 /*===========================================================================*/
+static void writejtrpbkdf2file(char *jtrpbkdf2outname)
+{
+static long int c;
+static size_t lopos;
+static FILE *fh_jtrpbkdf2file;
+
+if((fh_jtrpbkdf2file = fopen(jtrpbkdf2outname, "a")) == NULL)
+	{
+	fprintf(stdout, "error opening file %s: %s\n", jtrpbkdf2outname, strerror(errno));
+	return;
+	}
+
+memcpy(lineout, jtrpbkdf2fmt, sizeof(jtrpbkdf2fmt));
+for(c = 0; c < pmkcount; c++)
+	{
+	if((pmklist + c)->essidlen == 0) continue;
+	if(memcmp(zeromap32, (pmklist + c)->pmk, PMKLEN) == 0) continue;
+	lopos = sizeof(jtrpbkdf2fmt) - 1;
+	lopos += writehex((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
+	lineout[lopos++] = '.';
+	lopos += writehex(PMKLEN, (pmklist + c)->pmk, &lineout[lopos]);
+	lineout[lopos] = '\0';
+	fprintf(fh_jtrpbkdf2file, "%s\n", lineout);
+	}
+fclose(fh_jtrpbkdf2file);
+return;
+}
+/*===========================================================================*/
+static void writehcpbkdf2file(char *hcpbkdf2outname)
+{
+static long int c;
+static size_t i;
+static size_t lopos;
+static size_t r;
+static u32 buf24;
+static FILE *fh_hcbkdf2file;
+
+if((fh_hcbkdf2file = fopen(hcpbkdf2outname, "a")) == NULL)
+	{
+	fprintf(stdout, "error opening file %s: %s\n", hcpbkdf2outname, strerror(errno));
+	return;
+	}
+memcpy(lineout, hcpbkdf2fmt, sizeof(hcpbkdf2fmt));
+for(c = 0; c < pmkcount; c++)
+	{
+	if((pmklist + c)->essidlen == 0) continue;
+	if(memcmp(zeromap32, (pmklist + c)->pmk, PMKLEN) == 0) continue;
+	i = 0;
+	lopos = sizeof(hcpbkdf2fmt) - 1;
+	while(i < (pmklist + c)->essidlen)
+		{
+		buf24 = 0;
+		r = ((pmklist + c)->essidlen - i);
+		buf24 |= ((u32)(pmklist + c)->essid[i++]) << 16;
+		if(r > 1) buf24 |= ((u32)(pmklist + c)->essid[i++]) << 8;
+		if(r > 2) buf24 |= (u32)(pmklist + c)->essid[i++];
+		lineout[lopos++] = base64map[(buf24 >> 18) & 0x3F];
+		lineout[lopos++] = base64map[(buf24 >> 12) & 0x3F];
+		lineout[lopos++] = (r > 1) ? base64map[(buf24 >> 6) & 0x3F] : '=';
+		lineout[lopos++] = (r > 2) ? base64map[buf24 & 0x3F] : '=';
+		}
+	lineout[lopos++] = ':';
+	i = 0;
+	while(i < PMKLEN)
+		{
+		buf24 = 0;
+		r = (PMKLEN - i);
+		buf24 |= ((u32)(pmklist + c)->pmk[i++]) << 16;
+		if(r > 1) buf24 |= ((u32)(pmklist + c)->pmk[i++]) << 8;
+		if(r > 2) buf24 |= (u32)(pmklist + c)->pmk[i++];
+		lineout[lopos++] = base64map[(buf24 >> 18) & 0x3F];
+		lineout[lopos++] = base64map[(buf24 >> 12) & 0x3F];
+		lineout[lopos++] = (r > 1) ? base64map[(buf24 >> 6) & 0x3F] : '=';
+		lineout[lopos++] = (r > 2) ? base64map[buf24 & 0x3F] : '=';
+		}
+	lineout[lopos] = '\0';
+	fprintf(fh_hcbkdf2file, "%s\n", lineout);
+	}
+fclose(fh_hcbkdf2file);
+return;
+}
+/*===========================================================================*/
 static void writetabfile(char *taboutname)
 {
 static long int c;
@@ -251,8 +334,6 @@ for(c = 0; c < pmkcount; c++)
 	written = writehex(PMKLEN, (pmklist + c)->pmk, &lineout[lopos]);
 	lopos += written;
 	lineout[lopos++] = '\t';
-
-
 	if(needhexify((pmklist + c)->essidlen, (pmklist + c)->essid) == false)
 		{
 		written = writechar((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
@@ -746,24 +827,26 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"usage  : %s <options>\n"
 	"\n"
 	"short options:\n"
-	"-h                : show this help\n"
-	"-v                : show version\n"
+	"-h                   : show this help\n"
+	"-v                   : show version\n"
 	"\n"
 	"long options:\n"
-	"--potin=<file>    : input potfile in hashcat pot file format\n"
-	"--outin=<file>    : input outfile in hashcat out file format\n"
-	"                     verify/calculate plain master keys enabled by default\n"
-	"--potout=<file>   : output potfile in hashcat format\n"
-	"                     hexified characters < 0x20\n"
-	"                     hexified characters > 0x7e\n"
-	"                     hexified delimiter :\n"
-	"--tabout=<file>   : output tabulator separated file\n"
-	"                     hexified characters < 0x20\n"
-	"                     hexified characters > 0x7e\n"
-	"--faultyout=<file>: output faulty lines file\n"
-	"--pmkoff          : disable verification/calculation of plain master keyss\n"
-	"--help            : show this help\n"
-	"--version         : show version\n\n",
+	"--potin=<file>       : input potfile in hashcat pot file format\n"
+	"--outin=<file>       : input outfile in hashcat out file format\n"
+	"                        verify/calculate plain master keys enabled by default\n"
+	"--potout=<file>      : output potfile in hashcat format\n"
+	"                        hexified characters < 0x20\n"
+	"                        hexified characters > 0x7e\n"
+	"                        hexified delimiter :\n"
+	"--tabout=<file>      : output tabulator separated file\n"
+	"                        hexified characters < 0x20\n"
+	"                        hexified characters > 0x7e\n"
+//	"--hcpbkdf2out=<file> : output hashcat hash file format 12000\n"
+//	"--jtrpbkdf2out=<file>: output john hash file format PBKDF2-HMAC-SHA1-opencl / PBKDF2-HMAC-SHA1\n"
+	"--faultyout=<file>   : output faulty lines file\n"
+	"--pmkoff             : disable verification/calculation of plain master keyss\n"
+	"--help               : show this help\n"
+	"--version            : show version\n\n",
 	eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
 exit(EXIT_SUCCESS);
 }
@@ -785,6 +868,8 @@ static char *potinname = NULL;
 static char *outinname = NULL;
 static char *potoutname = NULL;
 static char *taboutname = NULL;
+static char *hcpbkdf2outname = NULL;
+static char *jtrpbkdf2outname = NULL;
 static char *faultyoutname = NULL;
 
 static const char *short_options = "hv";
@@ -794,6 +879,8 @@ static const struct option long_options[] =
 	{"outin",			required_argument,	NULL,	HCX_OUTIN},
 	{"potout",			required_argument,	NULL,	HCX_POTOUT},
 	{"tabout",			required_argument,	NULL,	HCX_TABOUT},
+	{"hcpbkdf2out",			required_argument,	NULL,	HC_PBKDF2OUT},
+	{"jtrpbkdf2out",		required_argument,	NULL,	JTR_PBKDF2OUT},
 	{"faultyout",			required_argument,	NULL,	HCX_FAULTYOUT},
 	{"pmkoff",			no_argument,		NULL,	HCX_PMKOFF},
 	{"version",			no_argument,		NULL,	HCX_VERSION},
@@ -824,6 +911,14 @@ while((auswahl = getopt_long(argc, argv, short_options, long_options, &index)) !
 
 		case HCX_TABOUT:
 		taboutname = optarg;
+		break;
+
+		case HC_PBKDF2OUT:
+		hcpbkdf2outname = optarg;
+		break;
+
+		case JTR_PBKDF2OUT:
+		jtrpbkdf2outname = optarg;
 		break;
 
 		case HCX_FAULTYOUT:
@@ -886,8 +981,9 @@ if(pmkcount > 0)
 	if(pmkoff == false) calculatepmks();
 	if(potoutname != NULL) writepotfile(potoutname);
 	if(taboutname != NULL) writetabfile(taboutname);
+	if(hcpbkdf2outname != NULL) writehcpbkdf2file(hcpbkdf2outname);
+	if(jtrpbkdf2outname != NULL) writejtrpbkdf2file(jtrpbkdf2outname);
 	}
-
 ende:
 if(faultyoutname != NULL) fclose(fh_faulty);
 printstatus();
