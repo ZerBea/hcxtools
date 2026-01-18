@@ -1,11 +1,38 @@
 18.01.2026
 ==========
 hcxpottool: added 2 new options to generate PBKDF2 HMAC SHA 1 hash files accepted by hashcat and JtR
-            important: as of today, hashcat is not able to handle same salts when running in hash mode 12000!
-            
-$ hcxpottool -h
+            added 1 new option to read john pot file
+             important: as of today, hashcat is not able to handle same salts when running in hash mode 12000!
+            changed hashcat input and hashcat output option name
+$ .hcxpottool -h
+hcxpottool 7.0.1-39-ge8b8235  (C) 2026 ZeroBeat
+usage  : hcxpottool <options>
+
+short options:
+-h                   : show this help
+-v                   : show version
+
+long options:
+--hcpotin=<file>     : input potfile in hashcat pot file format
+                        format: PMK*ESSID:PSK
+--hcoutin=<file>     : input outfile in hashcat out file format
+                        format: MIC/PMKID:MAC_AP:MAC_CLIENT:ESSID:PSK
+                        verify/calculate plain master keys enabled by default
+--jtrpotin=<file>    : input potfile in john pot file format
+                        format: $pbkdf2-hmac-sha1$ESSID$PMK:PSK
+--hcpotout=<file>    : output potfile in hashcat format
+                        hexified characters < 0x20
+                        hexified characters > 0x7e
+                        hexified delimiter :
 --hcpbkdf2out=<file> : output hashcat hash file format 12000
 --jtrpbkdf2out=<file>: output john hash file format PBKDF2-HMAC-SHA1-opencl / PBKDF2-HMAC-SHA1
+--tabout=<file>      : output tabulator separated file
+                        hexified characters < 0x20
+                        hexified characters > 0x7e
+--faultyout=<file>   : output faulty lines file
+--pmkoff             : disable verification/calculation of plain master keyss
+--help               : show this help
+--version            : show version
 
 
 13.01.2026

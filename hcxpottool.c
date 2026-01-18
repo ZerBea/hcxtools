@@ -48,6 +48,7 @@ const char *option_properties;
 static const char hexfmt[] = "$HEX[";
 static const char hcpbkdf2fmt[] = "sha1:4096:";
 static const char jtrpbkdf2fmt[] = "$pbkdf2-hmac-sha1$4096.";
+static const char jtrpotfmt1[] = "$pbkdf2-hmac-sha1$4096$";
 static const u8 base64map[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const u8 hashmap1[] =
 {
@@ -244,7 +245,6 @@ if((fh_jtrpbkdf2file = fopen(jtrpbkdf2outname, "a")) == NULL)
 	fprintf(stdout, "error opening file %s: %s\n", jtrpbkdf2outname, strerror(errno));
 	return;
 	}
-
 memcpy(lineout, jtrpbkdf2fmt, sizeof(jtrpbkdf2fmt));
 for(c = 0; c < pmkcount; c++)
 	{
@@ -275,13 +275,13 @@ if((fh_hcbkdf2file = fopen(hcpbkdf2outname, "a")) == NULL)
 	fprintf(stdout, "error opening file %s: %s\n", hcpbkdf2outname, strerror(errno));
 	return;
 	}
-memcpy(lineout, hcpbkdf2fmt, sizeof(hcpbkdf2fmt));
+memcpy(lineout, hcpbkdf2fmt, 10);
 for(c = 0; c < pmkcount; c++)
 	{
 	if((pmklist + c)->essidlen == 0) continue;
 	if(memcmp(zeromap32, (pmklist + c)->pmk, PMKLEN) == 0) continue;
 	i = 0;
-	lopos = sizeof(hcpbkdf2fmt) - 1;
+	lopos = 10;
 	while(i < (pmklist + c)->essidlen)
 		{
 		buf24 = 0;
@@ -715,6 +715,93 @@ for(c = 0; c < cpucount; c++)
 return;
 }
 /*===========================================================================*/
+static bool readjtrpotfile(char *jtrpotfileinname)
+{
+static ssize_t len = 0;
+static size_t lipos;
+static size_t essidlen;
+static size_t psklen;
+static pmklist_t *pmklistnew = NULL;
+static FILE *jtrpotfile = NULL;
+
+if((jtrpotfile = fopen(jtrpotfileinname, "rb")) == NULL) return false;
+while(1)
+	{
+	if((len = fgetline(jtrpotfile, INPUTLINEMAX, linein)) == -1) break;
+	if(len < 91)
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	lipos = 22;
+	if(linein[lipos++] != '$') 
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	if(memcmp(linein, jtrpotfmt1, lipos) != 0)
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	memset((pmklist + pmkcount)->essid, 0, ESSIDLEN);
+	if((essidlen = readhex(ESSIDLEN, '$', &linein[lipos], (pmklist + pmkcount)->essid)) <= 0)
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	(pmklist + pmkcount)->essidlen = essidlen;
+	lipos += essidlen * 2;
+	if(linein[lipos++] != '$')
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	if(readhex(PMKLEN , ':', &linein[lipos], (pmklist + pmkcount)->pmk) != PMKLEN)
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	lipos += PMKLEN * 2;
+	if(linein[lipos++] != ':')
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	memset((pmklist + pmkcount)->psk, 0, PSKLEN);
+	psklen = readchar(PSKLEN, 0, &linein[lipos], (pmklist + pmkcount)->psk);
+	if(linein[lipos + psklen] != '\0')
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	if(psklen < 8) (pmklist + pmkcount)->psklen = 8;
+	else (pmklist + pmkcount)->psklen = psklen;
+	pmkcount += 1;
+	if((pmkcount % PMKLISTLEN) == 0)
+		{
+		pmklistnew = (pmklist_t*)realloc(pmklist, (pmkcount + PMKLISTLEN)* PMKRECLEN);
+		if(pmklistnew == NULL)
+			{
+			pmkreaderrorcount += 1;
+			fclose(jtrpotfile);
+			return false;
+			}
+		pmklist = pmklistnew;
+		}
+	}
+fclose(jtrpotfile);
+return true;
+}
+/*===========================================================================*/
 static bool readpotfile(char *hcpotfileinname)
 {
 static ssize_t len = 0;
@@ -830,18 +917,22 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"-v                   : show version\n"
 	"\n"
 	"long options:\n"
-	"--potin=<file>       : input potfile in hashcat pot file format\n"
-	"--outin=<file>       : input outfile in hashcat out file format\n"
+	"--hcpotin=<file>     : input potfile in hashcat pot file format\n"
+	"                        format: PMK*ESSID:PSK\n"
+	"--hcoutin=<file>     : input outfile in hashcat out file format\n"
+	"                        format: MIC/PMKID:MAC_AP:MAC_CLIENT:ESSID:PSK\n"
 	"                        verify/calculate plain master keys enabled by default\n"
-	"--potout=<file>      : output potfile in hashcat format\n"
+	"--jtrpotin=<file>    : input potfile in john pot file format\n"
+	"                        format: $pbkdf2-hmac-sha1$ESSID$PMK:PSK\n" 
+	"--hcpotout=<file>    : output potfile in hashcat format\n"
 	"                        hexified characters < 0x20\n"
 	"                        hexified characters > 0x7e\n"
 	"                        hexified delimiter :\n"
+	"--hcpbkdf2out=<file> : output hashcat hash file format 12000\n"
+	"--jtrpbkdf2out=<file>: output john hash file format PBKDF2-HMAC-SHA1-opencl / PBKDF2-HMAC-SHA1\n"
 	"--tabout=<file>      : output tabulator separated file\n"
 	"                        hexified characters < 0x20\n"
 	"                        hexified characters > 0x7e\n"
-	"--hcpbkdf2out=<file> : output hashcat hash file format 12000\n"
-	"--jtrpbkdf2out=<file>: output john hash file format PBKDF2-HMAC-SHA1-opencl / PBKDF2-HMAC-SHA1\n"
 	"--faultyout=<file>   : output faulty lines file\n"
 	"--pmkoff             : disable verification/calculation of plain master keyss\n"
 	"--help               : show this help\n"
@@ -866,18 +957,20 @@ static bool pmkoff = false;
 static char *potinname = NULL;
 static char *outinname = NULL;
 static char *potoutname = NULL;
-static char *taboutname = NULL;
 static char *hcpbkdf2outname = NULL;
+static char *jtrpotinname = NULL;
 static char *jtrpbkdf2outname = NULL;
+static char *taboutname = NULL;
 static char *faultyoutname = NULL;
 
 static const char *short_options = "hv";
 static const struct option long_options[] =
 {
-	{"potin",			required_argument,	NULL,	HCX_POTIN},
-	{"outin",			required_argument,	NULL,	HCX_OUTIN},
-	{"potout",			required_argument,	NULL,	HCX_POTOUT},
+	{"hcpotin",			required_argument,	NULL,	HC_POTIN},
+	{"hcoutin",			required_argument,	NULL,	HC_OUTIN},
+	{"jtrpotin",			required_argument,	NULL,	JTR_POTIN},
 	{"tabout",			required_argument,	NULL,	HCX_TABOUT},
+	{"hcpotout",			required_argument,	NULL,	HC_POTOUT},
 	{"hcpbkdf2out",			required_argument,	NULL,	HC_PBKDF2OUT},
 	{"jtrpbkdf2out",		required_argument,	NULL,	JTR_PBKDF2OUT},
 	{"faultyout",			required_argument,	NULL,	HCX_FAULTYOUT},
@@ -896,28 +989,32 @@ while((auswahl = getopt_long(argc, argv, short_options, long_options, &index)) !
 	{
 	switch (auswahl)
 		{
-		case HCX_POTIN:
+		case HC_POTIN:
 		potinname = optarg;
 		break;
 
-		case HCX_OUTIN:
+		case HC_OUTIN:
 		outinname = optarg;
 		break;
 
-		case HCX_POTOUT:
+		case HC_POTOUT:
 		potoutname = optarg;
-		break;
-
-		case HCX_TABOUT:
-		taboutname = optarg;
 		break;
 
 		case HC_PBKDF2OUT:
 		hcpbkdf2outname = optarg;
 		break;
 
+		case JTR_POTIN:
+		jtrpotinname = optarg;
+		break;
+
 		case JTR_PBKDF2OUT:
 		jtrpbkdf2outname = optarg;
+		break;
+
+		case HCX_TABOUT:
+		taboutname = optarg;
 		break;
 
 		case HCX_FAULTYOUT:
@@ -959,6 +1056,15 @@ if(potinname != NULL)
 	if(readpotfile(potinname) == false)
 		{
 		fprintf(stderr, "failed to read %s\n", potinname);
+		goto ende;
+		}
+	}
+
+if(jtrpotinname != NULL)
+	{
+	if(readjtrpotfile(jtrpotinname) == false)
+		{
+		fprintf(stderr, "failed to read %s\n", jtrpotinname);
 		goto ende;
 		}
 	}
