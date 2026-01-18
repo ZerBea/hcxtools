@@ -557,7 +557,6 @@ while(1)
 	memset((pmklist + pmkcount)->pmk, 0, PMKLEN);
 	lipos = 59;
 	memset((pmklist + pmkcount)->essid, 0, ESSIDLEN);
-
 	if(memcmp(&linein[lipos], hexfmt, 5) == 0)
 		{
 		lipos += 5;
@@ -841,8 +840,8 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"--tabout=<file>      : output tabulator separated file\n"
 	"                        hexified characters < 0x20\n"
 	"                        hexified characters > 0x7e\n"
-//	"--hcpbkdf2out=<file> : output hashcat hash file format 12000\n"
-//	"--jtrpbkdf2out=<file>: output john hash file format PBKDF2-HMAC-SHA1-opencl / PBKDF2-HMAC-SHA1\n"
+	"--hcpbkdf2out=<file> : output hashcat hash file format 12000\n"
+	"--jtrpbkdf2out=<file>: output john hash file format PBKDF2-HMAC-SHA1-opencl / PBKDF2-HMAC-SHA1\n"
 	"--faultyout=<file>   : output faulty lines file\n"
 	"--pmkoff             : disable verification/calculation of plain master keyss\n"
 	"--help               : show this help\n"
