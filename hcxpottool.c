@@ -245,12 +245,12 @@ if((fh_jtrpbkdf2file = fopen(jtrpbkdf2outname, "a")) == NULL)
 	fprintf(stdout, "error opening file %s: %s\n", jtrpbkdf2outname, strerror(errno));
 	return;
 	}
-memcpy(lineout, jtrpbkdf2fmt, sizeof(jtrpbkdf2fmt));
+memcpy(lineout, jtrpbkdf2fmt, 23);
 for(c = 0; c < pmkcount; c++)
 	{
 	if((pmklist + c)->essidlen == 0) continue;
 	if(memcmp(zeromap32, (pmklist + c)->pmk, PMKLEN) == 0) continue;
-	lopos = sizeof(jtrpbkdf2fmt) - 1;
+	lopos = 23;
 	lopos += writehex((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
 	lineout[lopos++] = '.';
 	lopos += writehex(PMKLEN, (pmklist + c)->pmk, &lineout[lopos]);
@@ -1060,21 +1060,21 @@ if(potinname != NULL)
 		}
 	}
 
-if(jtrpotinname != NULL)
-	{
-	if(readjtrpotfile(jtrpotinname) == false)
-		{
-		fprintf(stderr, "failed to read %s\n", jtrpotinname);
-		goto ende;
-		}
-	}
-
 if(outinname != NULL)
 	{
 	pmkoff = false;
 	if(readoutfile(outinname) == false)
 		{
 		fprintf(stderr, "failed to read %s\n", outinname);
+		goto ende;
+		}
+	}
+
+if(jtrpotinname != NULL)
+	{
+	if(readjtrpotfile(jtrpotinname) == false)
+		{
+		fprintf(stderr, "failed to read %s\n", jtrpotinname);
 		goto ende;
 		}
 	}
