@@ -610,7 +610,8 @@ static const char *word3[] =
 "lop", "lot", "low",
 "mad", "map", "max", "mid", "mix", "mob", "mop", "mow", "mud", "mug",
 "nag", "nap", "net", "new", "nod", "nor", "not", "now",
-"oar", "oat", "odd", "off", "oil", "old", "one", "opt", "our", "out", "owe", "own",
+"oar", "oat", "odd", "off", "oil", "old", "one", "opt", "our", "out", "owe", "owl",
+"own",
 "pad", "pal", "pay", "pea", "peg", "pen", "per", "pet", "pie", "pin", "ply", "pop",
 "pro", "pub", "put",
 "ran", "rat", "raw", "red", "rid", "rig", "rob", "rot", "rug", "run",
@@ -670,8 +671,8 @@ static const char *word5[] =
 "beams", "bland", "blank", "bleak", "bless", "boast", "boats", "boost", "bored", "bread", "bring", "broke",
 "buyer",
 "cable", "cakes", "canoe", "cards", "cargo", "cause", "chair", "cheap", "chips", "choke", "climb", "clove",
-"coact", "coins", "colds", "comic", "cough", "count", "cover", "crane", "crash", "crate", "crude", "cruel",
-"cubic", "curry",
+"coact", "coins", "colds", "comic", "cough", "count", "court", "cover", "crane", "crash", "crate", "crude",
+"cruel", "cubic", "curry",
 "dairy", "delay", "dance", "dense", "desks", "diner", "dines", "disco", "dozen", "draft", "dream", "drink",
 "drown", "drunk", "dusts", "dusty",
 "early", "eight", "elder", "enter", "equal", "equip", "erode", "evens", "event", "exact", "exams", "excel",
@@ -3002,9 +3003,9 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"                      list will be > 2.9GB\n"
 	"--tenda             : include weak Tenda / NOVA / NOVE / BrosTrend candidates\n"
 	"--ee                : include weak 5GHz-EE / BrightBox / EE / EE-BrightBox candidates\n"
-	"                      list will be > 1.3GB\n"
+	"                      list will be > 1.4GB\n"
 	"--eeupper           : include weak EE-Hub candidates\n"
-	"                      list will be > 3.9GB\n"
+	"                      list will be > 4.0GB\n"
 	"--alticeoptimum     : include weak Altice/Optimum candidates (MyAltice, MyOptimum)\n"
 	"                      list will be > 6.3GB\n"
 	"--asus              : include weak ASUS RT-AC candidates (ASUS_XX, RT-AC)\n"
