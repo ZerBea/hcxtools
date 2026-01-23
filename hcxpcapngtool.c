@@ -4920,7 +4920,6 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 		}
 	else return false;
 	usedfrequency[frequency] += 1;
-
 	pf += 4;
 	}
 if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS)
