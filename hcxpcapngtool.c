@@ -4849,18 +4849,17 @@ static uint32_t *pp;
 
 rth = (rth_t*)capptr;
 pf = RTH_SIZE;
-if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
+pp = (uint32_t*)capptr;
+i = 1;
+while(((pp[i] & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT) && (i < rthlen / 4))
 	{
-	pp = (uint32_t*)capptr;
-	for(i = 2; i < rthlen /4; i++)
-		{
-		#ifdef BIG_ENDIAN_HOST
-		pp[i] = byte_swap_32(pp[i]);
-		#endif
-		pf += 4;
-		if(pf > rthlen) return false;
-		if((pp[i] & IEEE80211_RADIOTAP_EXT) != IEEE80211_RADIOTAP_EXT) break;
-		}
+	if(pf > rthlen) return false;
+	#ifdef BIG_ENDIAN_HOST
+	pp[i] = byte_swap_32(pp[i]);
+	#endif
+	pf += 4;
+	if(pf > rthlen) return false;
+	i++;
 	}
 if((rth->it_present & IEEE80211_RADIOTAP_TSFT) == IEEE80211_RADIOTAP_TSFT)
 	{
@@ -4886,11 +4885,9 @@ if((rth->it_present & IEEE80211_RADIOTAP_FLAGS) == IEEE80211_RADIOTAP_FLAGS)
 if((rth->it_present & IEEE80211_RADIOTAP_RATE) == IEEE80211_RADIOTAP_RATE) pf += 1;
 if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	{
-	if(pf > rthlen) return false;
 	if((pf %2) != 0) pf += 1;
-	if(pf > rthlen) return false;
+	if(pf + 1 > rthlen) return false;
 	frequency = (capptr[pf +1] << 8) + capptr[pf];
-	usedfrequency[frequency] += 1;
 	if(frequency == 2484)
 		{
 		interfacechannel = 14;
@@ -4921,6 +4918,9 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 		interfacechannel = (frequency -5950)/5;
 		band6count++;
 		}
+	else return false;
+	usedfrequency[frequency] += 1;
+
 	pf += 4;
 	}
 if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS)
@@ -4984,7 +4984,6 @@ if(fh_raw_out != NULL)
 		}
 	fprintf(fh_raw_out, "*%02x\n", cs);
 	}
-
 if(captimestamp < captimestampold) sequenceerrorcount++;
 captimestampold = captimestamp;
 if(timestampmin == 0) timestampmin = captimestamp;
@@ -5018,6 +5017,13 @@ if(linktype == DLT_IEEE802_11_RADIO)
 		return;
 		}
 	if(rth->it_version != 0)
+		{
+		pcapreaderrors++;
+		radiotaperrorcount++;
+		if(fh_log != NULL) fprintf(fh_log, "unsupported radiotap header version: %ld\n", rawpacketcount);
+		return;
+		}
+	if(rth->it_pad != 0)
 		{
 		pcapreaderrors++;
 		radiotaperrorcount++;
