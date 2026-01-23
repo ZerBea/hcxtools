@@ -4858,6 +4858,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_EXT) == IEEE80211_RADIOTAP_EXT)
 		pp[i] = byte_swap_32(pp[i]);
 		#endif
 		pf += 4;
+		if(pf > rthlen) return false;
 		if((pp[i] & IEEE80211_RADIOTAP_EXT) != IEEE80211_RADIOTAP_EXT) break;
 		}
 	}
@@ -4887,6 +4888,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	{
 	if(pf > rthlen) return false;
 	if((pf %2) != 0) pf += 1;
+	if(pf > rthlen) return false;
 	frequency = (capptr[pf +1] << 8) + capptr[pf];
 	usedfrequency[frequency] += 1;
 	if(frequency == 2484)
@@ -4923,6 +4925,7 @@ if((rth->it_present & IEEE80211_RADIOTAP_CHANNEL) == IEEE80211_RADIOTAP_CHANNEL)
 	}
 if((rth->it_present & IEEE80211_RADIOTAP_FHSS) == IEEE80211_RADIOTAP_FHSS)
 		{
+		if(pf > rthlen) return false;
 		if((pf %2) != 0) pf += 1;
 		pf += 2;
 		}
