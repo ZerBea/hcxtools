@@ -1,5 +1,16 @@
 18.01.2026
 ==========
+hcxpottool: fixed help menu, added new option tabasciiout
+--tabout=<file>      : output tabulator separated file
+                        hexified characters < 0x21
+                        hexified characters > 0x7e
+--tabasciiout=<file> : output tabulator separated file
+                        hexified characters < 0x20
+                        hexified characters > 0x7e
+
+
+18.01.2026
+==========
 hcxpottool: added 2 new options to generate PBKDF2 HMAC SHA 1 hash files accepted by hashcat and JtR
             added 1 new option to read john pot file
              important: as of today, hashcat is not able to handle same salts when running in hash mode 12000!

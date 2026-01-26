@@ -1,12 +1,13 @@
-#define HC_POTIN		'1'
-#define HC_OUTIN		'2'
-#define HC_POTOUT		'3'
-#define HC_PBKDF2OUT		'4'
-#define JTR_POTIN		'5'
-#define JTR_PBKDF2OUT		'6'
-#define HCX_TABOUT		'7'
-#define HCX_FAULTYOUT		'8'
-#define HCX_PMKOFF		'9'
+#define HC_POTIN		1
+#define HC_OUTIN		2
+#define HC_POTOUT		3
+#define HC_PBKDF2OUT		4
+#define JTR_POTIN		5
+#define JTR_PBKDF2OUT		6
+#define HCX_TABOUT		7
+#define HCX_TABASCIIOUT		8
+#define HCX_FAULTYOUT		9
+#define HCX_PMKOFF		10
 
 #define HCX_HELP		'h'
 #define HCX_VERSION		'v'

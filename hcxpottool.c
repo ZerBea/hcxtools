@@ -157,6 +157,18 @@ if(pmkcorrectedcount != 0)	fprintf(stdout, "%ld PMK(s) corrected\n", pmkcorrecte
 return;
 }
 /*===========================================================================*/
+static bool needasciihexify(size_t flen, u8 *fin)
+{
+static size_t c;
+for(c = 0; c < flen; c++)
+	{
+	if(fin[c] == 0) return true;
+	if(fin[c] < 0x20) return true;
+	if(fin[c] > 0x7e) return true;
+	}
+return false;
+}
+/*---------------------------------------------------------------------------*/
 static bool needdelimhexify(size_t flen, u8 *fin)
 {
 static size_t c;
@@ -312,6 +324,67 @@ for(c = 0; c < pmkcount; c++)
 	fprintf(fh_hcbkdf2file, "%s\n", lineout);
 	}
 fclose(fh_hcbkdf2file);
+return;
+}
+/*===========================================================================*/
+static void writetabasciifile(char *tabasciioutname)
+{
+static long int c;
+static size_t lopos = 0;
+static size_t written = 0;
+static FILE *fh_tabasciifile;
+
+if((fh_tabasciifile = fopen(tabasciioutname, "a")) == NULL)
+	{
+	fprintf(stdout, "error opening file %s: %s\n", tabasciioutname, strerror(errno));
+	return;
+	}
+for(c = 0; c < pmkcount; c++)
+	{
+	if(((pmklist + c)->status & DOUBLEESSIDPSK) == DOUBLEESSIDPSK) continue;
+	lopos = 0;
+	written = writehex(PMKLEN, (pmklist + c)->pmk, &lineout[lopos]);
+	lopos += written;
+	lineout[lopos++] = '\t';
+	if(needasciihexify((pmklist + c)->essidlen, (pmklist + c)->essid) == false)
+		{
+		written = writechar((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos++] = '\t';
+		}
+	else
+		{
+		lineout[lopos++] = '$';
+		lineout[lopos++] = 'H';
+		lineout[lopos++] = 'E';
+		lineout[lopos++] = 'X';
+		lineout[lopos++] = '[';
+		written = writehex((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos++] = ']';
+		lineout[lopos++] = '\t';
+		}
+	if(needasciihexify((pmklist + c)->psklen, (pmklist + c)->psk) == false)
+		{
+		written = writechar((pmklist + c)->psklen, (pmklist + c)->psk, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos] = '\0';
+		}
+	else
+		{
+		lineout[lopos++] = '$';
+		lineout[lopos++] = 'H';
+		lineout[lopos++] = 'E';
+		lineout[lopos++] = 'X';
+		lineout[lopos++] = '[';
+		written = writehex((pmklist + c)->psklen, (pmklist + c)->psk, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos++] = ']';
+		lineout[lopos++] = '\0';
+		}
+	fprintf(fh_tabasciifile, "%s\n", lineout);
+	}
+fclose(fh_tabasciifile);
 return;
 }
 /*===========================================================================*/
@@ -931,6 +1004,9 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"--hcpbkdf2out=<file> : output hashcat hash file format 12000\n"
 	"--jtrpbkdf2out=<file>: output john hash file format PBKDF2-HMAC-SHA1-opencl / PBKDF2-HMAC-SHA1\n"
 	"--tabout=<file>      : output tabulator separated file\n"
+	"                        hexified characters < 0x21\n"
+	"                        hexified characters > 0x7e\n"
+	"--tabasciiout=<file> : output tabulator separated file\n"
 	"                        hexified characters < 0x20\n"
 	"                        hexified characters > 0x7e\n"
 	"--faultyout=<file>   : output faulty lines file\n"
@@ -961,6 +1037,7 @@ static char *hcpbkdf2outname = NULL;
 static char *jtrpotinname = NULL;
 static char *jtrpbkdf2outname = NULL;
 static char *taboutname = NULL;
+static char *tabasciioutname = NULL;
 static char *faultyoutname = NULL;
 
 static const char *short_options = "hv";
@@ -970,6 +1047,7 @@ static const struct option long_options[] =
 	{"hcoutin",			required_argument,	NULL,	HC_OUTIN},
 	{"jtrpotin",			required_argument,	NULL,	JTR_POTIN},
 	{"tabout",			required_argument,	NULL,	HCX_TABOUT},
+	{"tabasciiout",			required_argument,	NULL,	HCX_TABASCIIOUT},
 	{"hcpotout",			required_argument,	NULL,	HC_POTOUT},
 	{"hcpbkdf2out",			required_argument,	NULL,	HC_PBKDF2OUT},
 	{"jtrpbkdf2out",		required_argument,	NULL,	JTR_PBKDF2OUT},
@@ -1015,6 +1093,10 @@ while((auswahl = getopt_long(argc, argv, short_options, long_options, &index)) !
 
 		case HCX_TABOUT:
 		taboutname = optarg;
+		break;
+
+		case HCX_TABASCIIOUT:
+		tabasciioutname = optarg;
 		break;
 
 		case HCX_FAULTYOUT:
@@ -1086,6 +1168,7 @@ if(pmkcount > 0)
 	if(pmkoff == false) calculatepmks();
 	if(potoutname != NULL) writepotfile(potoutname);
 	if(taboutname != NULL) writetabfile(taboutname);
+	if(tabasciioutname != NULL) writetabasciifile(tabasciioutname);
 	if(hcpbkdf2outname != NULL) writehcpbkdf2file(hcpbkdf2outname);
 	if(jtrpbkdf2outname != NULL) writejtrpbkdf2file(jtrpbkdf2outname);
 	}
