@@ -157,12 +157,22 @@ if(pmkcorrectedcount != 0)	fprintf(stdout, "%ld PMK(s) corrected\n", pmkcorrecte
 return;
 }
 /*===========================================================================*/
+static bool needemuhexify(size_t flen, u8 *fin)
+{
+static size_t c;
+for(c = 0; c < flen; c++)
+	{
+	if(fin[c] < 0x20) return true;
+	if(fin[c] == 0x7e) return true;
+	}
+return false;
+}
+/*---------------------------------------------------------------------------*/
 static bool needasciihexify(size_t flen, u8 *fin)
 {
 static size_t c;
 for(c = 0; c < flen; c++)
 	{
-	if(fin[c] == 0) return true;
 	if(fin[c] < 0x20) return true;
 	if(fin[c] > 0x7e) return true;
 	}
@@ -174,9 +184,8 @@ static bool needdelimhexify(size_t flen, u8 *fin)
 static size_t c;
 for(c = 0; c < flen; c++)
 	{
-	if(fin[c] == 0) return true;
-	if(fin[c] == ':') return true;
 	if(fin[c] < 0x21) return true;
+	if(fin[c] == ':') return true;
 	if(fin[c] > 0x7e) return true;
 	}
 return false;
@@ -187,7 +196,6 @@ static bool needhexify(size_t flen, u8 *fin)
 static size_t c;
 for(c = 0; c < flen; c++)
 	{
-	if(fin[c] == 0) return true;
 	if(fin[c] < 0x21) return true;
 	if(fin[c] > 0x7e) return true;
 	}
@@ -346,18 +354,47 @@ for(c = 0; c < pmkcount; c++)
 	written = writehex(PMKLEN, (pmklist + c)->pmk, &lineout[lopos]);
 	lopos += written;
 	lineout[lopos++] = '\t';
-	written = writechar((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
-	lopos += written;
-	lineout[lopos++] = '\t';
-	written = writechar((pmklist + c)->psklen, (pmklist + c)->psk, &lineout[lopos]);
-	lopos += written;
-	lineout[lopos] = '\0';
+	if(needemuhexify((pmklist + c)->essidlen, (pmklist + c)->essid) == false)
+		{
+		written = writechar((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos++] = '\t';
+		}
+	else
+		{
+		lineout[lopos++] = '$';
+		lineout[lopos++] = 'H';
+		lineout[lopos++] = 'E';
+		lineout[lopos++] = 'X';
+		lineout[lopos++] = '[';
+		written = writehex((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos++] = ']';
+		lineout[lopos++] = '\t';
+		}
+	if(needemuhexify((pmklist + c)->psklen, (pmklist + c)->psk) == false)
+		{
+		written = writechar((pmklist + c)->psklen, (pmklist + c)->psk, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos] = '\0';
+		}
+	else
+		{
+		lineout[lopos++] = '$';
+		lineout[lopos++] = 'H';
+		lineout[lopos++] = 'E';
+		lineout[lopos++] = 'X';
+		lineout[lopos++] = '[';
+		written = writehex((pmklist + c)->psklen, (pmklist + c)->psk, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos++] = ']';
+		lineout[lopos++] = '\0';
+		}
 	fprintf(fh_tabnhfile, "%s\n", lineout);
 	}
 fclose(fh_tabnhfile);
 return;
-}
-/*===========================================================================*/
+}/*===========================================================================*/
 static void writetabspfile(char *tabspoutname)
 {
 static long int c;
