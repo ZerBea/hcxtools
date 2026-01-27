@@ -327,16 +327,16 @@ fclose(fh_hcbkdf2file);
 return;
 }
 /*===========================================================================*/
-static void writetabasciifile(char *tabasciioutname)
+static void writetabspfile(char *tabspoutname)
 {
 static long int c;
 static size_t lopos = 0;
 static size_t written = 0;
-static FILE *fh_tabasciifile;
+static FILE *fh_tabspfile;
 
-if((fh_tabasciifile = fopen(tabasciioutname, "a")) == NULL)
+if((fh_tabspfile = fopen(tabspoutname, "a")) == NULL)
 	{
-	fprintf(stdout, "error opening file %s: %s\n", tabasciioutname, strerror(errno));
+	fprintf(stdout, "error opening file %s: %s\n", tabspoutname, strerror(errno));
 	return;
 	}
 for(c = 0; c < pmkcount; c++)
@@ -382,9 +382,9 @@ for(c = 0; c < pmkcount; c++)
 		lineout[lopos++] = ']';
 		lineout[lopos++] = '\0';
 		}
-	fprintf(fh_tabasciifile, "%s\n", lineout);
+	fprintf(fh_tabspfile, "%s\n", lineout);
 	}
-fclose(fh_tabasciifile);
+fclose(fh_tabspfile);
 return;
 }
 /*===========================================================================*/
@@ -1006,7 +1006,7 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"--tabout=<file>      : output tabulator separated file\n"
 	"                        hexified characters < 0x21\n"
 	"                        hexified characters > 0x7e\n"
-	"--tabasciiout=<file> : output tabulator separated file\n"
+	"--tabspout=<file>    : output tabulator separated file\n"
 	"                        hexified characters < 0x20\n"
 	"                        hexified characters > 0x7e\n"
 	"--faultyout=<file>   : output faulty lines file\n"
@@ -1037,7 +1037,7 @@ static char *hcpbkdf2outname = NULL;
 static char *jtrpotinname = NULL;
 static char *jtrpbkdf2outname = NULL;
 static char *taboutname = NULL;
-static char *tabasciioutname = NULL;
+static char *tabspoutname = NULL;
 static char *faultyoutname = NULL;
 
 static const char *short_options = "hv";
@@ -1047,7 +1047,7 @@ static const struct option long_options[] =
 	{"hcoutin",			required_argument,	NULL,	HC_OUTIN},
 	{"jtrpotin",			required_argument,	NULL,	JTR_POTIN},
 	{"tabout",			required_argument,	NULL,	HCX_TABOUT},
-	{"tabasciiout",			required_argument,	NULL,	HCX_TABASCIIOUT},
+	{"tabspout",			required_argument,	NULL,	HCX_TABSPOUT},
 	{"hcpotout",			required_argument,	NULL,	HC_POTOUT},
 	{"hcpbkdf2out",			required_argument,	NULL,	HC_PBKDF2OUT},
 	{"jtrpbkdf2out",		required_argument,	NULL,	JTR_PBKDF2OUT},
@@ -1095,8 +1095,8 @@ while((auswahl = getopt_long(argc, argv, short_options, long_options, &index)) !
 		taboutname = optarg;
 		break;
 
-		case HCX_TABASCIIOUT:
-		tabasciioutname = optarg;
+		case HCX_TABSPOUT:
+		tabspoutname = optarg;
 		break;
 
 		case HCX_FAULTYOUT:
@@ -1168,7 +1168,7 @@ if(pmkcount > 0)
 	if(pmkoff == false) calculatepmks();
 	if(potoutname != NULL) writepotfile(potoutname);
 	if(taboutname != NULL) writetabfile(taboutname);
-	if(tabasciioutname != NULL) writetabasciifile(tabasciioutname);
+	if(tabspoutname != NULL) writetabspfile(tabspoutname);
 	if(hcpbkdf2outname != NULL) writehcpbkdf2file(hcpbkdf2outname);
 	if(jtrpbkdf2outname != NULL) writejtrpbkdf2file(jtrpbkdf2outname);
 	}

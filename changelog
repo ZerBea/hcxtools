@@ -1,3 +1,11 @@
+22.01.2026
+==========
+hcxpottool: renamed options tabasciiout to tapspout 
+--tabspout=<file>    : output tabulator separated file
+                        hexified characters < 0x20
+                        hexified characters > 0x7e
+
+
 18.01.2026
 ==========
 hcxpottool: fixed help menu, added new option tabasciiout
