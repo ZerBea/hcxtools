@@ -327,6 +327,37 @@ fclose(fh_hcbkdf2file);
 return;
 }
 /*===========================================================================*/
+static void writetabnhfile(char *tabnhoutname)
+{
+static long int c;
+static size_t lopos = 0;
+static size_t written = 0;
+static FILE *fh_tabnhfile;
+
+if((fh_tabnhfile = fopen(tabnhoutname, "a")) == NULL)
+	{
+	fprintf(stdout, "error opening file %s: %s\n", tabnhoutname, strerror(errno));
+	return;
+	}
+for(c = 0; c < pmkcount; c++)
+	{
+	if(((pmklist + c)->status & DOUBLEESSIDPSK) == DOUBLEESSIDPSK) continue;
+	lopos = 0;
+	written = writehex(PMKLEN, (pmklist + c)->pmk, &lineout[lopos]);
+	lopos += written;
+	lineout[lopos++] = '\t';
+	written = writechar((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
+	lopos += written;
+	lineout[lopos++] = '\t';
+	written = writechar((pmklist + c)->psklen, (pmklist + c)->psk, &lineout[lopos]);
+	lopos += written;
+	lineout[lopos] = '\0';
+	fprintf(fh_tabnhfile, "%s\n", lineout);
+	}
+fclose(fh_tabnhfile);
+return;
+}
+/*===========================================================================*/
 static void writetabspfile(char *tabspoutname)
 {
 static long int c;
@@ -1009,6 +1040,8 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"--tabspout=<file>    : output tabulator separated file\n"
 	"                        hexified characters < 0x20\n"
 	"                        hexified characters > 0x7e\n"
+	"--tabnhout=<file>    : output tabulator separated file\n"
+	"                        nothing hexified (use with care)\n"
 	"--faultyout=<file>   : output faulty lines file\n"
 	"--pmkoff             : disable verification/calculation of plain master keyss\n"
 	"--help               : show this help\n"
@@ -1038,6 +1071,7 @@ static char *jtrpotinname = NULL;
 static char *jtrpbkdf2outname = NULL;
 static char *taboutname = NULL;
 static char *tabspoutname = NULL;
+static char *tabnhoutname = NULL;
 static char *faultyoutname = NULL;
 
 static const char *short_options = "hv";
@@ -1048,6 +1082,7 @@ static const struct option long_options[] =
 	{"jtrpotin",			required_argument,	NULL,	JTR_POTIN},
 	{"tabout",			required_argument,	NULL,	HCX_TABOUT},
 	{"tabspout",			required_argument,	NULL,	HCX_TABSPOUT},
+	{"tabnhout",			required_argument,	NULL,	HCX_TABNHOUT},
 	{"hcpotout",			required_argument,	NULL,	HC_POTOUT},
 	{"hcpbkdf2out",			required_argument,	NULL,	HC_PBKDF2OUT},
 	{"jtrpbkdf2out",		required_argument,	NULL,	JTR_PBKDF2OUT},
@@ -1099,6 +1134,9 @@ while((auswahl = getopt_long(argc, argv, short_options, long_options, &index)) !
 		tabspoutname = optarg;
 		break;
 
+		case HCX_TABNHOUT:
+		tabnhoutname = optarg;
+		break;
 		case HCX_FAULTYOUT:
 		faultyoutname = optarg;
 		break;
@@ -1169,6 +1207,7 @@ if(pmkcount > 0)
 	if(potoutname != NULL) writepotfile(potoutname);
 	if(taboutname != NULL) writetabfile(taboutname);
 	if(tabspoutname != NULL) writetabspfile(tabspoutname);
+	if(tabnhoutname != NULL) writetabnhfile(tabnhoutname);
 	if(hcpbkdf2outname != NULL) writehcpbkdf2file(hcpbkdf2outname);
 	if(jtrpbkdf2outname != NULL) writejtrpbkdf2file(jtrpbkdf2outname);
 	}

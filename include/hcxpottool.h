@@ -6,8 +6,9 @@
 #define JTR_PBKDF2OUT		6
 #define HCX_TABOUT		7
 #define HCX_TABSPOUT		8
-#define HCX_FAULTYOUT		9
-#define HCX_PMKOFF		10
+#define HCX_TABNHOUT		9
+#define HCX_FAULTYOUT		10
+#define HCX_PMKOFF		11
 
 #define HCX_HELP		'h'
 #define HCX_VERSION		'v'
