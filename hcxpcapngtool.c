@@ -1036,7 +1036,7 @@ if((authenticationcount +associationrequestcount +reassociationrequestcount) == 
 		"It always happens if the capture file was cleaned or "
 		"it could happen if filter options are used during capturing. "
 		"That makes it hard to recover the PSK.\n");
-	if(timestampdiff < 60000000000) fprintf(stdout, "Duration of the dump tool was a way too short to capture enough additional information.\n");
+	if(timestampdiff < 60000000000) fprintf(stdout, "Duration was a way too short to capture enough additional information.\n");
 	}
 if(eapolm1ancount <= 1)
 	{
@@ -1046,7 +1046,7 @@ if(eapolm1ancount <= 1)
 		"it could happen if filter options are used during capturing.\n"
 		"That makes it impossible to calculate nonce-error-correction values.\n"
 		"https://hashcat.net/forum/thread-6361.html\n");
-	if(timestampdiff < 60000000000) fprintf(stdout, "Duration of the dump tool was a way too short to capture enough additional information.\n");
+	if(timestampdiff < 60000000000) fprintf(stdout, "Duration was a way too short to capture enough additional information.\n");
 	}
 if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0))
 	{
@@ -1092,8 +1092,8 @@ fprintf(stdout, "timestamp minimum (timestamp)............: %s (%ld)\n", timestr
 fprintf(stdout, "timestamp maximum (timestamp)............: %s (%ld)\n", timestringmax, tvmax);
 if(timestampdiff > 0)
 	{
-	if(timestampdiff > 60000000000) fprintf(stdout, "duration of the dump tool (minutes)......: %" PRIu64 "\n", timestampdiff / 60000000000);
-	else fprintf(stdout, "duration of the dump tool (seconds)......: %" PRIu64 "\n", timestampdiff / 1000000000);
+	if(timestampdiff > 60000000000) fprintf(stdout, "duration (minutes).......................: %" PRIu64 "\n", timestampdiff / 60000000000);
+	else fprintf(stdout, "duration (seconds).......................: %" PRIu64 "\n", timestampdiff / 1000000000);
 	}
 fprintf(stdout, "used capture interfaces..................: %u\n", iface);
 for(c = 0; c < iface; c++)
