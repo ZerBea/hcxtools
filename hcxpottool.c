@@ -160,10 +160,17 @@ return;
 static bool needemuhexify(size_t flen, u8 *fin)
 {
 static size_t c;
-for(c = 0; c < flen; c++)
+
+if(fin[0] < 0x20) return true;
+if(fin[0] == 0x7f) return true;
+for(c = 1; c < flen; c++)
 	{
 	if(fin[c] < 0x20) return true;
-	if(fin[c] == 0x7e) return true;
+	if(fin[c] == 0x7f) return true;
+	if(fin[c - 1] == 0xc2)
+		{
+		if((fin[c] >= 0x80) && (fin[c] <= 0xa0)) return true;
+		}
 	}
 return false;
 }
