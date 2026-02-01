@@ -1079,16 +1079,13 @@ static void printlinklayerinfo(void)
 static uint32_t c;
 static time_t tvmin;
 static time_t tvmax;
-
 static int tvd;
 static int tvh;
 static int tvm;
 static int tvs;
-
 static int tvrh;
 static int tvrm;
 static int tvrs;
-
 static char timestringmin[32];
 static char timestringmax[32];
 
