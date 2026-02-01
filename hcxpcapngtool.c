@@ -1079,6 +1079,16 @@ static void printlinklayerinfo(void)
 static uint32_t c;
 static time_t tvmin;
 static time_t tvmax;
+
+static int tvd;
+static int tvh;
+static int tvm;
+static int tvs;
+
+static int tvrh;
+static int tvrm;
+static int tvrs;
+
 static char timestringmin[32];
 static char timestringmax[32];
 
@@ -1092,8 +1102,21 @@ fprintf(stdout, "timestamp minimum (timestamp)............: %s (%ld)\n", timestr
 fprintf(stdout, "timestamp maximum (timestamp)............: %s (%ld)\n", timestringmax, tvmax);
 if(timestampdiff > 0)
 	{
-	if(timestampdiff > 60000000000) fprintf(stdout, "duration (minutes).......................: %" PRIu64 "\n", timestampdiff / 60000000000);
-	else fprintf(stdout, "duration (seconds).......................: %" PRIu64 "\n", timestampdiff / 1000000000);
+	tvrs = (int)(timestampdiff / 1000000000);
+	tvs = tvrs %60;
+	tvrm = tvrs /60;
+	tvm = tvrm %60;
+	tvrh = tvrm /60;
+	tvh = tvrh %24;
+	tvd = tvrh /24;
+	if(tvrm > 0)
+		{
+		if(tvd > 0) fprintf(stdout, "duration (minutes).......................: %d (~%dd:%dh:%dm:%ds)\n", tvrm, tvd, tvh, tvm, tvs);
+		else if(tvh > 0) fprintf(stdout, "duration (minutes).......................: %d (~%dh:%dm:%ds)\n", tvrm, tvh, tvm, tvs);
+		else if(tvs > 0) fprintf(stdout, "duration (minutes).......................: %d (~%dm:%ds)\n", tvrm, tvm, tvs);
+		else fprintf(stdout, "duration (minutes).......................: %d (~%ds)\n", tvrm, tvs);
+		}
+	else if(tvrs > 0) fprintf(stdout, "duration (seconds).......................: %d\n", tvrs);
 	}
 fprintf(stdout, "used capture interfaces..................: %u\n", iface);
 for(c = 0; c < iface; c++)
