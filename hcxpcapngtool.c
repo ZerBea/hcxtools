@@ -1108,12 +1108,12 @@ if(timestampdiff > 0)
 	tvd = tvrh /24;
 	if(tvrm > 0)
 		{
-		if(tvd > 0) fprintf(stdout, "duration (minutes).......................: ~%d (%dd:%dh:%dm:%ds)\n", tvrm, tvd, tvh, tvm, tvs);
-		else if(tvh > 0) fprintf(stdout, "duration (minutes).......................: ~%d (%dh:%dm:%ds)\n", tvrm, tvh, tvm, tvs);
-		else if(tvs > 0) fprintf(stdout, "duration (minutes).......................: ~%d (%dm:%ds)\n", tvrm, tvm, tvs);
-		else fprintf(stdout, "duration (minutes).......................: ~%d (%ds)\n", tvrm, tvs);
+		if(tvd > 0) fprintf(stdout,      "duration (rounded).......................: %d minutes (%dd:%dh:%dm:%ds)\n", tvrm, tvd, tvh, tvm, tvs);
+		else if(tvh > 0) fprintf(stdout, "duration (rounded).......................: %d minutes (%dh:%dm:%ds)\n", tvrm, tvh, tvm, tvs);
+		else if(tvs > 0) fprintf(stdout, "duration (rounded).......................: %d minutes (%dm:%ds)\n", tvrm, tvm, tvs);
+		else fprintf(stdout,             "duration (rounded).......................: %d minutes (%ds)\n", tvrm, tvs);
 		}
-	else if(tvrs > 0) fprintf(stdout, "duration (seconds).......................: ~%d\n", tvrs);
+	else if(tvrs > 0) fprintf(stdout,        "duration (rounded).......................: %d seconds\n", tvrs);
 	}
 fprintf(stdout, "used capture interfaces..................: %u\n", iface);
 for(c = 0; c < iface; c++)
