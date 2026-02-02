@@ -1079,13 +1079,11 @@ static void printlinklayerinfo(void)
 static uint32_t c;
 static time_t tvmin;
 static time_t tvmax;
-static int tvd;
-static int tvh;
-static int tvm;
-static int tvs;
-static int tvrh;
-static int tvrm;
-static int tvrs;
+static int tvw;
+static int tvd, tvrd;
+static int tvh, tvrh;
+static int tvm, tvrm;
+static int tvs, tvrs;
 static char timestringmin[32];
 static char timestringmax[32];
 
@@ -1105,15 +1103,17 @@ if(timestampdiff > 0)
 	tvm = tvrm %60;
 	tvrh = tvrm /60;
 	tvh = tvrh %24;
-	tvd = tvrh /24;
-	if(tvrm > 0)
+	tvrd = tvrh /24;
+	tvd = tvrd %7;
+	tvw = tvrd /7;
+	if(tvrs > 0)
 		{
-		if(tvd > 0) fprintf(stdout,      "duration (rounded).......................: %d minutes (%dd:%dh:%dm:%ds)\n", tvrm, tvd, tvh, tvm, tvs);
-		else if(tvh > 0) fprintf(stdout, "duration (rounded).......................: %d minutes (%dh:%dm:%ds)\n", tvrm, tvh, tvm, tvs);
-		else if(tvs > 0) fprintf(stdout, "duration (rounded).......................: %d minutes (%dm:%ds)\n", tvrm, tvm, tvs);
-		else fprintf(stdout,             "duration (rounded).......................: %d minutes (%ds)\n", tvrm, tvs);
+		if(tvw > 0) fprintf(stdout,		"duration (rounded).......................: %dw:%dd:%dh:%dm:%ds\n", tvw, tvd, tvh, tvm, tvs);
+		else if(tvd > 0) fprintf(stdout,	"duration (rounded).......................: %dd:%dh:%dm:%ds\n", tvd, tvh, tvm, tvs);
+		else if(tvh > 0) fprintf(stdout,	"duration (rounded).......................: %dh:%dm:%ds\n", tvh, tvm, tvs);
+		else if(tvs > 0) fprintf(stdout,	"duration (rounded).......................: %dm:%ds\n", tvm, tvs);
+		else fprintf(stdout,			"duration (rounded).......................: %ds\n", tvs);
 		}
-	else if(tvrs > 0) fprintf(stdout,        "duration (rounded).......................: %d seconds\n", tvrs);
 	}
 fprintf(stdout, "used capture interfaces..................: %u\n", iface);
 for(c = 0; c < iface; c++)
