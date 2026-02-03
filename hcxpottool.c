@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
- #include <sys/sysinfo.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <utime.h>
@@ -829,7 +828,9 @@ static int ret;
 static void *res;
 static thread_info tinfo[CPU_MAX];
 
-cpucount = get_nprocs();
+long n = sysconf(_SC_NPROCESSORS_ONLN);
+cpucount = (n > 0) ? (int)n : 1;
+
 if(cpucount > CPU_MAX) cpucount = CPU_MAX;
 fprintf(stdout, "%d threads started to calculate PMKs...\n", cpucount);
 for(c = 0; c < cpucount; c++)
