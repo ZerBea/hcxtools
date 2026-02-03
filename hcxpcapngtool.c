@@ -1093,8 +1093,8 @@ strftime(timestringmin, 32, "%d.%m.%Y %H:%M:%S", gmtime(&tvmin));
 tvmax = timestampmax /1000000000;
 timestampdiff = timestampmax - timestampmin;
 strftime(timestringmax, 32, "%d.%m.%Y %H:%M:%S", gmtime(&tvmax));
-fprintf(stdout, "timestamp minimum (timestamp)............: %s (%ld)\n", timestringmin, tvmin);
-fprintf(stdout, "timestamp maximum (timestamp)............: %s (%ld)\n", timestringmax, tvmax);
+fprintf(stdout, "timestamp minimum (timestamp)............: %s (%jd)\n", timestringmin, (intmax_t)tvmin);
+fprintf(stdout, "timestamp maximum (timestamp)............: %s (%jd)\n", timestringmax, (intmax_t)tvmax);
 if(timestampdiff > 0)
 	{
 	tvrs = (int)(timestampdiff / 1000000000);
@@ -4496,7 +4496,7 @@ if(fh_lts != NULL)
 		if(naf == false)
 			{
 			tvproberesponse = proberesponsetimestamp /1000000000;
-			fprintf(fh_lts, "%ld\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", tvproberesponse, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
+			fprintf(fh_lts, "%jd\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", (intmax_t)tvproberesponse, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
 			}
 		}
 	}
@@ -4624,7 +4624,7 @@ if(fh_lts != NULL)
 		if(naf == false)
 			{
 			tvbeacon = beacontimestamp /1000000000;
-			fprintf(fh_lts, "%ld\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", tvbeacon, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
+			fprintf(fh_lts, "%jd\t%d\t%02x%02x%02x%02x%02x%02x\t%.*s\n", (intmax_t)tvbeacon, rssi, macap[0], macap[1], macap[2], macap[3], macap[4], macap[5], tags.essidlen, tags.essid);
 			}
 		}
 	}
