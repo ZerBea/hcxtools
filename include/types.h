@@ -8,6 +8,14 @@ typedef int16_t i16;
 typedef int32_t i32;
 typedef int64_t i64;
 
+/*
+ * __bitwise is a Linux kernel annotation used by sparse.
+ * It has no meaning in userspace or on non-Linux systems.
+ */
+#ifndef __bitwise
+#define __bitwise
+#endif
+
 typedef u16 __bitwise be16;
 typedef u16 __bitwise le16;
 typedef u32 __bitwise be32;
