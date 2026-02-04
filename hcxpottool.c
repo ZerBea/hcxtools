@@ -664,6 +664,127 @@ len = chop(buffptr, len);
 return len;
 }
 /*===========================================================================*/
+static bool readtabfile(char *tabfileinname)
+{
+static ssize_t len = 0;
+static ssize_t essidlen = 0;
+static ssize_t psklen = 0;
+static size_t lipos = 0;
+static pmklist_t *pmklistnew = NULL;
+static FILE *tabfile = NULL;
+
+if((tabfile = fopen(tabfileinname, "rb")) == NULL) return false;
+while(1)
+	{
+	if((len = fgetline(tabfile, INPUTLINEMAX, linein)) == -1) break;
+	if(len < 68)
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	if(linein[64] != '\t')
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	memset((pmklist + pmkcount)->pmk, 0, PMKLEN);
+	if(readhex(PMKLEN , '\t', linein, (pmklist + pmkcount)->pmk) != PMKLEN)
+		{
+		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+		pmkreaderrorcount += 1;
+		continue;
+		}
+	lipos = 65;
+	memset((pmklist + pmkcount)->essid, 0, ESSIDLEN);
+	if(memcmp(&linein[lipos], hexfmt, 5) == 0)
+		{
+		lipos += 5;
+		if((essidlen = readhex(ESSIDLEN, ']', &linein[lipos], (pmklist + pmkcount)->essid)) == -1)
+			{
+			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+			pmkreaderrorcount += 1;
+			continue;
+			}
+		lipos += essidlen * 2;
+		if(linein[lipos] != ']')
+			{
+			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+			pmkreaderrorcount += 1;
+			continue;
+			}
+		(pmklist + pmkcount)->essidlen = essidlen;
+		lipos += 1;
+		if(linein[lipos] != '\t')
+			{
+			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+			pmkreaderrorcount += 1;
+			continue;
+			}
+		lipos += 1;
+		}
+	else
+		{
+		essidlen = readchar(ESSIDLEN, '\t', &linein[lipos], (pmklist + pmkcount)->essid);
+		lipos += essidlen;
+		if(linein[lipos] != '\t')
+			{
+			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+			pmkreaderrorcount += 1;
+			continue;
+			}
+		(pmklist + pmkcount)->essidlen = essidlen;
+		lipos += 1;
+		}
+	memset((pmklist + pmkcount)->psk, 0, PSKLEN);
+	if((memcmp(&linein[lipos], hexfmt, 5) == 0) && (linein[len - 1] == ']'))
+		{
+		lipos += 5;
+		if((psklen = readhex(PSKLEN, ']', &linein[lipos], (pmklist + pmkcount)->psk)) == -1)
+			{
+			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+			pmkreaderrorcount += 1;
+			continue;
+			}
+		if(linein[lipos + psklen * 2] != ']')
+			{
+			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+			pmkreaderrorcount += 1;
+			continue;
+			}
+		psklen = getflen(PSKLEN, (pmklist + pmkcount)->psk);
+		}
+	else
+		{
+		psklen = readchar(PSKLEN, 0, &linein[lipos], (pmklist + pmkcount)->psk);
+		if(linein[lipos + psklen] != '\0')
+			{
+			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+			pmkreaderrorcount += 1;
+			continue;
+			}
+		}
+	if(psklen < 8) (pmklist + pmkcount)->psklen = 8;
+	else (pmklist + pmkcount)->psklen = psklen;
+	(pmklist + pmkcount)->status = UNCHECKED;
+	pmkcount += 1;
+	if((pmkcount % PMKLISTLEN) == 0)
+		{
+		pmklistnew = (pmklist_t*)realloc(pmklist, (pmkcount + PMKLISTLEN)* PMKRECLEN);
+		if(pmklistnew == NULL)
+			{
+			pmkreaderrorcount += 1;
+			fclose(tabfile);
+			return false;
+			}
+		pmklist = pmklistnew;
+		}
+	}
+fclose(tabfile);
+return true;
+}
+/*===========================================================================*/
 static bool readoutfile(char *hcoutfileinname)
 {
 static ssize_t len = 0;
@@ -1079,6 +1200,8 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"                        hexified delimiter :\n"
 	"--hcpbkdf2out=<file> : output hashcat hash file format 12000\n"
 	"--jtrpbkdf2out=<file>: output john hash file format PBKDF2-HMAC-SHA1-opencl / PBKDF2-HMAC-SHA1\n"
+	"--tabin=<file>       : input tabulator separated file\n"
+	"                        format: PMK <tab> ESSID <tab> PSK\n"
 	"--tabout=<file>      : output tabulator separated file\n"
 	"                        hexified characters < 0x21\n"
 	"                        hexified characters > 0x7e\n"
@@ -1116,6 +1239,7 @@ static char *hcpbkdf2outname = NULL;
 static char *jtrpotinname = NULL;
 static char *jtrpbkdf2outname = NULL;
 static char *taboutname = NULL;
+static char *tabinname = NULL;
 static char *tabspoutname = NULL;
 static char *tabnhoutname = NULL;
 static char *faultyoutname = NULL;
@@ -1126,6 +1250,7 @@ static const struct option long_options[] =
 	{"hcpotin",			required_argument,	NULL,	HC_POTIN},
 	{"hcoutin",			required_argument,	NULL,	HC_OUTIN},
 	{"jtrpotin",			required_argument,	NULL,	JTR_POTIN},
+	{"tabin",			required_argument,	NULL,	HCX_TABIN},
 	{"tabout",			required_argument,	NULL,	HCX_TABOUT},
 	{"tabspout",			required_argument,	NULL,	HCX_TABSPOUT},
 	{"tabnhout",			required_argument,	NULL,	HCX_TABNHOUT},
@@ -1170,6 +1295,10 @@ while((auswahl = getopt_long(argc, argv, short_options, long_options, &index)) !
 
 		case JTR_PBKDF2OUT:
 		jtrpbkdf2outname = optarg;
+		break;
+
+		case HCX_TABIN:
+		tabinname = optarg;
 		break;
 
 		case HCX_TABOUT:
@@ -1235,7 +1364,15 @@ if(outinname != NULL)
 		goto ende;
 		}
 	}
-
+if(tabinname != NULL)
+	{
+	pmkoff = false;
+	if(readtabfile(tabinname) == false)
+		{
+		fprintf(stderr, "failed to read %s\n", tabinname);
+		goto ende;
+		}
+	}
 if(jtrpotinname != NULL)
 	{
 	if(readjtrpotfile(jtrpotinname) == false)
