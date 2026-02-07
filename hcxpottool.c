@@ -1335,18 +1335,15 @@ while((auswahl = getopt_long(argc, argv, short_options, long_options, &index)) !
 		}
 	}
 setbuf(stdout, NULL);
-
 if(globalinit() == false)
 	{
 	fprintf(stderr, "failed to init lists\n");
 	return EXIT_FAILURE;
 	}
-
 if(faultyoutname != NULL)
 	{
 	if((fh_faulty = fopen(faultyoutname, "a+")) == NULL) fprintf(stdout, "error opening file %s: %s\n", faultyoutname, strerror(errno));
 	}
-
 if(potinname != NULL)
 	{
 	if(readpotfile(potinname) == false)
@@ -1355,7 +1352,6 @@ if(potinname != NULL)
 		goto ende;
 		}
 	}
-
 if(outinname != NULL)
 	{
 	pmkoff = false;
@@ -1382,9 +1378,7 @@ if(jtrpotinname != NULL)
 		goto ende;
 		}
 	}
-
 if(pmkcount > 1) sortandclean();
-
 if(pmkcount > 0)
 	{
 	if(pmkoff == false) calculatepmks();
