@@ -1111,7 +1111,7 @@ if(timestampdiff > 0)
 		if(tvw > 0) fprintf(stdout,		"duration (rounded).......................: %dw:%dd:%dh:%dm:%ds\n", tvw, tvd, tvh, tvm, tvs);
 		else if(tvd > 0) fprintf(stdout,	"duration (rounded).......................: %dd:%dh:%dm:%ds\n", tvd, tvh, tvm, tvs);
 		else if(tvh > 0) fprintf(stdout,	"duration (rounded).......................: %dh:%dm:%ds\n", tvh, tvm, tvs);
-		else if(tvs > 0) fprintf(stdout,	"duration (rounded).......................: %dm:%ds\n", tvm, tvs);
+		else if(tvm > 0) fprintf(stdout,	"duration (rounded).......................: %dm:%ds\n", tvm, tvs);
 		else fprintf(stdout,			"duration (rounded).......................: %ds\n", tvs);
 		}
 	}
