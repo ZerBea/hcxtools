@@ -540,12 +540,12 @@ static const char *word[] =
 "daily", "dance", "dark", "dash", "dear", "desk", "done", "door", "down", "duck", "duty",
 "each", "early", "earth", "east", "easy", "edit", "envy", "even", "every", "exist", "exit",
 "face", "fact", "fall", "fast", "feed", "feel", "fill", "fish", "five", "four",
-"game", "ghost", "girl", "giude", "give", "good", "green", "group", "guest",
+"game", "ghost", "girl", "guide", "give", "good", "green", "group", "guest",
 "hair", "hand", "happy", "hard", "have", "haven", "head", "high", "hike", "horse", "house",
 "into",
 "jade", "jazz", "jean", "jeep", "join", "joke", "juice", "july", "june",
 "keep", "kind",
-"lable", "labor", "lack", "lake", "land", "light", "like", "live", "lock", "loop", "lose",
+"label", "labor", "lack", "lake", "land", "light", "like", "live", "lock", "loop", "lose",
 "mail", "main", "major", "make", "math", "meet", "milk", "moon", "more", "most", "mouth", "much",
 "name", "near", "need", "nine", "none", "north", "nose", "note",
 "occur", "ocean", "once", "open", "over",
@@ -553,7 +553,7 @@ static const char *word[] =
 "queen", "quest", "quick", "quit", "quite",
 "rainy", "reach", "read", "rice", "ride", "road", "room", "rope", "rose", "rule", "rush",
 "safe", "said", "sale", "salt", "same", "sick", "soul", "soup", "south", "sunny",
-"table", "take", "tale", "talk", "tall", "team", "tell", "test", "think", "ture",
+"table", "take", "tale", "talk", "tall", "team", "tell", "test", "think", "true",
 "under", "unit", "upper",
 "walk", "waste", "water", "weak", "week", "west", "what", "where", "wind", "word"
 };
