@@ -3211,7 +3211,7 @@ if(rsnpmkidcount == 0) return true;
 rsnlen -= RSNPMKIDLIST_SIZE;
 ieptr += RSNPMKIDLIST_SIZE;
 if(rsnlen < 16) return true;
-if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+if(((zeiger->akm &TAK_PSK) == TAK_PSK) || ((zeiger->akm &TAK_PSKSHA256) == TAK_PSKSHA256) || ((zeiger->akm &TAK_FT_PSK) == TAK_FT_PSK))
 	{
 	if(memcmp(&zeroed32, ieptr, 16) == 0) return true;
 	for(c = 0; c < 12; c++)
@@ -3729,11 +3729,7 @@ eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen == 0) return;
 if(authlen +EAPAUTH_SIZE > restlen) return;
-if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX)
-	{
-	eapolm2oversizedcount++;
-	return;
-	}
+if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX) eapolm2oversizedcount++;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3826,6 +3822,11 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 		}
 	}
 mpfield = 0;
+if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX)
+	{
+	eapolm2oversizedcount++;
+	return;
+	}
 for(zeiger = messagelist; zeiger < messagelist +MESSAGELIST_MAX; zeiger++)
 	{
 	if(zeiger->timestamp == 0) break;
