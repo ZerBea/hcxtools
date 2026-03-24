@@ -270,6 +270,8 @@ static long int zeroedpmkidpmkcount;
 static long int zeroedeapolpskcount;
 static long int zeroedeapolpmkcount;
 static long int pmkidcount;
+static long int pmkidpskcount;
+static long int pmkidftpskcount;
 static long int pmkidbestcount;
 static long int pmkidroguecount;
 static long int pmkiduselesscount;
@@ -599,6 +601,8 @@ zeroedpmkidpmkcount = 0;
 zeroedeapolpskcount = 0;
 zeroedeapolpmkcount = 0;
 pmkidcount = 0;
+pmkidpskcount = 0;
+pmkidftpskcount = 0;
 pmkidbestcount = 0;
 pmkidroguecount = 0;
 pmkiduselesscount = 0;
@@ -892,6 +896,8 @@ if(eapolm34e4count > 0)			fprintf(stdout, "EAPOL M34E4 (authorized).............
 if(pmkiduselesscount > 0)		fprintf(stdout, "RSN PMKID (useless)......................: %ld\n", pmkiduselesscount);
 if(pmkidfaultycount > 0)		fprintf(stdout, "RSN PMKID (faulty).......................: %ld\n", pmkidfaultycount);
 if(pmkidcount > 0)			fprintf(stdout, "RSN PMKID (total)........................: %ld\n", pmkidcount);
+if(pmkidpskcount > 0)			fprintf(stdout, "RSN PMKID PSK ....   ....................: %ld\n", pmkidpskcount);
+if(pmkidftpskcount > 0)			fprintf(stdout, "RSN PMKID FT-PSK ........................: %ld\n", pmkidftpskcount);
 if(zeroedpmkidpskcount > 0)
 	{
 	if(donotcleanflag == false) fprintf(stdout, "RSN PMKID (from zeroed PSK)..............: %ld (not converted by default options - use --all)\n", zeroedpmkidpskcount);
@@ -2773,12 +2779,22 @@ for(c = 0; c < 20; c ++)
 	}
 return false;
 }
+
+/*===========================================================================*/
+static void addpmkid_ftpsk()
+{
+pmkidcount++;
+pmkidftpskcount++;
+
+return;
+}
 /*===========================================================================*/
 static void addpmkid(uint64_t timestamp, uint8_t *macclient, uint8_t *macap, uint8_t *pmkid, uint8_t pmkidstatus)
 {
 static pmkidlist_t *pmkidlistnew;
 
 pmkidcount++;
+pmkidpskcount++;
 if((pmkidstatus & PMKID_CLIENT) == PMKID_CLIENT)
 	{
 	if(testfaultypmkid(pmkid) == true) return;
@@ -3729,7 +3745,6 @@ eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen == 0) return;
 if(authlen +EAPAUTH_SIZE > restlen) return;
-if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX) eapolm2oversizedcount++;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3809,16 +3824,23 @@ if((authlen +EAPAUTH_SIZE) <= EAPOL_AUTHLEN_MAX)
 if(wpainfolen >= RSNIE_LEN_MIN)
 	{
 	if(gettags(wpainfolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
-	if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) eapolm2ftpskcount++;
-	if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256))
-		{
-		if(ignoreieflag == false) return;
-		}
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0)
 		{
-		zeiger->message |= HS_PMKID;
-		memcpy(zeiger->pmkid, tags.pmkid, 16);
-		addpmkid(eaptimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
+		if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256) && ((tags.akm &TAK_FT_PSK) != TAK_FT_PSK))
+			{
+			if(ignoreieflag == false) return;
+			}
+		if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+			{
+			zeiger->message |= HS_PMKID;
+			memcpy(zeiger->pmkid, tags.pmkid, 16);
+			addpmkid(eaptimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
+			}
+		else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
+			{
+			eapolm2ftpskcount++;
+			addpmkid_ftpsk();
+			}
 		}
 	}
 mpfield = 0;
