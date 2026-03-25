@@ -279,6 +279,7 @@ static long int pmkiduselesscount;
 static long int pmkidfaultycount;
 static long int pmkidakmcount;
 static long int pmkidwrittenhcount;
+static long int pmkidftpskwrittenhcount;
 static long int pmkidclientwrittenhcount;
 static long int pmkidwrittenjcountdeprecated;
 static long int pmkidwrittencountdeprecated;
@@ -610,6 +611,7 @@ pmkiduselesscount = 0;
 pmkidfaultycount = 0;
 pmkidakmcount = 0;
 pmkidwrittenhcount = 0;
+pmkidftpskwrittenhcount = 0;
 pmkidclientwrittenhcount = 0;
 eapolwrittenjcountdeprecated = 0;
 pmkidwrittenjcountdeprecated = 0;
@@ -920,6 +922,7 @@ else
 if(pmkidroguecount > 0)			fprintf(stdout, "RSN PMKID ROGUE..........................: %ld\n", pmkidroguecount);
 if(pmkidakmcount > 0)			fprintf(stdout, "RSN PMKID (KDV:0 AKM defined)............: %ld (not supported by hashcat/JtR)\n", pmkidakmcount);
 if(pmkidwrittenhcount > 0)		fprintf(stdout, "RSN PMKID written to 22000 hash file.....: %ld\n", pmkidwrittenhcount);
+if(pmkidftpskwrittenhcount > 0)		fprintf(stdout, "RSN PMKID written to 371000 hash file....: %ld\n", pmkidftpskwrittenhcount);
 if(pmkidclientwrittenhcount > 0)	fprintf(stdout, "RSN PMKID written to 22000 hash file.....: %ld (possible MESH/REPEATER PMKIDs)\n", pmkidclientwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format JtR......: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format (1680x)..: %ld\n", pmkidwrittencountdeprecated);
@@ -1072,7 +1075,7 @@ if(malformedcount > 5)
 		"Please analyze the dump file with tshark or Wireshark.\n");
 	}
 if((eapolwrittencount +eapolncwrittencount +eapolwrittenhcpxcountdeprecated +eapolncwrittenhcpxcountdeprecated +eapolwrittenhcpcountdeprecated
-	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
+	+eapolwrittenjcountdeprecated +pmkidwrittenhcount +pmkidftpskwrittenhcount +pmkidwrittenjcountdeprecated +pmkidwrittencountdeprecated
 	+eapmd5writtencount +eapmd5johnwrittencount +eapleapwrittencount +eapmschapv2writtencount +tacacspwrittencount) == 0)
 	{
 	fprintf(stdout, "\nInformation: no hashes written to hash files\n");
@@ -2433,7 +2436,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			}
 		if(memcmp(&myaktclient, zeigerpmkid->client, 6) == 0) pmkidroguecount++;
 		pmkidbestcount++;
-		if(fh_pmkideapol != 0)
+		if((fh_pmkideapol != 0) && (((zeigerpmkid->status & PMKID_AP) == PMKID_AP) || ((zeigerpmkid->status & PMKID_APPSK256) == PMKID_APPSK256)))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 			fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -2460,6 +2463,20 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			if(addtimestampflag == false) fprintf(fh_pmkideapolclient, "***%02x\n",  zeigerpmkid->status & PMKID_CLIENT);
 			else fprintf(fh_pmkideapolclient, "***%02x\t%s\n",  zeigerpmkid->status, timestringhs);
 			pmkidclientwrittenhcount++;
+			}
+		if((fh_pmkideapolftpsk != 0) && ((zeigerpmkid->status & PMKID_CLIENT_FTPSK) == PMKID_CLIENT_FTPSK))
+			{
+			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R0KHID*R1KHID
+			fprintf(fh_pmkideapolftpsk, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+				HCX_TYPE_PMKID_FTPSK,
+				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
+				zeigerpmkid->pmkid[8], zeigerpmkid->pmkid[9], zeigerpmkid->pmkid[10], zeigerpmkid->pmkid[11], zeigerpmkid->pmkid[12], zeigerpmkid->pmkid[13], zeigerpmkid->pmkid[14], zeigerpmkid->pmkid[15],
+				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
+				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
+			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
+			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "***%02x\n", zeigerpmkid->status);
+			else fprintf(fh_pmkideapolftpsk, "***%02x\t%s\n",  zeigerpmkid->status, timestringhs);
+			pmkidftpskwrittenhcount++;
 			}
 		if(fh_pmkideapoljtrdeprecated != 0)
 			{

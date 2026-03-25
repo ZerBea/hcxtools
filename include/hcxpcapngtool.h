@@ -81,6 +81,8 @@
 
 #define HCX_TYPE_PMKID			1
 #define HCX_TYPE_EAPOL			2
+#define HCX_TYPE_PMKID_FTPSK		3
+#define HCX_TYPE_EAPOL_FTPSK		4
 #define	MESSAGE_PAIR_M12E2		0
 #define	MESSAGE_PAIR_M14E4		1
 #define	MESSAGE_PAIR_M32E2		2
@@ -93,6 +95,8 @@
 #define GHZ5				2
 /*===========================================================================*/
 /*===========================================================================*/
+#define MDID		56
+#define RXHKID		56
 struct tags_s
 {
  uint8_t		channel;
@@ -123,12 +127,13 @@ struct tags_s
 #define	TAK_SAE_SHA256B	0x0400
 #define	TAK_SAE_SHA384B	0x0800
 #define TAK_OWE		0x1000
- uint16_t		mdid;
- uint8_t		r0khidlen;
- uint8_t		r0khid[48];
- uint8_t		r1khidlen;
- uint8_t		r1khid[48];
  uint8_t		pmkid[16];
+ uint8_t		mdidlen;
+ uint8_t		mdid[MDID];
+ uint8_t		r0khidlen;
+ uint8_t		r0khid[RXHKID];
+ uint8_t		r1khidlen;
+ uint8_t		r1khid[RXHKID];
  uint8_t		wpsinfo;
  char			country[2];
  uint8_t		essidlen;
@@ -365,9 +370,11 @@ struct pmkidlist_s
 {
  uint64_t		timestamp;
  uint8_t		status;
-#define PMKID_AP	0x01
-#define PMKID_APPSK256	0x02
-#define PMKID_CLIENT	0x10
+#define PMKID_AP		0x01
+#define PMKID_APPSK256		0x02
+#define PMKID_CLIENT		0x04
+#define PMKID_AP_FTPSK		0x10
+#define PMKID_CLIENT_FTPSK	0x20
  uint8_t		ap[6];
  uint8_t		client[6];
  uint8_t		anonce[32];
