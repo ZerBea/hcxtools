@@ -289,6 +289,10 @@ struct messagelist_s
  uint8_t		nonce[32];
  uint8_t		pmkid[16];
  uint16_t		mdid;
+ uint8_t		r0khidlen;
+ uint8_t		r0khid[RXHKID];
+ uint8_t		r1khidlen;
+ uint8_t		r1khid[RXHKID];
  uint16_t		eapauthlen;
  uint8_t		eapol[EAPOL_AUTHLEN_MAX];
 
@@ -381,6 +385,10 @@ struct pmkidlist_s
  uint8_t		anonce[32];
  uint8_t		pmkid[16];
  uint16_t		mdid;
+ uint8_t		r0khidlen;
+ uint8_t		r0khid[RXHKID];
+ uint8_t		r1khidlen;
+ uint8_t		r1khid[RXHKID];
 };
 typedef struct pmkidlist_s pmkidlist_t;
 #define	PMKIDLIST_SIZE (sizeof(pmkidlist_t))
