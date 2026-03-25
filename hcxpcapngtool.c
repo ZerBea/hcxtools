@@ -2466,7 +2466,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			}
 		if((fh_pmkideapolftpsk != 0) && ((zeigerpmkid->status & PMKID_CLIENT_FTPSK) == PMKID_CLIENT_FTPSK))
 			{
-			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R0KHID*R1KHID
+			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R1KHID*R0KHID
 			fprintf(fh_pmkideapolftpsk, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
 				HCX_TYPE_PMKID_FTPSK,
 				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
@@ -2475,9 +2475,9 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
 			fprintf(fh_pmkideapolftpsk, "***%02x*%04x*", zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid);
-			for(p = 0; p < zeigerpmkid->r0khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r0khid[p]);
-			fprintf(fh_pmkideapolftpsk, "*");
 			for(p = 0; p < zeigerpmkid->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r1khid[p]);
+			fprintf(fh_pmkideapolftpsk, "*");
+			for(p = 0; p < zeigerpmkid->r0khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r0khid[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "\n");
 			else fprintf(fh_pmkideapolftpsk, "\t%s\n", timestringhs);
 			pmkidftpskwrittenhcount++;
@@ -2797,72 +2797,49 @@ for(c = 0; c < 20; c ++)
 	if(memcmp(zeiger->client, pmkidlistptr->client, 6) != 0) continue;
 	if(memcmp(zeiger->pmkid, pmkidlistptr->pmkid, 16) != 0) continue;
 	if(zeiger->mdid != pmkidlistptr->mdid) continue;
+	if(zeiger->r0khidlen != pmkidlistptr->r0khidlen) continue;
+	if(zeiger->r1khidlen != pmkidlistptr->r1khidlen) continue;
+	if(memcmp(zeiger->r0khid, pmkidlistptr->r0khid, zeiger->r0khidlen) != 0) continue;
+	if(memcmp(zeiger->r1khid, pmkidlistptr->r1khid, zeiger->r1khidlen) != 0) continue;
 	zeiger->status |= pmkidlistptr->status;
 	return true;
 	}
 return false;
 }
 /*===========================================================================*/
-static void addpmkid_ftpsk(uint64_t timestamp, uint8_t *macclient, uint8_t *macap, uint8_t *pmkid, uint8_t pmkidstatus, uint16_t mdid)
+static void addpmkid_ftpsk(uint64_t timestamp, uint8_t *macclient, uint8_t *macap, tags_t ftpsktags, uint8_t pmkidstatus)
 {
 static pmkidlist_t *pmkidlistnew;
 
 pmkidcount++;
 pmkidftpskcount++;
-if((pmkidstatus & PMKID_CLIENT) == PMKID_CLIENT)
+if(pmkidlistptr >= pmkidlist +pmkidlistmax)
 	{
-	if(testfaultypmkid(pmkid) == true) return;
-	}
-if(testpmkid(zeroedpmk, macclient, macap, pmkid) == false)
-	{
-	if(pmkidlistptr >= pmkidlist +pmkidlistmax)
+	pmkidlistnew = (pmkidlist_t*)realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
+	if(pmkidlistnew == NULL)
 		{
-		pmkidlistnew = (pmkidlist_t*)realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
-		if(pmkidlistnew == NULL)
-			{
-			fprintf(stderr, "failed to allocate memory for internal list\n");
-			exit(EXIT_FAILURE);
-			}
-		pmkidlist = pmkidlistnew;
-		pmkidlistptr = pmkidlistnew +pmkidlistmax;
-		pmkidlistmax += PMKIDLIST_MAX;
+		fprintf(stderr, "failed to allocate memory for internal list\n");
+		exit(EXIT_FAILURE);
 		}
-	memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
-	memcpy(pmkidlistptr->ap, macap, 6);
-	memcpy(pmkidlistptr->client, macclient, 6);
-	memcpy(pmkidlistptr->pmkid, pmkid, 16);
-	pmkidlistptr->mdid = mdid;
-	pmkidlistptr->timestamp = timestamp;
-	pmkidlistptr->status |= pmkidstatus;
-	if(cleanbackpmkid() == false) pmkidlistptr++;
+	pmkidlist = pmkidlistnew;
+	pmkidlistptr = pmkidlistnew +pmkidlistmax;
+	pmkidlistmax += PMKIDLIST_MAX;
 	}
-else
-	{
-	zeroedpmkidpmkcount++;
-	if(donotcleanflag == true)
-		{
-		if(pmkidlistptr >= pmkidlist +pmkidlistmax)
-			{
-			pmkidlistnew = (pmkidlist_t*)realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
-			if(pmkidlistnew == NULL)
-				{
-				fprintf(stderr, "failed to allocate memory for internal list\n");
-				exit(EXIT_FAILURE);
-				}
-			pmkidlist = pmkidlistnew;
-			pmkidlistptr = pmkidlistnew +maclistmax;
-			pmkidlistmax += PMKIDLIST_MAX;
-			}
-		memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
-		memcpy(pmkidlistptr->ap, macap, 6);
-		memcpy(pmkidlistptr->client, macclient, 6);
-		memcpy(pmkidlistptr->pmkid, pmkid, 16);
-		pmkidlistptr->mdid = mdid;
-		pmkidlistptr->timestamp = timestamp;
-		pmkidlistptr->status |= pmkidstatus;
-		if(cleanbackpmkid() == false) pmkidlistptr++;
-		}
-	}
+memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
+memcpy(pmkidlistptr->ap, macap, 6);
+memcpy(pmkidlistptr->client, macclient, 6);
+memcpy(pmkidlistptr->pmkid, ftpsktags.pmkid, 16);
+pmkidlistptr->mdid = ftpsktags.mdid;
+
+pmkidlistptr->r0khidlen = ftpsktags.r0khidlen;
+memcpy(pmkidlistptr->r0khid, ftpsktags.r0khid, ftpsktags.r0khidlen);
+pmkidlistptr->r1khidlen = ftpsktags.r1khidlen;
+memcpy(pmkidlistptr->r1khid, ftpsktags.r1khid, ftpsktags.r1khidlen);
+
+
+pmkidlistptr->timestamp = timestamp;
+pmkidlistptr->status |= pmkidstatus;
+if(cleanbackpmkid() == false) pmkidlistptr++;
 return;
 }
 /*===========================================================================*/
@@ -3957,10 +3934,17 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 			}
 		else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
 			{
-			eapolm2ftpskcount++;
-			zeiger->message |= HS_PMKIDFTPSK;
-			zeiger->mdid = tags.mdid;
-			addpmkid_ftpsk(eaptimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT_FTPSK, tags.mdid);
+			if((tags.r0khidlen != 0) && (tags.r1khidlen != 0))
+				{
+				eapolm2ftpskcount++;
+				zeiger->message |= HS_PMKIDFTPSK;
+				zeiger->mdid = tags.mdid;
+				zeiger->r0khidlen = tags.r0khidlen;
+				memcpy(zeiger->r0khid, tags.r0khid, tags.r0khidlen);
+				zeiger->r1khidlen = tags.r1khidlen;
+				memcpy(zeiger->r1khid, tags.r1khid, tags.r1khidlen);
+				addpmkid_ftpsk(eaptimestamp, macclient, macap, tags, PMKID_CLIENT_FTPSK);
+				}
 			}
 		}
 	}
@@ -6516,8 +6500,8 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"short options:\n"
 	"-o <file> : output WPA-PBKDF2-PMKID+EAPOL hash file (hashcat -m 22000)\n"
 	"            get full advantage of reuse of PBKDF2 on PMKID and EAPOL\n"
-//	"-f <file> : output WPA-PBKDF2-PMKID+EAPOL hash file (hashcat -m 37100)\n"
-//	"            get full advantage of reuse of PBKDF2 on PMKID and EAPOL\n"
+	"-f <file> : output WPA-PBKDF2-PMKID+EAPOL hash file (hashcat -m 37100)\n"
+	"            get full advantage of reuse of PBKDF2 on PMKID and EAPOL\n"
 	"-E <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
 	"            retrieved from every frame that contain an ESSID\n"
 	"-R <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
