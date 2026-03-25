@@ -452,6 +452,17 @@ struct wpsie_tag
 typedef struct wpsie_tag wpsie_t;
 #define	WPSIE_SIZE offsetof(wpsie_t, data)
 /*===========================================================================*/
+struct fbsst_tag
+{
+ uint16_t			miccontrol;
+ uint8_t			mic[16];
+ uint8_t			anonce[32];
+ uint8_t			snonce[16];
+ uint8_t			subelement;
+} __attribute__ ((packed));
+typedef struct fbsst_tag fbsst_t;
+#define	fbsst_SIZE offsetof(fbsst_t, subelement)
+/*===========================================================================*/
 struct suitecount_s
 {
  uint16_t	count;
