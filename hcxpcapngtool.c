@@ -2461,7 +2461,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolclient, "%02x", zeigermac->essid[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapolclient, "***%02x\n",  zeigerpmkid->status & PMKID_CLIENT);
-			else fprintf(fh_pmkideapolclient, "***%02x\t%s\n",  zeigerpmkid->status, timestringhs);
+			else fprintf(fh_pmkideapolclient, "***%02x\t%s\n", zeigerpmkid->status & PMKID_CLIENT, timestringhs);
 			pmkidclientwrittenhcount++;
 			}
 		if((fh_pmkideapolftpsk != 0) && ((zeigerpmkid->status & PMKID_CLIENT_FTPSK) == PMKID_CLIENT_FTPSK))
@@ -2474,8 +2474,8 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
-			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "***%02x\n", zeigerpmkid->status);
-			else fprintf(fh_pmkideapolftpsk, "***%02x\t%s\n",  zeigerpmkid->status, timestringhs);
+			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "***%02x*%4x\n", zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid);
+			else fprintf(fh_pmkideapolftpsk, "***%02x*%4x\t%s\n",  zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid, timestringhs);
 			pmkidftpskwrittenhcount++;
 			}
 		if(fh_pmkideapoljtrdeprecated != 0)
@@ -3379,6 +3379,15 @@ while(0 < infolen)
 		}
 	else if(tagptr->id == TAG_MD)
 		{
+		if(tagptr->len == 3)
+			{
+			zeiger->mdid = tagptr->data[0] | (tagptr->data[1] << 8);
+			}
+		else
+			{
+			taglenerrorcount++;
+			return false;
+			}
 		}
 	else if(tagptr->id == TAG_FBSST)
 		{

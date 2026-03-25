@@ -95,7 +95,6 @@
 #define GHZ5				2
 /*===========================================================================*/
 /*===========================================================================*/
-#define MDID		56
 #define RXHKID		56
 struct tags_s
 {
@@ -128,8 +127,7 @@ struct tags_s
 #define	TAK_SAE_SHA384B	0x0800
 #define TAK_OWE		0x1000
  uint8_t		pmkid[16];
- uint8_t		mdidlen;
- uint8_t		mdid[MDID];
+ uint16_t		mdid;
  uint8_t		r0khidlen;
  uint8_t		r0khid[RXHKID];
  uint8_t		r1khidlen;
@@ -379,6 +377,7 @@ struct pmkidlist_s
  uint8_t		client[6];
  uint8_t		anonce[32];
  uint8_t		pmkid[16];
+ uint16_t		mdid;
 };
 typedef struct pmkidlist_s pmkidlist_t;
 #define	PMKIDLIST_SIZE (sizeof(pmkidlist_t))
