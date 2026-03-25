@@ -3434,10 +3434,7 @@ while(0 < infolen)
 		}
 	else if(tagptr->id == TAG_MD)
 		{
-		if(tagptr->len == 3)
-			{
-			zeiger->mdid = tagptr->data[1] | (tagptr->data[2] << 8);
-			}
+		if(tagptr->len == 3) zeiger->mdid = (tagptr->data[0] << 8) | tagptr->data[1];
 		else
 			{
 			taglenerrorcount++;
