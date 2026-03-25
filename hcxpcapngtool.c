@@ -2474,8 +2474,12 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
-			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "***%02x*%04x\n", zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid);
-			else fprintf(fh_pmkideapolftpsk, "***%02x*%04x\t%s\n",  zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid, timestringhs);
+			fprintf(fh_pmkideapolftpsk, "***%02x*%04x*", zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid);
+			for(p = 0; p < zeigerpmkid->r0khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r0khid[p]);
+			fprintf(fh_pmkideapolftpsk, "*");
+			for(p = 0; p < zeigerpmkid->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r1khid[p]);
+			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "\n");
+			else fprintf(fh_pmkideapolftpsk, "\t%s\n", timestringhs);
 			pmkidftpskwrittenhcount++;
 			}
 		if(fh_pmkideapoljtrdeprecated != 0)
@@ -3147,6 +3151,28 @@ for(c = 0; c < asuitecount; c++)
 return true;
 }
 /*===========================================================================*/
+static bool gettagfbsstsubelement(int vendorlen, uint8_t *ieptr, tags_t *zeiger)
+{
+static fbsstse_t *fbsstseptr0;
+static fbsstse_t *fbsstseptr1;
+
+fbsstseptr0 = (fbsstse_t*)(ieptr + FBSST_SIZE);
+if(fbsstseptr0->len == 0) return false;
+if(fbsstseptr0->id != 1) return false;
+
+fbsstseptr1 = (fbsstse_t*)(ieptr + FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr0->len);
+if(fbsstseptr1->len == 0) return false;
+if(fbsstseptr1->id != 3) return false;
+if(vendorlen < (int)(FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr0->len + fbsstseptr1->len)) return false;
+
+zeiger->r0khidlen = fbsstseptr0->len;
+memcpy(zeiger->r0khid, fbsstseptr0->rxkhid, fbsstseptr0->len);
+
+zeiger->r1khidlen = fbsstseptr1->len;
+memcpy(zeiger->r1khid, fbsstseptr1->rxkhid, fbsstseptr1->len);
+return true;
+}
+/*===========================================================================*/
 static bool gettagvendor(int vendorlen, uint8_t *ieptr, tags_t *zeiger)
 {
 static wpaie_t *wpaptr;
@@ -3443,6 +3469,14 @@ while(0 < infolen)
 		}
 	else if(tagptr->id == TAG_FBSST)
 		{
+		if(tagptr->len >= FBSST_SIZE)
+			{
+			if(gettagfbsstsubelement(tagptr->len, tagptr->data, zeiger) == false)
+				{
+				taglenerrorcount++;
+				return false;
+				}
+			}
 		}
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
@@ -4347,7 +4381,6 @@ else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256)
 else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
 	{
 	reassociationrequestftpskcount++;
-//	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid_ftpsk();
 	}
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) reassociationrequestsae256count++;
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) reassociationrequestsae384bcount++;
@@ -4441,7 +4474,6 @@ else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256)
 else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
 	{
 	associationrequestftpskcount++;
-//	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid_ftpsk();
 	}
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) associationrequestsae256count++;
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) associationrequestsae384bcount++;
