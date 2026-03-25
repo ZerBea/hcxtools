@@ -4,6 +4,9 @@ hcxpcapngtool: added full conversion of FT-PSK PMKID (hashcat mode 37100)
 -f <file> : output WPA-PBKDF2-PMKID+EAPOL hash file (hashcat -m 37100)
             get full advantage of reuse of PBKDF2 on PMKID and EAPOL
 
+More information is here:
+https://github.com/hashcat/hashcat/pull/4645
+
 
 08.02.2026
 ==========

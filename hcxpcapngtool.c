@@ -2474,7 +2474,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
-			fprintf(fh_pmkideapolftpsk, "***%02x*%04x*", zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid);
+			fprintf(fh_pmkideapolftpsk, "***%02x*%04x*", zeigerpmkid->status & PMKID_CLIENT_FTPSK, zeigerpmkid->mdid);
 			for(p = 0; p < zeigerpmkid->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r1khid[p]);
 			fprintf(fh_pmkideapolftpsk, "*");
 			for(p = 0; p < zeigerpmkid->r0khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r0khid[p]);
@@ -6591,7 +6591,7 @@ fprintf(stdout, "--prefix=<file>                    : convert everything to list
 	"2: PMKID taken from AP possible PSKSHA256 FT using PSK\n"
 	"3: reserved\n"
 	"4: PMKID taken from CLIENT (wlan.da: possible MESH or REPEATER)\n"
-	"5: reserved\n"
+	"5: FT-PSK PMKID taken from CLIENT\n"\n"
 	"6: reserved\n"
 	"7: reserved\n"
 	"\n"
