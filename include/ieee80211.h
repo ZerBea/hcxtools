@@ -458,10 +458,19 @@ struct fbsst_tag
  uint8_t			mic[16];
  uint8_t			anonce[32];
  uint8_t			snonce[16];
- uint8_t			subelement;
+ uint8_t			subelement[1];
 } __attribute__ ((packed));
 typedef struct fbsst_tag fbsst_t;
 #define	FBSST_SIZE offsetof(fbsst_t, subelement)
+/*===========================================================================*/
+struct fbsstse_tag
+{
+ uint8_t			id;
+ uint8_t			len;
+ uint8_t			rxkhid[1];
+} __attribute__ ((packed));
+typedef struct fbsstse_tag fbsstse_t;
+#define	FBSSTSE_SIZE offsetof(fbsstse_t, rxkhid)
 /*===========================================================================*/
 struct suitecount_s
 {
