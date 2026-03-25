@@ -6560,6 +6560,7 @@ static char *hccapoutnamedeprecated;
 
 static const char *prefixoutname;
 static const char *pmkideapolsuffix = ".22000";
+static const char *pmkideapolftpsksuffix = ".37100";
 static const char *eapmd5suffix = ".4800";
 static const char *eapleapsuffix = ".5500";
 static const char *tacacspsuffix = ".16100";
@@ -6572,6 +6573,7 @@ static const char *csvsuffix = ".csv";
 static const char *deviceinfosuffix = ".deviceinfo";
 
 static char pmkideapolprefix[PATH_MAX];
+static char pmkideapolftpskprefix[PATH_MAX];
 static char eapmd5prefix[PATH_MAX];
 static char eapleapprefix[PATH_MAX];
 static char tacacspprefix[PATH_MAX];
@@ -6842,6 +6844,21 @@ if((optind == argc) && (rawinname == NULL))
 
 if(evpinitwpa() == false) exit(EXIT_FAILURE);
 
+if(testfilename(pmkideapolftpskoutname, pmkideapoloutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, essidoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, identityoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, usernameoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, deviceinfooutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, eapmd5outname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, eapleapoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, tacacspoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, nmeaoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, csvoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, rawoutname) == true) exit(EXIT_FAILURE);
+if(testfilename(pmkideapolftpskoutname, logoutname) == true) exit(EXIT_FAILURE);
+
 if(testfilename(pmkideapoloutname, essidoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, essidproberequestoutname) == true) exit(EXIT_FAILURE);
 if(testfilename(pmkideapoloutname, identityoutname) == true) exit(EXIT_FAILURE);
@@ -6918,6 +6935,10 @@ if(testfilename(logoutname, eapmd5johnoutname) == true) exit(EXIT_FAILURE);
 
 if(prefixoutname != NULL)
 	{
+	strncpy(pmkideapolftpskprefix, prefixoutname, PREFIX_BUFFER_MAX);
+	strncat(pmkideapolftpskprefix, pmkideapolftpsksuffix, PREFIX_BUFFER_MAX);
+	pmkideapolftpskoutname = pmkideapolftpskprefix;
+
 	strncpy(pmkideapolprefix, prefixoutname, PREFIX_BUFFER_MAX);
 	strncat(pmkideapolprefix, pmkideapolsuffix, PREFIX_BUFFER_MAX);
 	pmkideapoloutname = pmkideapolprefix;
