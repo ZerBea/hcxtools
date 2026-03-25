@@ -457,7 +457,7 @@ struct fbsst_tag
  uint16_t			miccontrol;
  uint8_t			mic[16];
  uint8_t			anonce[32];
- uint8_t			snonce[16];
+ uint8_t			snonce[32];
  uint8_t			subelement[1];
 } __attribute__ ((packed));
 typedef struct fbsst_tag fbsst_t;
