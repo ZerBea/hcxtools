@@ -3377,6 +3377,12 @@ while(0 < infolen)
 				}
 			}
 		}
+	else if(tagptr->id == TAG_MD)
+		{
+		}
+	else if(tagptr->id == TAG_FBSST)
+		{
+		}
 	infoptr += tagptr->len +IETAG_SIZE;
 	infolen -= tagptr->len +IETAG_SIZE;
 	}
@@ -6605,7 +6611,7 @@ static char deviceinfoprefix[PATH_MAX];
 struct timeval tv;
 static struct stat statinfo;
 
-static const char *short_options = "o:F:E:R:I:U:D:hv";
+static const char *short_options = "o:f:E:R:I:U:D:hv";
 static const struct option long_options[] =
 {
 	{"all",				no_argument,		NULL,	HCX_CONVERT_ALL},
