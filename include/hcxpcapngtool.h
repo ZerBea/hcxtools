@@ -22,6 +22,7 @@
 #define HCX_PREFIX_OUT				22
 #define HCX_ADD_TIMESTAMP			23
 #define HCX_PMKIDEAPOL_OUT			'o'
+#define HCX_PMKIDEAPOLFTPSK_OUT			'f'
 #define HCX_ESSID_OUT				'E'
 #define HCX_ESSIDPROBEREQUEST_OUT		'R'
 #define HCX_IDENTITY_OUT			'I'
