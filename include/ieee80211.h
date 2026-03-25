@@ -461,7 +461,7 @@ struct fbsst_tag
  uint8_t			subelement;
 } __attribute__ ((packed));
 typedef struct fbsst_tag fbsst_t;
-#define	fbsst_SIZE offsetof(fbsst_t, subelement)
+#define	FBSST_SIZE offsetof(fbsst_t, subelement)
 /*===========================================================================*/
 struct suitecount_s
 {
