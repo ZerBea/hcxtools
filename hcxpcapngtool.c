@@ -4241,15 +4241,27 @@ if(ignoreieflag == true)
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 	}
-else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+else if((tags.akm &TAK_PSK) == TAK_PSK)
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0)
+		{
+		reassociationrequestpskcount++;
+		addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
+		}
 	}
-else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) reassociationrequestftpskcount++;
-
-if((tags.akm &TAK_PSK) == TAK_PSK) reassociationrequestpskcount++;
-else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) reassociationrequestftpskcount++;
-else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) reassociationrequestpsk256count++;
+else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256)
+	{
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0)
+		{
+		reassociationrequestpsk256count++;
+		addpmkid(reassociationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
+		}
+	}
+else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
+	{
+	reassociationrequestftpskcount++;
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid_ftpsk();
+	}
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) reassociationrequestsae256count++;
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) reassociationrequestsae384bcount++;
 else if((tags.akm &TAK_OWE) == TAK_OWE) reassociationrequestowecount++;
@@ -4323,13 +4335,27 @@ if(ignoreieflag == true)
 	{
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 	}
-else if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+else if((tags.akm &TAK_PSK) == TAK_PSK)
 	{
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0)
+		{
+		reassociationrequestpskcount++;
+		addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
+		}
 	}
-if((tags.akm &TAK_PSK) == TAK_PSK) associationrequestpskcount++;
-else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) associationrequestftpskcount++;
-else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256) associationrequestpsk256count++;
+else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256)
+	{
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0)
+		{
+		associationrequestpsk256count++;
+		addpmkid(associationrequesttimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
+		}
+	}
+else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
+	{
+	associationrequestftpskcount++;
+	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid_ftpsk();
+	}
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) associationrequestsae256count++;
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) associationrequestsae384bcount++;
 else if((tags.akm &TAK_OWE) == TAK_OWE) associationrequestowecount++;
