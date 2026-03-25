@@ -6591,7 +6591,7 @@ fprintf(stdout, "--prefix=<file>                    : convert everything to list
 	"2: PMKID taken from AP possible PSKSHA256 FT using PSK\n"
 	"3: reserved\n"
 	"4: PMKID taken from CLIENT (wlan.da: possible MESH or REPEATER)\n"
-	"5: FT-PSK PMKID taken from CLIENT\n"\n"
+	"5: FT-PSK PMKID taken from CLIENT\n"
 	"6: reserved\n"
 	"7: reserved\n"
 	"\n"
