@@ -899,7 +899,7 @@ if(eapolm34e4count > 0)			fprintf(stdout, "EAPOL M34E4 (authorized).............
 if(pmkiduselesscount > 0)		fprintf(stdout, "RSN PMKID (useless)......................: %ld\n", pmkiduselesscount);
 if(pmkidfaultycount > 0)		fprintf(stdout, "RSN PMKID (faulty).......................: %ld\n", pmkidfaultycount);
 if(pmkidcount > 0)			fprintf(stdout, "RSN PMKID (total)........................: %ld\n", pmkidcount);
-if(pmkidpskcount > 0)			fprintf(stdout, "RSN PMKID PSK ....   ....................: %ld\n", pmkidpskcount);
+if(pmkidpskcount > 0)			fprintf(stdout, "RSN PMKID PSK ...........................: %ld\n", pmkidpskcount);
 if(pmkidftpskcount > 0)			fprintf(stdout, "RSN PMKID FT-PSK ........................: %ld\n", pmkidftpskcount);
 if(zeroedpmkidpskcount > 0)
 	{
@@ -922,7 +922,7 @@ else
 if(pmkidroguecount > 0)			fprintf(stdout, "RSN PMKID ROGUE..........................: %ld\n", pmkidroguecount);
 if(pmkidakmcount > 0)			fprintf(stdout, "RSN PMKID (KDV:0 AKM defined)............: %ld (not supported by hashcat/JtR)\n", pmkidakmcount);
 if(pmkidwrittenhcount > 0)		fprintf(stdout, "RSN PMKID written to 22000 hash file.....: %ld\n", pmkidwrittenhcount);
-if(pmkidftpskwrittenhcount > 0)		fprintf(stdout, "RSN PMKID written to 371000 hash file....: %ld\n", pmkidftpskwrittenhcount);
+if(pmkidftpskwrittenhcount > 0)		fprintf(stdout, "RSN PMKID written to 37100 hash file.....: %ld\n", pmkidftpskwrittenhcount);
 if(pmkidclientwrittenhcount > 0)	fprintf(stdout, "RSN PMKID written to 22000 hash file.....: %ld (possible MESH/REPEATER PMKIDs)\n", pmkidclientwrittenhcount);
 if(pmkidwrittenjcountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format JtR......: %ld\n", pmkidwrittenjcountdeprecated);
 if(pmkidwrittencountdeprecated > 0)	fprintf(stdout, "RSN PMKID written to old format (1680x)..: %ld\n", pmkidwrittencountdeprecated);
@@ -2474,8 +2474,8 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
-			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "***%02x*%4x\n", zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid);
-			else fprintf(fh_pmkideapolftpsk, "***%02x*%4x\t%s\n",  zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid, timestringhs);
+			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "***%02x*%04x\n", zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid);
+			else fprintf(fh_pmkideapolftpsk, "***%02x*%04x\t%s\n",  zeigerpmkid->status & PMKID_CLIENT, zeigerpmkid->mdid, timestringhs);
 			pmkidftpskwrittenhcount++;
 			}
 		if(fh_pmkideapoljtrdeprecated != 0)
@@ -2538,7 +2538,7 @@ if((zeigermacold->type & AP) == AP)
 			}
 		else
 			{
-			if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256))
+			if(((zeigermacold->akm &TAK_PSK) == TAK_PSK) || ((zeigermacold->akm &TAK_PSKSHA256) == TAK_PSKSHA256) || ((zeigermacold->akm &TAK_FT_PSK) == TAK_FT_PSK))
 				{
 				zeigerpmkidakt = getpmkid(zeigermacold, zeigerpmkidakt);
 				zeigerhsakt = gethandshake(zeigermacold, zeigerhsakt);
@@ -2792,18 +2792,73 @@ for(c = 0; c < 20; c ++)
 	if(memcmp(zeiger->ap, pmkidlistptr->ap, 6) != 0) continue;
 	if(memcmp(zeiger->client, pmkidlistptr->client, 6) != 0) continue;
 	if(memcmp(zeiger->pmkid, pmkidlistptr->pmkid, 16) != 0) continue;
+	if(zeiger->mdid != pmkidlistptr->mdid) continue;
 	zeiger->status |= pmkidlistptr->status;
 	return true;
 	}
 return false;
 }
-
 /*===========================================================================*/
-static void addpmkid_ftpsk()
+static void addpmkid_ftpsk(uint64_t timestamp, uint8_t *macclient, uint8_t *macap, uint8_t *pmkid, uint8_t pmkidstatus, uint16_t mdid)
 {
+static pmkidlist_t *pmkidlistnew;
+
 pmkidcount++;
 pmkidftpskcount++;
-
+if((pmkidstatus & PMKID_CLIENT) == PMKID_CLIENT)
+	{
+	if(testfaultypmkid(pmkid) == true) return;
+	}
+if(testpmkid(zeroedpmk, macclient, macap, pmkid) == false)
+	{
+	if(pmkidlistptr >= pmkidlist +pmkidlistmax)
+		{
+		pmkidlistnew = (pmkidlist_t*)realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
+		if(pmkidlistnew == NULL)
+			{
+			fprintf(stderr, "failed to allocate memory for internal list\n");
+			exit(EXIT_FAILURE);
+			}
+		pmkidlist = pmkidlistnew;
+		pmkidlistptr = pmkidlistnew +pmkidlistmax;
+		pmkidlistmax += PMKIDLIST_MAX;
+		}
+	memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
+	memcpy(pmkidlistptr->ap, macap, 6);
+	memcpy(pmkidlistptr->client, macclient, 6);
+	memcpy(pmkidlistptr->pmkid, pmkid, 16);
+	pmkidlistptr->mdid = mdid;
+	pmkidlistptr->timestamp = timestamp;
+	pmkidlistptr->status |= pmkidstatus;
+	if(cleanbackpmkid() == false) pmkidlistptr++;
+	}
+else
+	{
+	zeroedpmkidpmkcount++;
+	if(donotcleanflag == true)
+		{
+		if(pmkidlistptr >= pmkidlist +pmkidlistmax)
+			{
+			pmkidlistnew = (pmkidlist_t*)realloc(pmkidlist, (pmkidlistmax +PMKIDLIST_MAX) *PMKIDLIST_SIZE);
+			if(pmkidlistnew == NULL)
+				{
+				fprintf(stderr, "failed to allocate memory for internal list\n");
+				exit(EXIT_FAILURE);
+				}
+			pmkidlist = pmkidlistnew;
+			pmkidlistptr = pmkidlistnew +maclistmax;
+			pmkidlistmax += PMKIDLIST_MAX;
+			}
+		memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
+		memcpy(pmkidlistptr->ap, macap, 6);
+		memcpy(pmkidlistptr->client, macclient, 6);
+		memcpy(pmkidlistptr->pmkid, pmkid, 16);
+		pmkidlistptr->mdid = mdid;
+		pmkidlistptr->timestamp = timestamp;
+		pmkidlistptr->status |= pmkidstatus;
+		if(cleanbackpmkid() == false) pmkidlistptr++;
+		}
+	}
 return;
 }
 /*===========================================================================*/
@@ -3381,7 +3436,7 @@ while(0 < infolen)
 		{
 		if(tagptr->len == 3)
 			{
-			zeiger->mdid = tagptr->data[0] | (tagptr->data[1] << 8);
+			zeiger->mdid = tagptr->data[1] | (tagptr->data[2] << 8);
 			}
 		else
 			{
@@ -3872,7 +3927,9 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 		else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
 			{
 			eapolm2ftpskcount++;
-			addpmkid_ftpsk();
+			zeiger->message |= HS_PMKIDFTPSK;
+			zeiger->mdid = tags.mdid;
+			addpmkid_ftpsk(eaptimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT_FTPSK, tags.mdid);
 			}
 		}
 	}
@@ -4293,7 +4350,7 @@ else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256)
 else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
 	{
 	reassociationrequestftpskcount++;
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid_ftpsk();
+//	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid_ftpsk();
 	}
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) reassociationrequestsae256count++;
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) reassociationrequestsae384bcount++;
@@ -4387,7 +4444,7 @@ else if((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256)
 else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
 	{
 	associationrequestftpskcount++;
-	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid_ftpsk();
+//	if(memcmp(&zeroed32, tags.pmkid, 16) != 0) addpmkid_ftpsk();
 	}
 else if((tags.akm &TAK_SAE_SHA256) == TAK_SAE_SHA256) associationrequestsae256count++;
 else if((tags.akm &TAK_SAE_SHA384B) == TAK_SAE_SHA384B) associationrequestsae384bcount++;

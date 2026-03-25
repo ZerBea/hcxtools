@@ -279,16 +279,19 @@ struct messagelist_s
  uint8_t		ap[6];
  uint8_t		client[6];
  uint8_t		message;
-#define HS_M1		1
-#define HS_M2		2
-#define HS_M3		4
-#define HS_M4		8
-#define HS_PMKID	16
+#define HS_M1		0x01
+#define HS_M2		0x02
+#define HS_M3		0x04
+#define HS_M4		0x08
+#define HS_PMKID	0x10
+#define HS_PMKIDFTPSK	0x20
  uint64_t		rc;
  uint8_t		nonce[32];
  uint8_t		pmkid[16];
+ uint16_t		mdid;
  uint16_t		eapauthlen;
  uint8_t		eapol[EAPOL_AUTHLEN_MAX];
+
 };
 typedef struct messagelist_s messagelist_t;
 #define	MESSAGELIST_SIZE (sizeof(messagelist_t))
