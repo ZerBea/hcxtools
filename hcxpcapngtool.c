@@ -3173,12 +3173,12 @@ static fbsstse_t *fbsstseptr0;
 static fbsstse_t *fbsstseptr1;
 
 fbsstseptr0 = (fbsstse_t*)(ieptr + FBSST_SIZE);
-if(fbsstseptr0->len == 0) return false;
 if(fbsstseptr0->id != 1) return false;
+if((fbsstseptr0->len == 0) || (fbsstseptr0->len >FTR0KHID_LEN)) return false;
 
 fbsstseptr1 = (fbsstse_t*)(ieptr + FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr0->len);
-if(fbsstseptr1->len == 0) return false;
 if(fbsstseptr1->id != 3) return false;
+if((fbsstseptr1->len == 0) || (fbsstseptr1->len > FTR1KHID_MAXLEN)) return false;
 if(vendorlen < (int)(FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr0->len + fbsstseptr1->len)) return false;
 
 zeiger->r0khidlen = fbsstseptr0->len;
