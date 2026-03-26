@@ -2344,7 +2344,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			else eapolftpskncwrittencount++;
 			}
 
-		if((fh_pmkideapoljtrdeprecated != 0) && (zeigerhs->rcgap == 0) && (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_DEPRECATED_MAX))
+		if((fh_pmkideapoljtrdeprecated != 0) && (zeigerhs->rcgap == 0) && (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX))
 			{
 			memset (&hccap, 0, sizeof(hccap_t));
 			memcpy(&hccap.ap, zeigerhs->ap, 6);
@@ -2373,7 +2373,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			fprintf(fh_pmkideapoljtrdeprecated, ":%s\n", basename(jtrbasenamedeprecated));
 			eapolwrittenjcountdeprecated++;
 			}
-		if((fh_hccapxdeprecated != 0) && (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_DEPRECATED_MAX))
+		if((fh_hccapxdeprecated != 0) && (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX))
 			{
 			memset (&hccapx, 0, sizeof(hccapx_t));
 			hccapx.signature = HCCAPX_SIGNATURE;
@@ -2398,7 +2398,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			if(zeigerhs->rcgap == 0) eapolwrittenhcpxcountdeprecated++;
 			else eapolncwrittenhcpxcountdeprecated++;
 			}
-		if((fh_hccapdeprecated != 0) && (zeigerhs->rcgap == 0) && (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_DEPRECATED_MAX))
+		if((fh_hccapdeprecated != 0) && (zeigerhs->rcgap == 0) && (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX))
 			{
 			memset(&hccap, 0, sizeof(hccap_t));
 			memcpy(&hccap.essid, zeigermac->essid, zeigermac->essidlen);
