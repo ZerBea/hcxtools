@@ -50,7 +50,7 @@
 #define HANDSHAKELIST_MAX		100000
 #define PMKIDLIST_MAX			100000
 #define MESSAGELIST_MAX			64
-#define EAPOL_AUTHLEN_MAX		251
+#define EAPOL_AUTHLEN_MAX		512
 
 #define EAPMD5HASHLIST_MAX		1000
 #define EAPMD5MSGLIST_MAX		32
@@ -323,6 +323,11 @@ struct handshakelist_s
  uint8_t		client[6];
  uint8_t		anonce[32];
  uint8_t		pmkid[16];
+ uint16_t		mdid;
+ uint8_t		r0khidlen;
+ uint8_t		r0khid[RXHKID];
+ uint8_t		r1khidlen;
+ uint8_t		r1khid[RXHKID];
  uint16_t		eapauthlen;
  uint8_t		eapol[256];
 };

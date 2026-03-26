@@ -312,7 +312,9 @@ static long int eapolm4zeroedcount;
 static long int eapolm4kdv0count;
 static long int eapolm4errorcount;
 static long int eapolwrittencount;
+static long int eapolftpskwrittencount;
 static long int eapolncwrittencount;
+static long int eapolftpskncwrittencount;
 static long int eapolaplesscount;
 static long int eapolwrittenjcountdeprecated;
 static long int eapolwrittenhcpxcountdeprecated;
@@ -646,6 +648,8 @@ eapolm4kdv0count = 0;
 eapolm4errorcount = 0;
 eapolwrittencount = 0;
 eapolncwrittencount = 0;
+eapolncwrittencount = 0;
+eapolftpskncwrittencount = 0;
 eapolaplesscount = 0;
 eapolwrittenjcountdeprecated = 0;
 eapolwrittenhcpxcountdeprecated = 0;
@@ -886,6 +890,8 @@ else
 if(eapolaplesscount > 0)		fprintf(stdout, "EAPOL ROGUE pairs........................: %ld\n", eapolaplesscount);
 if(eapolwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 22000 hash file...: %ld (RC checked)\n", eapolwrittencount);
 if(eapolncwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 22000 hash file...: %ld (RC not checked)\n", eapolncwrittencount);
+if(eapolftpskwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 371000 hash file..: %ld (RC checked)\n", eapolftpskwrittencount);
+if(eapolftpskncwrittencount > 0)	fprintf(stdout, "EAPOL pairs written to 37100 hash file...: %ld (RC not checked)\n", eapolftpskncwrittencount);
 if(eapolwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccapx.: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
 if(eapolncwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccapx.: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
 if(eapolwrittenhcpcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccap..: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
@@ -2272,8 +2278,6 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 //			zeigerhs->status &= ~(1 << 7);
 			}
 		if((ncvalue > 0) && ((zeigerhs->status & 0x10) == 0)) zeigerhs->status |= 0x80;
-
-
 		wpak = (wpakey_t*)(zeigerhs->eapol +EAPAUTH_SIZE);
 		keyvertemp = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
 		memcpy(&eapoltemp, zeigerhs->eapol, zeigerhs->eapauthlen);
@@ -2313,6 +2317,33 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			if(zeigerhs->rcgap == 0) eapolwrittencount++;
 			else eapolncwrittencount++;
 			}
+		if((fh_pmkideapolftpsk != 0) && (zeigerhs->r0khidlen != 0) && (zeigerhs->r1khidlen != 0))
+			{
+			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R1KHID*R0KHID
+			fprintf(fh_pmkideapolftpsk, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+				HCX_TYPE_EAPOL_FTPSK,
+				wpak->keymic[0], wpak->keymic[1], wpak->keymic[2], wpak->keymic[3], wpak->keymic[4], wpak->keymic[5], wpak->keymic[6], wpak->keymic[7],
+				wpak->keymic[8], wpak->keymic[9], wpak->keymic[10], wpak->keymic[11], wpak->keymic[12], wpak->keymic[13], wpak->keymic[14], wpak->keymic[15],
+				zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
+				zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5]);
+			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
+			fprintf(fh_pmkideapolftpsk, "*");
+			fprintf(fh_pmkideapolftpsk, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*",
+				zeigerhs->anonce[0], zeigerhs->anonce[1], zeigerhs->anonce[2], zeigerhs->anonce[3], zeigerhs->anonce[4], zeigerhs->anonce[5], zeigerhs->anonce[6], zeigerhs->anonce[7],
+				zeigerhs->anonce[8], zeigerhs->anonce[9], zeigerhs->anonce[10], zeigerhs->anonce[11], zeigerhs->anonce[12], zeigerhs->anonce[13], zeigerhs->anonce[14], zeigerhs->anonce[15],
+				zeigerhs->anonce[16], zeigerhs->anonce[17], zeigerhs->anonce[18], zeigerhs->anonce[19], zeigerhs->anonce[20], zeigerhs->anonce[21], zeigerhs->anonce[22], zeigerhs->anonce[23],
+				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
+			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", eapoltemp[p]);
+			fprintf(fh_pmkideapolftpsk, "*%02x*%04x*", zeigerhs->status, zeigerhs->mdid);
+			for(p = 0; p < zeigerhs->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerhs->r1khid[p]);
+			fprintf(fh_pmkideapolftpsk, "*");
+			for(p = 0; p < zeigerhs->r0khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerhs->r0khid[p]);
+			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "\n");
+			else fprintf(fh_pmkideapolftpsk, "\t%s\t%" PRIu64 "\n", timestringhs, zeigerhs->timestampgap);
+			if(zeigerhs->rcgap == 0) eapolftpskwrittencount++;
+			else eapolftpskncwrittencount++;
+			}
+
 		if((fh_pmkideapoljtrdeprecated != 0) && (zeigerhs->rcgap == 0))
 			{
 			memset (&hccap, 0, sizeof(hccap_t));
@@ -2464,6 +2495,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			else fprintf(fh_pmkideapolclient, "***%02x\t%s\n", zeigerpmkid->status & PMKID_CLIENT, timestringhs);
 			pmkidclientwrittenhcount++;
 			}
+/*
 		if((fh_pmkideapolftpsk != 0) && ((zeigerpmkid->status & PMKID_CLIENT_FTPSK) == PMKID_CLIENT_FTPSK))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R1KHID*R0KHID
@@ -2482,6 +2514,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			else fprintf(fh_pmkideapolftpsk, "\t%s\n", timestringhs);
 			pmkidftpskwrittenhcount++;
 			}
+*/
 		if(fh_pmkideapoljtrdeprecated != 0)
 			{
 			fprintf(fh_pmkideapoljtrdeprecated, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -2727,6 +2760,11 @@ if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, m
 		{
 		memcpy(handshakelistptr->anonce, msgap->nonce, 32);
 		handshakelistptr->eapauthlen = msgclient->eapauthlen;
+		handshakelistptr->mdid = msgclient->mdid;
+		handshakelistptr->r0khidlen = msgclient->r0khidlen;
+		memcpy(handshakelistptr->r0khid, msgclient->r0khid, msgclient->r0khidlen);
+		handshakelistptr->r1khidlen = msgclient->r1khidlen;
+		memcpy(handshakelistptr->r1khid, msgclient->r1khid, msgclient->r1khidlen);
 		memcpy(handshakelistptr->eapol, msgclient->eapol, msgclient->eapauthlen);
 		}
 	handshakelistptr->timestamp = msgclient->timestamp;
@@ -3831,6 +3869,7 @@ static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm2count++;
 eapolmsgcount++;
+memset (&tags, 0, sizeof(tags));
 macfrx = (mac_t*)packetptr;
 if((memcmp(macap, macsrc, 6) != 0) || ((macfrx->to_ds == 1) && (macfrx->from_ds == 1)))
 	{
@@ -3920,6 +3959,12 @@ if((authlen +EAPAUTH_SIZE) <= EAPOL_AUTHLEN_MAX)
 if(wpainfolen >= RSNIE_LEN_MIN)
 	{
 	if(gettags(wpainfolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
+	memcpy(zeiger->pmkid, tags.pmkid, 16);
+	zeiger->mdid = tags.mdid;
+	zeiger->r0khidlen = tags.r0khidlen;
+	memcpy(zeiger->r0khid, tags.r0khid, tags.r0khidlen);
+	zeiger->r1khidlen = tags.r1khidlen;
+	memcpy(zeiger->r1khid, tags.r1khid, tags.r1khidlen);
 	if(memcmp(&zeroed32, tags.pmkid, 16) != 0)
 		{
 		if(((tags.akm &TAK_PSK) != TAK_PSK) && ((tags.akm &TAK_PSKSHA256) != TAK_PSKSHA256) && ((tags.akm &TAK_FT_PSK) != TAK_FT_PSK))
@@ -3929,7 +3974,6 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 		if(((tags.akm &TAK_PSK) == TAK_PSK) || ((tags.akm &TAK_PSKSHA256) == TAK_PSKSHA256))
 			{
 			zeiger->message |= HS_PMKID;
-			memcpy(zeiger->pmkid, tags.pmkid, 16);
 			addpmkid(eaptimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 			}
 		else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
@@ -3938,11 +3982,6 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 				{
 				eapolm2ftpskcount++;
 				zeiger->message |= HS_PMKIDFTPSK;
-				zeiger->mdid = tags.mdid;
-				zeiger->r0khidlen = tags.r0khidlen;
-				memcpy(zeiger->r0khid, tags.r0khid, tags.r0khidlen);
-				zeiger->r1khidlen = tags.r1khidlen;
-				memcpy(zeiger->r1khid, tags.r1khid, tags.r1khidlen);
 				addpmkid_ftpsk(eaptimestamp, macclient, macap, tags, PMKID_CLIENT_FTPSK);
 				}
 			}
