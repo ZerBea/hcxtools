@@ -127,6 +127,7 @@ struct tags_s
 #define	TAK_SAE_SHA384B	0x0800
 #define TAK_OWE		0x1000
  uint8_t		pmkid[16];
+ uint8_t		mdidlen;
  uint16_t		mdid;
  uint8_t		r0khidlen;
  uint8_t		r0khid[RXHKID];
@@ -288,6 +289,7 @@ struct messagelist_s
  uint64_t		rc;
  uint8_t		nonce[32];
  uint8_t		pmkid[16];
+ uint8_t		mdidlen;
  uint16_t		mdid;
  uint8_t		r0khidlen;
  uint8_t		r0khid[RXHKID];
@@ -323,6 +325,7 @@ struct handshakelist_s
  uint8_t		client[6];
  uint8_t		anonce[32];
  uint8_t		pmkid[16];
+ uint8_t		mdidlen;
  uint16_t		mdid;
  uint8_t		r0khidlen;
  uint8_t		r0khid[RXHKID];
@@ -389,6 +392,7 @@ struct pmkidlist_s
  uint8_t		client[6];
  uint8_t		anonce[32];
  uint8_t		pmkid[16];
+ uint8_t		mdidlen;
  uint16_t		mdid;
  uint8_t		r0khidlen;
  uint8_t		r0khid[RXHKID];

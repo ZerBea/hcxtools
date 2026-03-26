@@ -2317,7 +2317,7 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			if(zeigerhs->rcgap == 0) eapolwrittencount++;
 			else eapolncwrittencount++;
 			}
-		if((fh_pmkideapolftpsk != 0) && (zeigerhs->r0khidlen != 0) && (zeigerhs->r1khidlen != 0))
+		if((fh_pmkideapolftpsk != 0) && (zeigerhs->mdidlen != 0) && (zeigerhs->r0khidlen != 0) && (zeigerhs->r1khidlen != 0))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R1KHID*R0KHID
 			fprintf(fh_pmkideapolftpsk, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -2496,7 +2496,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			pmkidclientwrittenhcount++;
 			}
 /*
-		if((fh_pmkideapolftpsk != 0) && ((zeigerpmkid->status & PMKID_CLIENT_FTPSK) == PMKID_CLIENT_FTPSK))
+		if((fh_pmkideapolftpsk != 0) && (zeigerpmkid->mdidlen != 0) && (zeigerpmkid->r0khidlen != 0) && (zeigerpmkid->r1khidlen != 0))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R1KHID*R0KHID
 			fprintf(fh_pmkideapolftpsk, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -2760,6 +2760,7 @@ if(testeapolpmk(zeroedpmk, keyver, msgclient->client, msgap->ap, msgap->nonce, m
 		{
 		memcpy(handshakelistptr->anonce, msgap->nonce, 32);
 		handshakelistptr->eapauthlen = msgclient->eapauthlen;
+		handshakelistptr->mdidlen = msgclient->mdidlen;
 		handshakelistptr->mdid = msgclient->mdid;
 		handshakelistptr->r0khidlen = msgclient->r0khidlen;
 		memcpy(handshakelistptr->r0khid, msgclient->r0khid, msgclient->r0khidlen);
@@ -2834,6 +2835,7 @@ for(c = 0; c < 20; c ++)
 	if(memcmp(zeiger->ap, pmkidlistptr->ap, 6) != 0) continue;
 	if(memcmp(zeiger->client, pmkidlistptr->client, 6) != 0) continue;
 	if(memcmp(zeiger->pmkid, pmkidlistptr->pmkid, 16) != 0) continue;
+	if(zeiger->mdidlen != pmkidlistptr->mdidlen) continue;
 	if(zeiger->mdid != pmkidlistptr->mdid) continue;
 	if(zeiger->r0khidlen != pmkidlistptr->r0khidlen) continue;
 	if(zeiger->r1khidlen != pmkidlistptr->r1khidlen) continue;
@@ -2867,6 +2869,7 @@ memset(pmkidlistptr, 0, PMKIDLIST_SIZE);
 memcpy(pmkidlistptr->ap, macap, 6);
 memcpy(pmkidlistptr->client, macclient, 6);
 memcpy(pmkidlistptr->pmkid, ftpsktags.pmkid, 16);
+pmkidlistptr->mdidlen = ftpsktags.mdidlen;
 pmkidlistptr->mdid = ftpsktags.mdid;
 
 pmkidlistptr->r0khidlen = ftpsktags.r0khidlen;
@@ -3475,7 +3478,11 @@ while(0 < infolen)
 		}
 	else if(tagptr->id == TAG_MD)
 		{
-		if(tagptr->len == 3) zeiger->mdid = (tagptr->data[0] << 8) | tagptr->data[1];
+		if(tagptr->len == 3)
+			{
+			zeiger->mdid = tagptr->len;
+			zeiger->mdid = (tagptr->data[0] << 8) | tagptr->data[1];
+			}
 		else
 			{
 			taglenerrorcount++;
@@ -3960,6 +3967,7 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 	{
 	if(gettags(wpainfolen, wpakptr +WPAKEY_SIZE, &tags) == false) return;
 	memcpy(zeiger->pmkid, tags.pmkid, 16);
+	zeiger->mdidlen = tags.mdidlen;
 	zeiger->mdid = tags.mdid;
 	zeiger->r0khidlen = tags.r0khidlen;
 	memcpy(zeiger->r0khid, tags.r0khid, tags.r0khidlen);
