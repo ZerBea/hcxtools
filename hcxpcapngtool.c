@@ -3480,7 +3480,7 @@ while(0 < infolen)
 		{
 		if(tagptr->len == 3)
 			{
-			zeiger->mdid = tagptr->len;
+			zeiger->mdidlen = tagptr->len;
 			zeiger->mdid = (tagptr->data[0] << 8) | tagptr->data[1];
 			}
 		else
