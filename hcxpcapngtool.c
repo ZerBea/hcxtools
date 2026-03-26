@@ -2495,7 +2495,6 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			else fprintf(fh_pmkideapolclient, "***%02x\t%s\n", zeigerpmkid->status & PMKID_CLIENT, timestringhs);
 			pmkidclientwrittenhcount++;
 			}
-/*
 		if((fh_pmkideapolftpsk != 0) && (zeigerpmkid->mdidlen != 0) && (zeigerpmkid->r0khidlen != 0) && (zeigerpmkid->r1khidlen != 0))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R1KHID*R0KHID
@@ -2514,7 +2513,6 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			else fprintf(fh_pmkideapolftpsk, "\t%s\n", timestringhs);
 			pmkidftpskwrittenhcount++;
 			}
-*/
 		if(fh_pmkideapoljtrdeprecated != 0)
 			{
 			fprintf(fh_pmkideapoljtrdeprecated, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
