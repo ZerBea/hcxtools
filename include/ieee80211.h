@@ -464,7 +464,7 @@ typedef struct fbsst_tag fbsst_t;
 #define	FBSST_SIZE offsetof(fbsst_t, subelement)
 /*===========================================================================*/
 #define FTR0KHID_LEN		6
-#define FTR1KHID_MAXLEN		48
+#define FTR1KHID_LEN_MAX	48
 struct fbsstse_tag
 {
  uint8_t			id;

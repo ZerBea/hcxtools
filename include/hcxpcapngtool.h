@@ -96,7 +96,6 @@
 #define GHZ5				2
 /*===========================================================================*/
 /*===========================================================================*/
-#define RXHKID		0xff
 struct tags_s
 {
  uint8_t		channel;
@@ -131,9 +130,9 @@ struct tags_s
  uint8_t		mdidlen;
  uint16_t		mdid;
  uint8_t		r0khidlen;
- uint8_t		r0khid[RXHKID];
+ uint8_t		r0khid[FTR0KHID_LEN];
  uint8_t		r1khidlen;
- uint8_t		r1khid[RXHKID];
+ uint8_t		r1khid[FTR1KHID_LEN_MAX];
  uint8_t		wpsinfo;
  char			country[2];
  uint8_t		essidlen;
@@ -293,9 +292,9 @@ struct messagelist_s
  uint8_t		mdidlen;
  uint16_t		mdid;
  uint8_t		r0khidlen;
- uint8_t		r0khid[RXHKID];
+ uint8_t		r0khid[FTR0KHID_LEN];
  uint8_t		r1khidlen;
- uint8_t		r1khid[RXHKID];
+ uint8_t		r1khid[FTR1KHID_LEN_MAX];
  uint16_t		eapauthlen;
  uint8_t		eapol[EAPOL_AUTHLEN_MAX];
 
@@ -329,9 +328,9 @@ struct handshakelist_s
  uint8_t		mdidlen;
  uint16_t		mdid;
  uint8_t		r0khidlen;
- uint8_t		r0khid[RXHKID];
+ uint8_t		r0khid[FTR0KHID_LEN];
  uint8_t		r1khidlen;
- uint8_t		r1khid[RXHKID];
+ uint8_t		r1khid[FTR1KHID_LEN_MAX];
  uint16_t		eapauthlen;
  uint8_t		eapol[256];
 };
@@ -396,9 +395,9 @@ struct pmkidlist_s
  uint8_t		mdidlen;
  uint16_t		mdid;
  uint8_t		r0khidlen;
- uint8_t		r0khid[RXHKID];
+ uint8_t		r0khid[FTR0KHID_LEN];
  uint8_t		r1khidlen;
- uint8_t		r1khid[RXHKID];
+ uint8_t		r1khid[FTR1KHID_LEN_MAX];
 };
 typedef struct pmkidlist_s pmkidlist_t;
 #define	PMKIDLIST_SIZE (sizeof(pmkidlist_t))

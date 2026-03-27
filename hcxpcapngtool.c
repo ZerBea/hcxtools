@@ -35,8 +35,8 @@
 #define BIG_ENDIAN_HOST
 #endif
 
-#include "include/hcxpcapngtool.h"
 #include "include/ieee80211.c"
+#include "include/hcxpcapngtool.h"
 #include "include/strings.c"
 #include "include/byteops.c"
 #include "include/fileops.c"
@@ -3178,7 +3178,7 @@ if((fbsstseptr0->len == 0) || (fbsstseptr0->len >FTR0KHID_LEN)) return false;
 
 fbsstseptr1 = (fbsstse_t*)(ieptr + FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr0->len);
 if(fbsstseptr1->id != 3) return false;
-if((fbsstseptr1->len == 0) || (fbsstseptr1->len > FTR1KHID_MAXLEN)) return false;
+if((fbsstseptr1->len == 0) || (fbsstseptr1->len > FTR1KHID_LEN_MAX)) return false;
 if(vendorlen < (int)(FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr0->len + fbsstseptr1->len)) return false;
 
 zeiger->r0khidlen = fbsstseptr0->len;
