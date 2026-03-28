@@ -1,3 +1,14 @@
+28.03.2026
+==========
+hcxpcapngtool: changed EAPOL AUTH LIMIT for all EAPOL MESSSGES (m1, m2, m3, m4):
+internal = 1024 bytes
+22000 = 255 bytes (limited by hashcat)
+37100 = 1024 bytes
+john = 255 bytes (john uses internal ancient hccap format that is limited to en EAPOL LEN of 255 bytes)
+hccapx = 255 bytes (format is limited to en EAPOL LEN of 255 bytes)
+hccap = 255 bytes (format is limited to en EAPOL LEN of 255 bytes)
+
+
 25.03.2026
 ==========
 hcxpcapngtool: added full conversion of FT-PSK PMKID and EAPOL(hashcat mode 37100)
