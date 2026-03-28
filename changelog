@@ -16,6 +16,7 @@ hcxpcapngtool: added full conversion of FT-PSK PMKID and EAPOL(hashcat mode 3710
             get full advantage of reuse of PBKDF2 on PMKID and EAPOL
 
 More information is here:
+https://github.com/ZerBea/hcxdumptool/discussions/546
 https://github.com/hashcat/hashcat/pull/4645#issuecomment-4133953134
 
 
