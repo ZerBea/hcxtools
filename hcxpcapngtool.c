@@ -312,14 +312,18 @@ static long int eapolm4zeroedcount;
 static long int eapolm4kdv0count;
 static long int eapolm4errorcount;
 static long int eapolwrittencount;
+static long int eapolnotwrittencount;
 static long int eapolftpskwrittencount;
 static long int eapolncwrittencount;
 static long int eapolftpskncwrittencount;
 static long int eapolaplesscount;
 static long int eapolwrittenjcountdeprecated;
+static long int eapolnotwrittenjcountdeprecated;
 static long int eapolwrittenhcpxcountdeprecated;
 static long int eapolncwrittenhcpxcountdeprecated;
+static long int eapolnotwrittenhcpxcountdeprecated;
 static long int eapolwrittenhcpcountdeprecated;
+static long int eapolnotwrittenhcpcountdeprecated;
 static long int eapolm12e2count;
 static long int eapolm14e4count;
 static long int eapolm32e2count;
@@ -647,13 +651,17 @@ eapolm4zeroedcount = 0;
 eapolm4kdv0count = 0;
 eapolm4errorcount = 0;
 eapolwrittencount = 0;
+eapolnotwrittencount = 0;
 eapolncwrittencount = 0;
 eapolncwrittencount = 0;
 eapolftpskncwrittencount = 0;
 eapolaplesscount = 0;
 eapolwrittenjcountdeprecated = 0;
+eapolnotwrittenjcountdeprecated = 0;
 eapolwrittenhcpxcountdeprecated = 0;
+eapolnotwrittenhcpxcountdeprecated = 0;
 eapolwrittenhcpcountdeprecated = 0;
+eapolnotwrittenhcpcountdeprecated = 0;
 eapolm12e2count = 0;
 eapolm14e4count = 0;
 eapolm32e2count = 0;
@@ -858,14 +866,14 @@ if(eapolnccount == 0)
 if(eapolm1count > 0)			fprintf(stdout, "EAPOL M1 messages (total)................: %ld\n", eapolm1count);
 if(eapolm1kdv0count > 0)		fprintf(stdout, "EAPOL M1 messages (KDV:0 AKM defined)....: %ld (not supported by hashcat/JtR)\n", eapolm1kdv0count);
 if(eapolm2count > 0)			fprintf(stdout, "EAPOL M2 messages (total)................: %ld\n", eapolm2count);
-if(eapolm2oversizedcount > 0)		fprintf(stdout, "EAPOL M2 messages (oversized)............: %ld (not supported by hashcat/JtR)\n", eapolm2oversizedcount);
+if(eapolm2oversizedcount > 0)		fprintf(stdout, "EAPOL M2 messages (oversized)............: %ld\n", eapolm2oversizedcount);
 if(eapolm2kdv0count > 0)		fprintf(stdout, "EAPOL M2 messages (KDV:0 AKM defined)....: %ld (not supported by hashcat/JtR)\n", eapolm2kdv0count);
-if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK).........: %ld (not supported by hashcat/JtR)\n", eapolm2ftpskcount);
+if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK).........: %ld (JtR)\n", eapolm2ftpskcount);
 if(eapolm3count > 0)			fprintf(stdout, "EAPOL M3 messages (total)................: %ld\n", eapolm3count);
-if(eapolm3oversizedcount > 0)		fprintf(stdout, "EAPOL M3 messages (oversized)............: %ld (not supported by hashcat/JtR)\n", eapolm3oversizedcount);
+if(eapolm3oversizedcount > 0)		fprintf(stdout, "EAPOL M3 messages (oversized)............: %ld\n", eapolm3oversizedcount);
 if(eapolm3kdv0count > 0)		fprintf(stdout, "EAPOL M3 messages (KDV:0 AKM defined)....: %ld (not supported by hashcat/JtR)\n", eapolm3kdv0count);
 if(eapolm4count > 0)			fprintf(stdout, "EAPOL M4 messages (total)................: %ld\n", eapolm4count);
-if(eapolm4oversizedcount > 0)		fprintf(stdout, "EAPOL M4 messages (oversized)............: %ld (not supported by hashcat/JtR)\n", eapolm4oversizedcount);
+if(eapolm4oversizedcount > 0)		fprintf(stdout, "EAPOL M4 messages (oversized)............: %ld\n", eapolm4oversizedcount);
 if(eapolm4zeroedcount > 0)		fprintf(stdout, "EAPOL M4 messages (zeroed NONCE).........: %ld\n", eapolm4zeroedcount);
 if(eapolm4kdv0count > 0)		fprintf(stdout, "EAPOL M4 messages (KDV:0 AKM defined)....: %ld (not supported by hashcat/JtR)\n", eapolm4kdv0count);
 if(eapolmpcount > 0)			fprintf(stdout, "EAPOL pairs (total)......................: %ld\n", eapolmpcount);
@@ -890,12 +898,16 @@ else
 if(eapolaplesscount > 0)		fprintf(stdout, "EAPOL ROGUE pairs........................: %ld\n", eapolaplesscount);
 if(eapolwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 22000 hash file...: %ld (RC checked)\n", eapolwrittencount);
 if(eapolncwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 22000 hash file...: %ld (RC not checked)\n", eapolncwrittencount);
+if(eapolnotwrittencount > 0)		fprintf(stdout, "EAPOL pairs ignored (oversized)...........: %ld (RC checked)\n", eapolnotwrittencount);
 if(eapolftpskwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 37100 hash file...: %ld (RC checked)\n", eapolftpskwrittencount);
 if(eapolftpskncwrittencount > 0)	fprintf(stdout, "EAPOL pairs written to 37100 hash file...: %ld (RC not checked)\n", eapolftpskncwrittencount);
-if(eapolwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccapx.: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
-if(eapolncwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccapx.: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
-if(eapolwrittenhcpcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format hccap..: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
-if(eapolwrittenjcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written to old format JtR....: %ld (RC checked)\n", eapolwrittenjcountdeprecated);
+if(eapolwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written (hccapx).............: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
+if(eapolncwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written (hccapx).............: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
+if(eapolnotwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs not written (hccapx).........: %ld\n", eapolnotwrittenhcpxcountdeprecated);
+if(eapolwrittenhcpcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written (hccap)..............: %ld (RC checked)\n", eapolwrittenhcpcountdeprecated);
+if(eapolnotwrittenhcpcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs not written (hccap)..........: %ld)\n", eapolnotwrittenhcpcountdeprecated);
+if(eapolwrittenjcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written (JtR).................: %ld (RC checked)\n", eapolwrittenjcountdeprecated);
+if(eapolnotwrittenjcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs not wirtten (JtR)...............: %ld (RC checked)\n", eapolnotwrittenjcountdeprecated);
 if(eapolm12e2count > 0)			fprintf(stdout, "EAPOL M12E2 (challenge - ANONCE from M1).: %ld\n", eapolm12e2count);
 if(eapolm32e2count > 0)			fprintf(stdout, "EAPOL M32E2 (authorized - ANONCE from M3): %ld\n", eapolm32e2count);
 if(eapolm14e4count > 0)			fprintf(stdout, "EAPOL M14E4 (authorized).................: %ld\n", eapolm14e4count);
@@ -2297,25 +2309,29 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			}
 		if(fh_pmkideapol != 0)
 			{
-			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
-			fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
-				HCX_TYPE_EAPOL,
-				wpak->keymic[0], wpak->keymic[1], wpak->keymic[2], wpak->keymic[3], wpak->keymic[4], wpak->keymic[5], wpak->keymic[6], wpak->keymic[7],
-				wpak->keymic[8], wpak->keymic[9], wpak->keymic[10], wpak->keymic[11], wpak->keymic[12], wpak->keymic[13], wpak->keymic[14], wpak->keymic[15],
-				zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
-				zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5]);
-			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
-			fprintf(fh_pmkideapol, "*");
-			fprintf(fh_pmkideapol, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*",
-				zeigerhs->anonce[0], zeigerhs->anonce[1], zeigerhs->anonce[2], zeigerhs->anonce[3], zeigerhs->anonce[4], zeigerhs->anonce[5], zeigerhs->anonce[6], zeigerhs->anonce[7],
-				zeigerhs->anonce[8], zeigerhs->anonce[9], zeigerhs->anonce[10], zeigerhs->anonce[11], zeigerhs->anonce[12], zeigerhs->anonce[13], zeigerhs->anonce[14], zeigerhs->anonce[15],
-				zeigerhs->anonce[16], zeigerhs->anonce[17], zeigerhs->anonce[18], zeigerhs->anonce[19], zeigerhs->anonce[20], zeigerhs->anonce[21], zeigerhs->anonce[22], zeigerhs->anonce[23],
-				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
-			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", eapoltemp[p]);
-			if(addtimestampflag == false) fprintf(fh_pmkideapol, "*%02x\n", zeigerhs->status);
-			else fprintf(fh_pmkideapol, "*%02x\t%s\t%" PRIu64 "\n", zeigerhs->status, timestringhs, zeigerhs->timestampgap);
-			if(zeigerhs->rcgap == 0) eapolwrittencount++;
-			else eapolncwrittencount++;
+			if(zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX)
+				{
+				//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
+				fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+					HCX_TYPE_EAPOL,
+					wpak->keymic[0], wpak->keymic[1], wpak->keymic[2], wpak->keymic[3], wpak->keymic[4], wpak->keymic[5], wpak->keymic[6], wpak->keymic[7],
+					wpak->keymic[8], wpak->keymic[9], wpak->keymic[10], wpak->keymic[11], wpak->keymic[12], wpak->keymic[13], wpak->keymic[14], wpak->keymic[15],
+					zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
+					zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5]);
+				for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
+				fprintf(fh_pmkideapol, "*");
+				fprintf(fh_pmkideapol, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*",
+					zeigerhs->anonce[0], zeigerhs->anonce[1], zeigerhs->anonce[2], zeigerhs->anonce[3], zeigerhs->anonce[4], zeigerhs->anonce[5], zeigerhs->anonce[6], zeigerhs->anonce[7],
+					zeigerhs->anonce[8], zeigerhs->anonce[9], zeigerhs->anonce[10], zeigerhs->anonce[11], zeigerhs->anonce[12], zeigerhs->anonce[13], zeigerhs->anonce[14], zeigerhs->anonce[15],
+					zeigerhs->anonce[16], zeigerhs->anonce[17], zeigerhs->anonce[18], zeigerhs->anonce[19], zeigerhs->anonce[20], zeigerhs->anonce[21], zeigerhs->anonce[22], zeigerhs->anonce[23],
+					zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
+				for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", eapoltemp[p]);
+				if(addtimestampflag == false) fprintf(fh_pmkideapol, "*%02x\n", zeigerhs->status);
+				else fprintf(fh_pmkideapol, "*%02x\t%s\t%" PRIu64 "\n", zeigerhs->status, timestringhs, zeigerhs->timestampgap);
+				if(zeigerhs->rcgap == 0) eapolwrittencount++;
+				else eapolncwrittencount++;
+				}
+			else eapolnotwrittencount++;
 			}
 		if((fh_pmkideapolftpsk != 0) && (zeigerhs->mdidlen != 0) && (zeigerhs->r0khidlen != 0) && (zeigerhs->r1khidlen != 0))
 			{
@@ -2344,77 +2360,89 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 			else eapolftpskncwrittencount++;
 			}
 
-		if((fh_pmkideapoljtrdeprecated != 0) && (zeigerhs->rcgap == 0) && (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX))
+		if((fh_pmkideapoljtrdeprecated != 0) && (zeigerhs->rcgap == 0))
 			{
-			memset (&hccap, 0, sizeof(hccap_t));
-			memcpy(&hccap.ap, zeigerhs->ap, 6);
-			memcpy(&hccap.client, zeigerhs->client, 6);
-			memcpy(&hccap.anonce, zeigerhs->anonce, 32);
-			memcpy(&hccap.snonce, wpak->nonce, 32);
-			memcpy(&hccap.keymic, &wpak->keymic, 16);
-			hccap.keyver = keyvertemp;
-			hccap.eapol_size = zeigerhs->eapauthlen;
-			memcpy(&hccap.eapol, &eapoltemp, zeigerhs->eapauthlen);
-			#ifdef BIG_ENDIAN_HOST
-			hccap.eapol_size = byte_swap_16(hccap.eapol_size);
-			#endif
-			fprintf(fh_pmkideapoljtrdeprecated, "%.*s:$WPAPSK$%.*s#", zeigermac->essidlen, zeigermac->essid, zeigermac->essidlen, zeigermac->essid);
-			hcpos = (unsigned char*)&hccap;
-			for (i = 36; i + 3 < (int)HCCAP_SIZE; i += 3) hccap2base(&hcpos[i], 1);
-			hccap2base(&hcpos[i], 0);
-			fprintf(fh_pmkideapoljtrdeprecated, ":%02x-%02x-%02x-%02x-%02x-%02x:%02x-%02x-%02x-%02x-%02x-%02x:%02x%02x%02x%02x%02x%02x",
-				zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5],
-				zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
-				zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5]);
-			if(keyvertemp == 1) fprintf(fh_pmkideapoljtrdeprecated, "::WPA");
-			else fprintf(fh_pmkideapoljtrdeprecated, "::WPA2");
-			if((zeigerhs->status &0x7) == 0) fprintf(fh_pmkideapoljtrdeprecated, ":not verified");
-			else fprintf(fh_pmkideapoljtrdeprecated, ":verified");
-			fprintf(fh_pmkideapoljtrdeprecated, ":%s\n", basename(jtrbasenamedeprecated));
-			eapolwrittenjcountdeprecated++;
+			if (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX)
+				{
+				memset (&hccap, 0, sizeof(hccap_t));
+				memcpy(&hccap.ap, zeigerhs->ap, 6);
+				memcpy(&hccap.client, zeigerhs->client, 6);
+				memcpy(&hccap.anonce, zeigerhs->anonce, 32);
+				memcpy(&hccap.snonce, wpak->nonce, 32);
+				memcpy(&hccap.keymic, &wpak->keymic, 16);
+				hccap.keyver = keyvertemp;
+				hccap.eapol_size = zeigerhs->eapauthlen;
+				memcpy(&hccap.eapol, &eapoltemp, zeigerhs->eapauthlen);
+				#ifdef BIG_ENDIAN_HOST
+				hccap.eapol_size = byte_swap_16(hccap.eapol_size);
+				#endif
+				fprintf(fh_pmkideapoljtrdeprecated, "%.*s:$WPAPSK$%.*s#", zeigermac->essidlen, zeigermac->essid, zeigermac->essidlen, zeigermac->essid);
+				hcpos = (unsigned char*)&hccap;
+				for (i = 36; i + 3 < (int)HCCAP_SIZE; i += 3) hccap2base(&hcpos[i], 1);
+				hccap2base(&hcpos[i], 0);
+				fprintf(fh_pmkideapoljtrdeprecated, ":%02x-%02x-%02x-%02x-%02x-%02x:%02x-%02x-%02x-%02x-%02x-%02x:%02x%02x%02x%02x%02x%02x",
+					zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5],
+					zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
+					zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5]);
+				if(keyvertemp == 1) fprintf(fh_pmkideapoljtrdeprecated, "::WPA");
+				else fprintf(fh_pmkideapoljtrdeprecated, "::WPA2");
+				if((zeigerhs->status &0x7) == 0) fprintf(fh_pmkideapoljtrdeprecated, ":not verified");
+				else fprintf(fh_pmkideapoljtrdeprecated, ":verified");
+				fprintf(fh_pmkideapoljtrdeprecated, ":%s\n", basename(jtrbasenamedeprecated));
+				eapolwrittenjcountdeprecated++;
+				}
+			else eapolnotwrittenjcountdeprecated++;
 			}
 		if((fh_hccapxdeprecated != 0) && (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX))
 			{
-			memset (&hccapx, 0, sizeof(hccapx_t));
-			hccapx.signature = HCCAPX_SIGNATURE;
-			hccapx.version = HCCAPX_VERSION;
-			hccapx.message_pair = zeigerhs->status;
-			hccapx.essid_len = zeigermac->essidlen;
-			memcpy(&hccapx.essid, zeigermac->essid, zeigermac->essidlen);
-			memcpy(&hccapx.ap, zeigerhs->ap, 6);
-			memcpy(&hccapx.client, zeigerhs->client, 6);
-			memcpy(&hccapx.anonce, zeigerhs->anonce, 32);
-			memcpy(&hccapx.snonce, wpak->nonce, 32);
-			hccapx.eapol_len = zeigerhs->eapauthlen;
-			memcpy(&hccapx.eapol, &eapoltemp, zeigerhs->eapauthlen);
-			hccapx.keyver = keyvertemp;
-			memcpy(&hccapx.keymic, wpak->keymic, 16);
-			#ifdef BIG_ENDIAN_HOST
-			hccapx.signature = byte_swap_32(hccapx.signature);
-			hccapx.version = byte_swap_32(hccapx.version);
-			hccapx.eapol_len = byte_swap_16(hccapx.eapol_len);
-			#endif
-			fwrite (&hccapx, sizeof(hccapx_t), 1, fh_hccapxdeprecated);
-			if(zeigerhs->rcgap == 0) eapolwrittenhcpxcountdeprecated++;
-			else eapolncwrittenhcpxcountdeprecated++;
+			if(zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX)
+				{
+				memset (&hccapx, 0, sizeof(hccapx_t));
+				hccapx.signature = HCCAPX_SIGNATURE;
+				hccapx.version = HCCAPX_VERSION;
+				hccapx.message_pair = zeigerhs->status;
+				hccapx.essid_len = zeigermac->essidlen;
+				memcpy(&hccapx.essid, zeigermac->essid, zeigermac->essidlen);
+				memcpy(&hccapx.ap, zeigerhs->ap, 6);
+				memcpy(&hccapx.client, zeigerhs->client, 6);
+				memcpy(&hccapx.anonce, zeigerhs->anonce, 32);
+				memcpy(&hccapx.snonce, wpak->nonce, 32);
+				hccapx.eapol_len = zeigerhs->eapauthlen;
+				memcpy(&hccapx.eapol, &eapoltemp, zeigerhs->eapauthlen);
+				hccapx.keyver = keyvertemp;
+				memcpy(&hccapx.keymic, wpak->keymic, 16);
+				#ifdef BIG_ENDIAN_HOST
+				hccapx.signature = byte_swap_32(hccapx.signature);
+				hccapx.version = byte_swap_32(hccapx.version);
+				hccapx.eapol_len = byte_swap_16(hccapx.eapol_len);
+				#endif
+				fwrite (&hccapx, sizeof(hccapx_t), 1, fh_hccapxdeprecated);
+				if(zeigerhs->rcgap == 0) eapolwrittenhcpxcountdeprecated++;
+				else eapolncwrittenhcpxcountdeprecated++;
+				}
+			else eapolnotwrittenhcpxcountdeprecated++;
 			}
 		if((fh_hccapdeprecated != 0) && (zeigerhs->rcgap == 0) && (zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX))
 			{
-			memset(&hccap, 0, sizeof(hccap_t));
-			memcpy(&hccap.essid, zeigermac->essid, zeigermac->essidlen);
-			memcpy(&hccap.ap, zeigerhs->ap, 6);
-			memcpy(&hccap.client, zeigerhs->client, 6);
-			memcpy(&hccap.anonce, zeigerhs->anonce, 32);
-			memcpy(&hccap.snonce, wpak->nonce, 32);
-			memcpy(&hccap.keymic, wpak->keymic, 16);
-			hccap.keyver = keyvertemp;
-			hccap.eapol_size = zeigerhs->eapauthlen;
-			memcpy(&hccap.eapol, &eapoltemp, zeigerhs->eapauthlen);
-			#ifdef BIG_ENDIAN_HOST
-			hccap.eapol_size = byte_swap_16(hccap.eapol_size);
-			#endif
-			fwrite(&hccap, HCCAP_SIZE, 1, fh_hccapdeprecated);
-			eapolwrittenhcpcountdeprecated++;
+			if(zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX)
+				{
+				memset(&hccap, 0, sizeof(hccap_t));
+				memcpy(&hccap.essid, zeigermac->essid, zeigermac->essidlen);
+				memcpy(&hccap.ap, zeigerhs->ap, 6);
+				memcpy(&hccap.client, zeigerhs->client, 6);
+				memcpy(&hccap.anonce, zeigerhs->anonce, 32);
+				memcpy(&hccap.snonce, wpak->nonce, 32);
+				memcpy(&hccap.keymic, wpak->keymic, 16);
+				hccap.keyver = keyvertemp;
+				hccap.eapol_size = zeigerhs->eapauthlen;
+				memcpy(&hccap.eapol, &eapoltemp, zeigerhs->eapauthlen);
+				#ifdef BIG_ENDIAN_HOST
+				hccap.eapol_size = byte_swap_16(hccap.eapol_size);
+				#endif
+				fwrite(&hccap, HCCAP_SIZE, 1, fh_hccapdeprecated);
+				eapolwrittenhcpcountdeprecated++;
+				}
+			else eapolnotwrittenhcpcountdeprecated++;
 			}
 		}
 	if(memcmp(zeigerhs->ap, zeigermac->addr, 6) > 0)
