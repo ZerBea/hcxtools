@@ -2711,7 +2711,7 @@ static handshakelist_t *zeiger;
 return false;
 
 if(donotcleanflag == true) return false;
-
+zeiger = handshakelistptr;
 for(c = 0; c < 20; c ++)
 	{
 	zeiger--;
