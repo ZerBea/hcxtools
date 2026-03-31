@@ -2351,9 +2351,9 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
 			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", eapoltemp[p]);
 			fprintf(fh_pmkideapolftpsk, "*%02x*%04x*", zeigerhs->status, zeigerhs->mdid);
-			for(p = 0; p < zeigerhs->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerhs->r1khid[p]);
-			fprintf(fh_pmkideapolftpsk, "*");
 			for(p = 0; p < zeigerhs->r0khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerhs->r0khid[p]);
+			fprintf(fh_pmkideapolftpsk, "*");
+			for(p = 0; p < zeigerhs->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerhs->r1khid[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "\n");
 			else fprintf(fh_pmkideapolftpsk, "\t%s\t%" PRIu64 "\n", timestringhs, zeigerhs->timestampgap);
 			if(zeigerhs->rcgap == 0) eapolftpskwrittencount++;
@@ -2534,9 +2534,9 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
 			fprintf(fh_pmkideapolftpsk, "***%02x*%04x*", zeigerpmkid->status & PMKID_CLIENT_FTPSK, zeigerpmkid->mdid);
-			for(p = 0; p < zeigerpmkid->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r1khid[p]);
-			fprintf(fh_pmkideapolftpsk, "*");
 			for(p = 0; p < zeigerpmkid->r0khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r0khid[p]);
+			fprintf(fh_pmkideapolftpsk, "*");
+			for(p = 0; p < zeigerpmkid->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r1khid[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "\n");
 			else fprintf(fh_pmkideapolftpsk, "\t%s\n", timestringhs);
 			pmkidftpskwrittenhcount++;
@@ -3197,23 +3197,23 @@ return true;
 /*===========================================================================*/
 static bool gettagfbsstsubelement(int vendorlen, uint8_t *ieptr, tags_t *zeiger)
 {
-static fbsstse_t *fbsstseptr0;
 static fbsstse_t *fbsstseptr1;
+static fbsstse_t *fbsstseptr0;
 
-fbsstseptr0 = (fbsstse_t*)(ieptr + FBSST_SIZE);
-if(fbsstseptr0->id != 1) return false;
-if((fbsstseptr0->len == 0) || (fbsstseptr0->len >FTR0KHID_LEN)) return false;
+fbsstseptr1 = (fbsstse_t*)(ieptr + FBSST_SIZE);
+if(fbsstseptr1->id != 1) return false;
+if((fbsstseptr1->len == 0) || (fbsstseptr1->len >FTR1KHID_LEN)) return false;
 
-fbsstseptr1 = (fbsstse_t*)(ieptr + FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr0->len);
-if(fbsstseptr1->id != 3) return false;
-if((fbsstseptr1->len == 0) || (fbsstseptr1->len > FTR1KHID_LEN_MAX)) return false;
-if(vendorlen < (int)(FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr0->len + fbsstseptr1->len)) return false;
-
-zeiger->r0khidlen = fbsstseptr0->len;
-memcpy(zeiger->r0khid, fbsstseptr0->rxkhid, fbsstseptr0->len);
+fbsstseptr0 = (fbsstse_t*)(ieptr + FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr1->len);
+if(fbsstseptr0->id != 3) return false;
+if((fbsstseptr0->len == 0) || (fbsstseptr0->len > FTR0KHID_LEN_MAX)) return false;
+if(vendorlen < (int)(FBSST_SIZE + FBSSTSE_SIZE + fbsstseptr1->len + fbsstseptr0->len)) return false;
 
 zeiger->r1khidlen = fbsstseptr1->len;
 memcpy(zeiger->r1khid, fbsstseptr1->rxkhid, fbsstseptr1->len);
+
+zeiger->r0khidlen = fbsstseptr0->len;
+memcpy(zeiger->r0khid, fbsstseptr0->rxkhid, fbsstseptr0->len);
 return true;
 }
 /*===========================================================================*/
