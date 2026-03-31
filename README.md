@@ -121,7 +121,7 @@ Useful Scripts
 | Script       | Description                                              |
 | ------------ | -------------------------------------------------------- |
 | piwritecard  | Example script to restore SD-Card                        |
-| piwreadcard  | Example script to backup SD-Card                         |
+| pireadcard   | Example script to backup SD-Card                         |
 | hcxgrep.py   | Extract records from m22000 hashline/hccapx/pmkid file based on regexp   |
 
 Notice
@@ -142,29 +142,73 @@ Notice
 Bitmask Message Pair Field (hcxpcapngtool)
 -------------------------------------------
 
-bits 0-2
+Each EAPOL hash in the `WPA*02*` hash line is built from two handshake
+messages. One message provides the EAPOL frame (which contains the MIC
+to verify against and one nonce already embedded at byte offset 17). The
+other message provides the second nonce that is not present in the frame.
+Together they give hashcat everything it needs: ANonce + SNonce + MIC +
+EAPOL frame.
 
-000 = M1+M2, EAPOL from M2 (challenge - ANONCE from M1)
+### Why 12 theoretical combos become 6 message pairs with 3 unique hashes
 
-001 = M1+M4, EAPOL from M4 (authorized) - usable if M4 NONCE is not zeroed and using option --all
+There are three independent choices when building a hash from a complete
+4-way handshake:
 
-010 = M2+M3, EAPOL from M2 (authorized - ANONCE from M3)
+- **ANonce source**: M1 or M3 (2 choices)
+- **SNonce source**: M2 or M4 (2 choices)
+- **EAPOL/MIC source**: M2, M3, or M4 (3 choices, M1 has no MIC)
 
-011 = M2+M3, EAPOL from M3 (authorized) - only with option --all
+That gives 2 x 2 x 3 = **12 theoretical combinations**.
 
-100 = M3+M4, EAPOL from M3 (authorized) - only with option --all
+But the EAPOL frame already contains one nonce embedded at byte offset
+17 (SNonce in M2/M4, ANonce in M3). Hashcat extracts that automatically.
+It only needs the *other* nonce supplied externally. So the real model
+is: 3 EAPOL sources x 2 external nonce sources = **6 message pairs**.
 
-101 = M3+M4, EAPOL from M4 (authorized) - usable if M4 NONCE is not zeroed and using option --all
+Within one handshake session, M1 and M3 carry the same ANonce value, and
+M2 and M4 carry the same SNonce value. Swapping which message the
+external nonce came from doesn't change the nonce itself. So each pair
+of message pairs that share the same EAPOL source produces an identical
+hash. 6 pairs collapse to **3 unique hashes**, one per EAPOL source.
 
-3: reserved
+### Bits 0-2: Message Pair Type
 
-4: ap-less attack (set to 1) - no nonce-error-corrections necessary
+Rows are grouped by EAPOL source (Hash 1/2/3). Pairs within the same
+group produce identical crackable hashes.
 
-5: LE router detected (set to 1) - nonce-error-corrections only for LE necessary
+| ID   | Bits | Hex  | Messages | EAPOL from        | External Nonce | Unique Hash | Status |
+|------|------|------|----------|-------------------|----------------|-------------|--------|
+| N1E2 | 000  | 0x00 | M1+M2    | M2 (MIC + SNonce) | M1 (ANonce)    | Hash 1      | challenge, default |
+| N3E2 | 010  | 0x02 | M2+M3    | M2 (MIC + SNonce) | M3 (ANonce)    | Hash 1      | authorized, default |
+| N2E3 | 011  | 0x03 | M2+M3    | M3 (MIC + ANonce) | M2 (SNonce)    | Hash 2      | authorized, --all |
+| N4E3 | 100  | 0x04 | M3+M4    | M3 (MIC + ANonce) | M4 (SNonce)    | Hash 2      | authorized, --all (requires non-zero M4 nonce) |
+| N1E4 | 001  | 0x01 | M1+M4    | M4 (MIC + SNonce) | M1 (ANonce)    | Hash 3      | authorized, --all (requires non-zero M4 nonce) |
+| N3E4 | 101  | 0x05 | M3+M4    | M4 (MIC + SNonce) | M3 (ANonce)    | Hash 3      | authorized, --all (requires non-zero M4 nonce) |
 
-6: BE router detected (set to 1) - nonce-error-corrections only for BE necessary
+The **ID** column uses the format N{nonce source}E{eapol source}. For
+example, N1E2 means the external nonce comes from M1 and the EAPOL frame
+comes from M2.
 
-7: not replaycount checked (set to 1) - replaycount not checked, nonce-error-corrections definitely necessary
+"Challenge" means only M1 and M2 were needed. The AP has not yet
+confirmed the password was correct (M3 was not required). "Authorized"
+means M3 or M4 were involved, which only exist after both sides verified
+the MIC. The password was both sent and validated.
+
+M4's Key Nonce shall be 0 per IEEE 802.11i-2004 Section 8.5.3.4. Most
+implementations conform to the spec and zero it. Some reuse the SNonce
+from M2 instead. When zeroed, message pairs 0x01 and 0x05 are unusable
+because hashcat cannot reconstruct both nonces. In practice, most
+captures yield only Hash 1 and Hash 2.
+
+### Bits 3-7: Flags
+
+| Bit | Hex  | Meaning |
+|-----|------|---------|
+| 3   | 0x08 | Reserved |
+| 4   | 0x10 | AP-less attack (no nonce-error-corrections necessary) |
+| 5   | 0x20 | LE router detected (nonce-error-corrections only for LE necessary) |
+| 6   | 0x40 | BE router detected (nonce-error-corrections only for BE necessary) |
+| 7   | 0x80 | Replaycount not checked (nonce-error-corrections definitely necessary) |
 
 Warning
 --------
