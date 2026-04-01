@@ -6186,14 +6186,8 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 		if(strlen(nfield[4]) == 0) continue;
 		if(strlen(nfield[5]) == 0) continue;
 		}
-	else if(memcmp(ngsa, nfield[0] +3, 3) == 0)
-		{
-		nmeagsacount++;
-		}
-	else if(memcmp(ngsv, nfield[0] +3, 3) == 0)
-		{
-		nmeagsvcount++;
-		}
+	else if(memcmp(ngsa, nfield[0] +3, 3) == 0) nmeagsacount++;
+	else if(memcmp(ngsv, nfield[0] +3, 3) == 0) nmeagsvcount++;
 	else if(memcmp(nrmc, nfield[0] +3, 3) == 0)
 		{
 		nmearmccount++;
@@ -6204,14 +6198,8 @@ while((nlen = fgetline(fh_nmeain, NMEA_MAX, linein)) != -1)
 		if(strlen(nfield[6]) == 0) continue;
 		if(strlen(nfield[9]) == 0) continue;
 		}
-	else if(memcmp(ntxt, nfield[0] +3, 3) == 0)
-		{
-		nmeatxtcount++;
-		}
-	else if(memcmp(nvtg, nfield[0] +3, 3) == 0)
-		{
-		nmeavtgcount++;
-		}
+	else if(memcmp(ntxt, nfield[0] +3, 3) == 0) nmeatxtcount++;
+	else if(memcmp(nvtg, nfield[0] +3, 3) == 0) nmeavtgcount++;
 	else if(memcmp(nwpl, nfield[0] +3, 3) == 0)
 		{
 		nmeawplcount++;
