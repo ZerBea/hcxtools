@@ -395,6 +395,8 @@ static const uint8_t fakenonce2[] =
 0x75, 0x1f, 0x53, 0xcc, 0xb5, 0x81, 0xd1, 0x52, 0x3b, 0xb4, 0xba, 0xad, 0x23, 0xab, 0x01, 0x07
 };
 
+static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
+
 static const char gpgga[] = "$GPGGA";
 static const char gprmc[] = "$GPRMC";
 
@@ -3276,8 +3278,6 @@ static int asuitecount;
 static rsnpmkidlist_t *rsnpmkidlistptr;
 static int rsnpmkidcount;
 
-static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
-
 rsnptr = (rsnie_t*)ieptr;
 #ifndef BIG_ENDIAN_HOST
 rsnver = rsnptr->version;
@@ -3398,7 +3398,6 @@ return true;
 static bool isessidvalid(int essidlen, uint8_t *essid)
 {
 static int c;
-static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 if(essidlen > ESSID_LEN_MAX) return false;
 if(essidlen == 0) return true;
@@ -3566,8 +3565,6 @@ static uint64_t rc;
 static uint64_t rcgap;
 static uint8_t mpfield;
 
-static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
-
 eapolm4count++;
 eapolmsgcount++;
 macfrx = (mac_t*)packetptr;
@@ -3724,8 +3721,6 @@ static uint8_t keyver;
 static uint64_t rc;
 static uint64_t rcgap;
 static uint8_t mpfield;
-
-static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm3count++;
 eapolmsgcount++;
@@ -3913,8 +3908,6 @@ static uint64_t rcgap;
 static uint8_t mpfield;
 static uint16_t wpainfolen;
 static tags_t tags;
-
-static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm2count++;
 eapolmsgcount++;
@@ -4116,8 +4109,6 @@ static uint16_t authlen;
 static pmkid_t *pmkid;
 static uint8_t keyver;
 static uint64_t rc;
-
-static const uint8_t foxtrott[4] = { 0xff, 0xff, 0xff, 0xff };
 
 eapolm1count++;
 eapolmsgcount++;
