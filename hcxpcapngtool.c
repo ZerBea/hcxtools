@@ -148,6 +148,11 @@ static int endianness;
 static uint16_t versionmajor;
 static uint16_t versionminor;
 
+static uint16_t eapolm1authlen;
+static uint16_t eapolm2authlen;
+static uint16_t eapolm3authlen;
+static uint16_t eapolm4authlen;
+
 static int opensslversionmajor;
 static int opensslversionminor;
 
@@ -636,20 +641,24 @@ eapolm1count = 0;
 eapolm1kdv0count = 0;
 eapolm1ancount = 0;
 eapolm1errorcount = 0;
+eapolm1authlen = 0;
 eapolm2count = 0;
 eapolm2oversizedcount = 0;
 eapolm2kdv0count = 0;
 eapolm2ftpskcount = 0;
 eapolm2errorcount = 0;
+eapolm2authlen = 0;
 eapolm3count = 0;
 eapolm3oversizedcount = 0;
 eapolm3kdv0count = 0;
 eapolm3errorcount = 0;
+eapolm3authlen = 0;
 eapolm4count = 0;
 eapolm4oversizedcount = 0;
 eapolm4zeroedcount = 0;
 eapolm4kdv0count = 0;
 eapolm4errorcount = 0;
+eapolm4authlen = 0;
 eapolwrittencount = 0;
 eapolnotwrittencount = 0;
 eapolncwrittencount = 0;
@@ -863,15 +872,19 @@ if(eapolnccount == 0)
 	fprintf(stdout, "EAPOL ANONCE error corrections (NC)......: not detected\n");
 	if(rcgapmax > 0) fprintf(stdout, "REPLAYCOUNT gap (measured maximum).......: %" PRIu64 "\n", rcgapmax);
 	}
+fprintf(stdout, "EAPOL M1 authentication length (max).....: %" PRIu16 "\n", eapolm1authlen);
 if(eapolm1count > 0)			fprintf(stdout, "EAPOL M1 messages (total)................: %ld\n", eapolm1count);
 if(eapolm1kdv0count > 0)		fprintf(stdout, "EAPOL M1 messages (KDV:0 AKM defined)....: %ld (not supported by hashcat/JtR)\n", eapolm1kdv0count);
+fprintf(stdout, "EAPOL M2 authentication length (max).....: %" PRIu16 "\n", eapolm2authlen);
 if(eapolm2count > 0)			fprintf(stdout, "EAPOL M2 messages (total)................: %ld\n", eapolm2count);
 if(eapolm2oversizedcount > 0)		fprintf(stdout, "EAPOL M2 messages (oversized)............: %ld\n", eapolm2oversizedcount);
 if(eapolm2kdv0count > 0)		fprintf(stdout, "EAPOL M2 messages (KDV:0 AKM defined)....: %ld (not supported by hashcat/JtR)\n", eapolm2kdv0count);
 if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK).........: %ld (JtR)\n", eapolm2ftpskcount);
+fprintf(stdout, "EAPOL M3 authentication length (max).....: %" PRIu16 "\n", eapolm3authlen);
 if(eapolm3count > 0)			fprintf(stdout, "EAPOL M3 messages (total)................: %ld\n", eapolm3count);
 if(eapolm3oversizedcount > 0)		fprintf(stdout, "EAPOL M3 messages (oversized)............: %ld\n", eapolm3oversizedcount);
 if(eapolm3kdv0count > 0)		fprintf(stdout, "EAPOL M3 messages (KDV:0 AKM defined)....: %ld (not supported by hashcat/JtR)\n", eapolm3kdv0count);
+fprintf(stdout, "EAPOL M4 authentication length (max).....: %" PRIu16 "\n", eapolm4authlen);
 if(eapolm4count > 0)			fprintf(stdout, "EAPOL M4 messages (total)................: %ld\n", eapolm4count);
 if(eapolm4oversizedcount > 0)		fprintf(stdout, "EAPOL M4 messages (oversized)............: %ld\n", eapolm4oversizedcount);
 if(eapolm4zeroedcount > 0)		fprintf(stdout, "EAPOL M4 messages (zeroed NONCE).........: %ld\n", eapolm4zeroedcount);
@@ -3568,6 +3581,7 @@ eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen == 0) return;
 if(authlen +EAPAUTH_SIZE > restlen) return;
+if(authlen > eapolm4authlen) eapolm4authlen = authlen;
 if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX)
 	{
 	eapolm4oversizedcount++;
@@ -3732,6 +3746,7 @@ if((authlen +EAPAUTH_SIZE) > EAPOL_AUTHLEN_MAX)
 	eapolm3oversizedcount++;
 	return;
 	}
+if(authlen > eapolm3authlen) eapolm3authlen = authlen;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -3915,6 +3930,7 @@ eapauth = (eapauth_t*)eapauthptr;
 authlen = ntohs(eapauth->len);
 if(authlen == 0) return;
 if(authlen +EAPAUTH_SIZE > restlen) return;
+if(authlen > eapolm2authlen) eapolm2authlen = authlen;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -4119,6 +4135,7 @@ if(authlen > restlen)
 	eapolm1errorcount++;
 	return;
 	}
+if(authlen > eapolm1authlen) eapolm1authlen = authlen;
 wpakptr = eapauthptr +EAPAUTH_SIZE;
 wpak = (wpakey_t*)wpakptr;
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
