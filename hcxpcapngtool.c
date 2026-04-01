@@ -3415,6 +3415,7 @@ return true;
 static bool gettags(int infolen, uint8_t *infoptr, tags_t *zeiger)
 {
 static ietag_t *tagptr;
+static mdid_t *mdidptr;
 static uint8_t tagok;
 static bool ef;
 
@@ -3507,7 +3508,8 @@ while(0 < infolen)
 		if(tagptr->len == 3)
 			{
 			zeiger->mdidlen = tagptr->len;
-			zeiger->mdid = (tagptr->data[0] << 8) | tagptr->data[1];
+			mdidptr = (mdid_t*)tagptr->data;
+			zeiger->mdid = ntohs(mdidptr->mdid);
 			}
 		else
 			{

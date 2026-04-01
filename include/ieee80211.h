@@ -452,6 +452,13 @@ struct wpsie_tag
 typedef struct wpsie_tag wpsie_t;
 #define	WPSIE_SIZE offsetof(wpsie_t, data)
 /*===========================================================================*/
+struct mdid_tag
+{
+ uint16_t		mdid;
+} __attribute__ ((packed));
+typedef struct mdid_tag mdid_t;
+#define	MDID_SIZE sizeof(mdid_t)
+/*===========================================================================*/
 struct fbsst_tag
 {
  uint16_t			miccontrol;
