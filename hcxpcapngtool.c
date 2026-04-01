@@ -2721,7 +2721,6 @@ static bool cleanbackhandshake(void)
 {
 static int c;
 static handshakelist_t *zeiger;
-return false;
 
 if(donotcleanflag == true) return false;
 zeiger = handshakelistptr;
