@@ -97,8 +97,9 @@ static const uint8_t m1wpa1data[] =
 #define M1WPA1DATA_SIZE sizeof(m1wpa1data)
 
 static uint8_t packetout[0xff];
+_Static_assert(PCAPREC_SIZE + M1WPA1DATA_SIZE <= sizeof(packetout), "packetout buffer too small for m1wpa1data");
 
-memset(&packetout, 0, 0xff);
+memset(&packetout, 0, sizeof(packetout));
 pcaph = (pcaprec_hdr_t*)packetout;
 pcaph->ts_sec = timestamp /1000000;
 pcaph->ts_usec = timestamp %1000000;
@@ -156,8 +157,9 @@ static const uint8_t m1wpa2data[] =
 #define M1WPA2DATA_SIZE sizeof(m1wpa2data)
 
 static uint8_t packetout[0xff];
+_Static_assert(PCAPREC_SIZE + M1WPA2DATA_SIZE <= sizeof(packetout), "packetout buffer too small for m1wpa2data");
 
-memset(&packetout, 0, 0xff);
+memset(&packetout, 0, sizeof(packetout));
 pcaph = (pcaprec_hdr_t*)packetout;
 pcaph->ts_sec = timestamp /1000000;
 pcaph->ts_usec = timestamp %1000000;
@@ -216,8 +218,9 @@ static const uint8_t m1wpa2keyver3data[] =
 #define M1WPA2KEYVER3DATA_SIZE sizeof(m1wpa2keyver3data)
 
 static uint8_t packetout[0xff];
+_Static_assert(PCAPREC_SIZE + M1WPA2KEYVER3DATA_SIZE <= sizeof(packetout), "packetout buffer too small for m1wpa2keyver3data");
 
-memset(&packetout, 0, 0xff);
+memset(&packetout, 0, sizeof(packetout));
 pcaph = (pcaprec_hdr_t*)packetout;
 pcaph->ts_sec = timestamp /1000000;
 pcaph->ts_usec = timestamp %1000000;
