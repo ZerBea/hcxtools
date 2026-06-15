@@ -667,6 +667,7 @@ eapolwrittencount = 0;
 eapolnotwrittencount = 0;
 eapolncwrittencount = 0;
 eapolncwrittencount = 0;
+eapolftpskwrittencount = 0;
 eapolftpskncwrittencount = 0;
 eapolaplesscount = 0;
 eapolwrittenjcountdeprecated = 0;
