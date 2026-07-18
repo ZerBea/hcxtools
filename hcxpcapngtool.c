@@ -1085,7 +1085,7 @@ if((authenticationcount +associationrequestcount +reassociationrequestcount) == 
 		"That makes it hard to recover the PSK.\n");
 	if(timestampdiff < 60000000000) fprintf(stdout, "Duration was a way too short to capture enough additional information.\n");
 	}
-if(eapolm1ancount <= 1)
+if((eapolm1ancount <= 1) && (eapolaplesscount == 0))
 	{
 	fprintf(stdout, "\nInformation: missing frames!\n"
 		"This dump file does not contain enough EAPOL M1 frames.\n"
@@ -1095,7 +1095,7 @@ if(eapolm1ancount <= 1)
 		"https://hashcat.net/forum/thread-6361.html\n");
 	if(timestampdiff < 60000000000) fprintf(stdout, "Duration was a way too short to capture enough additional information.\n");
 	}
-if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0))
+if((eapolm1count + eapolm2count + eapolm4count > 0) && (eapolm3count == 0)  && (eapolaplesscount == 0))
 	{
 	fprintf(stdout, "\nInformation: missing EAPOL M3 frames!\n"
 		"This dump file does not contain EAPOL M3 frames (possible packet loss).\n"
