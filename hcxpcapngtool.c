@@ -5496,8 +5496,8 @@ res = read(fd, &pcapfhdr, PCAPHDR_SIZE);
 if(res != PCAPHDR_SIZE)
 	{
 	pcapreaderrors++;
-	fprintf(stdout, "failed to read pcap header\n");
-	if(fh_log != NULL) fprintf(fh_log, "failed to read pcap header: %s\n", basename(pcapinname));
+	fprintf(stdout, "Failed to read pcap header\n");
+	if(fh_log != NULL) fprintf(fh_log, "Failed to read pcap header: %s\n", basename(pcapinname));
 	return;
 	}
 
@@ -5530,22 +5530,22 @@ dltlinktype[0] = pcapfhdr.network;
 if(pcapfhdr.version_major != PCAP_MAJOR_VER)
 	{
 	pcapreaderrors++;
-	fprintf(stdout, "unsupported major pcap version\n");
-	if(fh_log != NULL) fprintf(fh_log, "unsupported major pcap version: %d\n", pcapfhdr.version_major);
+	fprintf(stdout, "Unsupported major pcap version\n");
+	if(fh_log != NULL) fprintf(fh_log, "Unsupported major pcap version: %d\n", pcapfhdr.version_major);
 	return;
 	}
 if(pcapfhdr.version_minor != PCAP_MINOR_VER)
 	{
 	pcapreaderrors++;
-	fprintf(stdout, "unsupported minor pcap version\n");
-	if(fh_log != NULL) fprintf(fh_log, "unsupported minor pcap version: %d\n", pcapfhdr.version_minor);
+	fprintf(stdout, "Unsupported minor pcap version\n");
+	if(fh_log != NULL) fprintf(fh_log, "Unsupported minor pcap version: %d\n", pcapfhdr.version_minor);
 	return;
 	}
 if(pcapfhdr.snaplen > MAXPACPSNAPLEN)
 	{
 	pcapreaderrors++;
-	fprintf(stdout, "detected oversized snaplen (%u)\n", pcapfhdr.snaplen);
-	if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen (%u): %d\n", pcapfhdr.snaplen, pcapfhdr.version_minor);
+	fprintf(stdout, "Detected oversized snaplen (%u)\n", pcapfhdr.snaplen);
+	if(fh_log != NULL) fprintf(fh_log, "Detected oversized snaplen (%u): %d\n", pcapfhdr.snaplen, pcapfhdr.version_minor);
 	}
 
 while(1)
@@ -5555,8 +5555,8 @@ while(1)
 	if(res != PCAPREC_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stdout, "failed to read pcap packet header for packet %ld\n", rawpacketcount);
-		if(fh_log != NULL) fprintf(fh_log, "failed to read pcap packet header: %ld\n", rawpacketcount);
+		fprintf(stdout, "Failed to read pcap packet header for packet %ld\n", rawpacketcount);
+		if(fh_log != NULL) fprintf(fh_log, "Failed to read pcap packet header: %ld\n", rawpacketcount);
 		break;
 		}
 
@@ -5576,7 +5576,7 @@ while(1)
 	if(pcaprhdr.incl_len > pcapfhdr.snaplen)
 		{
 		pcapreaderrors++;
-		if(fh_log != NULL) fprintf(fh_log, "inclusive length > snaplen: %ld\n", rawpacketcount);
+		if(fh_log != NULL) fprintf(fh_log, "Inclusive length > snaplen: %ld\n", rawpacketcount);
 		}
 	if(pcaprhdr.incl_len < MAXPACPSNAPLEN)
 		{
@@ -5585,8 +5585,8 @@ while(1)
 		if(res != pcaprhdr.incl_len)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "failed to read packet %ld\n", rawpacketcount);
-			if(fh_log != NULL) fprintf(fh_log, "packet error: %ld\n", rawpacketcount);
+			fprintf(stdout, "Failed to read packet %ld\n", rawpacketcount);
+			if(fh_log != NULL) fprintf(fh_log, "Packet error: %ld\n", rawpacketcount);
 			break;
 			}
 		}
@@ -5597,8 +5597,8 @@ while(1)
 		if(resseek < 0)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "failed to set file pointer\n");
-			if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", basename(pcapinname));
+			fprintf(stdout, "Failed to set file pointer\n");
+			if(fh_log != NULL) fprintf(fh_log, "Failed to set file pointer: %s\n", basename(pcapinname));
 			break;
 			}
 		continue;
@@ -5810,8 +5810,8 @@ fdsize = lseek(fd, 0, SEEK_END);
 if(fdsize < 0)
 	{
 	pcapreaderrors++;
-	fprintf(stdout, "failed to get file size\n");
-	if(fh_log != NULL) fprintf(fh_log, "failed to get file size: %s\n", basename(pcapinname));
+	fprintf(stdout, "Failed to get file size\n");
+	if(fh_log != NULL) fprintf(fh_log, "Failed to get file size: %s\n", basename(pcapinname));
 	return;
 	}
 
@@ -5819,8 +5819,8 @@ aktseek = lseek(fd, 0L, SEEK_SET);
 if(aktseek < 0)
 	{
 	pcapreaderrors++;
-	fprintf(stdout, "failed to set file pointer\n");
-	if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", basename(pcapinname));
+	fprintf(stdout, "Failed to set file pointer\n");
+	if(fh_log != NULL) fprintf(fh_log, "Failed to set file pointer: %s\n", basename(pcapinname));
 	return;
 	}
 
@@ -5832,8 +5832,8 @@ while(1)
 	if(aktseek < 0)
 		{
 		pcapreaderrors++;
-		fprintf(stdout, "failed to set file pointer\n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", basename(pcapinname));
+		fprintf(stdout, "Failed to set file pointer\n");
+		if(fh_log != NULL) fprintf(fh_log, "Failed to set file pointer: %s\n", basename(pcapinname));
 		break;
 		}
 	res = read(fd, &pcpngblock, BH_SIZE);
@@ -5844,8 +5844,8 @@ while(1)
 	if(res != BH_SIZE)
 		{
 		pcapreaderrors++;
-		fprintf(stdout, "failed to read block header\n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to read block header: %s\n", basename(pcapinname));
+		fprintf(stdout, "Failed to read block header\n");
+		if(fh_log != NULL) fprintf(fh_log, "Failed to read block header: %s\n", basename(pcapinname));
 		break;
 		}
 	pcapngbh = (block_header_t*)pcpngblock;
@@ -5869,31 +5869,31 @@ while(1)
 	if((blocklen > (2 *MAXPACPSNAPLEN)) || ((blocklen %4) != 0))
 		{
 		pcapreaderrors++;
-		fprintf(stdout, "failed to read pcapng block header\n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to read pcapng block header: %ld\n", rawpacketcount);
+		fprintf(stdout, "Failed to read pcapng block header\n");
+		if(fh_log != NULL) fprintf(fh_log, "Failed to read pcapng block header: %ld\n", rawpacketcount);
 		break;
 		}
 	resseek = lseek(fd, aktseek, SEEK_SET);
 	if(resseek < 0)
 		{
 		pcapreaderrors++;
-		fprintf(stdout, "failed to set file pointer\n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", basename(pcapinname));
+		fprintf(stdout, "Failed to set file pointer\n");
+		if(fh_log != NULL) fprintf(fh_log, "Failed to set file pointer: %s\n", basename(pcapinname));
 		break;
 		}
 	res = read(fd, &pcpngblock, blocklen);
 	if((res < BH_SIZE) || (res != blocklen))
 		{
 		pcapreaderrors++;
-		fprintf(stdout, "failed to read pcapng block header\n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to read pcapng block header: %ld\n", rawpacketcount);
+		fprintf(stdout, "Failed to read pcapng block header\n");
+		if(fh_log != NULL) fprintf(fh_log, "Failed to read pcapng block header: %ld\n", rawpacketcount);
 		break;
 		}
 	if(memcmp(&pcpngblock[4], &pcpngblock[ blocklen -4], 4) != 0)
 		{
 		pcapreaderrors++;
-		fprintf(stdout, "failed to read pcapng block header \n");
-		if(fh_log != NULL) fprintf(fh_log, "failed to read pcapng block header: %ld\n", rawpacketcount);
+		fprintf(stdout, "Failed to read pcapng block header \n");
+		if(fh_log != NULL) fprintf(fh_log, "Failed to read pcapng block header: %ld\n", rawpacketcount);
 		break;
 		}
 	if(blocktype == PCAPNGBLOCKTYPE)
@@ -5915,15 +5915,15 @@ while(1)
 		if(pcapngshb->major_version != PCAPNG_MAJOR_VER)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "unsupported major pcapng version\n");
-			if(fh_log != NULL) fprintf(fh_log, "unsupported major pcapng version: %d\n", pcapngshb->major_version);
+			fprintf(stdout, "Unsupported major pcapng version\n");
+			if(fh_log != NULL) fprintf(fh_log, "Unsupported major pcapng version: %d\n", pcapngshb->major_version);
 			break;
 			}
 		if(pcapngshb->minor_version != PCAPNG_MINOR_VER)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "unsupported minor pcapng version\n");
-			if(fh_log != NULL) fprintf(fh_log, "unsupported minor pcapng version: %d\n", pcapngshb->minor_version);
+			fprintf(stdout, "Unsupported minor pcapng version\n");
+			if(fh_log != NULL) fprintf(fh_log, "Unsupported minor pcapng version: %d\n", pcapngshb->minor_version);
 			break;
 			}
 		if(pcapngoptionwalk(blocktype, pcapngshb->data, blocklen -SHB_SIZE) != 0) pcapreaderrors++;
@@ -5945,18 +5945,20 @@ while(1)
 		if(snaplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "detected oversized snaplen (%u)\n", snaplen);
-			if(fh_log != NULL) fprintf(fh_log, "detected oversized snaplen: %ld\n", rawpacketcount);
+			fprintf(stdout, "Detected oversized snaplen (%u)\n", snaplen);
+			if(fh_log != NULL) fprintf(fh_log, "Detected oversized snaplen: %ld\n", rawpacketcount);
 			}
 		if(iface >= MAX_INTERFACE_ID)
 			{
 			pcapreaderrors++;
 			if(ifaceerror == false)
 				{
-				fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
+				fprintf(stdout, "Maximum of supported interfaces reached: %u\n"
+						"That is a bug of the capturing tool.\n", iface);
 				ifaceerror = true;
 				}
-			if(fh_log != NULL) fprintf(fh_log, "maximum of supported interfaces reached: %u\n", iface);
+			if(fh_log != NULL) fprintf(fh_log, "Maximum of supported interfaces reached: %u\n"
+							"That is a bug of the capturing tool.\n", iface);
 			continue;
 			}
 		dltlinktype[iface] = pcapngidb->linktype;
@@ -5974,15 +5976,15 @@ while(1)
 		if(pcapngpb->caplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen > MAXSNAPLEN (%u > %d)\n", pcapngpb->caplen, MAXPACPSNAPLEN);
-			if(fh_log != NULL) fprintf(fh_log, "caplen > MAXSNAPLEN: %ld\n", rawpacketcount);
+			fprintf(stdout, "Caplen > MAXSNAPLEN (%u > %d)\n", pcapngpb->caplen, MAXPACPSNAPLEN);
+			if(fh_log != NULL) fprintf(fh_log, "Caplen > MAXSNAPLEN: %ld\n", rawpacketcount);
 			continue;
 			}
 		if(pcapngpb->caplen > blocklen)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen > blocklen (%u > %u)\n", pcapngpb->caplen, blocklen);
-			if(fh_log != NULL) fprintf(fh_log, "caplen > blocklen: %ld\n", rawpacketcount);
+			fprintf(stdout, "Caplen > blocklen (%u > %u)\n", pcapngpb->caplen, blocklen);
+			if(fh_log != NULL) fprintf(fh_log, "Caplen > blocklen: %ld\n", rawpacketcount);
 			continue;
 			}
 		rawpacketcount++;
@@ -6014,10 +6016,12 @@ while(1)
 			pcapreaderrors++;
 			if(ifaceerror == false)
 				{
-				fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
+				fprintf(stdout, "Maximum of supported interfaces reached: %u\n"
+						"That is a bug of the capturing tool.\n", iface);
 				ifaceerror = true;
 				}
-			if(fh_log != NULL) fprintf(stdout, "maximum of supported interfaces reached: %u\n", iface);
+			if(fh_log != NULL) fprintf(stdout, "maximum of supported interfaces reached: %u\n"
+							"That is a bug of the capturing tool.\n", iface);
 			continue;
 			}
 		timestamppcapng = pcapngepb->timestamp_high;
@@ -6032,21 +6036,21 @@ while(1)
 		if(pcapngepb->caplen != pcapngepb->len)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen != len (%u != %u)\n", pcapngepb->caplen, pcapngepb->len);
-			if(fh_log != NULL) fprintf(fh_log, "caplen != len: %ld\n", rawpacketcount);
+			fprintf(stdout, "Caplen != len (%u != %u)\n", pcapngepb->caplen, pcapngepb->len);
+			if(fh_log != NULL) fprintf(fh_log, "Caplen != len: %ld\n", rawpacketcount);
 			continue;
 			}
 		if(pcapngepb->caplen > MAXPACPSNAPLEN)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen > MAXSNAPLEN (%u > %d)\n", pcapngepb->caplen, MAXPACPSNAPLEN);
-			if(fh_log != NULL) fprintf(fh_log, "caplen > MAXSNAPLEN: %ld\n", rawpacketcount);
+			fprintf(stdout, "Caplen > MAXSNAPLEN (%u > %d)\n", pcapngepb->caplen, MAXPACPSNAPLEN);
+			if(fh_log != NULL) fprintf(fh_log, "Caplen > MAXSNAPLEN: %ld\n", rawpacketcount);
 			continue;
 			}
 		if(pcapngepb->caplen > blocklen)
 			{
 			pcapreaderrors++;
-			fprintf(stdout, "caplen > blocklen (%u > %u)\n", pcapngepb->caplen, blocklen);
+			fprintf(stdout, "Caplen > blocklen (%u > %u)\n", pcapngepb->caplen, blocklen);
 			if(fh_log != NULL) fprintf(fh_log, "caplen > blocklen: %ld\n", rawpacketcount);
 			continue;
 			}
@@ -6280,7 +6284,7 @@ if( stat(pcapinname, &stdirtest) == 0)
 	}
 else
 	{
-	fprintf(stdout, "failed to open %s: %s\n", pcapinname, strerror(errno));
+	fprintf(stdout, "Failed to open %s: %s\n", pcapinname, strerror(errno));
 	return false;
 	}
 #ifdef WANTZLIB
@@ -6304,7 +6308,7 @@ jtrbasenamedeprecated = pcapinname;
 fd_pcap = open(pcapnameptr, O_RDONLY);
 if(fd_pcap == -1)
 	{
-	fprintf(stdout, "failed to open %s: %s\n", pcapnameptr, strerror(errno));
+	fprintf(stdout, "Failed to open %s: %s\n", pcapnameptr, strerror(errno));
 	return false;
 	}
 magicnumber = getmagicnumber(fd_pcap);
@@ -6312,8 +6316,8 @@ resseek = lseek(fd_pcap, 0L, SEEK_SET);
 if(resseek < 0)
 	{
 	pcapreaderrors++;
-	fprintf(stdout, "failed to set file pointer\n");
-	if(fh_log != NULL) fprintf(fh_log, "failed to set file pointer: %s\n", pcapinname);
+	fprintf(stdout, "Failed to set file pointer\n");
+	if(fh_log != NULL) fprintf(fh_log, "Failed to set file pointer: %s\n", pcapinname);
 	return false;
 	}
 if(magicnumber == PCAPNGBLOCKTYPE)
@@ -6339,7 +6343,7 @@ else if((magicnumber == PCAPMAGICNUMBER) || (magicnumber == PCAPMAGICNUMBERBE))
 	}
 else
 	{
-	fprintf(stdout, "unsupported dump file format: %s\n", pcapinname);
+	fprintf(stdout, "Unsupported dump file format: %s\n", pcapinname);
 	return false;
 	}
 #ifdef WANTZLIB
