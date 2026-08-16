@@ -6,6 +6,7 @@
  * so the upstream hcxtools sources compile UNMODIFIED.
  *
  * hcxtools is (C) ZeroBeat, MIT licensed — https://github.com/ZerBea/hcxtools
+ * Windows build support (c) 2026 Ahmad Al-Ahmad (github.com/Obsidian-Strike).
  */
 #ifndef HCX_WIN_SHIM_H
 #define HCX_WIN_SHIM_H

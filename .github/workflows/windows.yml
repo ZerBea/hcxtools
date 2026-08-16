@@ -3,6 +3,8 @@ name: Windows build
 # Builds the core offline hcxtools as native Windows x64 binaries using
 # MSYS2 / mingw-w64. Run manually from the Actions tab (workflow_dispatch),
 # or push a tag like v7.1.2-win1 to also publish a GitHub Release.
+#
+# Windows build support by Ahmad Al-Ahmad (github.com/Obsidian-Strike).
 
 on:
   push:

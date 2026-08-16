@@ -64,3 +64,6 @@ the required DLLs + a `SHA256SUMS.txt`, and:
 
 hcxtools is distributed under the MIT license, © 2000–2026 ZeroBeat. See
 `license.txt`. For authorized security auditing and educational use only.
+
+Windows build support (the compat shim, the CI workflow, and this document)
+© 2026 Ahmad Al-Ahmad (github.com/Obsidian-Strike), under the same MIT terms.
