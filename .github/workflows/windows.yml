@@ -1,0 +1,85 @@
+name: Windows build
+
+# Builds the core offline hcxtools as native Windows x64 binaries using
+# MSYS2 / mingw-w64. Run manually from the Actions tab (workflow_dispatch),
+# or push a tag like v7.1.2-win1 to also publish a GitHub Release.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSYS2 (MINGW64)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            make
+            zip
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-zlib
+            mingw-w64-x86_64-pkgconf
+
+      - name: Build binaries
+        run: |
+          make hcxpcapngtool hcxpmktool hcxpsktool hcxwltool hcxeiutool hcxhash2cap \
+            CPPFLAGS="-include windows/win_shim.h" \
+            LDFLAGS="-lws2_32"
+
+      - name: Bundle exes + required mingw DLLs
+        run: |
+          mkdir -p dist
+          cp *.exe dist/
+          declare -A seen
+          collect() {
+            local f="$1" dll
+            for dll in $(objdump -p "$f" 2>/dev/null | awk '/DLL Name/{print $3}'); do
+              if [ -f "/mingw64/bin/$dll" ] && [ -z "${seen[$dll]:-}" ]; then
+                seen[$dll]=1
+                cp -f "/mingw64/bin/$dll" dist/
+                collect "/mingw64/bin/$dll"
+              fi
+            done
+          }
+          for exe in dist/*.exe; do collect "$exe"; done
+          cp license.txt dist/LICENSE.hcxtools.txt
+          cd dist && sha256sum * > SHA256SUMS.txt && echo "== bundle ==" && ls -la
+
+      - name: Package zip
+        run: |
+          cd dist && zip -9 -r ../hcxtools-windows-x64.zip .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hcxtools-windows-x64
+          path: dist/*
+
+      - name: Publish release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            hcxtools-windows-x64.zip
+            dist/SHA256SUMS.txt
+          body: |
+            Native Windows x64 build of the core offline hcxtools
+            (hcxpcapngtool, hcxpmktool, hcxpsktool, hcxwltool, hcxeiutool, hcxhash2cap),
+            built with MSYS2 / mingw-w64. Unzip and run — the required
+            libcrypto / zlib DLLs are bundled alongside the executables.
+
+            Upstream: https://github.com/ZerBea/hcxtools (MIT, (C) ZeroBeat).
