@@ -820,7 +820,7 @@ static ssize_t psklen = 0;
 static ssize_t lipos = 0;
 static pmklist_t *pmklistnew = NULL;
 static FILE *hcoutfile = NULL;
-static char wpafmt[] = { "WPA" };
+static char wpafmt[] = { "WPA*" };
 
 if((hcoutfile = fopen(hcoutfileinname, "rb")) == NULL) return false;
 while(1)
@@ -832,15 +832,9 @@ while(1)
 		pmkreaderrorcount += 1;
 		continue;
 		}
-	if(memcmp(&linein[0], &wpafmt[0], 3) == 0)
+	if(memcmp(&linein[0], &wpafmt[0], 4) == 0)
 		{
 		if(linein[65] != '*')
-			{
-			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
-			pmkreaderrorcount += 1;
-			continue;
-			}
-		if(linein[3] != '*')
 			{
 			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
 			pmkreaderrorcount += 1;
