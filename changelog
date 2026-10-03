@@ -11,6 +11,7 @@ hcxpcapngtool:
 hcxhastool:
 - set EAPOL limit for hash mode 2200x to 512 bytes
 
+
 14.04.2026
 ==========
 hcxpcapngtool: changed EAPOL AUTH LIMIT for all EAPOL MESSSGES (m1, m2, m3, m4):
