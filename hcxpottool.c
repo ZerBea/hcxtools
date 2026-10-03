@@ -1273,15 +1273,15 @@ while(1)
 			continue;
 			}
 		}
-	if(flen < 8) (pmklist + pmkcount)->psklen = 8;
-	else
+	for(plen = 0; plen < flen; plen++)
 		{
-		for(plen = 0; plen < flen; plen++)
-			{
-			if((pmklist + pmkcount)->psk[plen] == 0) break;
-			(pmklist + pmkcount)->psklen = flen;
-			}
+		if((pmklist + pmkcount)->psk[plen] == 0) break;
 		}
+	if(plen < 8) (pmklist + pmkcount)->psklen = 8;
+	else (pmklist + pmkcount)->psklen = plen;
+
+
+
 	pmkcount += 1;
 	if((pmkcount % PMKLISTLEN) == 0)
 		{
