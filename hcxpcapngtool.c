@@ -110,8 +110,6 @@ static tacacsplist_t *tacacsplist, *tacacsplistptr;
 static char *jtrbasenamedeprecated;
 
 static FILE *fh_pmkideapol;
-static FILE *fh_pmkideapolftpsk;
-static FILE *fh_pmkideapolclient;
 static FILE *fh_eapmd5;
 static FILE *fh_eapmd5john;
 static FILE *fh_eapleap;
@@ -2518,7 +2516,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			}
 		if(memcmp(&myaktclient, zeigerpmkid->client, 6) == 0) pmkidroguecount++;
 		pmkidbestcount++;
-		if((fh_pmkideapol != 0) && (((zeigerpmkid->status & PMKID_AP) == PMKID_AP) || ((zeigerpmkid->status & PMKID_APPSK256) == PMKID_APPSK256)))
+		if((fh_pmkideapol != 0) && ((zeigerpmkid->status & PMKID_APPSK256) == PMKID_APPSK256))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 			fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -2530,21 +2528,8 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
 			if(addtimestampflag == false) fprintf(fh_pmkideapol, "***%02x\n", zeigerpmkid->status);
 			else fprintf(fh_pmkideapol, "***%02x\t%s\n",  zeigerpmkid->status, timestringhs);
-			pmkidwrittenhcount++;
-			}
-		if((fh_pmkideapolclient != 0) && (((zeigerpmkid->status & PMKID_CLIENT) == PMKID_CLIENT) && (zeigerpmkid->status & PMKID_APPSK256) == PMKID_APPSK256))
-			{
-			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
-			fprintf(fh_pmkideapolclient, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
-				HCX_TYPE_PMKID,
-				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
-				zeigerpmkid->pmkid[8], zeigerpmkid->pmkid[9], zeigerpmkid->pmkid[10], zeigerpmkid->pmkid[11], zeigerpmkid->pmkid[12], zeigerpmkid->pmkid[13], zeigerpmkid->pmkid[14], zeigerpmkid->pmkid[15],
-				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
-				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
-			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolclient, "%02x", zeigermac->essid[p]);
-			if(addtimestampflag == false) fprintf(fh_pmkideapolclient, "***%02x\n",  zeigerpmkid->status & PMKID_CLIENT);
-			else fprintf(fh_pmkideapolclient, "***%02x\t%s\n", zeigerpmkid->status & PMKID_CLIENT, timestringhs);
-			pmkidclientwrittenhcount++;
+			if((zeigerpmkid->status & PMKID_AP) == PMKID_AP) pmkidwrittenhcount++;
+			if((zeigerpmkid->status & PMKID_CLIENT) == PMKID_CLIENT) pmkidclientwrittenhcount++;
 			}
 		if((fh_pmkideapol != 0) && (zeigerpmkid->mdidlen != 0) && (zeigerpmkid->r0khidlen != 0) && (zeigerpmkid->r1khidlen != 0))
 			{
@@ -6619,8 +6604,6 @@ fprintf(stdout, "%s %s (C) %s ZeroBeat\n"
 	"short options:\n"
 	"-o <file> : output WPA-PBKDF2-PMKID+EAPOL hash file (hashcat -m 22000)\n"
 	"            get full advantage of reuse of PBKDF2 on PMKID and EAPOL\n"
-	"-f <file> : output WPA-PBKDF2-PMKID+EAPOL hash file (hashcat -m 37100)\n"
-	"            get full advantage of reuse of PBKDF2 on PMKID and EAPOL\n"
 	"-E <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
 	"            retrieved from every frame that contain an ESSID\n"
 	"-R <file> : output wordlist (autohex enabled on non ASCII characters) to use as input wordlist for cracker\n"
@@ -6757,7 +6740,6 @@ static int index;
 static int exitcode;
 static char *pmkideapoloutname;
 static char *pmkideapolftpskoutname;
-static char *pmkidclientoutname;
 static char *eapmd5outname;
 static char *eapmd5johnoutname;
 static char *eapleapoutname;
@@ -6809,7 +6791,7 @@ static char deviceinfoprefix[PATH_MAX];
 struct timeval tv;
 static struct stat statinfo;
 
-static const char *short_options = "o:f:E:R:I:U:D:hv";
+static const char *short_options = "o:E:R:I:U:D:hv";
 static const struct option long_options[] =
 {
 	{"all",				no_argument,		NULL,	HCX_CONVERT_ALL},
@@ -6824,7 +6806,6 @@ static const struct option long_options[] =
 	{"raw-in",			required_argument,	NULL,	HCX_RAW_IN},
 	{"lts",				required_argument,	NULL,	HCX_LTS},
 	{"log",				required_argument,	NULL,	HCX_LOG_OUT},
-	{"pmkid-client",		required_argument,	NULL,	HCX_PMKID_CLIENT_OUT},
 	{"pmkid",			required_argument,	NULL,	HCX_PMKID_OUT_DEPRECATED},
 	{"eapmd5",			required_argument,	NULL,	HCX_EAPMD5_OUT},
 	{"eapmd5-john",			required_argument,	NULL,	HCX_EAPMD5_JOHN_OUT},
@@ -6877,7 +6858,6 @@ hccapxoutnamedeprecated = NULL;
 hccapoutnamedeprecated = NULL;
 
 fh_pmkideapol = NULL;
-fh_pmkideapolclient = NULL;
 fh_eapmd5 = NULL;
 fh_eapmd5john = NULL;
 fh_eapleap = NULL;
@@ -6931,11 +6911,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_PMKIDEAPOL_OUT:
 		pmkideapoloutname = optarg;
-		break;
-
-
-		case HCX_PMKID_CLIENT_OUT:
-		pmkidclientoutname = optarg;
 		break;
 
 		case HCX_EAPMD5_OUT:
@@ -7217,14 +7192,6 @@ if(pmkideapoloutname != NULL)
 		exit(EXIT_FAILURE);
 		}
 	}
-if(pmkideapolftpskoutname != NULL)
-	{
-	if((fh_pmkideapolftpsk = fopen(pmkideapolftpskoutname, "a")) == NULL)
-		{
-		fprintf(stdout, "failed to open file %s: %s\n", pmkideapolftpskoutname, strerror(errno));
-		exit(EXIT_FAILURE);
-		}
-	}
 if(eapmd5outname != NULL)
 	{
 	if((fh_eapmd5 = fopen(eapmd5outname, "a")) == NULL)
@@ -7338,15 +7305,6 @@ if(logoutname != NULL)
 		}
 	}
 
-if(pmkidclientoutname != NULL)
-	{
-	if((fh_pmkideapolclient = fopen(pmkidclientoutname, "a")) == NULL)
-		{
-		fprintf(stdout, "failed to open file %s: %s\n", pmkidclientoutname, strerror(errno));
-		exit(EXIT_FAILURE);
-		}
-	}
-
 if(pmkideapoljtroutnamedeprecated != NULL)
 	{
 	if((fh_pmkideapoljtrdeprecated = fopen(pmkideapoljtroutnamedeprecated, "a")) == NULL)
@@ -7394,8 +7352,6 @@ for(index = optind; index < argc; index++)
 if(rawinname != NULL) processrawfile(rawinname);
 
 if(fh_pmkideapol != NULL) fclose(fh_pmkideapol);
-if(fh_pmkideapolftpsk != NULL) fclose(fh_pmkideapolftpsk);
-if(fh_pmkideapolclient != NULL) fclose(fh_pmkideapolclient);
 if(fh_eapmd5 != NULL) fclose(fh_eapmd5);
 if(fh_eapmd5john != NULL) fclose(fh_eapmd5john);
 if(fh_eapleap != NULL) fclose(fh_eapleap);
@@ -7427,13 +7383,6 @@ if(pmkideapolftpskoutname != NULL)
 	if(stat(pmkideapolftpskoutname, &statinfo) == 0)
 		{
 		if(statinfo.st_size == 0) remove(pmkideapolftpskoutname);
-		}
-	}
-if(pmkidclientoutname != NULL)
-	{
-	if(stat(pmkidclientoutname, &statinfo) == 0)
-		{
-		if(statinfo.st_size == 0) remove(pmkidclientoutname);
 		}
 	}
 if(eapmd5outname != NULL)
