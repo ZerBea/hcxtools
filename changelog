@@ -2,6 +2,7 @@
 ==========
 hcxpcapngtool:
 - go in sync with hashcat git head https://github.com/hashcat/hashcat/commit/6847f7793f9cf76a5f01dde85894e5645800a30f "FT-PSK support for hash mode 2200x"
+  the new hash file is not(!) backwards with hashcat before commit https://github.com/hashcat/hashcat/commit/6847f7793f9cf76a5f01dde85894e5645800a30f
 - removed 37100 test mode
 - remove pmkid client option -> now merged to PMKID output
 - added support for 2200x FT-PSK EAPOL hash mode
@@ -9,7 +10,6 @@ hcxpcapngtool:
 
 hcxhastool:
 - set EAPOL limit for hash mode 2200x to 512 bytes
-
 
 14.04.2026
 ==========
