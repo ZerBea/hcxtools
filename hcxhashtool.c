@@ -617,6 +617,7 @@ static char essid[ESSID_LEN_MAX+1];
 static unsigned char *hcpos;
 static hccap_t hccap;
 
+if(zeiger->eapauthlen > EAPOL_AUTHLEN_OLD_MAX) return;
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
 if(flagfiltermacap == true) if(memcmp(&filtermacap, zeiger->ap, 6) != 0) return;
@@ -739,6 +740,7 @@ static wpakey_t *wpak;
 static hccap_t hccap;
 static char essid[ESSID_LEN_MAX+1];
 
+if(zeiger->eapauthlen > EAPOL_AUTHLEN_OLD_MAX) return;
 if(zeiger->type == HCX_TYPE_PMKID) return;
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
@@ -850,6 +852,7 @@ static wpakey_t *wpak;
 static hccapx_t hccapx;
 static char essid[ESSID_LEN_MAX+1];
 
+if(zeiger->eapauthlen > EAPOL_AUTHLEN_OLD_MAX) return;
 if(zeiger->type == HCX_TYPE_PMKID) return;
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) return;
@@ -1833,7 +1836,7 @@ static hashlist_t *zeiger, *hashlistnew;
 static const char wpa01[] = { "WPA*01*" };
 static const char wpa02[] = { "WPA*02*" };
 static const char wpa03[] = { "WPA*03*" };
-static const char wpa04[] = { "WPA*04*" };
+static const char wpa04[] = { "WPA*03*" };
 
 static char linein[PMKIDEAPOL_LINE_LEN +1];
 static uint8_t buffer[PMKIDEAPOL_LINE_LEN +1];
@@ -1848,7 +1851,7 @@ while(1)
 		readerrorcount++;
 		continue;
 		}
-	if((memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0) && (memcmp(&linein, &wpa03, 7) != 0) && (memcmp(&linein, &wpa04, 7) != 0))
+	if((memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0) && (memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0))
 		{
 		readerrorcount++;
 		continue;
@@ -1903,7 +1906,7 @@ while(1)
 		memcpy(zeiger->nonce, &buffer, 32);
 		oflen += 65;
 		eapauthlen = getfield(&linein[oflen], PMKIDEAPOL_LINE_LEN, buffer);
-		if(eapauthlen > EAPOL_AUTHLEN_MAX +4)
+		if(eapauthlen > EAPOL_AUTHLEN_MAX)
 			{
 			readerrorcount++;
 			continue;
