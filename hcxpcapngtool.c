@@ -320,6 +320,7 @@ static long int eapolm4errorcount;
 static long int eapolwrittencount;
 static long int eapolnotwrittencount;
 static long int eapolftpskwrittencount;
+static long int eapolftpsknotwrittencount;
 static long int eapolncwrittencount;
 static long int eapolftpskncwrittencount;
 static long int eapolaplesscount;
@@ -668,6 +669,7 @@ eapolnotwrittencount = 0;
 eapolncwrittencount = 0;
 eapolncwrittencount = 0;
 eapolftpskwrittencount = 0;
+eapolftpsknotwrittencount = 0;
 eapolftpskncwrittencount = 0;
 eapolaplesscount = 0;
 eapolwrittenjcountdeprecated = 0;
@@ -884,7 +886,7 @@ if(eapolm2authlen > 0) fprintf(stdout, "EAPOL M2 authentication length (max)....
 if(eapolm2count > 0)			fprintf(stdout, "EAPOL M2 messages (total)................: %ld\n", eapolm2count);
 if(eapolm2oversizedcount > 0)		fprintf(stdout, "EAPOL M2 messages (oversized)............: %ld\n", eapolm2oversizedcount);
 if(eapolm2kdv0count > 0)		fprintf(stdout, "EAPOL M2 messages (KDV:0 AKM defined)....: %ld (not supported by hashcat/JtR)\n", eapolm2kdv0count);
-if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK).........: %ld (JtR)\n", eapolm2ftpskcount);
+if(eapolm2ftpskcount > 0)		fprintf(stdout, "EAPOL M2 messages (FT using PSK).........: %ld\n", eapolm2ftpskcount);
 if(eapolm3authlen > 0) fprintf(stdout, "EAPOL M3 authentication length (max).....: %" PRIu16 " (%" PRIu16 ")\n", eapolm3authlen, eapolm3authlen +4);
 if(eapolm3count > 0)			fprintf(stdout, "EAPOL M3 messages (total)................: %ld\n", eapolm3count);
 if(eapolm3oversizedcount > 0)		fprintf(stdout, "EAPOL M3 messages (oversized)............: %ld\n", eapolm3oversizedcount);
@@ -917,8 +919,6 @@ if(eapolaplesscount > 0)		fprintf(stdout, "EAPOL ROGUE pairs....................
 if(eapolwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 22000 hash file...: %ld (RC checked)\n", eapolwrittencount);
 if(eapolncwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 22000 hash file...: %ld (RC not checked)\n", eapolncwrittencount);
 if(eapolnotwrittencount > 0)		fprintf(stdout, "EAPOL pairs ignored (oversized)..........: %ld (RC checked)\n", eapolnotwrittencount);
-if(eapolftpskwrittencount > 0)		fprintf(stdout, "EAPOL pairs written to 37100 hash file...: %ld (RC checked)\n", eapolftpskwrittencount);
-if(eapolftpskncwrittencount > 0)	fprintf(stdout, "EAPOL pairs written to 37100 hash file...: %ld (RC not checked)\n", eapolftpskncwrittencount);
 if(eapolwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written (hccapx).............: %ld (RC checked)\n", eapolwrittenhcpxcountdeprecated);
 if(eapolncwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs written (hccapx).............: %ld (RC not checked)\n", eapolncwrittenhcpxcountdeprecated);
 if(eapolnotwrittenhcpxcountdeprecated > 0)	fprintf(stdout, "EAPOL pairs not written (hccapx).........: %ld\n", eapolnotwrittenhcpxcountdeprecated);
@@ -2326,9 +2326,9 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 					}
 				}
 			}
-		if(fh_pmkideapol != 0)
+		if((fh_pmkideapol != 0) && (zeigerhs->mdidlen == 0) && (zeigerhs->r0khidlen == 0) && (zeigerhs->r1khidlen == 0))
 			{
-			if(zeigerhs->eapauthlen <= EAPOL_AUTHLEN_OLD_MAX)
+			if(zeigerhs->eapauthlen < EAPOL_AUTHLEN_MAX)
 				{
 				//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 				fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -2352,31 +2352,35 @@ for(zeigerhs = zeigerhsakt; zeigerhs < handshakelistptr; zeigerhs++)
 				}
 			else eapolnotwrittencount++;
 			}
-		if((fh_pmkideapolftpsk != 0) && (zeigerhs->mdidlen != 0) && (zeigerhs->r0khidlen != 0) && (zeigerhs->r1khidlen != 0))
+		if((fh_pmkideapol != 0) && (zeigerhs->mdidlen != 0) && (zeigerhs->r0khidlen != 0) && (zeigerhs->r1khidlen != 0))
 			{
-			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R0KHID*R1KHID
-			fprintf(fh_pmkideapolftpsk, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
-				HCX_TYPE_EAPOL_FTPSK,
-				wpak->keymic[0], wpak->keymic[1], wpak->keymic[2], wpak->keymic[3], wpak->keymic[4], wpak->keymic[5], wpak->keymic[6], wpak->keymic[7],
-				wpak->keymic[8], wpak->keymic[9], wpak->keymic[10], wpak->keymic[11], wpak->keymic[12], wpak->keymic[13], wpak->keymic[14], wpak->keymic[15],
-				zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
-				zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5]);
-			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
-			fprintf(fh_pmkideapolftpsk, "*");
-			fprintf(fh_pmkideapolftpsk, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*",
-				zeigerhs->anonce[0], zeigerhs->anonce[1], zeigerhs->anonce[2], zeigerhs->anonce[3], zeigerhs->anonce[4], zeigerhs->anonce[5], zeigerhs->anonce[6], zeigerhs->anonce[7],
-				zeigerhs->anonce[8], zeigerhs->anonce[9], zeigerhs->anonce[10], zeigerhs->anonce[11], zeigerhs->anonce[12], zeigerhs->anonce[13], zeigerhs->anonce[14], zeigerhs->anonce[15],
-				zeigerhs->anonce[16], zeigerhs->anonce[17], zeigerhs->anonce[18], zeigerhs->anonce[19], zeigerhs->anonce[20], zeigerhs->anonce[21], zeigerhs->anonce[22], zeigerhs->anonce[23],
-				zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
-			for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", eapoltemp[p]);
-			fprintf(fh_pmkideapolftpsk, "*%02x*%04x*", zeigerhs->status, zeigerhs->mdid);
-			for(p = 0; p < zeigerhs->r0khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerhs->r0khid[p]);
-			fprintf(fh_pmkideapolftpsk, "*");
-			for(p = 0; p < zeigerhs->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerhs->r1khid[p]);
-			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "\n");
-			else fprintf(fh_pmkideapolftpsk, "\t%s\t%" PRIu64 "\n", timestringhs, zeigerhs->timestampgap);
-			if(zeigerhs->rcgap == 0) eapolftpskwrittencount++;
-			else eapolftpskncwrittencount++;
+			if(zeigerhs->eapauthlen < EAPOL_AUTHLEN_MAX)
+				{
+				//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R0KHID*R1KHID
+				fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+					HCX_TYPE_EAPOL_FTPSK,
+					wpak->keymic[0], wpak->keymic[1], wpak->keymic[2], wpak->keymic[3], wpak->keymic[4], wpak->keymic[5], wpak->keymic[6], wpak->keymic[7],
+					wpak->keymic[8], wpak->keymic[9], wpak->keymic[10], wpak->keymic[11], wpak->keymic[12], wpak->keymic[13], wpak->keymic[14], wpak->keymic[15],
+					zeigerhs->ap[0], zeigerhs->ap[1], zeigerhs->ap[2], zeigerhs->ap[3], zeigerhs->ap[4], zeigerhs->ap[5],
+					zeigerhs->client[0], zeigerhs->client[1], zeigerhs->client[2], zeigerhs->client[3], zeigerhs->client[4], zeigerhs->client[5]);
+				for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
+				fprintf(fh_pmkideapol, "*");
+				fprintf(fh_pmkideapol, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*",
+					zeigerhs->anonce[0], zeigerhs->anonce[1], zeigerhs->anonce[2], zeigerhs->anonce[3], zeigerhs->anonce[4], zeigerhs->anonce[5], zeigerhs->anonce[6], zeigerhs->anonce[7],
+					zeigerhs->anonce[8], zeigerhs->anonce[9], zeigerhs->anonce[10], zeigerhs->anonce[11], zeigerhs->anonce[12], zeigerhs->anonce[13], zeigerhs->anonce[14], zeigerhs->anonce[15],
+					zeigerhs->anonce[16], zeigerhs->anonce[17], zeigerhs->anonce[18], zeigerhs->anonce[19], zeigerhs->anonce[20], zeigerhs->anonce[21], zeigerhs->anonce[22], zeigerhs->anonce[23],
+					zeigerhs->anonce[24], zeigerhs->anonce[25], zeigerhs->anonce[26], zeigerhs->anonce[27], zeigerhs->anonce[28], zeigerhs->anonce[29], zeigerhs->anonce[30], zeigerhs->anonce[31]);
+				for(p = 0; p < zeigerhs->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", eapoltemp[p]);
+				fprintf(fh_pmkideapol, "*%02x*%04x*", zeigerhs->status, zeigerhs->mdid);
+				for(p = 0; p < zeigerhs->r0khidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigerhs->r0khid[p]);
+				fprintf(fh_pmkideapol, "*");
+				for(p = 0; p < zeigerhs->r1khidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigerhs->r1khid[p]);
+				if(addtimestampflag == false) fprintf(fh_pmkideapol, "\n");
+				else fprintf(fh_pmkideapol, "\t%s\t%" PRIu64 "\n", timestringhs, zeigerhs->timestampgap);
+				if(zeigerhs->rcgap == 0) eapolwrittencount++;
+				else eapolncwrittencount++;
+				}
+			else eapolnotwrittencount++;
 			}
 
 		if((fh_pmkideapoljtrdeprecated != 0) && (zeigerhs->rcgap == 0))
@@ -2528,7 +2532,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			else fprintf(fh_pmkideapol, "***%02x\t%s\n",  zeigerpmkid->status, timestringhs);
 			pmkidwrittenhcount++;
 			}
-		if((fh_pmkideapolclient != 0) && ((zeigerpmkid->status & PMKID_CLIENT) == PMKID_CLIENT))
+		if((fh_pmkideapolclient != 0) && (((zeigerpmkid->status & PMKID_CLIENT) == PMKID_CLIENT) && (zeigerpmkid->status & PMKID_APPSK256) == PMKID_APPSK256))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 			fprintf(fh_pmkideapolclient, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -2542,23 +2546,23 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			else fprintf(fh_pmkideapolclient, "***%02x\t%s\n", zeigerpmkid->status & PMKID_CLIENT, timestringhs);
 			pmkidclientwrittenhcount++;
 			}
-		if((fh_pmkideapolftpsk != 0) && (zeigerpmkid->mdidlen != 0) && (zeigerpmkid->r0khidlen != 0) && (zeigerpmkid->r1khidlen != 0))
+		if((fh_pmkideapol != 0) && (zeigerpmkid->mdidlen != 0) && (zeigerpmkid->r0khidlen != 0) && (zeigerpmkid->r1khidlen != 0))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP*MDID*R0KHID*R1KHID
-			fprintf(fh_pmkideapolftpsk, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+			fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
 				HCX_TYPE_PMKID_FTPSK,
 				zeigerpmkid->pmkid[0], zeigerpmkid->pmkid[1], zeigerpmkid->pmkid[2], zeigerpmkid->pmkid[3], zeigerpmkid->pmkid[4], zeigerpmkid->pmkid[5], zeigerpmkid->pmkid[6], zeigerpmkid->pmkid[7],
 				zeigerpmkid->pmkid[8], zeigerpmkid->pmkid[9], zeigerpmkid->pmkid[10], zeigerpmkid->pmkid[11], zeigerpmkid->pmkid[12], zeigerpmkid->pmkid[13], zeigerpmkid->pmkid[14], zeigerpmkid->pmkid[15],
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
-			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigermac->essid[p]);
-			fprintf(fh_pmkideapolftpsk, "***%02x*%04x*", zeigerpmkid->status & PMKID_CLIENT_FTPSK, zeigerpmkid->mdid);
-			for(p = 0; p < zeigerpmkid->r0khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r0khid[p]);
-			fprintf(fh_pmkideapolftpsk, "*");
-			for(p = 0; p < zeigerpmkid->r1khidlen; p++) fprintf(fh_pmkideapolftpsk, "%02x", zeigerpmkid->r1khid[p]);
-			if(addtimestampflag == false) fprintf(fh_pmkideapolftpsk, "\n");
-			else fprintf(fh_pmkideapolftpsk, "\t%s\n", timestringhs);
-			pmkidftpskwrittenhcount++;
+			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
+			fprintf(fh_pmkideapol, "***%02x*%04x*", zeigerpmkid->status & PMKID_CLIENT_FTPSK, zeigerpmkid->mdid);
+			for(p = 0; p < zeigerpmkid->r0khidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigerpmkid->r0khid[p]);
+			fprintf(fh_pmkideapol, "*");
+			for(p = 0; p < zeigerpmkid->r1khidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigerpmkid->r1khid[p]);
+			if(addtimestampflag == false) fprintf(fh_pmkideapol, "\n");
+			else fprintf(fh_pmkideapol, "\t%s\n", timestringhs);
+			pmkidwrittenhcount++;
 			}
 		if(fh_pmkideapoljtrdeprecated != 0)
 			{
@@ -6929,9 +6933,6 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 		pmkideapoloutname = optarg;
 		break;
 
-		case HCX_PMKIDEAPOLFTPSK_OUT:
-		pmkideapolftpskoutname = optarg;
-		break;
 
 		case HCX_PMKID_CLIENT_OUT:
 		pmkidclientoutname = optarg;
