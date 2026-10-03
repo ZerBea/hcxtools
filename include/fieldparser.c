@@ -28,7 +28,6 @@ static size_t c;
 
 for(c = 0; c < flen; c++)
 	{
-	if(fin[c] == 0) return c;
 	if(fin[c] == delim) return c;
 	fout[c] = (u8)(fin[c]);
 	}

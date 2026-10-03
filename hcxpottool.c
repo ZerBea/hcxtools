@@ -1203,6 +1203,7 @@ static bool readpotfile(char *hcpotfileinname)
 static ssize_t len = 0;
 ssize_t lpos = 0;
 ssize_t flen = 0;
+ssize_t plen = 0;
 static pmklist_t *pmklistnew = NULL;
 static FILE *hcpotfile = NULL;
 
@@ -1248,14 +1249,32 @@ while(1)
 	lpos++;
 	if(isfieldhexified(PSKLEN, &linein[lpos]) == false) 
 		{
-		if((flen = readcharfield(PSKLEN, '0', &linein[lpos], (pmklist + pmkcount)->psk)) == -1)
+		if((flen = readcharfield(PSKLEN, 0, &linein[lpos], (pmklist + pmkcount)->psk)) == -1)
 			{
 			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
 			pmkreaderrorcount += 1;
 			continue;
 			}
-		if(flen < 8) (pmklist + pmkcount)->psklen = 8;
-		else (pmklist + pmkcount)->psklen = flen;
+		}
+	else
+		{
+		lpos += 5;
+		if((flen = readhexfield(PSKLEN, ']', &linein[lpos], (pmklist + pmkcount)->psk)) == -1)
+			{
+			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+			pmkreaderrorcount += 1;
+			continue;
+			}
+		printf("out %s\n", &linein[lpos]);
+		}
+	if(flen < 8) (pmklist + pmkcount)->psklen = 8;
+	else
+		{
+		for(plen = 0; plen < flen; plen++)
+			{
+			if((pmklist + pmkcount)->psk[plen] == 0) break;
+			(pmklist + pmkcount)->psklen = flen;
+			}
 		}
 	pmkcount += 1;
 	if((pmkcount % PMKLISTLEN) == 0)
