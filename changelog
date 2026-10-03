@@ -1,3 +1,12 @@
+03.10.2026
+==========
+hcxpcapngtool:
+- go in sync with hashcat git head https://github.com/hashcat/hashcat/commit/6847f7793f9cf76a5f01dde85894e5645800a30f "FT-PSK support for hash mode 2200x"
+- removed 37100 test mode
+- added support for 2200x FT-PSK EAPOL hash mode
+- set EAPOL limit for hash mode 2200x to 512 bytes
+
+
 14.04.2026
 ==========
 hcxpcapngtool: changed EAPOL AUTH LIMIT for all EAPOL MESSSGES (m1, m2, m3, m4):
