@@ -1279,9 +1279,6 @@ while(1)
 		}
 	if(plen < 8) (pmklist + pmkcount)->psklen = 8;
 	else (pmklist + pmkcount)->psklen = plen;
-
-
-
 	pmkcount += 1;
 	if((pmkcount % PMKLISTLEN) == 0)
 		{
