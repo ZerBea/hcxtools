@@ -49,17 +49,6 @@ static const char hcpbkdf2fmt[] = "sha1:4096:";
 static const char jtrpbkdf2fmt[] = "$pbkdf2-hmac-sha1$4096.";
 static const char jtrpotfmt1[] = "$pbkdf2-hmac-sha1$4096$";
 static const u8 base64map[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static const u8 hashmap1[] =
-{
-0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
-0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 89:;<=>?
-0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // @ABCDEFG
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // HIJKLMNO
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // PQRSTUVW
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // XYZ[\]^_
-0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, // `abcdefg
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // hijklmno
-};
 static const u8 hashmap2[] =
 {
 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, // 01234567
@@ -614,39 +603,6 @@ for(c = 1; c < pmkcount; c++)
 return;
 }
 /*===========================================================================*/
-static ssize_t readhex(size_t flen, char delim, char *fin, u8 *fout)
-{
-static size_t c;
-static size_t i;
-static u8 idx0;
-static u8 idx1;
-
-i = 0;
-for(c = 0; c < (flen * 2); c += 2)
-	{
-	if(fin[c] == delim) return i;
-	if(!isxdigit(fin[c])) return -1;
-	if(!isxdigit(fin[c + 1])) return -1;
-	idx0 = ((u8)fin[c + 0] & 0x1F) ^ 0x10;
-	idx1 = ((u8)fin[c + 1] & 0x1F) ^ 0x10;
-	fout[i] = (u8)(hashmap1[idx0] << 4) | hashmap1[idx1];
-	i++;
-	}
-return i;
-}
-/*---------------------------------------------------------------------------*/
-static ssize_t readchar(size_t flen, char delim, char *fin, u8 *fout)
-{
-static size_t c;
-
-for(c = 0; c < flen; c++)
-	{
-	if(fin[c] == delim) return c;
-	fout[c] = (u8)(fin[c]);
-	}
-return c;
-}
-/*===========================================================================*/
 static size_t chop(char *buffer, size_t len)
 {
 static char *ptr;
@@ -1001,6 +957,39 @@ for(c = 0; c < cpucount; c++)
 		}
 	}
 return;
+}
+/*===========================================================================*/
+static ssize_t readhex(size_t flen, char delim, char *fin, u8 *fout)
+{
+static size_t c;
+static size_t i;
+static u8 idx0;
+static u8 idx1;
+
+i = 0;
+for(c = 0; c < (flen * 2); c += 2)
+	{
+	if(fin[c] == delim) return i;
+	if(!isxdigit(fin[c])) return -1;
+	if(!isxdigit(fin[c + 1])) return -1;
+	idx0 = ((u8)fin[c + 0] & 0x1F) ^ 0x10;
+	idx1 = ((u8)fin[c + 1] & 0x1F) ^ 0x10;
+	fout[i] = (u8)(asciitable[idx0] << 4) | asciitable[idx1];
+	i++;
+	}
+return i;
+}
+/*---------------------------------------------------------------------------*/
+static ssize_t readchar(size_t flen, char delim, char *fin, u8 *fout)
+{
+static size_t c;
+
+for(c = 0; c < flen; c++)
+	{
+	if(fin[c] == delim) return c;
+	fout[c] = (u8)(fin[c]);
+	}
+return c;
 }
 /*===========================================================================*/
 static bool readjtrpotfile(char *jtrpotfileinname)
