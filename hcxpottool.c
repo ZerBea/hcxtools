@@ -22,6 +22,7 @@
 
 #include "include/types.h"
 #include "include/hcxpottool.h"
+#include "include/fieldparser.c"
 
 /*===========================================================================*/
 /* globals */
@@ -1200,9 +1201,8 @@ return true;
 static bool readpotfile(char *hcpotfileinname)
 {
 static ssize_t len = 0;
-static ssize_t essidlen = 0;
-static ssize_t psklen = 0;
-static size_t lipos = 0;
+ssize_t lpos = 0;
+ssize_t flen = 0;
 static pmklist_t *pmklistnew = NULL;
 static FILE *hcpotfile = NULL;
 
@@ -1216,67 +1216,47 @@ while(1)
 		pmkreaderrorcount += 1;
 		continue;
 		}
-	lipos = 64;
-	if(linein[lipos] != '*')
+	lpos = 0;
+	if((flen = readhexfield(PMKLEN, '*', linein, (pmklist + pmkcount)->pmk)) == -1)
 		{
 		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
 		pmkreaderrorcount += 1;
 		continue;
 		}
-	if(readhex(PMKLEN , '*', linein, (pmklist + pmkcount)->pmk) != PMKLEN)
+	lpos += flen * 2;
+	if(linein[lpos] != '*')
 		{
 		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
 		pmkreaderrorcount += 1;
 		continue;
 		}
-	lipos++;
-	memset((pmklist + pmkcount)->essid, 0, ESSIDLEN);
-	if((essidlen = readhex(ESSIDLEN, ':', &linein[lipos], (pmklist + pmkcount)->essid)) <= 0)
+	lpos++;
+	if((flen = readhexfield(ESSIDLEN, ':', &linein[lpos], (pmklist + pmkcount)->essid)) == -1)
 		{
 		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
 		pmkreaderrorcount += 1;
 		continue;
 		}
-	(pmklist + pmkcount)->essidlen = essidlen;
-	lipos += essidlen * 2;
-	if(linein[lipos] != ':')
+	(pmklist + pmkcount)->essidlen = flen;
+	lpos += flen * 2;
+	if(linein[lpos] != ':')
 		{
 		if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
 		pmkreaderrorcount += 1;
 		continue;
 		}
-	lipos++;
-	memset((pmklist + pmkcount)->psk, 0, PSKLEN);
-	if((memcmp(&linein[lipos], hexfmt, 5) == 0) && (linein[len - 1] == ']'))
+	lpos++;
+	if(isfieldhexified(PSKLEN, &linein[lpos]) == false) 
 		{
-		lipos += 5;
-		if((psklen = readhex(PSKLEN, ']', &linein[lipos], (pmklist + pmkcount)->psk)) == -1)
+		if((flen = readcharfield(PSKLEN, '0', &linein[lpos], (pmklist + pmkcount)->psk)) == -1)
 			{
 			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
 			pmkreaderrorcount += 1;
 			continue;
 			}
-		if(linein[lipos + psklen * 2] != ']')
-			{
-			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
-			pmkreaderrorcount += 1;
-			continue;
-			}
-		psklen = getflen(PSKLEN, (pmklist + pmkcount)->psk);
+		if(flen < 8) (pmklist + pmkcount)->psklen = 8;
+		else (pmklist + pmkcount)->psklen = flen;
 		}
-	else
-		{
-		psklen = readchar(PSKLEN, 0, &linein[lipos], (pmklist + pmkcount)->psk);
-		if(linein[lipos + psklen] != '\0')
-			{
-			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
-			pmkreaderrorcount += 1;
-			continue;
-			}
-		}
-	if(psklen < 8) (pmklist + pmkcount)->psklen = 8;
-	else (pmklist + pmkcount)->psklen = psklen;
-	(pmklist + pmkcount)->status = 0;
 	pmkcount += 1;
 	if((pmkcount % PMKLISTLEN) == 0)
 		{
