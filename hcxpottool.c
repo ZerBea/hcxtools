@@ -1265,7 +1265,13 @@ while(1)
 			pmkreaderrorcount += 1;
 			continue;
 			}
-		printf("out %s\n", &linein[lpos]);
+		lpos += flen * 2;
+		if(linein[lpos] != ']')
+			{
+			if(fh_faulty != NULL) fprintf(fh_faulty, "%s\n", linein);
+			pmkreaderrorcount += 1;
+			continue;
+			}
 		}
 	if(flen < 8) (pmklist + pmkcount)->psklen = 8;
 	else
