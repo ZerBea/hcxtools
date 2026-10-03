@@ -7,7 +7,7 @@
 
 #define ESSID_LEN_MIN 		0
 #define ESSID_LEN_MAX 		32
-#define EAPOL_AUTHLEN_MAX	251
+#define EAPOL_AUTHLEN_MAX	512
 
 #define PMKIDEAPOL_LINE_LEN	1024
 #define PMKIDEAPOL_BUFFER_LEN	1024
@@ -83,7 +83,7 @@ struct hashlist_s
  uint8_t		essid[ESSID_LEN_MAX];
  uint8_t		nonce[32];
  uint16_t		eapauthlen;
- uint8_t		eapol[EAPOL_AUTHLEN_MAX];
+ uint16_t		eapol[EAPOL_AUTHLEN_MAX];
  uint8_t		mp;
 };
 typedef struct hashlist_s hashlist_t;

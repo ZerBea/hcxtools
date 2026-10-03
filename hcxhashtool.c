@@ -1832,6 +1832,8 @@ static uint16_t mplen;
 static hashlist_t *zeiger, *hashlistnew;
 static const char wpa01[] = { "WPA*01*" };
 static const char wpa02[] = { "WPA*02*" };
+static const char wpa03[] = { "WPA*03*" };
+static const char wpa04[] = { "WPA*04*" };
 
 static char linein[PMKIDEAPOL_LINE_LEN +1];
 static uint8_t buffer[PMKIDEAPOL_LINE_LEN +1];
@@ -1846,7 +1848,7 @@ while(1)
 		readerrorcount++;
 		continue;
 		}
-	if((memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0))
+	if((memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0) && (memcmp(&linein, &wpa03, 7) != 0) && (memcmp(&linein, &wpa04, 7) != 0))
 		{
 		readerrorcount++;
 		continue;
@@ -1884,12 +1886,12 @@ while(1)
 		}
 	memcpy(zeiger->essid, &buffer, essidlen);
 	zeiger->essidlen = essidlen;
-	if(memcmp(&linein, &wpa01, 7) == 0)
+	if((memcmp(&linein, &wpa01, 7) == 0) || (memcmp(&linein, &wpa03, 7) == 0))
 		{
 		zeiger->type = HS_PMKID;
 		pmkidcount++;
 		}
-	else if(memcmp(&linein, &wpa02, 7) == 0)
+	else if((memcmp(&linein, &wpa02, 7) == 0) || (memcmp(&linein, &wpa04, 7) == 0))
 		{
 		oflen = 66 +essidlen *2 +1;
 		noncelen = getfield(&linein[oflen], PMKIDEAPOL_LINE_LEN, buffer);
