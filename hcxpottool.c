@@ -817,7 +817,6 @@ while(1)
 				continue;
 				}
 			(pmklist + pmkcount)->essidlen = flen;
-			printf("%s %s \n", &linein[lpos], (pmklist + pmkcount)->essid);
 			lpos += flen * 2;
 			if(linein[lpos] != ']')
 				{
