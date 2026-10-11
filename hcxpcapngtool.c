@@ -2516,7 +2516,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			}
 		if(memcmp(&myaktclient, zeigerpmkid->client, 6) == 0) pmkidroguecount++;
 		pmkidbestcount++;
-		if((fh_pmkideapol != 0) && ((zeigerpmkid->status & PMKID_APPSK256) == PMKID_APPSK256))
+		if((fh_pmkideapol != 0) && (((zeigerpmkid->status & PMKID_APPSK256) == PMKID_APPSK256) || ((zeigerpmkid->status & PMKID_AP) == PMKID_AP) || ((zeigerpmkid->status & PMKID_CLIENT) == PMKID_CLIENT)))
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 			fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
