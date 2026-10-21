@@ -1228,7 +1228,7 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"                        hexified characters < 0x20\n"
 	"                        use with care\n"
 	"--faultyout=<file>   : output faulty lines file\n"
-	"--pmkoff             : disable verification/calculation of plain master keyss\n"
+	"--pmkoff             : disable verification/calculation of plain master keys\n"
 	"--help               : show this help\n"
 	"--version            : show version\n\n",
 	eigenname, VERSION_TAG, VERSION_YEAR, eigenname);
