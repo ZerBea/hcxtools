@@ -263,7 +263,7 @@ if(flagvendorout == true)
 	}
 if(pbkdf2count > 0)			fprintf(stdout, "PBKDF2 lines..................: %ld\n", pbkdf2count);
 if(pbkdf2readerrorcount > 0)		fprintf(stdout, "PBKDF2 errors.................: %ld\n", pbkdf2readerrorcount);
-if(readerrorcount > 0)			fprintf(stdout, "read/format errors.........  .: %ld\n", readerrorcount);
+if(readerrorcount > 0)			fprintf(stdout, "read/format errors............: %ld\n", readerrorcount);
 if(correctedcount > 0)			fprintf(stdout, "corrected read/format errors  : %ld\n", correctedcount);
 if(pmkideapolcount > 0)			fprintf(stdout, "valid hash lines..............: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)			fprintf(stdout, "PMKID hash lines..............: %ld\n", pmkidcount);
@@ -1836,7 +1836,7 @@ static hashlist_t *zeiger, *hashlistnew;
 static const char wpa01[] = { "WPA*01*" };
 static const char wpa02[] = { "WPA*02*" };
 static const char wpa03[] = { "WPA*03*" };
-static const char wpa04[] = { "WPA*03*" };
+static const char wpa04[] = { "WPA*04*" };
 
 static char linein[PMKIDEAPOL_LINE_LEN +1];
 static uint8_t buffer[PMKIDEAPOL_LINE_LEN +1];
