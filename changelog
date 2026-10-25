@@ -1,8 +1,15 @@
+25.10.2026
+==========
+release v8.0.0 following hashcat v8.0.0
+support of WPA-FT-PSK
+the new hash file is not(!) backwards compatible with hashcat before commit https://github.com/hashcat/hashcat/commit/6847f7793f9cf76a5f01dde85894e5645800a30f
+due to new hash lines WPA*3 and WPA*4 and new EAPOL limits
+
 03.10.2026
 ==========
 hcxpcapngtool:
 - go in sync with hashcat git head https://github.com/hashcat/hashcat/commit/6847f7793f9cf76a5f01dde85894e5645800a30f "FT-PSK support for hash mode 2200x"
-  the new hash file is not(!) backwards with hashcat before commit https://github.com/hashcat/hashcat/commit/6847f7793f9cf76a5f01dde85894e5645800a30f
+  the new hash file is not(!) backwards compatible with hashcat before commit https://github.com/hashcat/hashcat/commit/6847f7793f9cf76a5f01dde85894e5645800a30f
 - removed 37100 test mode
 - remove pmkid client option -> now merged to PMKID output
 - added support for 2200x FT-PSK EAPOL hash mode
