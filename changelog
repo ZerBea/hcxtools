@@ -5,6 +5,7 @@ support of WPA-FT-PSK
 the new hash file is not(!) backwards compatible with hashcat before commit https://github.com/hashcat/hashcat/commit/6847f7793f9cf76a5f01dde85894e5645800a30f
 due to new hash lines WPA*3 and WPA*4 and new EAPOL limits
 
+
 03.10.2026
 ==========
 hcxpcapngtool:
