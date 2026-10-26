@@ -645,7 +645,11 @@ static ssize_t plen = 0;
 static pmklist_t *pmklistnew = NULL;
 static FILE *tabfile = NULL;
 
-if((tabfile = fopen(tabfileinname, "rb")) == NULL) return false;
+if((tabfile = fopen(tabfileinname, "rb")) == NULL)
+	{
+	fprintf(stderr, "warning: could not open %s\n", tabfileinname);
+	return true;
+	}
 while(1)
 	{
 	if((len = fgetline(tabfile, INPUTLINEMAX, linein)) == -1) break;
@@ -747,7 +751,11 @@ static pmklist_t *pmklistnew = NULL;
 static FILE *hcoutfile = NULL;
 static char wpafmt[] = { "WPA*" };
 
-if((hcoutfile = fopen(hcoutfileinname, "rb")) == NULL) return false;
+if((hcoutfile = fopen(hcoutfileinname, "rb")) == NULL)
+	{
+	fprintf(stderr, "warning: could not open %s\n", hcoutfileinname);
+	return true;
+	}
 while(1)
 	{
 	if((len = fgetline(hcoutfile, INPUTLINEMAX, linein)) == -1) break;
@@ -1000,7 +1008,11 @@ static size_t psklen;
 static pmklist_t *pmklistnew = NULL;
 static FILE *jtrpotfile = NULL;
 
-if((jtrpotfile = fopen(jtrpotfileinname, "rb")) == NULL) return false;
+if((jtrpotfile = fopen(jtrpotfileinname, "rb")) == NULL)
+	{
+	fprintf(stderr, "warning: could not open %s\n", jtrpotfileinname);
+	return true;
+	}
 while(1)
 	{
 	if((len = fgetline(jtrpotfile, INPUTLINEMAX, linein)) == -1) break;
@@ -1087,7 +1099,11 @@ static ssize_t plen = 0;
 static pmklist_t *pmklistnew = NULL;
 static FILE *hcpotfile = NULL;
 
-if((hcpotfile = fopen(hcpotfileinname, "rb")) == NULL) return false;
+if((hcpotfile = fopen(hcpotfileinname, "rb")) == NULL)
+	{
+	fprintf(stderr, "warning: could not open %s\n", hcpotfileinname);
+	return true;
+	}
 while(1)
 	{
 	if((len = fgetline(hcpotfile, INPUTLINEMAX, linein)) == -1) break;
