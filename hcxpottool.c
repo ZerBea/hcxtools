@@ -143,9 +143,9 @@ static void printstatus(void)
 if(pmkcount != 0)		fprintf(stdout, "%ld valid entries \n", pmkcount);
 if(pmkdoublecount != 0)		fprintf(stdout, "%ld double entries\n", pmkdoublecount);
 if(pmkreaderrorcount != 0)	fprintf(stdout, "%ld PMK read errors\n", pmkreaderrorcount);
-if(pmkcalculatedcount != 0)	fprintf(stdout, "%ld PMK(s) calculated\n", pmkcalculatedcount);
+if(pmkcalculatedcount != 0)	fprintf(stdout, "%ld PMK(s) calculated (total)\n", pmkcalculatedcount);
 if(pmkconfirmedcount != 0)	fprintf(stdout, "%ld PMK(s) confirmed\n", pmkconfirmedcount);
-if(pmknewcount != 0)		fprintf(stdout, "%ld PMK(s) new calculated\n", pmknewcount);
+if(pmknewcount != 0)		fprintf(stdout, "%ld PMK(s) calculated (new)\n", pmknewcount);
 if(pmkcorrectedcount != 0)	fprintf(stdout, "%ld PMK(s) corrected\n", pmkcorrectedcount);
 return;
 }
@@ -922,7 +922,7 @@ for(c = tdata->thread_num; c < pmkcount; c += tdata->cpucount)
 			tdata->newcount += 1;
 			}
 		else if(memcmp(tdata->pmk, (pmklist + c)->pmk, PMKLEN) == 0) tdata->confirmedcount += 1;
-		else if(memcmp(tdata->pmk, (pmklist + c)->pmk, PMKLEN) != 0)
+		else
 			{
 			memcpy((pmklist + c)->pmk, tdata->pmk, PMKLEN);
 			tdata->correctedcount += 1;
@@ -966,6 +966,8 @@ for(c = 0; c < cpucount; c++)
 	ret = pthread_join(tinfo[c].thread_id, &res);
 	pmkerrorcount += tinfo[c].errorcount;
 	pmkcalculatedcount += tinfo[c].calculatedcount;
+	pmkconfirmedcount += tinfo[c].confirmedcount;
+	pmknewcount += tinfo[c].newcount;
 	pmkcorrectedcount += tinfo[c].correctedcount;
 	if(ret != 0)
 		{
