@@ -51,7 +51,9 @@ typedef struct
  int		cpucount;
  long		errorcount;
  long		calculatedcount;
+ long		confirmedcount;
  long		correctedcount;
+ long		newcount;
  uint8_t	essidlen;
  uint8_t	psklen;
  uint8_t	pmk[PMKLEN];

@@ -31,7 +31,9 @@ static long int pmkcount = 0;
 static long int pmkreaderrorcount = 0;
 static long int pmkdoublecount = 0;
 static long int pmkcalculatedcount = 0;
+static long int pmkconfirmedcount = 0;
 static long int pmkcorrectedcount = 0;
+static long int pmknewcount = 0;
 static long int pmkerrorcount = 0;
 
 static pmklist_t *pmklist = NULL;
@@ -142,6 +144,8 @@ if(pmkcount != 0)		fprintf(stdout, "%ld valid entries \n", pmkcount);
 if(pmkdoublecount != 0)		fprintf(stdout, "%ld double entries\n", pmkdoublecount);
 if(pmkreaderrorcount != 0)	fprintf(stdout, "%ld PMK read errors\n", pmkreaderrorcount);
 if(pmkcalculatedcount != 0)	fprintf(stdout, "%ld PMK(s) calculated\n", pmkcalculatedcount);
+if(pmkconfirmedcount != 0)	fprintf(stdout, "%ld PMK(s) confirmed\n", pmkconfirmedcount);
+if(pmknewcount != 0)		fprintf(stdout, "%ld PMK(s) new calculated\n", pmknewcount);
 if(pmkcorrectedcount != 0)	fprintf(stdout, "%ld PMK(s) corrected\n", pmkcorrectedcount);
 return;
 }
@@ -912,7 +916,13 @@ for(c = tdata->thread_num; c < pmkcount; c += tdata->cpucount)
 		{
 		(pmklist + c)->status = CALCULATED;
 		tdata->calculatedcount += 1;
-		if((memcmp(tdata->pmk, (pmklist + c)->pmk, PMKLEN) != 0) && (memcmp(zeroedpmk, (pmklist + c)->pmk, PMKLEN) !=0))
+		if(memcmp(zeroedpmk, (pmklist + c)->pmk, PMKLEN) == 0)
+			{
+			memcpy((pmklist + c)->pmk, tdata->pmk, PMKLEN);
+			tdata->newcount += 1;
+			}
+		else if(memcmp(tdata->pmk, (pmklist + c)->pmk, PMKLEN) == 0) tdata->confirmedcount += 1;
+		else if(memcmp(tdata->pmk, (pmklist + c)->pmk, PMKLEN) != 0)
 			{
 			memcpy((pmklist + c)->pmk, tdata->pmk, PMKLEN);
 			tdata->correctedcount += 1;
