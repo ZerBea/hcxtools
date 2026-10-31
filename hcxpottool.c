@@ -48,6 +48,7 @@ const char *option_properties;
 static const char hcpbkdf2fmt[] = "sha1:4096:";
 static const char jtrpbkdf2fmt[] = "$pbkdf2-hmac-sha1$4096.";
 static const char jtrpotfmt1[] = "$pbkdf2-hmac-sha1$4096$";
+static const char zeroedpmk[PMKLEN] = { 0x00 };
 static const u8 base64map[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const u8 hashmap2[] =
 {
@@ -911,7 +912,7 @@ for(c = tdata->thread_num; c < pmkcount; c += tdata->cpucount)
 		{
 		(pmklist + c)->status = CALCULATED;
 		tdata->calculatedcount += 1;
-		if(memcmp(tdata->pmk, (pmklist + c)->pmk, PMKLEN) != 0)
+		if((memcmp(tdata->pmk, (pmklist + c)->pmk, PMKLEN) != 0) && (memcmp(zeroedpmk, (pmklist + c)->pmk, PMKLEN) !=0))
 			{
 			memcpy((pmklist + c)->pmk, tdata->pmk, PMKLEN);
 			tdata->correctedcount += 1;
