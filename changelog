@@ -1,3 +1,8 @@
+15.11.2026
+==========
+hcxhastool: disabled handling of WPA-FTPSK (WPA*03 and WPA*04) because it is broken
+
+
 25.10.2026
 ==========
 release v8.0.0 following hashcat v8.0.0
