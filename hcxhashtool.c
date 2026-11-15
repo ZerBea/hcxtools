@@ -1851,7 +1851,8 @@ while(1)
 		readerrorcount++;
 		continue;
 		}
-	if((memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0) && (memcmp(&linein, &wpa03, 7) != 0) && (memcmp(&linein, &wpa04, 7) != 0))
+//	if((memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0) && (memcmp(&linein, &wpa03, 7) != 0) && (memcmp(&linein, &wpa04, 7) != 0))
+	if((memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0))
 		{
 		readerrorcount++;
 		continue;

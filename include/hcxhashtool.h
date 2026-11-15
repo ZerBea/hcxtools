@@ -77,6 +77,9 @@ struct hashlist_s
 #define HS_REMOVED	0xff;
 #define HS_PMKID	1;
 #define HS_EAPOL	2;
+#define HS_PMKID_FTPSK	3;
+#define HS_EAPOL_FTPSK	4;
+
  uint8_t		hash[16];
  uint8_t		ap[6];
  uint8_t		client[6];
