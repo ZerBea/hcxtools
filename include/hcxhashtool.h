@@ -74,12 +74,11 @@
 struct hashlist_s
 {
  uint8_t		type;
-#define HS_REMOVED	0xff;
-#define HS_PMKID	1;
-#define HS_EAPOL	2;
-#define HS_PMKID_FTPSK	3;
-#define HS_EAPOL_FTPSK	4;
-
+#define HS_REMOVED	0xff
+#define HS_PMKID	1
+#define HS_EAPOL	2
+#define HS_PMKID_FTPSK	3
+#define HS_EAPOL_FTPSK	4
  uint8_t		hash[16];
  uint8_t		ap[6];
  uint8_t		client[6];
@@ -89,6 +88,11 @@ struct hashlist_s
  uint16_t		eapauthlen;
  uint8_t		eapol[EAPOL_AUTHLEN_MAX];
  uint8_t		mp;
+ uint16_t		mdid;
+ uint8_t		r0khidlen;
+ uint8_t		r0khid[FTR0KHID_LEN_MAX];
+ uint8_t		r1khidlen;
+ uint8_t		r1khid[FTR1KHID_LEN];
 };
 typedef struct hashlist_s hashlist_t;
 #define	HASHLIST_SIZE (sizeof(hashlist_t))
