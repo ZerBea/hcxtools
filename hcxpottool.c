@@ -154,6 +154,7 @@ return;
 /*===========================================================================*/
 static void printstatus(void)
 {
+if((pmkcount + pmkdoublecount + pmkreaderrorcount + pmkcalculatedcount + pmkconfirmedcount + pmknewcount + pmkcorrectedcount) != 0) fprintf(stdout, "\n");
 if(pmkcount != 0)		fprintf(stdout, "%ld valid entries \n", pmkcount);
 if(pmkdoublecount != 0)		fprintf(stdout, "%ld double entries\n", pmkdoublecount);
 if(pmkreaderrorcount != 0)	fprintf(stdout, "%ld PMK read errors\n", pmkreaderrorcount);
@@ -161,7 +162,6 @@ if(pmkcalculatedcount != 0)	fprintf(stdout, "%ld PMK(s) calculated (total)\n", p
 if(pmkconfirmedcount != 0)	fprintf(stdout, "%ld PMK(s) confirmed\n", pmkconfirmedcount);
 if(pmknewcount != 0)		fprintf(stdout, "%ld PMK(s) calculated (new)\n", pmknewcount);
 if(pmkcorrectedcount != 0)	fprintf(stdout, "%ld PMK(s) corrected\n", pmkcorrectedcount);
-
 if((pmkcount + pmkdoublecount + pmkreaderrorcount + pmkcalculatedcount + pmkconfirmedcount + pmknewcount + pmkcorrectedcount) != 0) fprintf(stdout, "\n");
 return;
 }
@@ -961,7 +961,7 @@ long n = sysconf(_SC_NPROCESSORS_ONLN);
 cpucount = (n > 0) ? (int)n : 1;
 
 if(cpucount > CPU_MAX) cpucount = CPU_MAX;
-fprintf(stdout, "%d threads started to calculate PMKs...\n\n", cpucount);
+fprintf(stdout, "%d threads started to calculate PMKs...\n", cpucount);
 for(c = 0; c < cpucount; c++)
 	{
 	tinfo[c].thread_num = c;
