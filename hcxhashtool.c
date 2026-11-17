@@ -32,11 +32,11 @@
 #include <openssl/params.h>
 #include <openssl/types.h>
 
-#include "include/hcxhashtool.h"
 #include "include/strings.c"
 #include "include/fileops.c"
 #include "include/ieee80211.c"
 #include "include/byteops.c"
+#include "include/hcxhashtool.h"
 
 /*===========================================================================*/
 struct hccapx_s
