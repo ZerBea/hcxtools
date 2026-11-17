@@ -67,10 +67,25 @@ static const u8 zeromap32[] =
 static char linein[INPUTLINEMAX];
 static char lineout[OUTPUTLINEMAX];
 /*===========================================================================*/
-static inline void programmende(int signum)
+static inline void signal_handler(int signum)
 {
 if((signum == SIGINT) || (signum == SIGTERM) || (signum == SIGKILL)) wantstopflag = true;
 return;
+}
+/*---------------------------------------------------------------------------*/
+static bool init_signal_handler(void)
+{
+struct sigaction sa;
+
+sa.sa_handler = signal_handler;
+sigemptyset(&sa.sa_mask);
+sa.sa_flags = SA_RESTART;
+if(sigaction(SIGINT, &sa, NULL) < 0) return false;
+if(sigaction(SIGTERM, &sa, NULL) < 0) return false;
+if(sigaction(SIGTSTP, &sa, NULL) < 0) return false;
+if(sigaction(SIGUSR1, &sa, NULL) < 0) return false;
+if(sigaction(SIGUSR2, &sa, NULL) < 0) return false;
+return true;
 }
 /*===========================================================================*/
 static bool globalinit(void)
@@ -119,7 +134,6 @@ if(mdctx == NULL)
 	return false;
 	}
 if((pmklist = (pmklist_t*)calloc(PMKLISTLEN, PMKRECLEN)) == NULL) return false;
-signal(SIGINT, programmende);
 return true;
 }
 /*===========================================================================*/
@@ -147,6 +161,8 @@ if(pmkcalculatedcount != 0)	fprintf(stdout, "%ld PMK(s) calculated (total)\n", p
 if(pmkconfirmedcount != 0)	fprintf(stdout, "%ld PMK(s) confirmed\n", pmkconfirmedcount);
 if(pmknewcount != 0)		fprintf(stdout, "%ld PMK(s) calculated (new)\n", pmknewcount);
 if(pmkcorrectedcount != 0)	fprintf(stdout, "%ld PMK(s) corrected\n", pmkcorrectedcount);
+
+if((pmkcount + pmkdoublecount + pmkreaderrorcount + pmkcalculatedcount + pmkconfirmedcount + pmknewcount + pmkcorrectedcount) != 0) fprintf(stdout, "\n");
 return;
 }
 /*===========================================================================*/
@@ -945,7 +961,7 @@ long n = sysconf(_SC_NPROCESSORS_ONLN);
 cpucount = (n > 0) ? (int)n : 1;
 
 if(cpucount > CPU_MAX) cpucount = CPU_MAX;
-fprintf(stdout, "%d threads started to calculate PMKs...\n", cpucount);
+fprintf(stdout, "%d threads started to calculate PMKs...\n\n", cpucount);
 for(c = 0; c < cpucount; c++)
 	{
 	tinfo[c].thread_num = c;
@@ -1427,6 +1443,11 @@ if(jtrpotinname != NULL)
 		fprintf(stderr, "failed to read %s\n", jtrpotinname);
 		goto ende;
 		}
+	}
+if(init_signal_handler() == false)
+	{
+	fprintf(stdout, "failed to initialize signal handler\n");
+	goto ende;
 	}
 if(pmkcount > 1) sortandclean();
 if(pmkcount > 0)
