@@ -1972,7 +1972,7 @@ while(1)
 	if((len = fgetline(fh_pmkideapol, PMKIDEAPOL_LINE_LEN, linein)) == -1) break;
 	readcount++;
 	memset(zeiger, 0, HASHLIST_SIZE);
-	if(len < 85)
+	if(len < 71)
 		{
 		readerrorcount++;
 		continue;
@@ -2075,24 +2075,12 @@ while(1)
 			continue;
 			}
 		lpos += 2;
-		if((len - lpos) != 2)
+		if((isxdigit(linein[lpos])) && (isxdigit(linein[lpos + 1])))
 			{
-			readerrorcount++;
-			continue;
+			idx0 = ((u8)linein[lpos + 0] & 0x1F) ^ 0x10;
+			idx1 = ((u8)linein[lpos + 1] & 0x1F) ^ 0x10;
+			zeiger->mp = (u8)(asciitable[idx0] << 4) | asciitable[idx1];
 			}
-		if(!isxdigit(linein[lpos]))
-			{
-			readerrorcount++;
-			continue;
-			}
-		if(!isxdigit(linein[lpos + 1]))
-			{
-			readerrorcount++;
-			continue;
-			}
-		idx0 = ((u8)linein[lpos + 0] & 0x1F) ^ 0x10;
-		idx1 = ((u8)linein[lpos + 1] & 0x1F) ^ 0x10;
-		zeiger->mp = (u8)(asciitable[idx0] << 4) | asciitable[idx1];
 		zeiger->type = HS_PMKID;
 		pmkidcount++;
 		}
