@@ -1,15 +1,8 @@
 18.11.2026
 ==========
-hcxpottool: added new option -tabndout
--tabndout=<file>     : output tabulator separated file
-                        hexified 0x20 at first or last position
-                        hexified characters < 0x20
-                        hexified characters > 0x7e
-                        hexified delimiter :
+hcxhashtool: added full PMKID FT-PSK support (WPA*03)
 
-hcxhashtool: refactored handling of hc22000 hash line & prepare handling of ft-PSK
-
-hcxpcapngtool: changed bitmask filed for better communication with hcxhashtool
+hcxpcapngtool: changed bitmask field for better communication with hcxhashtool. This change does not affect hashcat!
 bitmask of PMKID hash line (WPA*01) message pair field:
 0000 = reserved
 0001 = PMKID taken from AP
@@ -17,7 +10,12 @@ bitmask of PMKID hash line (WPA*01) message pair field:
 0100 = PMKID taken from CLIENT
 1000 = PMKID taken from CLIENT FT-PSK
 
-This change does not affect hashcat!
+hcxpottool: added new option -tabndout
+-tabndout=<file>     : output tabulator separated file
+                        hexified 0x20 at first or last position
+                        hexified characters < 0x20
+                        hexified characters > 0x7e
+                        hexified delimiter :
 
 
 15.11.2026
