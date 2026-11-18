@@ -79,12 +79,15 @@ struct hashlist_s
 #define HS_EAPOL	2
 #define HS_PMKID_FTPSK	3
 #define HS_EAPOL_FTPSK	4
- uint8_t		hash[16];
- uint8_t		ap[6];
- uint8_t		client[6];
+#define HASH_LEN_MAX	16
+#define NONCE_LEN_MAX	32
+
+ uint8_t		hash[HASH_LEN_MAX];
+ uint8_t		ap[ETH_ALEN];
+ uint8_t		client[ETH_ALEN];
  uint8_t		essidlen;
  uint8_t		essid[ESSID_LEN_MAX];
- uint8_t		nonce[32];
+ uint8_t		nonce[NONCE_LEN_MAX];
  uint16_t		eapauthlen;
  uint8_t		eapol[EAPOL_AUTHLEN_MAX];
  uint8_t		mp;

@@ -1,6 +1,18 @@
+18.11.2026
+==========
+hcxpottool: added new option -tabndout
+-tabndout=<file>     : output tabulator separated file
+                        hexified 0x20 at first or last position
+                        hexified characters < 0x20
+                        hexified characters > 0x7e
+                        hexified delimiter :
+
+hcxhashtool: refactored handling of hc22000 hash line & prepare handling of ft-PSK
+
+
 15.11.2026
 ==========
-hcxhastool: disabled handling of WPA-FTPSK (WPA*03 and WPA*04) because it is broken
+hcxhashtool: disabled handling of WPA-FTPSK (WPA*03 and WPA*04) because it is broken
 
 
 25.10.2026

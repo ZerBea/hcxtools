@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <libgen.h>
 #include <limits.h>
+#include <net/ethernet.h>
 #include <pwd.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -13,6 +14,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <regex.h>
+
 
 #if defined (__APPLE__) || defined(__OpenBSD__)
 #include <sys/socket.h>
@@ -32,30 +34,32 @@
 #include <openssl/params.h>
 #include <openssl/types.h>
 
+#include "include/types.h"
 #include "include/strings.c"
 #include "include/fileops.c"
 #include "include/ieee80211.c"
 #include "include/byteops.c"
+#include "include/fieldparser.c"
 #include "include/hcxhashtool.h"
 
 /*===========================================================================*/
 struct hccapx_s
 {
- uint32_t	signature;
+ u32	signature;
 #define HCCAPX_SIGNATURE 0x58504348
- uint32_t	version;
+ u32	version;
 #define HCCAPX_VERSION 4
- uint8_t	message_pair;
- uint8_t	essid_len;
- uint8_t	essid[32];
- uint8_t	keyver;
- uint8_t	keymic[16];
- uint8_t	ap[6];
- uint8_t	anonce[32];
- uint8_t	client[6];
- uint8_t	snonce[32];
- uint16_t	eapol_len;
- uint8_t	eapol[256];
+ u8	message_pair;
+ u8	essid_len;
+ u8	essid[32];
+ u8	keyver;
+ u8	keymic[16];
+ u8	ap[6];
+ u8	anonce[32];
+ u8	client[6];
+ u8	snonce[32];
+ u16	eapol_len;
+ u8	eapol[256];
 } __attribute__((packed));
 typedef struct hccapx_s hccapx_t;
 #define	HCCAPX_SIZE (sizeof(hccapx_t))
@@ -90,8 +94,12 @@ static long int correctedcount;
 static long int pmkideapolcount;
 static long int pmkidcount;
 static long int eapolcount;
+static long int pmkidftpskcount;
+static long int eapolftpskcount;
 static long int pmkidwrittencount;
 static long int eapolwrittencount;
+static long int pmkidftpskwrittencount;
+static long int eapolftpskwrittencount;
 static long int essidwrittencount;
 static long int essidrawwrittencount;
 static long int hccapxwrittencount;
@@ -135,16 +143,16 @@ static bool caseflag;
 static bool statusflag;
 
 static bool flagfiltermacap;
-static uint8_t filtermacap[6];
+static u8 filtermacap[6];
 
 static bool flagfiltermacclient;
-static uint8_t filtermacclient[6];
+static u8 filtermacclient[6];
 
 static bool flagfilterouiap;
-static uint8_t filterouiap[3];
+static u8 filterouiap[3];
 
 static bool flagfilterouiclient;
-static uint8_t filterouiclient[3];
+static u8 filterouiclient[3];
 
 static bool flagfilterauthorized;
 static bool flagfilterchallenge;
@@ -154,7 +162,7 @@ static bool flagfilterapless;
 
 static int pskptrlen;
 static char *pskptr;
-static uint8_t pmk[32];
+static u8 pmk[32];
 /*===========================================================================*/
 static void closelists(void)
 {
@@ -189,8 +197,12 @@ pmkideapolcount = 0;
 readerrorcount = 0;
 pmkidcount = 0;
 eapolcount = 0;
+pmkidftpskcount = 0;
+eapolftpskcount = 0;
 pmkidwrittencount = 0;
 eapolwrittencount = 0;
+pmkidftpskwrittencount = 0;
+eapolftpskwrittencount = 0;
 essidwrittencount = 0;
 essidrawwrittencount = 0;
 johnpmkidwrittencount = 0;
@@ -236,7 +248,7 @@ if(ctxcmac == NULL) return false;
 return true;
 }
 /*===========================================================================*/
-static char *getvendor(uint8_t *mac)
+static char *getvendor(u8 *mac)
 {
 static ouilist_t * zeiger;
 static char unknown[] = "Unknown";
@@ -267,7 +279,9 @@ if(readerrorcount > 0)			fprintf(stdout, "read/format errors............: %ld\n"
 if(correctedcount > 0)			fprintf(stdout, "corrected read/format errors  : %ld\n", correctedcount);
 if(pmkideapolcount > 0)			fprintf(stdout, "valid hash lines..............: %ld\n", pmkideapolcount);
 if(pmkidcount > 0)			fprintf(stdout, "PMKID hash lines..............: %ld\n", pmkidcount);
+if(pmkidftpskcount > 0)			fprintf(stdout, "PMKID hash lines (FT-PSK).....: %ld\n", pmkidftpskcount);
 if(eapolcount > 0)			fprintf(stdout, "EAPOL hash lines..............: %ld\n", eapolcount);
+if(eapolftpskcount > 0)			fprintf(stdout, "EAPOL hash lines (FT-PSK).....: %ld\n", eapolftpskcount);
 if(essidlenmin != 0)			fprintf(stdout, "filter by ESSID len min.......: %d\n", essidlenmin);
 if(essidlenmax != 32)			fprintf(stdout, "filter by ESSID len max.......: %d\n", essidlenmax);
 if(filteressidptr != NULL)		fprintf(stdout, "filter by ESSID...............: %s\n", filteressidptr);
@@ -319,10 +333,10 @@ static void testeapolpmk(hashlist_t *zeiger)
 static int keyver;
 static int p;
 static wpakey_t *wpak;
-static uint8_t *pkeptr;
+static u8 *pkeptr;
 
-static uint8_t eapoltmp[1024];
-static uint8_t pkedata[102];
+static u8 eapoltmp[1024];
+static u8 pkedata[102];
 
 wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
 keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
@@ -452,7 +466,7 @@ static void testpmkidpmk(hashlist_t *zeiger)
 {
 static int p;
 static const char *pmkname = "PMK Name";
-static uint8_t message[20];
+static u8 message[20];
 
 memcpy(message, pmkname, 8);
 memcpy(&message[8], zeiger->ap, 6);
@@ -508,7 +522,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static bool dopbkdf2(int psklen, char *psk, int essidlen, uint8_t *essid)
+static bool dopbkdf2(int psklen, char *psk, int essidlen, u8 *essid)
 {
 if(PKCS5_PBKDF2_HMAC_SHA1(psk, psklen, essid, essidlen, 4096, 32, pmk) == 0) return false;
 return true;
@@ -544,7 +558,7 @@ for(zeiger = hashlist +1; zeiger < hashlist +pmkideapolcount; zeiger++)
 return;
 }
 /*===========================================================================*/
-static bool isoui(uint8_t *macap, uint8_t *macclient)
+static bool isoui(u8 *macap, u8 *macclient)
 {
 static ouilist_t *zeiger;
 
@@ -556,11 +570,11 @@ for(zeiger = ouilist; zeiger < ouilist +ouicount; zeiger++)
 return false;
 }
 /*===========================================================================*/
-static bool ispartof(int plen, uint8_t *pbuff, int slen, uint8_t *sbuff)
+static bool ispartof(int plen, u8 *pbuff, int slen, u8 *sbuff)
 {
 static int p;
-static uint8_t buffers[32];
-static uint8_t bufferp[32];
+static u8 buffers[32];
+static u8 bufferp[32];
 
 if(plen > slen) return false;
 if(caseflag == false)
@@ -631,7 +645,7 @@ if(filteressidptr != NULL)
 	}
 if(filteressidpartptr != NULL)
 	{
-	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	if(ispartof(filteressidpartlen, (u8*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
 if(filteressidregexptr != NULL)
 	{
@@ -755,7 +769,7 @@ if(filteressidptr != NULL)
 	}
 if(filteressidpartptr != NULL)
 	{
-	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	if(ispartof(filteressidpartlen, (u8*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
 if(filteressidregexptr != NULL)
 	{
@@ -867,7 +881,7 @@ if(filteressidptr != NULL)
 	}
 if(filteressidpartptr != NULL)
 	{
-	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	if(ispartof(filteressidpartlen, (u8*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
 if(filteressidregexptr != NULL)
 	{
@@ -1033,7 +1047,7 @@ if(filteressidptr != NULL)
 	}
 if(filteressidpartptr != NULL)
 	{
-	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	if(ispartof(filteressidpartlen, (u8*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
 if(filteressidregexptr != NULL)
 	{
@@ -1061,7 +1075,8 @@ if(zeiger->type == HCX_TYPE_PMKID)
 		zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5],
 		zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5]);
 	for(p = 0; p < zeiger->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeiger->essid[p]);
-	fprintf(fh_pmkideapol, "***\n");
+	if(zeiger->mp != 0) fprintf(fh_pmkideapol, "***%02x\n", zeiger->mp);
+	else fprintf(fh_pmkideapol, "***\n");
 	pmkidwrittencount++;
 	return;
 	}
@@ -1295,8 +1310,8 @@ static void writepmkideapolhashlineinfo(FILE *fh_pmkideapol, hashlist_t *zeiger)
 {
 static eapauth_t *eapa;
 static wpakey_t *wpak;
-static uint8_t keyver;
-static uint8_t keyinfo;
+static u8 keyver;
+static u8 keyinfo;
 static uint64_t rc;
 static char *vendor;
 static char essid[ESSID_LEN_MAX+1];
@@ -1314,7 +1329,7 @@ if(filteressidptr != NULL)
 	}
 if(filteressidpartptr != NULL)
 	{
-	if(ispartof(filteressidpartlen, (uint8_t*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
+	if(ispartof(filteressidpartlen, (u8*)filteressidpartptr, zeiger->essidlen, zeiger->essid) == false) return;
 	}
 if(filteressidregexptr != NULL)
 	{
@@ -1334,16 +1349,22 @@ if((flagfilterchallenge == true) && ((zeiger->mp &0x07) != 0x01)) return;
 
 fprintf(fh_pmkideapol, "SSID.......: %.*s\n", zeiger->essidlen, zeiger->essid);
 vendor = getvendor(zeiger->ap);
-fprintf(fh_pmkideapol, "MAC_AP.....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], vendor);
+fprintf(fh_pmkideapol, "MAC AP.....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5], vendor);
 vendor = getvendor(zeiger->client);
-fprintf(fh_pmkideapol, "MAC_CLIENT.: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5], vendor);
+fprintf(fh_pmkideapol, "MAC CL.....: %02x%02x%02x%02x%02x%02x (%s)\n", zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5], vendor);
 if(zeiger->type == HCX_TYPE_PMKID)
 	{
-	fprintf(fh_pmkideapol, "PMKID......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+	if(zeiger->mp == 0x01) fprintf(fh_pmkideapol, "PMKID AP...: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
+	else if(zeiger->mp == 0x10) fprintf(fh_pmkideapol, "PMKID CL...: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
+	else fprintf(fh_pmkideapol, "PMKID......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
 		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
 		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
 	}
-if(zeiger->type == HCX_TYPE_EAPOL)
+else if(zeiger->type == HCX_TYPE_EAPOL)
 	{
 	eapa = (eapauth_t*)zeiger->eapol;
 	wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
@@ -1488,12 +1509,12 @@ else
 return;
 }
 /*===========================================================================*/
-static uint16_t getfield(char *lineptr, size_t bufflen, uint8_t *buff)
+static u16 getfield(char *lineptr, size_t bufflen, u8 *buff)
 {
 static size_t p;
-static uint8_t idx0;
-static uint8_t idx1;
-static const uint8_t hashmap[] =
+static u8 idx0;
+static u8 idx1;
+static const u8 hashmap[] =
 {
 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // 01234567
 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 89:;<=>?
@@ -1512,9 +1533,9 @@ while((lineptr[p] != '*') && (lineptr[p] != 0) && (p /2 <= bufflen))
 	if(!isxdigit((unsigned char)lineptr[p +0])) return 0;
 	if(!isxdigit((unsigned char)lineptr[p +1])) return 0;
 	if((lineptr[p +1] == '*') || (lineptr[p +1] == 0)) return 0;
-	idx0 = ((uint8_t)lineptr[p +0] &0x1F) ^0x10;
-	idx1 = ((uint8_t)lineptr[p +1] &0x1F) ^0x10;
-	buff[p /2] = (uint8_t)(hashmap[idx0] <<4) | hashmap[idx1];
+	idx0 = ((u8)lineptr[p +0] &0x1F) ^0x10;
+	idx1 = ((u8)lineptr[p +1] &0x1F) ^0x10;
+	buff[p /2] = (u8)(hashmap[idx0] <<4) | hashmap[idx1];
 	p += 2;
 	}
 return p /2;
@@ -1827,109 +1848,220 @@ return;
 static void readpmkideapolfile(FILE *fh_pmkideapol)
 {
 static int len;
-static int oflen;
-static uint16_t essidlen;
-static uint16_t noncelen;
-static uint16_t eapauthlen;
-static uint16_t mplen;
+static int lpos;
+static int flen;
+static u8 idx0;
+static u8 idx1;
 static hashlist_t *zeiger, *hashlistnew;
 static const char wpa01[] = { "WPA*01*" };
 static const char wpa02[] = { "WPA*02*" };
 static const char wpa03[] = { "WPA*03*" };
 static const char wpa04[] = { "WPA*04*" };
 
-static char linein[PMKIDEAPOL_LINE_LEN +1];
-static uint8_t buffer[PMKIDEAPOL_LINE_LEN +1];
+static char linein[PMKIDEAPOL_LINE_LEN + 1];
 
 zeiger = hashlist;
 while(1)
 	{
 	if((len = fgetline(fh_pmkideapol, PMKIDEAPOL_LINE_LEN, linein)) == -1) break;
 	readcount++;
-	if(len < 68)
+	memset(zeiger, 0, HASHLIST_SIZE);
+	if(len < 85)
 		{
 		readerrorcount++;
 		continue;
 		}
-//	if((memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0) && (memcmp(&linein, &wpa03, 7) != 0) && (memcmp(&linein, &wpa04, 7) != 0))
-	if((memcmp(&linein, &wpa01, 7) != 0) && (memcmp(&linein, &wpa02, 7) != 0))
+	if(linein[39] != '*')
 		{
 		readerrorcount++;
 		continue;
 		}
-	if((linein[39] != '*') && (linein[52] != '*') && (linein[65] != '*'))
+	if(linein[52] != '*')
 		{
 		readerrorcount++;
 		continue;
 		}
-	if(getfield(&linein[7], PMKIDEAPOL_LINE_LEN, buffer) != 16)
+	if(linein[65] != '*')
 		{
 		readerrorcount++;
 		continue;
 		}
-	memcpy(zeiger->hash, &buffer, 16);
-	if(getfield(&linein[40], PMKIDEAPOL_LINE_LEN, buffer) != 6)
+	lpos = 7;
+	if((flen = readhexfield(HASH_LEN_MAX, '*', &linein[lpos], zeiger->hash)) == -1)
 		{
 		readerrorcount++;
 		continue;
 		}
-	memcpy(zeiger->ap, &buffer, 6);
-
-	if(getfield(&linein[53], PMKIDEAPOL_LINE_LEN, buffer) != 6)
+	if(flen != HASH_LEN_MAX)
 		{
 		readerrorcount++;
 		continue;
 		}
-	memcpy(zeiger->client, &buffer, 6);
-	essidlen = getfield(&linein[66], PMKIDEAPOL_LINE_LEN, buffer);
-	if(essidlen > 32)
+	lpos += flen * 2;
+	if(linein[lpos] != '*')
 		{
 		readerrorcount++;
 		continue;
 		}
-	memcpy(zeiger->essid, &buffer, essidlen);
-	zeiger->essidlen = essidlen;
-	if((memcmp(&linein, &wpa01, 7) == 0) || (memcmp(&linein, &wpa03, 7) == 0))
+	lpos++;
+	if((flen = readhexfield(ETH_ALEN, '*', &linein[lpos], zeiger->ap)) == -1)
 		{
+		readerrorcount++;
+		continue;
+		}
+	if(flen != ETH_ALEN)
+		{
+		readerrorcount++;
+		continue;
+		}
+	lpos += flen * 2;
+	if(linein[lpos] != '*')
+		{
+		readerrorcount++;
+		continue;
+		}
+	lpos++;
+	if((flen = readhexfield(ETH_ALEN, '*', &linein[lpos], zeiger->client)) == -1)
+		{
+		readerrorcount++;
+		continue;
+		}
+	if(flen != ETH_ALEN)
+		{
+		readerrorcount++;
+		continue;
+		}
+	lpos += flen * 2;
+	if(linein[lpos] != '*')
+		{
+		readerrorcount++;
+		continue;
+		}
+	lpos++;
+	if((flen = readhexfield(ESSID_LEN_MAX, '*', &linein[lpos], zeiger->essid)) == -1)
+		{
+		readerrorcount++;
+		continue;
+		}
+	if(flen == 0)
+		{
+		readerrorcount++;
+		continue;
+		}
+	zeiger->essidlen = flen;
+	lpos += flen * 2;
+	if(linein[lpos] != '*')
+		{
+		readerrorcount++;
+		continue;
+		}
+	lpos++;
+	if(memcmp(&linein, &wpa01, 7) == 0)
+		{
+		if(linein[lpos] != '*')
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(linein[lpos + 1] != '*')
+			{
+			readerrorcount++;
+			continue;
+			}
+		lpos += 2;
+		if((len - lpos) != 2)
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(!isxdigit(linein[lpos]))
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(!isxdigit(linein[lpos + 1]))
+			{
+			readerrorcount++;
+			continue;
+			}
+		idx0 = ((u8)linein[lpos + 0] & 0x1F) ^ 0x10;
+		idx1 = ((u8)linein[lpos + 1] & 0x1F) ^ 0x10;
+		zeiger->mp = (u8)(asciitable[idx0] << 4) | asciitable[idx1];
 		zeiger->type = HS_PMKID;
 		pmkidcount++;
 		}
-	else if((memcmp(&linein, &wpa02, 7) == 0) || (memcmp(&linein, &wpa04, 7) == 0))
+	else if(memcmp(&linein, &wpa02, 7) == 0)
 		{
-		oflen = 66 +essidlen *2 +1;
-		noncelen = getfield(&linein[oflen], PMKIDEAPOL_LINE_LEN, buffer);
-		if(noncelen > 32)
+		if((flen = readhexfield(NONCE_LEN_MAX, '*', &linein[lpos], zeiger->nonce)) == -1)
 			{
 			readerrorcount++;
 			continue;
 			}
-		memcpy(zeiger->nonce, &buffer, 32);
-		oflen += 65;
-		eapauthlen = getfield(&linein[oflen], PMKIDEAPOL_LINE_LEN, buffer);
-		if(eapauthlen > EAPOL_AUTHLEN_MAX)
+		if(flen != NONCE_LEN_MAX)
 			{
 			readerrorcount++;
 			continue;
 			}
-		memcpy(zeiger->eapol, &buffer, eapauthlen);
-		zeiger->eapauthlen = eapauthlen;
-		oflen += eapauthlen *2 +1;
-		mplen = getfield(&linein[oflen], PMKIDEAPOL_LINE_LEN, buffer);
-		if(mplen > 1)
+		lpos += flen * 2;
+		lpos++;
+		if((flen = readhexfield(EAPOL_AUTHLEN_MAX, '*', &linein[lpos], zeiger->eapol)) == -1)
 			{
 			readerrorcount++;
 			continue;
 			}
-		zeiger->mp = buffer[0];
+		if(flen == 0)
+			{
+			readerrorcount++;
+			continue;
+			}
+		zeiger->eapauthlen = flen;
+		lpos += flen * 2;
+		if(linein[lpos] != '*')
+			{
+			readerrorcount++;
+			continue;
+			}
+		lpos++;
+		if((len - lpos) != 2)
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(!isxdigit(linein[lpos]))
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(!isxdigit(linein[lpos + 1]))
+			{
+			readerrorcount++;
+			continue;
+			}
+		idx0 = ((u8)linein[lpos + 0] & 0x1F) ^ 0x10;
+		idx1 = ((u8)linein[lpos + 1] & 0x1F) ^ 0x10;
+		zeiger->mp = (u8)(asciitable[idx0] << 4) | asciitable[idx1];
 		zeiger->type = HS_EAPOL;
 		eapolcount++;
 		}
+	else if(memcmp(&linein, &wpa03, 7) == 0)
+		{
+		zeiger->type = HS_PMKID_FTPSK;
+		pmkidftpskcount++;
+		}
+	else if(memcmp(&linein, &wpa04, 7) == 0)
+		{
+
+		zeiger->type = HS_EAPOL_FTPSK;
+		eapolftpskcount++;
+		}
+
+
 	else
 		{
 		readerrorcount++;
 		continue;
 		}
-	pmkideapolcount = pmkidcount +eapolcount;
+	pmkideapolcount = pmkidcount + pmkidftpskcount + eapolcount + eapolftpskcount;
 	if(pmkideapolcount >= hashlistcount)
 		{
 		hashlistcount += HASHLIST_MAX;
@@ -1946,7 +2078,7 @@ while(1)
 return;
 }
 /*===========================================================================*/
-static int get_keyinfo(uint16_t kyif)
+static int get_keyinfo(u16 kyif)
 {
 if(kyif & WPA_KEY_INFO_ACK)
 	{
@@ -1967,10 +2099,10 @@ static long int c;
 static hccapx_t *hccapxptr;
 static eapauth_t *eapa;
 static wpakey_t *wpak;
-static uint8_t keyver;
-static uint16_t keylen;
+static u8 keyver;
+static u16 keylen;
 static hashlist_t *zeiger, *hashlistnew;
-static uint8_t hccapxblock[HCCAPX_SIZE];
+static u8 hccapxblock[HCCAPX_SIZE];
 
 hccapxptr = (hccapx_t*)hccapxblock;
 zeiger = hashlist;
@@ -2055,16 +2187,16 @@ return;
 static void readhccapfile(int fd_hccapin, long int hccaprecords)
 {
 static long int c;
-uint8_t el;
+u8 el;
 static hccap_t *hccapptr;
 static eapauth_t *eapa;
 static wpakey_t *wpak;
-static uint8_t keyver;
-static uint16_t keylen;
-static uint16_t keyinfo = 0;
+static u8 keyver;
+static u16 keylen;
+static u16 keyinfo = 0;
 
 static hashlist_t *zeiger, *hashlistnew;
-static uint8_t hccapblock[HCCAP_SIZE];
+static u8 hccapblock[HCCAP_SIZE];
 
 hccapptr = (hccap_t*)hccapblock;
 zeiger = hashlist;
