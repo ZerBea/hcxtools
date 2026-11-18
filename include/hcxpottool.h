@@ -8,8 +8,9 @@
 #define HCX_TABOUT		8
 #define HCX_TABSPOUT		9
 #define HCX_TABNHOUT		10
-#define HCX_FAULTYOUT		11
-#define HCX_PMKOFF		12
+#define HCX_TABNDOUT		11
+#define HCX_FAULTYOUT		12
+#define HCX_PMKOFF		13
 
 #define HCX_HELP		'h'
 #define HCX_VERSION		'v'

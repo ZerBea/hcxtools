@@ -419,7 +419,8 @@ for(c = 0; c < pmkcount; c++)
 	}
 fclose(fh_tabnhfile);
 return;
-}/*===========================================================================*/
+}
+/*===========================================================================*/
 static void writetabspfile(char *tabspoutname)
 {
 static long int c;
@@ -478,6 +479,67 @@ for(c = 0; c < pmkcount; c++)
 	fprintf(fh_tabspfile, "%s\n", lineout);
 	}
 fclose(fh_tabspfile);
+return;
+}
+/*===========================================================================*/
+static void writetabndfile(char *tabndoutname)
+{
+static long int c;
+static size_t lopos = 0;
+static size_t written = 0;
+static FILE *fh_tabndfile;
+
+if((fh_tabndfile = fopen(tabndoutname, "a")) == NULL)
+	{
+	fprintf(stdout, "error opening file %s: %s\n", tabndoutname, strerror(errno));
+	return;
+	}
+for(c = 0; c < pmkcount; c++)
+	{
+	if(((pmklist + c)->status & DOUBLEESSIDPSK) == DOUBLEESSIDPSK) continue;
+	lopos = 0;
+	written = writehex(PMKLEN, (pmklist + c)->pmk, &lineout[lopos]);
+	lopos += written;
+	lineout[lopos++] = '\t';
+	if(needdelimhexify((pmklist + c)->essidlen, (pmklist + c)->essid) == false)
+		{
+		written = writechar((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos++] = '\t';
+		}
+	else
+		{
+		lineout[lopos++] = '$';
+		lineout[lopos++] = 'H';
+		lineout[lopos++] = 'E';
+		lineout[lopos++] = 'X';
+		lineout[lopos++] = '[';
+		written = writehex((pmklist + c)->essidlen, (pmklist + c)->essid, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos++] = ']';
+		lineout[lopos++] = '\t';
+		}
+	if(needemuhexify((pmklist + c)->psklen, (pmklist + c)->psk) == false)
+		{
+		written = writechar((pmklist + c)->psklen, (pmklist + c)->psk, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos] = '\0';
+		}
+	else
+		{
+		lineout[lopos++] = '$';
+		lineout[lopos++] = 'H';
+		lineout[lopos++] = 'E';
+		lineout[lopos++] = 'X';
+		lineout[lopos++] = '[';
+		written = writehex((pmklist + c)->psklen, (pmklist + c)->psk, &lineout[lopos]);
+		lopos += written;
+		lineout[lopos++] = ']';
+		lineout[lopos++] = '\0';
+		}
+	fprintf(fh_tabndfile, "%s\n", lineout);
+	}
+fclose(fh_tabndfile);
 return;
 }
 /*===========================================================================*/
@@ -1268,6 +1330,11 @@ fprintf(stdout, "%s %s  (C) %s ZeroBeat\n"
 	"--tabspout=<file>    : output tabulator separated file\n"
 	"                        hexified characters < 0x20\n"
 	"                        hexified characters > 0x7e\n"
+	"--tabndout=<file>     : output tabulator separated file\n"
+	"                        hexified 0x20 at first or last position\n"
+	"                        hexified characters < 0x20\n"
+	"                        hexified characters > 0x7e\n"
+	"                        hexified delimiter :\n"
 	"--tabnhout=<file>    : output tabulator separated file\n"
 	"                        hexified 0x20 at first or last position\n"
 	"                        hexified characters < 0x20\n"
@@ -1303,6 +1370,7 @@ static char *taboutname = NULL;
 static char *tabinname = NULL;
 static char *tabspoutname = NULL;
 static char *tabnhoutname = NULL;
+static char *tabndoutname = NULL;
 static char *faultyoutname = NULL;
 
 static const char *short_options = "hv";
@@ -1315,6 +1383,7 @@ static const struct option long_options[] =
 	{"tabout",			required_argument,	NULL,	HCX_TABOUT},
 	{"tabspout",			required_argument,	NULL,	HCX_TABSPOUT},
 	{"tabnhout",			required_argument,	NULL,	HCX_TABNHOUT},
+	{"tabndout",			required_argument,	NULL,	HCX_TABNDOUT},
 	{"hcpotout",			required_argument,	NULL,	HC_POTOUT},
 	{"hcpbkdf2out",			required_argument,	NULL,	HC_PBKDF2OUT},
 	{"jtrpbkdf2out",		required_argument,	NULL,	JTR_PBKDF2OUT},
@@ -1373,6 +1442,11 @@ while((auswahl = getopt_long(argc, argv, short_options, long_options, &index)) !
 		case HCX_TABNHOUT:
 		tabnhoutname = optarg;
 		break;
+
+		case HCX_TABNDOUT:
+		tabndoutname = optarg;
+		break;
+
 		case HCX_FAULTYOUT:
 		faultyoutname = optarg;
 		break;
@@ -1457,6 +1531,7 @@ if(pmkcount > 0)
 	if(taboutname != NULL) writetabfile(taboutname);
 	if(tabspoutname != NULL) writetabspfile(tabspoutname);
 	if(tabnhoutname != NULL) writetabnhfile(tabnhoutname);
+	if(tabndoutname != NULL) writetabndfile(tabndoutname);
 	if(hcpbkdf2outname != NULL) writehcpbkdf2file(hcpbkdf2outname);
 	if(jtrpbkdf2outname != NULL) writejtrpbkdf2file(jtrpbkdf2outname);
 	}
