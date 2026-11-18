@@ -384,8 +384,7 @@ struct pmkidlist_s
 #define PMKID_AP		0x01
 #define PMKID_APPSK256		0x02
 #define PMKID_CLIENT		0x04
-#define PMKID_AP_FTPSK		0x10
-#define PMKID_CLIENT_FTPSK	0x20
+#define PMKID_CLIENTFTPSK	0x08
  uint8_t		ap[6];
  uint8_t		client[6];
  uint8_t		anonce[32];

@@ -2516,7 +2516,9 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 			}
 		if(memcmp(&myaktclient, zeigerpmkid->client, 6) == 0) pmkidroguecount++;
 		pmkidbestcount++;
-		if((fh_pmkideapol != 0) && (((zeigerpmkid->status & PMKID_APPSK256) == PMKID_APPSK256) || ((zeigerpmkid->status & PMKID_AP) == PMKID_AP) || ((zeigerpmkid->status & PMKID_CLIENT) == PMKID_CLIENT)))
+//		if(((fh_pmkideapol != 0) && (((zeigerpmkid->status & PMKID_AP) == PMKID_AP) || ((zeigerpmkid->status & PMKID_APPSK256) == PMKID_APPSK256) || ((zeigerpmkid->status & PMKID_CLIENT) == PMKID_CLIENT))) && ((zeigerpmkid->mdidlen == 0) && (zeigerpmkid->r0khidlen == 0) && (zeigerpmkid->r1khidlen == 0)))
+		if((fh_pmkideapol != 0) && (zeigerpmkid->mdidlen == 0) && (zeigerpmkid->r0khidlen == 0) && (zeigerpmkid->r1khidlen == 0))
+
 			{
 			//WPA*TYPE*PMKID-ODER-MIC*MACAP*MACSTA*ESSID_HEX*ANONCE*EAPOL*MP
 			fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
@@ -2541,7 +2543,7 @@ for(zeigerpmkid = zeigerpmkidakt; zeigerpmkid < pmkidlistptr; zeigerpmkid++)
 				zeigerpmkid->ap[0], zeigerpmkid->ap[1], zeigerpmkid->ap[2], zeigerpmkid->ap[3], zeigerpmkid->ap[4], zeigerpmkid->ap[5],
 				zeigerpmkid->client[0], zeigerpmkid->client[1], zeigerpmkid->client[2], zeigerpmkid->client[3], zeigerpmkid->client[4], zeigerpmkid->client[5]);
 			for(p = 0; p < zeigermac->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigermac->essid[p]);
-			fprintf(fh_pmkideapol, "***%02x*%04x*", zeigerpmkid->status & PMKID_CLIENT_FTPSK, zeigerpmkid->mdid);
+			fprintf(fh_pmkideapol, "***%02x*%04x*", zeigerpmkid->status & PMKID_CLIENTFTPSK, zeigerpmkid->mdid);
 			for(p = 0; p < zeigerpmkid->r0khidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigerpmkid->r0khid[p]);
 			fprintf(fh_pmkideapol, "*");
 			for(p = 0; p < zeigerpmkid->r1khidlen; p++) fprintf(fh_pmkideapol, "%02x", zeigerpmkid->r1khid[p]);
@@ -4020,7 +4022,7 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 				{
 				eapolm2ftpskcount++;
 				zeiger->message |= HS_PMKIDFTPSK;
-				addpmkid_ftpsk(eaptimestamp, macclient, macap, tags, PMKID_CLIENT_FTPSK);
+				addpmkid_ftpsk(eaptimestamp, macclient, macap, tags, PMKID_CLIENTFTPSK);
 				}
 			}
 		}
@@ -4219,8 +4221,8 @@ if(authlen >= (int)(WPAKEY_SIZE +PMKID_SIZE))
 					}
 				}
 			memcpy(zeiger->pmkid, pmkid->pmkid, 16);
-			if(keyver != 3) addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid, PMKID_AP);
-			else addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid, PMKID_AP | PMKID_APPSK256);
+			if((keyver == 1) || (keyver == 2)) addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid, PMKID_AP);
+			else if(keyver == 3) addpmkid(eaptimestamp, macclient, macsrc, pmkid->pmkid, PMKID_APPSK256);
 			}
 		}
 	else pmkiduselesscount++;
@@ -6688,14 +6690,11 @@ fprintf(stdout, "--prefix=<file>                    : convert everything to list
 	"--version                          : show version\n"
 
 "bitmask of PMKID hash line (WPA*01) message pair field:\n"
-	"0: reserved\n"
-	"1: PMKID taken from AP\n"
-	"2: PMKID taken from AP possible PSKSHA256 FT using PSK\n"
-	"3: reserved\n"
-	"4: PMKID taken from CLIENT (wlan.da: possible MESH or REPEATER)\n"
-	"5: FT-PSK PMKID taken from CLIENT\n"
-	"6: reserved\n"
-	"7: reserved\n"
+	"0000 = reserved\n"
+	"0001 = PMKID taken from AP\n"
+	"0010 = PMKID taken from AP possible PSK256 or FT-PSK\n"
+	"0100 = PMKID taken from CLIENT\n"
+	"1000 = PMKID taken from CLIENT FT-PSK\n"
 	"\n"
 	"bitmask of EAPOL hash line (WPA*02) message pair field:\n"
 	"2,1,0:\n"

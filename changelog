@@ -9,6 +9,16 @@ hcxpottool: added new option -tabndout
 
 hcxhashtool: refactored handling of hc22000 hash line & prepare handling of ft-PSK
 
+hcxpcapngtool: changed bitmask filed for better communication with hcxhashtool
+bitmask of PMKID hash line (WPA*01) message pair field:
+0000 = reserved
+0001 = PMKID taken from AP
+0010 = PMKID taken from AP possible PSK256 or FT-PSK
+0100 = PMKID taken from CLIENT
+1000 = PMKID taken from CLIENT FT-PSK
+
+This change does not affect hashcat!
+
 
 15.11.2026
 ==========
