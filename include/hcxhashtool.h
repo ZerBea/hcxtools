@@ -4,6 +4,8 @@
 
 #define HCX_TYPE_PMKID		1
 #define HCX_TYPE_EAPOL		2
+#define HCX_TYPE_PMKID_FTPSK	3
+#define HCX_TYPE_EAPOL_FTPSK	4
 
 #define ESSID_LEN_MIN 		0
 #define ESSID_LEN_MAX 		32
@@ -71,7 +73,7 @@
 #define HCX_VERSION			'v'
 /*===========================================================================*/
 /*===========================================================================*/
-struct hashlist_s
+typedef struct
 {
  uint8_t		type;
 #define HS_REMOVED	0xff
@@ -81,6 +83,7 @@ struct hashlist_s
 #define HS_EAPOL_FTPSK	4
 #define HASH_LEN_MAX	16
 #define NONCE_LEN_MAX	32
+#define MDID_LEN_MAX	2
 
  uint8_t		hash[HASH_LEN_MAX];
  uint8_t		ap[ETH_ALEN];
@@ -91,13 +94,12 @@ struct hashlist_s
  uint16_t		eapauthlen;
  uint8_t		eapol[EAPOL_AUTHLEN_MAX];
  uint8_t		mp;
- uint16_t		mdid;
+ uint8_t		mdid[MDID_LEN_MAX];
  uint8_t		r0khidlen;
  uint8_t		r0khid[FTR0KHID_LEN_MAX];
  uint8_t		r1khidlen;
  uint8_t		r1khid[FTR1KHID_LEN];
-};
-typedef struct hashlist_s hashlist_t;
+}hashlist_t;
 #define	HASHLIST_SIZE (sizeof(hashlist_t))
 
 static int sort_hashlist_by_essid(const void *a, const void *b)
