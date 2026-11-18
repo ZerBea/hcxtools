@@ -1,6 +1,6 @@
 18.11.2026
 ==========
-hcxhashtool: added full PMKID FT-PSK support (WPA*03)
+hcxhashtool: fixed PMKID FT-PSK support (WPA*03 / WPA*04)
 
 hcxpcapngtool: changed bitmask field for better communication with hcxhashtool. This change does not affect hashcat!
 bitmask of PMKID hash line (WPA*01) message pair field:

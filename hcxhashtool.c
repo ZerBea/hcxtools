@@ -1037,6 +1037,7 @@ static size_t i;
 static int p;
 static char essid[ESSID_LEN_MAX+1];
 
+
 if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) return;
 if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL) && ((zeiger->type &hashtype) != HCX_TYPE_PMKID_FTPSK) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL_FTPSK)) return;
 if(flagfiltermacap == true) if(memcmp(&filtermacap, zeiger->ap, 6) != 0) return;
@@ -1119,7 +1120,30 @@ else if(zeiger->type == HCX_TYPE_PMKID_FTPSK)
 	for(i = 0; i < zeiger->r1khidlen; i ++) fprintf(fh_pmkideapol, "%02x",  zeiger->r1khid[i]);
 	fprintf(fh_pmkideapol, "\n");
 	pmkidftpskwrittencount++;
-	return;
+	}
+else if(zeiger->type == HCX_TYPE_EAPOL_FTPSK)
+	{
+	fprintf(fh_pmkideapol, "WPA*%02d*%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*%02x%02x%02x%02x%02x%02x*",
+		zeiger->type,
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15],
+		zeiger->ap[0], zeiger->ap[1], zeiger->ap[2], zeiger->ap[3], zeiger->ap[4], zeiger->ap[5],
+		zeiger->client[0], zeiger->client[1], zeiger->client[2], zeiger->client[3], zeiger->client[4], zeiger->client[5]);
+	for(p = 0; p < zeiger->essidlen; p++) fprintf(fh_pmkideapol, "%02x", zeiger->essid[p]);
+	fprintf(fh_pmkideapol, "*");
+	fprintf(fh_pmkideapol, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x*",
+		zeiger->nonce[0], zeiger->nonce[1], zeiger->nonce[2], zeiger->nonce[3], zeiger->nonce[4], zeiger->nonce[5], zeiger->nonce[6], zeiger->nonce[7],
+		zeiger->nonce[8], zeiger->nonce[9], zeiger->nonce[10], zeiger->nonce[11], zeiger->nonce[12], zeiger->nonce[13], zeiger->nonce[14], zeiger->nonce[15],
+		zeiger->nonce[16], zeiger->nonce[17], zeiger->nonce[18], zeiger->nonce[19], zeiger->nonce[20], zeiger->nonce[21], zeiger->nonce[22], zeiger->nonce[23],
+		zeiger->nonce[24], zeiger->nonce[25], zeiger->nonce[26], zeiger->nonce[27], zeiger->nonce[28], zeiger->nonce[29], zeiger->nonce[30], zeiger->nonce[31]);
+	for(p = 0; p < zeiger->eapauthlen; p++) fprintf(fh_pmkideapol, "%02x", zeiger->eapol[p]);
+	fprintf(fh_pmkideapol, "*%02x*", zeiger->mp);
+	fprintf(fh_pmkideapol, "%02x%02x*", zeiger->mdid[0], zeiger->mdid[1]);
+	for(i = 0; i < zeiger->r0khidlen; i ++) fprintf(fh_pmkideapol, "%02x",  zeiger->r0khid[i]);
+	fprintf(fh_pmkideapol, "*");
+	for(i = 0; i < zeiger->r1khidlen; i ++) fprintf(fh_pmkideapol, "%02x",  zeiger->r1khid[i]);
+	fprintf(fh_pmkideapol, "\n");
+	eapolftpskwrittencount++;
 	}
 return;
 }
@@ -1140,7 +1164,7 @@ for(zeiger = hashlist; zeiger < hashlist +pmkideapolcount; zeiger++)
 	{
 	groupoutname[0] = 0;
 	if((zeiger->essidlen < essidlenmin) || (zeiger->essidlen > essidlenmax)) continue;
-	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL)) continue;
+	if(((zeiger->type &hashtype) != HCX_TYPE_PMKID) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL) && ((zeiger->type &hashtype) != HCX_TYPE_PMKID_FTPSK) && ((zeiger->type &hashtype) != HCX_TYPE_EAPOL_FTPSK)) continue;
 	ceo = 0;
 	for (cei = 0; cei < zeiger->essidlen; cei++)
 		{
@@ -1429,6 +1453,46 @@ else if(zeiger->type == HCX_TYPE_PMKID_FTPSK)
 		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
 		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
 	else fprintf(fh_pmkideapol, "PMKID......: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
+		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
+	fprintf(fh_pmkideapol, "MDID.......: %02x%02x\n", zeiger->mdid[1], zeiger->mdid[0]);
+	fprintf(fh_pmkideapol, "R0KID......: "); 
+	for(i = 0; i < zeiger->r0khidlen; i ++) fprintf(fh_pmkideapol, "%02x",  zeiger->r0khid[i]);
+	fprintf(fh_pmkideapol, "\n");
+	fprintf(fh_pmkideapol, "R1KID......: "); 
+	for(i = 0; i < zeiger->r1khidlen; i ++) fprintf(fh_pmkideapol, "%02x",  zeiger->r1khid[i]);
+	fprintf(fh_pmkideapol, "\n");
+	}
+else if(zeiger->type == HCX_TYPE_EAPOL_FTPSK)
+	{
+	eapa = (eapauth_t*)zeiger->eapol;
+	wpak = (wpakey_t*)&zeiger->eapol[EAPAUTH_SIZE];
+	if(eapa->version == 1) fprintf(fh_pmkideapol, "VERSION....: 802.1X-2001 (1)\n");
+	if(eapa->version == 2) fprintf(fh_pmkideapol, "VERSION....: 802.1X-2004 (2)\n");
+	keyver = ntohs(wpak->keyinfo) & WPA_KEY_INFO_TYPE_MASK;
+	if(keyver == 1) fprintf(fh_pmkideapol, "KEY VERSION: WPA1\n");
+	if(keyver == 2) fprintf(fh_pmkideapol, "KEY VERSION: WPA2\n");
+	if(keyver == 3) fprintf(fh_pmkideapol, "KEY VERSION: WPA2 key version 3\n");
+	#ifndef BIG_ENDIAN_HOST
+	rc = byte_swap_64(wpak->replaycount);
+	#else
+	rc = wpak->replaycount;
+	#endif
+	fprintf(fh_pmkideapol, "REPLAYCOUNT: %" PRIu64 "\n", rc);
+	if((zeiger->mp & 0x20) == 0x20) fprintf(fh_pmkideapol, "ROUTER TYPE: little endian (LE)\n");
+	else if((zeiger->mp & 0x40) == 0x40) fprintf(fh_pmkideapol, "ROUTER TYPE: big endian (BE)\n");
+	if((zeiger->mp & 0xf0) == 0x10) fprintf(fh_pmkideapol, "NC INFO....: NC deactivated\n");
+	else if((zeiger->mp & 0x80) == 0x80) fprintf(fh_pmkideapol, "NC INFO....: hashcat default NC activated\n");
+	else fprintf(fh_pmkideapol, "NC INFO....: NC not detected\n");
+	keyinfo = (getkeyinfo(ntohs(wpak->keyinfo)));
+	fprintf(fh_pmkideapol, "EAPOL MSG..: %d\n", keyinfo);
+	if((zeiger->mp & 0x07) == 0x00) fprintf(fh_pmkideapol, "MP M1M2 E2.: challenge - ANONCE from M1\n");
+	if((zeiger->mp & 0x07) == 0x02) fprintf(fh_pmkideapol, "MP M2M3 E2.: authorized - ANONCE from M3)\n");
+	if((zeiger->mp & 0x07) == 0x01) fprintf(fh_pmkideapol, "MP M1M4 E4.: authorized\n");
+	if((zeiger->mp & 0x07) == 0x03) fprintf(fh_pmkideapol, "MP M2M3 E3.: authorized\n");
+	if((zeiger->mp & 0x07) == 0x04) fprintf(fh_pmkideapol, "MP M3M4 E3.: authorized\n");
+	if((zeiger->mp & 0x07) == 0x05) fprintf(fh_pmkideapol, "MP M3M4 E4.: authorized\n");
+	fprintf(fh_pmkideapol, "MIC........: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
 		zeiger->hash[0], zeiger->hash[1], zeiger->hash[2], zeiger->hash[3], zeiger->hash[4], zeiger->hash[5], zeiger->hash[6], zeiger->hash[7],
 		zeiger->hash[8], zeiger->hash[9], zeiger->hash[10], zeiger->hash[11], zeiger->hash[12], zeiger->hash[13], zeiger->hash[14], zeiger->hash[15]);
 	fprintf(fh_pmkideapol, "MDID.......: %02x%02x\n", zeiger->mdid[1], zeiger->mdid[0]);
@@ -2169,7 +2233,102 @@ while(1)
 		}
 	else if(memcmp(&linein, &wpa04, 7) == 0)
 		{
-
+		if((flen = readhexfield(NONCE_LEN_MAX, '*', &linein[lpos], zeiger->nonce)) == -1)
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(flen != NONCE_LEN_MAX)
+			{
+			readerrorcount++;
+			continue;
+			}
+		lpos += flen * 2;
+		lpos++;
+		if((flen = readhexfield(EAPOL_AUTHLEN_MAX, '*', &linein[lpos], zeiger->eapol)) == -1)
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(flen == 0)
+			{
+			readerrorcount++;
+			continue;
+			}
+		zeiger->eapauthlen = flen;
+		lpos += flen * 2;
+		if(linein[lpos] != '*')
+			{
+			readerrorcount++;
+			continue;
+			}
+		lpos++;
+		if(!isxdigit(linein[lpos]))
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(!isxdigit(linein[lpos + 1]))
+			{
+			readerrorcount++;
+			continue;
+			}
+		idx0 = ((u8)linein[lpos + 0] & 0x1F) ^ 0x10;
+		idx1 = ((u8)linein[lpos + 1] & 0x1F) ^ 0x10;
+		zeiger->mp = (u8)(asciitable[idx0] << 4) | asciitable[idx1];
+		lpos += 2;
+		if(linein[lpos] != '*')
+			{
+			readerrorcount++;
+			continue;
+			}
+		lpos++;
+		if((flen = readhexfield(MDID_LEN_MAX, '*', &linein[lpos], zeiger->mdid)) == -1)
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(flen == 0)
+			{
+			readerrorcount++;
+			continue;
+			}
+		lpos += flen * 2;
+		if(linein[lpos] != '*')
+			{
+			readerrorcount++;
+			continue;
+			}
+		lpos++;
+		if((flen = readhexfield(FTR0KHID_LEN_MAX, '*', &linein[lpos], zeiger->r0khid)) == -1)
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(flen == 0)
+			{
+			readerrorcount++;
+			continue;
+			}
+		zeiger->r0khidlen = flen;
+		lpos += flen * 2;
+		if(linein[lpos] != '*')
+			{
+			readerrorcount++;
+			continue;
+			}
+		lpos++;
+		if((flen = readhexfield(FTR1KHID_LEN, 0, &linein[lpos], zeiger->r1khid)) == -1)
+			{
+			readerrorcount++;
+			continue;
+			}
+		if(flen == 0)
+			{
+			readerrorcount++;
+			continue;
+			}
+		zeiger->r1khidlen = flen;
 		zeiger->type = HS_EAPOL_FTPSK;
 		eapolftpskcount++;
 		}
@@ -2862,7 +3021,7 @@ flagvendorout = false;
 flaghccapsingleout = false;
 caseflag = false;
 hashtypein = 0;
-hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL;
+hashtype = HCX_TYPE_PMKID | HCX_TYPE_EAPOL | HCX_TYPE_PMKID_FTPSK | HCX_TYPE_EAPOL_FTPSK;
 essidlenin = ESSID_LEN_MAX;
 essidlen = ESSID_LEN_MAX;
 essidlenmin = ESSID_LEN_MIN;
@@ -2922,9 +3081,9 @@ while((auswahl = getopt_long (argc, argv, short_options, long_options, &index)) 
 
 		case HCX_HASH_TYPE:
 		hashtypein |= strtol(optarg, NULL, 10);
-		if((hashtypein < HCX_TYPE_PMKID) || (hashtypein > (HCX_TYPE_PMKID + HCX_TYPE_EAPOL)))
+		if((hashtypein < HCX_TYPE_PMKID) || (hashtypein > (HCX_TYPE_PMKID + HCX_TYPE_EAPOL_FTPSK)))
 			{
-			fprintf(stderr, "only hash types 1 and 2 allowed (values 1, 2 or 3)\n");
+			fprintf(stderr, "only hash types 1 - 4 allowed (values 1, 2, 3, 4)\n");
 			exit(EXIT_FAILURE);
 			}
 		break;
