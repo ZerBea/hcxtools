@@ -4014,7 +4014,7 @@ if(wpainfolen >= RSNIE_LEN_MIN)
 			zeiger->message |= HS_PMKID;
 			addpmkid(eaptimestamp, macclient, macap, tags.pmkid, PMKID_CLIENT);
 			}
-		else if((tags.akm &TAK_FT_PSK) == TAK_FT_PSK)
+		else if(((tags.akm &TAK_FT_PSK) == TAK_FT_PSK) && (keyver == 3))
 			{
 			if((tags.r0khidlen != 0) && (tags.r1khidlen != 0))
 				{
